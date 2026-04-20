@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 1961317459387710786}
   - component: {fileID: 1876110707025596369}
   - component: {fileID: 4915996707842535573}
-  - component: {fileID: 2720748818828603861}
-  - component: {fileID: 366095443042520401}
+  - component: {fileID: 8893548476554671231}
+  - component: {fileID: -5580516746791227278}
   m_Layer: 0
-  m_Name: SyringeProjectile
+  m_Name: Syringe Poison Projectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -186,7 +186,7 @@ TrailRenderer:
   m_Autodestruct: 0
   m_Emitting: 1
   m_ApplyActiveColorSpace: 0
---- !u!114 &2720748818828603861
+--- !u!114 &8893548476554671231
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -195,15 +195,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 7669521032070789568}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26a126cdbf17e73419f79c35ff196f54, type: 3}
+  m_Script: {fileID: 11500000, guid: c46918bad4356784283029041a23e874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectileSpriteRenderer: {fileID: 366095443042520401}
+  projectileSpriteRenderer: {fileID: -5580516746791227278}
   maxDistance: 10
   rotationSpeed: 4
   airResistance: 0
   destructionParticleSystem: {fileID: 1480910369272600104}
---- !u!212 &366095443042520401
+  poisonEnabled: 1
+  poisonDuration: 3
+  poisonTickInterval: 0.5
+  poisonTickDamage: 5
+--- !u!212 &-5580516746791227278
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
