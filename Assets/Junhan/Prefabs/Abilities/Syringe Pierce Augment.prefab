@@ -63,7 +63,8 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  rarity: 50
+  rarity: 15
+  augmentTier: 0
   augmentType: 3
   references:
     version: 2

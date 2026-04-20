@@ -7,11 +7,24 @@ namespace Vampire
 {
     public class AbilityManager : MonoBehaviour
     {
+        [Header("Augment Selection")]
+        [SerializeField] private int selectionCount = 3;
+
+        [Header("Base Tier Odds")]
+        [SerializeField] private float baseGeneralChance = 55f;
+        [SerializeField] private float baseSpecialChance = 35f;
+        [SerializeField] private float baseLegendaryChance = 10f;
+
+        [Header("Luck Scaling (per 1 Luck above 1)")]
+        [SerializeField] private float specialChancePerLuck = 2f;
+        [SerializeField] private float legendaryChancePerLuck = 1f;
+
         private LevelBlueprint levelBlueprint;
         private Character playerCharacter;
         private WeightedAbilities newAbilities;
         private WeightedAbilities ownedAbilities;
         private FastList<IUpgradeableValue> registeredUpgradeableValues;
+
         public int DamageUpgradeablesCount { get; set; } = 0;
         public int KnockbackUpgradeablesCount { get; set; } = 0;
         public int WeaponCooldownUpgradeablesCount { get; set; } = 0;
@@ -45,13 +58,15 @@ namespace Vampire
                 ability.Select();
                 ownedAbilities.Add(ability);
             }
-            
+
             newAbilities = new WeightedAbilities();
             foreach (GameObject abilityPrefab in levelBlueprint.abilityPrefabs)
             {
-                // Skip any abilities we already own
-                if (playerCharacter.Blueprint.startingAbilities.Contains(abilityPrefab)) continue;
-                
+                if (playerCharacter.Blueprint.startingAbilities.Contains(abilityPrefab))
+                {
+                    continue;
+                }
+
                 Ability ability = Instantiate(abilityPrefab, transform).GetComponent<Ability>();
                 ability.Init(abilityManager, entityManager, playerCharacter);
                 newAbilities.Add(ability);
@@ -62,63 +77,58 @@ namespace Vampire
         {
             upgradeableValue.Register(this);
             registeredUpgradeableValues.Add(upgradeableValue);
-            if (inUse) upgradeableValue.RegisterInUse();
-        }
 
-        public void UpgradeValue<T, TValue>(TValue value) where T : IUpgradeableValue
-        {
-            UpgradeableValue<TValue>[] upgradeableValues = registeredUpgradeableValues.OfType<T>().ToArray() as UpgradeableValue<TValue>[];
-            foreach (UpgradeableValue<TValue> upgradeableValue in upgradeableValues)
+            if (inUse)
             {
-                upgradeableValue.Upgrade(value);
+                upgradeableValue.RegisterInUse();
             }
         }
 
-        /// <summary>
-        /// Select abilities.
-        /// </summary>
+        // 원본 프로젝트의 FloatUpgradeAbility / IntUpgradeAbility 호출 방식과 맞춘 버전
+        public void UpgradeValue<TUpgradeable, TValue>(TValue value)
+            where TUpgradeable : UpgradeableValue<TValue>
+        {
+            foreach (IUpgradeableValue upgradeableValue in registeredUpgradeableValues)
+            {
+                if (upgradeableValue is TUpgradeable typedUpgradeableValue)
+                {
+                    typedUpgradeableValue.Upgrade(value);
+                }
+            }
+        }
+
         public List<Ability> SelectAbilities()
         {
             List<Ability> selectedAbilities = new List<Ability>();
-            
-            // Determine which abilities are currently available (have their requirements met)
+
             WeightedAbilities availableOwnedAbilities = ExtractAvailableAbilities(ownedAbilities);
             WeightedAbilities availableNewAbilities = ExtractAvailableAbilities(newAbilities);
 
-            // Determine how many abilities will be selected in total (3 - 4)
-            int selectedAbilitiesCount = 3 + (ResolveChance(FourthChance) ? 1 : 0);
-
-            // Attempt to show the player up to 2 items they already own (so they can upgrade them)
-            int ownedAbilitiesCount = availableOwnedAbilities.Count < 2 ? availableOwnedAbilities.Count : 2;
-            for (int i = 0; i < ownedAbilitiesCount; i++)
+            for (int slotIndex = 0; slotIndex < selectionCount; slotIndex++)
             {
-                if (ResolveChance(OwnedChance))
-                    selectedAbilities.Add(PullAbility(availableOwnedAbilities));
+                Ability selectedAbility = PullAbilityForSlot(availableOwnedAbilities, availableNewAbilities);
+
+                if (selectedAbility == null)
+                {
+                    break;
+                }
+
+                selectedAbilities.Add(selectedAbility);
             }
 
-            // Select the remaining abilities from the pool of available abilities
-            int availableAbilitiesCount = selectedAbilitiesCount - selectedAbilities.Count;
-            if (availableAbilitiesCount > availableNewAbilities.Count) availableAbilitiesCount = availableNewAbilities.Count;
-            for (int i = 0; i < availableAbilitiesCount; i++)
-            {
-                selectedAbilities.Add(PullAbility(availableNewAbilities));
-            }
-
-            // Fill any remaining unfilled spots with owned abilities if possible
-            for (int i = selectedAbilities.Count; i < selectedAbilitiesCount && i - selectedAbilities.Count < availableOwnedAbilities.Count; i++)
-            {
-                selectedAbilities.Add(PullAbility(availableOwnedAbilities));
-            }
-
-            // Return any remaining available abilities that weren't selected back to the new abilities pool
             foreach (Ability ability in availableNewAbilities)
+            {
                 newAbilities.Add(ability);
-            foreach (Ability ability in availableOwnedAbilities)
-                ownedAbilities.Add(ability);
+            }
 
-            return selectedAbilities;   
+            foreach (Ability ability in availableOwnedAbilities)
+            {
+                ownedAbilities.Add(ability);
+            }
+
+            return selectedAbilities;
         }
-        
+
         public void ReturnAbilities(List<Ability> abilities)
         {
             foreach (Ability ability in abilities)
@@ -147,13 +157,17 @@ namespace Vampire
             foreach (Ability ability in ownedAbilities)
             {
                 if (ability.RequirementsMet())
+                {
                     return true;
+                }
             }
 
             foreach (Ability ability in newAbilities)
             {
                 if (ability.RequirementsMet())
+                {
                     return true;
+                }
             }
 
             return false;
@@ -166,7 +180,9 @@ namespace Vampire
             foreach (Ability ability in abilities)
             {
                 if (ability.RequirementsMet())
+                {
                     availableAbilities.Add(ability);
+                }
             }
 
             foreach (Ability ability in availableAbilities)
@@ -177,74 +193,174 @@ namespace Vampire
             return availableAbilities;
         }
 
-        /// <summary>
-        /// Pulls an ability from the list of given list abilities and its weight.
-        /// </summary>
-        private Ability PullAbility(WeightedAbilities abilities)
+        private Ability PullAbilityForSlot(WeightedAbilities availableOwnedAbilities, WeightedAbilities availableNewAbilities)
         {
-            float rand = Random.Range(0f, abilities.Weight);
-            float cumulative = 0;
-            foreach (Ability ability in abilities)
+            Ability.AugmentTier rolledTier = RollTier();
+
+            foreach (Ability.AugmentTier tier in GetFallbackOrder(rolledTier))
             {
-                cumulative += ability.DropWeight;
-                if (rand < cumulative)
+                Ability ability = PullRandomAbilityByTier(availableOwnedAbilities, availableNewAbilities, tier);
+                if (ability != null)
                 {
-                    abilities.Remove(ability);
                     return ability;
                 }
             }
-            Debug.LogError("Failed to pull ability!");
-            return null;
+
+            return PullRandomAnyAbility(availableOwnedAbilities, availableNewAbilities);
         }
 
-        /// <summary>
-        /// Chance that an ability already owned by the player should appear
-        /// (so that it can be upgraded)
-        /// </summary>
-        private float OwnedChance()
+        private Ability PullRandomAbilityByTier(
+            WeightedAbilities availableOwnedAbilities,
+            WeightedAbilities availableNewAbilities,
+            Ability.AugmentTier tier)
         {
-            float x = playerCharacter.CurrentLevel % 2 == 0 ? 2 : 1;
-            return 1 + 0.3f*x - 1/playerCharacter.Luck;
+            List<Ability> candidates = new List<Ability>();
+
+            foreach (Ability ability in availableOwnedAbilities)
+            {
+                if (ability.Tier == tier)
+                {
+                    candidates.Add(ability);
+                }
+            }
+
+            foreach (Ability ability in availableNewAbilities)
+            {
+                if (ability.Tier == tier)
+                {
+                    candidates.Add(ability);
+                }
+            }
+
+            if (candidates.Count == 0)
+            {
+                return null;
+            }
+
+            Ability selected = candidates[Random.Range(0, candidates.Count)];
+
+            if (selected.Owned)
+            {
+                availableOwnedAbilities.Remove(selected);
+            }
+            else
+            {
+                availableNewAbilities.Remove(selected);
+            }
+
+            return selected;
         }
 
-        /// <summary>
-        /// Chance that a fourth ability/upgrade option appears
-        /// </summary>
-        private float FourthChance()
+        private Ability PullRandomAnyAbility(WeightedAbilities availableOwnedAbilities, WeightedAbilities availableNewAbilities)
         {
-            return 1 - 1/playerCharacter.Luck;
+            List<Ability> candidates = new List<Ability>();
+
+            foreach (Ability ability in availableOwnedAbilities)
+            {
+                candidates.Add(ability);
+            }
+
+            foreach (Ability ability in availableNewAbilities)
+            {
+                candidates.Add(ability);
+            }
+
+            if (candidates.Count == 0)
+            {
+                return null;
+            }
+
+            Ability selected = candidates[Random.Range(0, candidates.Count)];
+
+            if (selected.Owned)
+            {
+                availableOwnedAbilities.Remove(selected);
+            }
+            else
+            {
+                availableNewAbilities.Remove(selected);
+            }
+
+            return selected;
         }
 
-        /// <summary>
-        /// Resolves a chance function.
-        /// </summary>
-        private bool ResolveChance(System.Func<float> chanceFunction)
+        private Ability.AugmentTier RollTier()
         {
-            return Random.Range(0.0f, 1.0f) < chanceFunction();
+            float luckBonus = Mathf.Max(0f, playerCharacter.Luck - 1f);
+
+            float generalChance = baseGeneralChance - ((specialChancePerLuck + legendaryChancePerLuck) * luckBonus);
+            float specialChance = baseSpecialChance + (specialChancePerLuck * luckBonus);
+            float legendaryChance = baseLegendaryChance + (legendaryChancePerLuck * luckBonus);
+
+            generalChance = Mathf.Max(0f, generalChance);
+            specialChance = Mathf.Max(0f, specialChance);
+            legendaryChance = Mathf.Max(0f, legendaryChance);
+
+            float total = generalChance + specialChance + legendaryChance;
+            if (total <= 0f)
+            {
+                return Ability.AugmentTier.General;
+            }
+
+            float roll = Random.Range(0f, total);
+
+            if (roll < generalChance)
+            {
+                return Ability.AugmentTier.General;
+            }
+
+            roll -= generalChance;
+
+            if (roll < specialChance)
+            {
+                return Ability.AugmentTier.Special;
+            }
+
+            return Ability.AugmentTier.Legendary;
+        }
+
+        private IEnumerable<Ability.AugmentTier> GetFallbackOrder(Ability.AugmentTier rolledTier)
+        {
+            switch (rolledTier)
+            {
+                case Ability.AugmentTier.Legendary:
+                    yield return Ability.AugmentTier.Legendary;
+                    yield return Ability.AugmentTier.Special;
+                    yield return Ability.AugmentTier.General;
+                    break;
+
+                case Ability.AugmentTier.Special:
+                    yield return Ability.AugmentTier.Special;
+                    yield return Ability.AugmentTier.General;
+                    yield return Ability.AugmentTier.Legendary;
+                    break;
+
+                default:
+                    yield return Ability.AugmentTier.General;
+                    yield return Ability.AugmentTier.Special;
+                    yield return Ability.AugmentTier.Legendary;
+                    break;
+            }
         }
 
         private class WeightedAbilities : IEnumerable<Ability>
         {
-            private FastList<Ability> abilities;
-            private float weight;
-            public float Weight { get => weight; set => weight = value; }
-            public int Count { get => abilities.Count; }
+            private readonly FastList<Ability> abilities;
+
+            public int Count => abilities.Count;
 
             public WeightedAbilities()
             {
                 abilities = new FastList<Ability>();
-                weight = 0;
             }
 
             public void Add(Ability ability)
             {
                 abilities.Add(ability);
-                weight += ability.DropWeight;
             }
 
             public void Remove(Ability ability)
             {
-                weight -= ability.DropWeight;
                 abilities.Remove(ability);
             }
 
