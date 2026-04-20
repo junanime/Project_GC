@@ -64,6 +64,7 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   rarity: 50
+  augmentTier: 0
   projectilePrefab: {fileID: 7669521032070789568, guid: 68f7014b50b1cda4d9353b50ee68fe5d, type: 3}
   monsterLayer:
     serializedVersion: 2
@@ -89,6 +90,8 @@ MonoBehaviour:
     upgrades: 01000000010000000100000001000000
     projectilesPer: 1
   syringeDelay: 0.08
+  angleBetweenProjectiles: 10
+  maxTotalSpreadAngle: 360
   poisonEnabled: 0
   explosionEnabled: 0
   homingEnabled: 0
@@ -101,6 +104,11 @@ MonoBehaviour:
   homingRange: 6
   homingLerpSpeed: 8
   pierceCount: 1
+  lifeBurnEnabled: 0
+  lifeBurnDamageMultiplier: 3
+  lifeBurnBonusProjectiles: 10
+  lifeBurnBonusRange: 3
+  cloneLegendaryTaken: 0
   references:
     version: 2
     RefIds: []

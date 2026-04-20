@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3303242751642225015}
-  - component: {fileID: 7570284130232410782}
+  - component: {fileID: 3020181257210482451}
   m_Layer: 9
-  m_Name: Syringe Homing Augment
+  m_Name: Syringe Clone Culture Augment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7570284130232410782
+--- !u!114 &3020181257210482451
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -41,10 +41,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7378740072262091319}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 04151fdeadb0a7c4896bb435c9e4e831, type: 3}
+  m_Script: {fileID: 11500000, guid: 04888055976ca8546aa76a06d6c16f6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 21300000, guid: 2a9d6da732649418799cda4c27c6285d, type: 3}
+  image: {fileID: 1083451271, guid: 4a9825874034d4671b1dc9f6c8707eca, type: 3}
   localizedName:
     m_TableReference:
       m_TableCollectionName: GUID:7293f9ffd63774eb1b5120a3e14cb7f5
@@ -63,9 +63,9 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  rarity: 50
-  augmentTier: 0
-  augmentType: 2
+  rarity: 9
+  augmentTier: 2
+  augmentType: 1
   references:
     version: 2
     RefIds: []

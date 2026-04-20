@@ -9,6 +9,10 @@ namespace Vampire
         [SerializeField] protected UpgradeableProjectileCount projectileCount;
         [SerializeField] protected float syringeDelay = 0.08f;
 
+        [Header("Spread Settings")]
+        [SerializeField] private float angleBetweenProjectiles = 8f;
+        [SerializeField] private float maxTotalSpreadAngle = 120f;
+
         [Header("Active Special Augments")]
         [SerializeField] private bool poisonEnabled = false;
         [SerializeField] private bool explosionEnabled = false;
@@ -31,6 +35,18 @@ namespace Vampire
         [Header("Pierce Settings")]
         [SerializeField] private int pierceCount = 1;
 
+        [Header("Legendary - Life Burn")]
+        [SerializeField] private bool lifeBurnEnabled = false;
+        [SerializeField] private float lifeBurnDamageMultiplier = 3f;
+        [SerializeField] private int lifeBurnBonusProjectiles = 10;
+        [SerializeField] private float lifeBurnBonusRange = 3f;
+
+        [Header("Legendary - Clone Culture")]
+        [SerializeField] private bool cloneLegendaryTaken = false;
+
+        public GameObject ProjectilePrefab => projectilePrefab;
+        public LayerMask MonsterLayer => monsterLayer;
+
         protected override void Attack()
         {
             StartCoroutine(LaunchSyringes());
@@ -38,11 +54,20 @@ namespace Vampire
 
         protected IEnumerator LaunchSyringes()
         {
-            timeSinceLastAttack -= projectileCount.Value * syringeDelay;
+            int totalProjectileCount = GetEffectiveProjectileCount();
+            Vector2 baseDirection = playerCharacter.LookDirection;
 
-            for (int i = 0; i < projectileCount.Value; i++)
+            if (baseDirection == Vector2.zero)
             {
-                LaunchSyringeProjectile(playerCharacter.LookDirection);
+                baseDirection = Vector2.right;
+            }
+
+            timeSinceLastAttack -= totalProjectileCount * syringeDelay;
+
+            for (int i = 0; i < totalProjectileCount; i++)
+            {
+                Vector2 spreadDirection = GetSpreadDirection(baseDirection, i, totalProjectileCount);
+                LaunchSyringeProjectile(spreadDirection);
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
@@ -52,9 +77,9 @@ namespace Vampire
             Projectile projectile = entityManager.SpawnProjectile(
                 projectileIndex,
                 playerCharacter.CenterTransform.position,
-                damage.Value,
-                knockback.Value,
-                speed.Value,
+                GetEffectiveDamage(),
+                GetEffectiveKnockback(),
+                GetEffectiveSpeed(),
                 monsterLayer
             );
 
@@ -92,50 +117,127 @@ namespace Vampire
                 homingLerpSpeed = homingLerpSpeed,
 
                 pierceEnabled = pierceEnabled,
-                pierceCount = pierceCount
+                pierceCount = pierceCount,
+
+                rangeBonus = lifeBurnEnabled ? lifeBurnBonusRange : 0f
             };
 
             return runtime;
         }
 
-        public void EnablePoisonAugment()
+        public Vector2 GetSpreadDirection(Vector2 baseDirection, int projectileIndex, int totalCount)
         {
-            poisonEnabled = true;
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = Vector2.right;
+            }
+
+            baseDirection.Normalize();
+
+            if (totalCount <= 1)
+            {
+                return baseDirection;
+            }
+
+            float totalSpreadAngle = angleBetweenProjectiles * (totalCount - 1);
+            totalSpreadAngle = Mathf.Min(totalSpreadAngle, maxTotalSpreadAngle);
+
+            float actualAngleStep = totalSpreadAngle / (totalCount - 1);
+            float startAngle = -totalSpreadAngle * 0.5f;
+            float angleOffset = startAngle + (actualAngleStep * projectileIndex);
+
+            return RotateVector(baseDirection, angleOffset);
         }
 
-        public void EnableExplosionAugment()
+        private Vector2 RotateVector(Vector2 vector, float angleDegrees)
         {
-            explosionEnabled = true;
+            float rad = angleDegrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+
+            return new Vector2(
+                vector.x * cos - vector.y * sin,
+                vector.x * sin + vector.y * cos
+            ).normalized;
         }
 
-        public void EnableHomingAugment()
+        public float GetEffectiveDamage()
         {
-            homingEnabled = true;
+            float multiplier = lifeBurnEnabled ? lifeBurnDamageMultiplier : 1f;
+            return damage.Value * multiplier;
         }
 
-        public void EnablePierceAugment()
+        public float GetEffectiveKnockback()
         {
-            pierceEnabled = true;
+            return knockback.Value;
         }
 
-        public bool HasPoisonAugment()
+        public float GetEffectiveSpeed()
         {
-            return poisonEnabled;
+            return speed.Value;
         }
 
-        public bool HasExplosionAugment()
+        public float GetEffectiveCooldown()
         {
-            return explosionEnabled;
+            return cooldown.Value;
         }
 
-        public bool HasHomingAugment()
+        public int GetEffectiveProjectileCount()
         {
-            return homingEnabled;
+            int totalCount = projectileCount.Value;
+
+            if (lifeBurnEnabled)
+            {
+                totalCount += lifeBurnBonusProjectiles;
+            }
+
+            return Mathf.Max(1, totalCount);
         }
 
-        public bool HasPierceAugment()
+        public SyringeSpecialRuntime GetCurrentSpecialRuntime()
         {
-            return pierceEnabled;
+            return BuildSpecialRuntime();
         }
+
+        public float GetCloneDamage()
+        {
+            return GetEffectiveDamage() * 0.2f;
+        }
+
+        public float GetCloneKnockback()
+        {
+            return GetEffectiveKnockback() * 0.2f;
+        }
+
+        public float GetCloneSpeed()
+        {
+            return GetEffectiveSpeed();
+        }
+
+        public float GetCloneCooldown()
+        {
+            return GetEffectiveCooldown();
+        }
+
+        public int GetCloneProjectileCount()
+        {
+            return Mathf.Max(1, Mathf.FloorToInt(GetEffectiveProjectileCount() * 0.2f));
+        }
+
+        public void EnablePoisonAugment() => poisonEnabled = true;
+        public void EnableExplosionAugment() => explosionEnabled = true;
+        public void EnableHomingAugment() => homingEnabled = true;
+        public void EnablePierceAugment() => pierceEnabled = true;
+
+        public bool HasPoisonAugment() => poisonEnabled;
+        public bool HasExplosionAugment() => explosionEnabled;
+        public bool HasHomingAugment() => homingEnabled;
+        public bool HasPierceAugment() => pierceEnabled;
+
+        public void EnableLifeBurnLegendary() => lifeBurnEnabled = true;
+        public bool HasLifeBurnLegendary() => lifeBurnEnabled;
+
+        public void MarkCloneLegendaryTaken() => cloneLegendaryTaken = true;
+        public bool HasCloneLegendary() => cloneLegendaryTaken;
     }
 }

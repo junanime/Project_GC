@@ -16,17 +16,12 @@ MonoBehaviour:
   backgroundTexture: {fileID: 2800000, guid: 42b11be826072496a9d57814c0ca6576, type: 3}
   abilityPrefabs:
   - {fileID: 7378740072262091319, guid: ad7ae2010ff3f409aae00371b1f7d578, type: 3}
-  - {fileID: 7378740072262091319, guid: 619673436980c430a95170eb9bb78e0f, type: 3}
-  - {fileID: 7378740072262091319, guid: f2894c590d8cb4db386015ce5e60d580, type: 3}
-  - {fileID: 7378740072262091319, guid: ab32ebb1e60bb40f49bd27b372ec1c44, type: 3}
-  - {fileID: 7378740072262091319, guid: 1fafc975bc90e42fb9b1e8f38a9302e0, type: 3}
-  - {fileID: 7378740072262091319, guid: b36771779087f4fde97506c9f7cf0f72, type: 3}
-  - {fileID: 7378740072262091319, guid: 5cb2be1d44f7d45f988ad07be0b8fa4d, type: 3}
-  - {fileID: 7378740072262091319, guid: 5ef555eded0e44e25a78b4f84fb661bd, type: 3}
   - {fileID: 7378740072262091319, guid: 9757fae3764f6e1488b23a8ff2e6c349, type: 3}
   - {fileID: 7378740072262091319, guid: 9a6cb5bbd9c72f14c9567c769a71c7ef, type: 3}
   - {fileID: 7378740072262091319, guid: f6bf6f8839f614f419426722e5cf0cbd, type: 3}
   - {fileID: 7378740072262091319, guid: babdca8bf85115c4cba6d13e2ea6c093, type: 3}
+  - {fileID: 7378740072262091319, guid: b8ae7f34be6ce7e4ba50ea2d283dac2e, type: 3}
+  - {fileID: 7378740072262091319, guid: 43e4dc6239cc60f4d8e9440eceb849e2, type: 3}
   monsters:
   - monstersPrefab: {fileID: 8960830493049914446, guid: 12adb3a92ed404612906d2c1fe4b586e, type: 3}
     monsterBlueprints:

@@ -24,5 +24,8 @@ namespace Vampire
         // Pierce
         public bool pierceEnabled;
         public int pierceCount;
+
+        // Legendary bonus
+        public float rangeBonus;
     }
 }

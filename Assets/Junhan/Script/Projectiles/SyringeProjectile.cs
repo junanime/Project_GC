@@ -29,8 +29,9 @@ namespace Vampire
         {
             float distanceTravelled = 0;
             float timeOffScreen = 0;
+            float effectiveMaxDistance = maxDistance + specials.rangeBonus;
 
-            while (distanceTravelled < maxDistance && timeOffScreen < despawnTime && speed > 0)
+            while (distanceTravelled < effectiveMaxDistance && timeOffScreen < despawnTime && speed > 0)
             {
                 if (specials.homingEnabled)
                 {
