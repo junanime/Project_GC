@@ -8553,6 +8553,7 @@ Transform:
   - {fileID: 1764401683}
   - {fileID: 1727210730}
   - {fileID: 2076536165}
+  - {fileID: 1347853661}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1225378374
@@ -8818,6 +8819,121 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1347853660
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1347853661}
+  - component: {fileID: 1347853662}
+  m_Layer: 0
+  m_Name: StageEventDirector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1347853661
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347853660}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1207884298}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1347853662
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347853660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b88bb03159edb5d459136b7be9a476ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelManager: {fileID: 0}
+  monsterSurgeEvents:
+  - eventName: "\uAC10\uC5FC \uC99D\uC2DD"
+    enabled: 1
+    startTime: 10
+    duration: 10
+    minimumReferenceSpawnRate: 1
+    lowTierMonsterIndices: 00000000
+    lowTierSpawnMultiplier: 4
+    lowTierBaseShare: 1
+    lowTierHpMultiplier: 1
+    midTierMonsterIndices: 00000000
+    midTierSpawnMultiplier: 1.5
+    midTierBaseShare: 0.5
+    midTierHpMultiplier: 1
+    highTierMonsterIndices: 
+    highTierSpawnMultiplier: 1
+    highTierBaseShare: 0.2
+    highTierHpMultiplier: 1
+    started: 0
+    finished: 0
+    lowAccumulator: 0
+    midAccumulator: 0
+    highAccumulator: 0
+  goldRushEvents:
+  - eventName: "\uACE8\uB4DC \uB7EC\uC2DC"
+    enabled: 1
+    startTime: 5
+    duration: 20
+    coinDropAttemptMultiplier: 5
+    coinValueMultiplier: 5
+    maxCoinDropAttempts: 5
+    additionalCoinDropChance: 1
+    additionalCoinDropCount: 2
+    additionalCoinType: 1
+    started: 0
+    finished: 0
+  acidSecretionEvents:
+  - eventName: "\uC704\uC0B0\uBD84\uBE44"
+    enabled: 1
+    startTime: 10
+    duration: 10
+    acidPuddlePrefab: {fileID: 8611868660744885873, guid: 648095bcd3c3cff4c8c964c298ab9200, type: 3}
+    puddleSpawnInterval: 1
+    puddlesPerWave: 3
+    maxActivePuddles: 12
+    minSpawnDistanceFromPlayer: 1
+    maxSpawnDistanceFromPlayer: 6
+    puddleLifeTime: 6
+    puddleDamagePerTick: 3
+    puddleTickInterval: 0.5
+    puddleScale: 1.5
+    puddleWarningDuration: 0.5
+    damageImmediatelyOnEnter: 0
+    acidSlimeMonsterIndices: 
+    acidSlimeExtraSpawnMultiplier: 3
+    acidSlimeMinimumReferenceSpawnRate: 1
+    acidSlimeHpMultiplier: 1
+    rewardOnEnd: 1
+    spawnChestAsTemporaryItemReward: 1
+    started: 0
+    finished: 0
+    rewarded: 0
+    puddleSpawnTimer: 0
+    acidSlimeAccumulator: 0
+    activePuddles: []
+  logEventState: 1
+  logMonsterIndexTableOnStart: 0
+  logExtraSpawn: 0
+  logGoldRushModifier: 0
+  logAcidEvent: 1
 --- !u!1 &1348383117
 GameObject:
   m_ObjectHideFlags: 0
@@ -20368,7 +20484,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2076536165
 Transform:
   m_ObjectHideFlags: 0

@@ -310,11 +310,19 @@ namespace Vampire
         {
             if (pickedUpByPlayer)
             {
-                statsManager.IncreaseCoinsGained((int)coin.CoinType);
+                int baseCoinValue = (int)coin.CoinType;
+                int finalCoinValue = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(baseCoinValue);
+
+                statsManager.IncreaseCoinsGained(finalCoinValue);
+
+                if (StageEventRuntimeModifiers.DebugGoldRush)
+                {
+                    Debug.Log($"[GoldRush] Coin collected | base={baseCoinValue} | final={finalCoinValue}");
+                }
             }
+
             coinPool.Release(coin);
         }
-
         ////////////////////////////////////////////////////////////////////////////////
         /// Chest Spawning
         ////////////////////////////////////////////////////////////////////////////////
