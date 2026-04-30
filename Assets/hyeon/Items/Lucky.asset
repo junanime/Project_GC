@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 160a7fac6fdace04195ea832efe0918b, type: 3}
+  m_Name: Lucky
+  m_EditorClassIdentifier: 
+  itemName: "\uCE74\uD398\uC778 \uAECC"
+  itemRarity: 1
+  description: "\uC774\uB3D9\uC18D\uB3C4 \uC5C5"
+  itemIcon: {fileID: 21300000, guid: f9f8baf64fad74a08a717c43cccb2f04, type: 3}
+  cost: 2
+  abilityPrefab: {fileID: 0}
+  atkSpeedBoost: 0
+  atkDamageBoost: 0
+  maxHpBoost: 0
+  moveSpeedBoost: 0.07
+  armorBoost: 0
+  luckBoost: 0
