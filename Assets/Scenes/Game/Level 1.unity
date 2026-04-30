@@ -8930,9 +8930,9 @@ MonoBehaviour:
     acidSlimeAccumulator: 0
     activePuddles: []
   logEventState: 1
-  logMonsterIndexTableOnStart: 0
-  logExtraSpawn: 0
-  logGoldRushModifier: 0
+  logMonsterIndexTableOnStart: 1
+  logExtraSpawn: 1
+  logGoldRushModifier: 1
   logAcidEvent: 1
 --- !u!1 &1348383117
 GameObject:
@@ -14267,8 +14267,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u6280\u80FD\u9078\u64C7"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0e5f8d21122b64a7a8459a1c61b9b9d8, type: 2}
-  m_sharedMaterial: {fileID: -5819640148432415230, guid: 0e5f8d21122b64a7a8459a1c61b9b9d8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -20484,7 +20484,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2076536165
 Transform:
   m_ObjectHideFlags: 0
