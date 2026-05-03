@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1143178848134284278}
   - component: {fileID: 2870901366507585317}
   - component: {fileID: 7205549940929198468}
+  - component: {fileID: 28948964541737515}
   m_Layer: 0
   m_Name: Boss_Test
   m_TagString: Untagged
@@ -58,6 +59,7 @@ MonoBehaviour:
   - {fileID: 1143178848134284278}
   - {fileID: 2870901366507585317}
   - {fileID: 7205549940929198468}
+  - {fileID: 28948964541737515}
   autoCollectPatternsFromChildren: 1
   maxHp: 500
   currentHp: 500
@@ -68,6 +70,8 @@ MonoBehaviour:
   moveSpeedPhase2: 1.8
   stopDistanceFromPlayer: 2.5
   moveWhileUsingPattern: 1
+  patternMoveSpeedMultiplier: 0.35
+  movementSmoothTime: 0.18
   flipSpriteToPlayer: 1
   thinkInterval: 0.5
   patternGap: 1.5
@@ -278,6 +282,43 @@ MonoBehaviour:
   burstCountPhase2: 2
   burstInterval: 0.25
   debugShot: 0
+--- !u!114 &28948964541737515
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 592601914724115230}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b923e28faba368542b3af3c6a397e39d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uB3CC\uC9C4\uD328\uD134"
+  cooldown: 3
+  nearWeightPhase1: 10
+  midWeightPhase1: 10
+  farWeightPhase1: 10
+  nearWeightPhase2: 10
+  midWeightPhase2: 10
+  farWeightPhase2: 10
+  warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
+  warningTime: 0.9
+  warningWidth: 1.5
+  warningColor: {r: 0.8742138, g: 0.7415973, b: 0.15669861, a: 0.5137255}
+  chargeDistancePhase1: 6
+  chargeDistancePhase2: 8
+  chargeSpeedPhase1: 14
+  chargeSpeedPhase2: 18
+  chargeDamagePhase1: 15
+  chargeDamagePhase2: 25
+  endLag: 0.4
+  hitboxSize: {x: 1.2, y: 1.2}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  showDebugHitbox: 0
+  debugCharge: 0
 --- !u!1 &5260817644557872640
 GameObject:
   m_ObjectHideFlags: 0

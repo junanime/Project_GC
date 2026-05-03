@@ -53,15 +53,35 @@ namespace Vampire
         private float lastContactDamageTime = -999f;
         private Vector2 smoothMoveVelocity;
 
+        // 추가
+        private bool externalMovementLock = false;
+        private bool suppressContactDamage = false;
+
         public float NearDistanceThreshold => nearDistanceThreshold;
         public float MidDistanceThreshold => midDistanceThreshold;
         public int CurrentPhase => phase2Active ? 2 : 1;
         public Character PlayerCharacter => playerCharacter;
         public Vector3 BossCenterPosition => transform.position;
+        public Rigidbody2D Rigidbody => rb;
+        public bool IsDead => isDead;
 
         public void SetPlayerCharacter(Character character)
         {
             playerCharacter = character;
+        }
+
+        public void SetExternalMovementLock(bool value)
+        {
+            externalMovementLock = value;
+            if (value)
+            {
+                StopMovementVelocity();
+            }
+        }
+
+        public void SetSuppressContactDamage(bool value)
+        {
+            suppressContactDamage = value;
         }
 
         private void Awake()
@@ -155,8 +175,6 @@ namespace Vampire
             }
 
             Vector2 direction = toPlayer.normalized;
-
-            // 플레이어에게 완전히 겹치지 않고, 정지 거리만큼 떨어진 지점을 목표로 이동
             Vector2 targetPosition = playerPosition - direction * stopDistanceFromPlayer;
 
             float baseSpeed = CurrentPhase == 2 ? moveSpeedPhase2 : moveSpeedPhase1;
@@ -176,7 +194,6 @@ namespace Vampire
                 Time.fixedDeltaTime
             );
 
-            // SmoothDamp가 튀는 상황을 막기 위한 최대 이동량 제한
             float maxStep = finalSpeed * Time.fixedDeltaTime;
             if (Vector2.Distance(bossPosition, nextPosition) > maxStep * 1.5f)
             {
@@ -211,6 +228,11 @@ namespace Vampire
             }
 
             if (playerCharacter == null)
+            {
+                return false;
+            }
+
+            if (externalMovementLock)
             {
                 return false;
             }
@@ -398,6 +420,11 @@ namespace Vampire
         private void TryDealContactDamage(Collider2D other)
         {
             if (isDead || playerCharacter == null)
+            {
+                return;
+            }
+
+            if (suppressContactDamage)
             {
                 return;
             }
