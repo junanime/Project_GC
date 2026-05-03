@@ -21,10 +21,10 @@ namespace Vampire
 
         [Header("Movement")]
         [SerializeField] private bool enableMovement = true;
-        [SerializeField] private float moveSpeedPhase1 = 1.2f;
-        [SerializeField] private float moveSpeedPhase2 = 1.8f;
-        [SerializeField] private float stopDistanceFromPlayer = 2.5f;
-        [SerializeField] private bool moveWhileUsingPattern = false;
+        [SerializeField] private float moveSpeedPhase1 = 1.5f;
+        [SerializeField] private float moveSpeedPhase2 = 2.2f;
+        [SerializeField] private float stopDistanceFromPlayer = 2.2f;
+        [SerializeField] private bool moveWhileUsingPattern = true;
         [SerializeField] private bool flipSpriteToPlayer = true;
 
         [Header("Pattern Timing")]
@@ -54,6 +54,7 @@ namespace Vampire
         public float MidDistanceThreshold => midDistanceThreshold;
         public int CurrentPhase => phase2Active ? 2 : 1;
         public Character PlayerCharacter => playerCharacter;
+        public Vector3 BossCenterPosition => transform.position;
 
         public void SetPlayerCharacter(Character character)
         {
@@ -89,8 +90,8 @@ namespace Vampire
             if (autoCollectPatternsFromChildren || patterns.Count == 0)
             {
                 patterns.Clear();
-                BossPatternBase[] foundPatterns = GetComponentsInChildren<BossPatternBase>(true);
 
+                BossPatternBase[] foundPatterns = GetComponentsInChildren<BossPatternBase>(true);
                 foreach (BossPatternBase pattern in foundPatterns)
                 {
                     if (pattern != null)
@@ -161,7 +162,7 @@ namespace Vampire
 
             if (debugMovement)
             {
-                Debug.Log($"[BossController] Moving to player | distance={distance:F2} | speed={speed:F2}");
+                Debug.Log($"[BossController] Moving | distance={distance:F2} | speed={speed:F2}");
             }
         }
 
@@ -250,7 +251,6 @@ namespace Vampire
                 }
 
                 int weight = pattern.GetWeight(distance, CurrentPhase);
-
                 if (weight <= 0)
                 {
                     continue;

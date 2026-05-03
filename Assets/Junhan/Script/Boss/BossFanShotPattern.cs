@@ -16,6 +16,9 @@ namespace Vampire
         [SerializeField] private int burstCountPhase2 = 2;
         [SerializeField] private float burstInterval = 0.25f;
 
+        [Header("Debug")]
+        [SerializeField] private bool debugShot = false;
+
         protected override IEnumerator ExecutePattern()
         {
             int bulletCount = bossController.CurrentPhase == 1 ? bulletCountPhase1 : bulletCountPhase2;
@@ -30,12 +33,24 @@ namespace Vampire
 
         private void FireFanShot(int bulletCount)
         {
-            if (bulletPrefab == null || bossController.PlayerCharacter == null)
+            if (bulletPrefab == null)
+            {
+                Debug.LogWarning("[BossFanShotPattern] Bullet Prefab이 비어 있습니다.");
                 return;
+            }
 
-            Vector2 baseDirection = (bossController.PlayerCharacter.transform.position - transform.position).normalized;
+            if (bossController == null || bossController.PlayerCharacter == null)
+            {
+                return;
+            }
+
+            Vector3 spawnPosition = bossController.BossCenterPosition;
+            Vector2 baseDirection = ((Vector2)bossController.PlayerCharacter.transform.position - (Vector2)spawnPosition).normalized;
+
             if (baseDirection == Vector2.zero)
+            {
                 baseDirection = Vector2.right;
+            }
 
             float startAngle = -totalSpreadAngle * 0.5f;
             float angleStep = bulletCount > 1 ? totalSpreadAngle / (bulletCount - 1) : 0f;
@@ -45,14 +60,33 @@ namespace Vampire
                 float angle = startAngle + angleStep * i;
                 Vector2 direction = RotateVector(baseDirection, angle);
 
-                GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-                BossSimpleBullet simpleBullet = bullet.GetComponent<BossSimpleBullet>();
-
-                if (simpleBullet != null)
-                {
-                    simpleBullet.Init(direction, bulletSpeed, bulletDamage);
-                }
+                SpawnBullet(spawnPosition, direction);
             }
+
+            if (debugShot)
+            {
+                Debug.Log($"[BossFanShotPattern] Fired {bulletCount} bullets");
+            }
+        }
+
+        private void SpawnBullet(Vector3 spawnPosition, Vector2 direction)
+        {
+            GameObject bullet = Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
+
+            BossSimpleBullet simpleBullet = bullet.GetComponent<BossSimpleBullet>();
+
+            if (simpleBullet == null)
+            {
+                simpleBullet = bullet.GetComponentInChildren<BossSimpleBullet>();
+            }
+
+            if (simpleBullet == null)
+            {
+                simpleBullet = bullet.AddComponent<BossSimpleBullet>();
+                Debug.LogWarning("[BossFanShotPattern] Bullet Prefab 루트에 BossSimpleBullet이 없어 자동 추가했습니다. 프리팹 루트에 붙이는 것을 추천합니다.");
+            }
+
+            simpleBullet.Init(direction, bulletSpeed, bulletDamage);
         }
 
         private Vector2 RotateVector(Vector2 vector, float angleDegrees)
