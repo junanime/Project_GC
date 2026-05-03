@@ -21,10 +21,12 @@ namespace Vampire
 
         [Header("Movement")]
         [SerializeField] private bool enableMovement = true;
-        [SerializeField] private float moveSpeedPhase1 = 1.5f;
-        [SerializeField] private float moveSpeedPhase2 = 2.2f;
-        [SerializeField] private float stopDistanceFromPlayer = 2.2f;
+        [SerializeField] private float moveSpeedPhase1 = 0.8f;
+        [SerializeField] private float moveSpeedPhase2 = 1.2f;
+        [SerializeField] private float stopDistanceFromPlayer = 3f;
         [SerializeField] private bool moveWhileUsingPattern = true;
+        [SerializeField] private float patternMoveSpeedMultiplier = 0.35f;
+        [SerializeField] private float movementSmoothTime = 0.18f;
         [SerializeField] private bool flipSpriteToPlayer = true;
 
         [Header("Pattern Timing")]
@@ -49,6 +51,7 @@ namespace Vampire
         private bool isDead = false;
         private bool isUsingPattern = false;
         private float lastContactDamageTime = -999f;
+        private Vector2 smoothMoveVelocity;
 
         public float NearDistanceThreshold => nearDistanceThreshold;
         public float MidDistanceThreshold => midDistanceThreshold;
@@ -77,6 +80,8 @@ namespace Vampire
             {
                 rb.gravityScale = 0f;
                 rb.freezeRotation = true;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
             }
         }
 
@@ -133,6 +138,7 @@ namespace Vampire
         {
             if (!CanMove())
             {
+                StopMovementVelocity();
                 return;
             }
 
@@ -144,12 +150,38 @@ namespace Vampire
 
             if (distance <= stopDistanceFromPlayer)
             {
+                StopMovementVelocity();
                 return;
             }
 
             Vector2 direction = toPlayer.normalized;
-            float speed = CurrentPhase == 2 ? moveSpeedPhase2 : moveSpeedPhase1;
-            Vector2 nextPosition = bossPosition + direction * speed * Time.fixedDeltaTime;
+
+            // 플레이어에게 완전히 겹치지 않고, 정지 거리만큼 떨어진 지점을 목표로 이동
+            Vector2 targetPosition = playerPosition - direction * stopDistanceFromPlayer;
+
+            float baseSpeed = CurrentPhase == 2 ? moveSpeedPhase2 : moveSpeedPhase1;
+            float finalSpeed = baseSpeed;
+
+            if (isUsingPattern)
+            {
+                finalSpeed *= patternMoveSpeedMultiplier;
+            }
+
+            Vector2 nextPosition = Vector2.SmoothDamp(
+                bossPosition,
+                targetPosition,
+                ref smoothMoveVelocity,
+                movementSmoothTime,
+                finalSpeed,
+                Time.fixedDeltaTime
+            );
+
+            // SmoothDamp가 튀는 상황을 막기 위한 최대 이동량 제한
+            float maxStep = finalSpeed * Time.fixedDeltaTime;
+            if (Vector2.Distance(bossPosition, nextPosition) > maxStep * 1.5f)
+            {
+                nextPosition = Vector2.MoveTowards(bossPosition, nextPosition, maxStep);
+            }
 
             if (rb != null)
             {
@@ -162,7 +194,7 @@ namespace Vampire
 
             if (debugMovement)
             {
-                Debug.Log($"[BossController] Moving | distance={distance:F2} | speed={speed:F2}");
+                Debug.Log($"[BossController] Moving | distance={distance:F2} | speed={finalSpeed:F2}");
             }
         }
 
@@ -189,6 +221,17 @@ namespace Vampire
             }
 
             return true;
+        }
+
+        private void StopMovementVelocity()
+        {
+            smoothMoveVelocity = Vector2.zero;
+
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
         }
 
         private void UpdateSpriteFlip()
