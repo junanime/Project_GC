@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5705838819782999082}
   - component: {fileID: 3105175531379165680}
   - component: {fileID: -3241003226458290307}
+  - component: {fileID: -7594188424406669169}
   m_Layer: 0
   m_Name: BossBullet
   m_TagString: Untagged
@@ -109,7 +110,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 300
+  m_SortingOrder: 500
   m_Sprite: {fileID: 21300000, guid: 2564366b0db3b442f96b7d83cc9db628, type: 3}
   m_Color: {r: 1, g: 0.2912462, b: 0, a: 1}
   m_FlipX: 0
@@ -137,3 +138,16 @@ MonoBehaviour:
   rotationSpeed: 0
   destroyOnHit: 1
   debugLogDamage: 0
+--- !u!114 &-7594188424406669169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2434312293593349568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07fb0f7feeef8a84b9ff653cd44b90c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  projectileSortingOrder: 500

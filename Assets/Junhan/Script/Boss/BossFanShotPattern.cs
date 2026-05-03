@@ -16,6 +16,13 @@ namespace Vampire
         [SerializeField] private int burstCountPhase2 = 2;
         [SerializeField] private float burstInterval = 0.25f;
 
+        [Header("Spawn Position")]
+        [SerializeField] private float muzzleOffsetFromBoss = 0.9f;
+
+        [Header("Visual Sorting")]
+        [SerializeField] private bool forceBulletSortingOrder = true;
+        [SerializeField] private int bulletSortingOrder = 550;
+
         [Header("Debug")]
         [SerializeField] private bool debugShot = false;
 
@@ -44,8 +51,10 @@ namespace Vampire
                 return;
             }
 
-            Vector3 spawnPosition = bossController.BossCenterPosition;
-            Vector2 baseDirection = ((Vector2)bossController.PlayerCharacter.transform.position - (Vector2)spawnPosition).normalized;
+            Vector3 bossPosition = bossController.BossCenterPosition;
+
+            Vector2 baseDirection =
+                ((Vector2)bossController.PlayerCharacter.transform.position - (Vector2)bossPosition).normalized;
 
             if (baseDirection == Vector2.zero)
             {
@@ -60,6 +69,7 @@ namespace Vampire
                 float angle = startAngle + angleStep * i;
                 Vector2 direction = RotateVector(baseDirection, angle);
 
+                Vector3 spawnPosition = bossPosition + (Vector3)(direction.normalized * muzzleOffsetFromBoss);
                 SpawnBullet(spawnPosition, direction);
             }
 
@@ -73,6 +83,21 @@ namespace Vampire
         {
             GameObject bullet = Instantiate(bulletPrefab, spawnPosition, Quaternion.identity);
 
+            if (direction != Vector2.zero)
+            {
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                bullet.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+            }
+
+            if (forceBulletSortingOrder)
+            {
+                SpriteRenderer[] renderers = bullet.GetComponentsInChildren<SpriteRenderer>(true);
+                foreach (SpriteRenderer renderer in renderers)
+                {
+                    renderer.sortingOrder = bulletSortingOrder;
+                }
+            }
+
             BossSimpleBullet simpleBullet = bullet.GetComponent<BossSimpleBullet>();
 
             if (simpleBullet == null)
@@ -83,7 +108,7 @@ namespace Vampire
             if (simpleBullet == null)
             {
                 simpleBullet = bullet.AddComponent<BossSimpleBullet>();
-                Debug.LogWarning("[BossFanShotPattern] Bullet Prefab 루트에 BossSimpleBullet이 없어 자동 추가했습니다. 프리팹 루트에 붙이는 것을 추천합니다.");
+                Debug.LogWarning("[BossFanShotPattern] Bullet Prefab 루트에 BossSimpleBullet이 없어 자동 추가했습니다.");
             }
 
             simpleBullet.Init(direction, bulletSpeed, bulletDamage);

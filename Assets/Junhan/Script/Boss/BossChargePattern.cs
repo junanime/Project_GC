@@ -78,7 +78,13 @@ namespace Vampire
             }
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            Vector2 centerPosition = startPosition + direction * (chargeDistance * 0.5f);
+
+            // 보스 몸통을 덮지 않도록 보스 앞쪽에서부터 경고선을 시작한다.
+            float bossBodyOffset = 0.9f;
+            float visualLength = Mathf.Max(0.1f, chargeDistance - bossBodyOffset);
+
+            Vector2 visualStart = startPosition + direction * bossBodyOffset;
+            Vector2 centerPosition = visualStart + direction * (visualLength * 0.5f);
 
             GameObject warning = Instantiate(
                 warningLinePrefab,
@@ -86,7 +92,7 @@ namespace Vampire
                 Quaternion.Euler(0f, 0f, angle)
             );
 
-            warning.transform.localScale = new Vector3(chargeDistance, warningWidth, 1f);
+            warning.transform.localScale = new Vector3(visualLength, warningWidth, 1f);
 
             SpriteRenderer sr = warning.GetComponent<SpriteRenderer>();
             if (sr == null)
@@ -97,6 +103,7 @@ namespace Vampire
             if (sr != null)
             {
                 sr.color = warningColor;
+                sr.sortingOrder = 100;
             }
 
             return warning;

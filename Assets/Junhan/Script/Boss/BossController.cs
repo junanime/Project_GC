@@ -19,6 +19,43 @@ namespace Vampire
         [SerializeField] private float contactDamage = 10f;
         [SerializeField] private float contactDamageCooldown = 0.6f;
 
+        [Header("Basic Attack")]
+        [SerializeField] private bool enableBasicAttack = true;
+        [SerializeField] private GameObject basicAttackBulletPrefab;
+
+        [Tooltip("기본 공격 발사 간격입니다. 너무 낮으면 피하기 어렵습니다.")]
+        [SerializeField] private float basicAttackCooldown = 1.6f;
+
+        [SerializeField] private float basicAttackDamage = 5f;
+
+        [Tooltip("기본 탄환 속도입니다. 너무 빠르면 무조건 맞는 느낌이 납니다.")]
+        [SerializeField] private float basicAttackBulletSpeed = 4.5f;
+
+        [Tooltip("보스 중심에서 얼마나 앞쪽으로 탄환을 생성할지 결정합니다.")]
+        [SerializeField] private float basicAttackMuzzleOffset = 1.2f;
+
+        [Tooltip("패턴 사용 중에도 기본 공격을 쏠지 여부입니다.")]
+        [SerializeField] private bool basicAttackWhileUsingPattern = false;
+
+        [Header("Basic Attack Aim")]
+        [Tooltip("체크하면 플레이어 현재 위치가 아니라 이동 방향 앞쪽을 조준합니다.")]
+        [SerializeField] private bool usePredictiveBasicAim = true;
+
+        [Tooltip("플레이어가 이 시간 뒤에 있을 것으로 예상되는 위치를 조준합니다.")]
+        [SerializeField] private float basicAimLeadTime = 0.45f;
+
+        [Tooltip("조준에 약간의 오차를 줍니다. 값이 클수록 피하기 쉬워집니다.")]
+        [SerializeField] private float basicAimInaccuracyAngle = 5f;
+
+        [Tooltip("플레이어 이동속도가 이 값보다 낮으면 예측 조준을 약하게 적용합니다.")]
+        [SerializeField] private float minPlayerVelocityForPrediction = 0.1f;
+
+        [Header("Basic Attack Visual Sorting")]
+        [SerializeField] private bool forceBasicBulletSortingOrder = true;
+
+        [Tooltip("보스 본체 Order보다 낮게 두세요. 예: 보스 700, 탄환 500")]
+        [SerializeField] private int basicBulletSortingOrder = 500;
+
         [Header("Movement")]
         [SerializeField] private bool enableMovement = true;
         [SerializeField] private float moveSpeedPhase1 = 0.8f;
@@ -29,9 +66,12 @@ namespace Vampire
         [SerializeField] private float movementSmoothTime = 0.18f;
         [SerializeField] private bool flipSpriteToPlayer = true;
 
-        [Header("Pattern Timing")]
-        [SerializeField] private float thinkInterval = 0.5f;
-        [SerializeField] private float patternGap = 1.5f;
+        [Header("Special Pattern Timing")]
+        [SerializeField] private float firstPatternDelay = 3f;
+        [SerializeField] private float patternIntervalMin = 4f;
+        [SerializeField] private float patternIntervalMax = 7f;
+        [SerializeField] private float thinkInterval = 0.3f;
+        [SerializeField] private float patternGap = 1.2f;
 
         [Header("Distance Thresholds")]
         [SerializeField] private float nearDistanceThreshold = 4f;
@@ -47,15 +87,21 @@ namespace Vampire
         [Header("Debug")]
         [SerializeField] private bool debugMovement = false;
         [SerializeField] private bool debugPattern = false;
+        [SerializeField] private bool debugBasicAttack = false;
 
         private bool isDead = false;
         private bool isUsingPattern = false;
         private float lastContactDamageTime = -999f;
         private Vector2 smoothMoveVelocity;
 
-        // 추가
         private bool externalMovementLock = false;
         private bool suppressContactDamage = false;
+
+        private float basicAttackTimer = 0f;
+        private float nextPatternTime = 0f;
+
+        private Vector2 lastPlayerPosition;
+        private Vector2 estimatedPlayerVelocity;
 
         public float NearDistanceThreshold => nearDistanceThreshold;
         public float MidDistanceThreshold => midDistanceThreshold;
@@ -68,11 +114,17 @@ namespace Vampire
         public void SetPlayerCharacter(Character character)
         {
             playerCharacter = character;
+
+            if (playerCharacter != null)
+            {
+                lastPlayerPosition = playerCharacter.transform.position;
+            }
         }
 
         public void SetExternalMovementLock(bool value)
         {
             externalMovementLock = value;
+
             if (value)
             {
                 StopMovementVelocity();
@@ -112,6 +164,11 @@ namespace Vampire
                 playerCharacter = FindObjectOfType<Character>();
             }
 
+            if (playerCharacter != null)
+            {
+                lastPlayerPosition = playerCharacter.transform.position;
+            }
+
             if (autoCollectPatternsFromChildren || patterns.Count == 0)
             {
                 patterns.Clear();
@@ -136,6 +193,9 @@ namespace Vampire
                 }
             }
 
+            basicAttackTimer = basicAttackCooldown;
+            ScheduleNextPattern(firstPatternDelay);
+
             if (debugPattern)
             {
                 Debug.Log($"[BossController] Pattern Count = {patterns.Count}");
@@ -146,12 +206,135 @@ namespace Vampire
 
         private void Update()
         {
+            UpdatePlayerVelocityEstimate();
             UpdateSpriteFlip();
+            UpdateBasicAttack();
         }
 
         private void FixedUpdate()
         {
             UpdateMovement();
+        }
+
+        private void UpdatePlayerVelocityEstimate()
+        {
+            if (playerCharacter == null)
+            {
+                return;
+            }
+
+            Vector2 currentPlayerPosition = playerCharacter.transform.position;
+
+            if (Time.deltaTime > 0f)
+            {
+                estimatedPlayerVelocity = (currentPlayerPosition - lastPlayerPosition) / Time.deltaTime;
+            }
+
+            lastPlayerPosition = currentPlayerPosition;
+        }
+
+        private void UpdateBasicAttack()
+        {
+            if (!enableBasicAttack || isDead || playerCharacter == null)
+            {
+                return;
+            }
+
+            if (isUsingPattern && !basicAttackWhileUsingPattern)
+            {
+                return;
+            }
+
+            if (basicAttackBulletPrefab == null)
+            {
+                return;
+            }
+
+            basicAttackTimer += Time.deltaTime;
+
+            if (basicAttackTimer >= basicAttackCooldown)
+            {
+                basicAttackTimer = 0f;
+                FireBasicAttack();
+            }
+        }
+
+        private void FireBasicAttack()
+        {
+            Vector2 origin = BossCenterPosition;
+            Vector2 aimPosition = GetBasicAttackAimPosition();
+            Vector2 direction = (aimPosition - origin).normalized;
+
+            if (direction == Vector2.zero)
+            {
+                direction = Vector2.right;
+            }
+
+            if (basicAimInaccuracyAngle > 0f)
+            {
+                float randomAngle = Random.Range(-basicAimInaccuracyAngle, basicAimInaccuracyAngle);
+                direction = RotateVector(direction, randomAngle);
+            }
+
+            Vector3 spawnPosition = (Vector3)origin + (Vector3)(direction * basicAttackMuzzleOffset);
+            GameObject bullet = Instantiate(basicAttackBulletPrefab, spawnPosition, Quaternion.identity);
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            bullet.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            ApplyBulletSortingOrder(bullet, basicBulletSortingOrder);
+
+            BossSimpleBullet simpleBullet = bullet.GetComponent<BossSimpleBullet>();
+
+            if (simpleBullet == null)
+            {
+                simpleBullet = bullet.GetComponentInChildren<BossSimpleBullet>();
+            }
+
+            if (simpleBullet == null)
+            {
+                simpleBullet = bullet.AddComponent<BossSimpleBullet>();
+                Debug.LogWarning("[BossController] Basic Attack Bullet에 BossSimpleBullet이 없어 자동 추가했습니다.");
+            }
+
+            simpleBullet.Init(direction, basicAttackBulletSpeed, basicAttackDamage);
+
+            if (debugBasicAttack)
+            {
+                Debug.Log($"[BossController] Basic Attack Fired | aimPosition={aimPosition} | velocity={estimatedPlayerVelocity}");
+            }
+        }
+
+        private Vector2 GetBasicAttackAimPosition()
+        {
+            Vector2 currentPlayerPosition = playerCharacter.transform.position;
+
+            if (!usePredictiveBasicAim)
+            {
+                return currentPlayerPosition;
+            }
+
+            if (estimatedPlayerVelocity.magnitude < minPlayerVelocityForPrediction)
+            {
+                return currentPlayerPosition;
+            }
+
+            return currentPlayerPosition + estimatedPlayerVelocity * basicAimLeadTime;
+        }
+
+        private void ApplyBulletSortingOrder(GameObject bullet, int sortingOrder)
+        {
+            if (!forceBasicBulletSortingOrder || bullet == null)
+            {
+                return;
+            }
+
+            SpriteRenderer[] renderers = bullet.GetComponentsInChildren<SpriteRenderer>(true);
+
+            foreach (SpriteRenderer renderer in renderers)
+            {
+                renderer.sortingOrder = sortingOrder;
+            }
         }
 
         private void UpdateMovement()
@@ -195,6 +378,7 @@ namespace Vampire
             );
 
             float maxStep = finalSpeed * Time.fixedDeltaTime;
+
             if (Vector2.Distance(bossPosition, nextPosition) > maxStep * 1.5f)
             {
                 nextPosition = Vector2.MoveTowards(bossPosition, nextPosition, maxStep);
@@ -271,7 +455,7 @@ namespace Vampire
         {
             while (!isDead)
             {
-                if (!isUsingPattern && playerCharacter != null)
+                if (!isUsingPattern && playerCharacter != null && Time.time >= nextPatternTime)
                 {
                     BossPatternBase selectedPattern = SelectPatternByDistance();
 
@@ -279,6 +463,8 @@ namespace Vampire
                     {
                         yield return StartCoroutine(UsePattern(selectedPattern));
                     }
+
+                    ScheduleNextPattern();
                 }
 
                 yield return new WaitForSeconds(thinkInterval);
@@ -300,6 +486,20 @@ namespace Vampire
             isUsingPattern = false;
         }
 
+        private void ScheduleNextPattern(float overrideDelay = -1f)
+        {
+            float delay = overrideDelay >= 0f
+                ? overrideDelay
+                : Random.Range(patternIntervalMin, patternIntervalMax);
+
+            nextPatternTime = Time.time + delay;
+
+            if (debugPattern)
+            {
+                Debug.Log($"[BossController] Next Pattern In {delay:F1}s");
+            }
+        }
+
         private BossPatternBase SelectPatternByDistance()
         {
             float distance = GetDistanceToPlayer();
@@ -316,6 +516,7 @@ namespace Vampire
                 }
 
                 int weight = pattern.GetWeight(distance, CurrentPhase);
+
                 if (weight <= 0)
                 {
                     continue;
@@ -443,6 +644,18 @@ namespace Vampire
 
             lastContactDamageTime = Time.time;
             playerCharacter.TakeDamage(contactDamage);
+        }
+
+        private Vector2 RotateVector(Vector2 vector, float angleDegrees)
+        {
+            float rad = angleDegrees * Mathf.Deg2Rad;
+            float cos = Mathf.Cos(rad);
+            float sin = Mathf.Sin(rad);
+
+            return new Vector2(
+                vector.x * cos - vector.y * sin,
+                vector.x * sin + vector.y * cos
+            ).normalized;
         }
     }
 }
