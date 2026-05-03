@@ -8929,11 +8929,11 @@ MonoBehaviour:
     puddleSpawnTimer: 0
     acidSlimeAccumulator: 0
     activePuddles: []
-  logEventState: 1
-  logMonsterIndexTableOnStart: 1
-  logExtraSpawn: 1
-  logGoldRushModifier: 1
-  logAcidEvent: 1
+  logEventState: 0
+  logMonsterIndexTableOnStart: 0
+  logExtraSpawn: 0
+  logGoldRushModifier: 0
+  logAcidEvent: 0
 --- !u!1 &1348383117
 GameObject:
   m_ObjectHideFlags: 0

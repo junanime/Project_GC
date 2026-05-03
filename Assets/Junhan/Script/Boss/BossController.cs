@@ -8,12 +8,24 @@ namespace Vampire
     {
         [Header("Boss References")]
         [SerializeField] private Character playerCharacter;
+        [SerializeField] private Rigidbody2D rb;
+        [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private List<BossPatternBase> patterns = new List<BossPatternBase>();
+        [SerializeField] private bool autoCollectPatternsFromChildren = true;
 
         [Header("Boss Stats")]
         [SerializeField] private float maxHp = 500f;
         [SerializeField] private float currentHp = 500f;
         [SerializeField] private float contactDamage = 10f;
+        [SerializeField] private float contactDamageCooldown = 0.6f;
+
+        [Header("Movement")]
+        [SerializeField] private bool enableMovement = true;
+        [SerializeField] private float moveSpeedPhase1 = 1.2f;
+        [SerializeField] private float moveSpeedPhase2 = 1.8f;
+        [SerializeField] private float stopDistanceFromPlayer = 2.5f;
+        [SerializeField] private bool moveWhileUsingPattern = false;
+        [SerializeField] private bool flipSpriteToPlayer = true;
 
         [Header("Pattern Timing")]
         [SerializeField] private float thinkInterval = 0.5f;
@@ -30,8 +42,13 @@ namespace Vampire
         [Header("Reward")]
         [SerializeField] private bool rewardOnDeath = true;
 
+        [Header("Debug")]
+        [SerializeField] private bool debugMovement = false;
+        [SerializeField] private bool debugPattern = false;
+
         private bool isDead = false;
         private bool isUsingPattern = false;
+        private float lastContactDamageTime = -999f;
 
         public float NearDistanceThreshold => nearDistanceThreshold;
         public float MidDistanceThreshold => midDistanceThreshold;
@@ -43,11 +60,44 @@ namespace Vampire
             playerCharacter = character;
         }
 
+        private void Awake()
+        {
+            if (rb == null)
+            {
+                rb = GetComponent<Rigidbody2D>();
+            }
+
+            if (spriteRenderer == null)
+            {
+                spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            }
+
+            if (rb != null)
+            {
+                rb.gravityScale = 0f;
+                rb.freezeRotation = true;
+            }
+        }
+
         private void Start()
         {
             if (playerCharacter == null)
             {
                 playerCharacter = FindObjectOfType<Character>();
+            }
+
+            if (autoCollectPatternsFromChildren || patterns.Count == 0)
+            {
+                patterns.Clear();
+                BossPatternBase[] foundPatterns = GetComponentsInChildren<BossPatternBase>(true);
+
+                foreach (BossPatternBase pattern in foundPatterns)
+                {
+                    if (pattern != null)
+                    {
+                        patterns.Add(pattern);
+                    }
+                }
             }
 
             currentHp = maxHp;
@@ -60,7 +110,95 @@ namespace Vampire
                 }
             }
 
+            if (debugPattern)
+            {
+                Debug.Log($"[BossController] Pattern Count = {patterns.Count}");
+            }
+
             StartCoroutine(PatternLoop());
+        }
+
+        private void Update()
+        {
+            UpdateSpriteFlip();
+        }
+
+        private void FixedUpdate()
+        {
+            UpdateMovement();
+        }
+
+        private void UpdateMovement()
+        {
+            if (!CanMove())
+            {
+                return;
+            }
+
+            Vector2 bossPosition = rb != null ? rb.position : (Vector2)transform.position;
+            Vector2 playerPosition = playerCharacter.transform.position;
+
+            Vector2 toPlayer = playerPosition - bossPosition;
+            float distance = toPlayer.magnitude;
+
+            if (distance <= stopDistanceFromPlayer)
+            {
+                return;
+            }
+
+            Vector2 direction = toPlayer.normalized;
+            float speed = CurrentPhase == 2 ? moveSpeedPhase2 : moveSpeedPhase1;
+            Vector2 nextPosition = bossPosition + direction * speed * Time.fixedDeltaTime;
+
+            if (rb != null)
+            {
+                rb.MovePosition(nextPosition);
+            }
+            else
+            {
+                transform.position = nextPosition;
+            }
+
+            if (debugMovement)
+            {
+                Debug.Log($"[BossController] Moving to player | distance={distance:F2} | speed={speed:F2}");
+            }
+        }
+
+        private bool CanMove()
+        {
+            if (!enableMovement)
+            {
+                return false;
+            }
+
+            if (isDead)
+            {
+                return false;
+            }
+
+            if (playerCharacter == null)
+            {
+                return false;
+            }
+
+            if (isUsingPattern && !moveWhileUsingPattern)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void UpdateSpriteFlip()
+        {
+            if (!flipSpriteToPlayer || spriteRenderer == null || playerCharacter == null)
+            {
+                return;
+            }
+
+            float directionX = playerCharacter.transform.position.x - transform.position.x;
+            spriteRenderer.flipX = directionX < 0f;
         }
 
         private IEnumerator PatternLoop()
@@ -84,8 +222,15 @@ namespace Vampire
         private IEnumerator UsePattern(BossPatternBase pattern)
         {
             isUsingPattern = true;
+
+            if (debugPattern)
+            {
+                Debug.Log($"[BossController] Use Pattern: {pattern.PatternName}");
+            }
+
             yield return StartCoroutine(pattern.Execute());
             yield return new WaitForSeconds(patternGap);
+
             isUsingPattern = false;
         }
 
@@ -100,11 +245,16 @@ namespace Vampire
             foreach (BossPatternBase pattern in patterns)
             {
                 if (pattern == null || !pattern.CanUse())
+                {
                     continue;
+                }
 
                 int weight = pattern.GetWeight(distance, CurrentPhase);
+
                 if (weight <= 0)
+                {
                     continue;
+                }
 
                 validPatterns.Add(pattern);
                 weights.Add(weight);
@@ -112,7 +262,9 @@ namespace Vampire
             }
 
             if (validPatterns.Count == 0 || totalWeight <= 0)
+            {
                 return null;
+            }
 
             int roll = Random.Range(0, totalWeight);
             int cumulative = 0;
@@ -120,6 +272,7 @@ namespace Vampire
             for (int i = 0; i < validPatterns.Count; i++)
             {
                 cumulative += weights[i];
+
                 if (roll < cumulative)
                 {
                     return validPatterns[i];
@@ -132,7 +285,9 @@ namespace Vampire
         private float GetDistanceToPlayer()
         {
             if (playerCharacter == null)
+            {
                 return 999f;
+            }
 
             return Vector2.Distance(transform.position, playerCharacter.transform.position);
         }
@@ -140,7 +295,9 @@ namespace Vampire
         public void TakeDamage(float damage)
         {
             if (isDead)
+            {
                 return;
+            }
 
             currentHp -= damage;
 
@@ -164,7 +321,9 @@ namespace Vampire
         private void Die()
         {
             if (isDead)
+            {
                 return;
+            }
 
             isDead = true;
 
@@ -180,22 +339,40 @@ namespace Vampire
 
         private void GiveBossReward()
         {
-            // 나중에 기존 증강 선택 UI와 연결
             Debug.Log("[Boss] Reward Triggered");
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (isDead || playerCharacter == null)
-                return;
+            TryDealContactDamage(other);
+        }
 
-            if (other.TryGetComponent<IDamageable>(out IDamageable damageable))
+        private void OnTriggerStay2D(Collider2D other)
+        {
+            TryDealContactDamage(other);
+        }
+
+        private void TryDealContactDamage(Collider2D other)
+        {
+            if (isDead || playerCharacter == null)
             {
-                if (damageable == playerCharacter)
-                {
-                    playerCharacter.TakeDamage(contactDamage);
-                }
+                return;
             }
+
+            Character character = other.GetComponentInParent<Character>();
+
+            if (character == null || character != playerCharacter)
+            {
+                return;
+            }
+
+            if (Time.time < lastContactDamageTime + contactDamageCooldown)
+            {
+                return;
+            }
+
+            lastContactDamageTime = Time.time;
+            playerCharacter.TakeDamage(contactDamage);
         }
     }
 }
