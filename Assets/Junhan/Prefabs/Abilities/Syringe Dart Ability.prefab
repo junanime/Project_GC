@@ -173,7 +173,7 @@ MonoBehaviour:
   heavyKnockbackMultiplierAt0: 1
   heavyKnockbackMultiplierAt100: 2
   showHeavyChargePreview: 1
-  heavyChargePreviewSprite: {fileID: 0}
+  heavyChargePreviewSprite: {fileID: 21300000, guid: 54bdd2e16f59bbb4faeb51d2d10ef0e2, type: 3}
   heavyChargePreviewAngleOffset: 180
   heavyChargePreviewScaleMultiplier: 1
   heavyChargePreviewAlpha: 0.9

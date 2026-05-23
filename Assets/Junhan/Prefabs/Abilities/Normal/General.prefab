@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1bbaa81315f03242902e0b7ea3b8a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  image: {fileID: 21300000, guid: c5164ffb826f3469db584349ea8fb550, type: 3}
+  image: {fileID: 21300000, guid: 3bab7219bf1f08a419977ac2bae35cea, type: 3}
   localizedName:
     m_TableReference:
       m_TableCollectionName: GUID:b33cf4ad3225b41c9b095285edde9353
