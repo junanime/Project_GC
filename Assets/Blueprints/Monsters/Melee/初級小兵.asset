@@ -28,13 +28,13 @@ MonoBehaviour:
   coinLootTable:
     lootTable:
     - item: 1
-      dropChance: 0.15
+      dropChance: 0.12
       coinType: 1
     - item: 2
-      dropChance: 0.03
+      dropChance: 0.02
       coinType: 1
     - item: 5
-      dropChance: 0.01
+      dropChance: 0.003
       coinType: 1
   walkSpriteSequence:
   - {fileID: 917104541, guid: 4a53ef156a05949b693de4f347057d87, type: 3}

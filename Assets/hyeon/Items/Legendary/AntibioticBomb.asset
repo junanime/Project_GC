@@ -16,8 +16,8 @@ MonoBehaviour:
   itemRarity: 3
   itemTag: 0
   description: "5% \uD655\uB960 \uB300\uD615 \uD3ED\uBC1C"
-  itemIcon: {fileID: 0}
-  cost: 4
+  itemIcon: {fileID: 21300000, guid: 1619f49a7c0b93642bc8d78a6ed7f8a1, type: 3}
+  cost: 95
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

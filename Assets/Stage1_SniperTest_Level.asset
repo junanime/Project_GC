@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b94449d710f83429796c060423fde854, type: 3}
   m_Name: Stage1_SniperTest_Level
   m_EditorClassIdentifier: 
-  levelTime: 600
+  levelTime: 900
   backgroundTexture: {fileID: 2800000, guid: 42b11be826072496a9d57814c0ca6576, type: 3}
   abilityPrefabs:
   - {fileID: 7378740072262091319, guid: 9757fae3764f6e1488b23a8ff2e6c349, type: 3}

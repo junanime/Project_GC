@@ -16,8 +16,8 @@ MonoBehaviour:
   itemRarity: 2
   itemTag: 0
   description: "\uD22C\uC0AC\uCCB4 \uD06C\uAE30 +25%"
-  itemIcon: {fileID: 0}
-  cost: 2
+  itemIcon: {fileID: 21300000, guid: 39f16f94090fac745b4f6f4e3b610ee1, type: 3}
+  cost: 40
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
@@ -28,7 +28,7 @@ MonoBehaviour:
   expBoost: 0
   projSpeedBoost: 0
   luckBoost: 0
-  sizeBoost: 0.25
+  sizeBoost: 0.2
   rangeBoost: 0
   pierceCountBoost: 0
   extraProjectiles: 0

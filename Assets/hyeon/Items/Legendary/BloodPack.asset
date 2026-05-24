@@ -16,8 +16,8 @@ MonoBehaviour:
   itemRarity: 3
   itemTag: 0
   description: "\uB77C\uC774\uD504\uC2A4\uD2F8 5%"
-  itemIcon: {fileID: 0}
-  cost: 4
+  itemIcon: {fileID: 21300000, guid: 1da538543ac1e9148ba6f295e5192cb7, type: 3}
+  cost: 100
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
   healOnKill: 0
   summonOnKillChance: 0
   healOnIdlePerSecond: 0
-  lifeSteal: 0.05
+  lifeSteal: 0.03
   knockbackOnHit: 0
   giveShield: 0
   extraRevives: 0

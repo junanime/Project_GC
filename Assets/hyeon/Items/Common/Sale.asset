@@ -16,20 +16,35 @@ MonoBehaviour:
   itemRarity: 0
   itemTag: 0
   description: "\uCD5C\uB300 \uCCB4\uB825+20%"
-  itemIcon: {fileID: 21300000, guid: 36a18b04299514fddac3e34217aee043, type: 3}
-  cost: 1
+  itemIcon: {fileID: 21300000, guid: 6e11c7538a8cd024daa22249f48c2850, type: 3}
+  cost: 20
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
-  maxHpBoost: 20
-  projSpeedBoost: 0
-  armorBoost: 0
+  maxHpBoost: 15
   moveSpeedBoost: 0
   critBoost: 0
   magnetBoost: 0
   expBoost: 0
+  projSpeedBoost: 0
   luckBoost: 0
+  sizeBoost: 0
+  rangeBoost: 0
+  pierceCountBoost: 0
   extraProjectiles: 0
+  burnChance: 0
+  slowChance: 0
+  statusDurationBoost: 0
+  auraDamagePerSecond: 0
+  healOnKill: 0
+  summonOnKillChance: 0
+  healOnIdlePerSecond: 0
+  lifeSteal: 0
+  knockbackOnHit: 0
   giveShield: 0
   extraRevives: 0
   invincibilityBoost: 0
+  autoCollectItems: 0
+  infiniteDash: 0
+  reflectProjectile: 0
+  explosiveAttacks: 0

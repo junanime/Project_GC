@@ -16,13 +16,13 @@ MonoBehaviour:
   itemRarity: 1
   itemTag: 0
   description: "\uC774\uB3D9\uC18D\uB3C4 0.07"
-  itemIcon: {fileID: 21300000, guid: f9f8baf64fad74a08a717c43cccb2f04, type: 3}
-  cost: 1
+  itemIcon: {fileID: 21300000, guid: f680d81641e151e468680b528f4f4f87, type: 3}
+  cost: 20
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
   maxHpBoost: 0
-  moveSpeedBoost: 0.07
+  moveSpeedBoost: 0.05
   critBoost: 0
   magnetBoost: 0
   expBoost: 0

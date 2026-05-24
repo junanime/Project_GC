@@ -28,7 +28,7 @@ MonoBehaviour:
   coinLootTable:
     lootTable:
     - item: 5
-      dropChance: 0.2
+      dropChance: 0.03
       coinType: 0
     - item: 30
       dropChance: 0.01

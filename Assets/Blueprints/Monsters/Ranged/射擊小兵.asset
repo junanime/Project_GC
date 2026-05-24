@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "\u5C04\u64CA\u5C0F\u5175"
   m_EditorClassIdentifier: 
   name: Ranged Monster
-  hp: 25
+  hp: 22
   atk: 4
   recovery: 0
   armor: 0
@@ -28,13 +28,13 @@ MonoBehaviour:
   coinLootTable:
     lootTable:
     - item: 1
-      dropChance: 0.4
+      dropChance: 0.25
       coinType: 1
     - item: 2
-      dropChance: 0.09
+      dropChance: 0.05
       coinType: 1
     - item: 5
-      dropChance: 0.01
+      dropChance: 0.015
       coinType: 1
   walkSpriteSequence:
   - {fileID: 1532228488, guid: 02288e18bb6844bd09c390d973e71969, type: 3}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "\u4E2D\u7D1A\u5C0F\u5175"
   m_EditorClassIdentifier: 
   name: "\u4E2D\u7D1A\u5C0F\u5175"
-  hp: 30
+  hp: 27
   atk: 5
   recovery: 0
   armor: 0
@@ -34,7 +34,7 @@ MonoBehaviour:
       dropChance: 0.03
       coinType: 1
     - item: 5
-      dropChance: 0.01
+      dropChance: 0.005
       coinType: 1
   walkSpriteSequence:
   - {fileID: 917104541, guid: d6a1eaefc567d4af7931ddc84b58ffa8, type: 3}

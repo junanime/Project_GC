@@ -51,23 +51,83 @@ namespace Vampire
             registeredUpgradeableValues = new FastList<IUpgradeableValue>();
 
             ownedAbilities = new WeightedAbilities();
-            foreach (GameObject abilityPrefab in playerCharacter.Blueprint.startingAbilities)
+
+            if (playerCharacter == null)
             {
-                Ability ability = Instantiate(abilityPrefab, transform).GetComponent<Ability>();
-                ability.Init(abilityManager, entityManager, playerCharacter);
-                ability.Select();
-                ownedAbilities.Add(ability);
+                Debug.LogError("[AbilityManager] playerCharacter가 null입니다.");
+                return;
+            }
+
+            if (playerCharacter.Blueprint == null)
+            {
+                Debug.LogError("[AbilityManager] playerCharacter.Blueprint가 null입니다. Character에 Blueprint가 연결되어 있는지 확인하세요.");
+                return;
+            }
+
+            if (playerCharacter.Blueprint.startingAbilities != null)
+            {
+                foreach (GameObject abilityPrefab in playerCharacter.Blueprint.startingAbilities)
+                {
+                    if (abilityPrefab == null)
+                    {
+                        Debug.LogWarning("[AbilityManager] startingAbilities 안에 null 프리팹이 있습니다.");
+                        continue;
+                    }
+
+                    Ability ability = Instantiate(abilityPrefab, transform).GetComponent<Ability>();
+
+                    if (ability == null)
+                    {
+                        Debug.LogWarning($"[AbilityManager] {abilityPrefab.name} 프리팹에 Ability 컴포넌트가 없습니다.");
+                        continue;
+                    }
+
+                    ability.Init(abilityManager, entityManager, playerCharacter);
+                    ability.Select();
+                    ownedAbilities.Add(ability);
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[AbilityManager] Character Blueprint의 startingAbilities가 null입니다.");
             }
 
             newAbilities = new WeightedAbilities();
+
+            if (levelBlueprint == null)
+            {
+                Debug.LogError("[AbilityManager] levelBlueprint가 null입니다.");
+                return;
+            }
+
+            if (levelBlueprint.abilityPrefabs == null)
+            {
+                Debug.LogWarning("[AbilityManager] LevelBlueprint의 abilityPrefabs가 null입니다.");
+                return;
+            }
+
             foreach (GameObject abilityPrefab in levelBlueprint.abilityPrefabs)
             {
-                if (playerCharacter.Blueprint.startingAbilities.Contains(abilityPrefab))
+                if (abilityPrefab == null)
+                {
+                    Debug.LogWarning("[AbilityManager] levelBlueprint.abilityPrefabs 안에 null 프리팹이 있습니다.");
+                    continue;
+                }
+
+                if (playerCharacter.Blueprint.startingAbilities != null &&
+                    playerCharacter.Blueprint.startingAbilities.Contains(abilityPrefab))
                 {
                     continue;
                 }
 
                 Ability ability = Instantiate(abilityPrefab, transform).GetComponent<Ability>();
+
+                if (ability == null)
+                {
+                    Debug.LogWarning($"[AbilityManager] {abilityPrefab.name} 프리팹에 Ability 컴포넌트가 없습니다.");
+                    continue;
+                }
+
                 ability.Init(abilityManager, entityManager, playerCharacter);
                 newAbilities.Add(ability);
             }

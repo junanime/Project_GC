@@ -11,7 +11,10 @@ namespace Vampire
     public class SugarCubeMonster : MeleeMonster
     {
         private SugarCubeMonsterBlueprint sugarCubeBlueprint;
-        private Vector3 originalLocalScale = Vector3.one;
+
+        // 수정된 부분
+        private Vector3 sugarCubeOriginalLocalScale = Vector3.one;
+
         private float lastHpBuff = 0f;
         private bool splitSpawned = false;
         private bool originalScaleCached = false;
@@ -20,7 +23,7 @@ namespace Vampire
         {
             base.Awake();
 
-            originalLocalScale = transform.localScale;
+            sugarCubeOriginalLocalScale = transform.localScale;
             originalScaleCached = true;
         }
 
@@ -35,7 +38,7 @@ namespace Vampire
 
             if (!originalScaleCached)
             {
-                originalLocalScale = transform.localScale;
+                sugarCubeOriginalLocalScale = transform.localScale;
                 originalScaleCached = true;
             }
 
@@ -44,11 +47,11 @@ namespace Vampire
                 float scaleMultiplier =
                     Mathf.Max(0.05f, incomingSugarCubeBlueprint.visualScaleMultiplier);
 
-                transform.localScale = originalLocalScale * scaleMultiplier;
+                transform.localScale = sugarCubeOriginalLocalScale * scaleMultiplier;
             }
             else
             {
-                transform.localScale = originalLocalScale;
+                transform.localScale = sugarCubeOriginalLocalScale;
             }
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);

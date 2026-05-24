@@ -10,14 +10,14 @@ namespace Vampire
     public class MiniBossMonster : MeleeMonster
     {
         private MiniBossMonsterBlueprint miniBossBlueprint;
-        private Vector3 originalLocalScale = Vector3.one;
+        private Vector3 miniBossOriginalLocalScale = Vector3.one;
         private bool originalScaleCached = false;
 
         protected override void Awake()
         {
             base.Awake();
 
-            originalLocalScale = transform.localScale;
+            miniBossOriginalLocalScale = transform.localScale;
             originalScaleCached = true;
         }
 
@@ -32,18 +32,18 @@ namespace Vampire
 
             if (!originalScaleCached)
             {
-                originalLocalScale = transform.localScale;
+                miniBossOriginalLocalScale = transform.localScale;
                 originalScaleCached = true;
             }
 
             if (incomingBlueprint != null)
             {
                 float scaleMultiplier = Mathf.Max(0.05f, incomingBlueprint.visualScaleMultiplier);
-                transform.localScale = originalLocalScale * scaleMultiplier;
+                transform.localScale = miniBossOriginalLocalScale * scaleMultiplier;
             }
             else
             {
-                transform.localScale = originalLocalScale;
+                transform.localScale = miniBossOriginalLocalScale;
             }
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);

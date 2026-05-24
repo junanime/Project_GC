@@ -9820,7 +9820,7 @@ PrefabInstance:
       objectReference: {fileID: 1043593209}
     - target: {fileID: 7978169288554769983, guid: f0153d0f112dd774296d7a5e696be881, type: 3}
       propertyPath: baseRerollCost
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 7978169288554769983, guid: f0153d0f112dd774296d7a5e696be881, type: 3}
       propertyPath: rerollCostText
@@ -9832,7 +9832,7 @@ PrefabInstance:
       objectReference: {fileID: 1892469448}
     - target: {fileID: 7978169288554769983, guid: f0153d0f112dd774296d7a5e696be881, type: 3}
       propertyPath: rerollCostIncrease
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 7978169288554769983, guid: f0153d0f112dd774296d7a5e696be881, type: 3}
       propertyPath: itemButtons.Array.size
@@ -10362,8 +10362,8 @@ MonoBehaviour:
   cleanupInactiveElitesEveryFrame: 1
   spawnPhases:
   - phaseName: "Phase 1: 2\uBD84~5\uBD84"
-    startTime: 120
-    endTime: 300
+    startTime: 90
+    endTime: 225
     selectionMode: 0
     spawnInterval: 30
     spawnImmediatelyOnPhaseStart: 1
@@ -10383,8 +10383,8 @@ MonoBehaviour:
     eliteMonsterFlatIndices: 0800000009000000
     additionalHpBuff: 0
   - phaseName: "Phase 2: 5\uBD84~8\uBD84"
-    startTime: 300
-    endTime: 480
+    startTime: 225
+    endTime: 360
     selectionMode: 0
     spawnInterval: 28
     spawnImmediatelyOnPhaseStart: 1
@@ -10410,8 +10410,8 @@ MonoBehaviour:
     eliteMonsterFlatIndices: 0300000008000000090000000a000000
     additionalHpBuff: 0
   - phaseName: "Phase 3: 8\uBD84~14\uBD84"
-    startTime: 480
-    endTime: 840
+    startTime: 360
+    endTime: 630
     selectionMode: 0
     spawnInterval: 25
     spawnImmediatelyOnPhaseStart: 1
@@ -10440,7 +10440,7 @@ MonoBehaviour:
     eliteMonsterFlatIndices: 0300000008000000090000000a0000000b000000
     additionalHpBuff: 0
   - phaseName: "Phase 3: 14\uBD84~20"
-    startTime: 840
+    startTime: 630
     endTime: 0
     selectionMode: 0
     spawnInterval: 20
@@ -10884,8 +10884,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   merchantPrefab: {fileID: 6348425182223770041, guid: 9b627b99eca044f4ab813359e84cfc72, type: 3}
-  spawnInterval: 10
-  maxMerchants: 1
+  spawnInterval: 15
+  maxMerchants: 4
   baseSpawnChance: 0.25
   maxSpawnChance: 0.65
   chanceIncreasePerMinute: 0.03
@@ -23611,7 +23611,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelManager: {fileID: 1764401684}
   spawnEntries:
-  - spawnTimeSeconds: 10
+  - spawnTimeSeconds: 7.5
     spawnCount: 1
     intervalBetweenSpawns: 0.15
     autoResolvePoolIndex: 1

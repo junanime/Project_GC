@@ -17,7 +17,7 @@ MonoBehaviour:
   itemTag: 0
   description: "\uB300\uC2DC \uC81C\uD55C \uD574\uC81C"
   itemIcon: {fileID: 0}
-  cost: 4
+  cost: 110
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

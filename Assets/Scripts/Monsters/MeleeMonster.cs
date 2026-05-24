@@ -4,7 +4,7 @@ namespace Vampire
 {
     public class MeleeMonster : Monster
     {
-        protected new MeleeMonsterBlueprint monsterBlueprint;
+        protected MeleeMonsterBlueprint meleeMonsterBlueprint;
         protected float timeSinceLastAttack;
 
         public override void Setup(
@@ -13,7 +13,7 @@ namespace Vampire
             MonsterBlueprint monsterBlueprint,
             float hpBuff = 0)
         {
-            if (monsterBlueprint is not MeleeMonsterBlueprint meleeMonsterBlueprint)
+            if (monsterBlueprint is not MeleeMonsterBlueprint meleeBlueprint)
             {
                 Debug.LogError(
                     $"[MeleeMonster] 잘못된 Blueprint가 들어왔습니다. " +
@@ -28,7 +28,7 @@ namespace Vampire
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
 
-            this.monsterBlueprint = meleeMonsterBlueprint;
+            meleeMonsterBlueprint = meleeBlueprint;
             timeSinceLastAttack = 0f;
         }
 
@@ -36,7 +36,7 @@ namespace Vampire
         {
             base.Update();
 
-            if (!alive || monsterBlueprint == null)
+            if (!alive || meleeMonsterBlueprint == null)
             {
                 return;
             }
@@ -48,7 +48,7 @@ namespace Vampire
         {
             base.FixedUpdate();
 
-            if (!alive || monsterBlueprint == null)
+            if (!alive || meleeMonsterBlueprint == null)
             {
                 return;
             }
@@ -63,7 +63,7 @@ namespace Vampire
 
             rb.velocity +=
                 moveDirection *
-                monsterBlueprint.acceleration *
+                meleeMonsterBlueprint.acceleration *
                 Time.fixedDeltaTime;
 
             if (entityManager != null && entityManager.Grid != null)
@@ -74,7 +74,7 @@ namespace Vampire
 
         private void OnCollisionStay2D(Collision2D col)
         {
-            if (!alive || monsterBlueprint == null)
+            if (!alive || meleeMonsterBlueprint == null)
             {
                 return;
             }
@@ -90,15 +90,15 @@ namespace Vampire
             }
 
             bool isTargetLayer =
-                (monsterBlueprint.meleeLayer & (1 << col.collider.gameObject.layer)) != 0;
+                (meleeMonsterBlueprint.meleeLayer & (1 << col.collider.gameObject.layer)) != 0;
 
             if (!isTargetLayer)
             {
                 return;
             }
 
-            float attackDelay = monsterBlueprint.atkspeed > 0f
-                ? 1.0f / monsterBlueprint.atkspeed
+            float attackDelay = meleeMonsterBlueprint.atkspeed > 0f
+                ? 1.0f / meleeMonsterBlueprint.atkspeed
                 : 1.0f;
 
             if (timeSinceLastAttack < attackDelay)
@@ -106,7 +106,7 @@ namespace Vampire
                 return;
             }
 
-            playerCharacter.TakeDamage(monsterBlueprint.atk);
+            playerCharacter.TakeDamage(meleeMonsterBlueprint.atk);
             timeSinceLastAttack = Mathf.Repeat(timeSinceLastAttack, attackDelay);
         }
     }

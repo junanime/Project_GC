@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Mini Boss
   m_EditorClassIdentifier: 
   name: Shotgun Boss
-  hp: 250
+  hp: 220
   atk: 10
   recovery: 0
   armor: 0
@@ -28,7 +28,7 @@ MonoBehaviour:
   coinLootTable:
     lootTable:
     - item: 50
-      dropChance: 1
+      dropChance: 0.5
       coinType: 0
   walkSpriteSequence:
   - {fileID: 917104541, guid: 7e513dbfca8774c7c89285ffb164b2a5, type: 3}

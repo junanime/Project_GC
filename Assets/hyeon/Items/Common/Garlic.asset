@@ -16,8 +16,8 @@ MonoBehaviour:
   itemRarity: 0
   itemTag: 0
   description: "\uC624\uB77C \uD53C\uD574 5"
-  itemIcon: {fileID: 0}
-  cost: 1
+  itemIcon: {fileID: 21300000, guid: 90c11e8e4270b734e8b1be1ef9eff28a, type: 3}
+  cost: 30
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
@@ -35,7 +35,7 @@ MonoBehaviour:
   burnChance: 0
   slowChance: 0
   statusDurationBoost: 0
-  auraDamagePerSecond: 5
+  auraDamagePerSecond: 4
   healOnKill: 0
   summonOnKillChance: 0
   healOnIdlePerSecond: 0
