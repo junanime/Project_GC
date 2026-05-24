@@ -6,7 +6,7 @@ namespace Vampire
 {
     public class BossMonster : Monster
     {
-        protected BossMonsterBlueprint bossMonsterBlueprint;
+        protected new BossMonsterBlueprint monsterBlueprint;
         protected BossAbility[] abilities;
 
         protected Coroutine act = null;
@@ -79,28 +79,11 @@ namespace Vampire
             }
         }
 
-        public override void Setup(
-            int monsterIndex,
-            Vector2 position,
-            MonsterBlueprint monsterBlueprint,
-            float hpBuff = 0)
+        public override void Setup(int monsterIndex, Vector2 position, MonsterBlueprint monsterBlueprint, float hpBuff = 0)
         {
-            if (monsterBlueprint is not BossMonsterBlueprint bossBlueprint)
-            {
-                Debug.LogError(
-                    $"[BossMonster] 잘못된 Blueprint가 들어왔습니다. " +
-                    $"BossMonster 프리팹에는 BossMonsterBlueprint 계열만 넣어야 합니다. " +
-                    $"현재 Blueprint: {(monsterBlueprint != null ? monsterBlueprint.name : "NULL")} / " +
-                    $"Type: {(monsterBlueprint != null ? monsterBlueprint.GetType().Name : "NULL")}",
-                    this
-                );
-
-                return;
-            }
-
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
 
-            bossMonsterBlueprint = bossBlueprint;
+            this.monsterBlueprint = (BossMonsterBlueprint)monsterBlueprint;
 
             bossMaxHealth = currentHealth;
             clearCompleted = false;
@@ -137,11 +120,11 @@ namespace Vampire
                 }
             }
 
-            abilities = new BossAbility[bossMonsterBlueprint.abilityPrefabs.Length];
+            abilities = new BossAbility[this.monsterBlueprint.abilityPrefabs.Length];
 
             for (int i = 0; i < abilities.Length; i++)
             {
-                abilities[i] = Instantiate(bossMonsterBlueprint.abilityPrefabs[i], transform).GetComponent<BossAbility>();
+                abilities[i] = Instantiate(this.monsterBlueprint.abilityPrefabs[i], transform).GetComponent<BossAbility>();
                 abilities[i].Init(this, entityManager, playerCharacter);
             }
 
@@ -156,20 +139,12 @@ namespace Vampire
 
         public void Move(Vector2 direction, float deltaTime)
         {
-            if (bossMonsterBlueprint == null || rb == null)
-            {
-                return;
-            }
-
-            rb.velocity += direction * bossMonsterBlueprint.acceleration * deltaTime;
+            rb.velocity += direction * monsterBlueprint.acceleration * deltaTime;
         }
 
         public void Freeze()
         {
-            if (rb != null)
-            {
-                rb.velocity = Vector2.zero;
-            }
+            rb.velocity = Vector2.zero;
         }
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2))
@@ -244,9 +219,9 @@ namespace Vampire
         {
             base.DropLoot();
 
-            if (bossMonsterBlueprint != null && bossMonsterBlueprint.chestBlueprint != null)
+            if (monsterBlueprint.chestBlueprint != null)
             {
-                entityManager.SpawnChest(bossMonsterBlueprint.chestBlueprint, transform.position);
+                entityManager.SpawnChest(monsterBlueprint.chestBlueprint, transform.position);
             }
         }
 
@@ -417,12 +392,7 @@ namespace Vampire
 
         private void OnCollisionEnter2D(Collision2D col)
         {
-            if (bossMonsterBlueprint == null || col == null || col.collider == null)
-            {
-                return;
-            }
-
-            if (((bossMonsterBlueprint.meleeLayer & (1 << col.collider.gameObject.layer)) != 0))
+            if (((monsterBlueprint.meleeLayer & (1 << col.collider.gameObject.layer)) != 0))
             {
                 IDamageable damageable = col.collider.GetComponentInParent<IDamageable>();
 
@@ -433,21 +403,14 @@ namespace Vampire
 
                 Vector2 knockbackDirection = (damageable.transform.position - transform.position).normalized;
 
-                if (timeSinceLastMeleeAttack > bossMonsterBlueprint.meleeAttackDelay)
+                if (timeSinceLastMeleeAttack > monsterBlueprint.meleeAttackDelay)
                 {
-                    damageable.TakeDamage(
-                        bossMonsterBlueprint.meleeDamage,
-                        bossMonsterBlueprint.meleeKnockback * knockbackDirection
-                    );
-
+                    damageable.TakeDamage(monsterBlueprint.meleeDamage, monsterBlueprint.meleeKnockback * knockbackDirection);
                     timeSinceLastMeleeAttack = 0f;
                 }
                 else
                 {
-                    damageable.TakeDamage(
-                        0f,
-                        bossMonsterBlueprint.meleeKnockback * knockbackDirection
-                    );
+                    damageable.TakeDamage(0f, monsterBlueprint.meleeKnockback * knockbackDirection);
                 }
             }
 
