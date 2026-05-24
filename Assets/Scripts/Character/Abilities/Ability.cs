@@ -33,10 +33,15 @@ namespace Vampire
         [Header("Augment Tier")]
         [SerializeField] protected AugmentTier augmentTier = AugmentTier.General;
 
+        [Header("Selection Rules")]
+        [Tooltip("이미 보유한 Ability가 레벨업/증강 선택지에 다시 등장할지 여부입니다. 시작 무기처럼 장착만 하고 선택지에는 안 띄우려면 꺼두세요.")]
+        [SerializeField] protected bool canAppearAsOwnedUpgrade = true;
+
         protected AbilityManager abilityManager;
         protected EntityManager entityManager;
         protected Character playerCharacter;
         protected List<IUpgradeableValue> upgradeableValues;
+
         protected int level = 0;
         protected int maxLevel;
         protected bool owned = false;
@@ -47,6 +52,8 @@ namespace Vampire
         public string Name => localizedName.GetLocalizedString();
         public float DropWeight => (float)rarity;
         public AugmentTier Tier => augmentTier;
+
+        public bool CanAppearAsOwnedUpgrade => canAppearAsOwnedUpgrade;
 
         public virtual string Description
         {
@@ -81,6 +88,10 @@ namespace Vampire
             if (upgradeableValues.Count > 0)
             {
                 maxLevel = upgradeableValues.Max(x => x.UpgradeCount) + 1;
+            }
+            else
+            {
+                maxLevel = 1;
             }
         }
 

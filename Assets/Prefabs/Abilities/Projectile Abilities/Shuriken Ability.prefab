@@ -63,7 +63,7 @@ MonoBehaviour:
     m_FallbackState: 0
     m_WaitForCompletion: 0
     m_LocalVariables: []
-  rarity: 50
+  rarity: 25
   augmentTier: 0
   projectilePrefab: {fileID: 7669521032070789568, guid: 1b6da83723c9f4501a4c1db54d6d0386, type: 3}
   monsterLayer:
