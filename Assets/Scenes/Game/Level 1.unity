@@ -20938,7 +20938,7 @@ MonoBehaviour:
   acidSecretionEvents:
   - eventName: "\uC704\uC0B0\uBD84\uBE44"
     enabled: 1
-    startTime: 150
+    startTime: 10
     duration: 30
     useRandomStartTime: 0
     startTimeRanges:
