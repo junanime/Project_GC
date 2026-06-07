@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "\uBC18\uC0AC\uC2E0\uACBD \uB9DD\uCE58"
   itemRarity: 2
-  itemTag: 0
+  itemTag: 4
   description: "\uD53C\uACA9 \uC2DC 0.5% \uD655\uB960\uB85C \n\uC8FC\uBCC0 \uC801
     \uB109\uBC31\n\uC911\uCCA9\uB2F9 \uBC1C\uB3D9 \uD655\uB960 +0.5%"
   itemIcon: {fileID: 21300000, guid: edfc35b02bab17742b5c2c0212b6b12e, type: 3}

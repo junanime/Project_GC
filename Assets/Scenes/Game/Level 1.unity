@@ -13302,6 +13302,7 @@ GameObject:
   - component: {fileID: 856782959}
   - component: {fileID: 856782960}
   - component: {fileID: 856782962}
+  - component: {fileID: 856782963}
   m_Layer: 9
   m_Name: asshi
   m_TagString: Untagged
@@ -13723,6 +13724,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69b1819bb5503c34aa0eb81458ff70c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &856782963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 856782952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eac7a5c433d9b1843ac21f0e6e23ab12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &869581548
