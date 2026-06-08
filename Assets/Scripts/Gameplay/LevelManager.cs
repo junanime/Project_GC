@@ -21,6 +21,10 @@ namespace Vampire
         [Tooltip("새 결과 패널입니다. 연결하면 GameOverDialog보다 우선 사용됩니다.")]
         [SerializeField] private LevelResultPanel levelResultPanel;
 
+        [Header("Runtime Pause")]
+        [Tooltip("혈전 미니 스테이지처럼 같은 씬 안에서 별도 콘텐츠를 진행할 때, 기본 런 시간/스폰/보스/상자 흐름을 잠시 멈출지 여부입니다.")]
+        [SerializeField] private bool logRunFlowPause = true;
+
         private float levelTime = 0f;
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
@@ -29,11 +33,14 @@ namespace Vampire
         private bool finalBossSpawned = false;
         private bool levelEnded = false;
 
+        private bool runFlowPaused = false;
+
         public float CurrentLevelTime => levelTime;
         public float LevelDuration => levelBlueprint != null ? levelBlueprint.levelTime : 0f;
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
+        public bool IsRunFlowPaused => runFlowPaused;
 
         public void Init(LevelBlueprint levelBlueprint)
         {
@@ -42,9 +49,11 @@ namespace Vampire
             levelTime = 0f;
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
+
             miniBossSpawned = false;
             finalBossSpawned = false;
             levelEnded = false;
+            runFlowPaused = false;
 
             entityManager.Init(
                 this.levelBlueprint,
@@ -82,7 +91,9 @@ namespace Vampire
             );
 
             entityManager.SpawnChest(levelBlueprint.chestBlueprint);
+
             infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
+
             inventory.Init();
         }
 
@@ -98,6 +109,11 @@ namespace Vampire
                 return;
             }
 
+            if (runFlowPaused)
+            {
+                return;
+            }
+
             levelTime += Time.deltaTime;
 
             if (gameTimer != null)
@@ -108,6 +124,27 @@ namespace Vampire
             HandleNormalMonsterSpawn();
             HandleBossSpawn();
             HandleChestSpawn();
+        }
+
+        public void SetRunFlowPaused(bool paused)
+        {
+            if (runFlowPaused == paused)
+            {
+                return;
+            }
+
+            runFlowPaused = paused;
+
+            if (!runFlowPaused)
+            {
+                timeSinceLastMonsterSpawned = 0f;
+                timeSinceLastChestSpawned = 0f;
+            }
+
+            if (logRunFlowPause)
+            {
+                Debug.Log($"[LevelManager] Run Flow Pause = {runFlowPaused}");
+            }
         }
 
         private void HandleNormalMonsterSpawn()
@@ -125,9 +162,7 @@ namespace Vampire
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
-            float monsterSpawnDelay = spawnRate > 0f
-                ? 1.0f / spawnRate
-                : float.PositiveInfinity;
+            float monsterSpawnDelay = spawnRate > 0f ? 1.0f / spawnRate : float.PositiveInfinity;
 
             if (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
             {
@@ -154,6 +189,7 @@ namespace Vampire
 
             SpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
         }
+
         public void SpawnMonsterFromCurrentSpawnTable()
         {
             SpawnMonsterFromSpawnTable();
@@ -247,7 +283,6 @@ namespace Vampire
                 Debug.LogWarning(
                     "[LevelManager] SpawnMonsterByFlatIndex 실패: LevelBlueprint 또는 EntityManager가 비어 있습니다."
                 );
-
                 return;
             }
 
@@ -280,7 +315,6 @@ namespace Vampire
                 Debug.LogWarning(
                     $"[LevelManager] MonsterBlueprint가 비어 있습니다. monsterIndex={monsterIndex}"
                 );
-
                 return;
             }
 
@@ -291,9 +325,7 @@ namespace Vampire
             );
         }
 
-        public void SpawnRandomMonsterFromFlatIndexList(
-            List<int> monsterIndices,
-            float hpMultiplier = 1f)
+        public void SpawnRandomMonsterFromFlatIndexList(List<int> monsterIndices, float hpMultiplier = 1f)
         {
             if (monsterIndices == null || monsterIndices.Count == 0)
             {
@@ -331,6 +363,7 @@ namespace Vampire
                      blueprintIndex++)
                 {
                     MonsterBlueprint blueprint = container.monsterBlueprints[blueprintIndex];
+
                     string monsterName = blueprint != null ? blueprint.name : "NULL";
 
                     Debug.Log(
@@ -405,6 +438,7 @@ namespace Vampire
             }
 
             int coinCount = PlayerPrefs.GetInt("Coins");
+
             PlayerPrefs.SetInt("Coins", coinCount + statsManager.CoinsGained);
         }
 
