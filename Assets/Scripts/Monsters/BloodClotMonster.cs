@@ -12,7 +12,7 @@ namespace Vampire
     public class BloodClotMonster : Monster
     {
         [Header("Blood Clot Mini Stage")]
-        [Tooltip("이 혈전이 죽었을 때 어떤 역할을 할지 정합니다. 필드 혈전은 미니 스테이지 입장, 미니 스테이지 내부 핵은 미니 스테이지 완료로 설정합니다.")]
+        [Tooltip("이 혈전이 죽었을 때 어떤 역할을 할지 정합니다. 필드 혈전은 포탈 생성, 미니 스테이지 내부 핵은 미니 스테이지 완료로 설정합니다.")]
         [SerializeField] private BloodClotMiniStageRole defaultRole = BloodClotMiniStageRole.EnterMiniStageOnDeath;
 
         [Tooltip("혈전이 죽었을 때 호출할 미니 스테이지 관리자입니다. 비어 있으면 씬에서 자동으로 찾습니다.")]
@@ -175,11 +175,15 @@ namespace Vampire
             switch (currentRole)
             {
                 case BloodClotMiniStageRole.EnterMiniStageOnDeath:
-                    miniStageDirector.EnterMiniStage(this);
+                    miniStageDirector.OpenEntrancePortal(transform.position);
                     break;
 
                 case BloodClotMiniStageRole.CompleteMiniStageOnDeath:
-                    miniStageDirector.CompleteMiniStage(this);
+                    Debug.LogWarning(
+                        "[BloodClotMonster] CompleteMiniStageOnDeath는 현재 사용하지 않습니다. " +
+                        "새 미니 스테이지 구조에서는 중앙 혈전을 처치하지 않고, " +
+                        "MiniStageReturnInteractable에서 E키로 복귀합니다."
+                    );
                     break;
             }
         }

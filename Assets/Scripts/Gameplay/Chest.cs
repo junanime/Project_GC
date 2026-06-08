@@ -1,10 +1,12 @@
 using UnityEngine;
+using System;
 using System.Collections;
 
 namespace Vampire
 {
     public class Chest : MonoBehaviour
     {
+        public static event Action<Chest> OnAnyChestOpened;
         protected ChestBlueprint chestBlueprint; 
         protected EntityManager entityManager;
         protected Character playerCharacter;
@@ -53,6 +55,7 @@ namespace Vampire
             if (!opened)
             {
                 opened = true;
+                OnAnyChestOpened?.Invoke(this);
                 StartCoroutine(Open(openedByPlayer));
             }
         }

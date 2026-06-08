@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BP_BloodClot
   m_EditorClassIdentifier: 
   name: "\uC138\uADE0"
-  hp: 200
+  hp: 50
   atk: 0
   recovery: 0
   armor: 0
