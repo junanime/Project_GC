@@ -13,10 +13,14 @@ namespace Vampire
         private ExplodingMonsterBlueprint explodingBlueprint;
 
         private float timeSinceSpawn = 0f;
+
         private bool explosionStarted = false;
+        private bool explosionDamageApplied = false;
         private bool warningActive = false;
 
         private Color originalColor = Color.white;
+        private Vector3 originalScale = Vector3.one;
+
         private Coroutine warningCoroutine;
 
         public override void Setup(
@@ -41,13 +45,40 @@ namespace Vampire
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
 
             timeSinceSpawn = 0f;
+
             explosionStarted = false;
+            explosionDamageApplied = false;
             warningActive = false;
+
+            originalScale = transform.localScale;
 
             if (monsterSpriteRenderer != null)
             {
+                monsterSpriteRenderer.enabled = true;
                 originalColor = monsterSpriteRenderer.color;
                 monsterSpriteRenderer.color = originalColor;
+            }
+
+            if (shadow != null)
+            {
+                shadow.SetActive(true);
+            }
+
+            if (monsterHitbox != null)
+            {
+                monsterHitbox.enabled = true;
+            }
+
+            if (monsterLegsCollider != null)
+            {
+                monsterLegsCollider.enabled = true;
+            }
+
+            if (rb != null)
+            {
+                rb.simulated = true;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
             }
 
             if (warningCoroutine != null)
@@ -134,6 +165,7 @@ namespace Vampire
             }
 
             float warningDistance = Mathf.Max(0.1f, explodingBlueprint.warningDistance);
+
             float distanceToPlayer =
                 Vector2.Distance(transform.position, playerCharacter.transform.position);
 
@@ -180,6 +212,16 @@ namespace Vampire
 
         private void TryExplodeByDistance()
         {
+            if (!alive || explosionStarted)
+            {
+                return;
+            }
+
+            if (explodingBlueprint == null)
+            {
+                return;
+            }
+
             if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
             {
                 return;
@@ -237,6 +279,11 @@ namespace Vampire
                 return;
             }
 
+            if (explodingBlueprint == null)
+            {
+                return;
+            }
+
             if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
             {
                 return;
@@ -285,6 +332,7 @@ namespace Vampire
             }
 
             explosionStarted = true;
+            alive = false;
 
             if (warningCoroutine != null)
             {
@@ -292,17 +340,32 @@ namespace Vampire
                 warningCoroutine = null;
             }
 
-            StartCoroutine(ExplosionRoutine(targetCharacter));
+            // 핵심 수정:
+            // 자폭 판정이 시작된 즉시 물리 충돌을 끊는다.
+            // 그래야 플레이어에게 붙어서 OnCollisionStay2D / OnTriggerStay2D가 반복 실행되지 않는다.
+            DisableCollisionAndMovement();
+
+            // 데미지는 자폭 시작 시점에 딱 1번만 적용한다.
+            ApplyExplosionDamageOnce(targetCharacter);
+
+            if (entityManager != null)
+            {
+                entityManager.LivingMonsters.Remove(this);
+            }
+
+            StartCoroutine(ExplosionRoutine());
         }
 
-        private IEnumerator ExplosionRoutine(Character targetCharacter)
+        private void DisableCollisionAndMovement()
         {
-            alive = false;
-
             if (rb != null)
             {
                 rb.velocity = Vector2.zero;
                 rb.angularVelocity = 0f;
+
+                // 콜라이더만 끄는 것보다 확실하게 물리 시뮬레이션까지 잠시 끊는다.
+                // 풀링으로 다시 재사용될 때 Setup에서 true로 복구한다.
+                rb.simulated = false;
             }
 
             if (monsterHitbox != null)
@@ -314,14 +377,10 @@ namespace Vampire
             {
                 monsterLegsCollider.enabled = false;
             }
+        }
 
-            ApplyExplosionDamage(targetCharacter);
-
-            if (entityManager != null)
-            {
-                entityManager.LivingMonsters.Remove(this);
-            }
-
+        private IEnumerator ExplosionRoutine()
+        {
             if (deathParticles != null)
             {
                 deathParticles.Play();
@@ -331,7 +390,7 @@ namespace Vampire
             {
                 // 폭발 직전 한 프레임 크게 보이게 해서 터지는 느낌을 준다.
                 monsterSpriteRenderer.color = Color.red;
-                transform.localScale *= 1.15f;
+                transform.localScale = originalScale * 1.15f;
             }
 
             yield return new WaitForSeconds(0.08f);
@@ -352,6 +411,9 @@ namespace Vampire
                 yield return new WaitForSeconds(waitTime);
             }
 
+            // 풀링으로 재사용될 수 있으므로, 비활성화 전에 원래 상태로 복구한다.
+            transform.localScale = originalScale;
+
             if (monsterSpriteRenderer != null)
             {
                 monsterSpriteRenderer.enabled = true;
@@ -363,28 +425,49 @@ namespace Vampire
                 shadow.SetActive(true);
             }
 
+            if (rb != null)
+            {
+                rb.simulated = true;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+
             OnKilled.Invoke(this);
             OnKilled.RemoveAllListeners();
 
-            bool countAsPlayerKill = explodingBlueprint.rewardOnSelfExplosion;
+            bool countAsPlayerKill =
+                explodingBlueprint != null &&
+                explodingBlueprint.rewardOnSelfExplosion;
 
             if (entityManager != null)
             {
                 entityManager.DespawnMonster(monsterIndex, this, countAsPlayerKill);
             }
 
-            if (explodingBlueprint.debugLog)
+            if (explodingBlueprint != null && explodingBlueprint.debugLog)
             {
                 Debug.Log(
-                    $"[ExplodingMonster] 자폭 완료 | Reward={explodingBlueprint.rewardOnSelfExplosion}",
+                    $"[ExplodingMonster] 자폭 완료 | Reward={countAsPlayerKill}",
                     this
                 );
             }
         }
 
-        private void ApplyExplosionDamage(Character targetCharacter)
+        private void ApplyExplosionDamageOnce(Character targetCharacter)
         {
+            if (explosionDamageApplied)
+            {
+                return;
+            }
+
+            explosionDamageApplied = true;
+
             if (targetCharacter == null)
+            {
+                return;
+            }
+
+            if (explodingBlueprint == null)
             {
                 return;
             }
@@ -403,6 +486,14 @@ namespace Vampire
 
             if (distance > radius)
             {
+                if (explodingBlueprint.debugLog)
+                {
+                    Debug.Log(
+                        $"[ExplodingMonster] 자폭은 시작됐지만 플레이어가 폭발 반경 밖입니다. Distance={distance:0.##}, Radius={radius:0.##}",
+                        this
+                    );
+                }
+
                 return;
             }
 
@@ -426,7 +517,7 @@ namespace Vampire
             if (explodingBlueprint.debugLog)
             {
                 Debug.Log(
-                    $"[ExplodingMonster] 플레이어에게 자폭 피해 적용 | Damage={explodingBlueprint.explosionDamage}",
+                    $"[ExplodingMonster] 플레이어에게 자폭 피해 1회 적용 | Damage={explodingBlueprint.explosionDamage}",
                     this
                 );
             }
