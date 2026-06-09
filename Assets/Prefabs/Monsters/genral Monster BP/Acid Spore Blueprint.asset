@@ -18,7 +18,7 @@ MonoBehaviour:
   recovery: 0
   armor: 0
   atkspeed: 1
-  movespeed: 8
+  movespeed: 6
   acceleration: 120
   gemLootTable:
     lootTable:
