@@ -6755,8 +6755,9 @@ MonoBehaviour:
   miniStageAnchor: {fileID: 958006997}
   roomPrefabs:
   - {fileID: 5825257216088610400, guid: 47a784ae3e6f0574c9812d885515cb89, type: 3}
-  useForcedRoomIndex: 0
-  forcedRoomIndex: 0
+  - {fileID: -6458298950580239387, guid: 44d719d1c53368c458eac9b73cc07e01, type: 3}
+  useForcedRoomIndex: 1
+  forcedRoomIndex: 1
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
