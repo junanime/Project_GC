@@ -6756,8 +6756,9 @@ MonoBehaviour:
   roomPrefabs:
   - {fileID: 5825257216088610400, guid: 47a784ae3e6f0574c9812d885515cb89, type: 3}
   - {fileID: -6458298950580239387, guid: 44d719d1c53368c458eac9b73cc07e01, type: 3}
+  - {fileID: 1284521409088723078, guid: b638ac198698b9948a91adc19b8d83f0, type: 3}
   useForcedRoomIndex: 1
-  forcedRoomIndex: 1
+  forcedRoomIndex: 2
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
@@ -37002,7 +37003,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1000
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!210 &1852338041
 SortingGroup:
