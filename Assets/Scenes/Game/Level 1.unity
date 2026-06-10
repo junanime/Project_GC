@@ -26267,7 +26267,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1485676086}
   - component: {fileID: 1485676085}
-  - component: {fileID: 1485676087}
   m_Layer: 0
   m_Name: BloodClotFieldSpawner
   m_TagString: Untagged
@@ -26292,12 +26291,18 @@ MonoBehaviour:
   miniStageDirector: {fileID: 377995997}
   bloodClotMonsterPoolIndex: 12
   bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
-  firstSpawnTime: 5
-  respawnDelay: 120
-  spawnDistanceFromPlayer: 1
   bloodClotHpBuff: 0
-  keepOnlyOneBloodClot: 1
+  firstSpawnDelay: 40
+  spawnInterval: 60
+  pauseTimerWhileRunFlowPaused: 1
+  spawnDistanceFromPlayer: 1
+  spawnDistanceRandomOffset: 1.5
+  useRandomDirection: 1
+  maxActiveBloodClots: 0
+  skipSpawnWhenMaxActiveReached: 1
   debugLog: 1
+  enableForceSpawnKey: 1
+  forceSpawnKey: 288
 --- !u!4 &1485676086
 Transform:
   m_ObjectHideFlags: 0
@@ -26313,29 +26318,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1485676087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1485676084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e3c26e95cb90db49b3a42fcc955d942, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayName: Marker
-  markerKind: 0
-  showOnMiniMap: 1
-  showOnFullMap: 1
-  hideUntilDiscovered: 1
-  alwaysVisible: 0
-  discoverDistance: 5
-  miniMapColor: {r: 1, g: 0.015686274, b: 0.822949, a: 1}
-  miniMapSize: 6
-  fullMapColor: {r: 1, g: 0.015686274, b: 0.88084376, a: 1}
-  fullMapSize: 8
 --- !u!1 &1547352217
 GameObject:
   m_ObjectHideFlags: 0
