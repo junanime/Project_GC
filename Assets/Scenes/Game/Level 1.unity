@@ -6757,8 +6757,9 @@ MonoBehaviour:
   - {fileID: 5825257216088610400, guid: 47a784ae3e6f0574c9812d885515cb89, type: 3}
   - {fileID: -6458298950580239387, guid: 44d719d1c53368c458eac9b73cc07e01, type: 3}
   - {fileID: 1284521409088723078, guid: b638ac198698b9948a91adc19b8d83f0, type: 3}
+  - {fileID: 3954065462897060129, guid: d63a4292c08c26249b131d02cca96194, type: 3}
   useForcedRoomIndex: 1
-  forcedRoomIndex: 2
+  forcedRoomIndex: 3
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
