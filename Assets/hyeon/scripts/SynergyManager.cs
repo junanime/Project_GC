@@ -12,6 +12,13 @@ namespace Vampire
         private List<MerchantItemBlueprint> ownedItems = new List<MerchantItemBlueprint>();
         private HashSet<ItemTag> activatedSynergies = new HashSet<ItemTag>();
 
+        private List<string> activeSynergyNames = new List<string>();
+
+        public List<string> ActiveSynergyNames
+        {
+            get { return activeSynergyNames; }
+        }
+
         private void Awake()
         {
             Instance = this;
@@ -77,6 +84,7 @@ namespace Vampire
             if (count >= 3 && !activatedSynergies.Contains(tag))
             {
                 activatedSynergies.Add(tag);
+                activeSynergyNames.Add(synergyName);
 
                 Debug.Log($"<color=magenta>[시너지 발동]</color> {synergyName} 활성화!");
 
@@ -95,33 +103,28 @@ namespace Vampire
             switch (tag)
             {
                 case ItemTag.영양제:
-                    // 건강 마니아: 임시 최대 체력 +20
                     player.AddMaxHealthBonus(20f);
                     player.GainHealth(20f);
                     Debug.Log("<color=green>[건강 마니아]</color> 최대 체력 +20 적용!");
                     break;
 
                 case ItemTag.의약품:
-                    // 약물 과다: 공격력 +30%, 이동속도 -0.05
                     player.AddDamageMultiplier(0.3f);
                     player.AddMoveSpeedBoost(-0.05f);
                     Debug.Log("<color=red>[약물 과다]</color> 공격력 +30%, 이동속도 -0.05 적용!");
                     break;
 
                 case ItemTag.음식:
-                    // 자극적인 맛: 임시 화상 확률 +20%
                     player.AddBurnChance(0.2f);
                     Debug.Log("<color=orange>[자극적인 맛]</color> 화상 확률 +20% 적용!");
                     break;
 
                 case ItemTag.위생:
-                    // 위생 전문가: 임시 보호막 1회 지급
                     player.EnableShield();
                     Debug.Log("<color=cyan>[위생 전문가]</color> 1회용 보호막 적용!");
                     break;
 
                 case ItemTag.유틸리티:
-                    // 집중 케어: 임시 투사체 크기 +10%
                     player.AddProjectileSize(0.1f);
                     Debug.Log("<color=blue>[집중 케어]</color> 투사체 크기 +10% 적용!");
                     break;
