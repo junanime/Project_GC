@@ -401,6 +401,15 @@ namespace Vampire
                     statApplier.ApplyStats(itemToBuy);
                 }
 
+                if (SynergyManager.Instance != null)
+                {
+                    SynergyManager.Instance.AddItem(itemToBuy);
+                }
+                else
+                {
+                    Debug.LogWarning("[시너지] SynergyManager가 씬에 없습니다!");
+                }
+
                 MerchantNPC npcToDestroy = currentInteractingNPC;
 
                 CloseShop();

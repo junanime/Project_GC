@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "KF94 \uB9C8\uC2A4\uD06C"
   itemRarity: 2
-  itemTag: 0
+  itemTag: 3
   description: "\uBCF4\uD638\uB9C9 1\uD68C"
   itemIcon: {fileID: 21300000, guid: 114683882275be44ea00cb87e602c7c0, type: 3}
   cost: 65
