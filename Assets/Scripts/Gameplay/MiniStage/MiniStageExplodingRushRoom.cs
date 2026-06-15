@@ -193,7 +193,9 @@ namespace Vampire
                 explodingMonsterPoolIndex,
                 spawnPosition,
                 explodingMonsterBlueprint,
-                explodingMonsterHpBuff
+                explodingMonsterHpBuff,
+                true
+
             );
 
             if (monster == null)

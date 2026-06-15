@@ -269,7 +269,8 @@ namespace Vampire
                     acidSlimeMonsterPoolIndex,
                     spawnPosition,
                     acidSlimeBlueprint,
-                    acidSlimeHpBuff
+                    acidSlimeHpBuff,
+                    true
                 );
 
                 if (slime == null)
@@ -531,6 +532,15 @@ namespace Vampire
                     requiredMaxAliveCount,
                     gaugeMaxCount
                 );
+
+                if (debugLog)
+                {
+                    Debug.Log("[MiniStageAcidBalanceRoom] 산도 조절 게이지 UI 생성 완료.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[MiniStageAcidBalanceRoom] 산도 조절 게이지 UI 생성 실패.");
             }
         }
 
