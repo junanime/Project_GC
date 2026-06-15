@@ -6758,8 +6758,9 @@ MonoBehaviour:
   - {fileID: -6458298950580239387, guid: 44d719d1c53368c458eac9b73cc07e01, type: 3}
   - {fileID: 1284521409088723078, guid: b638ac198698b9948a91adc19b8d83f0, type: 3}
   - {fileID: 3954065462897060129, guid: d63a4292c08c26249b131d02cca96194, type: 3}
+  - {fileID: 3851990242224366932, guid: cb152dc1a0d38284a8d04723456d6f4c, type: 3}
   useForcedRoomIndex: 1
-  forcedRoomIndex: 3
+  forcedRoomIndex: 4
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
@@ -20230,6 +20231,8 @@ MonoBehaviour:
   globalMaxAliveElites: 8
   requireEliteMonsterBlueprint: 0
   cleanupInactiveElitesEveryFrame: 1
+  blockWhileRunFlowPaused: 1
+  logMiniStageBlock: 0
   spawnPhases:
   - phaseName: "Phase 1: 2\uBD84~5\uBD84"
     startTime: 90
@@ -26292,7 +26295,7 @@ MonoBehaviour:
   bloodClotMonsterPoolIndex: 12
   bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
   bloodClotHpBuff: 0
-  firstSpawnDelay: 40
+  firstSpawnDelay: 10
   spawnInterval: 60
   pauseTimerWhileRunFlowPaused: 1
   spawnDistanceFromPlayer: 1
@@ -38516,6 +38519,8 @@ MonoBehaviour:
     maxDistanceFromPlayer: 5
     minDistanceBetweenTraps: 1.5
     spawnPositionTryCount: 20
+  blockWhileRunFlowPaused: 1
+  logMiniStageBlock: 0
   debugLog: 0
 --- !u!4 &2093063619
 Transform:

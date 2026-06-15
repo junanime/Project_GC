@@ -123,8 +123,27 @@ namespace Vampire
             }
 
             OnRoomCleared();
-
             SpawnRewardChest(rewardPosition);
+        }
+
+        protected void CompleteRoomWithoutReward()
+        {
+            if (roomCleared)
+            {
+                return;
+            }
+
+            roomCleared = true;
+            rewardChestOpened = true;
+            activeRewardChest = null;
+
+            if (debugLog)
+            {
+                Debug.Log($"[MiniStageRoomBase] 방 종료: {gameObject.name} / 보상 없음");
+            }
+
+            OnRoomCleared();
+            UnlockReturnInteractable();
         }
 
         private void SpawnRewardChest(Vector3? rewardPosition = null)
@@ -147,9 +166,7 @@ namespace Vampire
                 return;
             }
 
-            Vector3 spawnPosition = rewardPosition ??
-                                    (rewardSpawnPoint != null ? rewardSpawnPoint.position : transform.position);
-
+            Vector3 spawnPosition = rewardPosition ?? (rewardSpawnPoint != null ? rewardSpawnPoint.position : transform.position);
             activeRewardChest = entityManager.SpawnChest(rewardChestBlueprint, spawnPosition);
 
             if (debugLog)
