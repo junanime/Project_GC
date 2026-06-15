@@ -9,6 +9,9 @@ namespace Vampire
         [Tooltip("전체 UI Canvas입니다. 임시 UI 자동 생성 시 자동으로 연결됩니다.")]
         [SerializeField] private Canvas canvas;
 
+        [Tooltip("UI 전체를 감싸는 루트 RectTransform입니다.")]
+        [SerializeField] private RectTransform rootRect;
+
         [Tooltip("개체수 게이지의 배경 RectTransform입니다.")]
         [SerializeField] private RectTransform gaugeBackgroundRect;
 
@@ -32,29 +35,35 @@ namespace Vampire
         [SerializeField] private int gaugeMaxCount = 40;
 
         [Tooltip("게이지 높이입니다.")]
-        [SerializeField] private float gaugeHeight = 360f;
+        [SerializeField] private float gaugeHeight = 420f;
 
         [Tooltip("게이지 너비입니다.")]
-        [SerializeField] private float gaugeWidth = 46f;
+        [SerializeField] private float gaugeWidth = 54f;
 
         [Tooltip("UI가 화면 오른쪽에서 얼마나 떨어질지 설정합니다.")]
-        [SerializeField] private float rightOffset = 90f;
+        [SerializeField] private float rightOffset = 120f;
 
         [Tooltip("UI가 화면 중앙에서 위아래로 얼마나 이동할지 설정합니다.")]
         [SerializeField] private float verticalOffset = 0f;
 
         [Header("Temporary Colors")]
+        [Tooltip("전체 패널 배경 색상입니다.")]
+        [SerializeField] private Color panelColor = new Color(0f, 0f, 0f, 0.45f);
+
         [Tooltip("임시 게이지 배경 색상입니다.")]
-        [SerializeField] private Color backgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.75f);
+        [SerializeField] private Color backgroundColor = new Color(0.08f, 0.08f, 0.08f, 0.95f);
 
         [Tooltip("목표 개체수 범위 색상입니다.")]
-        [SerializeField] private Color safeZoneColor = new Color(0.25f, 1f, 0.25f, 0.75f);
+        [SerializeField] private Color safeZoneColor = new Color(0.25f, 1f, 0.25f, 0.9f);
 
         [Tooltip("현재 개체수 마커 색상입니다.")]
         [SerializeField] private Color markerColor = new Color(1f, 1f, 1f, 1f);
 
         [Tooltip("실패 범위일 때 현재 개체수 마커 색상입니다.")]
         [SerializeField] private Color dangerMarkerColor = new Color(1f, 0.15f, 0.15f, 1f);
+
+        [Tooltip("게이지 테두리 색상입니다.")]
+        [SerializeField] private Color borderColor = new Color(1f, 1f, 1f, 0.85f);
 
         private int safeMinCount;
         private int safeMaxCount;
@@ -66,7 +75,7 @@ namespace Vampire
 
             Canvas canvas = canvasObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 2000;
+            canvas.sortingOrder = 5000;
 
             CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -92,11 +101,27 @@ namespace Vampire
             safeMaxCount = Mathf.Max(safeMinCount, safeMax);
             gaugeMaxCount = Mathf.Max(1, maxCount);
 
+            if (gaugeBackgroundRect == null ||
+                safeZoneRect == null ||
+                currentMarkerRect == null ||
+                countText == null ||
+                timerText == null ||
+                resultText == null)
+            {
+                BuildTemporaryLayout(transform);
+            }
+
             initialized = true;
 
             ApplySafeZone();
             SetResultText(string.Empty, Color.white);
             gameObject.SetActive(true);
+
+            if (canvas != null)
+            {
+                canvas.gameObject.SetActive(true);
+                canvas.sortingOrder = 5000;
+            }
         }
 
         public void UpdateGauge(int currentCount, float remainingTime)
@@ -169,7 +194,7 @@ namespace Vampire
             float minNormalized = Mathf.InverseLerp(0f, gaugeMaxCount, safeMinCount);
             float maxNormalized = Mathf.InverseLerp(0f, gaugeMaxCount, safeMaxCount);
 
-            float zoneHeight = Mathf.Max(4f, (maxNormalized - minNormalized) * gaugeHeight);
+            float zoneHeight = Mathf.Max(6f, (maxNormalized - minNormalized) * gaugeHeight);
             float centerNormalized = (minNormalized + maxNormalized) * 0.5f;
             float centerY = -gaugeHeight * 0.5f + centerNormalized * gaugeHeight;
 
@@ -190,12 +215,55 @@ namespace Vampire
 
         private void BuildTemporaryLayout(Transform root)
         {
-            RectTransform rootRect = root.gameObject.AddComponent<RectTransform>();
+            ClearChildren(root);
+
+            rootRect = root as RectTransform;
+
+            if (rootRect == null)
+            {
+                rootRect = root.gameObject.AddComponent<RectTransform>();
+            }
+
             rootRect.anchorMin = new Vector2(1f, 0.5f);
             rootRect.anchorMax = new Vector2(1f, 0.5f);
             rootRect.pivot = new Vector2(0.5f, 0.5f);
-            rootRect.sizeDelta = new Vector2(230f, 560f);
+            rootRect.sizeDelta = new Vector2(260f, 620f);
             rootRect.anchoredPosition = new Vector2(-rightOffset, verticalOffset);
+
+            GameObject panelObject = CreateImageObject("Panel", root, panelColor);
+            RectTransform panelRect = panelObject.GetComponent<RectTransform>();
+            panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+            panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            panelRect.pivot = new Vector2(0.5f, 0.5f);
+            panelRect.sizeDelta = new Vector2(240f, 600f);
+            panelRect.anchoredPosition = Vector2.zero;
+
+            Text titleText = CreateTextObject(
+                "TitleText",
+                root,
+                new Vector2(0f, gaugeHeight * 0.5f + 100f),
+                new Vector2(230f, 44f),
+                24,
+                TextAnchor.MiddleCenter
+            );
+            titleText.text = "산도 조절";
+
+            countText = CreateTextObject(
+                "CountText",
+                root,
+                new Vector2(0f, gaugeHeight * 0.5f + 58f),
+                new Vector2(230f, 70f),
+                22,
+                TextAnchor.MiddleCenter
+            );
+
+            GameObject borderObject = CreateImageObject("GaugeBorder", root, borderColor);
+            RectTransform borderRect = borderObject.GetComponent<RectTransform>();
+            borderRect.anchorMin = new Vector2(0.5f, 0.5f);
+            borderRect.anchorMax = new Vector2(0.5f, 0.5f);
+            borderRect.pivot = new Vector2(0.5f, 0.5f);
+            borderRect.sizeDelta = new Vector2(gaugeWidth + 10f, gaugeHeight + 10f);
+            borderRect.anchoredPosition = Vector2.zero;
 
             GameObject backgroundObject = CreateImageObject("GaugeBackground", root, backgroundColor);
             gaugeBackgroundRect = backgroundObject.GetComponent<RectTransform>();
@@ -218,23 +286,14 @@ namespace Vampire
             currentMarkerRect.anchorMin = new Vector2(0.5f, 0.5f);
             currentMarkerRect.anchorMax = new Vector2(0.5f, 0.5f);
             currentMarkerRect.pivot = new Vector2(0.5f, 0.5f);
-            currentMarkerRect.sizeDelta = new Vector2(gaugeWidth + 30f, 8f);
+            currentMarkerRect.sizeDelta = new Vector2(gaugeWidth + 42f, 10f);
             currentMarkerRect.anchoredPosition = Vector2.zero;
-
-            countText = CreateTextObject(
-                "CountText",
-                root,
-                new Vector2(0f, gaugeHeight * 0.5f + 60f),
-                new Vector2(210f, 74f),
-                22,
-                TextAnchor.MiddleCenter
-            );
 
             timerText = CreateTextObject(
                 "TimerText",
                 root,
-                new Vector2(0f, -gaugeHeight * 0.5f - 48f),
-                new Vector2(210f, 60f),
+                new Vector2(0f, -gaugeHeight * 0.5f - 54f),
+                new Vector2(230f, 60f),
                 22,
                 TextAnchor.MiddleCenter
             );
@@ -242,11 +301,19 @@ namespace Vampire
             resultText = CreateTextObject(
                 "ResultText",
                 root,
-                new Vector2(0f, -gaugeHeight * 0.5f - 126f),
-                new Vector2(230f, 94f),
+                new Vector2(0f, -gaugeHeight * 0.5f - 132f),
+                new Vector2(240f, 94f),
                 22,
                 TextAnchor.MiddleCenter
             );
+        }
+
+        private void ClearChildren(Transform root)
+        {
+            for (int i = root.childCount - 1; i >= 0; i--)
+            {
+                Destroy(root.GetChild(i).gameObject);
+            }
         }
 
         private GameObject CreateImageObject(string objectName, Transform parent, Color color)
@@ -284,7 +351,7 @@ namespace Vampire
             rectTransform.anchoredPosition = anchoredPosition;
 
             Text text = textObject.AddComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontSize = fontSize;
             text.alignment = alignment;
             text.color = Color.white;

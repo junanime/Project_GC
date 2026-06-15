@@ -84,15 +84,18 @@ namespace Vampire
         [Tooltip("직접 만든 게이지 UI 프리팹입니다. 비워두면 임시 UI를 자동 생성합니다.")]
         [SerializeField] private MiniStageAcidBalanceGaugeUI gaugeUIPrefab;
 
+        [Tooltip("체크하면 Gauge UI Prefab이 들어 있어도 임시 게이지 UI를 강제로 생성합니다. 테스트 중에는 체크 추천입니다.")]
+        [SerializeField] private bool forceTemporaryGaugeUI = true;
+
         [Tooltip("게이지 UI가 표시할 최대 개체수입니다. 현재 개체수가 이 값을 넘으면 마커가 맨 위에 붙습니다.")]
         [SerializeField] private int gaugeMaxCount = 40;
 
-        [Tooltip("방 종료 후 결과 확인을 위해 UI를 잠시 유지합니다. 귀환 시에는 자동 삭제됩니다.")]
-        [SerializeField] private bool keepGaugeVisibleUntilReturn = true;
-
         [Header("Cleanup")]
-        [Tooltip("방을 나갈 때 남아 있는 위산 슬라임을 비활성화합니다. 체크를 추천합니다.")]
-        [SerializeField] private bool disableRemainingSlimesOnCleanup = true;
+        [Tooltip("40초 종료 시점에 성공/실패와 상관없이 남은 위산 슬라임을 즉시 전부 제거합니다.")]
+        [SerializeField] private bool removeSlimesWhenTimerEnds = true;
+
+        [Tooltip("방을 나갈 때 남아 있는 위산 슬라임을 한 번 더 제거합니다.")]
+        [SerializeField] private bool removeSlimesOnCleanup = true;
 
         [Header("Debug")]
         [Tooltip("위장 산도 조절 방 로그를 출력합니다.")]
@@ -388,6 +391,11 @@ namespace Vampire
                 );
             }
 
+            if (removeSlimesWhenTimerEnds)
+            {
+                RemoveAllActiveSlimes("TimerEnded");
+            }
+
             if (success)
             {
                 if (debugLog)
@@ -416,15 +424,19 @@ namespace Vampire
             roomFinished = true;
             roomRunning = false;
 
+            int currentAliveCount = GetCurrentAliveCount();
+
             if (activeGaugeUI != null)
             {
                 activeGaugeUI.ShowResult(
                     false,
-                    GetCurrentAliveCount(),
+                    currentAliveCount,
                     requiredMinAliveCount,
                     requiredMaxAliveCount
                 );
             }
+
+            RemoveAllActiveSlimes("FailImmediately");
 
             if (unlockReturnOnFailure)
             {
@@ -456,6 +468,43 @@ namespace Vampire
             }
         }
 
+        private void RemoveAllActiveSlimes(string reason)
+        {
+            if (debugLog)
+            {
+                Debug.Log($"[MiniStageAcidBalanceRoom] 위산 슬라임 전체 제거 시작. reason={reason}, count={activeSlimes.Count}");
+            }
+
+            for (int i = activeSlimes.Count - 1; i >= 0; i--)
+            {
+                Monster slime = activeSlimes[i];
+
+                if (slime == null)
+                {
+                    activeSlimes.RemoveAt(i);
+                    continue;
+                }
+
+                slime.OnKilled.RemoveListener(OnSlimeKilled);
+
+                if (entityManager != null && slime.gameObject.activeInHierarchy)
+                {
+                    entityManager.DespawnMonster(acidSlimeMonsterPoolIndex, slime, false);
+                }
+                else if (slime.gameObject.activeInHierarchy)
+                {
+                    slime.gameObject.SetActive(false);
+                }
+
+                activeSlimes.RemoveAt(i);
+            }
+
+            if (debugLog)
+            {
+                Debug.Log("[MiniStageAcidBalanceRoom] 위산 슬라임 전체 제거 완료.");
+            }
+        }
+
         private float GetRandomWaveInterval()
         {
             return Random.Range(
@@ -466,7 +515,7 @@ namespace Vampire
 
         private void CreateGaugeUI()
         {
-            if (gaugeUIPrefab != null)
+            if (!forceTemporaryGaugeUI && gaugeUIPrefab != null)
             {
                 activeGaugeUI = Instantiate(gaugeUIPrefab);
             }
@@ -506,31 +555,26 @@ namespace Vampire
             roomRunning = false;
             roomFinished = true;
 
-            for (int i = activeSlimes.Count - 1; i >= 0; i--)
+            if (removeSlimesOnCleanup)
             {
-                Monster slime = activeSlimes[i];
-
-                if (slime == null)
+                RemoveAllActiveSlimes("RoomCleanup");
+            }
+            else
+            {
+                for (int i = activeSlimes.Count - 1; i >= 0; i--)
                 {
-                    continue;
+                    Monster slime = activeSlimes[i];
+
+                    if (slime != null)
+                    {
+                        slime.OnKilled.RemoveListener(OnSlimeKilled);
+                    }
                 }
 
-                slime.OnKilled.RemoveListener(OnSlimeKilled);
-
-                if (disableRemainingSlimesOnCleanup)
-                {
-                    slime.gameObject.SetActive(false);
-                }
+                activeSlimes.Clear();
             }
 
-            activeSlimes.Clear();
-
-            if (activeGaugeUI != null && !keepGaugeVisibleUntilReturn)
-            {
-                activeGaugeUI.DestroyGauge();
-                activeGaugeUI = null;
-            }
-            else if (activeGaugeUI != null)
+            if (activeGaugeUI != null)
             {
                 activeGaugeUI.DestroyGauge();
                 activeGaugeUI = null;

@@ -1197,6 +1197,11 @@ namespace Vampire
 
         private bool IsMiniStageSpawnBlocked()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return true;
+            }
+
             if (!blockWhileRunFlowPaused)
             {
                 return false;
