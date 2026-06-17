@@ -20819,6 +20819,10 @@ MonoBehaviour:
   baseSpawnChance: 0.25
   maxSpawnChance: 0.65
   chanceIncreasePerMinute: 0.03
+  blockWhileMiniStage: 1
+  pauseSpawnTimerWhileMiniStage: 1
+  levelManager: {fileID: 0}
+  logMiniStageBlock: 0
 --- !u!4 &1323090797
 Transform:
   m_ObjectHideFlags: 0
@@ -38813,6 +38817,124 @@ Transform:
   m_Children: []
   m_Father: {fileID: 856782954}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2101930413
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2101930415}
+  - component: {fileID: 2101930414}
+  m_Layer: 0
+  m_Name: DigestiveEnzymeDifficultyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2101930414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101930413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3ac1bc6f38fcf24e99f1be805c67092, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  difficultyIncreasePercent: 5
+  killCountPerIncrease: 1
+  maxDifficultyIncreasePercent: 50
+  allowSpawnRateIncrease: 1
+  allowMonsterHealthIncrease: 1
+  allowMonsterMoveSpeedIncrease: 1
+  applyMoveSpeedBonusToActiveMonsters: 1
+  moveSpeedApplyInterval: 1
+  ignoreBossMonstersForMoveSpeed: 1
+  debugLog: 1
+--- !u!4 &2101930415
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101930413}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 553.9942, y: 290.47504, z: -2.5513744}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2106351309
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2106351311}
+  - component: {fileID: 2106351310}
+  m_Layer: 0
+  m_Name: DigestiveEnzymeFieldSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2106351310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106351309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c21dd700e34f02f46bb255dfaeb14c02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  digestiveEnzymePrefab: {fileID: 761807975845522662, guid: e520f9ae38470ae43ab567412afecba3, type: 3}
+  levelManager: {fileID: 0}
+  playerCharacter: {fileID: 0}
+  firstSpawnTime: 10
+  spawnInterval: 35
+  maxAliveCount: 2
+  spawnDistanceFromPlayer: 8
+  spawnDistanceJitter: 1.5
+  randomDirectionSpawn: 1
+  fixedSpawnDirection: {x: 1, y: 0}
+  avoidSpawnRadius: 0.6
+  avoidSpawnLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  blockWhileRunFlowPaused: 1
+  blockInsideMiniStage: 1
+  resetTimerWhileBlocked: 0
+  debugLog: 1
+  enableForceSpawnKey: 1
+  forceSpawnKey: 290
+--- !u!4 &2106351311
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106351309}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 553.9942, y: 290.47504, z: -2.5513744}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2124109317
 GameObject:
   m_ObjectHideFlags: 0
@@ -39326,3 +39448,5 @@ SceneRoots:
   - {fileID: 377995996}
   - {fileID: 1485676086}
   - {fileID: 958006997}
+  - {fileID: 2101930415}
+  - {fileID: 2106351311}

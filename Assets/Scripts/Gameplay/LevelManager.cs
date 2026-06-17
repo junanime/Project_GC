@@ -28,11 +28,9 @@ namespace Vampire
         private float levelTime = 0f;
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
-
         private bool miniBossSpawned = false;
         private bool finalBossSpawned = false;
         private bool levelEnded = false;
-
         private bool runFlowPaused = false;
 
         public float CurrentLevelTime => levelTime;
@@ -49,7 +47,6 @@ namespace Vampire
             levelTime = 0f;
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
-
             miniBossSpawned = false;
             finalBossSpawned = false;
             levelEnded = false;
@@ -91,9 +88,7 @@ namespace Vampire
             );
 
             entityManager.SpawnChest(levelBlueprint.chestBlueprint);
-
             infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
-
             inventory.Init();
         }
 
@@ -162,7 +157,14 @@ namespace Vampire
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
-            float monsterSpawnDelay = spawnRate > 0f ? 1.0f / spawnRate : float.PositiveInfinity;
+
+            // 소화효소 처치 난이도 상승 연결:
+            // 선택된 난이도가 SpawnRate이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
+            spawnRate *= DigestiveEnzymeDifficultyManager.SpawnRateMultiplier;
+
+            float monsterSpawnDelay = spawnRate > 0f
+                ? 1.0f / spawnRate
+                : float.PositiveInfinity;
 
             if (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
             {
@@ -318,10 +320,16 @@ namespace Vampire
                 return;
             }
 
+            // 소화효소 처치 난이도 상승 연결:
+            // 선택된 난이도가 MonsterHealth이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
+            float finalHp = monsterBlueprint.hp *
+                            hpMultiplier *
+                            DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
+
             entityManager.SpawnMonsterRandomPosition(
                 poolIndex,
                 monsterBlueprint,
-                monsterBlueprint.hp * hpMultiplier
+                finalHp
             );
         }
 
@@ -333,7 +341,6 @@ namespace Vampire
             }
 
             int selectedIndex = monsterIndices[Random.Range(0, monsterIndices.Count)];
-
             SpawnMonsterByFlatIndex(selectedIndex, hpMultiplier);
         }
 
@@ -358,12 +365,9 @@ namespace Vampire
                     continue;
                 }
 
-                for (int blueprintIndex = 0;
-                     blueprintIndex < container.monsterBlueprints.Length;
-                     blueprintIndex++)
+                for (int blueprintIndex = 0; blueprintIndex < container.monsterBlueprints.Length; blueprintIndex++)
                 {
                     MonsterBlueprint blueprint = container.monsterBlueprints[blueprintIndex];
-
                     string monsterName = blueprint != null ? blueprint.name : "NULL";
 
                     Debug.Log(
@@ -390,7 +394,6 @@ namespace Vampire
             levelEnded = true;
 
             SaveCoinsGained();
-
             Time.timeScale = 0f;
 
             if (levelResultPanel != null)
@@ -415,7 +418,6 @@ namespace Vampire
             levelEnded = true;
 
             SaveCoinsGained();
-
             Time.timeScale = 0f;
 
             if (levelResultPanel != null)
@@ -438,7 +440,6 @@ namespace Vampire
             }
 
             int coinCount = PlayerPrefs.GetInt("Coins");
-
             PlayerPrefs.SetInt("Coins", coinCount + statsManager.CoinsGained);
         }
 
