@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7613674781478751859}
   - component: {fileID: 8676122264078236165}
   - component: {fileID: 761807975845522662}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DigestiveEnzymeMonster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
