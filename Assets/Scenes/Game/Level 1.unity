@@ -38908,10 +38908,10 @@ MonoBehaviour:
   digestiveEnzymePrefab: {fileID: 761807975845522662, guid: e520f9ae38470ae43ab567412afecba3, type: 3}
   levelManager: {fileID: 0}
   playerCharacter: {fileID: 0}
-  firstSpawnTime: 10
-  spawnInterval: 35
-  maxAliveCount: 2
-  spawnDistanceFromPlayer: 8
+  firstSpawnTime: 55
+  spawnInterval: 40
+  maxAliveCount: 3
+  spawnDistanceFromPlayer: 9
   spawnDistanceJitter: 1.5
   randomDirectionSpawn: 1
   fixedSpawnDirection: {x: 1, y: 0}

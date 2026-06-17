@@ -157,7 +157,7 @@ namespace Vampire
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
-
+       
             // 소화효소 처치 난이도 상승 연결:
             // 선택된 난이도가 SpawnRate이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
             spawnRate *= DigestiveEnzymeDifficultyManager.SpawnRateMultiplier;
