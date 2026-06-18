@@ -96,9 +96,9 @@ MonoBehaviour:
   - {fileID: 3470980469764747742}
   - {fileID: 3145828834491352616}
   requiredKillsPerField: 15
-  allowReturnAfterTimeLimit: 1
-  timeLimitSeconds: 45
-  hideFieldsOnTimeLimit: 1
+  unlockReturnAfterTimeLimit: 1
+  optionalReturnUnlockSeconds: 45
+  logOptionalReturnUnlock: 1
   monsterPoolIndex: 0
   monsterBlueprints:
   - {fileID: 11400000, guid: 23cbbabfbfc14e4498b09675b4940a0c, type: 2}
@@ -415,7 +415,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -700
   m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -483,11 +483,20 @@ MonoBehaviour:
   monsterLayer:
     serializedVersion: 2
     m_Bits: 0
+  useOverlapScan: 1
+  overlapScanInterval: 0.1
+  playerKillCountGraceSeconds: 2
+  keepTrackingAfterExitSeconds: 2.5
   fieldColor: {r: 0.6, g: 1, b: 0.25, a: 1}
   updateFieldColorByProgress: 1
   nearCompleteColor: {r: 0.7607844, g: 0.5254902, b: 0.9215687, a: 1}
   completedColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.15}
   hideFieldOnComplete: 1
+  forceRenderOrder: 1
+  acidSortingLayerName: Default
+  acidSortingOrder: -700
+  markerSortingLayerName: Default
+  markerSortingOrder: -690
   progressMarkerRoot: {fileID: 0}
   progressMarkerPrefab: {fileID: 9121706888412710758}
   autoCreateMarkersFromPrefab: 1
@@ -496,6 +505,7 @@ MonoBehaviour:
   markerStartAngle: 90
   disableMarkerObjectOnKill: 1
   debugLog: 1
+  debugInsideMonsterCount: 0
 --- !u!1 &2241096404602867000
 GameObject:
   m_ObjectHideFlags: 0
@@ -1090,7 +1100,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -700
   m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1158,11 +1168,20 @@ MonoBehaviour:
   monsterLayer:
     serializedVersion: 2
     m_Bits: 0
+  useOverlapScan: 1
+  overlapScanInterval: 0.1
+  playerKillCountGraceSeconds: 2
+  keepTrackingAfterExitSeconds: 2.5
   fieldColor: {r: 0.11921501, g: 0.322037, b: 0.5377358, a: 1}
   updateFieldColorByProgress: 1
   nearCompleteColor: {r: 1, g: 0.9, b: 0.2, a: 0.45}
   completedColor: {r: 0.54901963, g: 0.3529412, b: 0.8352942, a: 1}
   hideFieldOnComplete: 1
+  forceRenderOrder: 1
+  acidSortingLayerName: Default
+  acidSortingOrder: -700
+  markerSortingLayerName: Default
+  markerSortingOrder: -690
   progressMarkerRoot: {fileID: 0}
   progressMarkerPrefab: {fileID: 1891518635353113358}
   autoCreateMarkersFromPrefab: 1
@@ -1171,6 +1190,7 @@ MonoBehaviour:
   markerStartAngle: 90
   disableMarkerObjectOnKill: 1
   debugLog: 1
+  debugInsideMonsterCount: 0
 --- !u!1 &6376433431005991532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1357,7 +1377,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -700
   m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1425,11 +1445,20 @@ MonoBehaviour:
   monsterLayer:
     serializedVersion: 2
     m_Bits: 0
+  useOverlapScan: 1
+  overlapScanInterval: 0.1
+  playerKillCountGraceSeconds: 2
+  keepTrackingAfterExitSeconds: 2.5
   fieldColor: {r: 1, g: 0.43569827, b: 0.25098038, a: 1}
   updateFieldColorByProgress: 1
   nearCompleteColor: {r: 0.54901963, g: 0.34901962, b: 0.8431373, a: 1}
   completedColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.15}
   hideFieldOnComplete: 1
+  forceRenderOrder: 1
+  acidSortingLayerName: Default
+  acidSortingOrder: -700
+  markerSortingLayerName: Default
+  markerSortingOrder: -690
   progressMarkerRoot: {fileID: 0}
   progressMarkerPrefab: {fileID: 7335359744327546668}
   autoCreateMarkersFromPrefab: 1
@@ -1438,6 +1467,7 @@ MonoBehaviour:
   markerStartAngle: 90
   disableMarkerObjectOnKill: 1
   debugLog: 1
+  debugInsideMonsterCount: 0
 --- !u!1 &8729309582882877907
 GameObject:
   m_ObjectHideFlags: 0

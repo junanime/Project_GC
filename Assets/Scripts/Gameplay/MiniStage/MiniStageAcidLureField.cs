@@ -8,7 +8,11 @@ namespace Vampire
     /// 미니 스테이지 전용 위산 유인 필드.
     ///
     /// 기존 필드 이벤트용 위산 장판과 겹치지 않도록 별도 스크립트로 제작합니다.
-    /// 이 필드는 플레이어 피해용이 아니라, 몬스터를 유도해서 녹이는 기믹용 장판입니다.
+    ///
+    /// 이번 버전 핵심:
+    /// - OnTriggerEnter2D에만 의존하지 않고, 장판 영역을 주기적으로 직접 스캔합니다.
+    /// - 리스트 순회 중 리스트가 수정되어 발생하던 ArgumentOutOfRangeException을 방지합니다.
+    /// - 위산 데미지로 죽은 몬스터뿐 아니라, 장판 위에서 플레이어가 처치한 몬스터도 카운트합니다.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D))]
@@ -34,8 +38,21 @@ namespace Vampire
         [Tooltip("보스 몬스터는 이 위산 필드의 처치 대상에서 제외합니다.")]
         [SerializeField] private bool ignoreBossMonsters = true;
 
-        [Tooltip("대상 몬스터 레이어입니다. 0이면 레이어 검사를 하지 않고 Monster 컴포넌트만 확인합니다.")]
+        [Tooltip("대상 몬스터 레이어입니다. Nothing이면 레이어 검사를 하지 않고 Monster 컴포넌트만 확인합니다. 특정 몬스터가 안 잡히면 Nothing으로 두는 것을 추천합니다.")]
         [SerializeField] private LayerMask monsterLayer;
+
+        [Header("Overlap Scan")]
+        [Tooltip("OnTriggerEnter가 놓친 몬스터도 잡기 위해 장판 영역을 주기적으로 직접 검사합니다.")]
+        [SerializeField] private bool useOverlapScan = true;
+
+        [Tooltip("장판 영역 안의 몬스터를 다시 스캔하는 간격입니다. 0.1이면 0.1초마다 검사합니다.")]
+        [SerializeField] private float overlapScanInterval = 0.1f;
+
+        [Tooltip("플레이어가 장판 위에서 몬스터를 처치했을 때, 사망 이벤트가 조금 늦게 들어와도 카운트하기 위한 허용 시간입니다.")]
+        [SerializeField] private float playerKillCountGraceSeconds = 2f;
+
+        [Tooltip("몬스터가 장판 밖으로 나가도 사망 이벤트 감지를 위해 잠시 추적을 유지하는 시간입니다.")]
+        [SerializeField] private float keepTrackingAfterExitSeconds = 2.5f;
 
         [Header("Field Color")]
         [Tooltip("이 위산 필드의 기본 색상입니다. 같은 스프라이트를 쓰더라도 필드마다 다른 RGB 색상을 지정할 수 있습니다.")]
@@ -60,7 +77,7 @@ namespace Vampire
         [Tooltip("위산 장판 SpriteRenderer에 적용할 Sorting Layer 이름입니다. 현재 프로젝트에서는 Default를 추천합니다.")]
         [SerializeField] private string acidSortingLayerName = "Default";
 
-        [Tooltip("위산 장판 SpriteRenderer에 적용할 Order in Layer입니다. 배경(-800)보다 위, 몬스터/플레이어(0 근처)보다 아래가 되도록 -700을 추천합니다.")]
+        [Tooltip("위산 장판 SpriteRenderer에 적용할 Order in Layer입니다. 배경보다 위, 몬스터/플레이어보다 아래가 되도록 -700을 추천합니다.")]
         [SerializeField] private int acidSortingOrder = -700;
 
         [Tooltip("진행도 마커 SpriteRenderer에 적용할 Sorting Layer 이름입니다.")]
@@ -95,13 +112,25 @@ namespace Vampire
         [Tooltip("위산 필드 처치/완료 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = true;
 
-        private readonly List<Monster> monstersInside = new List<Monster>();
+        [Tooltip("장판 안에서 현재 감지된 몬스터 수를 주기적으로 로그로 출력합니다. 문제 확인용입니다.")]
+        [SerializeField] private bool debugInsideMonsterCount = false;
+
+        private readonly HashSet<Monster> trackedMonsters = new HashSet<Monster>();
+        private readonly HashSet<Monster> currentInsideMonsters = new HashSet<Monster>();
+        private readonly HashSet<Monster> countedMonsters = new HashSet<Monster>();
+
         private readonly Dictionary<Monster, float> nextDamageTickTimes = new Dictionary<Monster, float>();
+        private readonly Dictionary<Monster, float> lastSeenInsideTimes = new Dictionary<Monster, float>();
+
+        private readonly List<Monster> damageSnapshot = new List<Monster>();
+        private readonly List<Monster> removeBuffer = new List<Monster>();
         private readonly List<GameObject> progressMarkers = new List<GameObject>();
 
         private MiniStageAcidLureRoom ownerRoom;
         private int currentKillCount;
         private bool isCompleted;
+        private float nextOverlapScanTime;
+        private float nextDebugCountLogTime;
 
         private static FieldInfo monsterCurrentHealthField;
 
@@ -136,7 +165,24 @@ namespace Vampire
                 return;
             }
 
-            TickDamageToMonstersInside();
+            if (useOverlapScan && Time.time >= nextOverlapScanTime)
+            {
+                RefreshCurrentInsideMonsters();
+                nextOverlapScanTime = Time.time + Mathf.Max(0.02f, overlapScanInterval);
+            }
+
+            TickDamageToCurrentMonstersInside();
+            CleanupStaleTrackedMonsters();
+
+            if (debugInsideMonsterCount && Time.time >= nextDebugCountLogTime)
+            {
+                Debug.Log(
+                    $"[MiniStageAcidLureField] 현재 장판 내부 감지 몬스터 수: " +
+                    $"{currentInsideMonsters.Count}, tracked={trackedMonsters.Count}, field={name}"
+                );
+
+                nextDebugCountLogTime = Time.time + 1f;
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -146,22 +192,31 @@ namespace Vampire
                 return;
             }
 
-            Monster monster = other.GetComponentInParent<Monster>();
+            Monster monster;
 
-            if (!IsValidTargetMonster(monster, other.gameObject.layer))
+            if (!TryGetValidTargetMonsterFromCollider(other, out monster, true))
             {
                 return;
             }
 
-            if (!monstersInside.Contains(monster))
+            RegisterMonsterInside(monster);
+        }
+
+        private void OnTriggerStay2D(Collider2D other)
+        {
+            if (isCompleted)
             {
-                monstersInside.Add(monster);
+                return;
             }
 
-            if (!nextDamageTickTimes.ContainsKey(monster))
+            Monster monster;
+
+            if (!TryGetValidTargetMonsterFromCollider(other, out monster, true))
             {
-                nextDamageTickTimes[monster] = Time.time;
+                return;
             }
+
+            RegisterMonsterInside(monster);
         }
 
         private void OnTriggerExit2D(Collider2D other)
@@ -173,8 +228,14 @@ namespace Vampire
                 return;
             }
 
-            monstersInside.Remove(monster);
-            nextDamageTickTimes.Remove(monster);
+            currentInsideMonsters.Remove(monster);
+
+            // 여기서 바로 OnKilled 리스너를 제거하지 않습니다.
+            // 플레이어가 장판 위에서 처치했을 때 Monster.OnKilled가 약간 늦게 호출될 수 있기 때문입니다.
+            if (!lastSeenInsideTimes.ContainsKey(monster))
+            {
+                lastSeenInsideTimes[monster] = Time.time;
+            }
         }
 
         public void Initialize(MiniStageAcidLureRoom owner, int roomRequiredKillCount)
@@ -194,9 +255,15 @@ namespace Vampire
 
             currentKillCount = 0;
             isCompleted = false;
+            nextOverlapScanTime = 0f;
+            nextDebugCountLogTime = 0f;
 
-            monstersInside.Clear();
+            StopTrackingAllMonsters();
+
+            currentInsideMonsters.Clear();
+            countedMonsters.Clear();
             nextDamageTickTimes.Clear();
+            lastSeenInsideTimes.Clear();
 
             ResolveReferences();
             SetupProgressMarkers();
@@ -229,6 +296,7 @@ namespace Vampire
                 progressMarkers[i].SetActive(shouldBeActive);
             }
 
+            RefreshCurrentInsideMonsters();
             ApplyRenderOrder();
             UpdateProgressVisual();
 
@@ -237,23 +305,33 @@ namespace Vampire
                 Debug.Log(
                     $"[MiniStageAcidLureField] 필드 초기화: {name}, " +
                     $"requiredKillCount={requiredKillCount}, dps={damagePerSecond}, " +
-                    $"sorting={acidSortingLayerName}/{acidSortingOrder}, color={fieldColor}"
+                    $"tick={damageTickInterval}, color={fieldColor}"
                 );
             }
         }
 
         public void CleanupField()
         {
-            monstersInside.Clear();
+            StopTrackingAllMonsters();
+
+            currentInsideMonsters.Clear();
+            countedMonsters.Clear();
             nextDamageTickTimes.Clear();
+            lastSeenInsideTimes.Clear();
+            damageSnapshot.Clear();
+            removeBuffer.Clear();
         }
 
         public void ForceHideField()
         {
             isCompleted = true;
 
-            monstersInside.Clear();
+            StopTrackingAllMonsters();
+
+            currentInsideMonsters.Clear();
+            countedMonsters.Clear();
             nextDamageTickTimes.Clear();
+            lastSeenInsideTimes.Clear();
 
             if (triggerCollider != null)
             {
@@ -289,8 +367,85 @@ namespace Vampire
             }
         }
 
-        private bool IsValidTargetMonster(Monster monster, int hitObjectLayer)
+        private void RefreshCurrentInsideMonsters()
         {
+            currentInsideMonsters.Clear();
+
+            if (triggerCollider == null || !triggerCollider.enabled)
+            {
+                return;
+            }
+
+            Collider2D[] overlaps = GetOverlappingColliders();
+
+            for (int i = 0; i < overlaps.Length; i++)
+            {
+                Collider2D hit = overlaps[i];
+
+                if (hit == null)
+                {
+                    continue;
+                }
+
+                Monster monster;
+
+                if (!TryGetValidTargetMonsterFromCollider(hit, out monster, true))
+                {
+                    continue;
+                }
+
+                RegisterMonsterInside(monster);
+            }
+        }
+
+        private Collider2D[] GetOverlappingColliders()
+        {
+            CircleCollider2D circleCollider = triggerCollider as CircleCollider2D;
+
+            if (circleCollider != null)
+            {
+                Vector2 center = transform.TransformPoint(circleCollider.offset);
+                float radius = circleCollider.radius * Mathf.Max(
+                    Mathf.Abs(transform.lossyScale.x),
+                    Mathf.Abs(transform.lossyScale.y)
+                );
+
+                return Physics2D.OverlapCircleAll(center, radius);
+            }
+
+            BoxCollider2D boxCollider = triggerCollider as BoxCollider2D;
+
+            if (boxCollider != null)
+            {
+                Vector2 center = transform.TransformPoint(boxCollider.offset);
+                Vector2 size = new Vector2(
+                    boxCollider.size.x * Mathf.Abs(transform.lossyScale.x),
+                    boxCollider.size.y * Mathf.Abs(transform.lossyScale.y)
+                );
+
+                return Physics2D.OverlapBoxAll(center, size, transform.eulerAngles.z);
+            }
+
+            Bounds bounds = triggerCollider.bounds;
+
+            return Physics2D.OverlapAreaAll(bounds.min, bounds.max);
+        }
+
+        private bool TryGetValidTargetMonsterFromCollider(
+            Collider2D hit,
+            out Monster monster,
+            bool requireAlive
+        )
+        {
+            monster = null;
+
+            if (hit == null)
+            {
+                return false;
+            }
+
+            monster = hit.GetComponentInParent<Monster>();
+
             if (monster == null)
             {
                 return false;
@@ -301,7 +456,7 @@ namespace Vampire
                 return false;
             }
 
-            if (monster.HP <= 0f)
+            if (requireAlive && monster.HP <= 0f)
             {
                 return false;
             }
@@ -313,7 +468,7 @@ namespace Vampire
 
             if (monsterLayer.value != 0)
             {
-                bool hitLayerMatched = (monsterLayer.value & (1 << hitObjectLayer)) != 0;
+                bool hitLayerMatched = (monsterLayer.value & (1 << hit.gameObject.layer)) != 0;
                 bool monsterRootLayerMatched = (monsterLayer.value & (1 << monster.gameObject.layer)) != 0;
 
                 if (!hitLayerMatched && !monsterRootLayerMatched)
@@ -325,7 +480,34 @@ namespace Vampire
             return true;
         }
 
-        private void TickDamageToMonstersInside()
+        private void RegisterMonsterInside(Monster monster)
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            if (monster.HP <= 0f)
+            {
+                return;
+            }
+
+            currentInsideMonsters.Add(monster);
+            lastSeenInsideTimes[monster] = Time.time;
+
+            if (!trackedMonsters.Contains(monster))
+            {
+                trackedMonsters.Add(monster);
+                monster.OnKilled.AddListener(OnTrackedMonsterKilled);
+            }
+
+            if (!nextDamageTickTimes.ContainsKey(monster))
+            {
+                nextDamageTickTimes[monster] = Time.time;
+            }
+        }
+
+        private void TickDamageToCurrentMonstersInside()
         {
             float safeTickInterval = Mathf.Max(0.05f, damageTickInterval);
             float damageThisTick = Mathf.Max(0f, damagePerSecond) * safeTickInterval;
@@ -335,19 +517,34 @@ namespace Vampire
                 return;
             }
 
-            for (int i = monstersInside.Count - 1; i >= 0; i--)
+            damageSnapshot.Clear();
+
+            foreach (Monster monster in currentInsideMonsters)
             {
-                Monster monster = monstersInside[i];
-
-                if (!IsValidTargetMonster(monster, monster != null ? monster.gameObject.layer : 0))
+                if (monster != null)
                 {
-                    monstersInside.RemoveAt(i);
+                    damageSnapshot.Add(monster);
+                }
+            }
 
-                    if (monster != null)
-                    {
-                        nextDamageTickTimes.Remove(monster);
-                    }
+            for (int i = 0; i < damageSnapshot.Count; i++)
+            {
+                Monster monster = damageSnapshot[i];
 
+                if (monster == null)
+                {
+                    continue;
+                }
+
+                if (!monster.gameObject.activeInHierarchy)
+                {
+                    RemoveMonsterFromCurrentSets(monster);
+                    continue;
+                }
+
+                if (monster.HP <= 0f)
+                {
+                    TryCountMonsterForField(monster, false, true);
                     continue;
                 }
 
@@ -390,18 +587,62 @@ namespace Vampire
 
             if (!monster.gameObject.activeInHierarchy || monster.HP <= 0f)
             {
+                TryCountMonsterForField(monster, true, false);
                 return;
             }
 
-            if (ownerRoom != null && !ownerRoom.TryRegisterAcidKill(this, monster))
+            // 위산 데미지로 막타를 넣는 경우 먼저 카운트 처리합니다.
+            // 이후 Killed(false)가 늦게 호출되어도 countedMonsters로 중복 카운트를 막습니다.
+            TryCountMonsterForField(monster, true, false);
+
+            RemoveMonsterFromCurrentSets(monster);
+            KillMonsterAsEnvironment(monster);
+        }
+
+        private void OnTrackedMonsterKilled(Monster monster)
+        {
+            if (monster == null)
             {
                 return;
             }
 
-            monstersInside.Remove(monster);
-            nextDamageTickTimes.Remove(monster);
+            // 플레이어 공격으로 죽었더라도, 최근까지 장판 안에 있었으면 카운트합니다.
+            TryCountMonsterForField(monster, false, true);
+            UntrackMonster(monster);
+        }
 
-            KillMonsterAsEnvironment(monster);
+        private bool TryCountMonsterForField(
+            Monster monster,
+            bool killedByAcid,
+            bool requireRecentInside
+        )
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
+            if (isCompleted)
+            {
+                return false;
+            }
+
+            if (countedMonsters.Contains(monster))
+            {
+                return false;
+            }
+
+            if (requireRecentInside && !WasMonsterRecentlyInside(monster))
+            {
+                return false;
+            }
+
+            if (ownerRoom != null && !ownerRoom.TryRegisterAcidKill(this, monster))
+            {
+                return false;
+            }
+
+            countedMonsters.Add(monster);
 
             currentKillCount = Mathf.Clamp(currentKillCount + 1, 0, requiredKillCount);
             UpdateProgressVisual();
@@ -410,9 +651,11 @@ namespace Vampire
 
             if (debugLog)
             {
+                string killSource = killedByAcid ? "위산 데미지" : "장판 위 플레이어 처치";
+
                 Debug.Log(
-                    $"[MiniStageAcidLureField] 몬스터 위산 처치. " +
-                    $"field={name}, count={currentKillCount}/{requiredKillCount}, monster={monster.name}"
+                    $"[MiniStageAcidLureField] 몬스터 카운트 인정. " +
+                    $"source={killSource}, field={name}, count={currentKillCount}/{requiredKillCount}, monster={monster.name}"
                 );
             }
 
@@ -420,8 +663,37 @@ namespace Vampire
             {
                 CompleteField();
             }
+
+            return true;
         }
 
+        private bool WasMonsterRecentlyInside(Monster monster)
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
+            if (currentInsideMonsters.Contains(monster))
+            {
+                return true;
+            }
+
+            float lastSeenTime;
+
+            if (!lastSeenInsideTimes.TryGetValue(monster, out lastSeenTime))
+            {
+                return false;
+            }
+
+            float graceSeconds = Mathf.Max(0f, playerKillCountGraceSeconds);
+            return Time.time - lastSeenTime <= graceSeconds;
+        }
+
+        /// <summary>
+        /// 플레이어 처치 보상/킬 카운트로 들어가지 않도록 환경 처치로 몬스터를 제거합니다.
+        /// 위산 막타는 Monster.TakeDamage()로 처리하지 않고, currentHealth를 0으로 만든 뒤 Killed(false)를 호출합니다.
+        /// </summary>
         private void KillMonsterAsEnvironment(Monster monster)
         {
             if (monster == null)
@@ -453,8 +725,11 @@ namespace Vampire
 
             isCompleted = true;
 
-            monstersInside.Clear();
+            currentInsideMonsters.Clear();
             nextDamageTickTimes.Clear();
+            lastSeenInsideTimes.Clear();
+
+            StopTrackingAllMonsters();
 
             if (triggerCollider != null)
             {
@@ -482,6 +757,98 @@ namespace Vampire
             }
 
             ownerRoom?.NotifyFieldCompleted(this);
+        }
+
+        private void RemoveMonsterFromCurrentSets(Monster monster)
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            currentInsideMonsters.Remove(monster);
+            nextDamageTickTimes.Remove(monster);
+        }
+
+        private void UntrackMonster(Monster monster)
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            if (trackedMonsters.Contains(monster))
+            {
+                monster.OnKilled.RemoveListener(OnTrackedMonsterKilled);
+                trackedMonsters.Remove(monster);
+            }
+
+            currentInsideMonsters.Remove(monster);
+            nextDamageTickTimes.Remove(monster);
+            lastSeenInsideTimes.Remove(monster);
+        }
+
+        private void StopTrackingAllMonsters()
+        {
+            foreach (Monster monster in trackedMonsters)
+            {
+                if (monster != null)
+                {
+                    monster.OnKilled.RemoveListener(OnTrackedMonsterKilled);
+                }
+            }
+
+            trackedMonsters.Clear();
+        }
+
+        private void CleanupStaleTrackedMonsters()
+        {
+            removeBuffer.Clear();
+
+            foreach (Monster monster in trackedMonsters)
+            {
+                if (monster == null)
+                {
+                    removeBuffer.Add(monster);
+                    continue;
+                }
+
+                if (!monster.gameObject.activeInHierarchy)
+                {
+                    removeBuffer.Add(monster);
+                    continue;
+                }
+
+                if (currentInsideMonsters.Contains(monster))
+                {
+                    continue;
+                }
+
+                float lastSeenTime;
+
+                if (!lastSeenInsideTimes.TryGetValue(monster, out lastSeenTime))
+                {
+                    lastSeenTime = Time.time;
+                    lastSeenInsideTimes[monster] = lastSeenTime;
+                }
+
+                float keepSeconds = Mathf.Max(
+                    playerKillCountGraceSeconds,
+                    keepTrackingAfterExitSeconds
+                );
+
+                if (Time.time - lastSeenTime > keepSeconds)
+                {
+                    removeBuffer.Add(monster);
+                }
+            }
+
+            for (int i = 0; i < removeBuffer.Count; i++)
+            {
+                UntrackMonster(removeBuffer[i]);
+            }
+
+            removeBuffer.Clear();
         }
 
         private void SetupProgressMarkers()
@@ -681,9 +1048,17 @@ namespace Vampire
 
             if (circleCollider != null)
             {
-                Vector3 center = transform.position + (Vector3)circleCollider.offset;
-                float radius = circleCollider.radius * Mathf.Max(transform.lossyScale.x, transform.lossyScale.y);
+                Vector3 center = transform.TransformPoint(circleCollider.offset);
+                float radius = circleCollider.radius * Mathf.Max(
+                    Mathf.Abs(transform.lossyScale.x),
+                    Mathf.Abs(transform.lossyScale.y)
+                );
+
                 Gizmos.DrawWireSphere(center, radius);
+            }
+            else if (drawCollider != null)
+            {
+                Gizmos.DrawWireCube(drawCollider.bounds.center, drawCollider.bounds.size);
             }
             else
             {
