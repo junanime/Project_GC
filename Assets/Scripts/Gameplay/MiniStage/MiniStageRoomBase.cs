@@ -37,6 +37,11 @@ namespace Vampire
         private bool roomCleared;
         private bool rewardChestOpened;
 
+        // 추가:
+        // 방 클리어는 아니지만, 제한 시간 이후 플레이어가 선택적으로 나갈 수 있게 하는 상태.
+        // 이 값이 true이면 CanReturnFrom()에서 roomCleared 조건을 우회합니다.
+        private bool optionalReturnUnlocked;
+
         public Transform PlayerStartPoint
         {
             get
@@ -53,8 +58,13 @@ namespace Vampire
         public MiniStageReturnInteractable ReturnInteractable => returnInteractable;
         public bool RoomCleared => roomCleared;
         public bool RewardChestOpened => rewardChestOpened;
+        public bool OptionalReturnUnlocked => optionalReturnUnlocked;
 
-        public void InitRoom(MiniStageDirector owner, EntityManager entityManager, Character playerCharacter)
+        public void InitRoom(
+            MiniStageDirector owner,
+            EntityManager entityManager,
+            Character playerCharacter
+        )
         {
             director = owner;
             this.entityManager = entityManager;
@@ -63,6 +73,7 @@ namespace Vampire
             roomStarted = false;
             roomCleared = false;
             rewardChestOpened = false;
+            optionalReturnUnlocked = false;
             activeRewardChest = null;
 
             if (returnInteractable == null)
@@ -135,6 +146,7 @@ namespace Vampire
 
             roomCleared = true;
             rewardChestOpened = true;
+            optionalReturnUnlocked = true;
             activeRewardChest = null;
 
             if (debugLog)
@@ -144,6 +156,28 @@ namespace Vampire
 
             OnRoomCleared();
             UnlockReturnInteractable();
+        }
+
+        /// <summary>
+        /// 방을 클리어 처리하지 않고 귀환만 허용합니다.
+        /// 예: 제한 시간이 지난 뒤, 플레이어가 계속 클리어를 노릴지 그냥 나갈지 선택하게 만들 때 사용합니다.
+        /// </summary>
+        protected void UnlockOptionalReturn()
+        {
+            if (optionalReturnUnlocked)
+            {
+                return;
+            }
+
+            optionalReturnUnlocked = true;
+
+            if (debugLog)
+            {
+                Debug.Log($"[MiniStageRoomBase] 선택형 중도 귀환 활성화: {gameObject.name}");
+            }
+
+            UnlockReturnInteractable();
+            OnOptionalReturnUnlocked();
         }
 
         private void SpawnRewardChest(Vector3? rewardPosition = null)
@@ -166,7 +200,12 @@ namespace Vampire
                 return;
             }
 
-            Vector3 spawnPosition = rewardPosition ?? (rewardSpawnPoint != null ? rewardSpawnPoint.position : transform.position);
+            Vector3 spawnPosition = rewardPosition ?? (
+                rewardSpawnPoint != null
+                    ? rewardSpawnPoint.position
+                    : transform.position
+            );
+
             activeRewardChest = entityManager.SpawnChest(rewardChestBlueprint, spawnPosition);
 
             if (debugLog)
@@ -234,12 +273,20 @@ namespace Vampire
 
         public bool CanReturnFrom(MiniStageReturnInteractable interactable)
         {
-            if (!roomCleared)
+            if (returnInteractable != null && interactable != returnInteractable)
             {
                 return false;
             }
 
-            if (returnInteractable != null && interactable != returnInteractable)
+            // 추가:
+            // 제한 시간 이후 선택형 귀환이 열린 상태라면,
+            // 방 클리어/보상 여부와 상관없이 귀환을 허용합니다.
+            if (optionalReturnUnlocked)
+            {
+                return true;
+            }
+
+            if (!roomCleared)
             {
                 return false;
             }
@@ -255,7 +302,6 @@ namespace Vampire
         public void CleanupRoom()
         {
             Chest.OnAnyChestOpened -= OnAnyChestOpened;
-
             OnCleanupRoom();
 
             if (debugLog)
@@ -275,6 +321,10 @@ namespace Vampire
         }
 
         protected virtual void OnRewardChestOpened()
+        {
+        }
+
+        protected virtual void OnOptionalReturnUnlocked()
         {
         }
 

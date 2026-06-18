@@ -11,7 +11,8 @@ namespace Vampire
     /// - 위산 필드 3개는 방 시작과 동시에 활성화됩니다.
     /// - 각 위산 필드는 지정된 수만큼 몬스터를 처치하면 사라집니다.
     /// - 모든 위산 필드가 사라지면 마지막으로 사라진 위산 필드 위치에 보상 상자가 생성됩니다.
-    /// - 제한 시간 안에 클리어하지 못하면 보상 없이 귀환 상호작용만 열립니다.
+    /// - 제한 시간이 지나면 방은 종료되지 않고, 귀환 상호작용만 열립니다.
+    /// - 제한 시간 이후 플레이어는 계속 클리어를 노리거나, E키로 중도 퇴장할 수 있습니다.
     /// </summary>
     public class MiniStageAcidLureRoom : MiniStageRoomBase
     {
@@ -22,15 +23,15 @@ namespace Vampire
         [Tooltip("각 위산 필드가 완료되기 위해 처치해야 하는 몬스터 수입니다. 예: 15면 각 필드마다 15마리씩 필요합니다.")]
         [SerializeField] private int requiredKillsPerField = 15;
 
-        [Header("Time Limit")]
-        [Tooltip("제한 시간이 지나면 클리어하지 못해도 보상 없이 귀환 상호작용을 열지 여부입니다.")]
-        [SerializeField] private bool allowReturnAfterTimeLimit = true;
+        [Header("Optional Exit")]
+        [Tooltip("제한 시간이 지나면 클리어하지 못해도 귀환 상호작용을 열지 여부입니다. 방 자체는 종료하지 않습니다.")]
+        [SerializeField] private bool unlockReturnAfterTimeLimit = true;
 
-        [Tooltip("방 시작 후 몇 초가 지나면 보상 없이 귀환 가능하게 만들지 정합니다.")]
-        [SerializeField] private float timeLimitSeconds = 45f;
+        [Tooltip("방 시작 후 몇 초가 지나면 선택형 중도 귀환을 허용할지 정합니다.")]
+        [SerializeField] private float optionalReturnUnlockSeconds = 45f;
 
-        [Tooltip("제한 시간으로 방이 종료될 때 남아 있는 위산 필드를 숨길지 여부입니다.")]
-        [SerializeField] private bool hideFieldsOnTimeLimit = true;
+        [Tooltip("선택형 중도 귀환이 열릴 때 로그를 출력합니다.")]
+        [SerializeField] private bool logOptionalReturnUnlock = true;
 
         [Header("Monster Spawn")]
         [Tooltip("스폰에 사용할 몬스터 풀 인덱스입니다. LevelBlueprint의 Monsters 배열 순서와 맞춰야 합니다.")]
@@ -57,7 +58,7 @@ namespace Vampire
         [Tooltip("Monster Spawn Points가 비어 있을 때 PlayerStartPoint 주변에서 몬스터가 생성될 반경입니다.")]
         [SerializeField] private float fallbackSpawnRadius = 5f;
 
-        [Tooltip("방이 클리어되거나 제한 시간으로 종료될 때 남아 있는 몬스터를 제거할지 여부입니다.")]
+        [Tooltip("방이 완전 클리어되거나 플레이어가 중도 퇴장할 때 남아 있는 몬스터를 제거할지 여부입니다.")]
         [SerializeField] private bool clearRemainingMonstersOnEnd = true;
 
         [Header("Debug")]
@@ -68,9 +69,12 @@ namespace Vampire
         private readonly HashSet<Monster> acidKilledMonsters = new HashSet<Monster>();
 
         private Coroutine spawnRoutine;
-        private Coroutine timeLimitRoutine;
+        private Coroutine optionalReturnRoutine;
+
         private bool roomRunning;
         private bool roomEnded;
+        private bool optionalReturnUnlockedByTimer;
+
         private Vector3 lastCompletedFieldPosition;
 
         protected override void OnInitRoom()
@@ -94,11 +98,14 @@ namespace Vampire
 
             roomRunning = true;
             roomEnded = false;
+            optionalReturnUnlockedByTimer = false;
+
             spawnedMonsters.Clear();
             acidKilledMonsters.Clear();
+
             lastCompletedFieldPosition = transform.position;
 
-            // 방이 시작되자마자 위산 필드가 깔려 있도록 즉시 초기화합니다.
+            // 방 시작 즉시 위산 필드 활성화.
             for (int i = 0; i < acidFields.Length; i++)
             {
                 if (acidFields[i] == null)
@@ -122,21 +129,22 @@ namespace Vampire
 
             spawnRoutine = StartCoroutine(MonsterSpawnRoutine());
 
-            if (timeLimitRoutine != null)
+            if (optionalReturnRoutine != null)
             {
-                StopCoroutine(timeLimitRoutine);
+                StopCoroutine(optionalReturnRoutine);
             }
 
-            if (allowReturnAfterTimeLimit)
+            if (unlockReturnAfterTimeLimit)
             {
-                timeLimitRoutine = StartCoroutine(TimeLimitRoutine());
+                optionalReturnRoutine = StartCoroutine(OptionalReturnUnlockRoutine());
             }
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[MiniStageAcidLureRoom] 위산 유인방 시작. " +
-                    $"fields={acidFields.Length}, requiredKillsPerField={requiredKillsPerField}, timeLimit={timeLimitSeconds}"
+                    $"fields={acidFields.Length}, requiredKillsPerField={requiredKillsPerField}, " +
+                    $"optionalReturnTime={optionalReturnUnlockSeconds}"
                 );
             }
         }
@@ -158,9 +166,9 @@ namespace Vampire
             spawnRoutine = null;
         }
 
-        private IEnumerator TimeLimitRoutine()
+        private IEnumerator OptionalReturnUnlockRoutine()
         {
-            yield return new WaitForSeconds(Mathf.Max(0.1f, timeLimitSeconds));
+            yield return new WaitForSeconds(Mathf.Max(0.1f, optionalReturnUnlockSeconds));
 
             if (roomEnded)
             {
@@ -172,14 +180,25 @@ namespace Vampire
                 yield break;
             }
 
-            EndRoomByTimeLimit();
-            timeLimitRoutine = null;
+            optionalReturnUnlockedByTimer = true;
+
+            // 중요:
+            // 여기서 CompleteRoomWithoutReward()를 호출하면 방이 종료 처리된다.
+            // 이번 요구사항은 "방은 계속 진행하되, 플레이어가 선택해서 나갈 수 있게" 하는 것이므로
+            // MiniStageRoomBase의 선택형 귀환만 활성화한다.
+            UnlockOptionalReturn();
+
+            if (logOptionalReturnUnlock || debugLog)
+            {
+                Debug.Log(
+                    $"[MiniStageAcidLureRoom] {optionalReturnUnlockSeconds}초 경과. " +
+                    "방은 계속 진행되며, 플레이어가 원하면 ReturnBloodClot으로 중도 퇴장할 수 있습니다."
+                );
+            }
+
+            optionalReturnRoutine = null;
         }
 
-        /// <summary>
-        /// 위산 필드가 몬스터를 환경 처치로 인정해도 되는지 확인합니다.
-        /// 여러 필드가 겹쳐 있을 때 같은 몬스터가 중복 카운트되는 것을 막습니다.
-        /// </summary>
         public bool TryRegisterAcidKill(MiniStageAcidLureField field, Monster monster)
         {
             if (!roomRunning || roomEnded)
@@ -276,42 +295,7 @@ namespace Vampire
                 );
             }
 
-            // MiniStageRoomBase의 Reward Chest Blueprint를 사용합니다.
-            // 인스펙터의 Reward Chest Blueprint 칸에 보스 Chest Blueprint를 넣으면 됩니다.
             CompleteRoom(lastCompletedFieldPosition);
-        }
-
-        private void EndRoomByTimeLimit()
-        {
-            if (roomEnded)
-            {
-                return;
-            }
-
-            roomEnded = true;
-            roomRunning = false;
-
-            StopRunningCoroutines();
-
-            if (clearRemainingMonstersOnEnd)
-            {
-                RemoveRemainingMonsters();
-            }
-
-            if (hideFieldsOnTimeLimit)
-            {
-                HideAllRemainingFields();
-            }
-
-            if (debugLog)
-            {
-                Debug.Log(
-                    $"[MiniStageAcidLureRoom] 제한 시간 {timeLimitSeconds}초 종료. " +
-                    "보상 없이 귀환 상호작용을 활성화합니다."
-                );
-            }
-
-            CompleteRoomWithoutReward();
         }
 
         private void StopRunningCoroutines()
@@ -322,10 +306,10 @@ namespace Vampire
                 spawnRoutine = null;
             }
 
-            if (timeLimitRoutine != null)
+            if (optionalReturnRoutine != null)
             {
-                StopCoroutine(timeLimitRoutine);
-                timeLimitRoutine = null;
+                StopCoroutine(optionalReturnRoutine);
+                optionalReturnRoutine = null;
             }
         }
 
@@ -507,34 +491,17 @@ namespace Vampire
             }
         }
 
-        private void HideAllRemainingFields()
-        {
-            if (acidFields == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < acidFields.Length; i++)
-            {
-                if (acidFields[i] == null)
-                {
-                    continue;
-                }
-
-                if (!acidFields[i].IsCompleted)
-                {
-                    acidFields[i].ForceHideField();
-                }
-            }
-        }
-
         protected override void OnCleanupRoom()
         {
             roomRunning = false;
             roomEnded = true;
 
             StopRunningCoroutines();
-            RemoveRemainingMonsters();
+
+            if (clearRemainingMonstersOnEnd)
+            {
+                RemoveRemainingMonsters();
+            }
 
             if (acidFields != null)
             {

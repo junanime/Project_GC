@@ -53,6 +53,22 @@ namespace Vampire
         [Tooltip("필드가 완료되면 위산 스프라이트와 콜라이더를 비활성화합니다.")]
         [SerializeField] private bool hideFieldOnComplete = true;
 
+        [Header("Render Order")]
+        [Tooltip("위산 장판과 진행도 마커의 Sorting Layer/Order를 이 스크립트에서 강제로 적용할지 여부입니다.")]
+        [SerializeField] private bool forceRenderOrder = true;
+
+        [Tooltip("위산 장판 SpriteRenderer에 적용할 Sorting Layer 이름입니다. 현재 프로젝트에서는 Default를 추천합니다.")]
+        [SerializeField] private string acidSortingLayerName = "Default";
+
+        [Tooltip("위산 장판 SpriteRenderer에 적용할 Order in Layer입니다. 배경(-800)보다 위, 몬스터/플레이어(0 근처)보다 아래가 되도록 -700을 추천합니다.")]
+        [SerializeField] private int acidSortingOrder = -700;
+
+        [Tooltip("진행도 마커 SpriteRenderer에 적용할 Sorting Layer 이름입니다.")]
+        [SerializeField] private string markerSortingLayerName = "Default";
+
+        [Tooltip("진행도 마커 SpriteRenderer에 적용할 Order in Layer입니다. 위산 장판보다 살짝 위, 몬스터/플레이어보다 아래가 되도록 -690을 추천합니다.")]
+        [SerializeField] private int markerSortingOrder = -690;
+
         [Header("Progress Markers")]
         [Tooltip("촛불처럼 하나씩 꺼질 진행도 마커들의 부모 Transform입니다. 비워두면 자동 생성 또는 직접 생성 없이 진행됩니다.")]
         [SerializeField] private Transform progressMarkerRoot;
@@ -104,6 +120,13 @@ namespace Vampire
         {
             ResolveReferences();
             CacheMonsterHealthField();
+            ApplyRenderOrder();
+        }
+
+        private void OnValidate()
+        {
+            ResolveReferences();
+            ApplyRenderOrder();
         }
 
         private void Update()
@@ -162,6 +185,7 @@ namespace Vampire
             ResolveReferences();
             CacheMonsterHealthField();
             SetupProgressMarkers();
+            ApplyRenderOrder();
         }
 
         public void ResetField()
@@ -205,13 +229,15 @@ namespace Vampire
                 progressMarkers[i].SetActive(shouldBeActive);
             }
 
+            ApplyRenderOrder();
             UpdateProgressVisual();
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[MiniStageAcidLureField] 필드 초기화: {name}, " +
-                    $"requiredKillCount={requiredKillCount}, dps={damagePerSecond}, color={fieldColor}"
+                    $"requiredKillCount={requiredKillCount}, dps={damagePerSecond}, " +
+                    $"sorting={acidSortingLayerName}/{acidSortingOrder}, color={fieldColor}"
                 );
             }
         }
@@ -225,6 +251,7 @@ namespace Vampire
         public void ForceHideField()
         {
             isCompleted = true;
+
             monstersInside.Clear();
             nextDamageTickTimes.Clear();
 
@@ -395,11 +422,6 @@ namespace Vampire
             }
         }
 
-        /// <summary>
-        /// 플레이어 처치 보상/킬 카운트로 들어가지 않도록 환경 처치로 몬스터를 제거합니다.
-        /// 기존 Monster.TakeDamage()에 막타를 넣지 않고,
-        /// currentHealth를 0으로 만든 뒤 Killed(false)를 호출합니다.
-        /// </summary>
         private void KillMonsterAsEnvironment(Monster monster)
         {
             if (monster == null)
@@ -430,6 +452,7 @@ namespace Vampire
             }
 
             isCompleted = true;
+
             monstersInside.Clear();
             nextDamageTickTimes.Clear();
 
@@ -496,6 +519,7 @@ namespace Vampire
             }
 
             ApplyMarkerLayout();
+            ApplyRenderOrder();
         }
 
         private void CreateMissingProgressMarkersFromPrefab()
@@ -595,6 +619,40 @@ namespace Vampire
                         markerRenderer.color = color;
                     }
                 }
+            }
+
+            ApplyRenderOrder();
+        }
+
+        private void ApplyRenderOrder()
+        {
+            if (!forceRenderOrder)
+            {
+                return;
+            }
+
+            if (acidSpriteRenderer != null)
+            {
+                acidSpriteRenderer.sortingLayerName = acidSortingLayerName;
+                acidSpriteRenderer.sortingOrder = acidSortingOrder;
+            }
+
+            if (progressMarkerRoot == null)
+            {
+                return;
+            }
+
+            Renderer[] markerRenderers = progressMarkerRoot.GetComponentsInChildren<Renderer>(true);
+
+            for (int i = 0; i < markerRenderers.Length; i++)
+            {
+                if (markerRenderers[i] == null)
+                {
+                    continue;
+                }
+
+                markerRenderers[i].sortingLayerName = markerSortingLayerName;
+                markerRenderers[i].sortingOrder = markerSortingOrder;
             }
         }
 
