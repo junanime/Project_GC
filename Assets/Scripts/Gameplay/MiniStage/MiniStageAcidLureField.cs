@@ -9,10 +9,11 @@ namespace Vampire
     ///
     /// 기존 필드 이벤트용 위산 장판과 겹치지 않도록 별도 스크립트로 제작합니다.
     ///
-    /// 이번 버전 핵심:
+    /// 핵심 기능:
     /// - OnTriggerEnter2D에만 의존하지 않고, 장판 영역을 주기적으로 직접 스캔합니다.
-    /// - 리스트 순회 중 리스트가 수정되어 발생하던 ArgumentOutOfRangeException을 방지합니다.
-    /// - 위산 데미지로 죽은 몬스터뿐 아니라, 장판 위에서 플레이어가 처치한 몬스터도 카운트합니다.
+    /// - 위산 데미지로 죽은 몬스터를 카운트합니다.
+    /// - 장판 위에서 플레이어가 처치한 몬스터도 카운트합니다.
+    /// - 몬스터 풀링으로 같은 Monster 인스턴스가 다시 스폰될 때 이전 카운트 기록을 지울 수 있습니다.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(Collider2D))]
@@ -70,6 +71,9 @@ namespace Vampire
         [Tooltip("필드가 완료되면 위산 스프라이트와 콜라이더를 비활성화합니다.")]
         [SerializeField] private bool hideFieldOnComplete = true;
 
+        [Tooltip("필드 완료 시 Acid Sprite Renderer 하나만 끄지 않고, 이 필드 아래의 모든 Renderer를 비활성화합니다.")]
+        [SerializeField] private bool disableAllRenderersOnComplete = true;
+
         [Header("Render Order")]
         [Tooltip("위산 장판과 진행도 마커의 Sorting Layer/Order를 이 스크립트에서 강제로 적용할지 여부입니다.")]
         [SerializeField] private bool forceRenderOrder = true;
@@ -114,6 +118,9 @@ namespace Vampire
 
         [Tooltip("장판 안에서 현재 감지된 몬스터 수를 주기적으로 로그로 출력합니다. 문제 확인용입니다.")]
         [SerializeField] private bool debugInsideMonsterCount = false;
+
+        [Tooltip("몬스터 풀링 기록 초기화 로그를 출력합니다.")]
+        [SerializeField] private bool debugForgetMonsterHistory = false;
 
         private readonly HashSet<Monster> trackedMonsters = new HashSet<Monster>();
         private readonly HashSet<Monster> currentInsideMonsters = new HashSet<Monster>();
@@ -178,7 +185,7 @@ namespace Vampire
             {
                 Debug.Log(
                     $"[MiniStageAcidLureField] 현재 장판 내부 감지 몬스터 수: " +
-                    $"{currentInsideMonsters.Count}, tracked={trackedMonsters.Count}, field={name}"
+                    $"{currentInsideMonsters.Count}, tracked={trackedMonsters.Count}, counted={countedMonsters.Count}, field={name}"
                 );
 
                 nextDebugCountLogTime = Time.time + 1f;
@@ -230,8 +237,6 @@ namespace Vampire
 
             currentInsideMonsters.Remove(monster);
 
-            // 여기서 바로 OnKilled 리스너를 제거하지 않습니다.
-            // 플레이어가 장판 위에서 처치했을 때 Monster.OnKilled가 약간 늦게 호출될 수 있기 때문입니다.
             if (!lastSeenInsideTimes.ContainsKey(monster))
             {
                 lastSeenInsideTimes[monster] = Time.time;
@@ -265,6 +270,9 @@ namespace Vampire
             nextDamageTickTimes.Clear();
             lastSeenInsideTimes.Clear();
 
+            damageSnapshot.Clear();
+            removeBuffer.Clear();
+
             ResolveReferences();
             SetupProgressMarkers();
 
@@ -273,6 +281,8 @@ namespace Vampire
                 triggerCollider.enabled = true;
                 triggerCollider.isTrigger = true;
             }
+
+            RestoreRenderersOnReset();
 
             if (acidSpriteRenderer != null)
             {
@@ -322,6 +332,41 @@ namespace Vampire
             removeBuffer.Clear();
         }
 
+        /// <summary>
+        /// 몬스터 풀링 대응용 기록 초기화.
+        ///
+        /// 같은 Monster 컴포넌트 인스턴스가 풀링으로 다시 스폰되면,
+        /// 이전에 countedMonsters/trackedMonsters에 남아 있던 기록 때문에
+        /// 새 스폰 몬스터가 카운트되지 않는 문제가 생깁니다.
+        /// Room에서 몬스터 스폰 직후 이 메서드를 호출합니다.
+        /// </summary>
+        public void ForgetMonsterHistory(Monster monster)
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            countedMonsters.Remove(monster);
+            currentInsideMonsters.Remove(monster);
+            nextDamageTickTimes.Remove(monster);
+            lastSeenInsideTimes.Remove(monster);
+
+            if (trackedMonsters.Contains(monster))
+            {
+                monster.OnKilled.RemoveListener(OnTrackedMonsterKilled);
+                trackedMonsters.Remove(monster);
+            }
+
+            damageSnapshot.Remove(monster);
+            removeBuffer.Remove(monster);
+
+            if (debugForgetMonsterHistory)
+            {
+                Debug.Log($"[MiniStageAcidLureField] 풀링 재사용 몬스터 기록 초기화: field={name}, monster={monster.name}");
+            }
+        }
+
         public void ForceHideField()
         {
             isCompleted = true;
@@ -338,15 +383,7 @@ namespace Vampire
                 triggerCollider.enabled = false;
             }
 
-            if (acidSpriteRenderer != null)
-            {
-                acidSpriteRenderer.enabled = false;
-            }
-
-            if (progressMarkerRoot != null)
-            {
-                progressMarkerRoot.gameObject.SetActive(false);
-            }
+            HideAllFieldRenderers();
         }
 
         private void ResolveReferences()
@@ -591,8 +628,6 @@ namespace Vampire
                 return;
             }
 
-            // 위산 데미지로 막타를 넣는 경우 먼저 카운트 처리합니다.
-            // 이후 Killed(false)가 늦게 호출되어도 countedMonsters로 중복 카운트를 막습니다.
             TryCountMonsterForField(monster, true, false);
 
             RemoveMonsterFromCurrentSets(monster);
@@ -606,7 +641,6 @@ namespace Vampire
                 return;
             }
 
-            // 플레이어 공격으로 죽었더라도, 최근까지 장판 안에 있었으면 카운트합니다.
             TryCountMonsterForField(monster, false, true);
             UntrackMonster(monster);
         }
@@ -690,10 +724,6 @@ namespace Vampire
             return Time.time - lastSeenTime <= graceSeconds;
         }
 
-        /// <summary>
-        /// 플레이어 처치 보상/킬 카운트로 들어가지 않도록 환경 처치로 몬스터를 제거합니다.
-        /// 위산 막타는 Monster.TakeDamage()로 처리하지 않고, currentHealth를 0으로 만든 뒤 Killed(false)를 호출합니다.
-        /// </summary>
         private void KillMonsterAsEnvironment(Monster monster)
         {
             if (monster == null)
@@ -736,19 +766,13 @@ namespace Vampire
                 triggerCollider.enabled = false;
             }
 
-            if (acidSpriteRenderer != null)
+            if (hideFieldOnComplete)
+            {
+                HideAllFieldRenderers();
+            }
+            else if (acidSpriteRenderer != null)
             {
                 acidSpriteRenderer.color = completedColor;
-
-                if (hideFieldOnComplete)
-                {
-                    acidSpriteRenderer.enabled = false;
-                }
-            }
-
-            if (progressMarkerRoot != null && hideFieldOnComplete)
-            {
-                progressMarkerRoot.gameObject.SetActive(false);
             }
 
             if (debugLog)
@@ -757,6 +781,48 @@ namespace Vampire
             }
 
             ownerRoom?.NotifyFieldCompleted(this);
+        }
+
+        private void HideAllFieldRenderers()
+        {
+            if (disableAllRenderersOnComplete)
+            {
+                Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+
+                for (int i = 0; i < renderers.Length; i++)
+                {
+                    if (renderers[i] == null)
+                    {
+                        continue;
+                    }
+
+                    renderers[i].enabled = false;
+                }
+            }
+            else if (acidSpriteRenderer != null)
+            {
+                acidSpriteRenderer.enabled = false;
+            }
+
+            if (progressMarkerRoot != null)
+            {
+                progressMarkerRoot.gameObject.SetActive(false);
+            }
+        }
+
+        private void RestoreRenderersOnReset()
+        {
+            Renderer[] renderers = GetComponentsInChildren<Renderer>(true);
+
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] == null)
+                {
+                    continue;
+                }
+
+                renderers[i].enabled = true;
+            }
         }
 
         private void RemoveMonsterFromCurrentSets(Monster monster)

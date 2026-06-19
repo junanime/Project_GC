@@ -13,6 +13,10 @@ namespace Vampire
     /// - 모든 위산 필드가 사라지면 마지막으로 사라진 위산 필드 위치에 보상 상자가 생성됩니다.
     /// - 제한 시간이 지나면 방은 종료되지 않고, 귀환 상호작용만 열립니다.
     /// - 제한 시간 이후 플레이어는 계속 클리어를 노리거나, E키로 중도 퇴장할 수 있습니다.
+    ///
+    /// 이번 수정 핵심:
+    /// - 몬스터 풀링 때문에 같은 Monster 인스턴스가 다시 스폰될 수 있으므로,
+    ///   스폰 직후 해당 몬스터의 이전 위산 카운트 기록을 초기화합니다.
     /// </summary>
     public class MiniStageAcidLureRoom : MiniStageRoomBase
     {
@@ -65,6 +69,9 @@ namespace Vampire
         [Tooltip("위산 유인방 진행 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = true;
 
+        [Tooltip("몬스터가 스폰될 때 위산 카운트 기록 초기화 로그를 출력합니다.")]
+        [SerializeField] private bool debugForgetMonsterHistory = false;
+
         private readonly List<Monster> spawnedMonsters = new List<Monster>();
         private readonly HashSet<Monster> acidKilledMonsters = new HashSet<Monster>();
 
@@ -105,7 +112,6 @@ namespace Vampire
 
             lastCompletedFieldPosition = transform.position;
 
-            // 방 시작 즉시 위산 필드 활성화.
             for (int i = 0; i < acidFields.Length; i++)
             {
                 if (acidFields[i] == null)
@@ -182,10 +188,6 @@ namespace Vampire
 
             optionalReturnUnlockedByTimer = true;
 
-            // 중요:
-            // 여기서 CompleteRoomWithoutReward()를 호출하면 방이 종료 처리된다.
-            // 이번 요구사항은 "방은 계속 진행하되, 플레이어가 선택해서 나갈 수 있게" 하는 것이므로
-            // MiniStageRoomBase의 선택형 귀환만 활성화한다.
             UnlockOptionalReturn();
 
             if (logOptionalReturnUnlock || debugLog)
@@ -199,6 +201,13 @@ namespace Vampire
             optionalReturnRoutine = null;
         }
 
+        /// <summary>
+        /// 위산 필드가 몬스터 처치 카운트를 올릴 수 있는지 확인합니다.
+        ///
+        /// 같은 몬스터가 여러 필드에 동시에 걸렸을 때 중복 카운트를 막기 위해 사용합니다.
+        /// 단, 몬스터 풀링으로 같은 Monster 인스턴스가 다시 스폰될 수 있으므로,
+        /// SpawnOneMonster()에서 이 기록을 제거해 새 스폰 몬스터는 다시 카운트 가능하게 만듭니다.
+        /// </summary>
         public bool TryRegisterAcidKill(MiniStageAcidLureField field, Monster monster)
         {
             if (!roomRunning || roomEnded)
@@ -344,6 +353,11 @@ namespace Vampire
                 return;
             }
 
+            // 핵심 수정:
+            // 같은 Monster 컴포넌트가 풀링으로 재사용될 수 있으므로,
+            // 새로 스폰된 시점에는 이전 위산 카운트 기록을 반드시 제거합니다.
+            ForgetMonsterKillHistory(monster);
+
             spawnedMonsters.Add(monster);
 
             if (debugLog)
@@ -352,6 +366,36 @@ namespace Vampire
                     $"[MiniStageAcidLureRoom] 몬스터 스폰. " +
                     $"monster={monster.name}, position={spawnPosition}, alive={spawnedMonsters.Count}/{maxAliveMonsterCount}"
                 );
+            }
+        }
+
+        private void ForgetMonsterKillHistory(Monster monster)
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            acidKilledMonsters.Remove(monster);
+
+            ResolveAcidFields();
+
+            if (acidFields != null)
+            {
+                for (int i = 0; i < acidFields.Length; i++)
+                {
+                    if (acidFields[i] == null)
+                    {
+                        continue;
+                    }
+
+                    acidFields[i].ForgetMonsterHistory(monster);
+                }
+            }
+
+            if (debugForgetMonsterHistory)
+            {
+                Debug.Log($"[MiniStageAcidLureRoom] 풀링 재사용 몬스터 위산 기록 초기화: {monster.name}");
             }
         }
 
@@ -513,6 +557,9 @@ namespace Vampire
                     }
                 }
             }
+
+            spawnedMonsters.Clear();
+            acidKilledMonsters.Clear();
 
             if (debugLog)
             {
