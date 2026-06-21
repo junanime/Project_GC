@@ -6762,8 +6762,9 @@ MonoBehaviour:
   - {fileID: -7615412581104047823, guid: f10594891578a594387fa85f4ddd6750, type: 3}
   - {fileID: 1578500437859175202, guid: 3cb586375638109428dfd38a23c19d5c, type: 3}
   - {fileID: 810219229424612871, guid: 71bb58afb7834d54990c94f678d42889, type: 3}
+  - {fileID: 4592952354709790171, guid: 2f48fe7ca4706bd4694c4bd382cb30a8, type: 3}
   useForcedRoomIndex: 1
-  forcedRoomIndex: 7
+  forcedRoomIndex: 8
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
@@ -26307,13 +26308,13 @@ MonoBehaviour:
   bloodClotMonsterPoolIndex: 12
   bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
   bloodClotHpBuff: 0
-  firstSpawnDelay: 10
-  spawnInterval: 60
+  firstSpawnDelay: 40
+  spawnInterval: 80
   pauseTimerWhileRunFlowPaused: 1
   spawnDistanceFromPlayer: 1
   spawnDistanceRandomOffset: 1.5
   useRandomDirection: 1
-  maxActiveBloodClots: 0
+  maxActiveBloodClots: 3
   skipSpawnWhenMaxActiveReached: 1
   debugLog: 1
   enableForceSpawnKey: 1
