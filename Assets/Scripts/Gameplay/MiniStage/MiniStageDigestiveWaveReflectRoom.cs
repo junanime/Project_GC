@@ -11,13 +11,11 @@ namespace Vampire
     /// 플레이어가 거울 오브젝트를 공격해서 각도를 조정하고,
     /// 발사기에서 나온 소화 파동을 거울에 반사시켜 목표 코어까지 연결하는 미니 스테이지 방입니다.
     ///
-    /// 핵심 흐름:
-    /// - 방 시작 즉시 소화 파동 빔이 발사됩니다.
-    /// - 빔은 거울에 닿으면 반사됩니다.
-    /// - 플레이어 공격으로 거울의 각도를 10도 단위로 조정합니다.
-    /// - 빔이 목표 코어에 일정 시간 닿으면 방 클리어입니다.
-    /// - 몬스터가 방해 요소로 스폰됩니다.
-    /// - 제한 시간이 지나면 클리어하지 않아도 중도 귀환만 가능해집니다.
+    /// 이번 수정 핵심:
+    /// - Beam Hit Layer Mask 설정이 조금 틀려도 거울/목표 코어 콜라이더 레이어를 자동 포함합니다.
+    /// - Trigger Collider도 빔 Raycast가 감지할 수 있게 옵션을 추가했습니다.
+    /// - Raycast가 몬스터/플레이어를 잘못 맞아 빔이 끊기지 않도록 필터링합니다.
+    /// - 거울을 맞으면 확실히 MiniStageWaveMirror.GetReflectionNormal()을 통해 반사됩니다.
     /// </summary>
     public class MiniStageDigestiveWaveReflectRoom : MiniStageRoomBase
     {
@@ -38,8 +36,17 @@ namespace Vampire
         [SerializeField] private Transform rewardDropPoint;
 
         [Header("Wave Beam Rule")]
-        [Tooltip("소화 파동이 충돌 판정에 사용할 레이어입니다. 거울, 목표 코어, 벽 레이어를 포함하세요.")]
+        [Tooltip("소화 파동이 충돌 판정에 사용할 기본 레이어입니다. 거울, 목표 코어, 벽 레이어를 포함하세요.")]
         [SerializeField] private LayerMask beamHitLayerMask;
+
+        [Tooltip("거울과 목표 코어에 붙어 있는 Collider2D의 레이어를 Beam Hit Layer Mask에 자동으로 추가합니다. LayerMask 설정 실수를 줄이기 위해 true를 추천합니다.")]
+        [SerializeField] private bool autoAppendMirrorAndReceiverLayersToBeamMask = true;
+
+        [Tooltip("Trigger Collider도 빔 Raycast에 감지되게 할지 여부입니다. BeamReflectCollider나 WaveReceiver Collider가 Trigger일 수 있으므로 true를 추천합니다.")]
+        [SerializeField] private bool includeTriggerCollidersInBeamRaycast = true;
+
+        [Tooltip("빔이 몬스터나 플레이어를 맞아 끊기지 않도록 무시할지 여부입니다. 거울의 ProjectileHitbox는 부모에 MiniStageWaveMirror가 있으므로 무시되지 않습니다.")]
+        [SerializeField] private bool ignoreCharactersAndMonstersForBeam = true;
 
         [Tooltip("한 번의 직선 빔이 최대 몇 유닛까지 뻗을지 정합니다.")]
         [SerializeField] private float maxSegmentDistance = 30f;
@@ -117,8 +124,12 @@ namespace Vampire
         [Tooltip("빔이 맞힌 오브젝트 정보를 로그로 출력합니다. 문제 확인용입니다.")]
         [SerializeField] private bool debugBeamHitLog = false;
 
+        [Tooltip("빔 Raycast에 실제로 사용되는 LayerMask 값을 로그로 출력합니다.")]
+        [SerializeField] private bool debugRuntimeLayerMask = false;
+
         private readonly List<Vector3> beamPoints = new List<Vector3>();
         private readonly List<Monster> spawnedMonsters = new List<Monster>();
+        private readonly List<Collider2D> tempMirrorBeamColliders = new List<Collider2D>();
 
         private Coroutine spawnRoutine;
         private Coroutine optionalReturnRoutine;
@@ -210,6 +221,13 @@ namespace Vampire
                     $"mirrors={(mirrors != null ? mirrors.Length : 0)}, holdDuration={receiverHoldDuration}"
                 );
             }
+
+            if (debugRuntimeLayerMask)
+            {
+                Debug.Log(
+                    $"[MiniStageDigestiveWaveReflectRoom] Runtime Beam LayerMask={GetRuntimeBeamLayerMask().value}"
+                );
+            }
         }
 
         private void Update()
@@ -297,7 +315,8 @@ namespace Vampire
                 {
                     Debug.Log(
                         $"[MiniStageDigestiveWaveReflectRoom] Beam Hit | " +
-                        $"collider={hit.collider.name}, point={hit.point}, normal={hit.normal}"
+                        $"collider={hit.collider.name}, layer={LayerMask.LayerToName(hit.collider.gameObject.layer)}, " +
+                        $"point={hit.point}, normal={hit.normal}, distance={hit.distance:0.00}"
                     );
                 }
 
@@ -319,6 +338,7 @@ namespace Vampire
                     continue;
                 }
 
+                // 거울도 아니고 목표도 아니면 벽/차단물로 보고 빔 종료.
                 break;
             }
 
@@ -328,12 +348,36 @@ namespace Vampire
 
         private RaycastHit2D FindNearestBeamHit(Vector2 origin, Vector2 direction)
         {
+            LayerMask runtimeMask = GetRuntimeBeamLayerMask();
+
+            if (runtimeMask.value == 0)
+            {
+                if (debugLog)
+                {
+                    Debug.LogWarning(
+                        "[MiniStageDigestiveWaveReflectRoom] Beam Hit Layer Mask가 비어 있습니다. " +
+                        "MiniStageReflector / MiniStageWaveTarget / MiniStageWaveBlocker 또는 거울 콜라이더 레이어를 확인하세요."
+                    );
+                }
+
+                return default;
+            }
+
+            bool previousQueriesHitTriggers = Physics2D.queriesHitTriggers;
+
+            if (includeTriggerCollidersInBeamRaycast)
+            {
+                Physics2D.queriesHitTriggers = true;
+            }
+
             RaycastHit2D[] hits = Physics2D.RaycastAll(
                 origin,
                 direction,
                 maxSegmentDistance,
-                beamHitLayerMask
+                runtimeMask
             );
+
+            Physics2D.queriesHitTriggers = previousQueriesHitTriggers;
 
             if (hits == null || hits.Length == 0)
             {
@@ -356,10 +400,122 @@ namespace Vampire
                     continue;
                 }
 
+                if (!IsValidBeamHit(hit.collider))
+                {
+                    if (debugBeamHitLog)
+                    {
+                        Debug.Log(
+                            $"[MiniStageDigestiveWaveReflectRoom] Beam Hit 무시 | " +
+                            $"collider={hit.collider.name}, layer={LayerMask.LayerToName(hit.collider.gameObject.layer)}"
+                        );
+                    }
+
+                    continue;
+                }
+
                 return hit;
             }
 
             return default;
+        }
+
+        private bool IsValidBeamHit(Collider2D hitCollider)
+        {
+            if (hitCollider == null)
+            {
+                return false;
+            }
+
+            MiniStageWaveMirror mirror = hitCollider.GetComponentInParent<MiniStageWaveMirror>();
+
+            if (mirror != null)
+            {
+                return true;
+            }
+
+            MiniStageWaveReceiver receiver = hitCollider.GetComponentInParent<MiniStageWaveReceiver>();
+
+            if (receiver != null)
+            {
+                return true;
+            }
+
+            if (ignoreCharactersAndMonstersForBeam)
+            {
+                Character character = hitCollider.GetComponentInParent<Character>();
+
+                if (character != null)
+                {
+                    return false;
+                }
+
+                Monster monster = hitCollider.GetComponentInParent<Monster>();
+
+                if (monster != null)
+                {
+                    return false;
+                }
+            }
+
+            // 거울/목표가 아니고 몬스터/플레이어도 아니면 벽이나 차단물로 인정.
+            return true;
+        }
+
+        private LayerMask GetRuntimeBeamLayerMask()
+        {
+            int mask = beamHitLayerMask.value;
+
+            if (!autoAppendMirrorAndReceiverLayersToBeamMask)
+            {
+                return mask;
+            }
+
+            ResolveReferences();
+
+            if (mirrors != null)
+            {
+                for (int i = 0; i < mirrors.Length; i++)
+                {
+                    MiniStageWaveMirror mirror = mirrors[i];
+
+                    if (mirror == null)
+                    {
+                        continue;
+                    }
+
+                    tempMirrorBeamColliders.Clear();
+                    mirror.CollectBeamReflectColliders(tempMirrorBeamColliders);
+
+                    for (int j = 0; j < tempMirrorBeamColliders.Count; j++)
+                    {
+                        Collider2D collider = tempMirrorBeamColliders[j];
+
+                        if (collider == null)
+                        {
+                            continue;
+                        }
+
+                        mask |= 1 << collider.gameObject.layer;
+                    }
+                }
+            }
+
+            if (waveReceiver != null)
+            {
+                Collider2D[] receiverColliders = waveReceiver.GetComponentsInChildren<Collider2D>(true);
+
+                for (int i = 0; i < receiverColliders.Length; i++)
+                {
+                    if (receiverColliders[i] == null)
+                    {
+                        continue;
+                    }
+
+                    mask |= 1 << receiverColliders[i].gameObject.layer;
+                }
+            }
+
+            return mask;
         }
 
         private void ApplyBeamLine()

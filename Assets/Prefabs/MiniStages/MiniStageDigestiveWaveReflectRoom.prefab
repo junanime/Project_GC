@@ -205,12 +205,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isReflective: 1
   normalMode: 0
+  beamReflectColliders:
+  - {fileID: 2080899368471276076}
+  autoFindNonTriggerCollidersForBeam: 1
   rotationRoot: {fileID: 3974594592169541385}
   lockMirrorCenterPosition: 1
   lockPositionOnEnable: 1
   mirrorRigidbody: {fileID: 5891354438952933051}
   forceKinematicRigidbody: 1
-  freezeRigidbodyAll: 1
+  freezeRigidbody: 1
   maxRotationStepAtEdge: 10
   minRotationStepNearCenter: 1.5
   centerDeadZoneNormalized: 0.15
@@ -300,7 +303,10 @@ MonoBehaviour:
   rewardDropPoint: {fileID: 7585028743432934790}
   beamHitLayerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 14336
+  autoAppendMirrorAndReceiverLayersToBeamMask: 1
+  includeTriggerCollidersInBeamRaycast: 1
+  ignoreCharactersAndMonstersForBeam: 1
   maxSegmentDistance: 30
   maxReflectionCount: 8
   beamStartForwardOffset: 0.05
@@ -332,6 +338,7 @@ MonoBehaviour:
   clearRemainingMonstersOnEnd: 1
   debugLog: 1
   debugBeamHitLog: 0
+  debugRuntimeLayerMask: 0
 --- !u!114 &3024191918555604478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -640,12 +647,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isReflective: 1
   normalMode: 0
+  beamReflectColliders:
+  - {fileID: 4482310521991100164}
+  autoFindNonTriggerCollidersForBeam: 1
   rotationRoot: {fileID: 7315159057598719110}
   lockMirrorCenterPosition: 1
   lockPositionOnEnable: 1
   mirrorRigidbody: {fileID: 9032610405714760913}
   forceKinematicRigidbody: 1
-  freezeRigidbodyAll: 1
+  freezeRigidbody: 1
   maxRotationStepAtEdge: 10
   minRotationStepNearCenter: 1.5
   centerDeadZoneNormalized: 0.15
@@ -1754,12 +1764,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isReflective: 1
   normalMode: 0
+  beamReflectColliders:
+  - {fileID: 1478864068418495872}
+  autoFindNonTriggerCollidersForBeam: 1
   rotationRoot: {fileID: 1827640768120013584}
   lockMirrorCenterPosition: 1
   lockPositionOnEnable: 1
   mirrorRigidbody: {fileID: 5345364817614842807}
   forceKinematicRigidbody: 1
-  freezeRigidbodyAll: 1
+  freezeRigidbody: 1
   maxRotationStepAtEdge: 10
   minRotationStepNearCenter: 1.5
   centerDeadZoneNormalized: 0.15

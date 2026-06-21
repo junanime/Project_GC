@@ -13,12 +13,12 @@ namespace Vampire
     /// <summary>
     /// 소화 파동 반사방의 거울 오브젝트.
     ///
-    /// 이번 수정 핵심:
+    /// 핵심 기능:
     /// - 거울 중심축은 고정합니다.
-    /// - 실제 회전은 Rotation Root만 회전시킵니다.
-    /// - 피격 위치가 거울 끝에 가까울수록 크게 회전합니다.
+    /// - Rotation Root만 시소처럼 회전시킵니다.
+    /// - 피격 위치가 끝에 가까울수록 크게 회전합니다.
     /// - 피격 위치가 중심에 가까울수록 작게 회전합니다.
-    /// - Rigidbody2D가 Dynamic이라 밀리는 상황을 막기 위해 Kinematic/Freeze를 강제할 수 있습니다.
+    /// - 방 스크립트가 빔 반사용 Collider를 자동 수집할 수 있습니다.
     /// </summary>
     [DisallowMultipleComponent]
     public class MiniStageWaveMirror : MonoBehaviour
@@ -30,8 +30,15 @@ namespace Vampire
         [Tooltip("빔 반사 노멀을 어떤 기준으로 계산할지 정합니다. 보통 TransformUp을 추천합니다.")]
         [SerializeField] private MiniStageMirrorNormalMode normalMode = MiniStageMirrorNormalMode.TransformUp;
 
+        [Header("Beam Reflection Collider")]
+        [Tooltip("빔 Raycast가 맞아야 하는 거울 반사용 Collider 목록입니다. 가능하면 BeamReflectCollider를 여기에 직접 넣으세요.")]
+        [SerializeField] private Collider2D[] beamReflectColliders;
+
+        [Tooltip("Beam Reflect Colliders가 비어 있을 때 자식 Collider2D 중 Trigger가 아닌 콜라이더를 자동으로 반사용 후보로 사용합니다.")]
+        [SerializeField] private bool autoFindNonTriggerCollidersForBeam = true;
+
         [Header("Pivot / Center Lock")]
-        [Tooltip("거울이 시소처럼 회전할 중심축입니다. 비워두면 이 오브젝트 Transform을 사용합니다. 권장 구조에서는 MirrorPivot 자식을 만들어 연결하세요.")]
+        [Tooltip("거울이 시소처럼 회전할 중심축입니다. 권장 구조에서는 MirrorPivot 자식을 만들어 연결하세요.")]
         [SerializeField] private Transform rotationRoot;
 
         [Tooltip("거울 중심 위치를 고정할지 여부입니다. true면 물리 충돌로 루트가 밀려나도 원래 위치로 되돌립니다.")]
@@ -46,8 +53,8 @@ namespace Vampire
         [Tooltip("Rigidbody2D를 Kinematic으로 강제해서 투사체/몬스터 충돌로 밀리지 않게 합니다.")]
         [SerializeField] private bool forceKinematicRigidbody = true;
 
-        [Tooltip("Rigidbody2D의 위치/회전을 Freeze All로 강제합니다. 실제 거울 회전은 Rotation Root 자식에서 처리하므로 루트는 고정해도 됩니다.")]
-        [SerializeField] private bool freezeRigidbodyAll = true;
+        [Tooltip("Rigidbody2D의 위치/회전을 고정합니다. Rotation Root가 루트가 아닌 자식이면 Freeze All, 루트 자체를 돌리는 구조면 Position만 고정합니다.")]
+        [SerializeField] private bool freezeRigidbody = true;
 
         [Header("Projectile Hit Rotation")]
         [Tooltip("끝부분을 맞았을 때 한 번에 회전할 최대 각도입니다.")]
@@ -66,7 +73,7 @@ namespace Vampire
         [Tooltip("콜라이더 크기를 기준으로 거울의 반쪽 길이를 자동 계산합니다.")]
         [SerializeField] private bool autoCalculateHitHalfWidth = true;
 
-        [Tooltip("거울 회전량 계산 기준이 될 콜라이더입니다. 보통 ProjectileHitbox의 BoxCollider2D를 연결하면 됩니다. 비워두면 자식 Collider2D 중 가장 넓은 것을 찾습니다.")]
+        [Tooltip("거울 회전량 계산 기준이 될 콜라이더입니다. 보통 ProjectileHitbox의 BoxCollider2D를 연결하면 됩니다.")]
         [SerializeField] private Collider2D hitWidthReferenceCollider;
 
         [Tooltip("맞은 위치 기준 회전 방향이 반대로 느껴질 때 체크하세요.")]
@@ -85,10 +92,10 @@ namespace Vampire
         [Tooltip("거울의 로컬 Z 회전 각도를 제한할지 여부입니다.")]
         [SerializeField] private bool useLocalRotationClamp = true;
 
-        [Tooltip("로컬 Z 최소 각도입니다. Use Local Rotation Clamp가 true일 때만 사용합니다.")]
+        [Tooltip("로컬 Z 최소 각도입니다.")]
         [SerializeField] private float minLocalZAngle = -80f;
 
-        [Tooltip("로컬 Z 최대 각도입니다. Use Local Rotation Clamp가 true일 때만 사용합니다.")]
+        [Tooltip("로컬 Z 최대 각도입니다.")]
         [SerializeField] private float maxLocalZAngle = 80f;
 
         [Header("Debug")]
@@ -170,6 +177,85 @@ namespace Vampire
             SaveLockedPositionIfNeeded(true);
             ApplyPhysicsLockSettings();
             ForceCenterPosition();
+        }
+
+        public void CollectBeamReflectColliders(List<Collider2D> result)
+        {
+            if (result == null)
+            {
+                return;
+            }
+
+            ResolveReferences();
+
+            bool added = false;
+
+            if (beamReflectColliders != null && beamReflectColliders.Length > 0)
+            {
+                for (int i = 0; i < beamReflectColliders.Length; i++)
+                {
+                    Collider2D collider = beamReflectColliders[i];
+
+                    if (collider == null)
+                    {
+                        continue;
+                    }
+
+                    if (!collider.enabled)
+                    {
+                        continue;
+                    }
+
+                    result.Add(collider);
+                    added = true;
+                }
+            }
+
+            if (added)
+            {
+                return;
+            }
+
+            Collider2D[] colliders = GetComponentsInChildren<Collider2D>(true);
+
+            if (autoFindNonTriggerCollidersForBeam)
+            {
+                for (int i = 0; i < colliders.Length; i++)
+                {
+                    Collider2D collider = colliders[i];
+
+                    if (collider == null || !collider.enabled)
+                    {
+                        continue;
+                    }
+
+                    if (collider.isTrigger)
+                    {
+                        continue;
+                    }
+
+                    result.Add(collider);
+                    added = true;
+                }
+            }
+
+            if (added)
+            {
+                return;
+            }
+
+            // 비트리거 콜라이더가 없으면 Trigger라도 후보로 넣습니다.
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider2D collider = colliders[i];
+
+                if (collider == null || !collider.enabled)
+                {
+                    continue;
+                }
+
+                result.Add(collider);
+            }
         }
 
         public Vector2 GetReflectionNormal(Vector2 hitPoint, Vector2 incomingDirection, Vector2 physicsHitNormal)
@@ -271,8 +357,6 @@ namespace Vampire
 
             float hitSide = localHitPoint.x >= 0f ? 1f : -1f;
 
-            // 오른쪽 피격 -> 반대 방향으로 기울기
-            // 왼쪽 피격 -> 반대 방향으로 기울기
             float rotationDirection = hitSide > 0f ? -1f : 1f;
 
             if (invertHitRotationDirection)
@@ -281,7 +365,10 @@ namespace Vampire
             }
 
             float halfWidth = GetEffectiveHitHalfWidth(target);
-            float normalizedDistanceFromCenter = Mathf.Clamp01(Mathf.Abs(localHitPoint.x) / Mathf.Max(0.01f, halfWidth));
+
+            float normalizedDistanceFromCenter = Mathf.Clamp01(
+                Mathf.Abs(localHitPoint.x) / Mathf.Max(0.01f, halfWidth)
+            );
 
             float t = Mathf.InverseLerp(
                 Mathf.Clamp01(centerDeadZoneNormalized),
@@ -309,7 +396,6 @@ namespace Vampire
 
             target.localRotation = Quaternion.Euler(0f, 0f, nextZ);
 
-            // 루트 중심은 고정. 회전은 Rotation Root만 처리.
             if (lockMirrorCenterPosition)
             {
                 ForceCenterPosition();
@@ -363,8 +449,6 @@ namespace Vampire
                     continue;
                 }
 
-                // 트리거/비트리거 모두 후보로 사용.
-                // 보통 ProjectileHitbox가 가장 적절하다.
                 float halfWidth = CalculateHalfWidthFromCollider(collider, target);
 
                 if (halfWidth > bestHalfWidth)
@@ -488,9 +572,18 @@ namespace Vampire
                 mirrorRigidbody.gravityScale = 0f;
             }
 
-            if (freezeRigidbodyAll)
+            if (freezeRigidbody)
             {
-                mirrorRigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+                if (rotationRoot != null && rotationRoot != transform)
+                {
+                    mirrorRigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
+                }
+                else
+                {
+                    mirrorRigidbody.constraints =
+                        RigidbodyConstraints2D.FreezePositionX |
+                        RigidbodyConstraints2D.FreezePositionY;
+                }
             }
 
             mirrorRigidbody.velocity = Vector2.zero;
