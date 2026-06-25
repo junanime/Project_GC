@@ -47,16 +47,16 @@ namespace Vampire
 
             maxLevel = 1;
 
-            syringeDartAbility = SyringeAbilityResolver.FindOwnedOrFirst(abilityManager);
+            RefreshSyringeDartAbilityReference();
 
-            if (syringeDartAbility == null)
+            if (syringeDartAbility == null && abilityManager != null)
             {
                 syringeDartAbility = abilityManager.GetComponentInChildren<SyringeDartAbility>(true);
             }
 
             if (syringeDartAbility == null)
             {
-                Debug.LogError("[SyringeLegendaryAugmentAbility] SyringeDartAbility를 찾지 못했습니다.");
+                Debug.LogError("[SyringeLegendaryAugmentAbility] SyringeDartAbility를 찾지 못했습니다.", this);
             }
 
             if (playerCharacter != null)
@@ -69,8 +69,14 @@ namespace Vampire
         {
             base.Use();
 
+            RefreshSyringeDartAbilityReference();
+
             if (syringeDartAbility == null)
             {
+                Debug.LogError(
+                    $"[SyringeLegendaryAugmentAbility] {augmentType} 적용 실패: SyringeDartAbility가 없습니다.",
+                    this
+                );
                 return;
             }
 
@@ -112,6 +118,8 @@ namespace Vampire
 
         public override bool RequirementsMet()
         {
+            RefreshSyringeDartAbilityReference();
+
             if (syringeDartAbility == null)
             {
                 return false;
@@ -150,6 +158,27 @@ namespace Vampire
             }
         }
 
+        private void RefreshSyringeDartAbilityReference()
+        {
+            if (abilityManager == null)
+            {
+                return;
+            }
+
+            SyringeDartAbility resolvedAbility = SyringeAbilityResolver.FindOwnedOrFirst(abilityManager);
+
+            if (resolvedAbility != null)
+            {
+                syringeDartAbility = resolvedAbility;
+                return;
+            }
+
+            if (syringeDartAbility == null)
+            {
+                syringeDartAbility = abilityManager.GetComponentInChildren<SyringeDartAbility>(true);
+            }
+        }
+
         private void ApplyLifeBurnLegendary()
         {
             syringeDartAbility.EnableLifeBurnLegendary();
@@ -173,6 +202,13 @@ namespace Vampire
         private void ApplyCloneLegendary()
         {
             syringeDartAbility.MarkCloneLegendaryTaken();
+
+            if (playerCharacter == null || entityManager == null)
+            {
+                Debug.LogWarning("[SyringeLegendaryAugmentAbility] 분신배양 생성 실패: playerCharacter 또는 entityManager가 없습니다.", this);
+                return;
+            }
+
             SyringeCloneController.Create(playerCharacter, entityManager, syringeDartAbility);
         }
 
@@ -195,7 +231,7 @@ namespace Vampire
 
             if (originalBlueprintAsset == null)
             {
-                Debug.LogWarning("[SyringeLegendaryAugmentAbility] 원본 CharacterBlueprint를 찾지 못했습니다.");
+                Debug.LogWarning("[SyringeLegendaryAugmentAbility] 원본 CharacterBlueprint를 찾지 못했습니다.", this);
                 return;
             }
 
@@ -209,7 +245,7 @@ namespace Vampire
 
             if (blueprintField == null)
             {
-                Debug.LogWarning("[SyringeLegendaryAugmentAbility] Character의 characterBlueprint 필드를 찾지 못했습니다.");
+                Debug.LogWarning("[SyringeLegendaryAugmentAbility] Character의 characterBlueprint 필드를 찾지 못했습니다.", this);
                 return;
             }
 
@@ -218,6 +254,11 @@ namespace Vampire
 
         private void SetCurrentHealth(float hp)
         {
+            if (playerCharacter == null)
+            {
+                return;
+            }
+
             FieldInfo currentHealthField = typeof(Character).GetField(
                 "currentHealth",
                 BindingFlags.Instance | BindingFlags.NonPublic
@@ -231,6 +272,11 @@ namespace Vampire
 
         private void RefreshHealthBar(float currentHp, float maxHp)
         {
+            if (playerCharacter == null)
+            {
+                return;
+            }
+
             FieldInfo healthBarField = typeof(Character).GetField(
                 "healthBar",
                 BindingFlags.Instance | BindingFlags.NonPublic
