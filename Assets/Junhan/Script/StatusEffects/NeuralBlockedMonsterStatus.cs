@@ -4,16 +4,21 @@ namespace Vampire
 {
     /// <summary>
     /// 신경차단에 걸린 몬스터에게 붙는 런타임 상태.
-    /// 몬스터의 Rigidbody2D 속도를 0으로 고정하고, Animator가 있으면 잠시 멈춘다.
+    /// Rigidbody2D 속도만 0으로 두면 몬스터 이동 스크립트가 다시 움직일 수 있으므로,
+    /// 정지 시간 동안 Monster 컴포넌트 자체도 잠시 비활성화한다.
     /// </summary>
     public class NeuralBlockedMonsterStatus : MonoBehaviour
     {
+        private Monster monster;
         private Rigidbody2D rb;
         private Animator[] animators;
         private float[] originalAnimatorSpeeds;
 
         private float endTime = -1f;
         private bool initialized = false;
+
+        private bool capturedMonsterEnabled = false;
+        private bool originalMonsterEnabled = true;
 
         public void Apply(float duration)
         {
@@ -24,13 +29,15 @@ namespace Vampire
 
             endTime = Mathf.Max(endTime, Time.time + Mathf.Max(0.05f, duration));
 
+            DisableMonsterMovementComponent();
             SetAnimatorSpeed(0f);
             StopMovement();
         }
 
         private void CacheReferences()
         {
-            rb = GetComponent<Rigidbody2D>();
+            monster = GetComponent<Monster>() ?? GetComponentInParent<Monster>();
+            rb = GetComponent<Rigidbody2D>() ?? GetComponentInParent<Rigidbody2D>();
             animators = GetComponentsInChildren<Animator>(true);
 
             if (animators != null && animators.Length > 0)
@@ -50,11 +57,13 @@ namespace Vampire
         {
             if (Time.time >= endTime)
             {
+                RestoreMonsterMovementComponent();
                 RestoreAnimatorSpeed();
                 Destroy(this);
                 return;
             }
 
+            DisableMonsterMovementComponent();
             StopMovement();
         }
 
@@ -64,6 +73,40 @@ namespace Vampire
             {
                 StopMovement();
             }
+        }
+
+        private void DisableMonsterMovementComponent()
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            if (!capturedMonsterEnabled)
+            {
+                originalMonsterEnabled = monster.enabled;
+                capturedMonsterEnabled = true;
+            }
+
+            if (monster.enabled)
+            {
+                monster.enabled = false;
+            }
+        }
+
+        private void RestoreMonsterMovementComponent()
+        {
+            if (monster == null)
+            {
+                return;
+            }
+
+            if (!capturedMonsterEnabled)
+            {
+                return;
+            }
+
+            monster.enabled = originalMonsterEnabled;
         }
 
         private void StopMovement()
@@ -109,6 +152,7 @@ namespace Vampire
 
         private void OnDestroy()
         {
+            RestoreMonsterMovementComponent();
             RestoreAnimatorSpeed();
         }
     }

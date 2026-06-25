@@ -212,23 +212,23 @@ MonoBehaviour:
   heavyChargePreviewAlpha: 0.9
   heavyChargePreviewSortingOrderBonus: 30
   debugHeavySnipe: 1
-  neuralBlockInterval: 12
-  neuralBlockFreezeDuration: 1
+  neuralBlockInterval: 30
+  neuralBlockFreezeDuration: 5
   neuralBlockScreenPadding: 0.08
-  debugNeuralBlock: 0
+  debugNeuralBlock: 1
   poisonContagionRadius: 1
   poisonContagionDurationMultiplier: 1
   poisonContagionDamageMultiplier: 1
-  debugPoisonContagion: 0
+  debugPoisonContagion: 1
   organCompressionInterval: 20
   organCompressionClusterSearchRadius: 2.5
-  organCompressionFieldRadius: 2
-  organCompressionFieldDuration: 4
+  organCompressionFieldRadius: 1
+  organCompressionFieldDuration: 3
   organCompressionDamageTickInterval: 0.5
-  organCompressionDamagePerTick: 3
+  organCompressionDamagePerTick: 2
   organCompressionPullSpeed: 2.5
   organCompressionScreenPadding: 0.08
-  debugOrganCompression: 0
+  debugOrganCompression: 1
   cursorNeedleFollowSpeed: 3
   cursorNeedleHitRadius: 0.2
   cursorNeedleDamageMultiplier: 0.7

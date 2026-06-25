@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
@@ -5,6 +6,7 @@ namespace Vampire
     /// <summary>
     /// 전설증강: 장기압착
     /// 일정 주기마다 화면 안 적 밀집 구역을 찾고, 그 위치에 압착장을 생성한다.
+    /// root 레이어가 monsterLayer와 달라도 자식 Collider 레이어 또는 fallback Monster 검색으로 작동하게 처리한다.
     /// </summary>
     public class OrganCompressionController : MonoBehaviour
     {
@@ -33,7 +35,7 @@ namespace Vampire
         [Tooltip("화면 밖 몬스터까지 살짝 포함할 여유값입니다.")]
         [SerializeField] private float screenPadding = 0.08f;
 
-        [Tooltip("몬스터 레이어입니다.")]
+        [Tooltip("몬스터 레이어입니다. root 레이어뿐 아니라 자식 Collider 레이어까지 검사합니다.")]
         [SerializeField] private LayerMask monsterLayer;
 
         [Tooltip("체크하면 장기압착 발동 로그를 출력합니다.")]
@@ -95,7 +97,7 @@ namespace Vampire
             {
                 if (debugLog)
                 {
-                    Debug.Log("[장기압착] 화면 안 몬스터가 없어 발동하지 않음", this);
+                    Debug.Log("[장기압착] 화면 안 Monster 컴포넌트를 찾지 못해 발동하지 않음", this);
                 }
 
                 return;
@@ -126,32 +128,24 @@ namespace Vampire
             bestCenter = Vector2.zero;
             bestCount = 0;
 
-            Monster[] monsters = FindObjectsOfType<Monster>();
+            List<Monster> screenMonsters = GetScreenMonsters();
 
-            for (int i = 0; i < monsters.Length; i++)
+            if (screenMonsters.Count <= 0)
             {
-                Monster candidate = monsters[i];
+                return false;
+            }
 
-                if (candidate == null || !candidate.gameObject.activeInHierarchy)
+            for (int i = 0; i < screenMonsters.Count; i++)
+            {
+                Monster candidate = screenMonsters[i];
+
+                if (candidate == null)
                 {
                     continue;
                 }
 
-                if (!IsMonsterLayerMatched(candidate.gameObject))
-                {
-                    continue;
-                }
-
-                Vector2 candidatePosition = candidate.CenterTransform != null
-                    ? (Vector2)candidate.CenterTransform.position
-                    : (Vector2)candidate.transform.position;
-
-                if (!IsInScreen(candidatePosition))
-                {
-                    continue;
-                }
-
-                int count = CountMonstersAround(candidatePosition);
+                Vector2 candidatePosition = GetMonsterWorldPosition(candidate);
+                int count = CountMonstersAround(candidatePosition, screenMonsters);
 
                 if (count > bestCount)
                 {
@@ -160,50 +154,121 @@ namespace Vampire
                 }
             }
 
+            // 밀집도가 1이어도 발동되게 둔다.
+            // 화면 안에 몬스터가 1마리만 있어도 그 몬스터 위치에 압착장을 생성한다.
             return bestCount > 0;
         }
 
-        private int CountMonstersAround(Vector2 center)
+        private int CountMonstersAround(Vector2 center, List<Monster> screenMonsters)
         {
-            Collider2D[] hits = Physics2D.OverlapCircleAll(center, clusterSearchRadius, monsterLayer);
-
             int count = 0;
 
-            for (int i = 0; i < hits.Length; i++)
+            for (int i = 0; i < screenMonsters.Count; i++)
             {
-                Collider2D hit = hits[i];
-
-                if (hit == null)
-                {
-                    continue;
-                }
-
-                Monster monster = hit.GetComponentInParent<Monster>();
+                Monster monster = screenMonsters[i];
 
                 if (monster == null || !monster.gameObject.activeInHierarchy)
                 {
                     continue;
                 }
 
-                if (!IsInScreen(monster.transform.position))
-                {
-                    continue;
-                }
+                Vector2 monsterPosition = GetMonsterWorldPosition(monster);
 
-                count++;
+                if (Vector2.Distance(center, monsterPosition) <= clusterSearchRadius)
+                {
+                    count++;
+                }
             }
 
             return count;
         }
 
-        private bool IsMonsterLayerMatched(GameObject target)
+        private List<Monster> GetScreenMonsters()
         {
+            List<Monster> layerMatchedTargets = new List<Monster>();
+            List<Monster> fallbackTargets = new List<Monster>();
+
+            Monster[] monsters = FindObjectsOfType<Monster>();
+
+            for (int i = 0; i < monsters.Length; i++)
+            {
+                Monster monster = monsters[i];
+
+                if (monster == null || !monster.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                Vector2 monsterPosition = GetMonsterWorldPosition(monster);
+
+                if (!IsInScreen(monsterPosition))
+                {
+                    continue;
+                }
+
+                fallbackTargets.Add(monster);
+
+                if (IsMonsterLayerMatched(monster))
+                {
+                    layerMatchedTargets.Add(monster);
+                }
+            }
+
+            // 레이어 매칭 대상이 있으면 그걸 쓰고,
+            // root/child 레이어 불일치 때문에 0마리면 화면 안 Monster 전체를 사용한다.
+            if (layerMatchedTargets.Count > 0)
+            {
+                return layerMatchedTargets;
+            }
+
+            return fallbackTargets;
+        }
+
+        private Vector2 GetMonsterWorldPosition(Monster monster)
+        {
+            if (monster != null && monster.CenterTransform != null)
+            {
+                return monster.CenterTransform.position;
+            }
+
+            return monster != null ? monster.transform.position : Vector2.zero;
+        }
+
+        private bool IsMonsterLayerMatched(Monster monster)
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
             if (monsterLayer.value == 0)
             {
                 return true;
             }
 
-            return (monsterLayer.value & (1 << target.layer)) != 0;
+            if ((monsterLayer.value & (1 << monster.gameObject.layer)) != 0)
+            {
+                return true;
+            }
+
+            Collider2D[] colliders = monster.GetComponentsInChildren<Collider2D>(true);
+
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                Collider2D col = colliders[i];
+
+                if (col == null)
+                {
+                    continue;
+                }
+
+                if ((monsterLayer.value & (1 << col.gameObject.layer)) != 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private bool IsInScreen(Vector3 worldPosition)
