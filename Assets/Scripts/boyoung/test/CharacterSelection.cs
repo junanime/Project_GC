@@ -103,33 +103,37 @@ namespace Vampire
         [Tooltip("오른쪽 버튼에서 호출합니다. 다음 캐릭터로 이동합니다.")]
         public void OnClickNext()
         {
+            Debug.Log("Before : " + currentIndex);
+
             if (characters == null || characters.Length == 0)
-            {
-                Debug.LogWarning("[CharacterSelection] characters 배열이 비어 있습니다.");
                 return;
-            }
 
             if (currentIndex < characters.Length - 1)
             {
                 currentIndex++;
-                UpdateCharacterUI();
             }
+
+            Debug.Log("After : " + currentIndex);
+
+            UpdateCharacterUI();
         }
 
         [Tooltip("왼쪽 버튼에서 호출합니다. 이전 캐릭터로 이동합니다.")]
         public void OnClickPrev()
         {
+            Debug.Log("Before : " + currentIndex);
+
             if (characters == null || characters.Length == 0)
-            {
-                Debug.LogWarning("[CharacterSelection] characters 배열이 비어 있습니다.");
                 return;
-            }
 
             if (currentIndex > 0)
             {
                 currentIndex--;
-                UpdateCharacterUI();
             }
+
+            Debug.Log("After : " + currentIndex);
+
+            UpdateCharacterUI();
         }
 
         private void ClampCurrentIndex()
@@ -145,6 +149,8 @@ namespace Vampire
 
         private void UpdateCharacterUI()
         {
+            Debug.Log("UpdateCharacterUI");
+
             if (characters == null || characters.Length == 0)
             {
                 Debug.LogWarning("[CharacterSelection] characters 배열이 비어 있어서 캐릭터 선택 UI를 갱신할 수 없습니다.");
