@@ -103,9 +103,9 @@ MonoBehaviour:
   maxTotalSpreadAngle: 360
   poisonEnabled: 0
   fiberNeedleEnabled: 0
-  corrosionNeedleEnabled: 0
+  corrosionNeedleEnabled: 1
   pressureNeedleEnabled: 0
-  markNeedleEnabled: 0
+  markNeedleEnabled: 1
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0
