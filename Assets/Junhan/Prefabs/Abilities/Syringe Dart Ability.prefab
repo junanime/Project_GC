@@ -107,9 +107,9 @@ MonoBehaviour:
   pressureNeedleEnabled: 0
   markNeedleEnabled: 0
   bipolarNeedleEnabled: 0
-  digestiveAcidSacNeedleEnabled: 1
-  hungerNeedleEnabled: 1
-  gutBacteriaNeedleEnabled: 1
+  digestiveAcidSacNeedleEnabled: 0
+  hungerNeedleEnabled: 0
+  gutBacteriaNeedleEnabled: 0
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0
@@ -140,7 +140,7 @@ MonoBehaviour:
   fiberTrailMinSegmentDistance: 0.25
   fiberTrailColor: {r: 0.75, g: 1, b: 0.95, a: 0.75}
   digestiveAcidPuddleLifetime: 3
-  digestiveAcidPuddleRadius: 1.2
+  digestiveAcidPuddleRadius: 1
   digestiveAcidPuddleDamagePerSecond: 2
   digestiveAcidPuddleTickInterval: 0.5
   digestiveAcidPuddleColor: {r: 0.6, g: 1, b: 0.15, a: 0.75}
@@ -152,7 +152,7 @@ MonoBehaviour:
   gutBacteriaRequiredStacks: 3
   gutBacteriaMaxStacks: 5
   gutBacteriaBonusGemCount: 1
-  gutBacteriaBonusGemType: 1
+  gutBacteriaBonusGemType: 2
   gutBacteriaBonusGemSpawnRadius: 0.35
   debugGutBacteria: 0
   corrosionDuration: 3

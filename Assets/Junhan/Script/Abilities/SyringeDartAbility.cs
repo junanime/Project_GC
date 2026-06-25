@@ -143,7 +143,7 @@ namespace Vampire
         [SerializeField] private Color digestiveAcidPuddleColor = new Color(0.6f, 1f, 0.15f, 0.75f);
 
         [Header("Hunger Needle / 공복침 Settings")]
-        [Tooltip("공복침 적중 스택 지속 시간입니다.")]
+        [Tooltip("공복침 스택이 유지되는 무적중 허용 시간입니다. 이 시간 동안 몬스터를 맞히지 못하면 모든 공복 스택이 초기화됩니다.")]
         [SerializeField] private float hungerStackDuration = 3f;
 
         [Tooltip("공복침 1스택당 공격속도 증가량입니다. 0.04이면 1스택당 4% 증가입니다.")]

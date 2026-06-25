@@ -44,7 +44,7 @@ namespace Vampire
         [SerializeField] private bool autoCreateProjectileHitbox = true;
 
         [Tooltip("자동 생성되는 투사체 피격 히트박스에 지정할 레이어 이름입니다. 일반적으로 플레이어 투사체의 Monster Layer와 맞추기 위해 Monster를 사용합니다.")]
-        [SerializeField] private string projectileHitboxLayerName = "Monster";
+        [SerializeField] private string projectileHitboxLayerName = "Monster Legs";
 
         [Tooltip("자동 생성되는 투사체 피격 히트박스의 반지름입니다. 소화효소 스프라이트 크기에 맞게 조절하세요.")]
         [SerializeField] private float projectileHitboxRadius = 0.45f;
@@ -134,7 +134,7 @@ namespace Vampire
             }
 
             enemyMonsterLayer = monsterMask;
-            projectileHitboxLayerName = "Monster";
+            projectileHitboxLayerName = "Monster Legs";
         }
 
         private void Awake()
@@ -374,11 +374,20 @@ namespace Vampire
 
             if (layerIndex < 0)
             {
+                layerIndex = LayerMask.NameToLayer("Monster Full");
+            }
+
+            if (layerIndex < 0)
+            {
+                layerIndex = LayerMask.NameToLayer("Monster Legs");
+            }
+
+            if (layerIndex < 0)
+            {
                 Debug.LogWarning(
-                    $"[DigestiveEnzymeMonster] '{projectileHitboxLayerName}' 레이어를 찾지 못했습니다. " +
+                    $"[DigestiveEnzymeMonster] '{projectileHitboxLayerName}', 'Monster Full', 'Monster Legs' 레이어를 모두 찾지 못했습니다.\n" +
                     "Project Settings > Tags and Layers에서 레이어 이름을 확인하세요."
                 );
-
                 return;
             }
 

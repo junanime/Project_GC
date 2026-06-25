@@ -15,7 +15,7 @@ namespace Vampire
             ReturnNeedle,
             AcupunctureFormation,
 
-            // 기존 추가 특수증강
+            // 추가 특수증강
             FiberNeedle,
             CorrosionNeedle,
             PressureNeedle,
