@@ -19,19 +19,23 @@ namespace Vampire
             // 전설 증강: 이기어침
             CursorControl,
 
-            // 신규 전설 증강: 신경차단
+            // 전설 증강: 신경차단
             NeuralBlock,
 
-            // 신규 전설 증강: 독 전염
+            // 전설 증강: 독 전염
             PoisonContagion,
 
-            // 신규 전설 증강: 장기압착
+            // 전설 증강: 장기압착
             OrganCompression
         }
 
         [Header("Legendary Augment")]
         [Tooltip("이 Ability가 적용할 전설증강 종류입니다.")]
         [SerializeField] private LegendaryAugmentType augmentType;
+
+        [Header("Debug")]
+        [Tooltip("전설증강 적용/조건 검사 로그를 출력할지 여부입니다.")]
+        [SerializeField] private bool debugLog = false;
 
         private SyringeDartAbility syringeDartAbility;
 
@@ -49,14 +53,13 @@ namespace Vampire
 
             RefreshSyringeDartAbilityReference();
 
-            if (syringeDartAbility == null && abilityManager != null)
-            {
-                syringeDartAbility = abilityManager.GetComponentInChildren<SyringeDartAbility>(true);
-            }
-
             if (syringeDartAbility == null)
             {
-                Debug.LogError("[SyringeLegendaryAugmentAbility] SyringeDartAbility를 찾지 못했습니다.", this);
+                Debug.LogError(
+                    "[SyringeLegendaryAugmentAbility] SyringeDartAbility를 찾지 못했습니다.\n" +
+                    "AbilityManager 아래에 실제 시작 침 능력이 있는지 확인하세요.",
+                    this
+                );
             }
 
             if (playerCharacter != null)
@@ -114,6 +117,15 @@ namespace Vampire
                     syringeDartAbility.EnableOrganCompressionLegendary();
                     break;
             }
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[SyringeLegendaryAugmentAbility] 전설증강 적용 완료 | " +
+                    $"Type={augmentType} | Target={syringeDartAbility.name}",
+                    syringeDartAbility
+                );
+            }
         }
 
         public override bool RequirementsMet()
@@ -122,40 +134,73 @@ namespace Vampire
 
             if (syringeDartAbility == null)
             {
+                if (debugLog)
+                {
+                    Debug.LogWarning(
+                        $"[SyringeLegendaryAugmentAbility] {augmentType} 등장 불가: SyringeDartAbility 참조 없음",
+                        this
+                    );
+                }
+
                 return false;
             }
+
+            bool baseRequirement = base.RequirementsMet();
+            bool result = false;
 
             switch (augmentType)
             {
                 case LegendaryAugmentType.LifeBurn:
-                    return !syringeDartAbility.HasLifeBurnLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasLifeBurnLegendary() && baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.CloneCulture:
-                    return !syringeDartAbility.HasCloneLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasCloneLegendary() && baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.HedgehogNeedle:
-                    return !syringeDartAbility.HasHedgehogNeedleLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasHedgehogNeedleLegendary() && baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.HeavySnipe:
-                    return !syringeDartAbility.HasHeavySnipeLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasHeavySnipeLegendary() && baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.CursorControl:
-                    return !syringeDartAbility.HasCursorControlLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasCursorControlLegendary() && baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.NeuralBlock:
-                    return !syringeDartAbility.HasNeuralBlockLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasNeuralBlockLegendary() && baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.PoisonContagion:
-                    return syringeDartAbility.HasPoisonAugment() &&
-                           !syringeDartAbility.HasPoisonContagionLegendary() &&
-                           base.RequirementsMet();
+                    result =
+                        syringeDartAbility.HasPoisonAugment() &&
+                        !syringeDartAbility.HasPoisonContagionLegendary() &&
+                        baseRequirement;
+                    break;
 
                 case LegendaryAugmentType.OrganCompression:
-                    return !syringeDartAbility.HasOrganCompressionLegendary() && base.RequirementsMet();
+                    result = !syringeDartAbility.HasOrganCompressionLegendary() && baseRequirement;
+                    break;
 
                 default:
-                    return false;
+                    result = false;
+                    break;
             }
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[SyringeLegendaryAugmentAbility] 등장 조건 검사 | " +
+                    $"Type={augmentType} | Result={result} | Base={baseRequirement} | " +
+                    $"Syringe={syringeDartAbility.name}",
+                    this
+                );
+            }
+
+            return result;
         }
 
         private void RefreshSyringeDartAbilityReference()
@@ -205,7 +250,10 @@ namespace Vampire
 
             if (playerCharacter == null || entityManager == null)
             {
-                Debug.LogWarning("[SyringeLegendaryAugmentAbility] 분신배양 생성 실패: playerCharacter 또는 entityManager가 없습니다.", this);
+                Debug.LogWarning(
+                    "[SyringeLegendaryAugmentAbility] 분신배양 생성 실패: playerCharacter 또는 entityManager가 없습니다.",
+                    this
+                );
                 return;
             }
 
@@ -231,7 +279,10 @@ namespace Vampire
 
             if (originalBlueprintAsset == null)
             {
-                Debug.LogWarning("[SyringeLegendaryAugmentAbility] 원본 CharacterBlueprint를 찾지 못했습니다.", this);
+                Debug.LogWarning(
+                    "[SyringeLegendaryAugmentAbility] 원본 CharacterBlueprint를 찾지 못했습니다.",
+                    this
+                );
                 return;
             }
 
@@ -245,7 +296,10 @@ namespace Vampire
 
             if (blueprintField == null)
             {
-                Debug.LogWarning("[SyringeLegendaryAugmentAbility] Character의 characterBlueprint 필드를 찾지 못했습니다.", this);
+                Debug.LogWarning(
+                    "[SyringeLegendaryAugmentAbility] Character의 characterBlueprint 필드를 찾지 못했습니다.",
+                    this
+                );
                 return;
             }
 
