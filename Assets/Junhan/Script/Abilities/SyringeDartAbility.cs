@@ -69,7 +69,14 @@ namespace Vampire
 
         [Tooltip("분신배양 전설증강을 테스트용으로 보유 처리합니다. 실제 분신 생성은 분신배양 전설증강/컨트롤러 쪽 구현을 따릅니다.")]
         [SerializeField] private bool cloneLegendaryTaken = false;
+        [Tooltip("신경차단 전설증강 활성화 여부입니다. 일정 주기로 화면 안 적을 정지시킵니다.")]
+        [SerializeField] private bool neuralBlockEnabled = false;
 
+        [Tooltip("독 전염 전설증강 활성화 여부입니다. 독에 걸린 적 처치 시 주변 적에게 독을 전염시킵니다.")]
+        [SerializeField] private bool poisonContagionEnabled = false;
+
+        [Tooltip("장기압착 전설증강 활성화 여부입니다. 일정 주기로 적 밀집 구역에 압착장을 생성합니다.")]
+        [SerializeField] private bool organCompressionEnabled = false;
         [Tooltip("고슴도침 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 침 결계 컨트롤러까지 자동 생성됩니다.")]
         [SerializeField] private bool hedgehogNeedleEnabled = false;
 
@@ -358,6 +365,61 @@ namespace Vampire
 
         // 이기어침 + 대물침 조합에서 사용하는 현재 차지율
         private float cursorHeavyChargeRatio = 0f;
+        [Header("Neural Block / 신경차단 Settings")]
+        [Tooltip("신경차단 발동 주기입니다.")]
+        [SerializeField] private float neuralBlockInterval = 12f;
+
+        [Tooltip("신경차단으로 몬스터가 멈추는 시간입니다.")]
+        [SerializeField] private float neuralBlockFreezeDuration = 1f;
+
+        [Tooltip("화면 가장자리 밖 몬스터까지 살짝 포함할 여유값입니다.")]
+        [SerializeField] private float neuralBlockScreenPadding = 0.08f;
+
+        [Tooltip("체크하면 신경차단 로그를 출력합니다.")]
+        [SerializeField] private bool debugNeuralBlock = false;
+
+        [Header("Poison Contagion / 독 전염 Settings")]
+        [Tooltip("독 전염 범위입니다. 1이면 처치된 몬스터 기준 약 1칸 범위입니다.")]
+        [SerializeField] private float poisonContagionRadius = 1f;
+
+        [Tooltip("전염된 독의 지속시간 배율입니다. 1이면 원래 독 지속시간과 같습니다.")]
+        [SerializeField] private float poisonContagionDurationMultiplier = 1f;
+
+        [Tooltip("전염된 독의 피해 배율입니다. 1이면 원래 독 피해와 같습니다.")]
+        [SerializeField] private float poisonContagionDamageMultiplier = 1f;
+
+        [Tooltip("체크하면 독 전염 로그를 출력합니다.")]
+        [SerializeField] private bool debugPoisonContagion = false;
+
+        [Header("Organ Compression / 장기압착 Settings")]
+        [Tooltip("장기압착장 생성 주기입니다.")]
+        [SerializeField] private float organCompressionInterval = 20f;
+
+        [Tooltip("적 밀집 구역을 계산할 때 사용할 반경입니다.")]
+        [SerializeField] private float organCompressionClusterSearchRadius = 2.5f;
+
+        [Tooltip("장기압착장의 실제 피해/흡입 반경입니다.")]
+        [SerializeField] private float organCompressionFieldRadius = 2f;
+
+        [Tooltip("장기압착장 유지 시간입니다.")]
+        [SerializeField] private float organCompressionFieldDuration = 4f;
+
+        [Tooltip("장기압착장 피해 간격입니다.")]
+        [SerializeField] private float organCompressionDamageTickInterval = 0.5f;
+
+        [Tooltip("장기압착장 1틱당 피해량입니다.")]
+        [SerializeField] private float organCompressionDamagePerTick = 3f;
+
+        [Tooltip("장기압착장이 적을 중앙으로 끌어당기는 속도입니다.")]
+        [SerializeField] private float organCompressionPullSpeed = 2.5f;
+
+        [Tooltip("화면 가장자리 밖 몬스터까지 살짝 포함할 여유값입니다.")]
+        [SerializeField] private float organCompressionScreenPadding = 0.08f;
+
+        [Tooltip("체크하면 장기압착 로그를 출력합니다.")]
+        [SerializeField] private bool debugOrganCompression = false;
+        private NeuralBlockController neuralBlockController;
+        private OrganCompressionController organCompressionController;
 
         [Header("Legendary - Cursor Controlled Needle / 이기어침")]
         [Tooltip("마우스 포인트를 따라가는 속도. 높을수록 더 즉각적으로 따라갑니다.")]
@@ -420,6 +482,20 @@ namespace Vampire
             if (cursorControlEnabled)
             {
                 EnableCursorControlLegendary();
+            }
+            if (neuralBlockEnabled)
+            {
+                EnableNeuralBlockLegendary();
+            }
+
+            if (poisonContagionEnabled)
+            {
+                EnablePoisonContagionLegendary();
+            }
+
+            if (organCompressionEnabled)
+            {
+                EnableOrganCompressionLegendary();
             }
         }
 
@@ -1737,7 +1813,110 @@ namespace Vampire
         public void MarkCloneLegendaryTaken() => cloneLegendaryTaken = true;
 
         public bool HasCloneLegendary() => cloneLegendaryTaken;
+        public void EnableNeuralBlockLegendary()
+        {
+            if (neuralBlockEnabled && neuralBlockController != null)
+            {
+                ConfigureNeuralBlockController();
+                return;
+            }
 
+            neuralBlockEnabled = true;
+
+            neuralBlockController = GetComponent<NeuralBlockController>();
+
+            if (neuralBlockController == null)
+            {
+                neuralBlockController = gameObject.AddComponent<NeuralBlockController>();
+            }
+
+            ConfigureNeuralBlockController();
+        }
+
+        private void ConfigureNeuralBlockController()
+        {
+            if (neuralBlockController == null)
+            {
+                return;
+            }
+
+            neuralBlockController.Configure(
+                neuralBlockInterval,
+                neuralBlockFreezeDuration,
+                neuralBlockScreenPadding,
+                monsterLayer,
+                debugNeuralBlock
+            );
+        }
+
+        public bool HasNeuralBlockLegendary()
+        {
+            return neuralBlockEnabled;
+        }
+
+        public void EnablePoisonContagionLegendary()
+        {
+            poisonContagionEnabled = true;
+
+            PoisonContagionRuntime.Enable(
+                poisonContagionRadius,
+                poisonContagionDurationMultiplier,
+                poisonContagionDamageMultiplier,
+                monsterLayer,
+                debugPoisonContagion
+            );
+        }
+
+        public bool HasPoisonContagionLegendary()
+        {
+            return poisonContagionEnabled;
+        }
+
+        public void EnableOrganCompressionLegendary()
+        {
+            if (organCompressionEnabled && organCompressionController != null)
+            {
+                ConfigureOrganCompressionController();
+                return;
+            }
+
+            organCompressionEnabled = true;
+
+            organCompressionController = GetComponent<OrganCompressionController>();
+
+            if (organCompressionController == null)
+            {
+                organCompressionController = gameObject.AddComponent<OrganCompressionController>();
+            }
+
+            ConfigureOrganCompressionController();
+        }
+
+        private void ConfigureOrganCompressionController()
+        {
+            if (organCompressionController == null)
+            {
+                return;
+            }
+
+            organCompressionController.Configure(
+                organCompressionInterval,
+                organCompressionClusterSearchRadius,
+                organCompressionFieldRadius,
+                organCompressionFieldDuration,
+                organCompressionDamageTickInterval,
+                organCompressionDamagePerTick,
+                organCompressionPullSpeed,
+                organCompressionScreenPadding,
+                monsterLayer,
+                debugOrganCompression
+            );
+        }
+
+        public bool HasOrganCompressionLegendary()
+        {
+            return organCompressionEnabled;
+        }
         public void EnableHedgehogNeedleLegendary()
         {
             hedgehogNeedleEnabled = true;

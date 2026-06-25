@@ -101,7 +101,7 @@ MonoBehaviour:
   baseSyringeMaxDistance: 5
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
-  poisonEnabled: 0
+  poisonEnabled: 1
   fiberNeedleEnabled: 0
   corrosionNeedleEnabled: 0
   pressureNeedleEnabled: 0
@@ -116,6 +116,9 @@ MonoBehaviour:
   acupunctureFormationEnabled: 0
   lifeBurnEnabled: 0
   cloneLegendaryTaken: 0
+  neuralBlockEnabled: 1
+  poisonContagionEnabled: 1
+  organCompressionEnabled: 1
   hedgehogNeedleEnabled: 0
   heavySnipeEnabled: 0
   cursorControlEnabled: 0
@@ -209,6 +212,23 @@ MonoBehaviour:
   heavyChargePreviewAlpha: 0.9
   heavyChargePreviewSortingOrderBonus: 30
   debugHeavySnipe: 1
+  neuralBlockInterval: 12
+  neuralBlockFreezeDuration: 1
+  neuralBlockScreenPadding: 0.08
+  debugNeuralBlock: 0
+  poisonContagionRadius: 1
+  poisonContagionDurationMultiplier: 1
+  poisonContagionDamageMultiplier: 1
+  debugPoisonContagion: 0
+  organCompressionInterval: 20
+  organCompressionClusterSearchRadius: 2.5
+  organCompressionFieldRadius: 2
+  organCompressionFieldDuration: 4
+  organCompressionDamageTickInterval: 0.5
+  organCompressionDamagePerTick: 3
+  organCompressionPullSpeed: 2.5
+  organCompressionScreenPadding: 0.08
+  debugOrganCompression: 0
   cursorNeedleFollowSpeed: 3
   cursorNeedleHitRadius: 0.2
   cursorNeedleDamageMultiplier: 0.7

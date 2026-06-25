@@ -210,6 +210,39 @@ MonoBehaviour:
       both directions, and projectile count is increased by 1.'
     m_Metadata:
       m_Items: []
+  - m_Id: 287508462152933376
+    m_Localized: Neural Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508470684147712
+    m_Localized: Enemies that spawn while Neural Block is active are also frozen
+      for the remaining duration.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508486823829504
+    m_Localized: Poison Contagion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508511821881344
+    m_Localized: 'When a poisoned enemy is killed, poison spreads to nearby enemies
+      around it.
+
+      This legendary augment only appears after obtaining Poison
+      Needle.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508641639784448
+    m_Localized: Organ Compression
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508647276929024
+    m_Localized: 'Every 20 seconds, creates an organ compression field at a dense
+      enemy cluster.
+
+      Enemies inside the field are pulled toward the center
+      and take damage over time.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

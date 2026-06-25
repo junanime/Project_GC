@@ -171,6 +171,30 @@ MonoBehaviour:
     m_Key: BipolarNeedle_Description
     m_Metadata:
       m_Items: []
+  - m_Id: 287508462152933376
+    m_Key: NeuralBlock_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508470684147712
+    m_Key: NeuralBlock_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508486823829504
+    m_Key: PoisonContagion_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508511821881344
+    m_Key: PoisonContagion_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508641639784448
+    m_Key: OrganCompression_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508647276929024
+    m_Key: OrganCompression_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
