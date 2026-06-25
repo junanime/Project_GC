@@ -19,7 +19,10 @@ namespace Vampire
             FiberNeedle,
             CorrosionNeedle,
             PressureNeedle,
-            MarkNeedle
+            MarkNeedle,
+
+            // 양극침
+            BipolarNeedle
         }
 
         [Header("Special Augment")]
@@ -118,6 +121,10 @@ namespace Vampire
                 case SpecialAugmentType.MarkNeedle:
                     syringeDartAbility.EnableMarkNeedleAugment();
                     break;
+
+                case SpecialAugmentType.BipolarNeedle:
+                    syringeDartAbility.EnableBipolarNeedleAugment();
+                    break;
             }
 
             if (debugLog)
@@ -179,6 +186,9 @@ namespace Vampire
 
                 case SpecialAugmentType.MarkNeedle:
                     return !syringeDartAbility.HasMarkNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.BipolarNeedle:
+                    return !syringeDartAbility.HasBipolarNeedleAugment() && base.RequirementsMet();
 
                 default:
                     return false;

@@ -39,6 +39,8 @@ namespace Vampire
 
         [Tooltip("표식침 활성화 여부입니다. 첫 피격 시 표식, 다음 피격 시 추가 피해를 줍니다.")]
         [SerializeField] private bool markNeedleEnabled = false;
+        [Tooltip("양극침 활성화 여부입니다. 침을 전방과 후방 180도 대칭 방향으로 나누어 발사합니다.")]
+        [SerializeField] private bool bipolarNeedleEnabled = false;
 
         [Tooltip("폭발침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool explosionEnabled = false;
@@ -137,6 +139,18 @@ namespace Vampire
 
         [Tooltip("표식이 있는 적을 다시 맞혔을 때 추가로 더해지는 피해 배율입니다. 0.5이면 현재 피해의 50%가 추가됩니다.")]
         [SerializeField] private float markBonusDamageMultiplier = 0.5f;
+        [Header("Bipolar Needle / 양극침 Settings")]
+        [Tooltip("양극침 획득 시 추가되는 발사체 개수입니다. 기본값 1이면 현재 총 침 개수에 +1이 적용됩니다.")]
+        [SerializeField] private int bipolarNeedleBonusProjectileCount = 1;
+
+        [Tooltip("반대 방향 침이 몇 도 뒤쪽으로 발사될지 정합니다. 180이면 완전한 전후방 대칭입니다.")]
+        [SerializeField] private float bipolarNeedleBackAngleOffset = 180f;
+
+        [Tooltip("총 발사체 수가 홀수일 때 남는 1발을 전방에 줄지 여부입니다. 체크하면 전방이 1발 더 많아집니다.")]
+        [SerializeField] private bool bipolarNeedleFrontGetsExtraProjectile = true;
+
+        [Tooltip("체크하면 양극침 발사 로그를 출력합니다.")]
+        [SerializeField] private bool debugBipolarNeedle = false;
         [Header("Pierce Settings")]
         [Tooltip("관통침 기본 관통 횟수. 2라면 첫 적중 이후 추가로 2번 더 관통 가능.")]
         [SerializeField] private int pierceCount = 2;
@@ -456,11 +470,18 @@ namespace Vampire
         protected IEnumerator LaunchSyringes()
         {
             int totalProjectileCount = GetEffectiveProjectileCount();
+
             Vector2 baseDirection = playerCharacter.LookDirection;
 
             if (baseDirection == Vector2.zero)
             {
                 baseDirection = Vector2.right;
+            }
+
+            if (bipolarNeedleEnabled)
+            {
+                yield return LaunchBipolarSyringes(baseDirection, totalProjectileCount);
+                yield break;
             }
 
             timeSinceLastAttack -= totalProjectileCount * syringeDelay;
@@ -469,10 +490,77 @@ namespace Vampire
             {
                 Vector2 spreadDirection = GetSpreadDirection(baseDirection, i, totalProjectileCount);
                 LaunchSyringeProjectile(spreadDirection);
+
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
+        private IEnumerator LaunchBipolarSyringes(Vector2 baseDirection, int totalProjectileCount)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = Vector2.right;
+            }
 
+            baseDirection.Normalize();
+
+            totalProjectileCount = Mathf.Max(1, totalProjectileCount);
+
+            int frontCount;
+            int backCount;
+
+            if (bipolarNeedleFrontGetsExtraProjectile)
+            {
+                frontCount = Mathf.CeilToInt(totalProjectileCount * 0.5f);
+                backCount = totalProjectileCount - frontCount;
+            }
+            else
+            {
+                backCount = Mathf.CeilToInt(totalProjectileCount * 0.5f);
+                frontCount = totalProjectileCount - backCount;
+            }
+
+            // 최소 2발 이상일 때는 반드시 전방/후방에 1발씩은 배치한다.
+            if (totalProjectileCount >= 2)
+            {
+                frontCount = Mathf.Max(1, frontCount);
+                backCount = Mathf.Max(1, backCount);
+            }
+
+            Vector2 backDirection = RotateVector(baseDirection, bipolarNeedleBackAngleOffset);
+
+            int pairCount = Mathf.Max(frontCount, backCount);
+
+            // 기존 한 방향 연사와 전체 쿨타임 감각이 크게 달라지지 않도록
+            // 실제 발사체 총량 기준으로 시간 보정을 유지한다.
+            timeSinceLastAttack -= totalProjectileCount * syringeDelay;
+
+            if (debugBipolarNeedle)
+            {
+                Debug.Log(
+                    $"[양극침] 발사 | Total={totalProjectileCount} | " +
+                    $"Front={frontCount} | Back={backCount} | " +
+                    $"BackAngle={bipolarNeedleBackAngleOffset}",
+                    this
+                );
+            }
+
+            for (int i = 0; i < pairCount; i++)
+            {
+                if (i < frontCount)
+                {
+                    Vector2 frontSpreadDirection = GetSpreadDirection(baseDirection, i, frontCount);
+                    LaunchSyringeProjectile(frontSpreadDirection);
+                }
+
+                if (i < backCount)
+                {
+                    Vector2 backSpreadDirection = GetSpreadDirection(backDirection, i, backCount);
+                    LaunchSyringeProjectile(backSpreadDirection);
+                }
+
+                yield return new WaitForSeconds(syringeDelay);
+            }
+        }
         private void LaunchSyringeProjectile(Vector2 direction)
         {
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
@@ -1379,6 +1467,11 @@ namespace Vampire
                 totalCount += lifeBurnBonusProjectiles;
             }
 
+            if (bipolarNeedleEnabled)
+            {
+                totalCount += Mathf.Max(0, bipolarNeedleBonusProjectileCount);
+            }
+
             return Mathf.Max(1, totalCount);
         }
 
@@ -1408,6 +1501,7 @@ namespace Vampire
             if (corrosionNeedleEnabled) count++;
             if (pressureNeedleEnabled) count++;
             if (markNeedleEnabled) count++;
+            if (bipolarNeedleEnabled) count++;
 
             return count;
         }
@@ -1560,7 +1654,8 @@ namespace Vampire
         public void EnablePressureNeedleAugment() => pressureNeedleEnabled = true;
 
         public void EnableMarkNeedleAugment() => markNeedleEnabled = true;
-
+        public void EnableBipolarNeedleAugment() => bipolarNeedleEnabled = true;
+        public bool HasBipolarNeedleAugment() => bipolarNeedleEnabled;
         public bool HasFiberNeedleAugment() => fiberNeedleEnabled;
 
         public bool HasCorrosionNeedleAugment() => corrosionNeedleEnabled;
@@ -1568,6 +1663,7 @@ namespace Vampire
         public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
 
         public bool HasMarkNeedleAugment() => markNeedleEnabled;
+       
         public void EnablePierceAugment()
         {
             pierceEnabled = true;
