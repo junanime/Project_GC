@@ -18,7 +18,12 @@ namespace Vampire
         private SyringeSpecialRuntime specials;
         private int remainingPierces;
         private int remainingReflects;
+        // 섬유침 선분 생성용 위치 기록
+        private Vector2 fiberSegmentStartPosition;
+        private float fiberDistanceSinceLastSegment = 0f;
 
+        // 압력침 거리 계산용 발사 시작 위치
+        private Vector2 pressureLaunchPosition;
         // 한 투사체가 이미 맞힌 대상 기록
         private readonly HashSet<int> hitTargetIds = new HashSet<int>();
 
@@ -108,7 +113,9 @@ namespace Vampire
             remainingPierces = 0;
             remainingReflects = 0;
             hitTargetIds.Clear();
-
+            fiberSegmentStartPosition = position;
+            fiberDistanceSinceLastSegment = 0f;
+            pressureLaunchPosition = position;
             hasAppliedLaunchForwardOffset = false;
 
             flightState = NeedleFlightState.Normal;
@@ -222,9 +229,13 @@ namespace Vampire
                             UpdateHomingDirection();
                         }
 
+                        Vector2 previousPosition = transform.position;
+
                         float normalStep = speed * Time.deltaTime;
                         transform.position += normalStep * (Vector3)direction;
                         distanceTravelled += normalStep;
+
+                        TrySpawnFiberTrailSegment(previousPosition, transform.position);
 
                         ApplyVisualRotationToDirection(direction);
 
@@ -392,7 +403,171 @@ namespace Vampire
                 specials.honeySlowMultiplier
             );
         }
+        private void TrySpawnFiberTrailSegment(Vector2 previousPosition, Vector2 currentPosition)
+        {
+            if (!specials.fiberEnabled)
+            {
+                return;
+            }
 
+            float movedDistance = Vector2.Distance(previousPosition, currentPosition);
+
+            if (movedDistance <= 0.001f)
+            {
+                return;
+            }
+
+            fiberDistanceSinceLastSegment += movedDistance;
+
+            float minSegmentDistance = Mathf.Max(0.05f, specials.fiberTrailMinSegmentDistance);
+
+            if (fiberDistanceSinceLastSegment < minSegmentDistance)
+            {
+                return;
+            }
+
+            GameObject segmentObject = new GameObject("Fiber Needle Trail Segment");
+            FiberTrailSegment segment = segmentObject.AddComponent<FiberTrailSegment>();
+
+            segment.Init(
+                fiberSegmentStartPosition,
+                currentPosition,
+                targetLayer,
+                specials.fiberTrailLifetime,
+                specials.fiberTrailDamagePerSecond,
+                specials.fiberTrailTickInterval,
+                specials.fiberTrailWidth,
+                specials.fiberTrailColor
+            );
+
+            fiberSegmentStartPosition = currentPosition;
+            fiberDistanceSinceLastSegment = 0f;
+        }
+
+        private float ApplyPressureDamageIfNeeded(float rawDamage)
+        {
+            if (!specials.pressureEnabled)
+            {
+                return rawDamage;
+            }
+
+            float travelledDistance = Vector2.Distance(pressureLaunchPosition, transform.position);
+            float bonus = travelledDistance * Mathf.Max(0f, specials.pressureDamageBonusPerDistance);
+            bonus = Mathf.Min(bonus, Mathf.Max(0f, specials.pressureMaxDamageBonus));
+
+            return rawDamage * (1f + bonus);
+        }
+
+        private float ApplyCorrosionDamageTakenMultiplier(Component damageableComponent, float currentDamage)
+        {
+            if (damageableComponent == null)
+            {
+                return currentDamage;
+            }
+
+            CorrosionStatus corrosionStatus =
+                damageableComponent.GetComponent<CorrosionStatus>() ??
+                damageableComponent.GetComponentInParent<CorrosionStatus>();
+
+            if (corrosionStatus == null)
+            {
+                return currentDamage;
+            }
+
+            return currentDamage * corrosionStatus.GetDamageTakenMultiplier();
+        }
+
+        private void ApplyCorrosion(Component damageableComponent)
+        {
+            if (!specials.corrosionEnabled)
+            {
+                return;
+            }
+
+            if (damageableComponent == null)
+            {
+                return;
+            }
+
+            Monster monster =
+                damageableComponent.GetComponent<Monster>() ??
+                damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return;
+            }
+
+            CorrosionStatus corrosionStatus = monster.GetComponent<CorrosionStatus>();
+
+            if (corrosionStatus == null)
+            {
+                corrosionStatus = monster.gameObject.AddComponent<CorrosionStatus>();
+            }
+
+            corrosionStatus.Apply(
+                specials.corrosionDuration,
+                specials.corrosionDamageTakenBonusPerStack,
+                specials.corrosionBossDamageTakenBonusPerStack,
+                specials.corrosionMaxStacks,
+                IsBossLikeTarget(damageableComponent)
+            );
+        }
+
+        private bool TryConsumeNeedleMark(Component damageableComponent)
+        {
+            if (!specials.markEnabled)
+            {
+                return false;
+            }
+
+            if (damageableComponent == null)
+            {
+                return false;
+            }
+
+            NeedleMarkStatus markStatus =
+                damageableComponent.GetComponent<NeedleMarkStatus>() ??
+                damageableComponent.GetComponentInParent<NeedleMarkStatus>();
+
+            if (markStatus == null)
+            {
+                return false;
+            }
+
+            return markStatus.TryConsume();
+        }
+
+        private void ApplyNeedleMark(Component damageableComponent)
+        {
+            if (!specials.markEnabled)
+            {
+                return;
+            }
+
+            if (damageableComponent == null)
+            {
+                return;
+            }
+
+            Monster monster =
+                damageableComponent.GetComponent<Monster>() ??
+                damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return;
+            }
+
+            NeedleMarkStatus markStatus = monster.GetComponent<NeedleMarkStatus>();
+
+            if (markStatus == null)
+            {
+                markStatus = monster.gameObject.AddComponent<NeedleMarkStatus>();
+            }
+
+            markStatus.Apply(specials.markDuration);
+        }
         private void ApplyMosquitoHeal(Component damageableComponent)
         {
             if (specials.healingBlocked) return;
@@ -805,11 +980,25 @@ namespace Vampire
         {
             PlayerGeneralStatRuntime statRuntime = PlayerGeneralStatRuntime.GetOrCreate(playerCharacter);
             bool isCritical = false;
+            // 압력침: 침이 날아간 거리에 따라 기본 피해를 먼저 증가시킨다.
+            rawDamage = ApplyPressureDamageIfNeeded(rawDamage);
+
             float finalDamage = rawDamage;
 
             if (statRuntime != null)
             {
                 finalDamage = statRuntime.CalculateOffensiveDamage(playerCharacter, damageableComponent, rawDamage, out isCritical);
+            }
+
+            // 부식침: 이미 걸려 있는 부식 스택만큼 이번 피해를 증가시킨다.
+            finalDamage = ApplyCorrosionDamageTakenMultiplier(damageableComponent, finalDamage);
+
+            // 표식침: 표식이 이미 있으면 표식을 소모하고 추가 피해를 더한다.
+            bool consumedNeedleMark = TryConsumeNeedleMark(damageableComponent);
+
+            if (consumedNeedleMark)
+            {
+                finalDamage += finalDamage * Mathf.Max(0f, specials.markBonusDamageMultiplier);
             }
 
             float finalKnockback = knockback;
@@ -845,6 +1034,16 @@ namespace Vampire
             if (specials.mosquitoEnabled)
             {
                 ApplyMosquitoHeal(damageableComponent);
+
+            }
+            if (specials.corrosionEnabled)
+            {
+                ApplyCorrosion(damageableComponent);
+            }
+
+            if (specials.markEnabled && !consumedNeedleMark)
+            {
+                ApplyNeedleMark(damageableComponent);
             }
             if (specials.explosionEnabled && UnityEngine.Random.value < specials.explosionChance)
             {

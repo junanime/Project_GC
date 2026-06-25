@@ -28,6 +28,20 @@ namespace Vampire
         [Tooltip("독침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool poisonEnabled = false;
 
+        [Tooltip("섬유침 활성화 여부입니다. 침이 지나간 자리에 피해 선을 남깁니다.")]
+        [SerializeField] private bool fiberNeedleEnabled = false;
+
+        [Tooltip("부식침 활성화 여부입니다. 적에게 받는 피해 증가 스택을 부여합니다.")]
+        [SerializeField] private bool corrosionNeedleEnabled = false;
+
+        [Tooltip("압력침 활성화 여부입니다. 침이 멀리 날아갈수록 피해가 증가합니다.")]
+        [SerializeField] private bool pressureNeedleEnabled = false;
+
+        [Tooltip("표식침 활성화 여부입니다. 첫 피격 시 표식, 다음 피격 시 추가 피해를 줍니다.")]
+        [SerializeField] private bool markNeedleEnabled = false;
+        [Tooltip("양극침 활성화 여부입니다. 침을 전방과 후방 180도 대칭 방향으로 나누어 발사합니다.")]
+        [SerializeField] private bool bipolarNeedleEnabled = false;
+
         [Tooltip("폭발침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool explosionEnabled = false;
 
@@ -55,7 +69,14 @@ namespace Vampire
 
         [Tooltip("분신배양 전설증강을 테스트용으로 보유 처리합니다. 실제 분신 생성은 분신배양 전설증강/컨트롤러 쪽 구현을 따릅니다.")]
         [SerializeField] private bool cloneLegendaryTaken = false;
+        [Tooltip("신경차단 전설증강 활성화 여부입니다. 일정 주기로 화면 안 적을 정지시킵니다.")]
+        [SerializeField] private bool neuralBlockEnabled = false;
 
+        [Tooltip("독 전염 전설증강 활성화 여부입니다. 독에 걸린 적 처치 시 주변 적에게 독을 전염시킵니다.")]
+        [SerializeField] private bool poisonContagionEnabled = false;
+
+        [Tooltip("장기압착 전설증강 활성화 여부입니다. 일정 주기로 적 밀집 구역에 압착장을 생성합니다.")]
+        [SerializeField] private bool organCompressionEnabled = false;
         [Tooltip("고슴도침 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 침 결계 컨트롤러까지 자동 생성됩니다.")]
         [SerializeField] private bool hedgehogNeedleEnabled = false;
 
@@ -80,7 +101,63 @@ namespace Vampire
         [Header("Homing Settings")]
         [SerializeField] private float homingRange = 6f;
         [SerializeField] private float homingLerpSpeed = 8f;
+        [Header("Fiber Needle / 섬유침 Settings")]
+        [Tooltip("섬유침이 남긴 선이 유지되는 시간입니다.")]
+        [SerializeField] private float fiberTrailLifetime = 2f;
 
+        [Tooltip("섬유침 선 위에 있는 적이 1초마다 받는 피해입니다.")]
+        [SerializeField] private float fiberTrailDamagePerSecond = 2f;
+
+        [Tooltip("섬유침 피해가 들어가는 간격입니다. 0.5이면 0.5초마다 damagePerSecond의 절반 피해가 들어갑니다.")]
+        [SerializeField] private float fiberTrailTickInterval = 0.5f;
+
+        [Tooltip("섬유침 선의 두께입니다.")]
+        [SerializeField] private float fiberTrailWidth = 0.12f;
+
+        [Tooltip("침이 이 거리 이상 이동할 때마다 섬유 선분을 하나 생성합니다. 낮을수록 선이 촘촘하지만 오브젝트가 많아집니다.")]
+        [SerializeField] private float fiberTrailMinSegmentDistance = 0.25f;
+
+        [Tooltip("섬유침 선의 색상입니다.")]
+        [SerializeField] private Color fiberTrailColor = new Color(0.75f, 1f, 0.95f, 0.75f);
+
+        [Header("Corrosion Needle / 부식침 Settings")]
+        [Tooltip("부식침 스택 지속 시간입니다.")]
+        [SerializeField] private float corrosionDuration = 3f;
+
+        [Tooltip("일반 몬스터에게 부식 1스택당 적용되는 받는 피해 증가량입니다. 0.15이면 15%입니다.")]
+        [SerializeField] private float corrosionDamageTakenBonusPerStack = 0.15f;
+
+        [Tooltip("보스 몬스터에게 부식 1스택당 적용되는 받는 피해 증가량입니다. 0.05이면 5%입니다.")]
+        [SerializeField] private float corrosionBossDamageTakenBonusPerStack = 0.05f;
+
+        [Tooltip("부식 최대 중첩 수입니다.")]
+        [SerializeField] private int corrosionMaxStacks = 3;
+
+        [Header("Pressure Needle / 압력침 Settings")]
+        [Tooltip("침이 1유닛 이동할 때마다 증가하는 피해량입니다. 0.08이면 거리 1당 8% 증가합니다.")]
+        [SerializeField] private float pressureDamageBonusPerDistance = 0.08f;
+
+        [Tooltip("압력침 최대 피해 증가량입니다. 0.5이면 최대 50% 증가입니다.")]
+        [SerializeField] private float pressureMaxDamageBonus = 0.5f;
+
+        [Header("Mark Needle / 표식침 Settings")]
+        [Tooltip("표식 지속 시간입니다.")]
+        [SerializeField] private float markDuration = 4f;
+
+        [Tooltip("표식이 있는 적을 다시 맞혔을 때 추가로 더해지는 피해 배율입니다. 0.5이면 현재 피해의 50%가 추가됩니다.")]
+        [SerializeField] private float markBonusDamageMultiplier = 0.5f;
+        [Header("Bipolar Needle / 양극침 Settings")]
+        [Tooltip("양극침 획득 시 추가되는 발사체 개수입니다. 기본값 1이면 현재 총 침 개수에 +1이 적용됩니다.")]
+        [SerializeField] private int bipolarNeedleBonusProjectileCount = 1;
+
+        [Tooltip("반대 방향 침이 몇 도 뒤쪽으로 발사될지 정합니다. 180이면 완전한 전후방 대칭입니다.")]
+        [SerializeField] private float bipolarNeedleBackAngleOffset = 180f;
+
+        [Tooltip("총 발사체 수가 홀수일 때 남는 1발을 전방에 줄지 여부입니다. 체크하면 전방이 1발 더 많아집니다.")]
+        [SerializeField] private bool bipolarNeedleFrontGetsExtraProjectile = true;
+
+        [Tooltip("체크하면 양극침 발사 로그를 출력합니다.")]
+        [SerializeField] private bool debugBipolarNeedle = false;
         [Header("Pierce Settings")]
         [Tooltip("관통침 기본 관통 횟수. 2라면 첫 적중 이후 추가로 2번 더 관통 가능.")]
         [SerializeField] private int pierceCount = 2;
@@ -288,6 +365,61 @@ namespace Vampire
 
         // 이기어침 + 대물침 조합에서 사용하는 현재 차지율
         private float cursorHeavyChargeRatio = 0f;
+        [Header("Neural Block / 신경차단 Settings")]
+        [Tooltip("신경차단 발동 주기입니다.")]
+        [SerializeField] private float neuralBlockInterval = 12f;
+
+        [Tooltip("신경차단으로 몬스터가 멈추는 시간입니다.")]
+        [SerializeField] private float neuralBlockFreezeDuration = 1f;
+
+        [Tooltip("화면 가장자리 밖 몬스터까지 살짝 포함할 여유값입니다.")]
+        [SerializeField] private float neuralBlockScreenPadding = 0.08f;
+
+        [Tooltip("체크하면 신경차단 로그를 출력합니다.")]
+        [SerializeField] private bool debugNeuralBlock = false;
+
+        [Header("Poison Contagion / 독 전염 Settings")]
+        [Tooltip("독 전염 범위입니다. 1이면 처치된 몬스터 기준 약 1칸 범위입니다.")]
+        [SerializeField] private float poisonContagionRadius = 1f;
+
+        [Tooltip("전염된 독의 지속시간 배율입니다. 1이면 원래 독 지속시간과 같습니다.")]
+        [SerializeField] private float poisonContagionDurationMultiplier = 1f;
+
+        [Tooltip("전염된 독의 피해 배율입니다. 1이면 원래 독 피해와 같습니다.")]
+        [SerializeField] private float poisonContagionDamageMultiplier = 1f;
+
+        [Tooltip("체크하면 독 전염 로그를 출력합니다.")]
+        [SerializeField] private bool debugPoisonContagion = false;
+
+        [Header("Organ Compression / 장기압착 Settings")]
+        [Tooltip("장기압착장 생성 주기입니다.")]
+        [SerializeField] private float organCompressionInterval = 20f;
+
+        [Tooltip("적 밀집 구역을 계산할 때 사용할 반경입니다.")]
+        [SerializeField] private float organCompressionClusterSearchRadius = 2.5f;
+
+        [Tooltip("장기압착장의 실제 피해/흡입 반경입니다.")]
+        [SerializeField] private float organCompressionFieldRadius = 2f;
+
+        [Tooltip("장기압착장 유지 시간입니다.")]
+        [SerializeField] private float organCompressionFieldDuration = 4f;
+
+        [Tooltip("장기압착장 피해 간격입니다.")]
+        [SerializeField] private float organCompressionDamageTickInterval = 0.5f;
+
+        [Tooltip("장기압착장 1틱당 피해량입니다.")]
+        [SerializeField] private float organCompressionDamagePerTick = 3f;
+
+        [Tooltip("장기압착장이 적을 중앙으로 끌어당기는 속도입니다.")]
+        [SerializeField] private float organCompressionPullSpeed = 2.5f;
+
+        [Tooltip("화면 가장자리 밖 몬스터까지 살짝 포함할 여유값입니다.")]
+        [SerializeField] private float organCompressionScreenPadding = 0.08f;
+
+        [Tooltip("체크하면 장기압착 로그를 출력합니다.")]
+        [SerializeField] private bool debugOrganCompression = false;
+        private NeuralBlockController neuralBlockController;
+        private OrganCompressionController organCompressionController;
 
         [Header("Legendary - Cursor Controlled Needle / 이기어침")]
         [Tooltip("마우스 포인트를 따라가는 속도. 높을수록 더 즉각적으로 따라갑니다.")]
@@ -351,6 +483,20 @@ namespace Vampire
             {
                 EnableCursorControlLegendary();
             }
+            if (neuralBlockEnabled)
+            {
+                EnableNeuralBlockLegendary();
+            }
+
+            if (poisonContagionEnabled)
+            {
+                EnablePoisonContagionLegendary();
+            }
+
+            if (organCompressionEnabled)
+            {
+                EnableOrganCompressionLegendary();
+            }
         }
 
         protected override void Update()
@@ -400,11 +546,18 @@ namespace Vampire
         protected IEnumerator LaunchSyringes()
         {
             int totalProjectileCount = GetEffectiveProjectileCount();
+
             Vector2 baseDirection = playerCharacter.LookDirection;
 
             if (baseDirection == Vector2.zero)
             {
                 baseDirection = Vector2.right;
+            }
+
+            if (bipolarNeedleEnabled)
+            {
+                yield return LaunchBipolarSyringes(baseDirection, totalProjectileCount);
+                yield break;
             }
 
             timeSinceLastAttack -= totalProjectileCount * syringeDelay;
@@ -413,10 +566,77 @@ namespace Vampire
             {
                 Vector2 spreadDirection = GetSpreadDirection(baseDirection, i, totalProjectileCount);
                 LaunchSyringeProjectile(spreadDirection);
+
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
+        private IEnumerator LaunchBipolarSyringes(Vector2 baseDirection, int totalProjectileCount)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = Vector2.right;
+            }
 
+            baseDirection.Normalize();
+
+            totalProjectileCount = Mathf.Max(1, totalProjectileCount);
+
+            int frontCount;
+            int backCount;
+
+            if (bipolarNeedleFrontGetsExtraProjectile)
+            {
+                frontCount = Mathf.CeilToInt(totalProjectileCount * 0.5f);
+                backCount = totalProjectileCount - frontCount;
+            }
+            else
+            {
+                backCount = Mathf.CeilToInt(totalProjectileCount * 0.5f);
+                frontCount = totalProjectileCount - backCount;
+            }
+
+            // 최소 2발 이상일 때는 반드시 전방/후방에 1발씩은 배치한다.
+            if (totalProjectileCount >= 2)
+            {
+                frontCount = Mathf.Max(1, frontCount);
+                backCount = Mathf.Max(1, backCount);
+            }
+
+            Vector2 backDirection = RotateVector(baseDirection, bipolarNeedleBackAngleOffset);
+
+            int pairCount = Mathf.Max(frontCount, backCount);
+
+            // 기존 한 방향 연사와 전체 쿨타임 감각이 크게 달라지지 않도록
+            // 실제 발사체 총량 기준으로 시간 보정을 유지한다.
+            timeSinceLastAttack -= totalProjectileCount * syringeDelay;
+
+            if (debugBipolarNeedle)
+            {
+                Debug.Log(
+                    $"[양극침] 발사 | Total={totalProjectileCount} | " +
+                    $"Front={frontCount} | Back={backCount} | " +
+                    $"BackAngle={bipolarNeedleBackAngleOffset}",
+                    this
+                );
+            }
+
+            for (int i = 0; i < pairCount; i++)
+            {
+                if (i < frontCount)
+                {
+                    Vector2 frontSpreadDirection = GetSpreadDirection(baseDirection, i, frontCount);
+                    LaunchSyringeProjectile(frontSpreadDirection);
+                }
+
+                if (i < backCount)
+                {
+                    Vector2 backSpreadDirection = GetSpreadDirection(backDirection, i, backCount);
+                    LaunchSyringeProjectile(backSpreadDirection);
+                }
+
+                yield return new WaitForSeconds(syringeDelay);
+            }
+        }
         private void LaunchSyringeProjectile(Vector2 direction)
         {
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
@@ -1203,7 +1423,27 @@ namespace Vampire
                 returnNeedleDamageMultiplier = returnNeedleDamageMultiplier,
                 returnNeedleArriveDistance = returnNeedleArriveDistance,
                 returnNeedleMaxDuration = returnNeedleMaxDuration,
+                fiberEnabled = fiberNeedleEnabled,
+                fiberTrailLifetime = fiberTrailLifetime,
+                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond,
+                fiberTrailTickInterval = fiberTrailTickInterval,
+                fiberTrailWidth = fiberTrailWidth,
+                fiberTrailMinSegmentDistance = fiberTrailMinSegmentDistance,
+                fiberTrailColor = fiberTrailColor,
 
+                corrosionEnabled = corrosionNeedleEnabled,
+                corrosionDuration = corrosionDuration,
+                corrosionDamageTakenBonusPerStack = corrosionDamageTakenBonusPerStack,
+                corrosionBossDamageTakenBonusPerStack = corrosionBossDamageTakenBonusPerStack,
+                corrosionMaxStacks = corrosionMaxStacks,
+
+                pressureEnabled = pressureNeedleEnabled,
+                pressureDamageBonusPerDistance = pressureDamageBonusPerDistance,
+                pressureMaxDamageBonus = pressureMaxDamageBonus,
+
+                markEnabled = markNeedleEnabled,
+                markDuration = markDuration,
+                markBonusDamageMultiplier = markBonusDamageMultiplier,
                 healingBlocked = lifeBurnEnabled,
 
                 rangeBonus = lifeBurnEnabled ? lifeBurnBonusRange : 0f
@@ -1303,6 +1543,11 @@ namespace Vampire
                 totalCount += lifeBurnBonusProjectiles;
             }
 
+            if (bipolarNeedleEnabled)
+            {
+                totalCount += Mathf.Max(0, bipolarNeedleBonusProjectileCount);
+            }
+
             return Mathf.Max(1, totalCount);
         }
 
@@ -1328,6 +1573,11 @@ namespace Vampire
             if (mosquitoEnabled) count++;
             if (returnNeedleEnabled) count++;
             if (acupunctureFormationEnabled) count++;
+            if (fiberNeedleEnabled) count++;
+            if (corrosionNeedleEnabled) count++;
+            if (pressureNeedleEnabled) count++;
+            if (markNeedleEnabled) count++;
+            if (bipolarNeedleEnabled) count++;
 
             return count;
         }
@@ -1473,7 +1723,23 @@ namespace Vampire
         public void EnableExplosionAugment() => explosionEnabled = true;
 
         public void EnableHomingAugment() => homingEnabled = true;
+        public void EnableFiberNeedleAugment() => fiberNeedleEnabled = true;
 
+        public void EnableCorrosionNeedleAugment() => corrosionNeedleEnabled = true;
+
+        public void EnablePressureNeedleAugment() => pressureNeedleEnabled = true;
+
+        public void EnableMarkNeedleAugment() => markNeedleEnabled = true;
+        public void EnableBipolarNeedleAugment() => bipolarNeedleEnabled = true;
+        public bool HasBipolarNeedleAugment() => bipolarNeedleEnabled;
+        public bool HasFiberNeedleAugment() => fiberNeedleEnabled;
+
+        public bool HasCorrosionNeedleAugment() => corrosionNeedleEnabled;
+
+        public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
+
+        public bool HasMarkNeedleAugment() => markNeedleEnabled;
+       
         public void EnablePierceAugment()
         {
             pierceEnabled = true;
@@ -1547,7 +1813,110 @@ namespace Vampire
         public void MarkCloneLegendaryTaken() => cloneLegendaryTaken = true;
 
         public bool HasCloneLegendary() => cloneLegendaryTaken;
+        public void EnableNeuralBlockLegendary()
+        {
+            if (neuralBlockEnabled && neuralBlockController != null)
+            {
+                ConfigureNeuralBlockController();
+                return;
+            }
 
+            neuralBlockEnabled = true;
+
+            neuralBlockController = GetComponent<NeuralBlockController>();
+
+            if (neuralBlockController == null)
+            {
+                neuralBlockController = gameObject.AddComponent<NeuralBlockController>();
+            }
+
+            ConfigureNeuralBlockController();
+        }
+
+        private void ConfigureNeuralBlockController()
+        {
+            if (neuralBlockController == null)
+            {
+                return;
+            }
+
+            neuralBlockController.Configure(
+                neuralBlockInterval,
+                neuralBlockFreezeDuration,
+                neuralBlockScreenPadding,
+                monsterLayer,
+                debugNeuralBlock
+            );
+        }
+
+        public bool HasNeuralBlockLegendary()
+        {
+            return neuralBlockEnabled;
+        }
+
+        public void EnablePoisonContagionLegendary()
+        {
+            poisonContagionEnabled = true;
+
+            PoisonContagionRuntime.Enable(
+                poisonContagionRadius,
+                poisonContagionDurationMultiplier,
+                poisonContagionDamageMultiplier,
+                monsterLayer,
+                debugPoisonContagion
+            );
+        }
+
+        public bool HasPoisonContagionLegendary()
+        {
+            return poisonContagionEnabled;
+        }
+
+        public void EnableOrganCompressionLegendary()
+        {
+            if (organCompressionEnabled && organCompressionController != null)
+            {
+                ConfigureOrganCompressionController();
+                return;
+            }
+
+            organCompressionEnabled = true;
+
+            organCompressionController = GetComponent<OrganCompressionController>();
+
+            if (organCompressionController == null)
+            {
+                organCompressionController = gameObject.AddComponent<OrganCompressionController>();
+            }
+
+            ConfigureOrganCompressionController();
+        }
+
+        private void ConfigureOrganCompressionController()
+        {
+            if (organCompressionController == null)
+            {
+                return;
+            }
+
+            organCompressionController.Configure(
+                organCompressionInterval,
+                organCompressionClusterSearchRadius,
+                organCompressionFieldRadius,
+                organCompressionFieldDuration,
+                organCompressionDamageTickInterval,
+                organCompressionDamagePerTick,
+                organCompressionPullSpeed,
+                organCompressionScreenPadding,
+                monsterLayer,
+                debugOrganCompression
+            );
+        }
+
+        public bool HasOrganCompressionLegendary()
+        {
+            return organCompressionEnabled;
+        }
         public void EnableHedgehogNeedleLegendary()
         {
             hedgehogNeedleEnabled = true;

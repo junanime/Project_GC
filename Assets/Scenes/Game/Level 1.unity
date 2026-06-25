@@ -6875,12 +6875,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 377995995}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1003.4933, y: 1005.0884, z: -0.781888}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1207884298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &377995997
 MonoBehaviour:
@@ -6904,8 +6904,15 @@ MonoBehaviour:
   roomPrefabs:
   - {fileID: 5825257216088610400, guid: 47a784ae3e6f0574c9812d885515cb89, type: 3}
   - {fileID: -6458298950580239387, guid: 44d719d1c53368c458eac9b73cc07e01, type: 3}
+  - {fileID: 1284521409088723078, guid: b638ac198698b9948a91adc19b8d83f0, type: 3}
+  - {fileID: 3954065462897060129, guid: d63a4292c08c26249b131d02cca96194, type: 3}
+  - {fileID: 3851990242224366932, guid: cb152dc1a0d38284a8d04723456d6f4c, type: 3}
+  - {fileID: -7615412581104047823, guid: f10594891578a594387fa85f4ddd6750, type: 3}
+  - {fileID: 1578500437859175202, guid: 3cb586375638109428dfd38a23c19d5c, type: 3}
+  - {fileID: 810219229424612871, guid: 71bb58afb7834d54990c94f678d42889, type: 3}
+  - {fileID: 4592952354709790171, guid: 2f48fe7ca4706bd4694c4bd382cb30a8, type: 3}
   useForcedRoomIndex: 1
-  forcedRoomIndex: 1
+  forcedRoomIndex: 2
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
@@ -19252,12 +19259,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 958006996}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1000, y: 1000, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1207884298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &976613124
 GameObject:
@@ -20389,6 +20396,8 @@ MonoBehaviour:
   globalMaxAliveElites: 8
   requireEliteMonsterBlueprint: 0
   cleanupInactiveElitesEveryFrame: 1
+  blockWhileRunFlowPaused: 1
+  logMiniStageBlock: 0
   spawnPhases:
   - phaseName: "Phase 1: 2\uBD84~5\uBD84"
     startTime: 90
@@ -20545,6 +20554,11 @@ Transform:
   - {fileID: 271402292}
   - {fileID: 1609493736}
   - {fileID: 1967562481}
+  - {fileID: 377995996}
+  - {fileID: 1485676086}
+  - {fileID: 958006997}
+  - {fileID: 2101930415}
+  - {fileID: 2106351311}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1209616732
@@ -20975,6 +20989,10 @@ MonoBehaviour:
   baseSpawnChance: 0.25
   maxSpawnChance: 0.65
   chanceIncreasePerMinute: 0.03
+  blockWhileMiniStage: 1
+  pauseSpawnTimerWhileMiniStage: 1
+  levelManager: {fileID: 0}
+  logMiniStageBlock: 0
 --- !u!4 &1323090797
 Transform:
   m_ObjectHideFlags: 0
@@ -26427,7 +26445,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1485676086}
   - component: {fileID: 1485676085}
-  - component: {fileID: 1485676087}
   m_Layer: 0
   m_Name: BloodClotFieldSpawner
   m_TagString: Untagged
@@ -26452,12 +26469,18 @@ MonoBehaviour:
   miniStageDirector: {fileID: 377995997}
   bloodClotMonsterPoolIndex: 12
   bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
-  firstSpawnTime: 5
-  respawnDelay: 120
-  spawnDistanceFromPlayer: 1
   bloodClotHpBuff: 0
-  keepOnlyOneBloodClot: 1
+  firstSpawnDelay: 40
+  spawnInterval: 80
+  pauseTimerWhileRunFlowPaused: 1
+  spawnDistanceFromPlayer: 1
+  spawnDistanceRandomOffset: 1.5
+  useRandomDirection: 1
+  maxActiveBloodClots: 3
+  skipSpawnWhenMaxActiveReached: 1
   debugLog: 1
+  enableForceSpawnKey: 1
+  forceSpawnKey: 288
 --- !u!4 &1485676086
 Transform:
   m_ObjectHideFlags: 0
@@ -26466,36 +26489,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1485676084}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1003.4933, y: 1005.0884, z: -0.781888}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1207884298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1485676087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1485676084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e3c26e95cb90db49b3a42fcc955d942, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  displayName: Marker
-  markerKind: 0
-  showOnMiniMap: 1
-  showOnFullMap: 1
-  hideUntilDiscovered: 1
-  alwaysVisible: 0
-  discoverDistance: 5
-  miniMapColor: {r: 1, g: 0.015686274, b: 0.822949, a: 1}
-  miniMapSize: 6
-  fullMapColor: {r: 1, g: 0.015686274, b: 0.88084376, a: 1}
-  fullMapSize: 8
 --- !u!1 &1547352217
 GameObject:
   m_ObjectHideFlags: 0
@@ -37164,7 +37164,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1000
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!210 &1852338041
 SortingGroup:
@@ -38694,6 +38694,8 @@ MonoBehaviour:
     maxDistanceFromPlayer: 5
     minDistanceBetweenTraps: 1.5
     spawnPositionTryCount: 20
+  blockWhileRunFlowPaused: 1
+  logMiniStageBlock: 0
   debugLog: 0
 --- !u!4 &2093063619
 Transform:
@@ -38985,6 +38987,124 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 856782954}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2101930413
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2101930415}
+  - component: {fileID: 2101930414}
+  m_Layer: 0
+  m_Name: DigestiveEnzymeDifficultyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2101930414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101930413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3ac1bc6f38fcf24e99f1be805c67092, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  difficultyIncreasePercent: 5
+  killCountPerIncrease: 1
+  maxDifficultyIncreasePercent: 50
+  allowSpawnRateIncrease: 1
+  allowMonsterHealthIncrease: 1
+  allowMonsterMoveSpeedIncrease: 1
+  applyMoveSpeedBonusToActiveMonsters: 1
+  moveSpeedApplyInterval: 1
+  ignoreBossMonstersForMoveSpeed: 1
+  debugLog: 1
+--- !u!4 &2101930415
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2101930413}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 553.9942, y: 290.47504, z: -2.5513744}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1207884298}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2106351309
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2106351311}
+  - component: {fileID: 2106351310}
+  m_Layer: 0
+  m_Name: DigestiveEnzymeFieldSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2106351310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106351309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c21dd700e34f02f46bb255dfaeb14c02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  digestiveEnzymePrefab: {fileID: 761807975845522662, guid: e520f9ae38470ae43ab567412afecba3, type: 3}
+  levelManager: {fileID: 0}
+  playerCharacter: {fileID: 0}
+  firstSpawnTime: 55
+  spawnInterval: 40
+  maxAliveCount: 3
+  spawnDistanceFromPlayer: 9
+  spawnDistanceJitter: 1.5
+  randomDirectionSpawn: 1
+  fixedSpawnDirection: {x: 1, y: 0}
+  avoidSpawnRadius: 0.6
+  avoidSpawnLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  blockWhileRunFlowPaused: 1
+  blockInsideMiniStage: 1
+  resetTimerWhileBlocked: 0
+  debugLog: 1
+  enableForceSpawnKey: 1
+  forceSpawnKey: 290
+--- !u!4 &2106351311
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2106351309}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 553.9942, y: 290.47504, z: -2.5513744}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1207884298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2124109317
 GameObject:
@@ -39496,6 +39616,3 @@ SceneRoots:
   m_Roots:
   - {fileID: 1421529453}
   - {fileID: 1207884298}
-  - {fileID: 377995996}
-  - {fileID: 1485676086}
-  - {fileID: 958006997}

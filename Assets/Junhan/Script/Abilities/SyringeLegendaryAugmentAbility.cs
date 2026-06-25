@@ -17,10 +17,20 @@ namespace Vampire
             HeavySnipe,
 
             // 전설 증강: 이기어침
-            CursorControl
+            CursorControl,
+
+            // 신규 전설 증강: 신경차단
+            NeuralBlock,
+
+            // 신규 전설 증강: 독 전염
+            PoisonContagion,
+
+            // 신규 전설 증강: 장기압착
+            OrganCompression
         }
 
         [Header("Legendary Augment")]
+        [Tooltip("이 Ability가 적용할 전설증강 종류입니다.")]
         [SerializeField] private LegendaryAugmentType augmentType;
 
         private SyringeDartAbility syringeDartAbility;
@@ -28,13 +38,21 @@ namespace Vampire
         private CharacterBlueprint originalBlueprintAsset;
         private CharacterBlueprint runtimeClonedBlueprint;
 
-        public override void Init(AbilityManager abilityManager, EntityManager entityManager, Character playerCharacter)
+        public override void Init(
+            AbilityManager abilityManager,
+            EntityManager entityManager,
+            Character playerCharacter)
         {
             base.Init(abilityManager, entityManager, playerCharacter);
 
             maxLevel = 1;
 
-            syringeDartAbility = abilityManager.GetComponentInChildren<SyringeDartAbility>(true);
+            syringeDartAbility = SyringeAbilityResolver.FindOwnedOrFirst(abilityManager);
+
+            if (syringeDartAbility == null)
+            {
+                syringeDartAbility = abilityManager.GetComponentInChildren<SyringeDartAbility>(true);
+            }
 
             if (syringeDartAbility == null)
             {
@@ -77,6 +95,18 @@ namespace Vampire
                 case LegendaryAugmentType.CursorControl:
                     syringeDartAbility.EnableCursorControlLegendary();
                     break;
+
+                case LegendaryAugmentType.NeuralBlock:
+                    syringeDartAbility.EnableNeuralBlockLegendary();
+                    break;
+
+                case LegendaryAugmentType.PoisonContagion:
+                    syringeDartAbility.EnablePoisonContagionLegendary();
+                    break;
+
+                case LegendaryAugmentType.OrganCompression:
+                    syringeDartAbility.EnableOrganCompressionLegendary();
+                    break;
             }
         }
 
@@ -103,6 +133,17 @@ namespace Vampire
 
                 case LegendaryAugmentType.CursorControl:
                     return !syringeDartAbility.HasCursorControlLegendary() && base.RequirementsMet();
+
+                case LegendaryAugmentType.NeuralBlock:
+                    return !syringeDartAbility.HasNeuralBlockLegendary() && base.RequirementsMet();
+
+                case LegendaryAugmentType.PoisonContagion:
+                    return syringeDartAbility.HasPoisonAugment() &&
+                           !syringeDartAbility.HasPoisonContagionLegendary() &&
+                           base.RequirementsMet();
+
+                case LegendaryAugmentType.OrganCompression:
+                    return !syringeDartAbility.HasOrganCompressionLegendary() && base.RequirementsMet();
 
                 default:
                     return false;

@@ -87,7 +87,9 @@ namespace Vampire
                     sniperMonsterPoolIndex,
                     spawnPosition,
                     sniperBlueprint,
-                    sniperHpBuff
+                    sniperHpBuff,
+                    true
+
                 );
 
                 if (sniper == null)

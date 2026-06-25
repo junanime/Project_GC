@@ -180,26 +180,98 @@ namespace Vampire
         ////////////////////////////////////////////////////////////////////////////////
         /// Monster Spawning
         ////////////////////////////////////////////////////////////////////////////////
-        public Monster SpawnMonsterRandomPosition(int monsterPoolIndex, MonsterBlueprint monsterBlueprint, float hpBuff = 0)
+        public Monster SpawnMonsterRandomPosition(
+    int monsterPoolIndex,
+    MonsterBlueprint monsterBlueprint,
+    float hpBuff = 0
+)
         {
-            // Find a random position offscreen
-
-
-            Vector2 spawnPosition = (playerCharacter.Velocity != Vector2.zero) ? GetRandomMonsterSpawnPositionPlayerVelocity() : GetRandomMonsterSpawnPosition();
-            // Vector2 spawnDirection = Random.insideUnitCircle.normalized;
-            // Vector2 spawnPosition = (Vector2)playerCharacter.transform.position + spawnDirection * (minSpawnDistance + monsterSpawnBufferDistance);
-            // Spawn the monster
-            return SpawnMonster(monsterPoolIndex, spawnPosition, monsterBlueprint, hpBuff);
+            return SpawnMonsterRandomPosition(
+                monsterPoolIndex,
+                monsterBlueprint,
+                hpBuff,
+                false
+            );
         }
 
-        public Monster SpawnMonster(int monsterPoolIndex, Vector2 position, MonsterBlueprint monsterBlueprint, float hpBuff = 0)
+        public Monster SpawnMonsterRandomPosition(
+            int monsterPoolIndex,
+            MonsterBlueprint monsterBlueprint,
+            float hpBuff,
+            bool allowDuringMiniStage
+        )
         {
+            if (ShouldBlockFieldMonsterSpawn(allowDuringMiniStage))
+            {
+                Debug.Log(
+                    $"[EntityManager] 미니 스테이지 진행 중이라 필드 랜덤 몬스터 스폰을 차단했습니다. " +
+                    $"poolIndex={monsterPoolIndex}, blueprint={(monsterBlueprint != null ? monsterBlueprint.name : "NULL")}"
+                );
+
+                return null;
+            }
+
+            Vector2 spawnPosition = (playerCharacter.Velocity != Vector2.zero)
+                ? GetRandomMonsterSpawnPositionPlayerVelocity()
+                : GetRandomMonsterSpawnPosition();
+
+            return SpawnMonster(
+                monsterPoolIndex,
+                spawnPosition,
+                monsterBlueprint,
+                hpBuff,
+                allowDuringMiniStage
+            );
+        }
+
+        public Monster SpawnMonster(
+    int monsterPoolIndex,
+    Vector2 position,
+    MonsterBlueprint monsterBlueprint,
+    float hpBuff = 0
+)
+        {
+            return SpawnMonster(
+                monsterPoolIndex,
+                position,
+                monsterBlueprint,
+                hpBuff,
+                false
+            );
+        }
+
+        public Monster SpawnMonster(
+            int monsterPoolIndex,
+            Vector2 position,
+            MonsterBlueprint monsterBlueprint,
+            float hpBuff,
+            bool allowDuringMiniStage
+        )
+        {
+            if (ShouldBlockFieldMonsterSpawn(allowDuringMiniStage))
+            {
+                Debug.Log(
+                    $"[EntityManager] 미니 스테이지 진행 중이라 필드 몬스터 스폰을 차단했습니다. " +
+                    $"poolIndex={monsterPoolIndex}, position={position}, blueprint={(monsterBlueprint != null ? monsterBlueprint.name : "NULL")}"
+                );
+
+                return null;
+            }
+
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
             newMonster.Setup(monsterPoolIndex, position, monsterBlueprint, hpBuff);
             grid.InsertClient(newMonster);
             return newMonster;
         }
+        private bool ShouldBlockFieldMonsterSpawn(bool allowDuringMiniStage)
+        {
+            if (allowDuringMiniStage)
+            {
+                return false;
+            }
 
+            return MiniStageRuntimeState.IsInsideMiniStage;
+        }
         public void DespawnMonster(int monsterPoolIndex, Monster monster, bool killedByPlayer = true)
         {
             if (killedByPlayer)

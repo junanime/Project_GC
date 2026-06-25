@@ -131,6 +131,70 @@ MonoBehaviour:
     m_Key: genaral_reason
     m_Metadata:
       m_Items: []
+  - m_Id: 287476704934678528
+    m_Key: FiberNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476712975159296
+    m_Key: FiberNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476734143811584
+    m_Key: CorrosionNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476766737747968
+    m_Key: CorrosionNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476806835294208
+    m_Key: PressureNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476819426594816
+    m_Key: PressureNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476836514189312
+    m_Key: MarkNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476863676502016
+    m_Key: MarkNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287499051590180864
+    m_Key: BipolarNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287499053477617664
+    m_Key: BipolarNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508462152933376
+    m_Key: NeuralBlock_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508470684147712
+    m_Key: NeuralBlock_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508486823829504
+    m_Key: PoisonContagion_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508511821881344
+    m_Key: PoisonContagion_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508641639784448
+    m_Key: OrganCompression_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508647276929024
+    m_Key: OrganCompression_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

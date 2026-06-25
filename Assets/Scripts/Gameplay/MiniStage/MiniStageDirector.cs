@@ -68,6 +68,11 @@ namespace Vampire
 
         private void Awake()
         {
+            ResolveReferences();
+        }
+
+        private void ResolveReferences()
+        {
             if (levelManager == null)
             {
                 levelManager = FindObjectOfType<LevelManager>();
@@ -84,6 +89,11 @@ namespace Vampire
                 {
                     playerCharacter = levelManager.PlayerCharacter;
                 }
+            }
+
+            if (playerCharacter == null)
+            {
+                playerCharacter = FindObjectOfType<Character>();
             }
         }
 
@@ -119,6 +129,8 @@ namespace Vampire
                 Quaternion.identity
             );
 
+            // 중요:
+            // BloodClotMiniStagePortal에는 Init()이 없고 Setup()이 있다.
             activeEntrancePortal.Setup(this);
 
             if (debugLog)
@@ -169,6 +181,8 @@ namespace Vampire
         {
             isTransitioning = true;
 
+            ResolveReferences();
+
             if (levelManager == null || entityManager == null || playerCharacter == null)
             {
                 Debug.LogWarning("[MiniStageDirector] 필수 참조가 비어 있습니다. LevelManager, EntityManager, PlayerCharacter를 확인하세요.");
@@ -192,6 +206,7 @@ namespace Vampire
                 Debug.Log($"[MiniStageDirector] 미니 스테이지 입장 시작. returnPosition={savedReturnPosition}");
             }
 
+            MiniStageRuntimeState.EnterMiniStage(this);
             levelManager.SetRunFlowPaused(true);
 
             Vector3 roomSpawnPosition = miniStageAnchor != null
@@ -277,7 +292,6 @@ namespace Vampire
             yield return new WaitForSeconds(returnDelay);
 
             Vector3 returnPosition = savedReturnPosition + (Vector3)returnOffset;
-
             MovePlayer(returnPosition);
 
             CleanupCurrentRoom();
@@ -286,6 +300,8 @@ namespace Vampire
             {
                 levelManager.SetRunFlowPaused(false);
             }
+
+            MiniStageRuntimeState.ExitMiniStage(this);
 
             isInsideMiniStage = false;
             isTransitioning = false;
@@ -319,6 +335,11 @@ namespace Vampire
 
         private void MovePlayer(Vector3 position)
         {
+            if (playerCharacter == null)
+            {
+                return;
+            }
+
             playerCharacter.transform.position = position;
 
             Rigidbody2D playerRigidbody = playerCharacter.GetComponent<Rigidbody2D>();
@@ -328,6 +349,22 @@ namespace Vampire
                 playerRigidbody.position = position;
                 playerRigidbody.velocity = Vector2.zero;
                 playerRigidbody.angularVelocity = 0f;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (isInsideMiniStage || isTransitioning)
+            {
+                MiniStageRuntimeState.ExitMiniStage(this);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (isInsideMiniStage || isTransitioning)
+            {
+                MiniStageRuntimeState.ExitMiniStage(this);
             }
         }
     }
