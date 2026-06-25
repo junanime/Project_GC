@@ -156,6 +156,49 @@ MonoBehaviour:
     m_Localized: "\uC870\uAC74\uBD80 \uC77C\uBC18 \uB2A5\uB825"
     m_Metadata:
       m_Items: []
+  - m_Id: 287476704934678528
+    m_Localized: "\uC12C\uC720\uCE68"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476712975159296
+    m_Localized: "\uCE68\uC774 \uC9C0\uB098\uAC04 \uC790\uB9AC\uC5D0 2\uCD08\uAC04
+      \uC12C\uC720\uC9C8 \uC120\uC744 \uB0A8\uAE41\uB2C8\uB2E4.\n\uC120\uC744 \uBC1F\uC740
+      \uC801\uC740 1\uCD08\uB9C8\uB2E4 2 \uD53C\uD574\uB97C \uBC1B\uC2B5\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476734143811584
+    m_Localized: "\uBD80\uC2DD\uCE68"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476766737747968
+    m_Localized: "\uCE68\uC5D0 \uB9DE\uC740 \uC801\uC774 3\uCD08 \uB3D9\uC548 \uBC1B\uB294
+      \uD53C\uD574\uAC00 \uC99D\uAC00\uD569\uB2C8\uB2E4.\n\uC77C\uBC18 \uBAAC\uC2A4\uD130\uB294
+      1\uC911\uCCA9\uB2F9 15%, \uBCF4\uC2A4\uB294 1\uC911\uCCA9\uB2F9 5% \uC99D\uAC00\uD558\uBA70
+      \uCD5C\uB300 3\uC911\uCCA9\uB429\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476806835294208
+    m_Localized: "\uC555\uB825\uCE68"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476819426594816
+    m_Localized: "\uCE68\uC774 \uB0A0\uC544\uAC04 \uAC70\uB9AC\uC5D0 \uB530\uB77C
+      \uD53C\uD574\uB7C9\uC774 \uC99D\uAC00\uD569\uB2C8\uB2E4.\n\uC774\uB3D9 \uAC70\uB9AC
+      1\uB9C8\uB2E4 \uD53C\uD574\uB7C9\uC774 \uC99D\uAC00\uD558\uBA70 \uCD5C\uB300
+      50%\uAE4C\uC9C0 \uC99D\uAC00\uD569\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476836514189312
+    m_Localized: "\uD45C\uC2DD\uCE68"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476863676502016
+    m_Localized: "\uCE68\uC5D0 \uB9DE\uC740 \uC801\uC5D0\uAC8C \uD45C\uC2DD\uC744
+      \uB0A8\uAE41\uB2C8\uB2E4.\n\uD45C\uC2DD\uC774 \uC788\uB294 \uC801\uC744 \uB2E4\uC2DC
+      \uB9DE\uD788\uBA74 \uD45C\uC2DD\uC744 \uC18C\uBAA8\uD558\uACE0 \uCD94\uAC00
+      \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

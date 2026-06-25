@@ -143,6 +143,59 @@ MonoBehaviour:
     m_Localized: Genaral reason Ability
     m_Metadata:
       m_Items: []
+  - m_Id: 287476704934678528
+    m_Localized: Fiber Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476712975159296
+    m_Localized: 'Leaves a thin fibrous trail behind the needle for 2 seconds.
+
+      Enemies
+      that step on the trail take 2 damage per second.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476734143811584
+    m_Localized: Corrosion Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476766737747968
+    m_Localized: 'Enemies hit by the needle take increased damage for 3 seconds.
+
+      Normal
+      monsters take 15% increased damage per stack, while boss monsters take 5% increased
+      damage per stack, up to 3 stacks.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476806835294208
+    m_Localized: Pressure Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476819426594816
+    m_Localized: 'The needle deals more damage based on the distance it travels.
+
+      Damage
+      increases for each unit of distance traveled, up to a maximum of 50%.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476836514189312
+    m_Localized: 'Marked Needle
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476863676502016
+    m_Localized: 'Marks enemies hit by the needle.
+
+      Hitting a marked enemy
+      again consumes the mark and deals bonus damage.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -13,13 +13,21 @@ namespace Vampire
             Honey,
             Mosquito,
             ReturnNeedle,
-            AcupunctureFormation
+            AcupunctureFormation,
+
+            // 새 특수증강
+            FiberNeedle,
+            CorrosionNeedle,
+            PressureNeedle,
+            MarkNeedle
         }
 
         [Header("Special Augment")]
+        [Tooltip("이 Ability가 적용할 특수증강 종류입니다.")]
         [SerializeField] private SpecialAugmentType augmentType;
 
         [Header("Debug")]
+        [Tooltip("특수증강 적용 로그를 출력할지 여부입니다.")]
         [SerializeField] private bool debugLog = true;
 
         private SyringeDartAbility syringeDartAbility;
@@ -39,7 +47,7 @@ namespace Vampire
             if (syringeDartAbility == null)
             {
                 Debug.LogError(
-                    "[SyringeSpecialAugmentAbility] SyringeDartAbility를 찾지 못했습니다. " +
+                    "[SyringeSpecialAugmentAbility] SyringeDartAbility를 찾지 못했습니다.\n" +
                     "AbilityManager 아래에 실제 시작 침 능력이 있는지 확인하세요.",
                     this
                 );
@@ -58,7 +66,6 @@ namespace Vampire
                     $"[SyringeSpecialAugmentAbility] {augmentType} 적용 실패: SyringeDartAbility가 없습니다.",
                     this
                 );
-
                 return;
             }
 
@@ -94,6 +101,22 @@ namespace Vampire
 
                 case SpecialAugmentType.AcupunctureFormation:
                     syringeDartAbility.EnableAcupunctureFormationAugment();
+                    break;
+
+                case SpecialAugmentType.FiberNeedle:
+                    syringeDartAbility.EnableFiberNeedleAugment();
+                    break;
+
+                case SpecialAugmentType.CorrosionNeedle:
+                    syringeDartAbility.EnableCorrosionNeedleAugment();
+                    break;
+
+                case SpecialAugmentType.PressureNeedle:
+                    syringeDartAbility.EnablePressureNeedleAugment();
+                    break;
+
+                case SpecialAugmentType.MarkNeedle:
+                    syringeDartAbility.EnableMarkNeedleAugment();
                     break;
             }
 
@@ -145,6 +168,18 @@ namespace Vampire
                 case SpecialAugmentType.AcupunctureFormation:
                     return !syringeDartAbility.HasAcupunctureFormationAugment() && base.RequirementsMet();
 
+                case SpecialAugmentType.FiberNeedle:
+                    return !syringeDartAbility.HasFiberNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.CorrosionNeedle:
+                    return !syringeDartAbility.HasCorrosionNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.PressureNeedle:
+                    return !syringeDartAbility.HasPressureNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.MarkNeedle:
+                    return !syringeDartAbility.HasMarkNeedleAugment() && base.RequirementsMet();
+
                 default:
                     return false;
             }
@@ -152,8 +187,7 @@ namespace Vampire
 
         private void RefreshSyringeDartAbilityReference()
         {
-            SyringeDartAbility resolvedAbility =
-                SyringeAbilityResolver.FindOwnedOrFirst(abilityManager);
+            SyringeDartAbility resolvedAbility = SyringeAbilityResolver.FindOwnedOrFirst(abilityManager);
 
             if (resolvedAbility != null)
             {

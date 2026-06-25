@@ -102,6 +102,10 @@ MonoBehaviour:
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
   poisonEnabled: 0
+  fiberNeedleEnabled: 1
+  corrosionNeedleEnabled: 1
+  pressureNeedleEnabled: 1
+  markNeedleEnabled: 1
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0
@@ -122,6 +126,20 @@ MonoBehaviour:
   specialExplosionChance: 1
   homingRange: 5
   homingLerpSpeed: 8
+  fiberTrailLifetime: 2
+  fiberTrailDamagePerSecond: 2
+  fiberTrailTickInterval: 0.5
+  fiberTrailWidth: 0.12
+  fiberTrailMinSegmentDistance: 0.25
+  fiberTrailColor: {r: 0.75, g: 1, b: 0.95, a: 0.75}
+  corrosionDuration: 3
+  corrosionDamageTakenBonusPerStack: 0.15
+  corrosionBossDamageTakenBonusPerStack: 0.05
+  corrosionMaxStacks: 3
+  pressureDamageBonusPerDistance: 0.08
+  pressureMaxDamageBonus: 0.5
+  markDuration: 4
+  markBonusDamageMultiplier: 0.5
   pierceCount: 1
   honeyDuration: 2
   honeySlowMultiplier: 0.6

@@ -131,6 +131,38 @@ MonoBehaviour:
     m_Key: genaral_reason
     m_Metadata:
       m_Items: []
+  - m_Id: 287476704934678528
+    m_Key: FiberNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476712975159296
+    m_Key: FiberNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476734143811584
+    m_Key: CorrosionNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476766737747968
+    m_Key: CorrosionNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476806835294208
+    m_Key: PressureNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476819426594816
+    m_Key: PressureNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476836514189312
+    m_Key: MarkNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476863676502016
+    m_Key: MarkNeedle_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

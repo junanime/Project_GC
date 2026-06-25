@@ -28,6 +28,18 @@ namespace Vampire
         [Tooltip("독침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool poisonEnabled = false;
 
+        [Tooltip("섬유침 활성화 여부입니다. 침이 지나간 자리에 피해 선을 남깁니다.")]
+        [SerializeField] private bool fiberNeedleEnabled = false;
+
+        [Tooltip("부식침 활성화 여부입니다. 적에게 받는 피해 증가 스택을 부여합니다.")]
+        [SerializeField] private bool corrosionNeedleEnabled = false;
+
+        [Tooltip("압력침 활성화 여부입니다. 침이 멀리 날아갈수록 피해가 증가합니다.")]
+        [SerializeField] private bool pressureNeedleEnabled = false;
+
+        [Tooltip("표식침 활성화 여부입니다. 첫 피격 시 표식, 다음 피격 시 추가 피해를 줍니다.")]
+        [SerializeField] private bool markNeedleEnabled = false;
+
         [Tooltip("폭발침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool explosionEnabled = false;
 
@@ -80,7 +92,51 @@ namespace Vampire
         [Header("Homing Settings")]
         [SerializeField] private float homingRange = 6f;
         [SerializeField] private float homingLerpSpeed = 8f;
+        [Header("Fiber Needle / 섬유침 Settings")]
+        [Tooltip("섬유침이 남긴 선이 유지되는 시간입니다.")]
+        [SerializeField] private float fiberTrailLifetime = 2f;
 
+        [Tooltip("섬유침 선 위에 있는 적이 1초마다 받는 피해입니다.")]
+        [SerializeField] private float fiberTrailDamagePerSecond = 2f;
+
+        [Tooltip("섬유침 피해가 들어가는 간격입니다. 0.5이면 0.5초마다 damagePerSecond의 절반 피해가 들어갑니다.")]
+        [SerializeField] private float fiberTrailTickInterval = 0.5f;
+
+        [Tooltip("섬유침 선의 두께입니다.")]
+        [SerializeField] private float fiberTrailWidth = 0.12f;
+
+        [Tooltip("침이 이 거리 이상 이동할 때마다 섬유 선분을 하나 생성합니다. 낮을수록 선이 촘촘하지만 오브젝트가 많아집니다.")]
+        [SerializeField] private float fiberTrailMinSegmentDistance = 0.25f;
+
+        [Tooltip("섬유침 선의 색상입니다.")]
+        [SerializeField] private Color fiberTrailColor = new Color(0.75f, 1f, 0.95f, 0.75f);
+
+        [Header("Corrosion Needle / 부식침 Settings")]
+        [Tooltip("부식침 스택 지속 시간입니다.")]
+        [SerializeField] private float corrosionDuration = 3f;
+
+        [Tooltip("일반 몬스터에게 부식 1스택당 적용되는 받는 피해 증가량입니다. 0.15이면 15%입니다.")]
+        [SerializeField] private float corrosionDamageTakenBonusPerStack = 0.15f;
+
+        [Tooltip("보스 몬스터에게 부식 1스택당 적용되는 받는 피해 증가량입니다. 0.05이면 5%입니다.")]
+        [SerializeField] private float corrosionBossDamageTakenBonusPerStack = 0.05f;
+
+        [Tooltip("부식 최대 중첩 수입니다.")]
+        [SerializeField] private int corrosionMaxStacks = 3;
+
+        [Header("Pressure Needle / 압력침 Settings")]
+        [Tooltip("침이 1유닛 이동할 때마다 증가하는 피해량입니다. 0.08이면 거리 1당 8% 증가합니다.")]
+        [SerializeField] private float pressureDamageBonusPerDistance = 0.08f;
+
+        [Tooltip("압력침 최대 피해 증가량입니다. 0.5이면 최대 50% 증가입니다.")]
+        [SerializeField] private float pressureMaxDamageBonus = 0.5f;
+
+        [Header("Mark Needle / 표식침 Settings")]
+        [Tooltip("표식 지속 시간입니다.")]
+        [SerializeField] private float markDuration = 4f;
+
+        [Tooltip("표식이 있는 적을 다시 맞혔을 때 추가로 더해지는 피해 배율입니다. 0.5이면 현재 피해의 50%가 추가됩니다.")]
+        [SerializeField] private float markBonusDamageMultiplier = 0.5f;
         [Header("Pierce Settings")]
         [Tooltip("관통침 기본 관통 횟수. 2라면 첫 적중 이후 추가로 2번 더 관통 가능.")]
         [SerializeField] private int pierceCount = 2;
@@ -1203,7 +1259,27 @@ namespace Vampire
                 returnNeedleDamageMultiplier = returnNeedleDamageMultiplier,
                 returnNeedleArriveDistance = returnNeedleArriveDistance,
                 returnNeedleMaxDuration = returnNeedleMaxDuration,
+                fiberEnabled = fiberNeedleEnabled,
+                fiberTrailLifetime = fiberTrailLifetime,
+                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond,
+                fiberTrailTickInterval = fiberTrailTickInterval,
+                fiberTrailWidth = fiberTrailWidth,
+                fiberTrailMinSegmentDistance = fiberTrailMinSegmentDistance,
+                fiberTrailColor = fiberTrailColor,
 
+                corrosionEnabled = corrosionNeedleEnabled,
+                corrosionDuration = corrosionDuration,
+                corrosionDamageTakenBonusPerStack = corrosionDamageTakenBonusPerStack,
+                corrosionBossDamageTakenBonusPerStack = corrosionBossDamageTakenBonusPerStack,
+                corrosionMaxStacks = corrosionMaxStacks,
+
+                pressureEnabled = pressureNeedleEnabled,
+                pressureDamageBonusPerDistance = pressureDamageBonusPerDistance,
+                pressureMaxDamageBonus = pressureMaxDamageBonus,
+
+                markEnabled = markNeedleEnabled,
+                markDuration = markDuration,
+                markBonusDamageMultiplier = markBonusDamageMultiplier,
                 healingBlocked = lifeBurnEnabled,
 
                 rangeBonus = lifeBurnEnabled ? lifeBurnBonusRange : 0f
@@ -1328,6 +1404,10 @@ namespace Vampire
             if (mosquitoEnabled) count++;
             if (returnNeedleEnabled) count++;
             if (acupunctureFormationEnabled) count++;
+            if (fiberNeedleEnabled) count++;
+            if (corrosionNeedleEnabled) count++;
+            if (pressureNeedleEnabled) count++;
+            if (markNeedleEnabled) count++;
 
             return count;
         }
@@ -1473,7 +1553,21 @@ namespace Vampire
         public void EnableExplosionAugment() => explosionEnabled = true;
 
         public void EnableHomingAugment() => homingEnabled = true;
+        public void EnableFiberNeedleAugment() => fiberNeedleEnabled = true;
 
+        public void EnableCorrosionNeedleAugment() => corrosionNeedleEnabled = true;
+
+        public void EnablePressureNeedleAugment() => pressureNeedleEnabled = true;
+
+        public void EnableMarkNeedleAugment() => markNeedleEnabled = true;
+
+        public bool HasFiberNeedleAugment() => fiberNeedleEnabled;
+
+        public bool HasCorrosionNeedleAugment() => corrosionNeedleEnabled;
+
+        public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
+
+        public bool HasMarkNeedleAugment() => markNeedleEnabled;
         public void EnablePierceAugment()
         {
             pierceEnabled = true;
