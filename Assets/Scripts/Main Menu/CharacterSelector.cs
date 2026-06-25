@@ -32,6 +32,7 @@ namespace Vampire
 
         public void StartGame(CharacterBlueprint characterBlueprint)
         {
+            CrossSceneData.StartingLobbyItems = LobbyLoadoutData.ConsumeSelectedCarryItems();
             CrossSceneData.CharacterBlueprint = characterBlueprint;
             CrossSceneData.StartingLobbyItems = LobbyLoadoutData.ConsumeSelectedCarryItems();
 

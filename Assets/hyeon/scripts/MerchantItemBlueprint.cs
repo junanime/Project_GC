@@ -17,6 +17,10 @@ namespace Vampire
         public Sprite itemIcon;
         public int cost;
 
+        [Header("Lobby Shop")]
+        public bool canBuyInLobby = true;
+        public int silverCost = 100;
+
         //  복구됨: 무기나 특수 능력을 부여할 때 쓰는 프리팹
         [Header("Ability Reward (무기/특수 능력 프리팹)")]
         public GameObject abilityPrefab;
