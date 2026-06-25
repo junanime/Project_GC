@@ -163,6 +163,14 @@ MonoBehaviour:
     m_Key: MarkNeedle_Description
     m_Metadata:
       m_Items: []
+  - m_Id: 287499051590180864
+    m_Key: BipolarNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287499053477617664
+    m_Key: BipolarNeedle_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

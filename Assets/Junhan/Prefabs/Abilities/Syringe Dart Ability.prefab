@@ -106,6 +106,7 @@ MonoBehaviour:
   corrosionNeedleEnabled: 0
   pressureNeedleEnabled: 0
   markNeedleEnabled: 0
+  bipolarNeedleEnabled: 0
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0
@@ -140,6 +141,10 @@ MonoBehaviour:
   pressureMaxDamageBonus: 0.5
   markDuration: 4
   markBonusDamageMultiplier: 0.5
+  bipolarNeedleBonusProjectileCount: 1
+  bipolarNeedleBackAngleOffset: 180
+  bipolarNeedleFrontGetsExtraProjectile: 1
+  debugBipolarNeedle: 0
   pierceCount: 1
   honeyDuration: 2
   honeySlowMultiplier: 0.6

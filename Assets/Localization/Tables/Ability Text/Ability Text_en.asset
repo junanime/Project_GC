@@ -196,6 +196,20 @@ MonoBehaviour:
       again consumes the mark and deals bonus damage.'
     m_Metadata:
       m_Items: []
+  - m_Id: 287499051590180864
+    m_Localized: 'Bipolar Needle
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287499053477617664
+    m_Localized: 'Needles are split and fired in both forward and backward directions
+      with 180-degree symmetry.
+
+      Your current projectile count is divided between
+      both directions, and projectile count is increased by 1.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
