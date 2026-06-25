@@ -102,10 +102,10 @@ MonoBehaviour:
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
   poisonEnabled: 0
-  fiberNeedleEnabled: 1
-  corrosionNeedleEnabled: 1
-  pressureNeedleEnabled: 1
-  markNeedleEnabled: 1
+  fiberNeedleEnabled: 0
+  corrosionNeedleEnabled: 0
+  pressureNeedleEnabled: 0
+  markNeedleEnabled: 0
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0

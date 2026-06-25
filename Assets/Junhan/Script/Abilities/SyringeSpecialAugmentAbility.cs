@@ -39,7 +39,7 @@ namespace Vampire
         {
             base.Init(abilityManager, entityManager, playerCharacter);
 
-            // 특수 증강은 한 번만 선택 가능
+            // 특수증강은 한 번만 선택 가능
             maxLevel = 1;
 
             RefreshSyringeDartAbilityReference();
