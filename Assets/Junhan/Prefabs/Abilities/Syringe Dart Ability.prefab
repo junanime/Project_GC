@@ -101,12 +101,15 @@ MonoBehaviour:
   baseSyringeMaxDistance: 5
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
-  poisonEnabled: 1
+  poisonEnabled: 0
   fiberNeedleEnabled: 0
   corrosionNeedleEnabled: 0
   pressureNeedleEnabled: 0
   markNeedleEnabled: 0
   bipolarNeedleEnabled: 0
+  digestiveAcidSacNeedleEnabled: 1
+  hungerNeedleEnabled: 1
+  gutBacteriaNeedleEnabled: 1
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0
@@ -116,9 +119,9 @@ MonoBehaviour:
   acupunctureFormationEnabled: 0
   lifeBurnEnabled: 0
   cloneLegendaryTaken: 0
-  neuralBlockEnabled: 1
-  poisonContagionEnabled: 1
-  organCompressionEnabled: 1
+  neuralBlockEnabled: 0
+  poisonContagionEnabled: 0
+  organCompressionEnabled: 0
   hedgehogNeedleEnabled: 0
   heavySnipeEnabled: 0
   cursorControlEnabled: 0
@@ -136,6 +139,22 @@ MonoBehaviour:
   fiberTrailWidth: 0.12
   fiberTrailMinSegmentDistance: 0.25
   fiberTrailColor: {r: 0.75, g: 1, b: 0.95, a: 0.75}
+  digestiveAcidPuddleLifetime: 3
+  digestiveAcidPuddleRadius: 1.2
+  digestiveAcidPuddleDamagePerSecond: 2
+  digestiveAcidPuddleTickInterval: 0.5
+  digestiveAcidPuddleColor: {r: 0.6, g: 1, b: 0.15, a: 0.75}
+  hungerStackDuration: 3
+  hungerAttackSpeedBonusPerStack: 0.04
+  hungerMaxStacks: 8
+  debugHungerNeedle: 0
+  gutBacteriaStackDuration: 6
+  gutBacteriaRequiredStacks: 3
+  gutBacteriaMaxStacks: 5
+  gutBacteriaBonusGemCount: 1
+  gutBacteriaBonusGemType: 1
+  gutBacteriaBonusGemSpawnRadius: 0.35
+  debugGutBacteria: 0
   corrosionDuration: 3
   corrosionDamageTakenBonusPerStack: 0.15
   corrosionBossDamageTakenBonusPerStack: 0.05

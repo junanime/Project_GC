@@ -537,7 +537,90 @@ namespace Vampire
 
             return markStatus.TryConsume();
         }
+        private void ApplyDigestiveAcidSac(Component damageableComponent)
+        {
+            if (damageableComponent == null)
+            {
+                return;
+            }
 
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return;
+            }
+
+            if (monster.HP <= 0f)
+            {
+                return;
+            }
+
+            DigestiveAcidSacStatus status = monster.GetComponent<DigestiveAcidSacStatus>();
+
+            if (status == null)
+            {
+                status = monster.gameObject.AddComponent<DigestiveAcidSacStatus>();
+            }
+
+            status.Apply(
+                specials.digestiveAcidPuddleLifetime,
+                specials.digestiveAcidPuddleRadius,
+                specials.digestiveAcidPuddleDamagePerSecond,
+                specials.digestiveAcidPuddleTickInterval,
+                specials.digestiveAcidPuddleColor
+            );
+        }
+
+        private void ApplyHungerNeedleHit()
+        {
+            HungerNeedleRuntime.RegisterHit(
+                playerCharacter,
+                specials.hungerStackDuration,
+                specials.hungerAttackSpeedBonusPerStack,
+                specials.hungerMaxStacks,
+                specials.debugHungerNeedle
+            );
+        }
+
+        private void ApplyGutBacteria(Component damageableComponent)
+        {
+            if (damageableComponent == null)
+            {
+                return;
+            }
+
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return;
+            }
+
+            if (monster.HP <= 0f)
+            {
+                return;
+            }
+
+            GutBacteriaStatus status = monster.GetComponent<GutBacteriaStatus>();
+
+            if (status == null)
+            {
+                status = monster.gameObject.AddComponent<GutBacteriaStatus>();
+            }
+
+            status.Apply(
+                specials.gutBacteriaStackDuration,
+                specials.gutBacteriaRequiredStacks,
+                specials.gutBacteriaMaxStacks,
+                specials.gutBacteriaBonusGemCount,
+                specials.gutBacteriaBonusGemType,
+                specials.gutBacteriaBonusGemSpawnRadius,
+                specials.debugGutBacteria
+            );
+        }
         private void ApplyNeedleMark(Component damageableComponent)
         {
             if (!specials.markEnabled)
@@ -1040,7 +1123,20 @@ namespace Vampire
             {
                 ApplyCorrosion(damageableComponent);
             }
+            if (specials.digestiveAcidSacEnabled)
+            {
+                ApplyDigestiveAcidSac(damageableComponent);
+            }
 
+            if (specials.hungerNeedleEnabled)
+            {
+                ApplyHungerNeedleHit();
+            }
+
+            if (specials.gutBacteriaEnabled)
+            {
+                ApplyGutBacteria(damageableComponent);
+            }
             if (specials.markEnabled && !consumedNeedleMark)
             {
                 ApplyNeedleMark(damageableComponent);

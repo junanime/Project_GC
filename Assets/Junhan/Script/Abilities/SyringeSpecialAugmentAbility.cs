@@ -15,14 +15,17 @@ namespace Vampire
             ReturnNeedle,
             AcupunctureFormation,
 
-            // 새 특수증강
+            // 기존 추가 특수증강
             FiberNeedle,
             CorrosionNeedle,
             PressureNeedle,
             MarkNeedle,
+            BipolarNeedle,
 
-            // 양극침
-            BipolarNeedle
+            // 신규 특수증강
+            DigestiveAcidSacNeedle,
+            HungerNeedle,
+            GutBacteriaNeedle
         }
 
         [Header("Special Augment")]
@@ -42,7 +45,6 @@ namespace Vampire
         {
             base.Init(abilityManager, entityManager, playerCharacter);
 
-            // 특수증강은 한 번만 선택 가능
             maxLevel = 1;
 
             RefreshSyringeDartAbilityReference();
@@ -125,6 +127,18 @@ namespace Vampire
                 case SpecialAugmentType.BipolarNeedle:
                     syringeDartAbility.EnableBipolarNeedleAugment();
                     break;
+
+                case SpecialAugmentType.DigestiveAcidSacNeedle:
+                    syringeDartAbility.EnableDigestiveAcidSacNeedleAugment();
+                    break;
+
+                case SpecialAugmentType.HungerNeedle:
+                    syringeDartAbility.EnableHungerNeedleAugment();
+                    break;
+
+                case SpecialAugmentType.GutBacteriaNeedle:
+                    syringeDartAbility.EnableGutBacteriaNeedleAugment();
+                    break;
             }
 
             if (debugLog)
@@ -189,6 +203,15 @@ namespace Vampire
 
                 case SpecialAugmentType.BipolarNeedle:
                     return !syringeDartAbility.HasBipolarNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.DigestiveAcidSacNeedle:
+                    return !syringeDartAbility.HasDigestiveAcidSacNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.HungerNeedle:
+                    return !syringeDartAbility.HasHungerNeedleAugment() && base.RequirementsMet();
+
+                case SpecialAugmentType.GutBacteriaNeedle:
+                    return !syringeDartAbility.HasGutBacteriaNeedleAugment() && base.RequirementsMet();
 
                 default:
                     return false;

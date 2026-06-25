@@ -195,6 +195,30 @@ MonoBehaviour:
     m_Key: OrganCompression_Description
     m_Metadata:
       m_Items: []
+  - m_Id: 287672100126511104
+    m_Key: DigestiveAcidSacNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672101636460544
+    m_Key: DigestiveAcidSacNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672103217713152
+    m_Key: HungerNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672104899629056
+    m_Key: HungerNeedle_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672106464104448
+    m_Key: GutBacteriaNeedle_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672113502146560
+    m_Key: GutBacteriaNeedle_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

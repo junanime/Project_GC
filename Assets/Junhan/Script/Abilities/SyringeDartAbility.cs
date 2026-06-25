@@ -41,7 +41,14 @@ namespace Vampire
         [SerializeField] private bool markNeedleEnabled = false;
         [Tooltip("양극침 활성화 여부입니다. 침을 전방과 후방 180도 대칭 방향으로 나누어 발사합니다.")]
         [SerializeField] private bool bipolarNeedleEnabled = false;
+        [Tooltip("소화액낭침 활성화 여부입니다. 침에 맞은 적이 죽으면 소화액 웅덩이를 생성합니다.")]
+        [SerializeField] private bool digestiveAcidSacNeedleEnabled = false;
 
+        [Tooltip("공복침 활성화 여부입니다. 침 적중 시 일정 시간 공격속도 스택을 얻습니다.")]
+        [SerializeField] private bool hungerNeedleEnabled = false;
+
+        [Tooltip("장내균침 활성화 여부입니다. 침 적중 시 장내균 스택을 쌓고, 일정 스택 이상에서 사망 시 추가 경험치를 생성합니다.")]
+        [SerializeField] private bool gutBacteriaNeedleEnabled = false;
         [Tooltip("폭발침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool explosionEnabled = false;
 
@@ -119,7 +126,56 @@ namespace Vampire
 
         [Tooltip("섬유침 선의 색상입니다.")]
         [SerializeField] private Color fiberTrailColor = new Color(0.75f, 1f, 0.95f, 0.75f);
+        [Header("Digestive Acid Sac Needle / 소화액낭침 Settings")]
+        [Tooltip("소화액낭침 대상이 죽었을 때 생성되는 소화액 웅덩이 유지 시간입니다.")]
+        [SerializeField] private float digestiveAcidPuddleLifetime = 3f;
 
+        [Tooltip("소화액 웅덩이 반경입니다.")]
+        [SerializeField] private float digestiveAcidPuddleRadius = 1.2f;
+
+        [Tooltip("소화액 웅덩이 위 적이 1초마다 받는 피해입니다.")]
+        [SerializeField] private float digestiveAcidPuddleDamagePerSecond = 2f;
+
+        [Tooltip("소화액 웅덩이 피해 간격입니다. 0.5이면 0.5초마다 damagePerSecond의 절반 피해가 들어갑니다.")]
+        [SerializeField] private float digestiveAcidPuddleTickInterval = 0.5f;
+
+        [Tooltip("소화액 웅덩이 색상입니다.")]
+        [SerializeField] private Color digestiveAcidPuddleColor = new Color(0.6f, 1f, 0.15f, 0.75f);
+
+        [Header("Hunger Needle / 공복침 Settings")]
+        [Tooltip("공복침 적중 스택 지속 시간입니다.")]
+        [SerializeField] private float hungerStackDuration = 3f;
+
+        [Tooltip("공복침 1스택당 공격속도 증가량입니다. 0.04이면 1스택당 4% 증가입니다.")]
+        [SerializeField] private float hungerAttackSpeedBonusPerStack = 0.04f;
+
+        [Tooltip("공복침 최대 중첩 수입니다.")]
+        [SerializeField] private int hungerMaxStacks = 8;
+
+        [Tooltip("체크하면 공복침 스택 로그를 출력합니다.")]
+        [SerializeField] private bool debugHungerNeedle = false;
+
+        [Header("Gut Bacteria Needle / 장내균침 Settings")]
+        [Tooltip("장내균침 스택 지속 시간입니다.")]
+        [SerializeField] private float gutBacteriaStackDuration = 6f;
+
+        [Tooltip("추가 경험치가 생성되기 위해 필요한 장내균 스택 수입니다.")]
+        [SerializeField] private int gutBacteriaRequiredStacks = 3;
+
+        [Tooltip("장내균 최대 중첩 수입니다.")]
+        [SerializeField] private int gutBacteriaMaxStacks = 5;
+
+        [Tooltip("조건 달성 후 몬스터 사망 시 추가 생성되는 경험치 구슬 개수입니다.")]
+        [SerializeField] private int gutBacteriaBonusGemCount = 1;
+
+        [Tooltip("추가 생성되는 경험치 구슬 종류입니다. White1=1, Blue2=2, Green10=10, Red50=50 경험치입니다.")]
+        [SerializeField] private GemType gutBacteriaBonusGemType = GemType.White1;
+
+        [Tooltip("추가 경험치 구슬이 사망 위치 주변에 흩어지는 반경입니다.")]
+        [SerializeField] private float gutBacteriaBonusGemSpawnRadius = 0.35f;
+
+        [Tooltip("체크하면 장내균침 스택/보상 로그를 출력합니다.")]
+        [SerializeField] private bool debugGutBacteria = false;
         [Header("Corrosion Needle / 부식침 Settings")]
         [Tooltip("부식침 스택 지속 시간입니다.")]
         [SerializeField] private float corrosionDuration = 3f;
@@ -1444,6 +1500,27 @@ namespace Vampire
                 markEnabled = markNeedleEnabled,
                 markDuration = markDuration,
                 markBonusDamageMultiplier = markBonusDamageMultiplier,
+                digestiveAcidSacEnabled = digestiveAcidSacNeedleEnabled,
+                digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime,
+                digestiveAcidPuddleRadius = digestiveAcidPuddleRadius,
+                digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond,
+                digestiveAcidPuddleTickInterval = digestiveAcidPuddleTickInterval,
+                digestiveAcidPuddleColor = digestiveAcidPuddleColor,
+
+                hungerNeedleEnabled = hungerNeedleEnabled,
+                hungerStackDuration = hungerStackDuration,
+                hungerAttackSpeedBonusPerStack = hungerAttackSpeedBonusPerStack,
+                hungerMaxStacks = hungerMaxStacks,
+                debugHungerNeedle = debugHungerNeedle,
+
+                gutBacteriaEnabled = gutBacteriaNeedleEnabled,
+                gutBacteriaStackDuration = gutBacteriaStackDuration,
+                gutBacteriaRequiredStacks = gutBacteriaRequiredStacks,
+                gutBacteriaMaxStacks = gutBacteriaMaxStacks,
+                gutBacteriaBonusGemCount = gutBacteriaBonusGemCount,
+                gutBacteriaBonusGemType = gutBacteriaBonusGemType,
+                gutBacteriaBonusGemSpawnRadius = gutBacteriaBonusGemSpawnRadius,
+                debugGutBacteria = debugGutBacteria,
                 healingBlocked = lifeBurnEnabled,
 
                 rangeBonus = lifeBurnEnabled ? lifeBurnBonusRange : 0f
@@ -1526,7 +1603,12 @@ namespace Vampire
                 attackSpeedMultiplier = Mathf.Max(0.01f, playerCharacter.AttackSpeedMultiplier);
             }
 
-            return cooldown.Value / attackSpeedMultiplier;
+            if (hungerNeedleEnabled && playerCharacter != null)
+            {
+                attackSpeedMultiplier *= HungerNeedleRuntime.GetAttackSpeedMultiplier(playerCharacter);
+            }
+
+            return cooldown.Value / Mathf.Max(0.01f, attackSpeedMultiplier);
         }
 
         public int GetEffectiveProjectileCount()
@@ -1578,6 +1660,9 @@ namespace Vampire
             if (pressureNeedleEnabled) count++;
             if (markNeedleEnabled) count++;
             if (bipolarNeedleEnabled) count++;
+            if (digestiveAcidSacNeedleEnabled) count++;
+            if (hungerNeedleEnabled) count++;
+            if (gutBacteriaNeedleEnabled) count++;
 
             return count;
         }
@@ -1730,6 +1815,17 @@ namespace Vampire
         public void EnablePressureNeedleAugment() => pressureNeedleEnabled = true;
 
         public void EnableMarkNeedleAugment() => markNeedleEnabled = true;
+        public void EnableDigestiveAcidSacNeedleAugment() => digestiveAcidSacNeedleEnabled = true;
+
+        public void EnableHungerNeedleAugment() => hungerNeedleEnabled = true;
+
+        public void EnableGutBacteriaNeedleAugment() => gutBacteriaNeedleEnabled = true;
+
+        public bool HasDigestiveAcidSacNeedleAugment() => digestiveAcidSacNeedleEnabled;
+
+        public bool HasHungerNeedleAugment() => hungerNeedleEnabled;
+
+        public bool HasGutBacteriaNeedleAugment() => gutBacteriaNeedleEnabled;
         public void EnableBipolarNeedleAugment() => bipolarNeedleEnabled = true;
         public bool HasBipolarNeedleAugment() => bipolarNeedleEnabled;
         public bool HasFiberNeedleAugment() => fiberNeedleEnabled;

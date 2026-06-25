@@ -243,6 +243,41 @@ MonoBehaviour:
       and take damage over time.'
     m_Metadata:
       m_Items: []
+  - m_Id: 287672100126511104
+    m_Localized: Digestive Acid Sac Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672101636460544
+    m_Localized: 'Enemies hit by the needle form an acid sac.
+
+      When they die,
+      they leave an acid puddle that damages enemies standing on it.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672103217713152
+    m_Localized: 'Hunger Needle
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672104899629056
+    m_Localized: 'Each needle hit grants a temporary attack speed stack.
+
+      Hunger
+      stacks can build up to a maximum limit.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672106464104448
+    m_Localized: Gut Bacteria Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672113502146560
+    m_Localized: 'Needle hits build gut bacteria stacks on enemies.
+
+      Enemies
+      killed with enough stacks drop extra experience gems.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
