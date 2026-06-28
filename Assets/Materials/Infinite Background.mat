@@ -95,7 +95,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ResetOffset: {r: -1.1732178, g: -1.399292, b: 0, a: 0}
+    - _ResetOffset: {r: 0, g: 0, b: 0, a: 0}
     - _TempResetOffset: {r: 998.8268, g: 990.6121, b: 0, a: 0}
     - _Tint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

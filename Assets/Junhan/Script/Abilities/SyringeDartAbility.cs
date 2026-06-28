@@ -478,21 +478,23 @@ namespace Vampire
         private OrganCompressionController organCompressionController;
 
         [Header("Legendary - Cursor Controlled Needle / 이기어침")]
-        [Tooltip("이기어침이 누운 8자 무한궤도를 따라 진행하는 기본 속도입니다. 기존 마우스 추적 속도 대신 궤도 진행 속도로 사용됩니다.")]
-        [SerializeField] private float cursorNeedleFollowSpeed = 2.4f;
+        [Tooltip("이기어침이 가로 8자 무한궤도를 따라 진행하는 기본 속도입니다.")]
+        [SerializeField] private float cursorNeedleFollowSpeed = 2.2f;
+
         [Header("Cursor Needle Visual / 이기어침 시각 보정")]
-        [Tooltip("이기어침 본체가 비행할 때 사용하는 스프라이트 방향 보정값입니다.")]
+        [Tooltip("이기어침 본체가 비행할 때 사용하는 스프라이트 방향 보정값입니다. 침 날끝이 궤도 접선 방향을 향하도록 맞춥니다.")]
         [SerializeField] private float cursorNeedleOrbitVisualAngleOffset = 0f;
 
-        [Tooltip("등 뒤에 표시되는 특수증강 침들의 기본 각도입니다. 90이면 세로로 서는 방향 기준입니다.")]
+        [Tooltip("등 뒤에 표시되는 특수증강 침들의 기본 각도입니다. 침 스프라이트 원본 방향에 맞춰 조절하세요.")]
         [SerializeField] private float cursorNeedleBackDisplayBaseAngle = 90f;
 
         [Tooltip("등 뒤 부채꼴 침들의 벌어지는 각도 범위입니다.")]
         [SerializeField] private float cursorNeedleBackDisplaySpreadAngle = 24f;
 
         [Header("Cursor Needle Orbit Shape / 이기어침 궤도 형태")]
-        [Tooltip("0이면 기본형, 1에 가까울수록 직선으로 쭉 뻗다가 끝에서 곡선으로 도는 느낌이 강해집니다.")]
-        [SerializeField, Range(0f, 1f)] private float cursorNeedleOrbitStraightness = 0.72f;
+        [Tooltip("0이면 둥근 8자, 1에 가까울수록 중앙 교차가 좁고 양쪽으로 더 길게 뻗는 8자가 됩니다.")]
+        [SerializeField, Range(0f, 1f)] private float cursorNeedleOrbitStraightness = 0.6f;
+
         [Tooltip("이기어침 피해 판정 반경입니다.")]
         [SerializeField] private float cursorNeedleHitRadius = 0.45f;
 
@@ -512,17 +514,20 @@ namespace Vampire
         [Tooltip("플레이어 중심 기준 이기어침 무한궤도 중심 위치입니다. Y를 0.45 정도로 두면 플레이어 살짝 위를 중심으로 돕니다.")]
         [SerializeField] private Vector2 cursorNeedleOrbitCenterOffset = new Vector2(0f, 0.45f);
 
-        [Tooltip("누운 8자 궤도의 좌우 반경입니다.")]
-        [SerializeField] private float cursorNeedleOrbitHorizontalRadius = 2.2f;
+        [Tooltip("가로 8자 궤도의 좌우 반경입니다.")]
+        [SerializeField] private float cursorNeedleOrbitHorizontalRadius = 2.4f;
 
-        [Tooltip("누운 8자 궤도의 위아래 반경입니다.")]
-        [SerializeField] private float cursorNeedleOrbitVerticalRadius = 0.9f;
+        [Tooltip("가로 8자 궤도의 위아래 반경입니다.")]
+        [SerializeField] private float cursorNeedleOrbitVerticalRadius = 0.75f;
 
-        [Tooltip("궤도점 근처 적을 감지해서 이기어침 위치를 살짝 보정하는 반경입니다.")]
-        [SerializeField] private float cursorNeedleTargetAssistRadius = 0.75f;
+        [Tooltip("근처 적 보정 계산용 반경입니다. 침 위치를 끌어당기지는 않고, 피해 판정 보너스 계산에만 사용합니다.")]
+        [SerializeField] private float cursorNeedleTargetAssistRadius = 0.5f;
 
-        [Tooltip("근처 적을 향해 얼마나 보정할지 정합니다. 0이면 보정 없음, 1이면 적 위치까지 완전히 붙습니다. 0.25~0.4 추천.")]
-        [SerializeField, Range(0f, 1f)] private float cursorNeedleTargetAssistStrength = 0.35f;
+        [Tooltip("근처 적 보정 강도입니다. 침 위치 보정이 아니라 피해 판정 보너스에만 사용합니다.")]
+        [SerializeField, Range(0f, 1f)] private float cursorNeedleTargetAssistStrength = 0.2f;
+
+        [Tooltip("근처 적 보정으로 추가되는 피해 판정 반경의 최대값입니다. 0.08~0.12 추천.")]
+        [SerializeField] private float cursorNeedleMaxAssistHitRadiusBonus = 0.1f;
 
         [Tooltip("특수증강 1개당 이기어침 데미지 증가량입니다. 0.08이면 특수증강 1개당 8% 증가입니다.")]
         [SerializeField] private float cursorNeedleDamageBonusPerSpecial = 0.08f;
@@ -533,7 +538,7 @@ namespace Vampire
         [Tooltip("이기어침 데미지/속도 보너스 계산에 사용할 최대 특수증강 개수입니다. 12면 12개까지만 보너스를 받습니다.")]
         [SerializeField] private int cursorNeedleMaxSpecialBonusCount = 12;
 
-        [Tooltip("이기어침이 한 프레임/틱에서 동시에 피해를 줄 수 있는 최대 대상 수입니다. 관통 느낌을 유지하되 과도한 다중 타격을 막습니다.")]
+        [Tooltip("이기어침이 한 프레임/틱에서 동시에 피해를 줄 수 있는 최대 대상 수입니다.")]
         [SerializeField] private int cursorNeedleMaxTargetsPerTick = 12;
 
         [Tooltip("체크하면 이기어침 무한궤도 생성 로그를 출력합니다.")]
@@ -554,6 +559,7 @@ namespace Vampire
 
         private CursorControlledNeedleController cursorControlledNeedleController;
 
+    
         public GameObject ProjectilePrefab => projectilePrefab;
         public LayerMask MonsterLayer => monsterLayer;
 
@@ -2153,11 +2159,12 @@ namespace Vampire
                 cursorNeedleOrbitVisualAngleOffset,
                 cursorNeedleBackDisplayBaseAngle,
                 cursorNeedleBackDisplaySpreadAngle,
-                cursorNeedleOrbitStraightness
+                cursorNeedleOrbitStraightness,
+                cursorNeedleMaxAssistHitRadiusBonus
             );
 
             Debug.Log(
-                "[이기어침] 전설 증강 활성화. 기본 자동 공격을 중지하고, 플레이어 위쪽 중심의 늘어진 8자 무한궤도를 도는 침을 생성했습니다."
+                "[이기어침] 전설 증강 활성화. 기본 자동 공격을 중지하고, 플레이어 위쪽 중심의 가로 8자 무한궤도를 도는 침을 생성했습니다."
             );
         }
 
