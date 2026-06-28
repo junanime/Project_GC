@@ -673,18 +673,82 @@ float maxHitRadiusBonusFromSpecial)
             }
         }
 
-        private bool TryGetValidMonsterTarget(Collider2D collider, out Monster monster)
+        private bool TryGetValidDamageableTarget(
+     Collider2D collider,
+     out IDamageable damageable,
+     out Component damageableComponent,
+     out int targetId)
         {
-            monster = null;
+            damageable = null;
+            damageableComponent = null;
+            targetId = 0;
 
             if (collider == null)
             {
                 return false;
             }
 
-            monster = collider.GetComponentInParent<Monster>();
+            Component[] parentComponents = collider.GetComponentsInParent<Component>(true);
 
-            if (monster == null || !monster.gameObject.activeInHierarchy)
+            for (int i = 0; i < parentComponents.Length; i++)
+            {
+                Component component = parentComponents[i];
+
+                if (component == null)
+                {
+                    continue;
+                }
+
+                if (!component.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                if (sourceCharacter != null && component.gameObject == sourceCharacter.gameObject)
+                {
+                    continue;
+                }
+
+                IDamageable candidate = component as IDamageable;
+
+                if (candidate == null)
+                {
+                    continue;
+                }
+
+                Monster monster = component as Monster;
+
+                if (monster != null)
+                {
+                    if (!IsValidMonsterForCursorNeedle(monster))
+                    {
+                        continue;
+                    }
+                }
+
+                damageable = candidate;
+                damageableComponent = component;
+                targetId = component.gameObject.GetInstanceID();
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool IsValidMonsterForCursorNeedle(Monster monster)
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
+            if (!monster.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            if (monster.HP <= 0f)
             {
                 return false;
             }
@@ -752,22 +816,14 @@ float maxHitRadiusBonusFromSpecial)
 
             foreach (Collider2D hit in hits)
             {
-                Monster monster;
+                IDamageable damageable;
+                Component damageableComponent;
+                int targetId;
 
-                if (!TryGetValidMonsterTarget(hit, out monster))
+                if (!TryGetValidDamageableTarget(hit, out damageable, out damageableComponent, out targetId))
                 {
                     continue;
                 }
-
-                IDamageable damageable = monster as IDamageable;
-                Component damageableComponent = monster;
-
-                if (damageable == null || damageableComponent == null)
-                {
-                    continue;
-                }
-
-                int targetId = monster.gameObject.GetInstanceID();
 
                 if (checkedTargetsThisFrame.Contains(targetId))
                 {
@@ -1151,23 +1207,16 @@ float maxHitRadiusBonusFromSpecial)
 
             foreach (Collider2D hit in hits)
             {
-                Monster monster;
+                IDamageable splashDamageable;
+                Component splashComponent;
+                int splashId;
 
-                if (!TryGetValidMonsterTarget(hit, out monster))
+                if (!TryGetValidDamageableTarget(hit, out splashDamageable, out splashComponent, out splashId))
                 {
                     continue;
                 }
-
-                int splashId = monster.gameObject.GetInstanceID();
 
                 if (damagedIds.Contains(splashId))
-                {
-                    continue;
-                }
-
-                IDamageable splashDamageable = monster as IDamageable;
-
-                if (splashDamageable == null)
                 {
                     continue;
                 }

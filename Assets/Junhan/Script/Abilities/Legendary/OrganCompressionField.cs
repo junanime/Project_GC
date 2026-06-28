@@ -31,7 +31,12 @@ namespace Vampire
         private const int CirclePointCount = 96;
         private const int SpiralArmCount = 4;
         private const int SpiralPointCount = 42;
-
+        private struct CompressionTarget
+        {
+            public IDamageable damageable;
+            public Component component;
+            public int id;
+        }
         public void Init(
             Vector2 center,
             float radius,
@@ -69,94 +74,217 @@ namespace Vampire
 
         private void ApplyCompression()
         {
-            List<Monster> targets = GetMonstersInRadius();
+            List<CompressionTarget> targets = GetDamageableTargetsInRadius();
 
             for (int i = 0; i < targets.Count; i++)
             {
-                Monster monster = targets[i];
+                CompressionTarget target = targets[i];
 
-                if (monster == null || !monster.gameObject.activeInHierarchy)
+                if (target.damageable == null || target.component == null)
                 {
                     continue;
                 }
 
-                PullMonster(monster);
-                TryDamageMonster(monster);
+                if (!target.component.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                PullTarget(target);
+                TryDamageTarget(target);
             }
         }
 
-        private List<Monster> GetMonstersInRadius()
+        private List<CompressionTarget> GetDamageableTargetsInRadius()
         {
-            List<Monster> result = new List<Monster>();
+            List<CompressionTarget> result = new List<CompressionTarget>();
             HashSet<int> addedIds = new HashSet<int>();
 
-            // 1차: 레이어 기반 OverlapCircleAll
             Collider2D[] hits = Physics2D.OverlapCircleAll(center, radius, monsterLayer);
 
             for (int i = 0; i < hits.Length; i++)
             {
-                Collider2D hit = hits[i];
+                CompressionTarget target;
 
-                if (hit == null)
+                if (!TryBuildCompressionTargetFromCollider(hits[i], out target))
                 {
                     continue;
                 }
 
-                Monster monster = hit.GetComponentInParent<Monster>();
-
-                if (monster == null || !monster.gameObject.activeInHierarchy)
+                if (addedIds.Add(target.id))
                 {
-                    continue;
-                }
-
-                int id = monster.gameObject.GetInstanceID();
-
-                if (addedIds.Add(id))
-                {
-                    result.Add(monster);
+                    result.Add(target);
                 }
             }
 
-            // 2차 fallback:
-            // monsterLayer가 root/child 구조와 안 맞거나, 콜라이더 레이어가 다를 때도 끌어당기기 위해
-            // Monster 컴포넌트 기준으로 직접 거리 검사한다.
-            if (result.Count <= 0)
+            // fallback 1: 기존 일반 Monster 직접 검색
+            Monster[] monsters = FindObjectsOfType<Monster>();
+
+            for (int i = 0; i < monsters.Length; i++)
             {
-                Monster[] monsters = FindObjectsOfType<Monster>();
+                Monster monster = monsters[i];
 
-                for (int i = 0; i < monsters.Length; i++)
+                if (!IsValidMonsterForCompression(monster))
                 {
-                    Monster monster = monsters[i];
+                    continue;
+                }
 
-                    if (monster == null || !monster.gameObject.activeInHierarchy)
-                    {
-                        continue;
-                    }
+                CompressionTarget target;
+                if (!TryBuildCompressionTargetFromComponent(monster, out target))
+                {
+                    continue;
+                }
 
-                    Vector2 monsterPosition = GetMonsterWorldPosition(monster);
+                if (Vector2.Distance(center, GetTargetWorldPosition(target)) > radius)
+                {
+                    continue;
+                }
 
-                    if (Vector2.Distance(center, monsterPosition) > radius)
-                    {
-                        continue;
-                    }
+                if (addedIds.Add(target.id))
+                {
+                    result.Add(target);
+                }
+            }
 
-                    int id = monster.gameObject.GetInstanceID();
+            // fallback 2: 중립 소화효소 몬스터 직접 검색
+            DigestiveEnzymeMonster[] enzymes = FindObjectsOfType<DigestiveEnzymeMonster>();
 
-                    if (addedIds.Add(id))
-                    {
-                        result.Add(monster);
-                    }
+            for (int i = 0; i < enzymes.Length; i++)
+            {
+                DigestiveEnzymeMonster enzyme = enzymes[i];
+
+                if (enzyme == null || !enzyme.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                CompressionTarget target;
+                if (!TryBuildCompressionTargetFromComponent(enzyme, out target))
+                {
+                    continue;
+                }
+
+                if (Vector2.Distance(center, GetTargetWorldPosition(target)) > radius)
+                {
+                    continue;
+                }
+
+                if (addedIds.Add(target.id))
+                {
+                    result.Add(target);
                 }
             }
 
             return result;
         }
 
-        private void PullMonster(Monster monster)
+        private bool TryBuildCompressionTargetFromCollider(Collider2D collider, out CompressionTarget target)
         {
-            Vector2 monsterPosition = GetMonsterWorldPosition(monster);
+            target = default;
 
-            Vector2 toCenter = center - monsterPosition;
+            if (collider == null)
+            {
+                return false;
+            }
+
+            Component[] parentComponents = collider.GetComponentsInParent<Component>(true);
+
+            for (int i = 0; i < parentComponents.Length; i++)
+            {
+                Component component = parentComponents[i];
+
+                if (component == null)
+                {
+                    continue;
+                }
+
+                if (!component.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                IDamageable damageable = component as IDamageable;
+
+                if (damageable == null)
+                {
+                    continue;
+                }
+
+                Monster monster = component as Monster;
+
+                if (monster != null && !IsValidMonsterForCompression(monster))
+                {
+                    continue;
+                }
+
+                target = new CompressionTarget
+                {
+                    damageable = damageable,
+                    component = component,
+                    id = component.gameObject.GetInstanceID()
+                };
+
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool TryBuildCompressionTargetFromComponent(Component component, out CompressionTarget target)
+        {
+            target = default;
+
+            if (component == null)
+            {
+                return false;
+            }
+
+            if (!component.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            IDamageable damageable = component as IDamageable;
+
+            if (damageable == null)
+            {
+                return false;
+            }
+
+            target = new CompressionTarget
+            {
+                damageable = damageable,
+                component = component,
+                id = component.gameObject.GetInstanceID()
+            };
+
+            return true;
+        }
+
+        private bool IsValidMonsterForCompression(Monster monster)
+        {
+            if (monster == null)
+            {
+                return false;
+            }
+
+            if (!monster.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            if (monster.HP <= 0f)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private void PullTarget(CompressionTarget target)
+        {
+            Vector2 targetPosition = GetTargetWorldPosition(target);
+            Vector2 toCenter = center - targetPosition;
             float distance = toCenter.magnitude;
 
             if (distance <= 0.03f)
@@ -168,14 +296,15 @@ namespace Vampire
             float effectivePullSpeed = pullSpeed * Mathf.Lerp(0.75f, 1.45f, distanceRatio);
 
             Vector2 nextPosition = Vector2.MoveTowards(
-                monsterPosition,
+                targetPosition,
                 center,
                 effectivePullSpeed * Time.deltaTime
             );
 
-            Vector2 delta = nextPosition - monsterPosition;
+            Vector2 delta = nextPosition - targetPosition;
 
-            Rigidbody2D rb = monster.GetComponent<Rigidbody2D>() ?? monster.GetComponentInParent<Rigidbody2D>();
+            Rigidbody2D rb = target.component.GetComponent<Rigidbody2D>() ??
+                             target.component.GetComponentInParent<Rigidbody2D>();
 
             if (rb != null)
             {
@@ -185,25 +314,42 @@ namespace Vampire
             }
             else
             {
-                monster.transform.position += (Vector3)delta;
+                target.component.transform.position += (Vector3)delta;
             }
         }
 
-        private Vector2 GetMonsterWorldPosition(Monster monster)
+        private Vector2 GetTargetWorldPosition(CompressionTarget target)
         {
+            if (target.component == null)
+            {
+                return Vector2.zero;
+            }
+
+            Monster monster = target.component as Monster;
+
             if (monster != null && monster.CenterTransform != null)
             {
                 return monster.CenterTransform.position;
             }
 
-            return monster != null ? monster.transform.position : Vector2.zero;
+            Collider2D collider = target.component.GetComponentInChildren<Collider2D>();
+
+            if (collider != null)
+            {
+                return collider.bounds.center;
+            }
+
+            return target.component.transform.position;
         }
 
-        private void TryDamageMonster(Monster monster)
+        private void TryDamageTarget(CompressionTarget target)
         {
-            int id = monster.gameObject.GetInstanceID();
+            if (target.damageable == null || target.component == null)
+            {
+                return;
+            }
 
-            if (nextDamageTimes.TryGetValue(id, out float nextTime))
+            if (nextDamageTimes.TryGetValue(target.id, out float nextTime))
             {
                 if (Time.time < nextTime)
                 {
@@ -211,10 +357,9 @@ namespace Vampire
                 }
             }
 
-            monster.TakeDamage(damagePerTick);
-            nextDamageTimes[id] = Time.time + tickInterval;
+            target.damageable.TakeDamage(damagePerTick, Vector2.zero, false);
+            nextDamageTimes[target.id] = Time.time + tickInterval;
         }
-
         private void CreateVisual()
         {
             Color outerColor = new Color(0.78f, 0.05f, 1f, 0.9f);
