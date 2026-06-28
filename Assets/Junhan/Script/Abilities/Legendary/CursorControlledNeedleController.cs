@@ -820,7 +820,12 @@ float maxHitRadiusBonusFromSpecial)
                 Component damageableComponent;
                 int targetId;
 
-                if (!TryGetValidDamageableTarget(hit, out damageable, out damageableComponent, out targetId))
+                if (!SyringeSpecialHitEffectUtility.TryGetValidDamageableTarget(
+                        hit,
+                        sourceCharacter,
+                        out damageable,
+                        out damageableComponent,
+                        out targetId))
                 {
                     continue;
                 }
@@ -869,28 +874,19 @@ float maxHitRadiusBonusFromSpecial)
             float heavyKnockbackMultiplier = sourceNeedleAbility.GetCursorNeedleHeavyKnockbackMultiplier();
             float specialDamageMultiplier = GetSpecialDamageMultiplier();
 
-            bool consumedNeedleMark = false;
-            float markDamageMultiplier = 1f;
-
-            if (runtime.markEnabled)
-            {
-                consumedNeedleMark = TryConsumeNeedleMark(damageableComponent);
-
-                if (consumedNeedleMark)
-                {
-                    markDamageMultiplier += Mathf.Max(0f, runtime.markBonusDamageMultiplier);
-                }
-            }
-
-            float corrosionDamageMultiplier = GetCorrosionDamageMultiplier(damageableComponent);
+            bool consumedNeedleMark;
+            float statusDamageMultiplier = SyringeSpecialHitEffectUtility.GetPreDamageMultiplier(
+                damageableComponent,
+                runtime,
+                out consumedNeedleMark
+            );
 
             float rawDamage =
                 sourceNeedleAbility.GetEffectiveDamage() *
                 damageMultiplier *
                 heavyDamageMultiplier *
                 specialDamageMultiplier *
-                markDamageMultiplier *
-                corrosionDamageMultiplier;
+                statusDamageMultiplier;
 
             float knockback = sourceNeedleAbility.GetEffectiveKnockback() * heavyKnockbackMultiplier;
 
@@ -918,7 +914,15 @@ float maxHitRadiusBonusFromSpecial)
                 sourceCharacter.OnDealDamage.Invoke(finalDamage);
             }
 
-            ApplySpecialEffectsAfterHit(damageableComponent, runtime, consumedNeedleMark);
+            SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
+                damageableComponent,
+                runtime,
+                sourceCharacter,
+                cursorNeedleTransform.position,
+                monsterLayer,
+                damageableComponent.gameObject,
+                consumedNeedleMark
+            );
         }
         private void ApplySpecialEffectsAfterHit(
     Component damageableComponent,

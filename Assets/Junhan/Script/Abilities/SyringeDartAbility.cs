@@ -2060,7 +2060,8 @@ namespace Vampire
                 organCompressionPullSpeed,
                 organCompressionScreenPadding,
                 monsterLayer,
-                debugOrganCompression
+                debugOrganCompression,
+    this
             );
         }
 

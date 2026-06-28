@@ -394,21 +394,19 @@ namespace Vampire
                 {
                     Collider2D hit = hits[i];
 
-                    Monster monster;
+                    IDamageable damageable;
+                    Component damageableComponent;
+                    int targetId;
 
-                    if (!TryGetValidMonsterTarget(hit, out monster))
+                    if (!SyringeSpecialHitEffectUtility.TryGetValidDamageableTarget(
+                            hit,
+                            sourceCharacter,
+                            out damageable,
+                            out damageableComponent,
+                            out targetId))
                     {
                         continue;
                     }
-
-                    IDamageable damageable = monster as IDamageable;
-
-                    if (damageable == null)
-                    {
-                        continue;
-                    }
-
-                    int targetId = monster.gameObject.GetInstanceID();
 
                     if (checkedTargetsThisNeedle.Contains(targetId))
                     {
@@ -424,7 +422,7 @@ namespace Vampire
                         continue;
                     }
 
-                    DamageTargetWithOrbitNeedle(monster, needleIndex);
+                    DamageTargetWithOrbitNeedle(damageable, damageableComponent, needleIndex);
 
                     nextDamageAllowedTimeByNeedleAndTarget[key] =
                         Time.time + Mathf.Max(0.05f, sameNeedleSameTargetCooldown);
@@ -468,25 +466,31 @@ namespace Vampire
             return Time.time >= nextAllowedTime;
         }
 
-        private void DamageTargetWithOrbitNeedle(Monster targetMonster, int needleIndex)
+        private void DamageTargetWithOrbitNeedle(
+    IDamageable damageable,
+    Component targetComponent,
+    int needleIndex)
         {
-            if (targetMonster == null || sourceCharacter == null || sourceNeedleAbility == null)
+            if (damageable == null || targetComponent == null || sourceCharacter == null || sourceNeedleAbility == null)
             {
                 return;
             }
 
-            IDamageable damageable = targetMonster as IDamageable;
-            Component targetComponent = targetMonster;
+            SyringeSpecialRuntime runtime = sourceNeedleAbility.GetCurrentSpecialRuntime();
 
-            if (damageable == null || targetComponent == null)
-            {
-                return;
-            }
+            bool consumedNeedleMark;
+            float statusDamageMultiplier = SyringeSpecialHitEffectUtility.GetPreDamageMultiplier(
+                targetComponent,
+                runtime,
+                out consumedNeedleMark
+            );
 
-            float rawDamage = sourceNeedleAbility.GetEffectiveDamage() * damageMultiplier;
+            float rawDamage =
+                sourceNeedleAbility.GetEffectiveDamage() *
+                damageMultiplier *
+                statusDamageMultiplier;
 
-            PlayerGeneralStatRuntime statRuntime =
-                PlayerGeneralStatRuntime.GetOrCreate(sourceCharacter);
+            PlayerGeneralStatRuntime statRuntime = PlayerGeneralStatRuntime.GetOrCreate(sourceCharacter);
 
             bool isCritical = false;
             float finalDamage = rawDamage;
@@ -509,10 +513,20 @@ namespace Vampire
                 sourceCharacter.OnDealDamage.Invoke(finalDamage);
             }
 
+            SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
+                targetComponent,
+                runtime,
+                sourceCharacter,
+                targetComponent.transform.position,
+                monsterLayer,
+                targetComponent.gameObject,
+                consumedNeedleMark
+            );
+
             if (debugLog)
             {
                 Debug.Log(
-                    $"[고슴도침] {needleIndex + 1}번 침 피격 | Target={targetMonster.name} | Damage={finalDamage:0.##}"
+                    $"[고슴도침] {needleIndex + 1}번 침 피격 | Target={targetComponent.name} | Damage={finalDamage:0.##}"
                 );
             }
 

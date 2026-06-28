@@ -43,6 +43,7 @@ namespace Vampire
 
         private Camera mainCamera;
         private float timer = 0f;
+        private SyringeDartAbility sourceNeedleAbility;
 
         public void Configure(
             float interval,
@@ -54,7 +55,8 @@ namespace Vampire
             float pullSpeed,
             float screenPadding,
             LayerMask monsterLayer,
-            bool debugLog)
+            bool debugLog,
+SyringeDartAbility sourceNeedleAbility)
         {
             this.interval = Mathf.Max(0.1f, interval);
             this.clusterSearchRadius = Mathf.Max(0.1f, clusterSearchRadius);
@@ -66,7 +68,7 @@ namespace Vampire
             this.screenPadding = Mathf.Max(0f, screenPadding);
             this.monsterLayer = monsterLayer;
             this.debugLog = debugLog;
-
+            this.sourceNeedleAbility = sourceNeedleAbility;
             mainCamera = Camera.main;
         }
 
@@ -108,14 +110,15 @@ namespace Vampire
 
             OrganCompressionField field = fieldObject.AddComponent<OrganCompressionField>();
             field.Init(
-                center,
-                fieldRadius,
-                fieldDuration,
-                damageTickInterval,
-                damagePerTick,
-                pullSpeed,
-                monsterLayer
-            );
+    center,
+    fieldRadius,
+    fieldDuration,
+    damageTickInterval,
+    damagePerTick,
+    pullSpeed,
+    monsterLayer,
+    sourceNeedleAbility
+);
 
             if (debugLog)
             {

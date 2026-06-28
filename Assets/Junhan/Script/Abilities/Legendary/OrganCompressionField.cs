@@ -24,7 +24,7 @@ namespace Vampire
 
         private float endTime;
         private float visualSpinAngle;
-
+        private SyringeDartAbility sourceNeedleAbility;
         private LineRenderer outerCircleLine;
         private LineRenderer innerPulseLine;
 
@@ -44,7 +44,8 @@ namespace Vampire
             float tickInterval,
             float damagePerTick,
             float pullSpeed,
-            LayerMask monsterLayer)
+            LayerMask monsterLayer,
+SyringeDartAbility sourceNeedleAbility)
         {
             this.center = center;
             this.radius = Mathf.Max(0.1f, radius);
@@ -53,7 +54,7 @@ namespace Vampire
             this.damagePerTick = Mathf.Max(0f, damagePerTick);
             this.pullSpeed = Mathf.Max(0f, pullSpeed);
             this.monsterLayer = monsterLayer;
-
+            this.sourceNeedleAbility = sourceNeedleAbility;
             transform.position = center;
             endTime = Time.time + this.duration;
 
@@ -357,7 +358,38 @@ namespace Vampire
                 }
             }
 
-            target.damageable.TakeDamage(damagePerTick, Vector2.zero, false);
+            float finalDamage = damagePerTick;
+            bool consumedNeedleMark = false;
+            SyringeSpecialRuntime runtime = default;
+
+            if (sourceNeedleAbility != null)
+            {
+                runtime = sourceNeedleAbility.GetCurrentSpecialRuntime();
+
+                float statusDamageMultiplier = SyringeSpecialHitEffectUtility.GetPreDamageMultiplier(
+                    target.component,
+                    runtime,
+                    out consumedNeedleMark
+                );
+
+                finalDamage *= statusDamageMultiplier;
+            }
+
+            target.damageable.TakeDamage(finalDamage, Vector2.zero, false);
+
+            if (sourceNeedleAbility != null)
+            {
+                SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
+                    target.component,
+                    runtime,
+                    null,
+                    GetTargetWorldPosition(target),
+                    monsterLayer,
+                    target.component.gameObject,
+                    consumedNeedleMark
+                );
+            }
+
             nextDamageTimes[target.id] = Time.time + tickInterval;
         }
         private void CreateVisual()
