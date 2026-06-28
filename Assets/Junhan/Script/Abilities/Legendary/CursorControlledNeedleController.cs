@@ -53,6 +53,8 @@ namespace Vampire
         private float backDisplaySpreadAngle;
         private float orbitStraightness;
         private float maxAssistHitRadiusBonus;
+        private float hitRadiusBonusPerSpecial;
+        private float maxHitRadiusBonusFromSpecial;
 
         private Transform cursorNeedleTransform;
         private Transform cursorNeedleVisualTransform;
@@ -102,7 +104,9 @@ namespace Vampire
             float backDisplayBaseAngle,
             float backDisplaySpreadAngle,
             float orbitStraightness,
-            float maxAssistHitRadiusBonus)
+            float maxAssistHitRadiusBonus,
+float hitRadiusBonusPerSpecial,
+float maxHitRadiusBonusFromSpecial)
         {
             GameObject controllerObject = new GameObject("Cursor Controlled Needle Controller");
             CursorControlledNeedleController controller = controllerObject.AddComponent<CursorControlledNeedleController>();
@@ -135,7 +139,9 @@ namespace Vampire
                 backDisplayBaseAngle,
                 backDisplaySpreadAngle,
                 orbitStraightness,
-                maxAssistHitRadiusBonus
+                maxAssistHitRadiusBonus,
+hitRadiusBonusPerSpecial,
+maxHitRadiusBonusFromSpecial
             );
 
             return controller;
@@ -169,7 +175,9 @@ namespace Vampire
             float backDisplayBaseAngle,
             float backDisplaySpreadAngle,
             float orbitStraightness,
-            float maxAssistHitRadiusBonus)
+            float maxAssistHitRadiusBonus,
+float hitRadiusBonusPerSpecial,
+float maxHitRadiusBonusFromSpecial)
         {
             this.sourceCharacter = sourceCharacter;
             this.entityManager = entityManager;
@@ -203,7 +211,8 @@ namespace Vampire
             this.backDisplaySpreadAngle = backDisplaySpreadAngle;
             this.orbitStraightness = Mathf.Clamp01(orbitStraightness);
             this.maxAssistHitRadiusBonus = Mathf.Max(0f, maxAssistHitRadiusBonus);
-
+            this.hitRadiusBonusPerSpecial = Mathf.Max(0f, hitRadiusBonusPerSpecial);
+            this.maxHitRadiusBonusFromSpecial = Mathf.Max(0f, maxHitRadiusBonusFromSpecial);
             projectilePrefab = sourceNeedleAbility.ProjectilePrefab;
             monsterLayer = sourceNeedleAbility.MonsterLayer;
 
@@ -534,6 +543,27 @@ namespace Vampire
             return 1f + bonusCount * damageBonusPerSpecial;
         }
 
+        private float GetSpecialHitRadiusBonus()
+        {
+            if (sourceNeedleAbility == null)
+            {
+                return 0f;
+            }
+
+            int specialCount = sourceNeedleAbility.GetActiveSpecialAugmentCount();
+            int bonusCount = maxSpecialBonusCount > 0
+                ? Mathf.Min(specialCount, maxSpecialBonusCount)
+                : specialCount;
+
+            float bonus = bonusCount * hitRadiusBonusPerSpecial;
+
+            if (maxHitRadiusBonusFromSpecial > 0f)
+            {
+                bonus = Mathf.Min(bonus, maxHitRadiusBonusFromSpecial);
+            }
+
+            return bonus;
+        }
         private float GetSpecialSpeedMultiplier()
         {
             if (sourceNeedleAbility == null)
@@ -548,6 +578,7 @@ namespace Vampire
 
             return 1f + bonusCount * speedBonusPerSpecial;
         }
+
 
         private void UpdateCursorNeedleHeavyVisual()
         {
@@ -688,13 +719,16 @@ namespace Vampire
             SyringeSpecialRuntime runtime = sourceNeedleAbility.GetCurrentSpecialRuntime();
 
             float heavySizeMultiplier = sourceNeedleAbility.GetCursorNeedleHeavySizeMultiplier();
+
+            // 기본 반경은 그대로 유지.
+            // 특수증강 개수에 따른 반경 보너스만 별도로 더한다.
             float effectiveHitRadius = hitRadius * heavySizeMultiplier;
+            effectiveHitRadius += GetSpecialHitRadiusBonus();
 
             if (runtime.homingEnabled)
             {
                 effectiveHitRadius += homingHitRadiusBonus;
             }
-
             if (targetAssistRadius > 0f && targetAssistStrength > 0f)
             {
                 float assistBonus = targetAssistRadius * targetAssistStrength;
@@ -779,11 +813,28 @@ namespace Vampire
             float heavyKnockbackMultiplier = sourceNeedleAbility.GetCursorNeedleHeavyKnockbackMultiplier();
             float specialDamageMultiplier = GetSpecialDamageMultiplier();
 
+            bool consumedNeedleMark = false;
+            float markDamageMultiplier = 1f;
+
+            if (runtime.markEnabled)
+            {
+                consumedNeedleMark = TryConsumeNeedleMark(damageableComponent);
+
+                if (consumedNeedleMark)
+                {
+                    markDamageMultiplier += Mathf.Max(0f, runtime.markBonusDamageMultiplier);
+                }
+            }
+
+            float corrosionDamageMultiplier = GetCorrosionDamageMultiplier(damageableComponent);
+
             float rawDamage =
                 sourceNeedleAbility.GetEffectiveDamage() *
                 damageMultiplier *
                 heavyDamageMultiplier *
-                specialDamageMultiplier;
+                specialDamageMultiplier *
+                markDamageMultiplier *
+                corrosionDamageMultiplier;
 
             float knockback = sourceNeedleAbility.GetEffectiveKnockback() * heavyKnockbackMultiplier;
 
@@ -811,10 +862,12 @@ namespace Vampire
                 sourceCharacter.OnDealDamage.Invoke(finalDamage);
             }
 
-            ApplySpecialEffectsAfterHit(damageableComponent, runtime);
+            ApplySpecialEffectsAfterHit(damageableComponent, runtime, consumedNeedleMark);
         }
-
-        private void ApplySpecialEffectsAfterHit(Component damageableComponent, SyringeSpecialRuntime runtime)
+        private void ApplySpecialEffectsAfterHit(
+    Component damageableComponent,
+    SyringeSpecialRuntime runtime,
+    bool consumedNeedleMark)
         {
             if (damageableComponent == null)
             {
@@ -829,6 +882,16 @@ namespace Vampire
             if (runtime.honeyEnabled)
             {
                 ApplyHoneySlow(damageableComponent, runtime);
+            }
+
+            if (runtime.corrosionEnabled)
+            {
+                ApplyCorrosion(damageableComponent, runtime);
+            }
+
+            if (runtime.markEnabled && !consumedNeedleMark)
+            {
+                ApplyNeedleMark(damageableComponent, runtime);
             }
 
             if (runtime.mosquitoEnabled)
@@ -888,7 +951,93 @@ namespace Vampire
                 runtime.honeySlowMultiplier
             );
         }
+        private float GetCorrosionDamageMultiplier(Component damageableComponent)
+        {
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
 
+            if (monster == null)
+            {
+                return 1f;
+            }
+
+            CorrosionStatus corrosionStatus = monster.GetComponent<CorrosionStatus>();
+
+            if (corrosionStatus == null)
+            {
+                return 1f;
+            }
+
+            return Mathf.Max(1f, corrosionStatus.GetDamageTakenMultiplier());
+        }
+
+        private void ApplyCorrosion(Component damageableComponent, SyringeSpecialRuntime runtime)
+        {
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return;
+            }
+
+            CorrosionStatus corrosionStatus = monster.GetComponent<CorrosionStatus>();
+
+            if (corrosionStatus == null)
+            {
+                corrosionStatus = monster.gameObject.AddComponent<CorrosionStatus>();
+            }
+
+            bool isBossTarget = IsBossLikeTarget(monster);
+
+            corrosionStatus.Apply(
+                runtime.corrosionDuration,
+                runtime.corrosionDamageTakenBonusPerStack,
+                runtime.corrosionBossDamageTakenBonusPerStack,
+                runtime.corrosionMaxStacks,
+                isBossTarget
+            );
+        }
+
+        private bool TryConsumeNeedleMark(Component damageableComponent)
+        {
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return false;
+            }
+
+            NeedleMarkStatus markStatus = monster.GetComponent<NeedleMarkStatus>();
+
+            if (markStatus == null)
+            {
+                return false;
+            }
+
+            return markStatus.TryConsume();
+        }
+
+        private void ApplyNeedleMark(Component damageableComponent, SyringeSpecialRuntime runtime)
+        {
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
+
+            if (monster == null)
+            {
+                return;
+            }
+
+            NeedleMarkStatus markStatus = monster.GetComponent<NeedleMarkStatus>();
+
+            if (markStatus == null)
+            {
+                markStatus = monster.gameObject.AddComponent<NeedleMarkStatus>();
+            }
+
+            markStatus.Apply(runtime.markDuration);
+        }
         private void ApplyMosquitoHeal(Component damageableComponent, SyringeSpecialRuntime runtime)
         {
             if (runtime.healingBlocked || sourceCharacter == null)

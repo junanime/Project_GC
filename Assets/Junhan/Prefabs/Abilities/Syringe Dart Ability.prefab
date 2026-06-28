@@ -264,6 +264,8 @@ MonoBehaviour:
   cursorNeedleTargetAssistRadius: 0.75
   cursorNeedleTargetAssistStrength: 0.35
   cursorNeedleMaxAssistHitRadiusBonus: 0.1
+  cursorNeedleHitRadiusBonusPerSpecial: 0.035
+  cursorNeedleMaxHitRadiusBonusFromSpecial: 0.45
   cursorNeedleDamageBonusPerSpecial: 0.08
   cursorNeedleSpeedBonusPerSpecial: 0.06
   cursorNeedleMaxSpecialBonusCount: 12

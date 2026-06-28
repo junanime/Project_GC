@@ -529,6 +529,12 @@ namespace Vampire
         [Tooltip("근처 적 보정으로 추가되는 피해 판정 반경의 최대값입니다. 0.08~0.12 추천.")]
         [SerializeField] private float cursorNeedleMaxAssistHitRadiusBonus = 0.1f;
 
+        [Tooltip("특수증강 1개당 이기어침 피해 판정 반경 증가량입니다. 0.035이면 특수증강 1개당 반경이 0.035 증가합니다.")]
+        [SerializeField] private float cursorNeedleHitRadiusBonusPerSpecial = 0.035f;
+
+        [Tooltip("특수증강 개수로 증가할 수 있는 이기어침 피해 판정 반경 최대 보너스입니다.")]
+        [SerializeField] private float cursorNeedleMaxHitRadiusBonusFromSpecial = 0.45f;
+
         [Tooltip("특수증강 1개당 이기어침 데미지 증가량입니다. 0.08이면 특수증강 1개당 8% 증가입니다.")]
         [SerializeField] private float cursorNeedleDamageBonusPerSpecial = 0.08f;
 
@@ -2157,10 +2163,12 @@ namespace Vampire
                 cursorNeedleMaxTargetsPerTick,
                 debugCursorNeedleOrbit,
                 cursorNeedleOrbitVisualAngleOffset,
-                cursorNeedleBackDisplayBaseAngle,
-                cursorNeedleBackDisplaySpreadAngle,
-                cursorNeedleOrbitStraightness,
-                cursorNeedleMaxAssistHitRadiusBonus
+               cursorNeedleBackDisplayBaseAngle,
+               cursorNeedleBackDisplaySpreadAngle,
+cursorNeedleOrbitStraightness,
+cursorNeedleMaxAssistHitRadiusBonus,
+cursorNeedleHitRadiusBonusPerSpecial,
+cursorNeedleMaxHitRadiusBonusFromSpecial
             );
 
             Debug.Log(
