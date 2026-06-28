@@ -1,10 +1,19 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Vampire
 {
+    /// <summary>
+    /// 전설증강: 이기어침
+    /// 
+    /// 변경 목표
+    /// - 플레이어 위쪽 중심의 "늘어진 8자" 궤도를 그림
+    /// - 침 본체는 항상 궤도 위를 따라감
+    /// - 침 방향은 궤도 접선 방향을 날카롭게 따라감
+    /// - 특수증강 개수에 따라 데미지/속도 증가
+    /// - 등 뒤 특수증강 표시 침은 부채꼴로 "서 있는" 형태 유지
+    /// </summary>
     public class CursorControlledNeedleController : MonoBehaviour
     {
         private Character sourceCharacter;
@@ -14,7 +23,7 @@ namespace Vampire
         private GameObject projectilePrefab;
         private LayerMask monsterLayer;
 
-        private float followSpeed;
+        private float orbitBaseSpeed;
         private float hitRadius;
         private float damageMultiplier;
         private float damageInterval;
@@ -26,6 +35,23 @@ namespace Vampire
         private float backDisplayArcHeight;
         private float backDisplayScale;
 
+        private Vector2 orbitCenterOffset;
+        private float orbitHorizontalRadius;
+        private float orbitVerticalRadius;
+        private float targetAssistRadius;
+        private float targetAssistStrength;
+        private float damageBonusPerSpecial;
+        private float speedBonusPerSpecial;
+        private int maxSpecialBonusCount;
+        private int maxTargetsPerTick;
+        private bool debugOrbitLog;
+
+        // 신규 보정값
+        private float orbitVisualAngleOffset;
+        private float backDisplayBaseAngle;
+        private float backDisplaySpreadAngle;
+        private float orbitStraightness;
+
         private Transform cursorNeedleTransform;
         private Transform backDisplayRoot;
         private SpriteRenderer cursorNeedleRenderer;
@@ -34,17 +60,12 @@ namespace Vampire
         private int projectileSortingLayerId;
         private int projectileSortingOrder;
         private Vector3 projectileVisualBaseScale = Vector3.one;
-        private Quaternion projectileVisualBaseRotation = Quaternion.identity;
 
-        [Header("Needle Visual")]
-        [Tooltip("침 이미지의 날 부분이 이동 방향을 향하도록 보정하는 각도입니다. 침 방향이 반대면 135, -45, 45, -135 중 하나로 테스트하세요.")]
-        [SerializeField] private float visualForwardAngleOffset = 135f;
-
+        private float orbitPhase = 0f;
         private int lastDisplayedSpecialCount = -1;
 
         private readonly List<GameObject> backDisplayNeedles = new List<GameObject>();
-        private readonly Dictionary<int, float> nextDamageAllowedTimeByTarget =
-            new Dictionary<int, float>();
+        private readonly Dictionary<int, float> nextDamageAllowedTimeByTarget = new Dictionary<int, float>();
 
         private static bool hasWarnedHealMethodMissing = false;
 
@@ -61,11 +82,24 @@ namespace Vampire
             Vector2 backDisplayOffset,
             float backDisplaySpacing,
             float backDisplayArcHeight,
-            float backDisplayScale)
+            float backDisplayScale,
+            Vector2 orbitCenterOffset,
+            float orbitHorizontalRadius,
+            float orbitVerticalRadius,
+            float targetAssistRadius,
+            float targetAssistStrength,
+            float damageBonusPerSpecial,
+            float speedBonusPerSpecial,
+            int maxSpecialBonusCount,
+            int maxTargetsPerTick,
+            bool debugOrbitLog,
+            float orbitVisualAngleOffset,
+            float backDisplayBaseAngle,
+            float backDisplaySpreadAngle,
+            float orbitStraightness)
         {
             GameObject controllerObject = new GameObject("Cursor Controlled Needle Controller");
-            CursorControlledNeedleController controller =
-                controllerObject.AddComponent<CursorControlledNeedleController>();
+            CursorControlledNeedleController controller = controllerObject.AddComponent<CursorControlledNeedleController>();
 
             controller.Init(
                 sourceCharacter,
@@ -80,7 +114,21 @@ namespace Vampire
                 backDisplayOffset,
                 backDisplaySpacing,
                 backDisplayArcHeight,
-                backDisplayScale
+                backDisplayScale,
+                orbitCenterOffset,
+                orbitHorizontalRadius,
+                orbitVerticalRadius,
+                targetAssistRadius,
+                targetAssistStrength,
+                damageBonusPerSpecial,
+                speedBonusPerSpecial,
+                maxSpecialBonusCount,
+                maxTargetsPerTick,
+                debugOrbitLog,
+                orbitVisualAngleOffset,
+                backDisplayBaseAngle,
+                backDisplaySpreadAngle,
+                orbitStraightness
             );
 
             return controller;
@@ -99,13 +147,27 @@ namespace Vampire
             Vector2 backDisplayOffset,
             float backDisplaySpacing,
             float backDisplayArcHeight,
-            float backDisplayScale)
+            float backDisplayScale,
+            Vector2 orbitCenterOffset,
+            float orbitHorizontalRadius,
+            float orbitVerticalRadius,
+            float targetAssistRadius,
+            float targetAssistStrength,
+            float damageBonusPerSpecial,
+            float speedBonusPerSpecial,
+            int maxSpecialBonusCount,
+            int maxTargetsPerTick,
+            bool debugOrbitLog,
+            float orbitVisualAngleOffset,
+            float backDisplayBaseAngle,
+            float backDisplaySpreadAngle,
+            float orbitStraightness)
         {
             this.sourceCharacter = sourceCharacter;
             this.entityManager = entityManager;
             this.sourceNeedleAbility = sourceNeedleAbility;
 
-            this.followSpeed = Mathf.Max(0.01f, followSpeed);
+            this.orbitBaseSpeed = Mathf.Max(0.01f, followSpeed);
             this.hitRadius = Mathf.Max(0.05f, hitRadius);
             this.damageMultiplier = Mathf.Max(0.01f, damageMultiplier);
             this.damageInterval = Mathf.Max(0.05f, damageInterval);
@@ -117,12 +179,28 @@ namespace Vampire
             this.backDisplayArcHeight = Mathf.Max(0f, backDisplayArcHeight);
             this.backDisplayScale = Mathf.Max(0.01f, backDisplayScale);
 
+            this.orbitCenterOffset = orbitCenterOffset;
+            this.orbitHorizontalRadius = Mathf.Max(0.1f, orbitHorizontalRadius);
+            this.orbitVerticalRadius = Mathf.Max(0.1f, orbitVerticalRadius);
+            this.targetAssistRadius = Mathf.Max(0f, targetAssistRadius);
+            this.targetAssistStrength = Mathf.Clamp01(targetAssistStrength);
+            this.damageBonusPerSpecial = Mathf.Max(0f, damageBonusPerSpecial);
+            this.speedBonusPerSpecial = Mathf.Max(0f, speedBonusPerSpecial);
+            this.maxSpecialBonusCount = Mathf.Max(0, maxSpecialBonusCount);
+            this.maxTargetsPerTick = Mathf.Max(1, maxTargetsPerTick);
+            this.debugOrbitLog = debugOrbitLog;
+
+            this.orbitVisualAngleOffset = orbitVisualAngleOffset;
+            this.backDisplayBaseAngle = backDisplayBaseAngle;
+            this.backDisplaySpreadAngle = backDisplaySpreadAngle;
+            this.orbitStraightness = Mathf.Clamp01(orbitStraightness);
+
             projectilePrefab = sourceNeedleAbility.ProjectilePrefab;
             monsterLayer = sourceNeedleAbility.MonsterLayer;
 
             CacheProjectileVisualInfo();
 
-            transform.position = sourceCharacter.CenterTransform.position;
+            transform.position = GetOrbitCenter();
 
             CreateCursorNeedleVisual();
             CreateBackDisplayRoot();
@@ -133,6 +211,14 @@ namespace Vampire
             }
 
             UpdateBackDisplay(true);
+
+            if (debugOrbitLog)
+            {
+                Debug.Log(
+                    $"[이기어침] 생성 | OrbitSpeed={orbitBaseSpeed}, Straightness={orbitStraightness}, " +
+                    $"OrbitRadius=({orbitHorizontalRadius}, {orbitVerticalRadius})"
+                );
+            }
         }
 
         private void Update()
@@ -143,9 +229,9 @@ namespace Vampire
                 return;
             }
 
-            transform.position = sourceCharacter.CenterTransform.position;
+            transform.position = GetOrbitCenter();
 
-            UpdateCursorNeedleFollow();
+            UpdateOrbitNeedle();
             UpdateCursorNeedleHeavyVisual();
             UpdateBackDisplay(false);
             DetectAndDamageEnemies();
@@ -153,7 +239,12 @@ namespace Vampire
 
         private void CacheProjectileVisualInfo()
         {
-            SpriteRenderer sourceRenderer = FindPreferredProjectileSpriteRenderer();
+            if (projectilePrefab == null)
+            {
+                return;
+            }
+
+            SpriteRenderer sourceRenderer = projectilePrefab.GetComponentInChildren<SpriteRenderer>(true);
 
             if (sourceRenderer != null)
             {
@@ -161,64 +252,16 @@ namespace Vampire
                 projectileSortingLayerId = sourceRenderer.sortingLayerID;
                 projectileSortingOrder = sourceRenderer.sortingOrder;
                 projectileVisualBaseScale = sourceRenderer.transform.localScale;
-                projectileVisualBaseRotation = sourceRenderer.transform.localRotation;
             }
-            else
-            {
-                Debug.LogWarning("[이기어침] 투사체 프리팹에서 SpriteRenderer를 찾지 못했습니다. 이기어침 시각 오브젝트가 보이지 않을 수 있습니다.");
-                projectileVisualBaseScale = Vector3.one;
-                projectileVisualBaseRotation = Quaternion.identity;
-            }
-        }
-
-        private SpriteRenderer FindPreferredProjectileSpriteRenderer()
-        {
-            if (projectilePrefab == null)
-            {
-                return null;
-            }
-
-            SpriteRenderer[] renderers = projectilePrefab.GetComponentsInChildren<SpriteRenderer>(true);
-
-            SpriteRenderer firstEnabledRenderer = null;
-            SpriteRenderer firstRendererWithSprite = null;
-
-            for (int i = 0; i < renderers.Length; i++)
-            {
-                SpriteRenderer renderer = renderers[i];
-
-                if (renderer == null || renderer.sprite == null)
-                {
-                    continue;
-                }
-
-                if (firstRendererWithSprite == null)
-                {
-                    firstRendererWithSprite = renderer;
-                }
-
-                if (renderer.enabled && firstEnabledRenderer == null)
-                {
-                    firstEnabledRenderer = renderer;
-                }
-
-                if (renderer.gameObject.name.IndexOf("Visual", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    renderer.gameObject.name.IndexOf("Needle", System.StringComparison.OrdinalIgnoreCase) >= 0)
-                {
-                    return renderer;
-                }
-            }
-
-            return firstEnabledRenderer != null ? firstEnabledRenderer : firstRendererWithSprite;
         }
 
         private void CreateCursorNeedleVisual()
         {
-            GameObject cursorNeedleObject = new GameObject("Cursor Controlled Needle");
+            GameObject cursorNeedleObject = new GameObject("Cursor Controlled Needle - Orbit");
             cursorNeedleTransform = cursorNeedleObject.transform;
             cursorNeedleTransform.SetParent(transform);
 
-            Vector3 startPosition = GetMouseWorldPositionOrPlayerPosition();
+            Vector3 startPosition = GetOrbitPointWorld(orbitPhase);
             cursorNeedleTransform.position = startPosition;
 
             cursorNeedleRenderer = cursorNeedleObject.AddComponent<SpriteRenderer>();
@@ -228,7 +271,6 @@ namespace Vampire
             cursorNeedleRenderer.color = new Color(1f, 1f, 1f, 0.95f);
 
             cursorNeedleTransform.localScale = projectileVisualBaseScale * visualScale;
-            cursorNeedleTransform.localRotation = projectileVisualBaseRotation;
         }
 
         private void CreateBackDisplayRoot()
@@ -239,27 +281,141 @@ namespace Vampire
             backDisplayRoot.localPosition = backDisplayOffset;
         }
 
-        private void UpdateCursorNeedleFollow()
+        private void UpdateOrbitNeedle()
         {
             if (cursorNeedleTransform == null)
             {
                 return;
             }
 
-            Vector3 targetPosition = GetMouseWorldPositionOrPlayerPosition();
-            Vector3 currentPosition = cursorNeedleTransform.position;
+            float speedMultiplier = GetSpecialSpeedMultiplier();
 
-            float lerpFactor = 1f - Mathf.Exp(-followSpeed * Time.deltaTime);
-            Vector3 nextPosition = Vector3.Lerp(currentPosition, targetPosition, lerpFactor);
-            Vector3 moveDirection = nextPosition - currentPosition;
+            orbitPhase += orbitBaseSpeed * speedMultiplier * Time.deltaTime;
 
-            cursorNeedleTransform.position = nextPosition;
-
-            if (moveDirection.sqrMagnitude > 0.0001f)
+            if (orbitPhase > Mathf.PI * 2f)
             {
-                float angle = Mathf.Atan2(moveDirection.y, moveDirection.x) * Mathf.Rad2Deg;
-                cursorNeedleTransform.rotation = Quaternion.Euler(0f, 0f, angle + visualForwardAngleOffset);
+                orbitPhase -= Mathf.PI * 2f;
             }
+
+            // 침 본체는 무조건 궤도 위를 따라간다.
+            Vector3 orbitPoint = GetOrbitPointWorld(orbitPhase);
+            cursorNeedleTransform.position = orbitPoint;
+
+            // 회전은 궤도 접선 방향을 사용
+            Vector3 tangentDirection = GetOrbitTangentDirectionWorld(orbitPhase);
+            ApplyNeedleRotationByDirection(tangentDirection);
+        }
+
+        private Vector3 GetOrbitCenter()
+        {
+            if (sourceCharacter != null && sourceCharacter.CenterTransform != null)
+            {
+                return sourceCharacter.CenterTransform.position + (Vector3)orbitCenterOffset;
+            }
+
+            if (sourceCharacter != null)
+            {
+                return sourceCharacter.transform.position + (Vector3)orbitCenterOffset;
+            }
+
+            return transform.position;
+        }
+
+        private static float SignedPow(float value, float power)
+        {
+            if (Mathf.Abs(value) <= 0.0001f)
+            {
+                return 0f;
+            }
+
+            return Mathf.Sign(value) * Mathf.Pow(Mathf.Abs(value), power);
+        }
+
+        private Vector3 GetOrbitPointWorld(float phase)
+        {
+            Vector3 center = GetOrbitCenter();
+
+            // 기본 8자 파형
+            float rawX = Mathf.Sin(phase);
+            float rawY = Mathf.Sin(phase * 2f);
+
+            // straightness가 커질수록
+            // X는 더 멀리 곧게 뻗고,
+            // Y는 가운데 교차부가 좁아지고 양 끝에서 더 부드럽게 휘어진다.
+            float xExponent = Mathf.Lerp(1f, 0.42f, orbitStraightness);
+            float yExponent = Mathf.Lerp(1f, 1.9f, orbitStraightness);
+
+            float shapedX = SignedPow(rawX, xExponent);
+            float shapedY = SignedPow(rawY, yExponent);
+
+            float x = shapedX * orbitHorizontalRadius;
+            float y = shapedY * orbitVerticalRadius;
+
+            return center + new Vector3(x, y, 0f);
+        }
+
+        private Vector3 GetOrbitTangentDirectionWorld(float phase)
+        {
+            // shaped path는 해석 미분보다 수치 미분이 더 안전
+            const float delta = 0.01f;
+
+            Vector3 prev = GetOrbitPointWorld(phase - delta);
+            Vector3 next = GetOrbitPointWorld(phase + delta);
+
+            Vector3 tangent = next - prev;
+
+            if (tangent.sqrMagnitude <= 0.0001f)
+            {
+                return Vector3.right;
+            }
+
+            return tangent.normalized;
+        }
+
+        private void ApplyNeedleRotationByDirection(Vector3 direction)
+        {
+            if (cursorNeedleTransform == null)
+            {
+                return;
+            }
+
+            if (direction.sqrMagnitude <= 0.0001f)
+            {
+                return;
+            }
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            cursorNeedleTransform.rotation = Quaternion.Euler(0f, 0f, angle + orbitVisualAngleOffset);
+        }
+
+        private float GetSpecialDamageMultiplier()
+        {
+            if (sourceNeedleAbility == null)
+            {
+                return 1f;
+            }
+
+            int specialCount = sourceNeedleAbility.GetActiveSpecialAugmentCount();
+            int bonusCount = maxSpecialBonusCount > 0
+                ? Mathf.Min(specialCount, maxSpecialBonusCount)
+                : specialCount;
+
+            return 1f + bonusCount * damageBonusPerSpecial;
+        }
+
+        private float GetSpecialSpeedMultiplier()
+        {
+            if (sourceNeedleAbility == null)
+            {
+                return 1f;
+            }
+
+            int specialCount = sourceNeedleAbility.GetActiveSpecialAugmentCount();
+            int bonusCount = maxSpecialBonusCount > 0
+                ? Mathf.Min(specialCount, maxSpecialBonusCount)
+                : specialCount;
+
+            return 1f + bonusCount * speedBonusPerSpecial;
         }
 
         private void UpdateCursorNeedleHeavyVisual()
@@ -270,41 +426,14 @@ namespace Vampire
             }
 
             float heavySizeMultiplier = sourceNeedleAbility.GetCursorNeedleHeavySizeMultiplier();
-
-            cursorNeedleTransform.localScale =
-                projectileVisualBaseScale * visualScale * heavySizeMultiplier;
+            cursorNeedleTransform.localScale = projectileVisualBaseScale * visualScale * heavySizeMultiplier;
 
             if (cursorNeedleRenderer != null)
             {
                 float chargeRatio = sourceNeedleAbility.GetCursorHeavyChargeRatio();
-
                 float brightness = Mathf.Lerp(0.95f, 1.25f, chargeRatio);
                 cursorNeedleRenderer.color = new Color(brightness, brightness, brightness, 0.95f);
             }
-        }
-
-        private Vector3 GetMouseWorldPositionOrPlayerPosition()
-        {
-            if (Mouse.current != null && Camera.main != null && sourceCharacter != null)
-            {
-                Vector3 screenPosition = Mouse.current.position.ReadValue();
-                screenPosition.z = Mathf.Abs(
-                    Camera.main.transform.position.z -
-                    sourceCharacter.CenterTransform.position.z
-                );
-
-                Vector3 worldPosition = Camera.main.ScreenToWorldPoint(screenPosition);
-                worldPosition.z = sourceCharacter.CenterTransform.position.z;
-
-                return worldPosition;
-            }
-
-            if (sourceCharacter != null)
-            {
-                return sourceCharacter.CenterTransform.position;
-            }
-
-            return Vector3.zero;
         }
 
         private void UpdateBackDisplay(bool forceRebuild)
@@ -324,7 +453,6 @@ namespace Vampire
             }
 
             lastDisplayedSpecialCount = specialCount;
-
             RebuildBackDisplay(specialCount);
         }
 
@@ -362,14 +490,18 @@ namespace Vampire
 
                 needleTransform.localPosition = new Vector3(x, y, 0f);
                 needleTransform.localScale = projectileVisualBaseScale * backDisplayScale;
-                needleTransform.localRotation =
-                    Quaternion.Euler(0f, 0f, -90f - normalized * 18f + visualForwardAngleOffset);
+
+                // 핵심 수정:
+                // 표시 침은 비행용 회전 보정값을 쓰지 않고,
+                // 세로로 "서 있는" 부채꼴 전용 각도를 사용한다.
+                float angle = backDisplayBaseAngle - normalized * backDisplaySpreadAngle;
+                needleTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
 
                 SpriteRenderer renderer = needleObject.AddComponent<SpriteRenderer>();
                 renderer.sprite = projectileSprite;
                 renderer.sortingLayerID = projectileSortingLayerId;
                 renderer.sortingOrder = projectileSortingOrder + 8;
-                renderer.color = new Color(1f, 1f, 1f, 0.75f);
+                renderer.color = new Color(1f, 1f, 1f, 0.82f);
 
                 backDisplayNeedles.Add(needleObject);
             }
@@ -386,7 +518,7 @@ namespace Vampire
 
             monster = collider.GetComponentInParent<Monster>();
 
-            if (monster == null)
+            if (monster == null || !monster.gameObject.activeInHierarchy)
             {
                 return false;
             }
@@ -401,21 +533,14 @@ namespace Vampire
             return true;
         }
 
-        private bool IsSameTarget(GameObject originalTarget, Monster monster)
+        private bool CanDamageTarget(int targetId)
         {
-            if (originalTarget == null || monster == null)
-            {
-                return false;
-            }
-
-            if (originalTarget == monster.gameObject)
+            if (!nextDamageAllowedTimeByTarget.TryGetValue(targetId, out float nextAllowedTime))
             {
                 return true;
             }
 
-            Monster originalMonster = originalTarget.GetComponentInParent<Monster>();
-
-            return originalMonster != null && originalMonster == monster;
+            return Time.time >= nextAllowedTime;
         }
 
         private void DetectAndDamageEnemies()
@@ -435,6 +560,12 @@ namespace Vampire
                 effectiveHitRadius += homingHitRadiusBonus;
             }
 
+            // 위치 보정 대신 판정만 소폭 보정
+            if (targetAssistRadius > 0f && targetAssistStrength > 0f)
+            {
+                effectiveHitRadius += targetAssistRadius * targetAssistStrength;
+            }
+
             Collider2D[] hits = Physics2D.OverlapCircleAll(
                 cursorNeedleTransform.position,
                 effectiveHitRadius
@@ -445,9 +576,7 @@ namespace Vampire
                 return;
             }
 
-            int maxTargetsThisTick = CalculateMaxTargetsThisTick(runtime);
             int damagedTargetCount = 0;
-
             HashSet<int> checkedTargetsThisFrame = new HashSet<int>();
 
             foreach (Collider2D hit in hits)
@@ -486,52 +615,11 @@ namespace Vampire
                 nextDamageAllowedTimeByTarget[targetId] = Time.time + damageInterval;
                 damagedTargetCount++;
 
-                if (damagedTargetCount >= maxTargetsThisTick)
+                if (damagedTargetCount >= maxTargetsPerTick)
                 {
                     break;
                 }
             }
-        }
-
-        private int CalculateMaxTargetsThisTick(SyringeSpecialRuntime runtime)
-        {
-            if (sourceNeedleAbility.IsCursorNeedleHeavyPierceUnlimited())
-            {
-                return int.MaxValue;
-            }
-
-            int maxTargets = 1;
-
-            if (runtime.pierceEnabled)
-            {
-                if (runtime.pierceCount >= int.MaxValue / 2)
-                {
-                    return int.MaxValue;
-                }
-
-                maxTargets += Mathf.Max(0, runtime.pierceCount);
-            }
-
-            int heavyPierceBonus = sourceNeedleAbility.GetCursorNeedleHeavyPierceBonus();
-
-            if (heavyPierceBonus >= int.MaxValue / 2)
-            {
-                return int.MaxValue;
-            }
-
-            maxTargets += Mathf.Max(0, heavyPierceBonus);
-
-            return Mathf.Max(1, maxTargets);
-        }
-
-        private bool CanDamageTarget(int targetId)
-        {
-            if (!nextDamageAllowedTimeByTarget.TryGetValue(targetId, out float nextAllowedTime))
-            {
-                return true;
-            }
-
-            return Time.time >= nextAllowedTime;
         }
 
         private void DamageTarget(IDamageable damageable, Component damageableComponent, SyringeSpecialRuntime runtime)
@@ -557,16 +645,17 @@ namespace Vampire
 
             float heavyDamageMultiplier = sourceNeedleAbility.GetCursorNeedleHeavyDamageMultiplier();
             float heavyKnockbackMultiplier = sourceNeedleAbility.GetCursorNeedleHeavyKnockbackMultiplier();
+            float specialDamageMultiplier = GetSpecialDamageMultiplier();
 
             float rawDamage =
                 sourceNeedleAbility.GetEffectiveDamage() *
                 damageMultiplier *
-                heavyDamageMultiplier;
+                heavyDamageMultiplier *
+                specialDamageMultiplier;
 
             float knockback = sourceNeedleAbility.GetEffectiveKnockback() * heavyKnockbackMultiplier;
 
-            PlayerGeneralStatRuntime statRuntime =
-                PlayerGeneralStatRuntime.GetOrCreate(sourceCharacter);
+            PlayerGeneralStatRuntime statRuntime = PlayerGeneralStatRuntime.GetOrCreate(sourceCharacter);
 
             bool isCritical = false;
             float finalDamage = rawDamage;
@@ -590,11 +679,11 @@ namespace Vampire
                 sourceCharacter.OnDealDamage.Invoke(finalDamage);
             }
 
-            if (isCritical)
-            {
-                Debug.Log($"[치명타] 이기어침 치명타 발생 | 피해 {finalDamage:0.##}");
-            }
+            ApplySpecialEffectsAfterHit(damageableComponent, runtime);
+        }
 
+        private void ApplySpecialEffectsAfterHit(Component damageableComponent, SyringeSpecialRuntime runtime)
+        {
             if (runtime.poisonEnabled)
             {
                 ApplyPoison(damageableComponent, runtime);
@@ -618,9 +707,8 @@ namespace Vampire
 
         private void ApplyPoison(Component damageableComponent, SyringeSpecialRuntime runtime)
         {
-            Monster monster =
-                damageableComponent.GetComponent<Monster>() ??
-                damageableComponent.GetComponentInParent<Monster>();
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
 
             if (monster == null)
             {
@@ -643,9 +731,8 @@ namespace Vampire
 
         private void ApplyHoneySlow(Component damageableComponent, SyringeSpecialRuntime runtime)
         {
-            Monster monster =
-                damageableComponent.GetComponent<Monster>() ??
-                damageableComponent.GetComponentInParent<Monster>();
+            Monster monster = damageableComponent.GetComponent<Monster>() ??
+                              damageableComponent.GetComponentInParent<Monster>();
 
             if (monster == null)
             {
@@ -712,7 +799,6 @@ namespace Vampire
             }
 
             string objectName = damageableComponent.gameObject.name;
-
             return objectName.Contains("Boss") || objectName.Contains("보스");
         }
 
@@ -790,11 +876,6 @@ namespace Vampire
                     continue;
                 }
 
-                if (IsSameTarget(originalTarget, monster))
-                {
-                    continue;
-                }
-
                 int splashId = monster.gameObject.GetInstanceID();
 
                 if (damagedIds.Contains(splashId))
@@ -811,7 +892,6 @@ namespace Vampire
                 }
 
                 damagedIds.Add(splashId);
-
                 splashDamageable.TakeDamage(runtime.explosionDamage, Vector2.zero, false);
             }
         }
@@ -830,23 +910,6 @@ namespace Vampire
             {
                 sourceCharacter.OnDeath.RemoveListener(DestroySelf);
             }
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (cursorNeedleTransform == null)
-            {
-                return;
-            }
-
-            float previewRadius = hitRadius;
-
-            if (sourceNeedleAbility != null)
-            {
-                previewRadius *= sourceNeedleAbility.GetCursorNeedleHeavySizeMultiplier();
-            }
-
-            Gizmos.DrawWireSphere(cursorNeedleTransform.position, previewRadius);
         }
     }
 }

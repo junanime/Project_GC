@@ -478,23 +478,66 @@ namespace Vampire
         private OrganCompressionController organCompressionController;
 
         [Header("Legendary - Cursor Controlled Needle / 이기어침")]
-        [Tooltip("마우스 포인트를 따라가는 속도. 높을수록 더 즉각적으로 따라갑니다.")]
-        [SerializeField] private float cursorNeedleFollowSpeed = 8f;
+        [Tooltip("이기어침이 누운 8자 무한궤도를 따라 진행하는 기본 속도입니다. 기존 마우스 추적 속도 대신 궤도 진행 속도로 사용됩니다.")]
+        [SerializeField] private float cursorNeedleFollowSpeed = 2.4f;
+        [Header("Cursor Needle Visual / 이기어침 시각 보정")]
+        [Tooltip("이기어침 본체가 비행할 때 사용하는 스프라이트 방향 보정값입니다.")]
+        [SerializeField] private float cursorNeedleOrbitVisualAngleOffset = 0f;
 
-        [Tooltip("이기어침 피해 판정 반경")]
+        [Tooltip("등 뒤에 표시되는 특수증강 침들의 기본 각도입니다. 90이면 세로로 서는 방향 기준입니다.")]
+        [SerializeField] private float cursorNeedleBackDisplayBaseAngle = 90f;
+
+        [Tooltip("등 뒤 부채꼴 침들의 벌어지는 각도 범위입니다.")]
+        [SerializeField] private float cursorNeedleBackDisplaySpreadAngle = 24f;
+
+        [Header("Cursor Needle Orbit Shape / 이기어침 궤도 형태")]
+        [Tooltip("0이면 기본형, 1에 가까울수록 직선으로 쭉 뻗다가 끝에서 곡선으로 도는 느낌이 강해집니다.")]
+        [SerializeField, Range(0f, 1f)] private float cursorNeedleOrbitStraightness = 0.72f;
+        [Tooltip("이기어침 피해 판정 반경입니다.")]
         [SerializeField] private float cursorNeedleHitRadius = 0.45f;
 
-        [Tooltip("이기어침 피해 배율. 1이면 현재 침 데미지 100%")]
+        [Tooltip("이기어침 기본 피해 배율입니다. 1이면 현재 침 데미지 100%입니다.")]
         [SerializeField] private float cursorNeedleDamageMultiplier = 1f;
 
-        [Tooltip("같은 적에게 다시 피해를 줄 수 있기까지의 시간")]
+        [Tooltip("같은 적에게 다시 피해를 줄 수 있기까지의 시간입니다.")]
         [SerializeField] private float cursorNeedleDamageInterval = 0.25f;
 
-        [Tooltip("마우스를 따라다니는 이기어침 시각 크기")]
+        [Tooltip("이기어침 시각 크기입니다.")]
         [SerializeField] private float cursorNeedleVisualScale = 1.2f;
 
-        [Tooltip("유도침을 보유 중일 때 이기어침의 피해 판정 반경 증가량")]
+        [Tooltip("유도침을 보유 중일 때 이기어침의 피해 판정 반경 증가량입니다.")]
         [SerializeField] private float cursorNeedleHomingHitRadiusBonus = 0.35f;
+
+        [Header("Cursor Needle Orbit / 이기어침 무한궤도")]
+        [Tooltip("플레이어 중심 기준 이기어침 무한궤도 중심 위치입니다. Y를 0.45 정도로 두면 플레이어 살짝 위를 중심으로 돕니다.")]
+        [SerializeField] private Vector2 cursorNeedleOrbitCenterOffset = new Vector2(0f, 0.45f);
+
+        [Tooltip("누운 8자 궤도의 좌우 반경입니다.")]
+        [SerializeField] private float cursorNeedleOrbitHorizontalRadius = 2.2f;
+
+        [Tooltip("누운 8자 궤도의 위아래 반경입니다.")]
+        [SerializeField] private float cursorNeedleOrbitVerticalRadius = 0.9f;
+
+        [Tooltip("궤도점 근처 적을 감지해서 이기어침 위치를 살짝 보정하는 반경입니다.")]
+        [SerializeField] private float cursorNeedleTargetAssistRadius = 0.75f;
+
+        [Tooltip("근처 적을 향해 얼마나 보정할지 정합니다. 0이면 보정 없음, 1이면 적 위치까지 완전히 붙습니다. 0.25~0.4 추천.")]
+        [SerializeField, Range(0f, 1f)] private float cursorNeedleTargetAssistStrength = 0.35f;
+
+        [Tooltip("특수증강 1개당 이기어침 데미지 증가량입니다. 0.08이면 특수증강 1개당 8% 증가입니다.")]
+        [SerializeField] private float cursorNeedleDamageBonusPerSpecial = 0.08f;
+
+        [Tooltip("특수증강 1개당 이기어침 궤도 이동속도 증가량입니다. 0.06이면 특수증강 1개당 6% 증가입니다.")]
+        [SerializeField] private float cursorNeedleSpeedBonusPerSpecial = 0.06f;
+
+        [Tooltip("이기어침 데미지/속도 보너스 계산에 사용할 최대 특수증강 개수입니다. 12면 12개까지만 보너스를 받습니다.")]
+        [SerializeField] private int cursorNeedleMaxSpecialBonusCount = 12;
+
+        [Tooltip("이기어침이 한 프레임/틱에서 동시에 피해를 줄 수 있는 최대 대상 수입니다. 관통 느낌을 유지하되 과도한 다중 타격을 막습니다.")]
+        [SerializeField] private int cursorNeedleMaxTargetsPerTick = 12;
+
+        [Tooltip("체크하면 이기어침 무한궤도 생성 로그를 출력합니다.")]
+        [SerializeField] private bool debugCursorNeedleOrbit = false;
 
         [Header("Cursor Needle Back Display / 이기어침 등 뒤 전시")]
         [Tooltip("플레이어 중심 기준 등 뒤 전시 위치")]
@@ -2096,10 +2139,26 @@ namespace Vampire
                 cursorNeedleBackDisplayOffset,
                 cursorNeedleBackDisplaySpacing,
                 cursorNeedleBackDisplayArcHeight,
-                cursorNeedleBackDisplayScale
+                cursorNeedleBackDisplayScale,
+                cursorNeedleOrbitCenterOffset,
+                cursorNeedleOrbitHorizontalRadius,
+                cursorNeedleOrbitVerticalRadius,
+                cursorNeedleTargetAssistRadius,
+                cursorNeedleTargetAssistStrength,
+                cursorNeedleDamageBonusPerSpecial,
+                cursorNeedleSpeedBonusPerSpecial,
+                cursorNeedleMaxSpecialBonusCount,
+                cursorNeedleMaxTargetsPerTick,
+                debugCursorNeedleOrbit,
+                cursorNeedleOrbitVisualAngleOffset,
+                cursorNeedleBackDisplayBaseAngle,
+                cursorNeedleBackDisplaySpreadAngle,
+                cursorNeedleOrbitStraightness
             );
 
-            Debug.Log("[이기어침] 전설 증강 활성화. 기본 자동 공격을 중지하고, 마우스 포인트를 따라다니는 조종 침을 생성했습니다.");
+            Debug.Log(
+                "[이기어침] 전설 증강 활성화. 기본 자동 공격을 중지하고, 플레이어 위쪽 중심의 늘어진 8자 무한궤도를 도는 침을 생성했습니다."
+            );
         }
 
         public bool HasCursorControlLegendary()

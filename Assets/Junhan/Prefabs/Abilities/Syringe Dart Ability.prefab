@@ -124,7 +124,7 @@ MonoBehaviour:
   organCompressionEnabled: 0
   hedgehogNeedleEnabled: 0
   heavySnipeEnabled: 0
-  cursorControlEnabled: 0
+  cursorControlEnabled: 1
   poisonDuration: 3
   poisonTickInterval: 0.5
   poisonTickDamage: 2
@@ -254,6 +254,16 @@ MonoBehaviour:
   cursorNeedleDamageInterval: 0.25
   cursorNeedleVisualScale: 1.2
   cursorNeedleHomingHitRadiusBonus: 0.35
+  cursorNeedleOrbitCenterOffset: {x: 0, y: 0.45}
+  cursorNeedleOrbitHorizontalRadius: 2.2
+  cursorNeedleOrbitVerticalRadius: 0.9
+  cursorNeedleTargetAssistRadius: 0.75
+  cursorNeedleTargetAssistStrength: 0.35
+  cursorNeedleDamageBonusPerSpecial: 0.08
+  cursorNeedleSpeedBonusPerSpecial: 0.06
+  cursorNeedleMaxSpecialBonusCount: 12
+  cursorNeedleMaxTargetsPerTick: 12
+  debugCursorNeedleOrbit: 0
   cursorNeedleBackDisplayOffset: {x: 0, y: 0.9}
   cursorNeedleBackDisplaySpacing: 0.35
   cursorNeedleBackDisplayArcHeight: 0.25
