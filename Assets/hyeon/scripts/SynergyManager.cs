@@ -19,6 +19,7 @@ namespace Vampire
             get { return activeSynergyNames; }
         }
 
+
         private void Awake()
         {
             Instance = this;
