@@ -819,6 +819,11 @@ namespace Vampire
                 return;
             }
 
+            // 점막 요새 특수증강 컨트롤러.
+            // 같은 namespace Vampire 안에 있으므로 별도 using 없이 바로 찾을 수 있다.
+            MucosalFortressShieldController mucosalFortressShield =
+                GetComponent<MucosalFortressShieldController>();
+
             if (IsDashInvincibilityActive())
             {
                 if (debugDashLog)
@@ -834,6 +839,15 @@ namespace Vampire
                 return;
             }
 
+            // 특수증강: 점막 요새
+            // 실드 스택이 있으면 1개 소모하고 이번 피격 피해를 0으로 막는다.
+            // 기존 hasShield보다 먼저 검사해서 점막 요새 스택이 우선 소모되게 한다.
+            if (mucosalFortressShield != null && mucosalFortressShield.TryConsumeShieldStack())
+            {
+                return;
+            }
+
+            // 기존 실드 기능은 그대로 유지한다.
             if (hasShield)
             {
                 hasShield = false;
@@ -849,8 +863,17 @@ namespace Vampire
                 damage -= armor.Value;
             }
 
+            // 여기까지 왔다는 것은 실제 체력 피해가 발생한다는 뜻이다.
+            // 점막 요새는 "피해를 받지 않은 시간"으로 실드를 충전하므로,
+            // 실제 피해가 들어가기 직전에 타이머를 초기화한다.
+            if (mucosalFortressShield != null)
+            {
+                mucosalFortressShield.NotifyPlayerDamaged();
+            }
+
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
             statsManager.IncreaseDamageTaken(damage);
 

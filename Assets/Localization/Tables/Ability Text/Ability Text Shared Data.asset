@@ -219,6 +219,22 @@ MonoBehaviour:
     m_Key: GutBacteriaNeedle_Description
     m_Metadata:
       m_Items: []
+  - m_Id: 289300808520224768
+    m_Key: SyringeGastricPeristalsisWave_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300810709651456
+    m_Key: SyringeGastricPeristalsisWave_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300820662734848
+    m_Key: SyringeMucosalFortress_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300822550171648
+    m_Key: SyringeMucosalFortress_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

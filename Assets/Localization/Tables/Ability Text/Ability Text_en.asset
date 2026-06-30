@@ -278,6 +278,28 @@ MonoBehaviour:
       killed with enough stacks drop extra experience gems.'
     m_Metadata:
       m_Items: []
+  - m_Id: 289300808520224768
+    m_Localized: 'Gastric Peristalsis Wave
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300810709651456
+    m_Localized: Periodically releases a circular gastric acid wave that damages
+      and knocks back enemies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300820662734848
+    m_Localized: 'Mucosal Fortress
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300822550171648
+    m_Localized: Avoid taking damage to gain up to 3 mucosal shields. Each shield
+      blocks 1 hit.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

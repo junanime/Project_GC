@@ -202,6 +202,54 @@ namespace Vampire
 
         [Tooltip("표식이 있는 적을 다시 맞혔을 때 추가로 더해지는 피해 배율입니다. 0.5이면 현재 피해의 50%가 추가됩니다.")]
         [SerializeField] private float markBonusDamageMultiplier = 0.5f;
+        [Header("Gastric Peristalsis Wave / 위산 연동파")]
+        [Tooltip("위산 연동파 특수증강이 활성화되었는지 여부입니다.")]
+        [SerializeField] private bool gastricPeristalsisWaveEnabled = false;
+
+        [Tooltip("위산 연동파가 자동으로 발사되는 주기입니다.")]
+        [SerializeField] private float gastricWaveInterval = 6f;
+
+        [Tooltip("위산 연동파 피해량입니다. 현재 주사기 최종 피해량에 이 배율을 곱합니다.")]
+        [SerializeField] private float gastricWaveDamageMultiplier = 0.75f;
+
+        [Tooltip("위산 연동파 넉백 힘입니다. 현재 주사기 넉백 값에 이 배율을 곱합니다.")]
+        [SerializeField] private float gastricWaveKnockbackMultiplier = 1.4f;
+
+        [Tooltip("위산 연동파가 퍼져나가는 최대 반경입니다.")]
+        [SerializeField] private float gastricWaveMaxRadius = 5.5f;
+
+        [Tooltip("위산 연동파가 최대 반경까지 퍼지는 데 걸리는 시간입니다.")]
+        [SerializeField] private float gastricWaveDuration = 0.65f;
+
+        [Tooltip("위산 연동파 링의 두께입니다. 두꺼울수록 적중 판정이 쉬워집니다.")]
+        [SerializeField] private float gastricWaveThickness = 0.35f;
+
+        [Tooltip("위산 연동파 시각 효과 색상입니다.")]
+        [SerializeField] private Color gastricWaveColor = new Color(0.55f, 1f, 0.15f, 0.65f);
+
+        [Tooltip("위산 연동파 디버그 로그를 출력할지 여부입니다.")]
+        [SerializeField] private bool debugGastricWave = false;
+
+        private GastricPeristalsisWaveController gastricWaveController;
+
+
+        [Header("Mucosal Fortress / 점막 요새")]
+        [Tooltip("점막 요새 특수증강이 활성화되었는지 여부입니다.")]
+        [SerializeField] private bool mucosalFortressEnabled = false;
+
+        [Tooltip("피해를 받지 않고 이 시간이 지나면 점막 실드가 1개 생성됩니다.")]
+        [SerializeField] private float mucosalFortressNoDamageSeconds = 5f;
+
+        [Tooltip("점막 요새 실드의 최대 중첩 수입니다.")]
+        [SerializeField] private int mucosalFortressMaxStacks = 3;
+
+        [Tooltip("점막 요새 실드 시각 효과 색상입니다.")]
+        [SerializeField] private Color mucosalFortressShieldColor = new Color(0.85f, 1f, 0.75f, 0.6f);
+
+        [Tooltip("점막 요새 디버그 로그를 출력할지 여부입니다.")]
+        [SerializeField] private bool debugMucosalFortress = false;
+
+        private MucosalFortressShieldController mucosalFortressController;
         [Header("Bipolar Needle / 양극침 Settings")]
         [Tooltip("양극침 획득 시 추가되는 발사체 개수입니다. 기본값 1이면 현재 총 침 개수에 +1이 적용됩니다.")]
         [SerializeField] private int bipolarNeedleBonusProjectileCount = 1;
@@ -608,6 +656,11 @@ namespace Vampire
             {
                 EnableOrganCompressionLegendary();
             }
+            if (gastricPeristalsisWaveEnabled)
+                EnableGastricPeristalsisWaveAugment();
+
+            if (mucosalFortressEnabled)
+                EnableMucosalFortressAugment();
         }
 
         protected override void Update()
@@ -1875,7 +1928,101 @@ namespace Vampire
         public void EnableHungerNeedleAugment() => hungerNeedleEnabled = true;
 
         public void EnableGutBacteriaNeedleAugment() => gutBacteriaNeedleEnabled = true;
+        /// <summary>
+        /// 특수증강: 위산 연동파 활성화.
+        /// 기존 주사기 발사체를 수정하지 않고 플레이어에게 전용 컨트롤러를 붙인다.
+        /// </summary>
+        public void EnableGastricPeristalsisWaveAugment()
+        {
+            gastricPeristalsisWaveEnabled = true;
 
+            if (playerCharacter == null)
+            {
+                Debug.LogWarning("[위산 연동파] playerCharacter가 없어 컨트롤러를 생성할 수 없습니다.");
+                return;
+            }
+
+            if (gastricWaveController == null)
+            {
+                gastricWaveController = playerCharacter.GetComponent<GastricPeristalsisWaveController>();
+
+                if (gastricWaveController == null)
+                {
+                    gastricWaveController = playerCharacter.gameObject.AddComponent<GastricPeristalsisWaveController>();
+                }
+            }
+
+            gastricWaveController.Configure(
+                this,
+                playerCharacter,
+                monsterLayer,
+                gastricWaveInterval,
+                gastricWaveMaxRadius,
+                gastricWaveDuration,
+                gastricWaveThickness,
+                gastricWaveColor,
+                debugGastricWave);
+        }
+
+        public bool HasGastricPeristalsisWaveAugment()
+        {
+            return gastricPeristalsisWaveEnabled;
+        }
+
+        /// <summary>
+        /// 위산 연동파가 사용할 최종 피해량.
+        /// 일반 공격력 증가/피해량 강화가 반영되도록 SyringeDartAbility 내부 계산값을 사용한다.
+        /// </summary>
+        public float GetGastricPeristalsisWaveDamage()
+        {
+            return GetEffectiveDamage() * gastricWaveDamageMultiplier;
+        }
+
+        /// <summary>
+        /// 위산 연동파가 사용할 최종 넉백 값.
+        /// 기존 주사기 넉백 강화가 반영되도록 SyringeDartAbility 내부 계산값을 사용한다.
+        /// </summary>
+        public float GetGastricPeristalsisWaveKnockback()
+        {
+            return GetEffectiveKnockback() * gastricWaveKnockbackMultiplier;
+        }
+
+
+        /// <summary>
+        /// 특수증강: 점막 요새 활성화.
+        /// 기존 Character.hasShield와 별도로 최대 3스택 실드를 관리하는 컴포넌트를 붙인다.
+        /// </summary>
+        public void EnableMucosalFortressAugment()
+        {
+            mucosalFortressEnabled = true;
+
+            if (playerCharacter == null)
+            {
+                Debug.LogWarning("[점막 요새] playerCharacter가 없어 컨트롤러를 생성할 수 없습니다.");
+                return;
+            }
+
+            if (mucosalFortressController == null)
+            {
+                mucosalFortressController = playerCharacter.GetComponent<MucosalFortressShieldController>();
+
+                if (mucosalFortressController == null)
+                {
+                    mucosalFortressController = playerCharacter.gameObject.AddComponent<MucosalFortressShieldController>();
+                }
+            }
+
+            mucosalFortressController.Configure(
+                mucosalFortressNoDamageSeconds,
+                mucosalFortressMaxStacks,
+                mucosalFortressShieldColor,
+                debugMucosalFortress);
+        }
+
+        public bool HasMucosalFortressAugment()
+        {
+            return mucosalFortressEnabled;
+        }
         public bool HasDigestiveAcidSacNeedleAugment() => digestiveAcidSacNeedleEnabled;
 
         public bool HasHungerNeedleAugment() => hungerNeedleEnabled;

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3303242751642225015}
   - component: {fileID: -8949006315427880089}
   m_Layer: 9
-  m_Name: AcupunctureFormation 1
+  m_Name: Gastric Peristalsis Wave
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:7293f9ffd63774eb1b5120a3e14cb7f5
     m_TableEntryReference:
-      m_KeyId: 276407202587398144
+      m_KeyId: 289300808520224768
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -58,7 +58,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:7293f9ffd63774eb1b5120a3e14cb7f5
     m_TableEntryReference:
-      m_KeyId: 276407238444503040
+      m_KeyId: 289300810709651456
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -66,7 +66,7 @@ MonoBehaviour:
   rarity: 15
   augmentTier: 1
   canAppearAsOwnedUpgrade: 1
-  augmentType: 7
+  augmentType: 16
   debugLog: 1
   references:
     version: 2
