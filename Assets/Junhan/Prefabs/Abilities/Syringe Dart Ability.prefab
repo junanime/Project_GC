@@ -121,6 +121,8 @@ MonoBehaviour:
   cloneLegendaryTaken: 0
   neuralBlockEnabled: 0
   poisonContagionEnabled: 0
+  gastricPeristalsisWaveEnabled: 0
+  mucosalFortressEnabled: 0
   organCompressionEnabled: 0
   hedgehogNeedleEnabled: 0
   heavySnipeEnabled: 0
@@ -163,7 +165,6 @@ MonoBehaviour:
   pressureMaxDamageBonus: 0.5
   markDuration: 4
   markBonusDamageMultiplier: 0.5
-  gastricPeristalsisWaveEnabled: 1
   gastricWaveInterval: 6
   gastricWaveDamageMultiplier: 0.75
   gastricWaveKnockbackMultiplier: 1.4
@@ -172,7 +173,6 @@ MonoBehaviour:
   gastricWaveThickness: 0.35
   gastricWaveColor: {r: 0.55, g: 1, b: 0.15, a: 0.65}
   debugGastricWave: 1
-  mucosalFortressEnabled: 1
   mucosalFortressNoDamageSeconds: 5
   mucosalFortressMaxStacks: 3
   mucosalFortressShieldColor: {r: 0.85, g: 1, b: 0.75, a: 0.6}

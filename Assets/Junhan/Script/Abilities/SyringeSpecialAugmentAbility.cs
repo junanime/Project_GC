@@ -25,9 +25,8 @@ namespace Vampire
             // 신규 특수증강
             DigestiveAcidSacNeedle,
             HungerNeedle,
-            GutBacteriaNeedle,
-            GastricPeristalsisWave,
-            MucosalFortress
+            GutBacteriaNeedle
+         
         }
 
         [Header("Special Augment")]
@@ -142,14 +141,6 @@ namespace Vampire
                     syringeDartAbility.EnableGutBacteriaNeedleAugment();
                     break;
 
-                case SpecialAugmentType.GastricPeristalsisWave:
-                    syringeDartAbility.EnableGastricPeristalsisWaveAugment();
-                    break;
-
-                case SpecialAugmentType.MucosalFortress:
-                    syringeDartAbility.EnableMucosalFortressAugment();
-                    break;
-
             }
 
             if (debugLog)
@@ -223,11 +214,6 @@ namespace Vampire
 
                 case SpecialAugmentType.GutBacteriaNeedle:
                     return !syringeDartAbility.HasGutBacteriaNeedleAugment() && base.RequirementsMet();
-                case SpecialAugmentType.GastricPeristalsisWave:
-                    return !syringeDartAbility.HasGastricPeristalsisWaveAugment() && base.RequirementsMet();
-
-                case SpecialAugmentType.MucosalFortress:
-                    return !syringeDartAbility.HasMucosalFortressAugment() && base.RequirementsMet();
                 default:
                     return false;
             }

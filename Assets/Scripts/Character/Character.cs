@@ -819,8 +819,8 @@ namespace Vampire
                 return;
             }
 
-            // 점막 요새 특수증강 컨트롤러.
-            // 같은 namespace Vampire 안에 있으므로 별도 using 없이 바로 찾을 수 있다.
+            // 전설증강: 점막 요새 컨트롤러.
+            // Character와 같은 namespace Vampire 안에 있으므로 별도 using 없이 접근 가능하다.
             MucosalFortressShieldController mucosalFortressShield =
                 GetComponent<MucosalFortressShieldController>();
 
@@ -839,9 +839,9 @@ namespace Vampire
                 return;
             }
 
-            // 특수증강: 점막 요새
-            // 실드 스택이 있으면 1개 소모하고 이번 피격 피해를 0으로 막는다.
-            // 기존 hasShield보다 먼저 검사해서 점막 요새 스택이 우선 소모되게 한다.
+            // 전설증강: 점막 요새
+            // 실드 스택이 있으면 1개 소모하고 이번 피격 피해를 완전히 막는다.
+            // 대쉬 무적/일반 무적보다 뒤, 기존 hasShield보다 앞에서 처리한다.
             if (mucosalFortressShield != null && mucosalFortressShield.TryConsumeShieldStack())
             {
                 return;
@@ -864,7 +864,7 @@ namespace Vampire
             }
 
             // 여기까지 왔다는 것은 실제 체력 피해가 발생한다는 뜻이다.
-            // 점막 요새는 "피해를 받지 않은 시간"으로 실드를 충전하므로,
+            // 점막 요새는 "피해를 받지 않은 시간"을 기준으로 실드를 충전하므로,
             // 실제 피해가 들어가기 직전에 타이머를 초기화한다.
             if (mucosalFortressShield != null)
             {

@@ -81,7 +81,11 @@ namespace Vampire
 
         [Tooltip("독 전염 전설증강 활성화 여부입니다. 독에 걸린 적 처치 시 주변 적에게 독을 전염시킵니다.")]
         [SerializeField] private bool poisonContagionEnabled = false;
+        [Tooltip("위산 연동파 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 원형 위산 파동 컨트롤러가 자동 생성됩니다.")]
+        [SerializeField] private bool gastricPeristalsisWaveEnabled = false;
 
+        [Tooltip("점막 요새 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 점막 실드 컨트롤러가 자동 생성됩니다.")]
+        [SerializeField] private bool mucosalFortressEnabled = false;
         [Tooltip("장기압착 전설증강 활성화 여부입니다. 일정 주기로 적 밀집 구역에 압착장을 생성합니다.")]
         [SerializeField] private bool organCompressionEnabled = false;
         [Tooltip("고슴도침 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 침 결계 컨트롤러까지 자동 생성됩니다.")]
@@ -202,10 +206,8 @@ namespace Vampire
 
         [Tooltip("표식이 있는 적을 다시 맞혔을 때 추가로 더해지는 피해 배율입니다. 0.5이면 현재 피해의 50%가 추가됩니다.")]
         [SerializeField] private float markBonusDamageMultiplier = 0.5f;
-        [Header("Gastric Peristalsis Wave / 위산 연동파")]
-        [Tooltip("위산 연동파 특수증강이 활성화되었는지 여부입니다.")]
-        [SerializeField] private bool gastricPeristalsisWaveEnabled = false;
 
+        [Header("Gastric Peristalsis Wave / 위산 연동파")]
         [Tooltip("위산 연동파가 자동으로 발사되는 주기입니다.")]
         [SerializeField] private float gastricWaveInterval = 6f;
 
@@ -231,12 +233,9 @@ namespace Vampire
         [SerializeField] private bool debugGastricWave = false;
 
         private GastricPeristalsisWaveController gastricWaveController;
-
+        private bool gastricWaveRuntimeConfigured = false;
 
         [Header("Mucosal Fortress / 점막 요새")]
-        [Tooltip("점막 요새 특수증강이 활성화되었는지 여부입니다.")]
-        [SerializeField] private bool mucosalFortressEnabled = false;
-
         [Tooltip("피해를 받지 않고 이 시간이 지나면 점막 실드가 1개 생성됩니다.")]
         [SerializeField] private float mucosalFortressNoDamageSeconds = 5f;
 
@@ -250,6 +249,7 @@ namespace Vampire
         [SerializeField] private bool debugMucosalFortress = false;
 
         private MucosalFortressShieldController mucosalFortressController;
+        private bool mucosalFortressRuntimeConfigured = false;
         [Header("Bipolar Needle / 양극침 Settings")]
         [Tooltip("양극침 획득 시 추가되는 발사체 개수입니다. 기본값 1이면 현재 총 침 개수에 +1이 적용됩니다.")]
         [SerializeField] private int bipolarNeedleBonusProjectileCount = 1;
@@ -656,11 +656,19 @@ namespace Vampire
             {
                 EnableOrganCompressionLegendary();
             }
+            // 위산 연동파는 전설증강으로 등장하지만,
+            // SyringeDartAbility 내부 실제 활성화 메서드는 현재 Augment 이름을 유지한다.
             if (gastricPeristalsisWaveEnabled)
+            {
                 EnableGastricPeristalsisWaveAugment();
+            }
 
+            // 점막 요새도 전설증강으로 등장하지만,
+            // 실제 기능 활성화는 기존 Augment 메서드로 연결한다.
             if (mucosalFortressEnabled)
+            {
                 EnableMucosalFortressAugment();
+            }
         }
 
         protected override void Update()
@@ -1932,9 +1940,21 @@ namespace Vampire
         /// 특수증강: 위산 연동파 활성화.
         /// 기존 주사기 발사체를 수정하지 않고 플레이어에게 전용 컨트롤러를 붙인다.
         /// </summary>
+        /// <summary>
+        /// 전설증강: 위산 연동파 활성화.
+        /// 전설증강으로 등장하지만, 기존 작업에서 만든 Augment 메서드명을 유지해
+        /// SyringeLegendaryAugmentAbility와 인스펙터 강제 활성화 양쪽에서 안전하게 호출할 수 있게 한다.
+        /// </summary>
         public void EnableGastricPeristalsisWaveAugment()
         {
             gastricPeristalsisWaveEnabled = true;
+
+            // Update()에서 ApplyInspectorForcedAugmentRuntimeSetup()이 반복 호출되므로
+            // 이미 컨트롤러가 설정된 상태라면 Configure를 다시 호출하지 않는다.
+            if (gastricWaveRuntimeConfigured && gastricWaveController != null)
+            {
+                return;
+            }
 
             if (playerCharacter == null)
             {
@@ -1962,11 +1982,28 @@ namespace Vampire
                 gastricWaveThickness,
                 gastricWaveColor,
                 debugGastricWave);
+
+            gastricWaveRuntimeConfigured = true;
         }
 
         public bool HasGastricPeristalsisWaveAugment()
         {
             return gastricPeristalsisWaveEnabled;
+        }
+
+        /// <summary>
+        /// 호환용 래퍼.
+        /// 혹시 다른 파일이나 이전 수정본에서 Legendary 이름으로 호출하더라도 컴파일 오류가 나지 않게 한다.
+        /// 실제 동작은 기존 Augment 메서드로 위임한다.
+        /// </summary>
+        public void EnableGastricPeristalsisWaveLegendary()
+        {
+            EnableGastricPeristalsisWaveAugment();
+        }
+
+        public bool HasGastricPeristalsisWaveLegendary()
+        {
+            return HasGastricPeristalsisWaveAugment();
         }
 
         /// <summary>
@@ -1987,14 +2024,21 @@ namespace Vampire
             return GetEffectiveKnockback() * gastricWaveKnockbackMultiplier;
         }
 
-
         /// <summary>
-        /// 특수증강: 점막 요새 활성화.
-        /// 기존 Character.hasShield와 별도로 최대 3스택 실드를 관리하는 컴포넌트를 붙인다.
+        /// 전설증강: 점막 요새 활성화.
+        /// 전설증강으로 등장하지만, 기존 작업에서 만든 Augment 메서드명을 유지한다.
+        /// Configure가 반복 호출되면 무피해 시간이 계속 초기화되므로 반드시 1회만 설정한다.
         /// </summary>
         public void EnableMucosalFortressAugment()
         {
             mucosalFortressEnabled = true;
+
+            // 점막 요새가 발동하지 않던 핵심 원인 방지:
+            // Configure()가 매 프레임 호출되면 lastDamageOrShieldConsumeTime이 계속 Time.time으로 초기화된다.
+            if (mucosalFortressRuntimeConfigured && mucosalFortressController != null)
+            {
+                return;
+            }
 
             if (playerCharacter == null)
             {
@@ -2017,11 +2061,28 @@ namespace Vampire
                 mucosalFortressMaxStacks,
                 mucosalFortressShieldColor,
                 debugMucosalFortress);
+
+            mucosalFortressRuntimeConfigured = true;
         }
 
         public bool HasMucosalFortressAugment()
         {
             return mucosalFortressEnabled;
+        }
+
+        /// <summary>
+        /// 호환용 래퍼.
+        /// 혹시 다른 파일이나 이전 수정본에서 Legendary 이름으로 호출하더라도 컴파일 오류가 나지 않게 한다.
+        /// 실제 동작은 기존 Augment 메서드로 위임한다.
+        /// </summary>
+        public void EnableMucosalFortressLegendary()
+        {
+            EnableMucosalFortressAugment();
+        }
+
+        public bool HasMucosalFortressLegendary()
+        {
+            return HasMucosalFortressAugment();
         }
         public bool HasDigestiveAcidSacNeedleAugment() => digestiveAcidSacNeedleEnabled;
 

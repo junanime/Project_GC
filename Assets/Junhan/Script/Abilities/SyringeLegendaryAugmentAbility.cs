@@ -26,7 +26,15 @@ namespace Vampire
             PoisonContagion,
 
             // 전설 증강: 장기압착
-            OrganCompression
+            OrganCompression,
+
+            // 전설 증강: 위산 연동파
+            // SyringeDartAbility 쪽 실제 메서드는 현재 EnableGastricPeristalsisWaveAugment() 이름으로 존재한다.
+            GastricPeristalsisWave,
+
+            // 전설 증강: 점막 요새
+            // SyringeDartAbility 쪽 실제 메서드는 현재 EnableMucosalFortressAugment() 이름으로 존재한다.
+            MucosalFortress
         }
 
         [Header("Legendary Augment")]
@@ -38,7 +46,6 @@ namespace Vampire
         [SerializeField] private bool debugLog = false;
 
         private SyringeDartAbility syringeDartAbility;
-
         private CharacterBlueprint originalBlueprintAsset;
         private CharacterBlueprint runtimeClonedBlueprint;
 
@@ -58,8 +65,7 @@ namespace Vampire
                 Debug.LogError(
                     "[SyringeLegendaryAugmentAbility] SyringeDartAbility를 찾지 못했습니다.\n" +
                     "AbilityManager 아래에 실제 시작 침 능력이 있는지 확인하세요.",
-                    this
-                );
+                    this);
             }
 
             if (playerCharacter != null)
@@ -78,8 +84,7 @@ namespace Vampire
             {
                 Debug.LogError(
                     $"[SyringeLegendaryAugmentAbility] {augmentType} 적용 실패: SyringeDartAbility가 없습니다.",
-                    this
-                );
+                    this);
                 return;
             }
 
@@ -116,6 +121,18 @@ namespace Vampire
                 case LegendaryAugmentType.OrganCompression:
                     syringeDartAbility.EnableOrganCompressionLegendary();
                     break;
+
+                case LegendaryAugmentType.GastricPeristalsisWave:
+                    // 현재 SyringeDartAbility에는 Legendary 이름 메서드가 아니라 Augment 이름 메서드가 존재한다.
+                    // 전설증강 카드에서 선택되지만, 실제 런타임 활성화는 기존 메서드로 연결한다.
+                    syringeDartAbility.EnableGastricPeristalsisWaveAugment();
+                    break;
+
+                case LegendaryAugmentType.MucosalFortress:
+                    // 현재 SyringeDartAbility에는 Legendary 이름 메서드가 아니라 Augment 이름 메서드가 존재한다.
+                    // 전설증강 카드에서 선택되지만, 실제 런타임 활성화는 기존 메서드로 연결한다.
+                    syringeDartAbility.EnableMucosalFortressAugment();
+                    break;
             }
 
             if (debugLog)
@@ -123,8 +140,7 @@ namespace Vampire
                 Debug.Log(
                     $"[SyringeLegendaryAugmentAbility] 전설증강 적용 완료 | " +
                     $"Type={augmentType} | Target={syringeDartAbility.name}",
-                    syringeDartAbility
-                );
+                    syringeDartAbility);
             }
         }
 
@@ -138,8 +154,7 @@ namespace Vampire
                 {
                     Debug.LogWarning(
                         $"[SyringeLegendaryAugmentAbility] {augmentType} 등장 불가: SyringeDartAbility 참조 없음",
-                        this
-                    );
+                        this);
                 }
 
                 return false;
@@ -185,6 +200,18 @@ namespace Vampire
                     result = !syringeDartAbility.HasOrganCompressionLegendary() && baseRequirement;
                     break;
 
+                case LegendaryAugmentType.GastricPeristalsisWave:
+                    // 현재 SyringeDartAbility에는 HasGastricPeristalsisWaveLegendary()가 없다.
+                    // 그래서 기존에 존재하는 HasGastricPeristalsisWaveAugment()를 사용한다.
+                    result = !syringeDartAbility.HasGastricPeristalsisWaveAugment() && baseRequirement;
+                    break;
+
+                case LegendaryAugmentType.MucosalFortress:
+                    // 현재 SyringeDartAbility에는 HasMucosalFortressLegendary()가 없다.
+                    // 그래서 기존에 존재하는 HasMucosalFortressAugment()를 사용한다.
+                    result = !syringeDartAbility.HasMucosalFortressAugment() && baseRequirement;
+                    break;
+
                 default:
                     result = false;
                     break;
@@ -196,8 +223,7 @@ namespace Vampire
                     $"[SyringeLegendaryAugmentAbility] 등장 조건 검사 | " +
                     $"Type={augmentType} | Result={result} | Base={baseRequirement} | " +
                     $"Syringe={syringeDartAbility.name}",
-                    this
-                );
+                    this);
             }
 
             return result;
@@ -252,8 +278,7 @@ namespace Vampire
             {
                 Debug.LogWarning(
                     "[SyringeLegendaryAugmentAbility] 분신배양 생성 실패: playerCharacter 또는 entityManager가 없습니다.",
-                    this
-                );
+                    this);
                 return;
             }
 
@@ -281,8 +306,7 @@ namespace Vampire
             {
                 Debug.LogWarning(
                     "[SyringeLegendaryAugmentAbility] 원본 CharacterBlueprint를 찾지 못했습니다.",
-                    this
-                );
+                    this);
                 return;
             }
 
@@ -291,15 +315,13 @@ namespace Vampire
 
             FieldInfo blueprintField = typeof(Character).GetField(
                 "characterBlueprint",
-                BindingFlags.Instance | BindingFlags.NonPublic
-            );
+                BindingFlags.Instance | BindingFlags.NonPublic);
 
             if (blueprintField == null)
             {
                 Debug.LogWarning(
                     "[SyringeLegendaryAugmentAbility] Character의 characterBlueprint 필드를 찾지 못했습니다.",
-                    this
-                );
+                    this);
                 return;
             }
 
@@ -315,8 +337,7 @@ namespace Vampire
 
             FieldInfo currentHealthField = typeof(Character).GetField(
                 "currentHealth",
-                BindingFlags.Instance | BindingFlags.NonPublic
-            );
+                BindingFlags.Instance | BindingFlags.NonPublic);
 
             if (currentHealthField != null)
             {
@@ -333,8 +354,7 @@ namespace Vampire
 
             FieldInfo healthBarField = typeof(Character).GetField(
                 "healthBar",
-                BindingFlags.Instance | BindingFlags.NonPublic
-            );
+                BindingFlags.Instance | BindingFlags.NonPublic);
 
             if (healthBarField == null)
             {
@@ -353,8 +373,7 @@ namespace Vampire
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
                 null,
                 new System.Type[] { typeof(float), typeof(float), typeof(float) },
-                null
-            );
+                null);
 
             if (setupMethod != null)
             {
