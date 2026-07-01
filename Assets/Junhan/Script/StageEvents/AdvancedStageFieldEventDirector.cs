@@ -242,19 +242,25 @@ namespace Vampire
 
         [Header("3. Coffee Transfusion Events / 커피수혈 타임")]
         [SerializeField] private List<CoffeeTransfusionEvent> coffeeTransfusionEvents = new List<CoffeeTransfusionEvent>();
-        [Header("Visual Sorting")]
-        [Tooltip("체크하면 산성 파도/커피 파도 시각 오브젝트의 Sorting Layer와 Order를 코드에서 강제로 적용합니다.")]
-        [SerializeField] private bool forceEventVisualSorting = true;
-
-        [Tooltip("산성 파도/커피 파도에 적용할 Sorting Layer 이름입니다. 현재 프로젝트에는 Background, Default, Foreground, Monster Full이 있습니다.")]
-        [SerializeField] private string eventVisualSortingLayerName = "Foreground";
-
-        [Tooltip("산성 파도/커피 파도의 Order in Layer입니다. 값이 클수록 앞에 보입니다.")]
-        [SerializeField] private int eventVisualSortingOrder = 500;
 
         [Header("Preparation Debug")]
         [Tooltip("플레이 시작 시 고급 필드 이벤트들의 등록 개수와 실제 시작 시간을 로그로 출력합니다.")]
         [SerializeField] private bool logPreparedEvents = true;
+        [Header("Visual Sorting")]
+        [Tooltip("체크하면 산성 파도/커피 파도 시각 오브젝트의 Sorting Layer와 Order in Layer를 코드에서 강제로 적용합니다.")]
+        [SerializeField] private bool forceEventVisualSorting = true;
+
+        [Tooltip("산성 파도/커피 파도에 적용할 Sorting Layer 이름입니다. 먼저 Default로 테스트하고, 안 보이면 Monster Full로 바꿔보세요.")]
+        [SerializeField] private string eventVisualSortingLayerName = "Default";
+
+        [Tooltip("산성 파도/커피 파도의 Order in Layer입니다. 값이 클수록 앞에 보입니다.")]
+        [SerializeField] private int eventVisualSortingOrder = 5000;
+
+        [Tooltip("파도 시각 오브젝트가 너무 투명하게 설정됐을 때 테스트용으로 최소 알파값을 보정합니다.")]
+        [SerializeField] private float eventVisualMinimumAlpha = 0.45f;
+
+        [Tooltip("파도 시각 오브젝트 생성 정보를 콘솔에 출력합니다.")]
+        [SerializeField] private bool logWaveVisualCreation = true;
         [Header("Debug")]
         [Tooltip("이벤트 시작/종료 로그를 출력합니다.")]
         [SerializeField] private bool logEventState = true;
@@ -694,7 +700,7 @@ namespace Vampire
             }
 
             Vector2 direction = GetCurrentDriftDirection(driftEvent);
-            float sign = direction.x < 0f ? 1f : -1f;
+            float sign = direction.x < 0f ? -1f : 1f;
 
             // 기존 카메라 회전을 덮어쓰지 않고, 원래 회전값에 기울기만 더한다.
             Quaternion targetRotation =
@@ -972,11 +978,21 @@ namespace Vampire
             }
 
             obj.transform.position = position;
+            obj.transform.localRotation = Quaternion.identity;
             obj.transform.localScale = new Vector3(size.x, size.y, 1f);
 
             SpriteRenderer spriteRenderer = obj.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = CreateWhiteSprite();
-            spriteRenderer.color = color;
+
+            Color visibleColor = color;
+
+            // 인스펙터에서 알파가 낮게 들어가 있어도 테스트 단계에서는 확실히 보이게 최소 알파를 보정한다.
+            if (visibleColor.a < eventVisualMinimumAlpha)
+            {
+                visibleColor.a = eventVisualMinimumAlpha;
+            }
+
+            spriteRenderer.color = visibleColor;
 
             if (forceEventVisualSorting)
             {
@@ -988,15 +1004,13 @@ namespace Vampire
                 spriteRenderer.sortingOrder = eventVisualSortingOrder;
             }
 
-            // 혹시 인스펙터 색상의 알파값이 너무 낮게 들어가도 테스트 시 보이도록 최소 알파를 보정한다.
-            Color visibleColor = color;
+            // URP/2D 환경에서 기본 SpriteRenderer가 확실히 보이도록 명시적으로 Sprites/Default 재질을 넣는다.
+            Shader spriteShader = Shader.Find("Sprites/Default");
 
-            if (visibleColor.a < 0.15f)
+            if (spriteShader != null)
             {
-                visibleColor.a = 0.35f;
+                spriteRenderer.material = new Material(spriteShader);
             }
-
-            spriteRenderer.color = visibleColor;
 
             BoxCollider2D collider = obj.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
@@ -1004,10 +1018,15 @@ namespace Vampire
 
             obj.AddComponent<StageEventMovingWaveZone>();
 
-            Debug.Log(
-                $"[AdvancedStageEvent Visual] Create {objectName} | " +
-                $"pos={position} | scale={obj.transform.localScale} | " +
-                $"color={spriteRenderer.color} | sorting={spriteRenderer.sortingLayerName}/{spriteRenderer.sortingOrder}");
+            if (logWaveVisualCreation)
+            {
+                Debug.Log(
+                    $"[AdvancedStageEvent Visual] Create {objectName} | " +
+                    $"pos={position} | scale={obj.transform.localScale} | " +
+                    $"color={spriteRenderer.color} | " +
+                    $"sorting={spriteRenderer.sortingLayerName}/{spriteRenderer.sortingOrder} | " +
+                    $"parent={(runtimeVisualRoot != null ? runtimeVisualRoot.name : "None")}");
+            }
 
             return obj;
         }
