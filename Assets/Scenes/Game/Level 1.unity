@@ -21147,6 +21147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1347853661}
   - component: {fileID: 1347853662}
+  - component: {fileID: 1347853663}
   m_Layer: 0
   m_Name: StageEventDirector
   m_TagString: Untagged
@@ -21258,9 +21259,86 @@ MonoBehaviour:
     activePuddles: []
   logEventState: 0
   logMonsterIndexTableOnStart: 0
-  logExtraSpawn: 1
-  logGoldRushModifier: 1
-  logAcidEvent: 1
+  logExtraSpawn: 0
+  logGoldRushModifier: 0
+  logAcidEvent: 0
+--- !u!114 &1347853663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347853660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4021ed2a372d0b6439c57e2a19f4cb75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelManager: {fileID: 0}
+  eventToastUI: {fileID: 0}
+  runtimeVisualRoot: {fileID: 0}
+  eventStartMessageFormat: "{0} \uC774\uBCA4\uD2B8\uAC00 \uC2DC\uC791\uB410\uC2B5\uB2C8\uB2E4!"
+  acidRefluxWaveEvents:
+  - eventName: "\uC0B0\uC131\uC5ED\uB958\uD30C\uB3C4"
+    enabled: 1
+    startTime: 100
+    useRandomStartTime: 0
+    startTimeRanges: []
+    waveCount: 4
+    intervalBetweenWaves: 1.2
+    warningDuration: 1
+    travelDuration: 1.4
+    waveHeight: 2
+    screenPadding: 2
+    damage: 8
+    damageCooldownPerTarget: 0.6
+    knockbackPower: 3.5
+    waveColor: {r: 0.125, g: 0.5, b: 0.21010193, a: 0}
+    warningColor: {r: 0.8301887, g: 0.2232111, b: 0.2232111, a: 0}
+    started: 0
+    finished: 0
+    resolvedStartTime: 0
+  peristalsisDriftEvents:
+  - eventName: "\uC5F0\uB3D9\uC6B4\uB3D9\uAE30\uB958"
+    enabled: 0
+    startTime: 10
+    duration: 14
+    useRandomStartTime: 0
+    startTimeRanges: []
+    directionSwitchInterval: 4
+    playerDriftForce: 7
+    monsterDriftForce: 5
+    maxAddedVelocity: 4
+    enableCameraTilt: 1
+    cameraTiltAngle: 7
+    cameraTiltLerpSpeed: 5
+    started: 0
+    finished: 0
+    resolvedStartTime: 0
+    elapsed: 0
+  coffeeTransfusionEvents:
+  - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
+    enabled: 1
+    startTime: 50
+    duration: 18
+    useRandomStartTime: 0
+    startTimeRanges: []
+    warningDuration: 0.6
+    travelDuration: 1.6
+    waveHeight: 7
+    screenPadding: 2
+    monsterExtraMoveForce: 2.5
+    monsterMaxAddedVelocity: 2
+    coffeeOverlayColor: {r: 0.31132078, g: 0.14468461, b: 0.1013261, a: 0}
+    monsterScanInterval: 0.5
+    coffeeWaveColor: {r: 0.3962264, g: 0.117746525, b: 0.117746525, a: 0}
+    warningColor: {r: 0.7075472, g: 0.103462085, b: 0.103462085, a: 0}
+    started: 0
+    finished: 0
+    resolvedStartTime: 0
+    monsterScanTimer: 0
+  logEventState: 1
+  logDriftDetail: 0
 --- !u!1 &1348383117
 GameObject:
   m_ObjectHideFlags: 0
@@ -39661,7 +39739,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1421529453}
   - {fileID: 1207884298}
-  - {fileID: 377995996}
-  - {fileID: 1485676086}
-  - {fileID: 958006997}
   - {fileID: 752185789}
