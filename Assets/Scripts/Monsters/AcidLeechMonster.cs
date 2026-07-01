@@ -17,6 +17,7 @@ namespace Vampire
     /// 주의:
     /// - 기존 Monster.moveSpeed와 이름이 겹치지 않도록 전용 이동속도는 leechMoveSpeed를 사용한다.
     /// - DigestiveEnzymeDifficultyManager의 외부 난이도 상승 메서드가 아직 없어도 컴파일되도록 Reflection으로 처리한다.
+    /// - 흡혈 중에는 Rigidbody2D 위치 제약을 걸어 다른 몬스터에게 밀리지 않게 한다.
     /// - 플레이어를 직접 공격하지 않도록 기본 접촉 공격 처리는 사용하지 않는다.
     /// </summary>
     public class AcidLeechMonster : Monster
@@ -100,6 +101,13 @@ namespace Vampire
         [Tooltip("넉백을 받을지 여부입니다. 추격해서 잡는 재미를 위해 true를 추천합니다.")]
         [SerializeField] private bool allowKnockback = true;
 
+        [Header("Acid Leech - Feeding Lock")]
+        [Tooltip("흡혈 페이즈 중 Rigidbody2D의 X/Y 이동을 고정해서 다른 몬스터에게 밀리지 않게 합니다.")]
+        [SerializeField] private bool lockPositionWhileFeeding = true;
+
+        [Tooltip("흡혈 페이즈 중 플레이어 공격 넉백도 무시할지 여부입니다. true면 흡혈 중에는 완전히 고정됩니다.")]
+        [SerializeField] private bool ignoreKnockbackWhileFeeding = true;
+
         [Header("Debug")]
         [Tooltip("위산 거머리 상태 전환, 난이도 상승, 실버 지급 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = true;
@@ -118,6 +126,10 @@ namespace Vampire
 
         private bool silverRewardPaid;
 
+        private Vector2 feedingAnchorPosition;
+        private RigidbodyConstraints2D cachedMovementConstraints;
+        private bool hasCachedMovementConstraints;
+
         private static Sprite whiteSprite;
 
         protected override void Awake()
@@ -128,6 +140,7 @@ namespace Vampire
             {
                 rb.gravityScale = 0f;
                 rb.freezeRotation = true;
+                CacheMovementPhysicsSettings();
             }
         }
 
@@ -155,6 +168,9 @@ namespace Vampire
                 rb.angularVelocity = 0f;
                 rb.gravityScale = 0f;
                 rb.freezeRotation = true;
+
+                CacheMovementPhysicsSettings();
+                RestoreMovementPhysicsSettings();
             }
 
             StopRuntimeCoroutines();
@@ -183,6 +199,7 @@ namespace Vampire
         /// <summary>
         /// 부모 Monster.FixedUpdate는 플레이어 추적 이동을 수행할 수 있으므로 호출하지 않는다.
         /// 위산 거머리는 이동 페이즈에서만 자체 곡선 이동을 수행한다.
+        /// 흡혈 페이즈에서는 위치를 강제로 고정해서 다른 몬스터에게 밀리지 않게 한다.
         /// </summary>
         protected override void FixedUpdate()
         {
@@ -191,9 +208,16 @@ namespace Vampire
                 return;
             }
 
+            if (currentState == LeechState.Feeding)
+            {
+                MaintainFeedingAnchorPosition();
+                return;
+            }
+
             if (currentState != LeechState.Moving)
             {
                 rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
                 return;
             }
 
@@ -208,6 +232,8 @@ namespace Vampire
             }
 
             currentState = LeechState.Moving;
+            RestoreMovementPhysicsSettings();
+
             moveElapsed = 0f;
             nextBloodTrailTime = 0f;
 
@@ -243,11 +269,7 @@ namespace Vampire
             }
 
             currentState = LeechState.Feeding;
-
-            if (rb != null)
-            {
-                rb.velocity = Vector2.zero;
-            }
+            LockFeedingPhysics();
 
             PlayLoopAnimation(feedingSprites);
 
@@ -492,6 +514,11 @@ namespace Vampire
                 return;
             }
 
+            if (currentState == LeechState.Feeding && ignoreKnockbackWhileFeeding)
+            {
+                return;
+            }
+
             rb.velocity += knockback;
         }
 
@@ -526,6 +553,7 @@ namespace Vampire
             }
 
             currentState = LeechState.Dead;
+            RestoreMovementPhysicsSettings();
             StopRuntimeCoroutines();
 
             if (killedByPlayer && !silverRewardPaid)
@@ -550,6 +578,97 @@ namespace Vampire
             }
 
             yield return base.Killed(killedByPlayer);
+        }
+
+        /// <summary>
+        /// 이동 상태에서 사용할 Rigidbody2D 제약값을 저장합니다.
+        /// 흡혈 중에는 위치를 고정했다가, 이동 페이즈로 돌아갈 때 이 값으로 복구합니다.
+        /// </summary>
+        private void CacheMovementPhysicsSettings()
+        {
+            if (rb == null || hasCachedMovementConstraints)
+            {
+                return;
+            }
+
+            cachedMovementConstraints = rb.constraints;
+
+            // 위산 거머리는 회전할 필요가 없으므로 이동 상태에서도 회전은 고정합니다.
+            cachedMovementConstraints |= RigidbodyConstraints2D.FreezeRotation;
+
+            hasCachedMovementConstraints = true;
+        }
+
+        /// <summary>
+        /// 흡혈 상태 진입 시 현재 위치를 저장하고 X/Y 이동을 고정합니다.
+        /// 이렇게 해야 다른 몬스터들이 비벼도 물리 충돌로 밀리지 않습니다.
+        /// </summary>
+        private void LockFeedingPhysics()
+        {
+            if (rb == null)
+            {
+                feedingAnchorPosition = transform.position;
+                return;
+            }
+
+            CacheMovementPhysicsSettings();
+
+            feedingAnchorPosition = rb.position;
+
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+
+            if (lockPositionWhileFeeding)
+            {
+                rb.constraints =
+                    cachedMovementConstraints |
+                    RigidbodyConstraints2D.FreezePositionX |
+                    RigidbodyConstraints2D.FreezePositionY |
+                    RigidbodyConstraints2D.FreezeRotation;
+            }
+        }
+
+        /// <summary>
+        /// 흡혈 중 저장한 위치로 계속 되돌려 고정합니다.
+        /// Rigidbody 제약만으로도 대부분 고정되지만, 충돌 보정으로 미세하게 흔들리는 경우까지 막기 위한 안전장치입니다.
+        /// </summary>
+        private void MaintainFeedingAnchorPosition()
+        {
+            if (rb == null)
+            {
+                return;
+            }
+
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+
+            if (lockPositionWhileFeeding)
+            {
+                rb.position = feedingAnchorPosition;
+
+                Vector3 currentPosition = transform.position;
+                transform.position = new Vector3(
+                    feedingAnchorPosition.x,
+                    feedingAnchorPosition.y,
+                    currentPosition.z);
+            }
+        }
+
+        /// <summary>
+        /// 이동 페이즈로 돌아갈 때 흡혈 중 걸었던 X/Y 고정 제약을 복구합니다.
+        /// </summary>
+        private void RestoreMovementPhysicsSettings()
+        {
+            if (rb == null)
+            {
+                return;
+            }
+
+            CacheMovementPhysicsSettings();
+
+            rb.constraints = cachedMovementConstraints;
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
         }
 
         private void StopRuntimeCoroutines()
@@ -635,6 +754,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            RestoreMovementPhysicsSettings();
             StopRuntimeCoroutines();
         }
     }

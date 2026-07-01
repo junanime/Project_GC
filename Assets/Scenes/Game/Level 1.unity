@@ -21281,7 +21281,7 @@ MonoBehaviour:
   acidRefluxWaveEvents:
   - eventName: "\uC0B0\uC131\uC5ED\uB958\uD30C\uB3C4"
     enabled: 1
-    startTime: 35
+    startTime: 60
     useRandomStartTime: 0
     startTimeRanges: []
     waveCount: 4
@@ -21301,7 +21301,7 @@ MonoBehaviour:
   peristalsisDriftEvents:
   - eventName: "\uC5F0\uB3D9\uC6B4\uB3D9\uAE30\uB958"
     enabled: 1
-    startTime: 10
+    startTime: 120
     duration: 14
     useRandomStartTime: 0
     startTimeRanges: []
@@ -21319,7 +21319,7 @@ MonoBehaviour:
   coffeeTransfusionEvents:
   - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
     enabled: 1
-    startTime: 60
+    startTime: 100
     duration: 18
     useRandomStartTime: 0
     startTimeRanges: []
@@ -38834,18 +38834,18 @@ MonoBehaviour:
     randomStartTimeSeconds: 540
     randomEndTimeSeconds: 900
     randomEventCount: 8
-    spawnCountMode: 0
+    spawnCountMode: 1
     spawnCount: 1
     randomMinSpawnCount: 1
     randomMaxSpawnCount: 2
     intervalBetweenSpawns: 2
     trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 0
-    spawnInitialTrapsOnActivate: 0
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
     maxActiveTraps: 2
-    respawnDelay: 45
-    minDistanceFromPlayer: 2
-    maxDistanceFromPlayer: 5
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
     minDistanceBetweenTraps: 1.5
     spawnPositionTryCount: 20
   blockWhileRunFlowPaused: 1
