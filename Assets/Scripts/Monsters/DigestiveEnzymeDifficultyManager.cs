@@ -156,8 +156,31 @@ namespace Vampire
             }
 
             Instance.RegisterDigestiveEnzymeKill(source);
+           
         }
+        /// <summary>
+        /// 소화효소 몬스터 처치가 아닌 다른 특수 이벤트에서
+        /// 기존 소화효소 난이도 상승과 같은 랜덤 난이도 상승을 발생시키기 위한 공개 메서드입니다.
+        ///
+        /// 예: 위산 거머리가 30초 동안 피를 빨아먹은 뒤 난이도 상승을 발생시킬 때 사용합니다.
+        /// </summary>
+        public static void NotifyDifficultyIncreaseFromExternalSource(string externalSourceName)
+        {
+            if (Instance == null)
+            {
+                Debug.LogWarning(
+                    $"[DigestiveEnzymeDifficultyManager] 씬에 DigestiveEnzymeDifficultyManager가 없어 외부 난이도 상승을 적용하지 못했습니다. Source={externalSourceName}"
+                );
+                return;
+            }
 
+            Instance.ApplyRandomDifficultyIncrease();
+
+            if (Instance.debugLog)
+            {
+                Debug.Log($"[DigestiveEnzymeDifficulty] 외부 원인으로 난이도 상승 적용. Source={externalSourceName}");
+            }
+        }
         private void RegisterDigestiveEnzymeKill(DigestiveEnzymeMonster source)
         {
             currentKillCount++;

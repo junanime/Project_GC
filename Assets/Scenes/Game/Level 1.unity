@@ -21337,10 +21337,12 @@ MonoBehaviour:
     finished: 0
     resolvedStartTime: 0
     monsterScanTimer: 0
+  logPreparedEvents: 1
   forceEventVisualSorting: 1
   eventVisualSortingLayerName: Monster Full
   eventVisualSortingOrder: 999
-  logPreparedEvents: 1
+  eventVisualMinimumAlpha: 0.45
+  logWaveVisualCreation: 1
   logEventState: 1
   logDriftDetail: 0
 --- !u!1 &1348383117
@@ -38821,9 +38823,34 @@ MonoBehaviour:
     maxDistanceFromPlayer: 5
     minDistanceBetweenTraps: 1.5
     spawnPositionTryCount: 20
+  - specialSpawnMode: 1
+    memo: "\uC704\uC0B0\uAC70\uBA38\uB9AC"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 10
+    monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 0
+    spawnTimeSeconds: 1
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 0
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 0
+    spawnInitialTrapsOnActivate: 0
+    maxActiveTraps: 2
+    respawnDelay: 45
+    minDistanceFromPlayer: 2
+    maxDistanceFromPlayer: 5
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
   blockWhileRunFlowPaused: 1
   logMiniStageBlock: 0
-  debugLog: 0
+  debugLog: 1
 --- !u!4 &2093063619
 Transform:
   m_ObjectHideFlags: 0
