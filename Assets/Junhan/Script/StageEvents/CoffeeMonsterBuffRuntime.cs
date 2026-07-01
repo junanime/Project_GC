@@ -4,23 +4,26 @@ namespace Vampire
 {
     /// <summary>
     /// 커피수혈 타임 중 몬스터에게 붙는 임시 버프입니다.
-    /// 몬스터별 커피 스프라이트를 새로 만들지 않고,
-    /// 기존 SpriteRenderer 색상에 갈색 알파 느낌을 덧씌워 커피를 뒤집어쓴 것처럼 보이게 합니다.
     ///
-    /// Monster 내부 이동속도 필드를 직접 수정하지 않고,
-    /// Rigidbody2D에 플레이어 방향 추가 속도를 주는 방식으로 기존 몬스터 코드를 보존합니다.
+    /// 기존 몬스터 이미지를 직접 교체하지 않고,
+    /// 각 SpriteRenderer 위에 갈색 반투명 Overlay SpriteRenderer를 추가해서
+    /// 커피를 뒤집어쓴 것처럼 보이게 합니다.
+    ///
+    /// 이동속도 강화는 기존 Monster 이동 코드를 직접 수정하지 않고,
+    /// Rigidbody2D에 플레이어 방향 추가 속도를 얹는 방식으로 처리합니다.
     /// </summary>
     public class CoffeeMonsterBuffRuntime : MonoBehaviour
     {
         private Character targetPlayer;
         private Rigidbody2D rb;
-        private SpriteRenderer[] spriteRenderers;
-        private Color[] originalColors;
+
+        private SpriteRenderer[] sourceRenderers;
+        private SpriteRenderer[] overlayRenderers;
 
         private float expireTime;
         private float extraMoveForce = 2.5f;
         private float maxAddedVelocity = 2f;
-        private Color overlayColor = new Color(0.45f, 0.22f, 0.08f, 0.55f);
+        private Color overlayColor = new Color(0.45f, 0.22f, 0.08f, 0.65f);
 
         private bool initialized;
 
@@ -40,8 +43,10 @@ namespace Vampire
             if (!initialized)
             {
                 CacheComponents();
-                ApplyCoffeeTint();
+                CreateOverlayRenderers();
                 initialized = true;
+
+                Debug.Log($"[CoffeeBuff] 커피 버프 적용: {name} | renderers={sourceRenderers.Length}");
             }
         }
 
@@ -61,60 +66,114 @@ namespace Vampire
             ApplyExtraMovementTowardPlayer();
         }
 
-        private void CacheComponents()
+        private void LateUpdate()
         {
-            rb = GetComponent<Rigidbody2D>();
-            spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
-            originalColors = new Color[spriteRenderers.Length];
-
-            for (int i = 0; i < spriteRenderers.Length; i++)
-            {
-                if (spriteRenderers[i] != null)
-                {
-                    originalColors[i] = spriteRenderers[i].color;
-                }
-            }
-        }
-
-        private void ApplyCoffeeTint()
-        {
-            if (spriteRenderers == null)
+            if (!initialized)
             {
                 return;
             }
 
-            for (int i = 0; i < spriteRenderers.Length; i++)
-            {
-                SpriteRenderer sr = spriteRenderers[i];
+            SyncOverlayRenderers();
+        }
 
-                if (sr == null)
+        private void CacheComponents()
+        {
+            rb = GetComponent<Rigidbody2D>();
+            sourceRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+            overlayRenderers = new SpriteRenderer[sourceRenderers.Length];
+        }
+
+        private void CreateOverlayRenderers()
+        {
+            if (sourceRenderers == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < sourceRenderers.Length; i++)
+            {
+                SpriteRenderer source = sourceRenderers[i];
+
+                if (source == null)
                 {
                     continue;
                 }
 
-                Color baseColor = originalColors[i];
-                float alpha = Mathf.Clamp01(overlayColor.a);
+                // 이미 Coffee Overlay 자체를 다시 대상으로 삼지 않도록 방지
+                if (source.gameObject.name.Contains("Coffee_Overlay"))
+                {
+                    continue;
+                }
 
-                Color tintedColor = Color.Lerp(baseColor, overlayColor, alpha);
-                tintedColor.a = baseColor.a;
+                GameObject overlayObject = new GameObject("Coffee_Overlay");
+                overlayObject.transform.SetParent(source.transform, false);
+                overlayObject.transform.localPosition = Vector3.zero;
+                overlayObject.transform.localRotation = Quaternion.identity;
+                overlayObject.transform.localScale = Vector3.one;
 
-                sr.color = tintedColor;
+                SpriteRenderer overlay = overlayObject.AddComponent<SpriteRenderer>();
+                overlay.sprite = source.sprite;
+                overlay.flipX = source.flipX;
+                overlay.flipY = source.flipY;
+                overlay.sortingLayerName = source.sortingLayerName;
+                overlay.sortingOrder = source.sortingOrder + 1;
+
+                Color finalOverlayColor = overlayColor;
+
+                if (finalOverlayColor.a < 0.25f)
+                {
+                    finalOverlayColor.a = 0.65f;
+                }
+
+                overlay.color = finalOverlayColor;
+
+                overlayRenderers[i] = overlay;
             }
         }
 
-        private void RestoreOriginalTint()
+        private void SyncOverlayRenderers()
         {
-            if (spriteRenderers == null || originalColors == null)
+            if (sourceRenderers == null || overlayRenderers == null)
             {
                 return;
             }
 
-            for (int i = 0; i < spriteRenderers.Length; i++)
+            for (int i = 0; i < sourceRenderers.Length; i++)
             {
-                if (spriteRenderers[i] != null && i < originalColors.Length)
+                SpriteRenderer source = sourceRenderers[i];
+
+                if (source == null)
                 {
-                    spriteRenderers[i].color = originalColors[i];
+                    continue;
                 }
+
+                if (i >= overlayRenderers.Length)
+                {
+                    continue;
+                }
+
+                SpriteRenderer overlay = overlayRenderers[i];
+
+                if (overlay == null)
+                {
+                    continue;
+                }
+
+                overlay.enabled = source.enabled;
+                overlay.sprite = source.sprite;
+                overlay.flipX = source.flipX;
+                overlay.flipY = source.flipY;
+                overlay.sortingLayerName = source.sortingLayerName;
+                overlay.sortingOrder = source.sortingOrder + 1;
+
+                Color finalOverlayColor = overlayColor;
+
+                if (finalOverlayColor.a < 0.25f)
+                {
+                    finalOverlayColor.a = 0.65f;
+                }
+
+                overlay.color = finalOverlayColor;
             }
         }
 
@@ -146,13 +205,29 @@ namespace Vampire
 
         public void RemoveBuffAndDestroy()
         {
-            RestoreOriginalTint();
+            DestroyOverlayRenderers();
             Destroy(this);
+        }
+
+        private void DestroyOverlayRenderers()
+        {
+            if (overlayRenderers == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < overlayRenderers.Length; i++)
+            {
+                if (overlayRenderers[i] != null)
+                {
+                    Destroy(overlayRenderers[i].gameObject);
+                }
+            }
         }
 
         private void OnDestroy()
         {
-            RestoreOriginalTint();
+            DestroyOverlayRenderers();
         }
     }
 }

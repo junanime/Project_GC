@@ -21281,7 +21281,7 @@ MonoBehaviour:
   acidRefluxWaveEvents:
   - eventName: "\uC0B0\uC131\uC5ED\uB958\uD30C\uB3C4"
     enabled: 1
-    startTime: 100
+    startTime: 35
     useRandomStartTime: 0
     startTimeRanges: []
     waveCount: 4
@@ -21300,15 +21300,15 @@ MonoBehaviour:
     resolvedStartTime: 0
   peristalsisDriftEvents:
   - eventName: "\uC5F0\uB3D9\uC6B4\uB3D9\uAE30\uB958"
-    enabled: 0
+    enabled: 1
     startTime: 10
     duration: 14
     useRandomStartTime: 0
     startTimeRanges: []
     directionSwitchInterval: 4
-    playerDriftForce: 7
-    monsterDriftForce: 5
-    maxAddedVelocity: 4
+    playerDriftForce: 15
+    monsterDriftForce: 10
+    maxAddedVelocity: 6
     enableCameraTilt: 1
     cameraTiltAngle: 7
     cameraTiltLerpSpeed: 5
@@ -21319,7 +21319,7 @@ MonoBehaviour:
   coffeeTransfusionEvents:
   - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
     enabled: 1
-    startTime: 50
+    startTime: 60
     duration: 18
     useRandomStartTime: 0
     startTimeRanges: []
@@ -21337,6 +21337,10 @@ MonoBehaviour:
     finished: 0
     resolvedStartTime: 0
     monsterScanTimer: 0
+  forceEventVisualSorting: 1
+  eventVisualSortingLayerName: Monster Full
+  eventVisualSortingOrder: 999
+  logPreparedEvents: 1
   logEventState: 1
   logDriftDetail: 0
 --- !u!1 &1348383117

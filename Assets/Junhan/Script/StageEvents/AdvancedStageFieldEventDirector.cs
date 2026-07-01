@@ -242,7 +242,19 @@ namespace Vampire
 
         [Header("3. Coffee Transfusion Events / 커피수혈 타임")]
         [SerializeField] private List<CoffeeTransfusionEvent> coffeeTransfusionEvents = new List<CoffeeTransfusionEvent>();
+        [Header("Visual Sorting")]
+        [Tooltip("체크하면 산성 파도/커피 파도 시각 오브젝트의 Sorting Layer와 Order를 코드에서 강제로 적용합니다.")]
+        [SerializeField] private bool forceEventVisualSorting = true;
 
+        [Tooltip("산성 파도/커피 파도에 적용할 Sorting Layer 이름입니다. 현재 프로젝트에는 Background, Default, Foreground, Monster Full이 있습니다.")]
+        [SerializeField] private string eventVisualSortingLayerName = "Foreground";
+
+        [Tooltip("산성 파도/커피 파도의 Order in Layer입니다. 값이 클수록 앞에 보입니다.")]
+        [SerializeField] private int eventVisualSortingOrder = 500;
+
+        [Header("Preparation Debug")]
+        [Tooltip("플레이 시작 시 고급 필드 이벤트들의 등록 개수와 실제 시작 시간을 로그로 출력합니다.")]
+        [SerializeField] private bool logPreparedEvents = true;
         [Header("Debug")]
         [Tooltip("이벤트 시작/종료 로그를 출력합니다.")]
         [SerializeField] private bool logEventState = true;
@@ -383,6 +395,41 @@ namespace Vampire
                     coffeeEvent.useRandomStartTime,
                     coffeeEvent.startTimeRanges);
             }
+            if (logPreparedEvents)
+            {
+                Debug.Log(
+                    $"[AdvancedStageEvent] 준비 완료 | " +
+                    $"산성역류={acidRefluxWaveEvents.Count}개, " +
+                    $"연동운동={peristalsisDriftEvents.Count}개, " +
+                    $"커피수혈={coffeeTransfusionEvents.Count}개");
+
+                for (int i = 0; i < acidRefluxWaveEvents.Count; i++)
+                {
+                    AcidRefluxWaveEvent e = acidRefluxWaveEvents[i];
+                    if (e != null)
+                    {
+                        Debug.Log($"[AdvancedStageEvent] 산성 역류 #{i} | Enabled={e.enabled} | Start={e.resolvedStartTime:F1}s | Random={e.useRandomStartTime}");
+                    }
+                }
+
+                for (int i = 0; i < peristalsisDriftEvents.Count; i++)
+                {
+                    PeristalsisDriftEvent e = peristalsisDriftEvents[i];
+                    if (e != null)
+                    {
+                        Debug.Log($"[AdvancedStageEvent] 연동운동 #{i} | Enabled={e.enabled} | Start={e.resolvedStartTime:F1}s | Random={e.useRandomStartTime} | Duration={e.duration:F1}s");
+                    }
+                }
+
+                for (int i = 0; i < coffeeTransfusionEvents.Count; i++)
+                {
+                    CoffeeTransfusionEvent e = coffeeTransfusionEvents[i];
+                    if (e != null)
+                    {
+                        Debug.Log($"[AdvancedStageEvent] 커피수혈 #{i} | Enabled={e.enabled} | Start={e.resolvedStartTime:F1}s | Random={e.useRandomStartTime} | Duration={e.duration:F1}s");
+                    }
+                }
+            }
         }
 
         private float ResolveStartTime(
@@ -496,7 +543,17 @@ namespace Vampire
 
         private void UpdatePeristalsisDriftEvent(PeristalsisDriftEvent driftEvent, float currentTime)
         {
-            if (driftEvent == null || !driftEvent.enabled || driftEvent.finished)
+            if (driftEvent == null)
+            {
+                return;
+            }
+
+            if (!driftEvent.enabled)
+            {
+                return;
+            }
+
+            if (driftEvent.finished)
             {
                 return;
             }
@@ -510,12 +567,13 @@ namespace Vampire
             {
                 driftEvent.started = true;
                 driftEvent.elapsed = 0f;
+
                 ShowEventStartedUI(driftEvent.eventName);
 
-                if (logEventState)
-                {
-                    Debug.Log($"[AdvancedStageEvent] Start: {driftEvent.eventName} | time={currentTime:F1}s");
-                }
+                Debug.Log(
+                    $"[AdvancedStageEvent] Start: {driftEvent.eventName} | " +
+                    $"time={currentTime:F1}s | duration={driftEvent.duration:F1}s | " +
+                    $"switch={driftEvent.directionSwitchInterval:F1}s");
             }
 
             driftEvent.elapsed += Time.deltaTime;
@@ -524,10 +582,7 @@ namespace Vampire
             {
                 driftEvent.finished = true;
 
-                if (logEventState)
-                {
-                    Debug.Log($"[AdvancedStageEvent] End: {driftEvent.eventName}");
-                }
+                Debug.Log($"[AdvancedStageEvent] End: {driftEvent.eventName}");
 
                 return;
             }
@@ -544,11 +599,16 @@ namespace Vampire
             if (player != null)
             {
                 Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
+
                 ApplyDriftToRigidbody(
                     playerRb,
                     driftDirection,
                     driftEvent.playerDriftForce,
                     driftEvent.maxAddedVelocity);
+            }
+            else
+            {
+                Debug.LogWarning("[AdvancedStageEvent] 연동운동 기류: PlayerCharacter를 찾지 못했습니다.");
             }
 
             Monster[] monsters = FindObjectsOfType<Monster>();
@@ -561,6 +621,7 @@ namespace Vampire
                 }
 
                 Rigidbody2D monsterRb = monsters[i].GetComponent<Rigidbody2D>();
+
                 ApplyDriftToRigidbody(
                     monsterRb,
                     driftDirection,
@@ -570,7 +631,9 @@ namespace Vampire
 
             if (logDriftDetail)
             {
-                Debug.Log($"[AdvancedStageEvent] 연동운동 기류 적용 | dir={driftDirection}");
+                Debug.Log(
+                    $"[AdvancedStageEvent] 연동운동 기류 적용 | " +
+                    $"dir={driftDirection} | monsters={monsters.Length}");
             }
         }
 
@@ -896,27 +959,55 @@ namespace Vampire
         }
 
         private GameObject CreateWaveVisualObject(
-            string objectName,
-            Vector3 position,
-            Vector2 size,
-            Color color)
+    string objectName,
+    Vector3 position,
+    Vector2 size,
+    Color color)
         {
             GameObject obj = new GameObject(objectName);
-            obj.transform.SetParent(runtimeVisualRoot);
+
+            if (runtimeVisualRoot != null)
+            {
+                obj.transform.SetParent(runtimeVisualRoot, true);
+            }
+
             obj.transform.position = position;
+            obj.transform.localScale = new Vector3(size.x, size.y, 1f);
 
             SpriteRenderer spriteRenderer = obj.AddComponent<SpriteRenderer>();
             spriteRenderer.sprite = CreateWhiteSprite();
             spriteRenderer.color = color;
-            spriteRenderer.sortingOrder = 80;
 
-            obj.transform.localScale = new Vector3(size.x, size.y, 1f);
+            if (forceEventVisualSorting)
+            {
+                spriteRenderer.sortingLayerName = eventVisualSortingLayerName;
+                spriteRenderer.sortingOrder = eventVisualSortingOrder;
+            }
+            else
+            {
+                spriteRenderer.sortingOrder = eventVisualSortingOrder;
+            }
+
+            // 혹시 인스펙터 색상의 알파값이 너무 낮게 들어가도 테스트 시 보이도록 최소 알파를 보정한다.
+            Color visibleColor = color;
+
+            if (visibleColor.a < 0.15f)
+            {
+                visibleColor.a = 0.35f;
+            }
+
+            spriteRenderer.color = visibleColor;
 
             BoxCollider2D collider = obj.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
             collider.size = Vector2.one;
 
             obj.AddComponent<StageEventMovingWaveZone>();
+
+            Debug.Log(
+                $"[AdvancedStageEvent Visual] Create {objectName} | " +
+                $"pos={position} | scale={obj.transform.localScale} | " +
+                $"color={spriteRenderer.color} | sorting={spriteRenderer.sortingLayerName}/{spriteRenderer.sortingOrder}");
 
             return obj;
         }
