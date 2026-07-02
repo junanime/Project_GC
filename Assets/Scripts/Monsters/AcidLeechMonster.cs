@@ -108,9 +108,9 @@ namespace Vampire
         [Tooltip("흡혈 페이즈 중 플레이어 공격 넉백도 무시할지 여부입니다. true면 흡혈 중에는 완전히 고정됩니다.")]
         [SerializeField] private bool ignoreKnockbackWhileFeeding = true;
 
-        [Header("Debug")]
+        [Header("Acid Leech - Debug")]
         [Tooltip("위산 거머리 상태 전환, 난이도 상승, 실버 지급 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+        [SerializeField] private bool acidLeechDebugLog = true;
 
         private LeechState currentState = LeechState.Moving;
 
@@ -176,7 +176,7 @@ namespace Vampire
             StopRuntimeCoroutines();
             StartMovingPhase();
 
-            if (debugLog)
+            if (acidLeechDebugLog)
             {
                 Debug.Log($"[AcidLeechMonster] 스폰 완료 | 위치={transform.position}", this);
             }
@@ -247,7 +247,7 @@ namespace Vampire
 
             stateRoutine = StartCoroutine(MovePhaseRoutine());
 
-            if (debugLog)
+            if (acidLeechDebugLog)
             {
                 Debug.Log("[AcidLeechMonster] 이동 페이즈 시작", this);
             }
@@ -280,7 +280,7 @@ namespace Vampire
 
             stateRoutine = StartCoroutine(FeedingPhaseRoutine());
 
-            if (debugLog)
+            if (acidLeechDebugLog)
             {
                 Debug.Log("[AcidLeechMonster] 흡혈 페이즈 시작", this);
             }
@@ -296,7 +296,7 @@ namespace Vampire
             {
                 TryApplyDigestiveDifficultyIncrease();
 
-                if (debugLog)
+                if (acidLeechDebugLog)
                 {
                     Debug.Log("[AcidLeechMonster] 흡혈 완료 - 랜덤 난이도 상승 시도", this);
                 }
@@ -568,7 +568,7 @@ namespace Vampire
                 {
                     SilverWallet.Add(reward);
 
-                    if (debugLog)
+                    if (acidLeechDebugLog)
                     {
                         Debug.Log(
                             $"[AcidLeechMonster] 처치 보상 실버 +{reward} | Total={SilverWallet.Silver}",
