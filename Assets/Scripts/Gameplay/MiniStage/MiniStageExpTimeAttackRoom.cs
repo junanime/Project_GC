@@ -149,7 +149,7 @@ namespace Vampire
         private readonly List<SpawnedGemRecord> spawnedGems = new List<SpawnedGemRecord>();
 
         private Coroutine timeAttackRoutine;
-        private bool timeAttackRunning;
+       
         private MethodInfo cachedEntityManagerSpawnGemMethod;
         private MethodInfo cachedEntityManagerDespawnGemMethod;
 
@@ -164,7 +164,7 @@ namespace Vampire
             RemoveRemainingActiveGems();
             spawnedGems.Clear();
 
-            timeAttackRunning = true;
+          
 
             SetTimerVisible(true);
             UpdateTimerUI(timeLimit);
@@ -205,7 +205,7 @@ namespace Vampire
                 yield return new WaitForSeconds(clearDelayAfterTimeUp);
             }
 
-            timeAttackRunning = false;
+          
             SetTimerVisible(false);
 
             if (debugLog)
@@ -866,7 +866,7 @@ namespace Vampire
                 timeAttackRoutine = null;
             }
 
-            timeAttackRunning = false;
+           
             SetTimerVisible(false);
             RemoveRemainingActiveGems();
         }

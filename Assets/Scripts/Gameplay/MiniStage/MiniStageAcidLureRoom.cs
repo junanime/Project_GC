@@ -80,7 +80,6 @@ namespace Vampire
 
         private bool roomRunning;
         private bool roomEnded;
-        private bool optionalReturnUnlockedByTimer;
 
         private Vector3 lastCompletedFieldPosition;
 
@@ -105,7 +104,7 @@ namespace Vampire
 
             roomRunning = true;
             roomEnded = false;
-            optionalReturnUnlockedByTimer = false;
+ 
 
             spawnedMonsters.Clear();
             acidKilledMonsters.Clear();
@@ -186,7 +185,7 @@ namespace Vampire
                 yield break;
             }
 
-            optionalReturnUnlockedByTimer = true;
+          
 
             UnlockOptionalReturn();
 

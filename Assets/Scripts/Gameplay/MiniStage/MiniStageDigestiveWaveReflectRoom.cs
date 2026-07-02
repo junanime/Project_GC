@@ -136,7 +136,7 @@ namespace Vampire
 
         private bool roomRunning;
         private bool roomEnded;
-        private bool optionalReturnUnlockedByTimer;
+        
 
         private float receiverHitTimer;
 
@@ -169,7 +169,6 @@ namespace Vampire
 
             roomRunning = true;
             roomEnded = false;
-            optionalReturnUnlockedByTimer = false;
             receiverHitTimer = 0f;
 
             spawnedMonsters.Clear();
@@ -595,7 +594,7 @@ namespace Vampire
                 yield break;
             }
 
-            optionalReturnUnlockedByTimer = true;
+           
             UnlockOptionalReturn();
 
             if (debugLog)

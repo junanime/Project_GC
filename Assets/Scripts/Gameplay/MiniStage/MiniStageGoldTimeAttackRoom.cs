@@ -153,7 +153,7 @@ namespace Vampire
         private readonly List<SpawnedCoinRecord> spawnedCoins = new List<SpawnedCoinRecord>();
 
         private Coroutine timeAttackRoutine;
-        private bool timeAttackRunning;
+       
         private MethodInfo cachedEntityManagerSpawnCoinMethod;
         private MethodInfo cachedEntityManagerDespawnCoinMethod;
 
@@ -168,7 +168,7 @@ namespace Vampire
             RemoveRemainingActiveCoins();
             spawnedCoins.Clear();
 
-            timeAttackRunning = true;
+           
 
             SetTimerVisible(true);
             UpdateTimerUI(timeLimit);
@@ -211,7 +211,7 @@ namespace Vampire
                 yield return new WaitForSeconds(clearDelayAfterTimeUp);
             }
 
-            timeAttackRunning = false;
+            
             SetTimerVisible(false);
 
             if (debugLog)
@@ -901,7 +901,7 @@ namespace Vampire
                 timeAttackRoutine = null;
             }
 
-            timeAttackRunning = false;
+           
             SetTimerVisible(false);
             RemoveRemainingActiveCoins();
         }
