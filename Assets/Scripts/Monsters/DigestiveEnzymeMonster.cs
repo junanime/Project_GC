@@ -105,9 +105,9 @@ namespace Vampire
         [Tooltip("소화효소가 적 몬스터를 때릴 때 적용할 넉백 세기입니다.")]
         [SerializeField] private float attackKnockback = 0.4f;
 
-        [Header("Digestive Enzyme - Debug")]
+        [Header("Debug")]
         [Tooltip("소화효소 스폰, 피격, 공격, 사망 로그를 출력합니다.")]
-        [SerializeField] private bool digestiveEnzymeDebugLog = true;
+        [SerializeField] private bool debugLog = true;
 
         private Rigidbody2D rb;
         private float currentHealth;
@@ -222,7 +222,7 @@ namespace Vampire
 
             SpawnDamageText(damage, isCritical);
 
-            if (digestiveEnzymeDebugLog)
+            if (debugLog)
             {
                 Debug.Log(
                     $"[DigestiveEnzymeMonster] 플레이어 공격 피격. damage={damage}, hp={currentHealth}/{maxHealth}"
@@ -543,7 +543,7 @@ namespace Vampire
 
             lastAttackTime = Time.time;
 
-            if (digestiveEnzymeDebugLog)
+            if (debugLog)
             {
                 Debug.Log(
                     $"[DigestiveEnzymeMonster] 일반 몬스터 근접 공격. target={targetName}, damage={attackDamage}"
@@ -680,7 +680,7 @@ namespace Vampire
                 DigestiveEnzymeDifficultyManager.NotifyDigestiveEnzymeKilledByPlayer(this);
             }
 
-            if (digestiveEnzymeDebugLog)
+            if (debugLog)
             {
                 Debug.Log(
                     killedByPlayer

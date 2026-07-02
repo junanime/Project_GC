@@ -20,9 +20,8 @@ namespace Vampire
         [Tooltip("플레이어가 밟았는지 확인하고, 활성화 후 공격받는 판정으로 사용할 Collider2D입니다.")]
         [SerializeField] private Collider2D triggerCollider;
 
-        [Header("Trap Monster - Debug")]
-        [Tooltip("함정 몬스터 스폰, 상태 전환, 피해 처리 로그를 출력합니다.")]
-        [SerializeField] private bool trapMonsterDebugLog = true;
+        [Header("Debug")]
+        [SerializeField] private bool debugLog = true;
 
         private TrapMonsterBlueprint trapBlueprint;
         private TrapState currentState = TrapState.Dormant;
@@ -160,7 +159,7 @@ namespace Vampire
 
             ChangeState(TrapState.Dormant);
 
-            if (trapMonsterDebugLog)
+            if (debugLog)
             {
                 Debug.Log($"[TrapMonster] 스폰 완료 | 위치 {transform.position} | 휴면 상태", this);
             }
@@ -202,7 +201,7 @@ namespace Vampire
 
             if (currentState != TrapState.Active)
             {
-                if (trapMonsterDebugLog)
+                if (debugLog)
                 {
                     Debug.Log("[TrapMonster] 휴면 상태라서 데미지를 받지 않음", this);
                 }
@@ -212,7 +211,7 @@ namespace Vampire
 
             currentHealth -= damage;
 
-            if (trapMonsterDebugLog)
+            if (debugLog)
             {
                 Debug.Log($"[TrapMonster] 피격 | 받은 피해 {damage:0.##} | 남은 체력 {currentHealth:0.##}", this);
             }
@@ -237,7 +236,7 @@ namespace Vampire
 
             ChangeState(TrapState.Dying);
 
-            if (trapMonsterDebugLog)
+            if (debugLog)
             {
                 Debug.Log("[TrapMonster] 사망 시작 - 플레이어 구속 해제", this);
             }
@@ -259,7 +258,7 @@ namespace Vampire
 
             currentState = TrapState.Dead;
 
-            if (trapMonsterDebugLog)
+            if (debugLog)
             {
                 Debug.Log("[TrapMonster] 사망 완료 - 오브젝트 비활성화", this);
             }
@@ -310,7 +309,7 @@ namespace Vampire
 
             if (!bindSucceeded)
             {
-                if (trapMonsterDebugLog)
+                if (debugLog)
                 {
                     Debug.Log("[TrapMonster] 플레이어 바인드 실패", this);
                 }
@@ -339,7 +338,7 @@ namespace Vampire
                 bindDurationCoroutine = StartCoroutine(BindDurationRoutine());
             }
 
-            if (trapMonsterDebugLog)
+            if (debugLog)
             {
                 Debug.Log($"[TrapMonster] 활성화됨 | HP {currentHealth:0.##} | 플레이어 구속", this);
             }
@@ -359,7 +358,7 @@ namespace Vampire
 
                 trappedDamageable.TakeDamage(trapBlueprint.tickDamage, Vector2.zero, false);
 
-                if (trapMonsterDebugLog)
+                if (debugLog)
                 {
                     Debug.Log($"[TrapMonster] 플레이어에게 틱 데미지 {trapBlueprint.tickDamage:0.##}", this);
                 }
@@ -377,7 +376,7 @@ namespace Vampire
                 yield break;
             }
 
-            if (trapMonsterDebugLog)
+            if (debugLog)
             {
                 Debug.Log("[TrapMonster] 바인드 시간이 종료되어 플레이어를 해제", this);
             }
