@@ -44,6 +44,8 @@ namespace Vampire
         protected override void OnCollected()
         {
             spriteRenderer.enabled = false;
+            HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(playerCharacter);
+
             playerCharacter.GainExp((float)gemType);
             entityManager.DespawnGem(this);
             spriteRenderer.enabled = true;

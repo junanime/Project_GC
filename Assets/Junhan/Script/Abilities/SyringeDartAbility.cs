@@ -2,6 +2,7 @@ using System.Collections;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 namespace Vampire
 {
@@ -73,6 +74,12 @@ namespace Vampire
         [Header("Active Legendary Augments")]
         [Tooltip("생명연소 전설증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool lifeBurnEnabled = false;
+
+        [Tooltip("헝그리정신 전설증강을 테스트용으로 강제 활성화합니다.")]
+        [SerializeField] private bool hungrySpiritEnabled = false;
+
+        [Tooltip("침샷건 전설증강을 테스트용으로 강제 활성화합니다.")]
+        [SerializeField] private bool needleShotgunEnabled = false;
 
         [Tooltip("분신배양 전설증강을 테스트용으로 보유 처리합니다. 실제 분신 생성은 분신배양 전설증강/컨트롤러 쪽 구현을 따릅니다.")]
         [SerializeField] private bool cloneLegendaryTaken = false;
@@ -469,6 +476,82 @@ namespace Vampire
 
         // 이기어침 + 대물침 조합에서 사용하는 현재 차지율
         private float cursorHeavyChargeRatio = 0f;
+
+        [Header("Legendary - Hungry Spirit / 헝그리정신")]
+        [Tooltip("픽업을 먹지 않고 이 시간이 지날 때마다 헝그리정신 스택이 1 증가합니다.")]
+        [SerializeField] private float hungrySpiritStackInterval = 2f;
+
+        [Tooltip("헝그리정신 최대 스택 수입니다.")]
+        [SerializeField] private int hungrySpiritMaxStacks = 8;
+
+        [Tooltip("헝그리정신 1스택당 공격력 증가량입니다. 0.05 = 5% 증가입니다.")]
+        [SerializeField] private float hungrySpiritDamageBonusPerStack = 0.05f;
+
+        [Tooltip("헝그리정신 1스택당 사거리 증가량입니다. 0.04 = 4% 증가입니다.")]
+        [SerializeField] private float hungrySpiritRangeBonusPerStack = 0.04f;
+
+        [Tooltip("헝그리정신 1스택당 공격속도 증가량입니다. 0.04 = 4% 증가입니다.")]
+        [SerializeField] private float hungrySpiritAttackSpeedBonusPerStack = 0.04f;
+
+        [Tooltip("체크하면 헝그리정신 스택 로그를 출력합니다.")]
+        [SerializeField] private bool debugHungrySpirit = false;
+
+        private HungrySpiritController hungrySpiritController;
+
+        [Header("Legendary - Needle Shotgun / 침샷건")]
+        [Tooltip("침샷건 최대 장전 수입니다. 그레이브즈 방식이지만 4발까지 장전됩니다.")]
+        [SerializeField] private int needleShotgunMaxAmmo = 4;
+
+        [Tooltip("침샷건 1발 장전에 걸리는 시간입니다.")]
+        [SerializeField] private float needleShotgunReloadTime = 0.3f;
+
+        [Tooltip("침샷건 공격 사이의 기본 시간 간격입니다. 공격속도 스탯의 영향을 받습니다.")]
+        [SerializeField] private float needleShotgunAttackInterval = 0.5f;
+
+        [Tooltip("침샷건이 적을 인지하는 반경입니다. 기본 사거리와 같은 3을 추천합니다.")]
+        [SerializeField] private float needleShotgunDetectionRange = 3f;
+
+        [Tooltip("침샷건 투사체의 최대 사거리입니다. 요구사항 기준 3으로 고정합니다.")]
+        [SerializeField] private float needleShotgunFixedRange = 3f;
+
+        [Tooltip("침샷건 발사체 속도 배율입니다. 1.25 = 25% 증가입니다.")]
+        [SerializeField] private float needleShotgunProjectileSpeedMultiplier = 1.25f;
+
+        [Tooltip("침샷건 피해 배율입니다. 1이면 기존 침 피해와 같습니다.")]
+        [SerializeField] private float needleShotgunDamageMultiplier = 1f;
+
+        [Tooltip("침샷건 발사체 1개가 늘어날 때마다 벌어지는 각도입니다.")]
+        [SerializeField] private float needleShotgunAnglePerProjectile = 18f;
+
+        [Tooltip("침샷건 최대 발사각입니다. 요구사항 기준 최대 120도입니다.")]
+        [SerializeField] private float needleShotgunMaxSpreadAngle = 120f;
+
+        [Tooltip("대쉬 시작을 감지하면 장전되는 침 수입니다.")]
+        [SerializeField] private int needleShotgunReloadOnDash = 1;
+
+        [Tooltip("플레이어 머리 위에 침샷건 장전 수를 숫자로 표시할지 여부입니다.")]
+        [SerializeField] private bool showNeedleShotgunAmmoNumber = true;
+
+        [Tooltip("침샷건 장전 숫자가 플레이어 중심에서 위로 떨어지는 거리입니다.")]
+        [SerializeField] private float needleShotgunAmmoTextYOffset = 1.1f;
+
+        [Tooltip("침샷건 장전 숫자 크기입니다.")]
+        [SerializeField] private float needleShotgunAmmoTextFontSize = 3f;
+
+        [Tooltip("침샷건 장전 숫자의 Sorting Order입니다.")]
+        [SerializeField] private int needleShotgunAmmoTextSortingOrder = 200;
+
+        [Tooltip("침샷건 장전 숫자 색상입니다.")]
+        [SerializeField] private Color needleShotgunAmmoTextColor = Color.white;
+
+        [Tooltip("체크하면 침샷건 발사/장전 로그를 출력합니다.")]
+        [SerializeField] private bool debugNeedleShotgun = false;
+
+        private int needleShotgunAmmo;
+        private float needleShotgunReloadTimer;
+        private float needleShotgunAttackTimer;
+        private bool needleShotgunWasDashing;
+        private TextMeshPro needleShotgunAmmoText;
         [Header("Neural Block / 신경차단 Settings")]
         [Tooltip("신경차단 발동 주기입니다.")]
         [SerializeField] private float neuralBlockInterval = 12f;
@@ -637,7 +720,15 @@ namespace Vampire
             {
                 EnableHedgehogNeedleLegendary();
             }
+            if (hungrySpiritEnabled)
+            {
+                EnableHungrySpiritLegendary();
+            }
 
+            if (needleShotgunEnabled)
+            {
+                EnableNeedleShotgunLegendary();
+            }
             if (cursorControlEnabled)
             {
                 EnableCursorControlLegendary();
@@ -700,7 +791,12 @@ namespace Vampire
                 base.Update();
                 return;
             }
-
+            if (needleShotgunEnabled)
+            {
+                HideHeavySnipeChargePreview();
+                HandleNeedleShotgunUpdate();
+                return;
+            }
             HideHeavySnipeChargePreview();
             base.Update();
         }
@@ -708,6 +804,7 @@ namespace Vampire
         private void OnDisable()
         {
             DestroyHeavySnipeChargePreview();
+            DestroyNeedleShotgunAmmoText();
         }
 
         protected override void Attack()
@@ -911,7 +1008,388 @@ namespace Vampire
                 HideHeavySnipeChargePreview();
             }
         }
+        private void HandleNeedleShotgunUpdate()
+        {
+            if (playerCharacter == null || entityManager == null)
+            {
+                return;
+            }
 
+            EnsureNeedleShotgunAmmoText();
+            UpdateNeedleShotgunDashReload();
+
+            needleShotgunAttackTimer += Time.deltaTime;
+
+            Vector2 targetDirection;
+            bool hasTargetInRange = TryFindNeedleShotgunTargetDirection(out targetDirection);
+
+            if (needleShotgunAmmo < needleShotgunMaxAmmo)
+            {
+                bool shouldReload = !hasTargetInRange || needleShotgunAmmo <= 0;
+
+                if (shouldReload)
+                {
+                    needleShotgunReloadTimer += Time.deltaTime;
+
+                    while (needleShotgunReloadTimer >= Mathf.Max(0.01f, needleShotgunReloadTime) &&
+                           needleShotgunAmmo < needleShotgunMaxAmmo)
+                    {
+                        needleShotgunReloadTimer -= Mathf.Max(0.01f, needleShotgunReloadTime);
+                        needleShotgunAmmo++;
+
+                        if (debugNeedleShotgun)
+                        {
+                            Debug.Log($"[침샷건] 장전 +1 | Ammo={needleShotgunAmmo}/{needleShotgunMaxAmmo}", this);
+                        }
+
+                        UpdateNeedleShotgunAmmoText();
+                    }
+                }
+                else
+                {
+                    needleShotgunReloadTimer = 0f;
+                }
+            }
+            else
+            {
+                needleShotgunReloadTimer = 0f;
+            }
+
+            if (!hasTargetInRange)
+            {
+                UpdateNeedleShotgunAmmoText();
+                return;
+            }
+
+            if (needleShotgunAmmo <= 0)
+            {
+                UpdateNeedleShotgunAmmoText();
+                return;
+            }
+
+            float attackSpeedMultiplier = playerCharacter != null
+                ? Mathf.Max(0.01f, playerCharacter.AttackSpeedMultiplier)
+                : 1f;
+
+            float effectiveAttackInterval = Mathf.Max(0.01f, needleShotgunAttackInterval) / attackSpeedMultiplier;
+
+            if (needleShotgunAttackTimer < effectiveAttackInterval)
+            {
+                UpdateNeedleShotgunAmmoText();
+                return;
+            }
+
+            needleShotgunAttackTimer = 0f;
+            needleShotgunAmmo = Mathf.Max(0, needleShotgunAmmo - 1);
+
+            FireNeedleShotgunVolley(targetDirection);
+            UpdateNeedleShotgunAmmoText();
+        }
+
+        private void UpdateNeedleShotgunDashReload()
+        {
+            bool isDashingNow = playerCharacter != null && playerCharacter.IsDashing;
+
+            if (isDashingNow && !needleShotgunWasDashing)
+            {
+                int reloadAmount = Mathf.Max(0, needleShotgunReloadOnDash);
+
+                if (reloadAmount > 0)
+                {
+                    needleShotgunAmmo = Mathf.Min(needleShotgunMaxAmmo, needleShotgunAmmo + reloadAmount);
+                    needleShotgunReloadTimer = 0f;
+
+                    if (debugNeedleShotgun)
+                    {
+                        Debug.Log($"[침샷건] 대쉬 장전 +{reloadAmount} | Ammo={needleShotgunAmmo}/{needleShotgunMaxAmmo}", this);
+                    }
+
+                    UpdateNeedleShotgunAmmoText();
+                }
+            }
+
+            needleShotgunWasDashing = isDashingNow;
+        }
+
+        private bool TryFindNeedleShotgunTargetDirection(out Vector2 targetDirection)
+        {
+            targetDirection = playerCharacter != null && playerCharacter.LookDirection != Vector2.zero
+                ? playerCharacter.LookDirection.normalized
+                : Vector2.right;
+
+            Vector2 origin = GetPlayerCenterPosition();
+            float range = Mathf.Max(0.1f, needleShotgunDetectionRange);
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(origin, range, monsterLayer);
+
+            float closestDistanceSqr = float.MaxValue;
+            Vector2 closestDirection = targetDirection;
+            bool found = false;
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+
+                if (hit == null)
+                {
+                    continue;
+                }
+
+                IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+                Component damageableComponent = damageable as Component;
+
+                if (damageable == null || damageableComponent == null)
+                {
+                    continue;
+                }
+
+                Monster monster = damageableComponent.GetComponentInParent<Monster>();
+
+                if (monster != null)
+                {
+                    TrapMonster trapMonster = monster as TrapMonster;
+
+                    if (trapMonster != null && !trapMonster.IsActive)
+                    {
+                        continue;
+                    }
+                }
+
+                Vector2 targetPosition = damageableComponent.transform.position;
+
+                if (monster != null && monster.CenterTransform != null)
+                {
+                    targetPosition = monster.CenterTransform.position;
+                }
+
+                Vector2 toTarget = targetPosition - origin;
+                float distanceSqr = toTarget.sqrMagnitude;
+
+                if (distanceSqr < closestDistanceSqr && distanceSqr > 0.0001f)
+                {
+                    closestDistanceSqr = distanceSqr;
+                    closestDirection = toTarget.normalized;
+                    found = true;
+                }
+            }
+
+            if (found)
+            {
+                targetDirection = closestDirection;
+            }
+
+            return found;
+        }
+
+        private void FireNeedleShotgunVolley(Vector2 baseDirection)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = playerCharacter != null && playerCharacter.LookDirection != Vector2.zero
+                    ? playerCharacter.LookDirection.normalized
+                    : Vector2.right;
+            }
+
+            baseDirection.Normalize();
+
+            int totalProjectileCount = GetNeedleShotgunProjectileCount();
+
+            if (debugNeedleShotgun)
+            {
+                Debug.Log(
+                    $"[침샷건] 발사 | Count={totalProjectileCount} | " +
+                    $"Ammo={needleShotgunAmmo}/{needleShotgunMaxAmmo} | Range={needleShotgunFixedRange}",
+                    this);
+            }
+
+            for (int i = 0; i < totalProjectileCount; i++)
+            {
+                Vector2 shotDirection = GetNeedleShotgunSpreadDirection(baseDirection, i, totalProjectileCount);
+                LaunchNeedleShotgunProjectile(shotDirection);
+            }
+        }
+
+        private int GetNeedleShotgunProjectileCount()
+        {
+            int totalCount = projectileCount.Value;
+
+            if (playerCharacter != null)
+            {
+                totalCount += playerCharacter.AdditionalProjectiles;
+            }
+
+            if (lifeBurnEnabled)
+            {
+                totalCount += lifeBurnBonusProjectiles;
+            }
+
+            return Mathf.Max(1, totalCount);
+        }
+
+        private Vector2 GetNeedleShotgunSpreadDirection(Vector2 baseDirection, int projectileIndex, int totalCount)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = Vector2.right;
+            }
+
+            baseDirection.Normalize();
+
+            if (totalCount <= 1)
+            {
+                return baseDirection;
+            }
+
+            float totalSpreadAngle = Mathf.Max(0f, needleShotgunAnglePerProjectile) * (totalCount - 1);
+            totalSpreadAngle = Mathf.Min(totalSpreadAngle, Mathf.Max(0f, needleShotgunMaxSpreadAngle));
+
+            float actualAngleStep = totalSpreadAngle / (totalCount - 1);
+            float startAngle = -totalSpreadAngle * 0.5f;
+            float angleOffset = startAngle + actualAngleStep * projectileIndex;
+
+            return RotateVector(baseDirection, angleOffset);
+        }
+
+        private void LaunchNeedleShotgunProjectile(Vector2 direction)
+        {
+            if (entityManager == null)
+            {
+                return;
+            }
+
+            Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
+
+            Projectile projectile = entityManager.SpawnProjectile(
+                projectileIndex,
+                spawnPosition,
+                GetEffectiveDamage() * Mathf.Max(0f, needleShotgunDamageMultiplier),
+                GetEffectiveKnockback(),
+                GetEffectiveSpeed() * Mathf.Max(0.01f, needleShotgunProjectileSpeedMultiplier),
+                monsterLayer
+            );
+
+            if (projectile == null)
+            {
+                return;
+            }
+
+            projectile.transform.localScale = Vector3.one * GetEffectiveProjectileSizeMultiplier();
+
+            // 침샷건은 요구사항대로 최대 사거리를 3으로 고정합니다.
+            projectile.maxDistance = Mathf.Max(0.1f, needleShotgunFixedRange);
+
+            if (projectile is SyringeProjectile syringeProjectile)
+            {
+                syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"[침샷건] Spawned projectile is '{projectile.GetType().Name}', not 'SyringeProjectile'. " +
+                    "Projectile Prefab 연결을 확인하세요.",
+                    this);
+            }
+
+            if (playerCharacter != null)
+            {
+                projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            }
+
+            projectile.Launch(direction);
+        }
+
+        private SyringeSpecialRuntime BuildNeedleShotgunRuntime()
+        {
+            SyringeSpecialRuntime runtime = BuildSpecialRuntime();
+
+            // 침샷건은 발사 방식 자체가 샷건이므로 이동 방식 특수증강은 꺼둡니다.
+            // 대신 독/꿀/모기/부식/표식/소화액낭/공복/장내균 같은 적중형 특수증강은 그대로 적용됩니다.
+            runtime.homingEnabled = false;
+            runtime.homingRange = 0f;
+            runtime.homingLerpSpeed = 0f;
+
+            runtime.returnNeedleEnabled = false;
+            runtime.returnNeedleSpeedMultiplier = 0f;
+            runtime.returnNeedleDamageMultiplier = 0f;
+            runtime.returnNeedleArriveDistance = 0f;
+            runtime.returnNeedleMaxDuration = 0f;
+
+            // 요구사항: 사거리 이내의 적은 모두 관통.
+            runtime.pierceEnabled = true;
+            runtime.pierceCount = int.MaxValue;
+
+            // 침샷건은 projectile.maxDistance 자체를 3으로 고정하므로 추가 사거리 보너스는 제거합니다.
+            runtime.rangeBonus = 0f;
+
+            return runtime;
+        }
+
+        private void EnsureNeedleShotgunAmmoText()
+        {
+            if (!showNeedleShotgunAmmoNumber)
+            {
+                return;
+            }
+
+            if (needleShotgunAmmoText != null)
+            {
+                return;
+            }
+
+            if (playerCharacter == null)
+            {
+                return;
+            }
+
+            Transform parent = playerCharacter.CenterTransform != null
+                ? playerCharacter.CenterTransform
+                : playerCharacter.transform;
+
+            GameObject textObject = new GameObject("Needle Shotgun Ammo Number");
+            textObject.transform.SetParent(parent, false);
+            textObject.transform.localPosition = new Vector3(0f, needleShotgunAmmoTextYOffset, 0f);
+
+            needleShotgunAmmoText = textObject.AddComponent<TextMeshPro>();
+            needleShotgunAmmoText.alignment = TextAlignmentOptions.Center;
+            needleShotgunAmmoText.fontSize = Mathf.Max(0.1f, needleShotgunAmmoTextFontSize);
+            needleShotgunAmmoText.color = needleShotgunAmmoTextColor;
+            needleShotgunAmmoText.text = needleShotgunAmmo.ToString();
+
+            MeshRenderer renderer = needleShotgunAmmoText.GetComponent<MeshRenderer>();
+
+            if (renderer != null)
+            {
+                renderer.sortingOrder = needleShotgunAmmoTextSortingOrder;
+            }
+        }
+
+        private void UpdateNeedleShotgunAmmoText()
+        {
+            if (!showNeedleShotgunAmmoNumber)
+            {
+                return;
+            }
+
+            EnsureNeedleShotgunAmmoText();
+
+            if (needleShotgunAmmoText == null)
+            {
+                return;
+            }
+
+            needleShotgunAmmoText.text = needleShotgunAmmo.ToString();
+        }
+
+        private void DestroyNeedleShotgunAmmoText()
+        {
+            if (needleShotgunAmmoText == null)
+            {
+                return;
+            }
+
+            Destroy(needleShotgunAmmoText.gameObject);
+            needleShotgunAmmoText = null;
+        }
         private void HandleHeavySnipeUpdate()
         {
             timeSinceLastAttack += Time.deltaTime;
@@ -2166,7 +2644,74 @@ namespace Vampire
         public bool HasAcupunctureFormationAugment() => acupunctureFormationEnabled;
 
         public void EnableLifeBurnLegendary() => lifeBurnEnabled = true;
+        public void EnableHungrySpiritLegendary()
+        {
+            hungrySpiritEnabled = true;
 
+            if (playerCharacter == null)
+            {
+                Debug.LogWarning("[헝그리정신] playerCharacter가 없어 컨트롤러를 생성할 수 없습니다.", this);
+                return;
+            }
+
+            if (hungrySpiritController == null)
+            {
+                hungrySpiritController = playerCharacter.GetComponent<HungrySpiritController>();
+
+                if (hungrySpiritController == null)
+                {
+                    hungrySpiritController = playerCharacter.gameObject.AddComponent<HungrySpiritController>();
+                }
+            }
+
+            hungrySpiritController.Configure(
+                playerCharacter,
+                hungrySpiritStackInterval,
+                hungrySpiritMaxStacks,
+                hungrySpiritDamageBonusPerStack,
+                hungrySpiritRangeBonusPerStack,
+                hungrySpiritAttackSpeedBonusPerStack,
+                debugHungrySpirit);
+
+            Debug.Log("[헝그리정신] 전설 증강 활성화.");
+        }
+
+        public bool HasHungrySpiritLegendary()
+        {
+            return hungrySpiritEnabled;
+        }
+
+        public void EnableNeedleShotgunLegendary()
+        {
+            if (heavySnipeEnabled || cursorControlEnabled)
+            {
+                Debug.LogWarning(
+                    "[침샷건] 대물침/이기어침과 공격 방식이 충돌하므로 현재 상태에서는 활성화하지 않습니다.",
+                    this);
+                return;
+            }
+
+            if (needleShotgunEnabled)
+            {
+                return;
+            }
+
+            needleShotgunEnabled = true;
+            needleShotgunAmmo = Mathf.Max(1, needleShotgunMaxAmmo);
+            needleShotgunReloadTimer = 0f;
+            needleShotgunAttackTimer = Mathf.Max(0.01f, needleShotgunAttackInterval);
+            needleShotgunWasDashing = playerCharacter != null && playerCharacter.IsDashing;
+
+            EnsureNeedleShotgunAmmoText();
+            UpdateNeedleShotgunAmmoText();
+
+            Debug.Log("[침샷건] 전설 증강 활성화.");
+        }
+
+        public bool HasNeedleShotgunLegendary()
+        {
+            return needleShotgunEnabled;
+        }
         public bool HasLifeBurnLegendary() => lifeBurnEnabled;
 
         public void MarkCloneLegendaryTaken() => cloneLegendaryTaken = true;

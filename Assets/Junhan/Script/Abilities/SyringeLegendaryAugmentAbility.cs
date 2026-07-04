@@ -34,7 +34,11 @@ namespace Vampire
 
             // 전설 증강: 점막 요새
             // SyringeDartAbility 쪽 실제 메서드는 현재 EnableMucosalFortressAugment() 이름으로 존재한다.
-            MucosalFortress
+            MucosalFortress,
+
+            HungrySpirit,
+
+            NeedleShotgun
         }
 
         [Header("Legendary Augment")]
@@ -133,6 +137,13 @@ namespace Vampire
                     // 전설증강 카드에서 선택되지만, 실제 런타임 활성화는 기존 메서드로 연결한다.
                     syringeDartAbility.EnableMucosalFortressAugment();
                     break;
+                case LegendaryAugmentType.HungrySpirit:
+                    syringeDartAbility.EnableHungrySpiritLegendary();
+                    break;
+
+                case LegendaryAugmentType.NeedleShotgun:
+                    syringeDartAbility.EnableNeedleShotgunLegendary();
+                    break;
             }
 
             if (debugLog)
@@ -178,13 +189,18 @@ namespace Vampire
                     break;
 
                 case LegendaryAugmentType.HeavySnipe:
-                    result = !syringeDartAbility.HasHeavySnipeLegendary() && baseRequirement;
+                    result =
+                        !syringeDartAbility.HasHeavySnipeLegendary() &&
+                        !syringeDartAbility.HasNeedleShotgunLegendary() &&
+                        baseRequirement;
                     break;
 
                 case LegendaryAugmentType.CursorControl:
-                    result = !syringeDartAbility.HasCursorControlLegendary() && baseRequirement;
+                    result =
+                        !syringeDartAbility.HasCursorControlLegendary() &&
+                        !syringeDartAbility.HasNeedleShotgunLegendary() &&
+                        baseRequirement;
                     break;
-
                 case LegendaryAugmentType.NeuralBlock:
                     result = !syringeDartAbility.HasNeuralBlockLegendary() && baseRequirement;
                     break;
@@ -211,7 +227,17 @@ namespace Vampire
                     // 그래서 기존에 존재하는 HasMucosalFortressAugment()를 사용한다.
                     result = !syringeDartAbility.HasMucosalFortressAugment() && baseRequirement;
                     break;
+                case LegendaryAugmentType.HungrySpirit:
+                    result = !syringeDartAbility.HasHungrySpiritLegendary() && baseRequirement;
+                    break;
 
+                case LegendaryAugmentType.NeedleShotgun:
+                    result =
+                        !syringeDartAbility.HasNeedleShotgunLegendary() &&
+                        !syringeDartAbility.HasHeavySnipeLegendary() &&
+                        !syringeDartAbility.HasCursorControlLegendary() &&
+                        baseRequirement;
+                    break;
                 default:
                     result = false;
                     break;

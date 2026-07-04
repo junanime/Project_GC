@@ -118,6 +118,8 @@ MonoBehaviour:
   returnNeedleEnabled: 0
   acupunctureFormationEnabled: 0
   lifeBurnEnabled: 0
+  hungrySpiritEnabled: 1
+  needleShotgunEnabled: 1
   cloneLegendaryTaken: 0
   neuralBlockEnabled: 0
   poisonContagionEnabled: 0
@@ -245,6 +247,28 @@ MonoBehaviour:
   heavyChargePreviewAlpha: 0.9
   heavyChargePreviewSortingOrderBonus: 30
   debugHeavySnipe: 1
+  hungrySpiritStackInterval: 2
+  hungrySpiritMaxStacks: 8
+  hungrySpiritDamageBonusPerStack: 0.05
+  hungrySpiritRangeBonusPerStack: 0.04
+  hungrySpiritAttackSpeedBonusPerStack: 0.04
+  debugHungrySpirit: 0
+  needleShotgunMaxAmmo: 4
+  needleShotgunReloadTime: 0.3
+  needleShotgunAttackInterval: 0.5
+  needleShotgunDetectionRange: 3
+  needleShotgunFixedRange: 3
+  needleShotgunProjectileSpeedMultiplier: 1.25
+  needleShotgunDamageMultiplier: 1
+  needleShotgunAnglePerProjectile: 18
+  needleShotgunMaxSpreadAngle: 120
+  needleShotgunReloadOnDash: 1
+  showNeedleShotgunAmmoNumber: 1
+  needleShotgunAmmoTextYOffset: 1.1
+  needleShotgunAmmoTextFontSize: 3
+  needleShotgunAmmoTextSortingOrder: 200
+  needleShotgunAmmoTextColor: {r: 1, g: 1, b: 1, a: 1}
+  debugNeedleShotgun: 0
   neuralBlockInterval: 30
   neuralBlockFreezeDuration: 5
   neuralBlockScreenPadding: 0.08

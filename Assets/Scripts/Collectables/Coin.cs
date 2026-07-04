@@ -35,6 +35,8 @@ namespace Vampire
 
         protected override void OnCollected()
         {
+            HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(playerCharacter);
+
             entityManager.DespawnCoin(this);
         }
     }
