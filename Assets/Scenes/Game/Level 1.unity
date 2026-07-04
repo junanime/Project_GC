@@ -1617,6 +1617,73 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 837f9659073664d2da699e9174e34f16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &323477456
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 323477458}
+  - component: {fileID: 323477457}
+  m_Layer: 0
+  m_Name: AntacidBubbleSurgeEventController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &323477457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323477456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82b0d0b7aa76c5c46a3a00093bb1ecc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelManager: {fileID: 0}
+  eventToastUI: {fileID: 0}
+  bubblePrefab: {fileID: 4965823543100547824, guid: 5f2ebd00d87e34348bde92116d7e2235, type: 3}
+  warningEdgeCanvasGroup: {fileID: 0}
+  eventName: "\uC81C\uC0B0 \uAC70\uD488 \uD3ED\uC8FC"
+  eventEnabled: 1
+  startTime: 10
+  duration: 20
+  warningDuration: 2
+  bubbleSpawnInterval: 1
+  bubblesPerWave: 2
+  maxActiveBubbles: 8
+  bubbleLifetime: 5
+  bubbleFadeOutDuration: 0.35
+  bubbleRadius: 1.8
+  minSpawnDistanceFromPlayer: 1.2
+  maxSpawnDistanceFromPlayer: 6
+  minDistanceBetweenBubbles: 2.5
+  bubbleColor: {r: 1, g: 1, b: 1, a: 0.65}
+  outsideDamageTickInterval: 0.5
+  outsideDamagePerTick: 2
+  damageImmediatelyWhenOutside: 0
+  debugLog: 1
+--- !u!4 &323477458
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323477456}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1000.7165, y: 999.35406, z: -0.36630136}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &326263320
 GameObject:
   m_ObjectHideFlags: 0
@@ -39771,3 +39838,4 @@ SceneRoots:
   - {fileID: 1421529453}
   - {fileID: 1207884298}
   - {fileID: 752185789}
+  - {fileID: 323477458}
