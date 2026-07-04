@@ -235,6 +235,22 @@ MonoBehaviour:
     m_Key: SyringeMucosalFortress_Description
     m_Metadata:
       m_Items: []
+  - m_Id: 290940029500706816
+    m_Key: SyringeHungrySpirit_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940031191011328
+    m_Key: SyringeHungrySpirit_Description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940032717737984
+    m_Key: SyringeNeedleShotgun_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940034143801344
+    m_Key: SyringeNeedleShotgun_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

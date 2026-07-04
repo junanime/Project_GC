@@ -300,6 +300,33 @@ MonoBehaviour:
       blocks 1 hit.
     m_Metadata:
       m_Items: []
+  - m_Id: 290940029500706816
+    m_Localized: 'Hungry Spirit
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940031191011328
+    m_Localized: 'Gain damage, range, and attack speed while avoiding EXP and Gold.
+
+      Collecting
+      a pickup resets all stacks.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940032717737984
+    m_Localized: Needle Shotgun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940034143801344
+    m_Localized: 'Turn your needle attack into a shotgun blast.
+
+      Load up to
+      4 shots and fire a piercing spread at nearby enemies.
+
+      Range is fixed
+      to 3. Dashing instantly reloads 1 shot.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
