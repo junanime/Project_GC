@@ -118,8 +118,8 @@ MonoBehaviour:
   returnNeedleEnabled: 0
   acupunctureFormationEnabled: 0
   lifeBurnEnabled: 0
-  hungrySpiritEnabled: 1
-  needleShotgunEnabled: 1
+  hungrySpiritEnabled: 0
+  needleShotgunEnabled: 0
   cloneLegendaryTaken: 0
   neuralBlockEnabled: 0
   poisonContagionEnabled: 0

@@ -346,7 +346,12 @@ namespace Vampire
             {
                 return;
             }
+            MonsterCombatBuffRuntime combatBuffRuntime = GetComponent<MonsterCombatBuffRuntime>();
 
+            if (combatBuffRuntime != null)
+            {
+                damage = combatBuffRuntime.ModifyIncomingDamage(damage);
+            }
             if (entityManager != null && monsterHitbox != null)
             {
                 entityManager.SpawnDamageText(monsterHitbox.transform.position, damage, isCritical);

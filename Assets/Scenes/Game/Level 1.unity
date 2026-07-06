@@ -1652,7 +1652,7 @@ MonoBehaviour:
   warningEdgeCanvasGroup: {fileID: 0}
   eventName: "\uC81C\uC0B0 \uAC70\uD488 \uD3ED\uC8FC"
   eventEnabled: 1
-  startTime: 10
+  startTime: 200
   duration: 20
   warningDuration: 2
   bubbleSpawnInterval: 1
@@ -38896,8 +38896,108 @@ MonoBehaviour:
     monsterPoolIndex: 10
     monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
     hpBuff: 0
-    spawnTimeMode: 0
+    spawnTimeMode: 1
     spawnTimeSeconds: 1
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 1
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
+    maxActiveTraps: 2
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
+  - specialSpawnMode: 0
+    memo: "\uC704\uC0B0\uAC70\uBA38\uB9AC"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 10
+    monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 1
+    spawnTimeSeconds: 1
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 1
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
+    maxActiveTraps: 2
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
+  - specialSpawnMode: 0
+    memo: "\uC774\uB3D9\uC18D\uB3C4 \uBC84\uD37C"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 10
+    monsterBlueprint: {fileID: 11400000, guid: f8cba314cb117eb47944ded45b0172cc, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 0
+    spawnTimeSeconds: 10
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 1
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
+    maxActiveTraps: 2
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
+  - specialSpawnMode: 0
+    memo: "\uD53C\uD574\uAC10\uC18C \uBC84\uD37C"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 15
+    monsterBlueprint: {fileID: 11400000, guid: 4d4bb73af58bf574bb3d08787b3578f4, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 0
+    spawnTimeSeconds: 15
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 1
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
+    maxActiveTraps: 2
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
+  - specialSpawnMode: 0
+    memo: "\uACF5\uACA9\uC18D\uB3C4 \uB514\uBC84\uD37C"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 10
+    monsterBlueprint: {fileID: 11400000, guid: e0ba29c6e55617344beb5fe211a63eb5, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 0
+    spawnTimeSeconds: 20
     randomStartTimeSeconds: 540
     randomEndTimeSeconds: 900
     randomEventCount: 8
