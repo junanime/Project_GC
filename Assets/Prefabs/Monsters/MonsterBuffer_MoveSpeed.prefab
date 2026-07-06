@@ -309,8 +309,8 @@ MonoBehaviour:
   buffDuration: 5
   moveSpeedBonusRatio: 0.2
   damageReductionRatio: 0.2
-  moveSpeedBuffSymbol: "\u271A"
-  damageReductionBuffSymbol: "\u25A3"
+  moveSpeedBuffSymbol: +
+  damageReductionBuffSymbol: '[]'
   moveSpeedBuffColor: {r: 0.2, g: 0.6, b: 1, a: 1}
   damageReductionBuffColor: {r: 0.8, g: 0.9, b: 1, a: 1}
   iconOrbitRadius: 0.35

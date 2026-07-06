@@ -223,7 +223,7 @@ GameObject:
   - component: {fileID: 1680239685074238797}
   - component: {fileID: 1509248373225648304}
   - component: {fileID: 2512452010502925311}
-  - component: {fileID: -4823780931716327104}
+  - component: {fileID: 5246846987064334184}
   m_Layer: 7
   m_Name: MonsterDebuffer_AttackSpeed
   m_TagString: Untagged
@@ -312,7 +312,7 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.2
---- !u!114 &-4823780931716327104
+--- !u!114 &5246846987064334184
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -321,7 +321,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8960830493049914446}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5efb7a6479ed04f9b98b0e36bdb7d267, type: 3}
+  m_Script: {fileID: 11500000, guid: 419439a27518d014c8911b7afd6137d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   defaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
@@ -330,6 +330,7 @@ MonoBehaviour:
   deathParticles: {fileID: 7790484987453093343}
   shadow: {fileID: 5780809235177417232}
   projectileSpawnPosition: {fileID: 0}
+  attackSpeedDebufferDebugLog: 1
 --- !u!1001 &2836955108497938538
 PrefabInstance:
   m_ObjectHideFlags: 0

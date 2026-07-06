@@ -146,9 +146,9 @@ MonoBehaviour:
   attackSpeedReduction: 0.2
   debuffDuration: 10
   arrowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
-  arrowYOffset: 1.4
+  arrowYOffset: 0.3
   arrowWidth: 0.8
-  arrowHeight: 1.1
+  arrowHeight: 0.6
   arrowFallSpeed: 1.5
   arrowCount: 5
   arrowFontSize: 2.2

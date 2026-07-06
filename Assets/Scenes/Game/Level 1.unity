@@ -38906,7 +38906,7 @@ MonoBehaviour:
     randomMinSpawnCount: 1
     randomMaxSpawnCount: 2
     intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
+    trapSpawnOnStart: 0
     trapActivateTimeSeconds: 60
     spawnInitialTrapsOnActivate: 1
     maxActiveTraps: 2
@@ -38931,7 +38931,7 @@ MonoBehaviour:
     randomMinSpawnCount: 1
     randomMaxSpawnCount: 2
     intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
+    trapSpawnOnStart: 0
     trapActivateTimeSeconds: 60
     spawnInitialTrapsOnActivate: 1
     maxActiveTraps: 2
@@ -38994,7 +38994,7 @@ MonoBehaviour:
     memo: "\uACF5\uACA9\uC18D\uB3C4 \uB514\uBC84\uD37C"
     autoResolvePoolIndex: 1
     monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: e0ba29c6e55617344beb5fe211a63eb5, type: 2}
+    monsterBlueprint: {fileID: 11400000, guid: eb3cd73e12f550e488cae70af2b41ce2, type: 2}
     hpBuff: 0
     spawnTimeMode: 0
     spawnTimeSeconds: 20
