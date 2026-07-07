@@ -226,6 +226,20 @@ namespace Vampire
         public bool IsDashing => isDashing;
         public float AntibioticBombChance => antibioticBombChance;
         public bool AutoCollectItems => autoCollectItems;
+        public float IdleHealPerSecond => healOnIdlePerSecond;
+        public float MagnetRangeBonus => magnetRangeBonus;
+        public float ExperienceMultiplier => expMultiplier;
+
+        public float DashDistance => dashDistance;
+        public float DashRechargeTime => dashRechargeTime;
+
+        public bool HasShield => hasShield;
+        public int ReviveCount => reviveCount;
+
+        public int ThermometerStacks => thermometerStacks;
+        public int ReflexHammerCount => reflexHammerCount;
+        public bool HasGinsengStick => hasGinsengStick;
+
 
         public UnityEvent<float> OnDealDamage { get; } = new UnityEvent<float>();
         public UnityEvent OnDeath { get; } = new UnityEvent();
