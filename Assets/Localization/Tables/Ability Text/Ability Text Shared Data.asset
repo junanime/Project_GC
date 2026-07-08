@@ -251,6 +251,14 @@ MonoBehaviour:
     m_Key: SyringeNeedleShotgun_Description
     m_Metadata:
       m_Items: []
+  - m_Id: 292400886399160320
+    m_Key: LegendaryConditionalSpecial_Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292400888429203456
+    m_Key: LegendaryConditionalSpecial_Description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

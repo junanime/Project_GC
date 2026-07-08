@@ -327,6 +327,15 @@ MonoBehaviour:
       to 3. Dashing instantly reloads 1 shot.'
     m_Metadata:
       m_Items: []
+  - m_Id: 292400886399160320
+    m_Localized: Legendary Linked Special Augment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292400888429203456
+    m_Localized: A special augment that modifies or strengthens a legendary augment
+      you already own.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
