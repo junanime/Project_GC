@@ -118,15 +118,24 @@ namespace Vampire
         }
 
         public override void Init(
-            AbilityManager abilityManager,
-            EntityManager entityManager,
-            Character playerCharacter)
+    AbilityManager abilityManager,
+    EntityManager entityManager,
+    Character playerCharacter)
         {
             base.Init(abilityManager, entityManager, playerCharacter);
 
             augmentTier = AugmentTier.Special;
-            maxLevel = 1;
-            canAppearAsOwnedUpgrade = false;
+
+            // 중요:
+            // 이 Ability 프리팹 자체는 여러 조건부 특수증강을 대표하는 "랜덤 카드 컨테이너"입니다.
+            // 따라서 maxLevel = 1로 두면 전체 카드가 1번만 등장하고 끝납니다.
+            // 개별 증강의 1회 제한은 runtime.HasAcquired(definition.id)로 처리합니다.
+            maxLevel = 999;
+
+            // 중요:
+            // 첫 선택 이후 이 Ability는 owned 상태가 됩니다.
+            // 이후에도 남은 조건부 특수증강을 보여주려면 owned upgrade 후보로 다시 들어와야 합니다.
+            canAppearAsOwnedUpgrade = true;
 
             RefreshSyringeDartAbilityReference();
             runtime = LegendaryConditionalSpecialRuntime.GetOrCreate(playerCharacter);
@@ -144,16 +153,13 @@ namespace Vampire
 
         protected override void Upgrade()
         {
-            // 조건부 특수증강은 업그레이드하지 않습니다.
+            // 이 Ability 자체는 owned 상태로 다시 등장하지만,
+            // 실제로는 "업그레이드"가 아니라 아직 획득하지 않은 조건부 특수증강 1개를 새로 획득하는 구조입니다.
+            ApplyPreparedAugment();
         }
 
         public override bool RequirementsMet()
         {
-            if (level >= 1)
-            {
-                return false;
-            }
-
             RefreshSyringeDartAbilityReference();
 
             if (syringeDartAbility == null || playerCharacter == null)
@@ -166,6 +172,14 @@ namespace Vampire
                 runtime = LegendaryConditionalSpecialRuntime.GetOrCreate(playerCharacter);
             }
 
+            if (runtime == null)
+            {
+                return false;
+            }
+
+            // level로 막지 않습니다.
+            // 이 Ability 컨테이너가 몇 번 선택됐는지가 아니라,
+            // 현재 보유 전설증강 기준으로 아직 안 먹은 조건부 특수증강이 남아 있는지가 핵심입니다.
             List<Definition> candidates = BuildCandidateList();
 
             if (candidates.Count <= 0)
