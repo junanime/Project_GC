@@ -48,8 +48,8 @@ namespace Vampire
 
         public int Level => level;
         public bool Owned => owned;
-        public Sprite Image => image;
-        public string Name => localizedName.GetLocalizedString();
+        public virtual Sprite Image => image;
+        public virtual string Name => localizedName.GetLocalizedString();
         public float DropWeight => (float)rarity;
         public AugmentTier Tier => augmentTier;
 
