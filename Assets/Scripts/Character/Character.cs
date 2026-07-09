@@ -180,6 +180,16 @@ namespace Vampire
         public Collider2D CollectableCollider => collectableCollider;
         public float Luck => characterBlueprint.luck * luckMultiplier;
         public int CurrentLevel => currentLevel;
+        public float CurrentHealth => currentHealth;
+        public float MaxHealth => GetMaxHealth();
+        public float CurrentMoveSpeed => movementSpeed != null ? movementSpeed.Value : 0f;
+        public float CurrentArmor => armor != null ? armor.Value : 0f;
+
+        public string DisplayName =>
+            characterBlueprint != null && !string.IsNullOrWhiteSpace(characterBlueprint.name)
+                ? characterBlueprint.name
+                : gameObject.name;
+
         public bool HasThermometer => hasThermometer;
 
         private int thermometerStacks = 0;
@@ -216,6 +226,20 @@ namespace Vampire
         public bool IsDashing => isDashing;
         public float AntibioticBombChance => antibioticBombChance;
         public bool AutoCollectItems => autoCollectItems;
+        public float IdleHealPerSecond => healOnIdlePerSecond;
+        public float MagnetRangeBonus => magnetRangeBonus;
+        public float ExperienceMultiplier => expMultiplier;
+
+        public float DashDistance => dashDistance;
+        public float DashRechargeTime => dashRechargeTime;
+
+        public bool HasShield => hasShield;
+        public int ReviveCount => reviveCount;
+
+        public int ThermometerStacks => thermometerStacks;
+        public int ReflexHammerCount => reflexHammerCount;
+        public bool HasGinsengStick => hasGinsengStick;
+
 
         public UnityEvent<float> OnDealDamage { get; } = new UnityEvent<float>();
         public UnityEvent OnDeath { get; } = new UnityEvent();

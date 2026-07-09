@@ -362,6 +362,9 @@ namespace Vampire
             }
 
             ability.Select();
+
+            AugmentHistoryManager.Instance?.RecordAbility(ability);
+
             levelUpMenu.Close();
         }
     }

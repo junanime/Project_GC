@@ -12,12 +12,17 @@ namespace Vampire
         private List<MerchantItemBlueprint> ownedItems = new List<MerchantItemBlueprint>();
         private HashSet<ItemTag> activatedSynergies = new HashSet<ItemTag>();
 
+        public IReadOnlyList<MerchantItemBlueprint> OwnedItems => ownedItems;
+        public event System.Action ItemsChanged;
+
+
         private List<string> activeSynergyNames = new List<string>();
 
         public List<string> ActiveSynergyNames
         {
             get { return activeSynergyNames; }
         }
+
 
         private void Awake()
         {
@@ -45,6 +50,7 @@ namespace Vampire
             Debug.Log($"[½Ã³ÊÁö] {item.itemName} È¹µæ! ÅÂ±× : {item.itemTag}");
 
             CheckTagCounts();
+            ItemsChanged?.Invoke();
         }
 
         private void CheckTagCounts()

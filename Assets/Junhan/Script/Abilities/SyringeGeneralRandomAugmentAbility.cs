@@ -205,6 +205,8 @@ namespace Vampire
                 ApplyAugment(augmentType);
                 AddStack(augmentType);
 
+                
+
                 if (debugLog)
                 {
                     Debug.Log($"[일반 증강] {GetDisplayName(augmentType)} 적용 | {GetEffectText(augmentType)}");
