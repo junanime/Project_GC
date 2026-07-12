@@ -38210,6 +38210,8 @@ MonoBehaviour:
   blockWhileRunFlowPaused: 1
   blockInsideMiniStage: 1
   debugLog: 1
+  logBlockedState: 1
+  failureLogInterval: 1
 --- !u!4 &1984084761
 Transform:
   m_ObjectHideFlags: 0

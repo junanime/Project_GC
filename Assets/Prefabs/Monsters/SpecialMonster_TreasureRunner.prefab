@@ -292,27 +292,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2dda03ce612c4047b8b85db21939337, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spriteRenderer: {fileID: 8520180498508189717}
-  bodyCollider: {fileID: 0}
-  projectileHitbox: {fileID: 0}
-  entityManager: {fileID: 0}
-  playerCharacter: {fileID: 0}
-  deathParticles: {fileID: 6710381995318333818}
   defaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
   whiteMaterial: {fileID: 2100000, guid: 4348fe5ea103a41bd9779c159297602c, type: 2}
   dissolveMaterial: {fileID: 2100000, guid: 6e8eea0ed92094605ac676c1b177e375, type: 2}
-  useHitWhiteFlash: 1
-  hitFlashDuration: 0.15
-  playHitFlashOnDeath: 1
-  autoCreateProjectileHitbox: 1
-  projectileHitboxLayerName: Monster Legs
-  projectileHitboxRadius: 0.45
-  projectileHitboxLocalOffset: {x: 0, y: 0.35}
+  deathParticles: {fileID: 6710381995318333818}
+  shadow: {fileID: 2877871657500550848}
   maxHealth: 35
   destroyDelayAfterDeath: 0.25
-  showDamageText: 1
-  damageTextOffset: {x: 0, y: 0.8}
-  debugLog: 1
+  registerToLivingMonsters: 1
+  hitboxLayerName: Monster Full
+  legsLayerName: Monster Legs
+  rootLegsColliderIsTrigger: 1
+  fieldSpecialDebugLog: 0
   lifetime: 7
   fleeMoveSpeed: 1.7
   panicDistance: 3

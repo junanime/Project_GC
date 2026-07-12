@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,6 +39,8 @@ namespace Vampire
             public bool enabled = true;
 
             [NonSerialized] public float timer;
+            [NonSerialized] public bool hasSpawnedOnce;
+            [NonSerialized] public float nextFailureLogTime;
             [NonSerialized] public readonly List<FieldSpecialMonsterBase> alive = new List<FieldSpecialMonsterBase>();
         }
 
@@ -63,13 +66,50 @@ namespace Vampire
         [SerializeField] private bool blockInsideMiniStage = true;
 
         [Header("Debug")]
-        [Tooltip("스폰 로그를 출력합니다.")]
+        [Tooltip("스폰 성공/실패/참조 누락 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = true;
+
+        [Tooltip("미니 스테이지나 RunFlowPaused 때문에 스폰이 막힐 때 로그를 출력합니다.")]
+        [SerializeField] private bool logBlockedState = false;
+
+        [Tooltip("스폰 실패 로그가 너무 많이 찍히지 않도록 제한하는 간격입니다.")]
+        [SerializeField] private float failureLogInterval = 1f;
+
+        private float nextBlockedLogTime;
 
         private void Awake()
         {
             ResolveReferences();
             InitializeTimers();
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[FieldSpecialMonsterSpawner] Awake 완료 | " +
+                    $"Entry Count: {(spawnEntries != null ? spawnEntries.Count : 0)}",
+                    this);
+            }
+        }
+
+        private IEnumerator Start()
+        {
+            // LevelManager / EntityManager / PlayerCharacter 초기화 순서 때문에
+            // 스포너가 먼저 실행되면 참조가 비어 있을 수 있으므로 2프레임 대기 후 다시 찾습니다.
+            yield return null;
+            yield return null;
+
+            ResolveReferences();
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[FieldSpecialMonsterSpawner] Start 참조 확인 | " +
+                    $"LevelManager: {(levelManager != null ? levelManager.name : "NULL")} | " +
+                    $"EntityManager: {(entityManager != null ? entityManager.name : "NULL")} | " +
+                    $"Player: {(playerCharacter != null ? playerCharacter.name : "NULL")} | " +
+                    $"Entry Count: {(spawnEntries != null ? spawnEntries.Count : 0)}",
+                    this);
+            }
         }
 
         private void Update()
@@ -81,19 +121,33 @@ namespace Vampire
                 return;
             }
 
+            if (spawnEntries == null || spawnEntries.Count <= 0)
+            {
+                if (debugLog && Time.time >= nextBlockedLogTime)
+                {
+                    nextBlockedLogTime = Time.time + Mathf.Max(0.5f, failureLogInterval);
+                    Debug.LogWarning(
+                        "[FieldSpecialMonsterSpawner] Spawn Entries가 비어 있습니다. " +
+                        "Inspector에서 영양 도둑균/보물 몬스터 프리팹을 등록하세요.",
+                        this);
+                }
+
+                return;
+            }
+
             for (int i = 0; i < spawnEntries.Count; i++)
             {
-                UpdateEntry(spawnEntries[i]);
+                UpdateEntry(spawnEntries[i], i);
             }
         }
 
         /// <summary>
         /// FieldSpecialMonsterBase가 사망/소멸/Destroy될 때 호출하는 제거 알림입니다.
-        /// 이 메서드가 없어서 현재 컴파일 오류가 발생한 것입니다.
+        /// alive 리스트에서 제거해야 다음 개체가 정상적으로 다시 스폰됩니다.
         /// </summary>
         public void NotifySpecialMonsterRemoved(FieldSpecialMonsterBase monster)
         {
-            if (monster == null)
+            if (monster == null || spawnEntries == null)
             {
                 return;
             }
@@ -113,6 +167,11 @@ namespace Vampire
 
         private void InitializeTimers()
         {
+            if (spawnEntries == null)
+            {
+                return;
+            }
+
             for (int i = 0; i < spawnEntries.Count; i++)
             {
                 SpawnEntry entry = spawnEntries[i];
@@ -123,10 +182,13 @@ namespace Vampire
                 }
 
                 entry.timer = 0f;
+                entry.hasSpawnedOnce = false;
+                entry.nextFailureLogTime = 0f;
+                entry.alive.Clear();
             }
         }
 
-        private void UpdateEntry(SpawnEntry entry)
+        private void UpdateEntry(SpawnEntry entry, int entryIndex)
         {
             if (entry == null)
             {
@@ -135,11 +197,19 @@ namespace Vampire
 
             if (!entry.enabled)
             {
+                LogEntryFailureThrottled(
+                    entry,
+                    entryIndex,
+                    "Entry가 비활성화되어 있습니다. Enabled를 체크하세요.");
                 return;
             }
 
             if (entry.prefab == null)
             {
+                LogEntryFailureThrottled(
+                    entry,
+                    entryIndex,
+                    "Prefab이 비어 있습니다. 영양 도둑균/보물 몬스터 프리팹을 넣으세요.");
                 return;
             }
 
@@ -154,32 +224,55 @@ namespace Vampire
 
             entry.timer += Time.deltaTime;
 
-            float requiredTime = entry.firstSpawnTime;
-
-            if (entry.timer > entry.firstSpawnTime)
-            {
-                requiredTime = entry.spawnInterval;
-            }
+            float requiredTime = entry.hasSpawnedOnce
+                ? Mathf.Max(0.1f, entry.spawnInterval)
+                : Mathf.Max(0f, entry.firstSpawnTime);
 
             if (entry.timer < requiredTime)
             {
                 return;
             }
 
-            Spawn(entry);
-            entry.timer = 0f;
+            bool spawned = TrySpawn(entry, entryIndex);
+
+            if (spawned)
+            {
+                entry.hasSpawnedOnce = true;
+                entry.timer = 0f;
+            }
+            else
+            {
+                // 참조가 늦게 잡히는 경우를 대비해서 매 프레임 로그 폭탄이 나지 않도록
+                // 1초 뒤 재시도하게 타이머를 살짝 되돌립니다.
+                entry.timer = Mathf.Max(0f, requiredTime - 1f);
+            }
         }
 
-        private void Spawn(SpawnEntry entry)
+        private bool TrySpawn(SpawnEntry entry, int entryIndex)
         {
-            if (entry == null || entry.prefab == null)
+            if (entry == null)
             {
-                return;
+                return false;
+            }
+
+            if (entry.prefab == null)
+            {
+                LogEntryFailureThrottled(entry, entryIndex, "Prefab이 null이라 스폰할 수 없습니다.");
+                return false;
             }
 
             if (playerCharacter == null)
             {
-                return;
+                ResolveReferences();
+
+                if (playerCharacter == null)
+                {
+                    LogEntryFailureThrottled(
+                        entry,
+                        entryIndex,
+                        "PlayerCharacter를 찾지 못해서 스폰할 수 없습니다. LevelManager.PlayerCharacter 또는 씬의 Character를 확인하세요.");
+                    return false;
+                }
             }
 
             Vector2 direction = UnityEngine.Random.insideUnitCircle.normalized;
@@ -195,12 +288,22 @@ namespace Vampire
                     -entry.spawnDistanceJitter,
                     entry.spawnDistanceJitter));
 
-            Vector2 spawnPosition = (Vector2)playerCharacter.transform.position + direction * distance;
+            Vector2 spawnPosition =
+                (Vector2)playerCharacter.transform.position + direction * distance;
 
             FieldSpecialMonsterBase monster = Instantiate(
                 entry.prefab,
                 spawnPosition,
                 Quaternion.identity);
+
+            if (monster == null)
+            {
+                LogEntryFailureThrottled(
+                    entry,
+                    entryIndex,
+                    "Instantiate 결과가 null입니다. 프리팹에 FieldSpecialMonsterBase 상속 컴포넌트가 있는지 확인하세요.");
+                return false;
+            }
 
             monster.SetupRuntime(this, entityManager, playerCharacter);
             entry.alive.Add(monster);
@@ -208,9 +311,13 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[FieldSpecialMonsterSpawner] 특수 몬스터 생성: {entry.prefab.name}, pos={spawnPosition}",
+                    $"[FieldSpecialMonsterSpawner] 특수 몬스터 생성 성공 | " +
+                    $"Entry #{entryIndex} | Prefab: {entry.prefab.name} | " +
+                    $"Pos: {spawnPosition} | FirstSpawnDone: {entry.hasSpawnedOnce}",
                     this);
             }
+
+            return true;
         }
 
         private void CleanupEntry(SpawnEntry entry)
@@ -235,11 +342,13 @@ namespace Vampire
         {
             if (blockInsideMiniStage && MiniStageRuntimeState.IsInsideMiniStage)
             {
+                LogBlockedThrottled("[FieldSpecialMonsterSpawner] MiniStageRuntimeState.IsInsideMiniStage=true라 스폰 타이머가 정지 중입니다.");
                 return true;
             }
 
             if (blockWhileRunFlowPaused && levelManager != null && levelManager.IsRunFlowPaused)
             {
+                LogBlockedThrottled("[FieldSpecialMonsterSpawner] LevelManager.IsRunFlowPaused=true라 스폰 타이머가 정지 중입니다.");
                 return true;
             }
 
@@ -275,6 +384,58 @@ namespace Vampire
             {
                 playerCharacter = FindObjectOfType<Character>();
             }
+        }
+
+        private void LogBlockedThrottled(string message)
+        {
+            if (!debugLog || !logBlockedState)
+            {
+                return;
+            }
+
+            if (Time.time < nextBlockedLogTime)
+            {
+                return;
+            }
+
+            nextBlockedLogTime = Time.time + Mathf.Max(0.5f, failureLogInterval);
+            Debug.Log(message, this);
+        }
+
+        private void LogEntryFailureThrottled(
+            SpawnEntry entry,
+            int entryIndex,
+            string reason)
+        {
+            if (!debugLog)
+            {
+                return;
+            }
+
+            if (entry == null)
+            {
+                return;
+            }
+
+            if (Time.time < entry.nextFailureLogTime)
+            {
+                return;
+            }
+
+            entry.nextFailureLogTime = Time.time + Mathf.Max(0.5f, failureLogInterval);
+
+            string prefabName = entry.prefab != null ? entry.prefab.name : "NULL";
+
+            Debug.LogWarning(
+                $"[FieldSpecialMonsterSpawner] Entry #{entryIndex} 스폰 대기/실패 | " +
+                $"Prefab: {prefabName} | " +
+                $"Timer: {entry.timer:F1} | " +
+                $"FirstSpawnTime: {entry.firstSpawnTime:F1} | " +
+                $"SpawnInterval: {entry.spawnInterval:F1} | " +
+                $"HasSpawnedOnce: {entry.hasSpawnedOnce} | " +
+                $"Alive: {entry.alive.Count}/{Mathf.Max(1, entry.maxAliveCount)} | " +
+                $"Reason: {reason}",
+                this);
         }
     }
 }

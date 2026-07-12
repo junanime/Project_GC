@@ -6,111 +6,62 @@ namespace Vampire
     /// <summary>
     /// 필드에 독립적으로 생성되는 특수 몬스터 공통 베이스입니다.
     ///
-    /// 기존 Monster.cs의 시각 규격을 맞춥니다.
-    /// - defaultMaterial
-    /// - whiteMaterial
-    /// - dissolveMaterial
-    /// - 피격 시 whiteMaterial 플래시
-    /// - 이후 defaultMaterial 복구
+    /// 중요:
+    /// 기존 투사체/증강/상태이상 판정은 Monster 컴포넌트를 기준으로 동작합니다.
+    /// 따라서 이 베이스도 IDamageable을 직접 상속하지 않고 Monster를 상속합니다.
     ///
-    /// 영양 도둑균, 추격형 보물 몬스터가 이 베이스를 사용합니다.
+    /// 이 구조로 바꾸면 영양 도둑균, 추격형 보물 몬스터도 기존 몬스터와 동일하게
+    /// SyringeProjectile의 Monster 판정, 피격 플래시, 데미지 텍스트, 상태이상 흐름에 들어갑니다.
     /// </summary>
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Rigidbody2D))]
-    public abstract class FieldSpecialMonsterBase : IDamageable
+    public abstract class FieldSpecialMonsterBase : Monster
     {
-        private const string AutoProjectileHitboxName = "Projectile Hitbox";
-
-        [Header("Common References")]
-        [Tooltip("특수 몬스터의 스프라이트 렌더러입니다. 비워두면 자동으로 찾습니다.")]
-        [SerializeField] protected SpriteRenderer spriteRenderer;
-
-        [Tooltip("루트 몸통 콜라이더입니다. 비워두면 자동으로 찾습니다.")]
-        [SerializeField] protected Collider2D bodyCollider;
-
-        [Tooltip("플레이어 투사체가 실제로 맞추는 자식 히트박스입니다. 비워두면 자동으로 생성합니다.")]
-        [SerializeField] protected Collider2D projectileHitbox;
-
-        [Tooltip("데미지 숫자와 보상 드랍에 사용할 EntityManager입니다. 비워두면 자동으로 찾습니다.")]
-        [SerializeField] protected EntityManager entityManager;
-
-        [Tooltip("플레이어 캐릭터입니다. 비워두면 자동으로 찾습니다.")]
-        [SerializeField] protected Character playerCharacter;
-
-        [Tooltip("사망 시 재생할 파티클입니다. 없어도 동작합니다.")]
-        [SerializeField] protected ParticleSystem deathParticles;
-
-        [Header("Materials")]
-        [Tooltip("기본 상태에서 사용할 몬스터 메터리얼입니다. 기존 몬스터 프리팹의 Default Material을 넣으세요.")]
-        [SerializeField] protected Material defaultMaterial;
-
-        [Tooltip("피격 순간 흰색으로 번쩍일 때 사용할 메터리얼입니다. 기존 몬스터 프리팹의 White Material을 넣으세요.")]
-        [SerializeField] protected Material whiteMaterial;
-
-        [Tooltip("사망/소멸 연출에 사용할 메터리얼입니다. 현재는 선택 사항이며, 기존 규격 유지를 위해 노출합니다.")]
-        [SerializeField] protected Material dissolveMaterial;
-
-        [Tooltip("피격 시 whiteMaterial로 잠깐 바뀌는 플래시를 사용할지 여부입니다.")]
-        [SerializeField] protected bool useHitWhiteFlash = true;
-
-        [Tooltip("피격 플래시가 유지되는 시간입니다. 기존 Monster.cs와 같은 기본값 0.15초를 사용합니다.")]
-        [SerializeField] protected float hitFlashDuration = 0.15f;
-
-        [Tooltip("사망 직전에 whiteMaterial 피격 플래시를 한 번 재생할지 여부입니다.")]
-        [SerializeField] protected bool playHitFlashOnDeath = true;
-
-        [Header("Projectile Hitbox")]
-        [Tooltip("투사체 피격 히트박스를 자동 생성할지 여부입니다.")]
-        [SerializeField] protected bool autoCreateProjectileHitbox = true;
-
-        [Tooltip("자동 생성되는 투사체 피격 히트박스에 지정할 레이어 이름입니다. 기존 몬스터와 맞추려면 Monster Legs를 사용합니다.")]
-        [SerializeField] protected string projectileHitboxLayerName = "Monster Legs";
-
-        [Tooltip("자동 생성되는 투사체 피격 히트박스 반지름입니다.")]
-        [SerializeField] protected float projectileHitboxRadius = 0.45f;
-
-        [Tooltip("자동 생성되는 투사체 피격 히트박스 로컬 위치 보정값입니다.")]
-        [SerializeField] protected Vector2 projectileHitboxLocalOffset = new Vector2(0f, 0.35f);
-
-        [Header("Health")]
-        [Tooltip("특수 몬스터 최대 체력입니다.")]
+        [Header("Field Special Monster")]
+        [Tooltip("필드 특수 몬스터 최대 체력입니다.")]
         [SerializeField] protected float maxHealth = 35f;
 
         [Tooltip("사망 후 오브젝트를 제거하기까지 기다리는 시간입니다.")]
         [SerializeField] protected float destroyDelayAfterDeath = 0.25f;
 
-        [Header("Hit Feedback")]
-        [Tooltip("피격 시 데미지 숫자를 띄울지 여부입니다.")]
-        [SerializeField] protected bool showDamageText = true;
+        [Tooltip("EntityManager.LivingMonsters에 등록할지 여부입니다. 켜두면 기존 몬스터 탐색/일부 전설증강 판정에 더 잘 잡힙니다.")]
+        [SerializeField] private bool registerToLivingMonsters = true;
 
-        [Tooltip("데미지 숫자가 뜨는 위치 보정값입니다.")]
-        [SerializeField] protected Vector2 damageTextOffset = new Vector2(0f, 0.8f);
+        [Header("Existing Monster Layer Rules")]
+        [Tooltip("기존 몬스터의 몸통 피격 박스에 맞출 레이어 이름입니다. 보통 Monster Full을 사용합니다.")]
+        [SerializeField] private string hitboxLayerName = "Monster Full";
 
-        [Header("Debug")]
-        [Tooltip("특수 몬스터 공통 로그를 출력합니다.")]
-        [SerializeField] protected bool debugLog = false;
+        [Tooltip("기존 몬스터의 다리/루트 콜라이더에 맞출 레이어 이름입니다. 보통 Monster Legs를 사용합니다.")]
+        [SerializeField] private string legsLayerName = "Monster Legs";
 
-        protected Rigidbody2D rb;
+        [Tooltip("기존 몬스터처럼 루트 CircleCollider2D를 Trigger로 유지할지 여부입니다.")]
+        [SerializeField] private bool rootLegsColliderIsTrigger = true;
+
+        [Header("Field Special Debug")]
+        [Tooltip("필드 특수 몬스터 전용 디버그 로그를 출력합니다.")]
+        [SerializeField] private bool fieldSpecialDebugLog = false;
+
         protected FieldSpecialMonsterSpawner ownerSpawner;
-        protected float currentHealth;
-        protected bool isAlive;
 
-        private Coroutine hitAnimationCoroutine;
-        private Coroutine deathCoroutine;
         private bool removalNotified;
+        private bool registeredToLivingMonsters;
 
-        public bool IsAlive => isAlive;
+        public bool IsAlive => alive;
         public float CurrentHealth => currentHealth;
         public float MaxHealth => maxHealth;
 
-        protected virtual void Awake()
-        {
-            rb = GetComponent<Rigidbody2D>();
+        // 기존 NutritionThiefBacteriaMonster / TreasureRunnerMonster에서 debugLog를 쓰고 있으므로
+        // SerializeField 중복 오류를 피하기 위해 필드가 아니라 읽기 전용 프로퍼티로 제공합니다.
+        protected bool debugLog => fieldSpecialDebugLog;
 
-            ResolveCommonReferences();
-            CacheDefaultMaterialIfMissing();
-            ConfigurePhysics();
-            EnsureProjectileHitbox();
+        protected override void Awake()
+        {
+            // Monster.Awake()가 기존 몬스터 규격의 핵심입니다.
+            // 여기서 Rigidbody2D, CircleCollider2D, SpriteRenderer, BoxCollider2D hitbox,
+            // ZPositioner 등을 기존 방식으로 세팅합니다.
+            base.Awake();
+
+            ConfigureFieldSpecialPhysics();
+            ApplyExistingMonsterLayers();
             ResetRuntimeState();
         }
 
@@ -119,20 +70,20 @@ namespace Vampire
             ResetRuntimeState();
         }
 
-        protected virtual void Update()
+        protected override void Update()
         {
-            if (!isAlive)
+            if (!alive)
             {
                 return;
             }
 
             OnAliveUpdate();
-            UpdateSpriteDirection();
+            UpdateSpriteDirectionByVelocity();
         }
 
-        protected virtual void FixedUpdate()
+        protected override void FixedUpdate()
         {
-            if (!isAlive)
+            if (!alive)
             {
                 return;
             }
@@ -156,59 +107,21 @@ namespace Vampire
             {
                 playerCharacter = player;
             }
-        }
 
-        public override void TakeDamage(float damage, Vector2 knockback = default, bool isCritical = false)
-        {
-            if (!isAlive)
-            {
-                return;
-            }
-
-            if (damage <= 0f)
-            {
-                return;
-            }
-
-            currentHealth = Mathf.Max(0f, currentHealth - damage);
-
-            Knockback(knockback);
-            SpawnDamageText(damage, isCritical);
-
-            if (hitAnimationCoroutine != null)
-            {
-                StopCoroutine(hitAnimationCoroutine);
-                hitAnimationCoroutine = null;
-            }
-
-            if (currentHealth > 0f)
-            {
-                hitAnimationCoroutine = StartCoroutine(HitAnimation());
-            }
-            else
-            {
-                Die(killedByPlayer: true);
-            }
-        }
-
-        public override void Knockback(Vector2 knockback)
-        {
-            if (rb == null)
-            {
-                return;
-            }
-
-            if (knockback == default)
-            {
-                return;
-            }
-
-            rb.velocity += knockback;
+            ConfigureFieldSpecialPhysics();
+            ApplyExistingMonsterLayers();
+            ResetRuntimeState();
+            RegisterToLivingMonstersIfNeeded();
         }
 
         public void DespawnWithoutReward()
         {
-            Die(killedByPlayer: false);
+            if (!alive)
+            {
+                return;
+            }
+
+            StartCoroutine(Killed(false));
         }
 
         protected virtual void OnAliveUpdate()
@@ -227,45 +140,31 @@ namespace Vampire
         {
         }
 
-        protected void Die(bool killedByPlayer)
+        public override IEnumerator Killed(bool killedByPlayer = true)
         {
-            if (deathCoroutine != null)
-            {
-                return;
-            }
-
-            deathCoroutine = StartCoroutine(DeathRoutine(killedByPlayer));
-        }
-
-        private IEnumerator DeathRoutine(bool killedByPlayer)
-        {
-            if (!isAlive)
+            if (!alive && removalNotified)
             {
                 yield break;
             }
 
-            isAlive = false;
+            alive = false;
+
+            if (monsterHitbox != null)
+            {
+                monsterHitbox.enabled = false;
+            }
+
+            if (monsterLegsCollider != null)
+            {
+                monsterLegsCollider.enabled = false;
+            }
 
             if (rb != null)
             {
                 rb.velocity = Vector2.zero;
             }
 
-            if (bodyCollider != null)
-            {
-                bodyCollider.enabled = false;
-            }
-
-            if (projectileHitbox != null)
-            {
-                projectileHitbox.enabled = false;
-            }
-
-            if (hitAnimationCoroutine != null)
-            {
-                StopCoroutine(hitAnimationCoroutine);
-                hitAnimationCoroutine = null;
-            }
+            RemoveFromLivingMonstersIfNeeded();
 
             if (killedByPlayer)
             {
@@ -283,25 +182,26 @@ namespace Vampire
                 deathParticles.Play();
             }
 
-            if (playHitFlashOnDeath)
+            // 기존 Monster.cs의 피격 플래시 규격을 그대로 사용합니다.
+            yield return HitAnimation();
+
+            if (monsterSpriteRenderer != null)
             {
-                yield return HitAnimation();
-            }
-            else
-            {
-                ApplyDefaultMaterial();
+                monsterSpriteRenderer.enabled = false;
             }
 
-            if (spriteRenderer != null)
+            if (shadow != null)
             {
-                spriteRenderer.enabled = false;
+                shadow.SetActive(false);
             }
 
             float waitTime = Mathf.Max(0f, destroyDelayAfterDeath);
 
             if (deathParticles != null)
             {
-                waitTime = Mathf.Max(waitTime, Mathf.Max(0f, deathParticles.main.duration - hitFlashDuration));
+                waitTime = Mathf.Max(
+                    waitTime,
+                    Mathf.Max(0f, deathParticles.main.duration - 0.15f));
             }
 
             if (waitTime > 0f)
@@ -312,55 +212,78 @@ namespace Vampire
             Destroy(gameObject);
         }
 
-        protected IEnumerator HitAnimation()
+        protected virtual void ResetRuntimeState()
         {
-            if (spriteRenderer != null && useHitWhiteFlash && whiteMaterial != null)
+            alive = true;
+            currentHealth = Mathf.Max(1f, maxHealth);
+            removalNotified = false;
+
+            if (rb == null)
             {
-                spriteRenderer.sharedMaterial = whiteMaterial;
+                rb = GetComponent<Rigidbody2D>();
             }
 
-            yield return new WaitForSeconds(Mathf.Max(0f, hitFlashDuration));
-
-            ApplyDefaultMaterial();
-        }
-
-        protected void ApplyDefaultMaterial()
-        {
-            if (spriteRenderer == null)
+            if (monsterLegsCollider == null)
             {
-                return;
+                monsterLegsCollider = GetComponent<CircleCollider2D>();
             }
 
-            if (defaultMaterial != null)
+            if (monsterSpriteRenderer == null)
             {
-                spriteRenderer.sharedMaterial = defaultMaterial;
-            }
-        }
-
-        protected void ApplyWhiteMaterial()
-        {
-            if (spriteRenderer == null)
-            {
-                return;
+                monsterSpriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
             }
 
-            if (whiteMaterial != null)
+            if (monsterHitbox == null && monsterSpriteRenderer != null)
             {
-                spriteRenderer.sharedMaterial = whiteMaterial;
-            }
-        }
+                monsterHitbox = monsterSpriteRenderer.GetComponent<BoxCollider2D>();
 
-        protected void ApplyDissolveMaterial()
-        {
-            if (spriteRenderer == null)
-            {
-                return;
+                if (monsterHitbox == null)
+                {
+                    monsterHitbox = monsterSpriteRenderer.gameObject.AddComponent<BoxCollider2D>();
+                }
             }
 
-            if (dissolveMaterial != null)
+            if (monsterHitbox != null)
             {
-                spriteRenderer.sharedMaterial = dissolveMaterial;
+                monsterHitbox.enabled = true;
+                monsterHitbox.isTrigger = true;
+
+                if (monsterSpriteRenderer != null)
+                {
+                    monsterHitbox.size = monsterSpriteRenderer.bounds.size;
+                    monsterHitbox.offset = Vector2.up * monsterHitbox.size.y / 2f;
+                }
             }
+
+            if (monsterLegsCollider != null)
+            {
+                monsterLegsCollider.enabled = true;
+                monsterLegsCollider.isTrigger = rootLegsColliderIsTrigger;
+
+                if (monsterHitbox != null)
+                {
+                    monsterLegsCollider.radius = Mathf.Max(0.05f, monsterHitbox.size.x / 2.5f);
+                }
+            }
+
+            if (monsterSpriteRenderer != null)
+            {
+                monsterSpriteRenderer.enabled = true;
+
+                if (defaultMaterial != null)
+                {
+                    monsterSpriteRenderer.sharedMaterial = defaultMaterial;
+                }
+            }
+
+            if (shadow != null)
+            {
+                shadow.SetActive(true);
+            }
+
+            EnsureCenterTransform();
+            ConfigureFieldSpecialPhysics();
+            ApplyExistingMonsterLayers();
         }
 
         protected void DropExpValueAroundSelf(int totalExp)
@@ -404,6 +327,19 @@ namespace Vampire
             remaining = SpawnCoinByUnit(remaining, CoinType.Bronze1, 1);
         }
 
+        protected Vector2 GetRandomDropPosition()
+        {
+            Vector2 randomDirection = Random.insideUnitCircle;
+
+            if (randomDirection.sqrMagnitude < 0.01f)
+            {
+                randomDirection = Vector2.right;
+            }
+
+            Vector2 offset = randomDirection.normalized * Random.Range(0.15f, 0.85f);
+            return (Vector2)transform.position + offset;
+        }
+
         private int SpawnExpByUnit(int remaining, GemType gemType, int unitValue)
         {
             while (remaining >= unitValue)
@@ -426,166 +362,105 @@ namespace Vampire
             return remaining;
         }
 
-        protected Vector2 GetRandomDropPosition()
-        {
-            Vector2 offset = Random.insideUnitCircle.normalized * Random.Range(0.15f, 0.85f);
-            return (Vector2)transform.position + offset;
-        }
-
-        private void ResolveCommonReferences()
-        {
-            if (spriteRenderer == null)
-            {
-                spriteRenderer = GetComponentInChildren<SpriteRenderer>(true);
-            }
-
-            if (bodyCollider == null)
-            {
-                bodyCollider = GetComponent<Collider2D>();
-            }
-
-            if (bodyCollider == null)
-            {
-                bodyCollider = GetComponentInChildren<Collider2D>(true);
-            }
-
-            if (entityManager == null)
-            {
-                entityManager = FindObjectOfType<EntityManager>();
-            }
-
-            if (playerCharacter == null)
-            {
-                playerCharacter = FindObjectOfType<Character>();
-            }
-        }
-
-        private void CacheDefaultMaterialIfMissing()
-        {
-            if (spriteRenderer == null)
-            {
-                return;
-            }
-
-            if (defaultMaterial == null)
-            {
-                defaultMaterial = spriteRenderer.sharedMaterial;
-            }
-        }
-
-        private void ConfigurePhysics()
+        private void ConfigureFieldSpecialPhysics()
         {
             if (rb == null)
             {
-                return;
+                rb = GetComponent<Rigidbody2D>();
             }
 
-            rb.gravityScale = 0f;
-            rb.freezeRotation = true;
-
-            if (bodyCollider != null)
+            if (rb != null)
             {
-                bodyCollider.isTrigger = true;
+                rb.gravityScale = 0f;
+                rb.freezeRotation = true;
+            }
+
+            if (monsterHitbox != null)
+            {
+                monsterHitbox.isTrigger = true;
+            }
+
+            if (monsterLegsCollider != null)
+            {
+                monsterLegsCollider.isTrigger = rootLegsColliderIsTrigger;
             }
         }
 
-        private void EnsureProjectileHitbox()
+        private void ApplyExistingMonsterLayers()
         {
-            if (!autoCreateProjectileHitbox)
-            {
-                if (projectileHitbox != null)
-                {
-                    projectileHitbox.isTrigger = true;
-                    ApplyProjectileHitboxLayer(projectileHitbox.gameObject);
-                }
+            int hitboxLayer = GetLayerIndexWithFallback(hitboxLayerName, legsLayerName);
+            int legsLayer = GetLayerIndexWithFallback(legsLayerName, hitboxLayerName);
 
-                return;
+            if (hitboxLayer >= 0 && monsterHitbox != null)
+            {
+                monsterHitbox.gameObject.layer = hitboxLayer;
             }
 
-            if (projectileHitbox == null)
+            if (legsLayer >= 0)
             {
-                Transform existingHitbox = transform.Find(AutoProjectileHitboxName);
+                gameObject.layer = legsLayer;
 
-                if (existingHitbox != null)
+                if (monsterLegsCollider != null)
                 {
-                    projectileHitbox = existingHitbox.GetComponent<Collider2D>();
+                    monsterLegsCollider.gameObject.layer = legsLayer;
                 }
             }
+        }
 
-            if (projectileHitbox == null)
+        private int GetLayerIndexWithFallback(string primaryName, string fallbackName)
+        {
+            int primary = LayerMask.NameToLayer(primaryName);
+
+            if (primary >= 0)
             {
-                GameObject hitboxObject = new GameObject(AutoProjectileHitboxName);
-                hitboxObject.transform.SetParent(transform);
-                hitboxObject.transform.localPosition = projectileHitboxLocalOffset;
-                hitboxObject.transform.localRotation = Quaternion.identity;
-                hitboxObject.transform.localScale = Vector3.one;
+                return primary;
+            }
 
-                CircleCollider2D circleCollider = hitboxObject.AddComponent<CircleCollider2D>();
-                circleCollider.isTrigger = true;
-                circleCollider.radius = Mathf.Max(0.05f, projectileHitboxRadius);
+            int fallback = LayerMask.NameToLayer(fallbackName);
 
-                projectileHitbox = circleCollider;
+            if (fallback >= 0)
+            {
+                return fallback;
+            }
+
+            if (fieldSpecialDebugLog)
+            {
+                Debug.LogWarning(
+                    $"[{GetType().Name}] 레이어를 찾지 못했습니다. primary={primaryName}, fallback={fallbackName}",
+                    this);
+            }
+
+            return -1;
+        }
+
+        private void EnsureCenterTransform()
+        {
+            if (centerTransform == null)
+            {
+                centerTransform = new GameObject("Center Transform").transform;
+                centerTransform.SetParent(transform);
+            }
+
+            if (monsterHitbox != null)
+            {
+                centerTransform.position = transform.position + (Vector3)monsterHitbox.offset;
             }
             else
             {
-                projectileHitbox.transform.SetParent(transform);
-                projectileHitbox.transform.localPosition = projectileHitboxLocalOffset;
-                projectileHitbox.transform.localRotation = Quaternion.identity;
-                projectileHitbox.transform.localScale = Vector3.one;
-                projectileHitbox.isTrigger = true;
-
-                CircleCollider2D circleCollider = projectileHitbox as CircleCollider2D;
-
-                if (circleCollider != null)
-                {
-                    circleCollider.radius = Mathf.Max(0.05f, projectileHitboxRadius);
-                }
+                centerTransform.position = transform.position;
             }
-
-            ApplyProjectileHitboxLayer(projectileHitbox.gameObject);
         }
 
-        private void ApplyProjectileHitboxLayer(GameObject hitboxObject)
+        private void RegisterToLivingMonstersIfNeeded()
         {
-            if (hitboxObject == null)
+            if (!registerToLivingMonsters)
             {
                 return;
             }
 
-            int layerIndex = LayerMask.NameToLayer(projectileHitboxLayerName);
-
-            if (layerIndex < 0)
-            {
-                layerIndex = LayerMask.NameToLayer("Monster Full");
-            }
-
-            if (layerIndex < 0)
-            {
-                layerIndex = LayerMask.NameToLayer("Monster Legs");
-            }
-
-            if (layerIndex < 0)
-            {
-                Debug.LogWarning(
-                    $"[{GetType().Name}] 투사체 피격 히트박스 레이어를 찾지 못했습니다. " +
-                    "Project Settings > Tags and Layers에서 Monster Legs 레이어를 확인하세요.",
-                    this);
-                return;
-            }
-
-            hitboxObject.layer = layerIndex;
-        }
-
-        private void SpawnDamageText(float damage, bool isCritical)
-        {
-            if (!showDamageText)
+            if (registeredToLivingMonsters)
             {
                 return;
-            }
-
-            if (entityManager == null)
-            {
-                entityManager = FindObjectOfType<EntityManager>();
             }
 
             if (entityManager == null)
@@ -593,52 +468,27 @@ namespace Vampire
                 return;
             }
 
-            Vector2 textPosition = (Vector2)transform.position + damageTextOffset;
-
-            if (projectileHitbox != null)
+            if (!entityManager.LivingMonsters.Contains(this))
             {
-                textPosition = (Vector2)projectileHitbox.bounds.center + damageTextOffset;
+                entityManager.LivingMonsters.Add(this);
             }
 
-            entityManager.SpawnDamageText(textPosition, damage, isCritical);
+            registeredToLivingMonsters = true;
         }
 
-        protected virtual void ResetRuntimeState()
+        private void RemoveFromLivingMonstersIfNeeded()
         {
-            currentHealth = maxHealth;
-            isAlive = true;
-            removalNotified = false;
-            deathCoroutine = null;
-
-            if (bodyCollider != null)
-            {
-                bodyCollider.enabled = true;
-            }
-
-            if (projectileHitbox != null)
-            {
-                projectileHitbox.enabled = true;
-            }
-
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.enabled = true;
-            }
-
-            ApplyDefaultMaterial();
-        }
-
-        private void UpdateSpriteDirection()
-        {
-            if (spriteRenderer == null || rb == null)
+            if (!registeredToLivingMonsters)
             {
                 return;
             }
 
-            if (Mathf.Abs(rb.velocity.x) > 0.02f)
+            if (entityManager != null)
             {
-                spriteRenderer.flipX = rb.velocity.x < 0f;
+                entityManager.LivingMonsters.Remove(this);
             }
+
+            registeredToLivingMonsters = false;
         }
 
         private void NotifyRemovedOnce()
@@ -652,15 +502,28 @@ namespace Vampire
             ownerSpawner?.NotifySpecialMonsterRemoved(this);
         }
 
+        private void UpdateSpriteDirectionByVelocity()
+        {
+            if (monsterSpriteRenderer == null || rb == null)
+            {
+                return;
+            }
+
+            if (Mathf.Abs(rb.velocity.x) > 0.02f)
+            {
+                monsterSpriteRenderer.flipX = rb.velocity.x < 0f;
+            }
+        }
+
         protected virtual void OnDisable()
         {
-            ApplyDefaultMaterial();
+            RemoveFromLivingMonstersIfNeeded();
             NotifyRemovedOnce();
         }
 
         protected virtual void OnDestroy()
         {
-            ApplyDefaultMaterial();
+            RemoveFromLivingMonstersIfNeeded();
             NotifyRemovedOnce();
         }
     }
