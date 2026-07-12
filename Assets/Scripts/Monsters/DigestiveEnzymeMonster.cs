@@ -591,6 +591,7 @@ namespace Vampire
             {
                 monsterCurrentHealthField.SetValue(monster, 0f);
                 monster.StartCoroutine(monster.Killed(false));
+                DigestiveEnzymeDifficultyManager.NotifyDigestiveEnzymeKilledMonster(this, monster);
             }
             else
             {
