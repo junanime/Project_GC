@@ -11,21 +11,36 @@ namespace Vampire
     /// - LevelBlueprint.monsters에 등록
     /// - TimedSpecialMonsterSpawner에서 MonsterBlueprint로 스폰
     ///
-    /// 기능:
-    /// - 플레이어에게서 도망감
-    /// - 제한 시간 내 처치하면 큰 보상
-    /// - 시간 초과 시 보상 없이 사라짐
+    /// 변경된 동작:
+    /// - 스폰 직후에는 플레이어 쪽으로 접근합니다.
+    /// - 플레이어와의 거리가 fleeStartDistance 이하가 되면 도망 상태로 전환됩니다.
+    /// - 한 번 도망 상태가 되면 다시 접근하지 않고 계속 도망갑니다.
+    /// - 제한 시간 안에 처치하면 큰 보상을 드랍합니다.
+    /// - 제한 시간이 지나면 보상 없이 사라집니다.
     /// </summary>
     public class TreasureRunnerMonster : Monster
     {
+        [Header("Approach Then Flee")]
+        [Tooltip("스폰 직후 플레이어에게 접근할 때의 이동속도입니다.")]
+        [SerializeField] private float approachMoveSpeed = 1.6f;
+
+        [Tooltip("플레이어와 이 거리 이하가 되면 도망 상태로 전환됩니다.")]
+        [SerializeField] private float fleeStartDistance = 3f;
+
+        [Tooltip("한 번 도망 상태가 되면 다시 접근 상태로 돌아가지 않게 합니다.")]
+        [SerializeField] private bool keepFleeingAfterTriggered = true;
+
+        [Tooltip("접근 중 이동이 너무 직선적이지 않도록 살짝 흔들리는 정도입니다.")]
+        [SerializeField] private float approachSideNoiseStrength = 0.12f;
+
         [Header("Treasure Runner")]
-        [Tooltip("보물 몬스터가 도망치는 시간입니다. 이 시간이 지나면 보상 없이 사라집니다.")]
+        [Tooltip("보물 몬스터가 살아 있는 시간입니다. 이 시간이 지나면 보상 없이 사라집니다.")]
         [SerializeField] private float lifetime = 18f;
 
-        [Tooltip("기본 도망 이동속도입니다.")]
+        [Tooltip("도망 상태일 때 기본 이동속도입니다.")]
         [SerializeField] private float fleeMoveSpeed = 2.35f;
 
-        [Tooltip("플레이어가 이 거리 안에 있으면 더 강하게 도망갑니다.")]
+        [Tooltip("도망 상태에서 플레이어가 이 거리 안에 있으면 더 강하게 도망갑니다.")]
         [SerializeField] private float panicDistance = 5f;
 
         [Tooltip("패닉 상태일 때 이동속도 배율입니다.")]
@@ -53,6 +68,7 @@ namespace Vampire
 
         private float spawnTime;
         private bool deathHandled;
+        private bool hasStartedFleeing;
 
         public override void Setup(
             int monsterIndex,
@@ -64,6 +80,14 @@ namespace Vampire
 
             spawnTime = Time.time;
             deathHandled = false;
+            hasStartedFleeing = false;
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[추격형 보물 몬스터] 스폰 완료. 접근 시작 | FleeStartDistance={fleeStartDistance}",
+                    this);
+            }
         }
 
         protected override void Update()
@@ -99,29 +123,31 @@ namespace Vampire
                 return;
             }
 
-            Vector2 awayFromPlayer =
-                (Vector2)transform.position - (Vector2)playerCharacter.transform.position;
+            Vector2 monsterPosition = rb.position;
+            Vector2 playerPosition = playerCharacter.transform.position;
+            Vector2 toPlayer = playerPosition - monsterPosition;
 
-            if (awayFromPlayer.sqrMagnitude < 0.01f)
+            float distanceToPlayer = toPlayer.magnitude;
+
+            if (distanceToPlayer <= Mathf.Max(0.1f, fleeStartDistance))
             {
-                awayFromPlayer = Random.insideUnitCircle;
+                if (!hasStartedFleeing && debugLog)
+                {
+                    Debug.Log(
+                        $"[추격형 보물 몬스터] 플레이어 접근 감지. 도망 시작 | Distance={distanceToPlayer:F2}",
+                        this);
+                }
+
+                hasStartedFleeing = true;
             }
 
-            awayFromPlayer.Normalize();
-
-            Vector2 sideNoise = new Vector2(-awayFromPlayer.y, awayFromPlayer.x)
-                * Mathf.Sin(Time.time * 3.5f)
-                * sideNoiseStrength;
-
-            float distance = Vector2.Distance(transform.position, playerCharacter.transform.position);
-            float speed = fleeMoveSpeed;
-
-            if (distance <= panicDistance)
+            if (!hasStartedFleeing || (!keepFleeingAfterTriggered && distanceToPlayer > fleeStartDistance))
             {
-                speed *= panicSpeedMultiplier;
+                MoveTowardPlayer(toPlayer);
+                return;
             }
 
-            rb.velocity = (awayFromPlayer + sideNoise).normalized * speed;
+            FleeFromPlayer(toPlayer, distanceToPlayer);
         }
 
         public override IEnumerator Killed(bool killedByPlayer = true)
@@ -138,10 +164,56 @@ namespace Vampire
                 DropTreasureReward();
             }
 
-            // 중요:
-            // base.Killed(true)를 호출하면 MonsterBlueprint 기본 DropLoot도 같이 떨어집니다.
-            // 보물 몬스터는 전용 보상만 드랍하게 하고, 풀 반환은 기존 Monster.Killed(false)를 사용합니다.
+            // 보물 몬스터는 전용 보상만 드랍합니다.
+            // base.Killed(true)를 호출하면 MonsterBlueprint 기본 DropLoot도 같이 떨어질 수 있으므로 false로 넘깁니다.
             yield return base.Killed(false);
+        }
+
+        private void MoveTowardPlayer(Vector2 toPlayer)
+        {
+            if (toPlayer.sqrMagnitude < 0.01f)
+            {
+                rb.velocity = Vector2.zero;
+                return;
+            }
+
+            Vector2 direction = toPlayer.normalized;
+
+            Vector2 sideNoise = new Vector2(-direction.y, direction.x)
+                * Mathf.Sin(Time.time * 2.5f)
+                * approachSideNoiseStrength;
+
+            rb.velocity = (direction + sideNoise).normalized * approachMoveSpeed;
+        }
+
+        private void FleeFromPlayer(Vector2 toPlayer, float distanceToPlayer)
+        {
+            Vector2 awayFromPlayer = -toPlayer;
+
+            if (awayFromPlayer.sqrMagnitude < 0.01f)
+            {
+                awayFromPlayer = Random.insideUnitCircle;
+
+                if (awayFromPlayer.sqrMagnitude < 0.01f)
+                {
+                    awayFromPlayer = Vector2.right;
+                }
+            }
+
+            awayFromPlayer.Normalize();
+
+            Vector2 sideNoise = new Vector2(-awayFromPlayer.y, awayFromPlayer.x)
+                * Mathf.Sin(Time.time * 3.5f)
+                * sideNoiseStrength;
+
+            float speed = fleeMoveSpeed;
+
+            if (distanceToPlayer <= panicDistance)
+            {
+                speed *= panicSpeedMultiplier;
+            }
+
+            rb.velocity = (awayFromPlayer + sideNoise).normalized * speed;
         }
 
         private void DropTreasureReward()
@@ -242,6 +314,9 @@ namespace Vampire
 
         private void OnDrawGizmosSelected()
         {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(transform.position, fleeStartDistance);
+
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, panicDistance);
         }
