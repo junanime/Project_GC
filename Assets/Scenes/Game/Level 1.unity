@@ -20671,7 +20671,6 @@ Transform:
   - {fileID: 958006997}
   - {fileID: 2101930415}
   - {fileID: 2106351311}
-  - {fileID: 1984084761}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1209616732
@@ -38160,73 +38159,6 @@ MonoBehaviour:
     memo: "15\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
   spawnEachEntryOnlyOnce: 1
   debugLog: 0
---- !u!1 &1984084759
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1984084761}
-  - component: {fileID: 1984084760}
-  m_Layer: 0
-  m_Name: FieldSpecialMonsterSpawner
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1984084760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1984084759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5ce4072c890ac9c458b64d061d30daf4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  entityManager: {fileID: 0}
-  playerCharacter: {fileID: 0}
-  spawnEntries:
-  - prefab: {fileID: -6632971739127697066, guid: b4c29271ca6dac1468a20e75ecca0296, type: 3}
-    firstSpawnTime: 10
-    spawnInterval: 50
-    maxAliveCount: 1
-    spawnDistanceFromPlayer: 1
-    spawnDistanceJitter: 1
-    enabled: 1
-  - prefab: {fileID: 3785646200648734481, guid: 0c851575fda614b4180b4b807e20ac60, type: 3}
-    firstSpawnTime: 20
-    spawnInterval: 60
-    maxAliveCount: 1
-    spawnDistanceFromPlayer: 1
-    spawnDistanceJitter: 1
-    enabled: 1
-  blockWhileRunFlowPaused: 1
-  blockInsideMiniStage: 1
-  debugLog: 1
-  logBlockedState: 1
-  failureLogInterval: 1
---- !u!4 &1984084761
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1984084759}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1000.7165, y: 999.35406, z: -0.36630136}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1207884298}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2001856712
 GameObject:
   m_ObjectHideFlags: 0
@@ -39083,8 +39015,58 @@ MonoBehaviour:
     maxDistanceFromPlayer: 6
     minDistanceBetweenTraps: 1.5
     spawnPositionTryCount: 20
+  - specialSpawnMode: 0
+    memo: "\uB3C4\uB451\uB188"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 10
+    monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 0
+    spawnTimeSeconds: 10
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 1
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
+    maxActiveTraps: 2
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
+  - specialSpawnMode: 0
+    memo: "\uD669\uACE0"
+    autoResolvePoolIndex: 1
+    monsterPoolIndex: 10
+    monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
+    hpBuff: 0
+    spawnTimeMode: 0
+    spawnTimeSeconds: 30
+    randomStartTimeSeconds: 540
+    randomEndTimeSeconds: 900
+    randomEventCount: 8
+    spawnCountMode: 1
+    spawnCount: 1
+    randomMinSpawnCount: 1
+    randomMaxSpawnCount: 2
+    intervalBetweenSpawns: 2
+    trapSpawnOnStart: 1
+    trapActivateTimeSeconds: 60
+    spawnInitialTrapsOnActivate: 1
+    maxActiveTraps: 2
+    respawnDelay: 80
+    minDistanceFromPlayer: 4
+    maxDistanceFromPlayer: 6
+    minDistanceBetweenTraps: 1.5
+    spawnPositionTryCount: 20
   blockWhileRunFlowPaused: 1
-  logMiniStageBlock: 0
+  logMiniStageBlock: 1
   debugLog: 1
 --- !u!4 &2093063619
 Transform:

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Reflection;
 using UnityEngine;
 
@@ -6,11 +7,17 @@ namespace Vampire
     /// <summary>
     /// 영양 도둑균.
     ///
-    /// 필드에 떨어진 경험치 젬과 코인을 몰래 흡수해서 몸 안에 저장합니다.
-    /// 방치하면 저장량에 따라 크기와 이동속도가 증가합니다.
-    /// 처치하면 먹은 경험치/골드를 다시 뱉고, 일정량 이상 먹었으면 보너스 골드도 드랍합니다.
+    /// 기존 Monster 규격을 그대로 사용합니다.
+    /// - MonsterBlueprint로 풀 생성
+    /// - LevelBlueprint.monsters에 등록
+    /// - TimedSpecialMonsterSpawner에서 MonsterBlueprint로 스폰
+    ///
+    /// 기능:
+    /// - 필드의 경험치/골드를 찾아 흡수
+    /// - 흡수할수록 크기/이동속도 증가
+    /// - 처치 시 저장한 경험치/골드 반환
     /// </summary>
-    public class NutritionThiefBacteriaMonster : FieldSpecialMonsterBase
+    public class NutritionThiefBacteriaMonster : Monster
     {
         [Header("Nutrition Thief Targeting")]
         [Tooltip("경험치/골드를 찾는 탐색 반경입니다.")]
@@ -23,8 +30,8 @@ namespace Vampire
         [SerializeField] private float retargetInterval = 0.25f;
 
         [Header("Movement")]
-        [Tooltip("기본 이동속도입니다.")]
-        [SerializeField] private float baseMoveSpeed = 1.05f;
+        [Tooltip("영양 도둑균 기본 이동속도입니다.")]
+        [SerializeField] private float thiefMoveSpeed = 1.05f;
 
         [Tooltip("저장한 보상 1개당 이동속도 증가량입니다.")]
         [SerializeField] private float speedIncreasePerStoredItem = 0.035f;
@@ -39,9 +46,6 @@ namespace Vampire
         [SerializeField] private float idleWanderRadius = 1.5f;
 
         [Header("Growth")]
-        [Tooltip("기본 스케일입니다.")]
-        [SerializeField] private Vector3 baseScale = Vector3.one;
-
         [Tooltip("저장한 보상 1개당 스케일 증가량입니다.")]
         [SerializeField] private float scaleIncreasePerStoredItem = 0.035f;
 
@@ -61,6 +65,10 @@ namespace Vampire
         [Tooltip("최소 보장 골드입니다. 아무것도 못 먹은 상태로 죽어도 이만큼 드랍합니다.")]
         [SerializeField] private int minimumCoinDrop = 1;
 
+        [Header("Debug")]
+        [Tooltip("영양 도둑균 로그를 출력합니다.")]
+        [SerializeField] private bool debugLog = false;
+
         private static FieldInfo expGemTypeField;
 
         private ExpGem targetGem;
@@ -72,30 +80,34 @@ namespace Vampire
         private int storedCoinValue;
         private int storedItemCount;
 
+        private Vector3 runtimeBaseScale;
+        private bool deathHandled;
+
         protected override void Awake()
         {
             base.Awake();
             CacheExpGemField();
         }
 
-        protected override void ResetRuntimeState()
+        public override void Setup(
+            int monsterIndex,
+            Vector2 position,
+            MonsterBlueprint monsterBlueprint,
+            float hpBuff = 0)
         {
-            base.ResetRuntimeState();
-
-            targetGem = null;
-            targetCoin = null;
-            nextRetargetTime = 0f;
-            idleAnchorPosition = transform.position;
-
-            storedExpValue = 0;
-            storedCoinValue = 0;
-            storedItemCount = 0;
-
-            transform.localScale = baseScale;
+            base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
+            ResetNutritionRuntime();
         }
 
-        protected override void OnAliveUpdate()
+        protected override void Update()
         {
+            base.Update();
+
+            if (!alive)
+            {
+                return;
+            }
+
             if (Time.time >= nextRetargetTime)
             {
                 FindNearestCollectableTarget();
@@ -106,9 +118,9 @@ namespace Vampire
             ApplyGrowthVisual();
         }
 
-        protected override void OnAliveFixedUpdate()
+        protected override void FixedUpdate()
         {
-            if (rb == null)
+            if (!alive || rb == null)
             {
                 return;
             }
@@ -133,7 +145,42 @@ namespace Vampire
             rb.velocity = velocity;
         }
 
-        protected override void OnKilledByPlayer()
+        public override IEnumerator Killed(bool killedByPlayer = true)
+        {
+            if (deathHandled)
+            {
+                yield break;
+            }
+
+            deathHandled = true;
+
+            if (killedByPlayer)
+            {
+                DropStoredReward();
+            }
+
+            // 중요:
+            // base.Killed(true)를 호출하면 MonsterBlueprint 기본 DropLoot까지 같이 떨어집니다.
+            // 영양 도둑균은 저장한 보상만 반환해야 하므로 base.Killed(false)로 풀 반환만 사용합니다.
+            yield return base.Killed(false);
+        }
+
+        private void ResetNutritionRuntime()
+        {
+            targetGem = null;
+            targetCoin = null;
+            nextRetargetTime = 0f;
+            idleAnchorPosition = transform.position;
+
+            storedExpValue = 0;
+            storedCoinValue = 0;
+            storedItemCount = 0;
+
+            deathHandled = false;
+            runtimeBaseScale = transform.localScale;
+        }
+
+        private void DropStoredReward()
         {
             int finalExp = Mathf.Max(minimumExpDrop, storedExpValue);
             int finalCoin = Mathf.Max(minimumCoinDrop, storedCoinValue);
@@ -149,7 +196,7 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[영양 도둑균] 처치 보상 반환. exp={finalExp}, coin={finalCoin}, storedItem={storedItemCount}",
+                    $"[영양 도둑균] 처치 보상 반환 | Exp={finalExp}, Coin={finalCoin}, StoredItem={storedItemCount}",
                     this);
             }
         }
@@ -239,9 +286,9 @@ namespace Vampire
             }
 
             GemType gemType = GetGemType(gem);
-            int expValue = (int)gemType;
+            int expValue = Mathf.Max(1, (int)gemType);
 
-            storedExpValue += Mathf.Max(1, expValue);
+            storedExpValue += expValue;
             storedItemCount++;
 
             if (entityManager == null)
@@ -251,6 +298,7 @@ namespace Vampire
 
             if (entityManager != null)
             {
+                RemoveFromMagneticCollectablesIfNeeded(gem);
                 entityManager.DespawnGem(gem);
             }
             else
@@ -260,7 +308,7 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log($"[영양 도둑균] 경험치 흡수. +{expValue}, totalExp={storedExpValue}", this);
+                Debug.Log($"[영양 도둑균] 경험치 흡수 | +{expValue}, TotalExp={storedExpValue}", this);
             }
         }
 
@@ -283,6 +331,7 @@ namespace Vampire
 
             if (entityManager != null)
             {
+                RemoveFromMagneticCollectablesIfNeeded(coin);
                 entityManager.DespawnCoin(coin, pickedUpByPlayer: false);
             }
             else
@@ -292,7 +341,25 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log($"[영양 도둑균] 골드 흡수. +{coinValue}, totalCoin={storedCoinValue}", this);
+                Debug.Log($"[영양 도둑균] 골드 흡수 | +{coinValue}, TotalCoin={storedCoinValue}", this);
+            }
+        }
+
+        private void RemoveFromMagneticCollectablesIfNeeded(Collectable collectable)
+        {
+            if (collectable == null)
+            {
+                return;
+            }
+
+            if (entityManager == null || entityManager.MagneticCollectables == null)
+            {
+                return;
+            }
+
+            if (entityManager.MagneticCollectables.Contains(collectable))
+            {
+                entityManager.MagneticCollectables.Remove(collectable);
             }
         }
 
@@ -326,7 +393,7 @@ namespace Vampire
             float multiplier = 1f + storedItemCount * speedIncreasePerStoredItem;
             multiplier = Mathf.Clamp(multiplier, 1f, maxSpeedMultiplier);
 
-            return baseMoveSpeed * multiplier;
+            return thiefMoveSpeed * multiplier;
         }
 
         private void ApplyGrowthVisual()
@@ -334,7 +401,7 @@ namespace Vampire
             float multiplier = 1f + storedItemCount * scaleIncreasePerStoredItem;
             multiplier = Mathf.Clamp(multiplier, 1f, maxScaleMultiplier);
 
-            transform.localScale = baseScale * multiplier;
+            transform.localScale = runtimeBaseScale * multiplier;
         }
 
         private Vector2 GetIdleWanderVelocity()
@@ -352,7 +419,83 @@ namespace Vampire
                 return Vector2.zero;
             }
 
-            return toIdleTarget.normalized * baseMoveSpeed * idleWanderSpeedMultiplier;
+            return toIdleTarget.normalized * thiefMoveSpeed * idleWanderSpeedMultiplier;
+        }
+
+        private void DropExpValueAroundSelf(int totalExp)
+        {
+            if (entityManager == null)
+            {
+                entityManager = FindObjectOfType<EntityManager>();
+            }
+
+            if (entityManager == null)
+            {
+                return;
+            }
+
+            int remaining = Mathf.Max(0, totalExp);
+
+            remaining = SpawnExpByUnit(remaining, GemType.Red50, 50);
+            remaining = SpawnExpByUnit(remaining, GemType.Green10, 10);
+            remaining = SpawnExpByUnit(remaining, GemType.Blue2, 2);
+            remaining = SpawnExpByUnit(remaining, GemType.White1, 1);
+        }
+
+        private void DropCoinValueAroundSelf(int totalCoin)
+        {
+            if (entityManager == null)
+            {
+                entityManager = FindObjectOfType<EntityManager>();
+            }
+
+            if (entityManager == null)
+            {
+                return;
+            }
+
+            int remaining = Mathf.Max(0, totalCoin);
+
+            remaining = SpawnCoinByUnit(remaining, CoinType.Bag50, 50);
+            remaining = SpawnCoinByUnit(remaining, CoinType.Pouch30, 30);
+            remaining = SpawnCoinByUnit(remaining, CoinType.Gold5, 5);
+            remaining = SpawnCoinByUnit(remaining, CoinType.Silver2, 2);
+            remaining = SpawnCoinByUnit(remaining, CoinType.Bronze1, 1);
+        }
+
+        private int SpawnExpByUnit(int remaining, GemType gemType, int unitValue)
+        {
+            while (remaining >= unitValue)
+            {
+                entityManager.SpawnExpGem(GetRandomDropPosition(), gemType, true);
+                remaining -= unitValue;
+            }
+
+            return remaining;
+        }
+
+        private int SpawnCoinByUnit(int remaining, CoinType coinType, int unitValue)
+        {
+            while (remaining >= unitValue)
+            {
+                entityManager.SpawnCoin(GetRandomDropPosition(), coinType, true);
+                remaining -= unitValue;
+            }
+
+            return remaining;
+        }
+
+        private Vector2 GetRandomDropPosition()
+        {
+            Vector2 randomDirection = Random.insideUnitCircle;
+
+            if (randomDirection.sqrMagnitude < 0.01f)
+            {
+                randomDirection = Vector2.right;
+            }
+
+            Vector2 offset = randomDirection.normalized * Random.Range(0.15f, 0.85f);
+            return (Vector2)transform.position + offset;
         }
 
         private static void CacheExpGemField()
