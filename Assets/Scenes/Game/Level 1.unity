@@ -38173,6 +38173,55 @@ MonoBehaviour:
     memo: "15\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
   spawnEachEntryOnlyOnce: 1
   debugLog: 0
+--- !u!1 &1970397404
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1970397406}
+  - component: {fileID: 1970397405}
+  m_Layer: 0
+  m_Name: RealicSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1970397405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1970397404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ab6ef222af9ea04ea65c56068816f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCharacter: {fileID: 0}
+  relics:
+  - {fileID: 11400000, guid: 8a7f84788ca95eb45b11534da95190bd, type: 2}
+  - {fileID: 11400000, guid: e6efe4e036920fe4b9334cedb4ef4486, type: 2}
+  - {fileID: 11400000, guid: cc81d488b4b2cec468613f6dc58d7cc9, type: 2}
+--- !u!4 &1970397406
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1970397404}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1919.7069, y: 1200.3973, z: 6.910815}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1985292353
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -40140,3 +40189,4 @@ SceneRoots:
   - {fileID: 1207884298}
   - {fileID: 752185789}
   - {fileID: 323477458}
+  - {fileID: 1970397406}
