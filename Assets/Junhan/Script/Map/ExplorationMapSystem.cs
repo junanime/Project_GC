@@ -75,6 +75,15 @@ namespace Vampire
         [SerializeField] private Vector2 miniPlayerIconSize = new Vector2(12f, 12f);
         [SerializeField] private Vector2 fullPlayerIconSize = new Vector2(10f, 10f);
 
+        [Header("Map Icon Size Correction")]
+        [SerializeField] private bool compensateParentScale = true;
+
+        [SerializeField] private float miniMarkerSizeMultiplier = 1f;
+        [SerializeField] private float fullMarkerSizeMultiplier = 0.45f;
+
+        [SerializeField] private float miniPlayerIconSizeMultiplier = 1f;
+        [SerializeField] private float fullPlayerIconSizeMultiplier = 0.55f;
+
         [Header("Debug")]
         [SerializeField] private bool debugLog = false;
 
@@ -315,6 +324,23 @@ namespace Vampire
             return runtimeWhiteSprite;
         }
 
+        private Vector2 GetCorrectedIconSize(Vector2 baseSize, RectTransform parent, float multiplier)
+        {
+            Vector2 size = baseSize * Mathf.Max(0.01f, multiplier);
+
+            if (!compensateParentScale || parent == null)
+            {
+                return size;
+            }
+
+            Vector3 scale = parent.lossyScale;
+
+            float scaleX = Mathf.Max(0.01f, Mathf.Abs(scale.x));
+            float scaleY = Mathf.Max(0.01f, Mathf.Abs(scale.y));
+
+            return new Vector2(size.x / scaleX, size.y / scaleY);
+        }
+
         private void ScanSceneMarkers()
         {
             MapMarker[] sceneMarkers = FindObjectsOfType<MapMarker>(true);
@@ -383,7 +409,11 @@ namespace Vampire
                     "MiniMapMarker_" + marker.DisplayName,
                     miniMapMarkerRoot,
                     marker.MiniMapColor,
-                    Vector2.one * marker.MiniMapSize
+                    GetCorrectedIconSize(
+    Vector2.one * marker.MiniMapSize,
+    miniMapMarkerRoot,
+    miniMarkerSizeMultiplier
+)
                 );
 
                 miniMarkerIcons.Add(marker, icon);
@@ -395,7 +425,11 @@ namespace Vampire
                     "FullMapMarker_" + marker.DisplayName,
                     fullMapMarkerRoot,
                     marker.FullMapColor,
-                    Vector2.one * marker.FullMapSize
+                    GetCorrectedIconSize(
+    Vector2.one * marker.FullMapSize,
+    fullMapMarkerRoot,
+    fullMarkerSizeMultiplier
+)
                 );
 
                 fullMarkerIcons.Add(marker, icon);
@@ -525,14 +559,22 @@ namespace Vampire
             if (miniMapPlayerIcon != null)
             {
                 miniMapPlayerIcon.anchoredPosition = Vector2.zero;
-                miniMapPlayerIcon.sizeDelta = miniPlayerIconSize;
+                miniMapPlayerIcon.sizeDelta = GetCorrectedIconSize(
+    miniPlayerIconSize,
+    miniMapMarkerRoot,
+    miniPlayerIconSizeMultiplier
+);
             }
 
             if (fullMapPlayerIcon != null && fullMapMarkerRoot != null)
             {
                 fullMapPlayerIcon.anchoredPosition =
                     WorldToFullMapAnchoredPosition(playerCharacter.transform.position, fullMapMarkerRoot);
-                fullMapPlayerIcon.sizeDelta = fullPlayerIconSize;
+                fullMapPlayerIcon.sizeDelta = GetCorrectedIconSize(
+    fullPlayerIconSize,
+    fullMapMarkerRoot,
+    fullPlayerIconSizeMultiplier
+);
             }
         }
 
@@ -574,7 +616,11 @@ namespace Vampire
                         miniIcon.anchoredPosition =
                             WorldToMiniMapAnchoredPosition(marker.transform.position, playerPosition, miniMapMarkerRoot);
 
-                        miniIcon.sizeDelta = Vector2.one * marker.MiniMapSize;
+                        miniIcon.sizeDelta = GetCorrectedIconSize(
+    Vector2.one * marker.MiniMapSize,
+    miniMapMarkerRoot,
+    miniMarkerSizeMultiplier
+);
 
                         Image image = miniIcon.GetComponent<Image>();
                         if (image != null)
@@ -593,7 +639,11 @@ namespace Vampire
                         fullIcon.anchoredPosition =
                             WorldToFullMapAnchoredPosition(marker.transform.position, fullMapMarkerRoot);
 
-                        fullIcon.sizeDelta = Vector2.one * marker.FullMapSize;
+                        fullIcon.sizeDelta = GetCorrectedIconSize(
+    Vector2.one * marker.FullMapSize,
+    fullMapMarkerRoot,
+    fullMarkerSizeMultiplier
+);
 
                         Image image = fullIcon.GetComponent<Image>();
                         if (image != null)
