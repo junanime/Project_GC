@@ -83,26 +83,22 @@ namespace Vampire
 
             if (attackText != null)
             {
-                attackText.text =
-                    $"공격력  x{playerCharacter.DamageMultiplier:0.00}";
+                attackText.text = $"x{playerCharacter.DamageMultiplier:0.00}";
             }
 
             if (armorText != null)
             {
-                armorText.text =
-                    $"방어력  {playerCharacter.CurrentArmor:0}";
+                armorText.text = $"{playerCharacter.CurrentArmor:0}";
             }
 
             if (speedText != null)
             {
-                speedText.text =
-                    $"속도  {playerCharacter.CurrentMoveSpeed:0.0}";
+                speedText.text = $"{playerCharacter.CurrentMoveSpeed:0.0}";
             }
 
             if (critText != null)
             {
-                critText.text =
-                    $"치명타  {playerCharacter.CritChance * 100f:0}%";
+                critText.text = $"{playerCharacter.CritChance * 100f:0}%";
             }
 
             if (characterIcon != null &&
