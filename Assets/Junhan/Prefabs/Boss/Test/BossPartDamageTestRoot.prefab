@@ -145,9 +145,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 5
   displayName: "\uC624\uB978\uB2E4\uB9AC"
-  maxHealth: 100
+  canBreak: 1
+  maxHealth: 10
   currentHealth: 0
   isBroken: 0
+  rootDamageMultiplier: 1
+  rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
   spriteRenderers:
@@ -302,9 +305,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 2
   displayName: "\uC628\uD314"
-  maxHealth: 100
+  canBreak: 1
+  maxHealth: 10
   currentHealth: 0
   isBroken: 0
+  rootDamageMultiplier: 1
+  rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
   spriteRenderers:
@@ -459,9 +465,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 4
   displayName: "\uC67C\u3137\uB9AC"
-  maxHealth: 100
+  canBreak: 1
+  maxHealth: 10
   currentHealth: 0
   isBroken: 0
+  rootDamageMultiplier: 1
+  rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
   spriteRenderers:
@@ -616,9 +625,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 1
   displayName: "\uD1A0\uB974\uC18C"
-  maxHealth: 100
+  canBreak: 0
+  maxHealth: 10
   currentHealth: 0
   isBroken: 0
+  rootDamageMultiplier: 1
+  rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
   spriteRenderers:
@@ -627,6 +639,59 @@ MonoBehaviour:
   hitFlashDuration: 0.08
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
+  debugLog: 1
+--- !u!1 &2320860237157246596
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4169506148560627945}
+  - component: {fileID: 4724437389618723344}
+  m_Layer: 7
+  m_Name: 'BossPartDamageTestRootController  '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4169506148560627945
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2320860237157246596}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4724437389618723344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2320860237157246596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26de472d631926e458ad9b730f5416b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxRootHealth: 60
+  partDamageToRootRatio: 1
+  currentRootHealth: 0
+  rootHealthDepleted: 0
+  autoCollectPartsFromChildren: 1
+  parts: []
+  brokenPartCount: 0
+  disableAllPartCollidersOnRootDeath: 1
   debugLog: 1
 --- !u!1 &2884361533401282065
 GameObject:
@@ -773,9 +838,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 0
   displayName: "\uBA38\uB9AC"
-  maxHealth: 100
+  canBreak: 1
+  maxHealth: 10
   currentHealth: 0
   isBroken: 0
+  rootDamageMultiplier: 1
+  rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
   spriteRenderers:
@@ -853,6 +921,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4169506148560627945}
   - {fileID: 7420338502666811484}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1063,9 +1132,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 3
   displayName: "\uC624\uB978\uD314"
-  maxHealth: 100
+  canBreak: 1
+  maxHealth: 10
   currentHealth: 0
   isBroken: 0
+  rootDamageMultiplier: 1
+  rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
   spriteRenderers:
