@@ -1116,6 +1116,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 777177184}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &248952239
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 248952241}
+  - component: {fileID: 248952240}
+  m_Layer: 0
+  m_Name: BossPartDamageTestSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &248952240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248952239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2e4de5368ecd3c4488abd953b63f114, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  testBossPrefab: {fileID: 6401697086027491985, guid: 8d14738648254c54f825d53da40d90ae, type: 3}
+  playerCharacter: {fileID: 0}
+  spawnDistance: 0.5
+  usePlayerLookDirection: 1
+  fallbackDirection: {x: 1, y: 0}
+  spawnOnStart: 1
+  destroyPreviousBeforeSpawn: 1
+  respawnKey: 277
+  debugLog: 1
+--- !u!4 &248952241
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248952239}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1000.7165, y: 999.35406, z: -0.36630136}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &250923656
 GameObject:
   m_ObjectHideFlags: 0
@@ -39992,3 +40045,4 @@ SceneRoots:
   - {fileID: 1207884298}
   - {fileID: 752185789}
   - {fileID: 323477458}
+  - {fileID: 248952241}
