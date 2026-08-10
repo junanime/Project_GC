@@ -1,5 +1,294 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &96379332824284539
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2231097270297896435}
+  m_Layer: 6
+  m_Name: Patterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2231097270297896435
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 96379332824284539}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2294504552883589553}
+  m_Father: {fileID: 2917293784945834702}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &263277817357249273
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2971196653146443672}
+  m_Layer: 6
+  m_Name: Patterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2971196653146443672
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 263277817357249273}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 5347791370697970624}
+  m_Father: {fileID: 7986375170990739833}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &449376652645875193
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1411236572721129453}
+  - component: {fileID: 2240509033926637257}
+  m_Layer: 7
+  m_Name: BossController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1411236572721129453
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449376652645875193}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2240509033926637257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449376652645875193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 265cd75a7792291468765ac6edd93081, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCharacter: {fileID: 0}
+  rb: {fileID: 1903366919834822943}
+  spriteRenderer: {fileID: 0}
+  patterns: []
+  autoCollectPatternsFromChildren: 1
+  maxHp: 500
+  currentHp: 500
+  contactDamage: 10
+  contactDamageCooldown: 0.6
+  enableBasicAttack: 0
+  basicAttackBulletPrefab: {fileID: 0}
+  basicAttackCooldown: 1.6
+  basicAttackDamage: 5
+  basicAttackBulletSpeed: 4.5
+  basicAttackMuzzleOffset: 1.2
+  basicAttackWhileUsingPattern: 0
+  basicAttackBurstCountPhase1: 4
+  basicAttackBurstCountPhase2: 5
+  basicAttackBurstCountPhase3: 7
+  basicAttackBurstInterval: 0.2
+  reAimEachBasicBurstShot: 1
+  usePredictiveBasicAim: 1
+  basicAimLeadTime: 0.45
+  basicAimInaccuracyAngle: 5
+  minPlayerVelocityForPrediction: 0.1
+  forceBasicBulletSortingOrder: 1
+  basicBulletSortingOrder: 500
+  enableMovement: 0
+  baseMoveSpeed: 0.8
+  stopDistanceFromPlayer: 3
+  moveWhileUsingPattern: 1
+  patternMoveSpeedMultiplier: 0.35
+  movementSmoothTime: 0.18
+  flipSpriteToPlayer: 1
+  firstPatternDelay: 1
+  patternIntervalMin: 2
+  patternIntervalMax: 3
+  thinkInterval: 0.3
+  patternGap: 1.2
+  nearDistanceThreshold: 4
+  midDistanceThreshold: 8
+  phase1Settings:
+    phaseName: Phase 1
+    enterHpRatio: 1
+    damageMultiplier: 1
+    projectileSpeedMultiplier: 1
+    movementSpeedMultiplier: 1
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    ignoreDistanceAndUseRandomPattern: 0
+    transitionPauseSeconds: 0
+    invincibleDuringTransition: 0
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase2Settings:
+    phaseName: Phase 2
+    enterHpRatio: 0.5
+    damageMultiplier: 1.5
+    projectileSpeedMultiplier: 1.5
+    movementSpeedMultiplier: 1.5
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    ignoreDistanceAndUseRandomPattern: 0
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase3Settings:
+    phaseName: Phase 3
+    enterHpRatio: 0.2
+    damageMultiplier: 2
+    projectileSpeedMultiplier: 2
+    movementSpeedMultiplier: 2
+    basicAttackCooldownMultiplier: 0.5
+    patternCooldownMultiplier: 0.5
+    patternIntervalMultiplier: 0.5
+    patternGapMultiplier: 0.5
+    ignoreDistanceAndUseRandomPattern: 1
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  reduceIncomingDamageInPhase3: 1
+  phase3IncomingDamageMultiplier: 0.7
+  debugMovement: 0
+  debugPattern: 0
+  debugBasicAttack: 0
+  debugPhase: 1
+--- !u!1 &454542699816596496
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6232104052560610756}
+  - component: {fileID: 5203499052640802703}
+  m_Layer: 6
+  m_Name: BossHomingMissilePattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6232104052560610756
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454542699816596496}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5700942751532892869}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5203499052640802703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454542699816596496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7850e71ecc209584c9aa612b22ff21a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uC720\uB3C4\uD0C4"
+  cooldown: 3
+  nearWeightPhase1: 0
+  midWeightPhase1: 6
+  farWeightPhase1: 10
+  nearWeightPhase2: 0
+  midWeightPhase2: 6
+  farWeightPhase2: 10
+  nearWeightPhase3: 0
+  midWeightPhase3: 6
+  farWeightPhase3: 10
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  missilePrefab: {fileID: 79574699671740622, guid: e45b96cccb487f34ba156a57101ef984, type: 3}
+  missileCountPhase1: 4
+  missileCountPhase2: 6
+  missileCountPhase3: 8
+  totalSpreadAngle: 90
+  missileSpeed: 7
+  missileDamage: 15
+  missileLifeTime: 30
+  turnSpeed: 3
+  laneOffsetDistance: 1.4
+  laneFadeDistance: 2.2
+  initialSpreadDuration: 0.2
+  muzzleOffsetFromBoss: 0.9
+  burstCountPhase1: 1
+  burstCountPhase2: 1
+  burstCountPhase3: 2
+  burstInterval: 0.35
+  destroyByPlayerProjectile: 1
+  playerProjectileLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  projectileHitCheckRadius: 0.25
+  rotateToMoveDirection: 1
+  visualForwardAngleOffset: 0
+  destroyEffectPrefab: {fileID: 0}
+  forceMissileSortingOrder: 1
+  missileSortingOrder: 560
+  debugShot: 0
 --- !u!1 &544462092901458673
 GameObject:
   m_ObjectHideFlags: 0
@@ -31,7 +320,8 @@ Transform:
   m_LocalPosition: {x: 0.61, y: -0.79, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7984993256475767407}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4569853574968657323
@@ -160,6 +450,38 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &980289972833260809
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 165491489848385023}
+  m_Layer: 6
+  m_Name: Patterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &165491489848385023
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 980289972833260809}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8191151475866271141}
+  m_Father: {fileID: 6754685083464912470}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1091430698650513677
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,7 +513,8 @@ Transform:
   m_LocalPosition: {x: -1.32, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5700942751532892869}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2873670568490009728
@@ -351,7 +674,8 @@ Transform:
   m_LocalPosition: {x: -0.78, y: -0.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 165491489848385023}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4372788488449828884
@@ -511,7 +835,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5605262267314009720}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7987428932394529546
@@ -640,6 +965,116 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &2139600039794973047
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4947243970473018804}
+  - component: {fileID: 6742456839337701565}
+  m_Layer: 6
+  m_Name: BossRadialBurstPattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4947243970473018804
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139600039794973047}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7984993256475767407}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6742456839337701565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2139600039794973047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "360\uB3C4 \uBC1C\uC0AC"
+  cooldown: 3
+  nearWeightPhase1: 4
+  midWeightPhase1: 8
+  farWeightPhase1: 6
+  nearWeightPhase2: 4
+  midWeightPhase2: 8
+  farWeightPhase2: 6
+  nearWeightPhase3: 4
+  midWeightPhase3: 8
+  farWeightPhase3: 6
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
+  bulletSpeed: 3
+  bulletDamage: 10
+  bulletCountPhase1: 8
+  bulletCountPhase2: 10
+  bulletCountPhase3: 12
+  ringCountPhase1: 1
+  ringCountPhase2: 1
+  ringCountPhase3: 2
+  ringInterval: 0.6
+  patternRepeatAngleOffsetStep: 20
+  ringAngleOffsetStep: 8
+  accumulateRepeatAngleOffset: 1
+  resetRepeatIndexOnDisable: 1
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
+  debugShot: 0
+--- !u!1 &2142986565384266587
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7984993256475767407}
+  m_Layer: 6
+  m_Name: Patterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7984993256475767407
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2142986565384266587}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4947243970473018804}
+  m_Father: {fileID: 8334487762599879908}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2320860237157246596
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,6 +1130,114 @@ MonoBehaviour:
   disableAllCollidersOnBossDeath: 1
   hideRemainingPartsOnBossDeath: 1
   debugLog: 1
+--- !u!1 &2495929574641497292
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5700942751532892869}
+  m_Layer: 6
+  m_Name: Patterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5700942751532892869
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2495929574641497292}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6232104052560610756}
+  m_Father: {fileID: 5061847562344212676}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2674308100336383734
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2294504552883589553}
+  - component: {fileID: 3174429195430321517}
+  m_Layer: 6
+  m_Name: BossFanShotPattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2294504552883589553
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2674308100336383734}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2231097270297896435}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3174429195430321517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2674308100336383734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 252d5806f61827f4b945816f539e8a05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uBD80\uCC44\uAF34\uBC1C\uC0AC"
+  cooldown: 3
+  nearWeightPhase1: 2
+  midWeightPhase1: 6
+  farWeightPhase1: 8
+  nearWeightPhase2: 2
+  midWeightPhase2: 6
+  farWeightPhase2: 8
+  nearWeightPhase3: 2
+  midWeightPhase3: 6
+  farWeightPhase3: 8
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
+  bulletSpeed: 4
+  bulletDamage: 10
+  bulletCountPhase1: 6
+  bulletCountPhase2: 7
+  bulletCountPhase3: 8
+  totalSpreadAngle: 90
+  burstCountPhase1: 1
+  burstCountPhase2: 2
+  burstCountPhase3: 3
+  burstInterval: 0.4
+  muzzleOffsetFromBoss: 0.9
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
+  debugShot: 0
 --- !u!1 &2884361533401282065
 GameObject:
   m_ObjectHideFlags: 0
@@ -726,7 +1269,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.78, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2971196653146443672}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1661394239758685708
@@ -855,6 +1399,91 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &3303437612744755116
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5347791370697970624}
+  - component: {fileID: 2759813064396467651}
+  m_Layer: 6
+  m_Name: BossBombLobPattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5347791370697970624
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3303437612744755116}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2971196653146443672}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2759813064396467651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3303437612744755116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uD3ED\uD0C4\uD22C\uD558"
+  cooldown: 3
+  nearWeightPhase1: 5
+  midWeightPhase1: 10
+  farWeightPhase1: 6
+  nearWeightPhase2: 5
+  midWeightPhase2: 10
+  farWeightPhase2: 6
+  nearWeightPhase3: 5
+  midWeightPhase3: 10
+  farWeightPhase3: 6
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
+  warningDuration: 1.5
+  bombProjectilePrefab: {fileID: 8245624705231244960, guid: 1f765432043d93443880bc493ff2defb, type: 3}
+  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
+  arcHeight: 3
+  projectileScaleMultiplier: 1
+  rotateProjectileToMoveDirection: 1
+  projectileVisualAngleOffset: 0
+  spinProjectile: 0
+  projectileSpinSpeed: 30
+  disableProjectileColliders: 1
+  disableProjectileRigidbodySimulation: 1
+  forceProjectileSortingOrder: 1
+  projectileSortingOrder: 800
+  explosionRadius: 1.5
+  explosionDamage: 20
+  explosionEffectPrefab: {fileID: 0}
+  projectileDestroyDelayAfterImpact: 0
+  bombCountPhase1: 1
+  bombCountPhase2: 2
+  bombCountPhase3: 4
+  randomOffsetRadius: 1.5
+  intervalBetweenBombs: 0.15
+  debugBomb: 0
 --- !u!1 &4903031752004193839
 GameObject:
   m_ObjectHideFlags: 0
@@ -892,6 +1521,37 @@ Transform:
   - {fileID: 8736929898052857229}
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6382908300445371302
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5605262267314009720}
+  m_Layer: 6
+  m_Name: Patterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5605262267314009720
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382908300445371302}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8736929898052857229}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6401697086027491985
 GameObject:
   m_ObjectHideFlags: 0
@@ -924,6 +1584,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4169506148560627945}
+  - {fileID: 1411236572721129453}
+  - {fileID: 4386367549207381930}
   - {fileID: 7420338502666811484}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -989,6 +1651,54 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!1 &6830737390532902033
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4386367549207381930}
+  - component: {fileID: 6898058556201504535}
+  m_Layer: 7
+  m_Name: 'BossPartPatternTestDeathBridge '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4386367549207381930
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6830737390532902033}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6898058556201504535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6830737390532902033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6eaa93efbd91604a83c24c1ec81b6d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  partRootController: {fileID: 4724437389618723344}
+  bossController: {fileID: 2240509033926637257}
+  stopBossControllerOnPartBossDeath: 1
+  debugLog: 1
 --- !u!1 &8066779690579954938
 GameObject:
   m_ObjectHideFlags: 0
@@ -1020,7 +1730,8 @@ Transform:
   m_LocalPosition: {x: 1.37, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2231097270297896435}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6162925281481617650
@@ -1149,3 +1860,95 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &9076683618319760946
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8191151475866271141}
+  - component: {fileID: 2114766737342873551}
+  m_Layer: 6
+  m_Name: BossChargePattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8191151475866271141
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9076683618319760946}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 165491489848385023}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2114766737342873551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9076683618319760946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b923e28faba368542b3af3c6a397e39d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uB3CC\uC9C4\uD328\uD134"
+  cooldown: 3
+  nearWeightPhase1: 10
+  midWeightPhase1: 6
+  farWeightPhase1: 1
+  nearWeightPhase2: 10
+  midWeightPhase2: 6
+  farWeightPhase2: 1
+  nearWeightPhase3: 10
+  midWeightPhase3: 6
+  farWeightPhase3: 1
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
+  warningTime: 0.5
+  warningWidth: 1.5
+  warningColor: {r: 1, g: 1, b: 1, a: 1}
+  chargeCountPhase1: 1
+  chargeCountPhase2: 2
+  chargeCountPhase3: 3
+  betweenChargeDelayPhase2: 0.5
+  betweenChargeDelayPhase3: 0.2
+  reAimBeforeEachCharge: 1
+  zigzagAngle: 0
+  randomizeFirstZigzagSide: 1
+  chargeDistancePhase1: 3
+  chargeDistancePhase2: 4
+  chargeDistancePhase3: 5
+  chargeSpeedPhase1: 10
+  chargeSpeedPhase2: 12
+  chargeSpeedPhase3: 15
+  chargeDamagePhase1: 20
+  chargeDamagePhase2: 25
+  chargeDamagePhase3: 30
+  endLag: 2
+  hitboxSize: {x: 1.2, y: 1.2}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  canHitPlayerOncePerCharge: 1
+  ignorePlayerPhysicsCollisionDuringCharge: 1
+  forceExactChargeMovement: 1
+  showDebugHitbox: 1
+  debugCharge: 0
