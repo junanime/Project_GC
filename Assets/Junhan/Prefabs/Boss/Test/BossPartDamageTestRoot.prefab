@@ -64,142 +64,6 @@ Transform:
   - {fileID: 5347791370697970624}
   m_Father: {fileID: 7986375170990739833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &449376652645875193
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1411236572721129453}
-  - component: {fileID: 2240509033926637257}
-  m_Layer: 7
-  m_Name: BossController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1411236572721129453
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449376652645875193}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2467251893734352727}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2240509033926637257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449376652645875193}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 265cd75a7792291468765ac6edd93081, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCharacter: {fileID: 0}
-  rb: {fileID: 1903366919834822943}
-  spriteRenderer: {fileID: 0}
-  patterns: []
-  autoCollectPatternsFromChildren: 1
-  maxHp: 500
-  currentHp: 500
-  contactDamage: 10
-  contactDamageCooldown: 0.6
-  enableBasicAttack: 0
-  basicAttackBulletPrefab: {fileID: 0}
-  basicAttackCooldown: 1.6
-  basicAttackDamage: 5
-  basicAttackBulletSpeed: 4.5
-  basicAttackMuzzleOffset: 1.2
-  basicAttackWhileUsingPattern: 0
-  basicAttackBurstCountPhase1: 4
-  basicAttackBurstCountPhase2: 5
-  basicAttackBurstCountPhase3: 7
-  basicAttackBurstInterval: 0.2
-  reAimEachBasicBurstShot: 1
-  usePredictiveBasicAim: 1
-  basicAimLeadTime: 0.45
-  basicAimInaccuracyAngle: 5
-  minPlayerVelocityForPrediction: 0.1
-  forceBasicBulletSortingOrder: 1
-  basicBulletSortingOrder: 500
-  enableMovement: 0
-  baseMoveSpeed: 0.8
-  stopDistanceFromPlayer: 3
-  moveWhileUsingPattern: 1
-  patternMoveSpeedMultiplier: 0.35
-  movementSmoothTime: 0.18
-  flipSpriteToPlayer: 1
-  firstPatternDelay: 1
-  patternIntervalMin: 2
-  patternIntervalMax: 3
-  thinkInterval: 0.3
-  patternGap: 1.2
-  nearDistanceThreshold: 4
-  midDistanceThreshold: 8
-  phase1Settings:
-    phaseName: Phase 1
-    enterHpRatio: 1
-    damageMultiplier: 1
-    projectileSpeedMultiplier: 1
-    movementSpeedMultiplier: 1
-    basicAttackCooldownMultiplier: 1
-    patternCooldownMultiplier: 1
-    patternIntervalMultiplier: 1
-    patternGapMultiplier: 1
-    ignoreDistanceAndUseRandomPattern: 0
-    transitionPauseSeconds: 0
-    invincibleDuringTransition: 0
-    phaseSprite: {fileID: 0}
-    phaseTransitionEffectPrefab: {fileID: 0}
-  phase2Settings:
-    phaseName: Phase 2
-    enterHpRatio: 0.5
-    damageMultiplier: 1.5
-    projectileSpeedMultiplier: 1.5
-    movementSpeedMultiplier: 1.5
-    basicAttackCooldownMultiplier: 1
-    patternCooldownMultiplier: 1
-    patternIntervalMultiplier: 1
-    patternGapMultiplier: 1
-    ignoreDistanceAndUseRandomPattern: 0
-    transitionPauseSeconds: 2
-    invincibleDuringTransition: 1
-    phaseSprite: {fileID: 0}
-    phaseTransitionEffectPrefab: {fileID: 0}
-  phase3Settings:
-    phaseName: Phase 3
-    enterHpRatio: 0.2
-    damageMultiplier: 2
-    projectileSpeedMultiplier: 2
-    movementSpeedMultiplier: 2
-    basicAttackCooldownMultiplier: 0.5
-    patternCooldownMultiplier: 0.5
-    patternIntervalMultiplier: 0.5
-    patternGapMultiplier: 0.5
-    ignoreDistanceAndUseRandomPattern: 1
-    transitionPauseSeconds: 2
-    invincibleDuringTransition: 1
-    phaseSprite: {fileID: 0}
-    phaseTransitionEffectPrefab: {fileID: 0}
-  reduceIncomingDamageInPhase3: 1
-  phase3IncomingDamageMultiplier: 0.7
-  debugMovement: 0
-  debugPattern: 0
-  debugBasicAttack: 0
-  debugPhase: 1
 --- !u!1 &454542699816596496
 GameObject:
   m_ObjectHideFlags: 0
@@ -1563,6 +1427,7 @@ GameObject:
   - component: {fileID: 2467251893734352727}
   - component: {fileID: 1903366919834822943}
   - component: {fileID: 6664851940520555436}
+  - component: {fileID: 6570138584400201331}
   m_Layer: 7
   m_Name: BossPartDamageTestRoot
   m_TagString: Untagged
@@ -1584,7 +1449,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4169506148560627945}
-  - {fileID: 1411236572721129453}
   - {fileID: 4386367549207381930}
   - {fileID: 7420338502666811484}
   m_Father: {fileID: 0}
@@ -1651,6 +1515,110 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &6570138584400201331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 265cd75a7792291468765ac6edd93081, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCharacter: {fileID: 0}
+  rb: {fileID: 1903366919834822943}
+  spriteRenderer: {fileID: 0}
+  patterns: []
+  autoCollectPatternsFromChildren: 1
+  maxHp: 500
+  currentHp: 500
+  contactDamage: 10
+  contactDamageCooldown: 0.6
+  enableBasicAttack: 1
+  basicAttackBulletPrefab: {fileID: 0}
+  basicAttackCooldown: 1.6
+  basicAttackDamage: 5
+  basicAttackBulletSpeed: 4.5
+  basicAttackMuzzleOffset: 1.2
+  basicAttackWhileUsingPattern: 0
+  basicAttackBurstCountPhase1: 4
+  basicAttackBurstCountPhase2: 5
+  basicAttackBurstCountPhase3: 7
+  basicAttackBurstInterval: 0.2
+  reAimEachBasicBurstShot: 1
+  usePredictiveBasicAim: 1
+  basicAimLeadTime: 0.45
+  basicAimInaccuracyAngle: 5
+  minPlayerVelocityForPrediction: 0.1
+  forceBasicBulletSortingOrder: 1
+  basicBulletSortingOrder: 500
+  enableMovement: 1
+  baseMoveSpeed: 0.8
+  stopDistanceFromPlayer: 3
+  moveWhileUsingPattern: 1
+  patternMoveSpeedMultiplier: 0.35
+  movementSmoothTime: 0.18
+  flipSpriteToPlayer: 1
+  firstPatternDelay: 3
+  patternIntervalMin: 4
+  patternIntervalMax: 7
+  thinkInterval: 0.3
+  patternGap: 1.2
+  nearDistanceThreshold: 4
+  midDistanceThreshold: 8
+  phase1Settings:
+    phaseName: Phase 1
+    enterHpRatio: 1
+    damageMultiplier: 1
+    projectileSpeedMultiplier: 1
+    movementSpeedMultiplier: 1
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    ignoreDistanceAndUseRandomPattern: 0
+    transitionPauseSeconds: 0
+    invincibleDuringTransition: 0
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase2Settings:
+    phaseName: Phase 2
+    enterHpRatio: 0.5
+    damageMultiplier: 1.5
+    projectileSpeedMultiplier: 1.5
+    movementSpeedMultiplier: 1.5
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    ignoreDistanceAndUseRandomPattern: 0
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase3Settings:
+    phaseName: Phase 3
+    enterHpRatio: 0.2
+    damageMultiplier: 2
+    projectileSpeedMultiplier: 2
+    movementSpeedMultiplier: 2
+    basicAttackCooldownMultiplier: 0.5
+    patternCooldownMultiplier: 0.5
+    patternIntervalMultiplier: 0.5
+    patternGapMultiplier: 0.5
+    ignoreDistanceAndUseRandomPattern: 1
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  reduceIncomingDamageInPhase3: 1
+  phase3IncomingDamageMultiplier: 0.7
+  debugMovement: 0
+  debugPattern: 1
+  debugBasicAttack: 0
+  debugPhase: 1
 --- !u!1 &6830737390532902033
 GameObject:
   m_ObjectHideFlags: 0
@@ -1696,7 +1664,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   partRootController: {fileID: 4724437389618723344}
-  bossController: {fileID: 2240509033926637257}
+  bossController: {fileID: 0}
   stopBossControllerOnPartBossDeath: 1
   debugLog: 1
 --- !u!1 &8066779690579954938
