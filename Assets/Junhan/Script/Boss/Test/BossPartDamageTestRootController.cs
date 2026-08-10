@@ -76,10 +76,9 @@ namespace Vampire
         private bool disableAllCollidersOnBossDeath = true;
 
         [Tooltip(
-            "보스 사망 시 아직 살아 있던 파츠 Sprite까지 모두 숨깁니다. " +
-            "현재 테스트에서는 남은 파츠 확인을 위해 끄는 것을 권장합니다.")]
+    "보스 사망 시 아직 살아 있는 모든 파츠 SpriteRenderer를 함께 숨깁니다.")]
         [SerializeField]
-        private bool hideRemainingPartsOnBossDeath = false;
+        private bool hideRemainingPartsOnBossDeath = true;
 
         [Header("디버그")]
 

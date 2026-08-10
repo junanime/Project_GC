@@ -693,7 +693,7 @@ MonoBehaviour:
   bossDead: 0
   brokenPartCount: 0
   disableAllCollidersOnBossDeath: 1
-  hideRemainingPartsOnBossDeath: 0
+  hideRemainingPartsOnBossDeath: 1
   debugLog: 1
 --- !u!1 &2884361533401282065
 GameObject:
