@@ -145,11 +145,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 5
   displayName: "\uC624\uB978\uB2E4\uB9AC"
-  canBreak: 1
+  isCore: 0
+  autoTreatTorsoAsCore: 1
   maxHealth: 10
   currentHealth: 0
   isBroken: 0
-  rootDamageMultiplier: 1
   rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
@@ -305,11 +305,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 2
   displayName: "\uC628\uD314"
-  canBreak: 1
+  isCore: 0
+  autoTreatTorsoAsCore: 1
   maxHealth: 10
   currentHealth: 0
   isBroken: 0
-  rootDamageMultiplier: 1
   rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
@@ -465,11 +465,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 4
   displayName: "\uC67C\u3137\uB9AC"
-  canBreak: 1
+  isCore: 0
+  autoTreatTorsoAsCore: 1
   maxHealth: 10
   currentHealth: 0
   isBroken: 0
-  rootDamageMultiplier: 1
   rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
@@ -493,7 +493,7 @@ GameObject:
   - component: {fileID: 9209490905332283166}
   - component: {fileID: 1195880323785226795}
   m_Layer: 6
-  m_Name: TorsoPart
+  m_Name: BossPartDamageTestPart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -507,7 +507,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1970807575188676842}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -625,11 +625,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 1
   displayName: "\uD1A0\uB974\uC18C"
-  canBreak: 0
-  maxHealth: 10
+  isCore: 1
+  autoTreatTorsoAsCore: 1
+  maxHealth: 30
   currentHealth: 0
   isBroken: 0
-  rootDamageMultiplier: 1
   rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
@@ -684,14 +684,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26de472d631926e458ad9b730f5416b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxRootHealth: 60
-  partDamageToRootRatio: 1
-  currentRootHealth: 0
-  rootHealthDepleted: 0
-  autoCollectPartsFromChildren: 1
+  partsSearchRoot: {fileID: 7420338502666811484}
+  autoCollectParts: 1
   parts: []
+  corePart: {fileID: 0}
+  totalMaxHealth: 0
+  currentBossHealth: 0
+  bossDead: 0
   brokenPartCount: 0
-  disableAllPartCollidersOnRootDeath: 1
+  disableAllCollidersOnBossDeath: 1
+  hideRemainingPartsOnBossDeath: 0
   debugLog: 1
 --- !u!1 &2884361533401282065
 GameObject:
@@ -838,11 +840,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 0
   displayName: "\uBA38\uB9AC"
-  canBreak: 1
+  isCore: 0
+  autoTreatTorsoAsCore: 1
   maxHealth: 10
   currentHealth: 0
   isBroken: 0
-  rootDamageMultiplier: 1
   rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1
@@ -883,11 +885,11 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7986375170990739833}
-  - {fileID: 8736929898052857229}
   - {fileID: 5061847562344212676}
   - {fileID: 2917293784945834702}
   - {fileID: 6754685083464912470}
   - {fileID: 8334487762599879908}
+  - {fileID: 8736929898052857229}
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6401697086027491985
@@ -1132,11 +1134,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partType: 3
   displayName: "\uC624\uB978\uD314"
-  canBreak: 1
+  isCore: 0
+  autoTreatTorsoAsCore: 1
   maxHealth: 10
   currentHealth: 0
   isBroken: 0
-  rootDamageMultiplier: 1
   rootController: {fileID: 0}
   hitColliders: []
   disableCollidersWhenBroken: 1

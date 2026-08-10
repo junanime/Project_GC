@@ -4,119 +4,238 @@ using UnityEngine;
 namespace Vampire
 {
     /// <summary>
-    /// 테스트용 파츠 보스의 "실제 전체 HP"를 관리합니다.
+    /// 테스트용 파츠 보스의 전체 HP를 집계합니다.
     ///
-    /// 핵심 규칙:
-    /// - Root HP = 실제 보스 생명력
-    /// - Part HP = 파츠 파괴 게이지
-    /// - 파츠를 공격하면 Root HP와 해당 파츠 파괴 게이지가 동시에 감소
-    /// - Root HP가 0이 되면 테스트 보스 최종 사망 상태
+    /// 별도의 Root HP를 소유하지 않습니다.
     ///
-    /// 아직 BossMonster, BossController, 보상, 페이즈와는 연결하지 않습니다.
+    /// Boss Max HP
+    /// = 모든 파츠 MaxHealth 합계
+    ///
+    /// Boss Current HP
+    /// = 모든 파츠 CurrentHealth 합계
+    ///
+    /// 단, Core가 파괴되면
+    /// 다른 파츠 HP와 관계없이 Boss Current HP를 0으로 강제합니다.
     /// </summary>
-    public sealed class BossPartDamageTestRootController : MonoBehaviour
+    public sealed class BossPartDamageTestRootController :
+        MonoBehaviour
     {
-        [Header("보스 전체 체력")]
+        [Header("파츠 검색")]
 
         [Tooltip(
-            "테스트용 보스의 실제 전체 최대 체력입니다. " +
-            "이 값이 0이 되면 테스트 보스를 최종 사망 상태로 처리합니다.")]
-        [SerializeField, Min(0.01f)]
-        private float maxRootHealth = 100f;
-
-        [Tooltip(
-            "파츠를 통해 들어온 공격 피해를 전체 HP에 적용할 전역 배율입니다. " +
-            "1이면 공격력 5가 Root HP에도 그대로 5 들어갑니다.")]
-        [SerializeField, Range(0f, 2f)]
-        private float partDamageToRootRatio = 1f;
-
-        [Tooltip("현재 테스트용 보스의 실제 전체 체력입니다.")]
+            "파츠를 검색할 기준 Transform입니다. " +
+            "비워 두면 이 컴포넌트가 붙은 Transform을 사용합니다.")]
         [SerializeField]
-        private float currentRootHealth;
-
-        [Tooltip("전체 HP가 0이 되어 테스트 보스가 사망 상태인지 표시합니다.")]
-        [SerializeField]
-        private bool rootHealthDepleted;
-
-        [Header("파츠 관리")]
+        private Transform partsSearchRoot;
 
         [Tooltip(
-            "Start 시 자식 파츠를 한 번 더 검색합니다. " +
-            "각 파츠의 자동 등록과 함께 이중 안전장치로 사용합니다.")]
+            "Start 시 자식의 BossPartDamageTestPart를 자동으로 수집합니다.")]
         [SerializeField]
-        private bool autoCollectPartsFromChildren = true;
+        private bool autoCollectParts = true;
 
         [Tooltip(
-            "현재 Root에 등록된 파츠 목록입니다. " +
-            "런타임에서 자동으로 갱신됩니다.")]
+            "현재 등록된 파츠입니다. " +
+            "런타임 확인용이며 자동으로 갱신됩니다.")]
         [SerializeField]
         private BossPartDamageTestPart[] parts;
+
+        [Header("Core")]
+
+        [Tooltip(
+            "현재 감지된 Core 파츠입니다. " +
+            "Torso의 Auto Treat Torso As Core가 켜져 있으면 자동으로 잡힙니다.")]
+        [SerializeField]
+        private BossPartDamageTestPart corePart;
+
+        [Header("전체 HP - 런타임 확인")]
+
+        [Tooltip(
+            "모든 파츠 MaxHealth의 합입니다.")]
+        [SerializeField]
+        private float totalMaxHealth;
+
+        [Tooltip(
+            "모든 파츠 CurrentHealth의 합입니다. " +
+            "Core가 파괴되면 0으로 강제됩니다.")]
+        [SerializeField]
+        private float currentBossHealth;
+
+        [Tooltip("Core 파괴 등으로 전체 보스가 사망했는지 표시합니다.")]
+        [SerializeField]
+        private bool bossDead;
 
         [Tooltip("현재 파괴된 파츠 개수입니다.")]
         [SerializeField]
         private int brokenPartCount;
 
-        [Header("최종 사망 테스트")]
+        [Header("전체 사망 처리")]
 
         [Tooltip(
-            "Root HP가 0이 되면 모든 파츠 Collider를 비활성화하여 " +
-            "추가 피해를 막습니다.")]
+            "보스 사망 시 모든 남은 파츠 Collider를 비활성화합니다.")]
         [SerializeField]
-        private bool disableAllPartCollidersOnRootDeath = true;
+        private bool disableAllCollidersOnBossDeath = true;
+
+        [Tooltip(
+            "보스 사망 시 아직 살아 있던 파츠 Sprite까지 모두 숨깁니다. " +
+            "현재 테스트에서는 남은 파츠 확인을 위해 끄는 것을 권장합니다.")]
+        [SerializeField]
+        private bool hideRemainingPartsOnBossDeath = false;
 
         [Header("디버그")]
 
         [Tooltip(
-            "파츠 등록, 전체 HP 변화, 파츠 파괴, 최종 사망 로그를 출력합니다.")]
+            "파츠 등록, HP 집계, Core 파괴 및 전체 사망 로그를 출력합니다.")]
         [SerializeField]
         private bool debugLog = true;
 
-        private readonly List<BossPartDamageTestPart> registeredParts =
-            new List<BossPartDamageTestPart>();
+        private readonly List<BossPartDamageTestPart>
+            registeredParts =
+                new List<BossPartDamageTestPart>();
 
-        private readonly HashSet<int> brokenPartIds =
-            new HashSet<int>();
+        private readonly HashSet<int>
+            brokenPartIds =
+                new HashSet<int>();
 
-        public float CurrentRootHealth => currentRootHealth;
-        public float MaxRootHealth => maxRootHealth;
+        public float TotalMaxHealth =>
+            totalMaxHealth;
 
-        public float RootHealthNormalized =>
-            maxRootHealth > 0f
-                ? currentRootHealth / maxRootHealth
+        public float CurrentBossHealth =>
+            bossDead
+                ? 0f
+                : currentBossHealth;
+
+        public float HealthNormalized =>
+            totalMaxHealth > 0f
+                ? Mathf.Clamp01(
+                    CurrentBossHealth /
+                    totalMaxHealth)
                 : 0f;
 
-        public bool RootHealthDepleted => rootHealthDepleted;
+        public bool IsBossDead =>
+            bossDead;
 
-        public int BrokenPartCount => brokenPartCount;
+        public int BrokenPartCount =>
+            brokenPartCount;
 
-        public int TotalPartCount => registeredParts.Count;
+        public int TotalPartCount =>
+            registeredParts.Count;
+
+        public BossPartDamageTestPart CorePart =>
+            corePart;
+
+        private void Awake()
+        {
+            ResetRuntimeState();
+
+            if (autoCollectParts)
+            {
+                CollectParts();
+            }
+        }
 
         private void OnEnable()
         {
-            ResetRootState();
+            ResetRuntimeState();
         }
 
         private void Start()
         {
-            // Awake/OnEnable 시점의 실행 순서에 의존하지 않고
-            // 모든 자식이 생성된 뒤 Start에서 한 번 더 수집합니다.
-            if (autoCollectPartsFromChildren)
+            // 자식들의 Awake / OnEnable 순서에 의존하지 않도록
+            // Start에서도 한 번 더 강제로 수집합니다.
+            if (autoCollectParts)
             {
                 CollectParts();
             }
+
+            RecalculateBossHealth();
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[BossPartRootTest] 시작 완료 | " +
-                    $"HP={currentRootHealth:0.##}/{maxRootHealth:0.##} | " +
-                    $"Parts={TotalPartCount}",
+                    $"Parts={TotalPartCount}, " +
+                    $"Core=" +
+                    $"{(corePart != null ? corePart.PartType.ToString() : "NULL")}, " +
+                    $"BossHP={CurrentBossHealth:0.##}/" +
+                    $"{TotalMaxHealth:0.##}",
                     this);
             }
         }
 
         /// <summary>
-        /// 파츠가 자신의 OnEnable에서 Root에 직접 등록할 때 사용합니다.
+        /// 하위 파츠를 자동 검색합니다.
+        ///
+        /// 일반 검색에서 0개가 나오면
+        /// 이전 테스트의 hierarchy 연결 문제를 대비해
+        /// 최상위 Transform에서 한 번 더 검색합니다.
+        /// </summary>
+        [ContextMenu("Collect Test Parts")]
+        public void CollectParts()
+        {
+            registeredParts.Clear();
+            brokenPartIds.Clear();
+
+            Transform searchRoot =
+                partsSearchRoot != null
+                    ? partsSearchRoot
+                    : transform;
+
+            BossPartDamageTestPart[] foundParts =
+                searchRoot.GetComponentsInChildren
+                <
+                    BossPartDamageTestPart
+                >(true);
+
+            // 잘못된 위치에 RootController가 붙어 있어도
+            // 같은 prefab 최상위에서 한 번 더 찾아봅니다.
+            if (foundParts.Length == 0 &&
+                transform.root != null &&
+                transform.root != searchRoot)
+            {
+                foundParts =
+                    transform.root.GetComponentsInChildren
+                    <
+                        BossPartDamageTestPart
+                    >(true);
+
+                if (debugLog &&
+                    foundParts.Length > 0)
+                {
+                    Debug.LogWarning(
+                        "[BossPartRootTest] " +
+                        "현재 Transform 아래에서 파츠를 찾지 못해 " +
+                        "transform.root 기준으로 파츠를 다시 수집했습니다. " +
+                        "가능하면 RootController를 BossPartDamageTestRoot에 붙이세요.",
+                        this);
+                }
+            }
+
+            for (int i = 0;
+                 i < foundParts.Length;
+                 i++)
+            {
+                RegisterPartInternal(
+                    foundParts[i]);
+            }
+
+            SyncPartsArray();
+            ResolveCorePart();
+            RecalculateBossHealth();
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[BossPartRootTest] 파츠 수집 완료 | " +
+                    $"Found={foundParts.Length}, " +
+                    $"Registered={registeredParts.Count}, " +
+                    $"Core=" +
+                    $"{(corePart != null ? corePart.PartType.ToString() : "NULL")}",
+                    this);
+            }
+        }
+
+        /// <summary>
+        /// 각 파츠가 자기 자신을 Root에 등록할 때 사용합니다.
         /// </summary>
         public void RegisterPart(
             BossPartDamageTestPart part)
@@ -126,141 +245,91 @@ namespace Vampire
                 return;
             }
 
-            if (registeredParts.Contains(part))
+            bool added =
+                RegisterPartInternal(part);
+
+            if (!added)
             {
                 return;
             }
 
-            registeredParts.Add(part);
-
             SyncPartsArray();
-
-            if (rootHealthDepleted &&
-                disableAllPartCollidersOnRootDeath)
-            {
-                part.SetDamageEnabled(false);
-            }
+            ResolveCorePart();
+            RecalculateBossHealth();
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[BossPartRootTest] 파츠 등록 | " +
                     $"Part={part.PartType}, " +
+                    $"Core={part.IsCore}, " +
                     $"Registered={registeredParts.Count}",
                     this);
             }
         }
 
-        /// <summary>
-        /// 하위 계층의 파츠를 직접 검색합니다.
-        /// 파츠 스스로 등록하는 방식에 대한 안전장치입니다.
-        /// </summary>
-        [ContextMenu("Collect Test Parts")]
-        public void CollectParts()
+        private bool RegisterPartInternal(
+            BossPartDamageTestPart part)
         {
-            BossPartDamageTestPart[] foundParts =
-                GetComponentsInChildren
-                <
-                    BossPartDamageTestPart
-                >(true);
-
-            for (int i = 0; i < foundParts.Length; i++)
-            {
-                RegisterPart(foundParts[i]);
-            }
-
-            SyncPartsArray();
-
-            if (debugLog)
-            {
-                Debug.Log(
-                    $"[BossPartRootTest] 파츠 수집 완료 | " +
-                    $"Found={foundParts.Length}, " +
-                    $"Registered={registeredParts.Count}",
-                    this);
-            }
-        }
-
-        /// <summary>
-        /// 파츠 공격을 Root 실제 HP에 전달합니다.
-        ///
-        /// 중요:
-        /// 여기에는 "파츠 HP에서 실제 감소한 값"이 아니라
-        /// 공격 자체의 실제 Damage 값이 전달됩니다.
-        ///
-        /// 파츠 게이지가 2 남았는데 100 피해를 받더라도
-        /// Root HP에는 100 피해가 적용될 수 있습니다.
-        /// </summary>
-        public bool NotifyPartDamaged(
-            BossPartDamageTestPart part,
-            float incomingDamage,
-            float partRootDamageMultiplier)
-        {
-            if (rootHealthDepleted)
-            {
-                return true;
-            }
-
             if (part == null)
             {
                 return false;
             }
 
-            if (incomingDamage <= 0f)
+            if (registeredParts.Contains(part))
             {
+                part.SetRootController(this);
                 return false;
+            }
+
+            registeredParts.Add(part);
+
+            part.SetRootController(this);
+
+            if (part.IsBroken)
+            {
+                brokenPartIds.Add(
+                    part.gameObject.GetInstanceID());
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 파츠 HP가 변경될 때 호출됩니다.
+        ///
+        /// Root에 별도 Damage를 더하지 않고
+        /// 모든 파츠 HP를 다시 합산합니다.
+        /// </summary>
+        public void NotifyPartHealthChanged(
+            BossPartDamageTestPart part)
+        {
+            if (part == null ||
+                bossDead)
+            {
+                return;
             }
 
             RegisterPart(part);
 
-            float globalMultiplier =
-                Mathf.Max(0f, partDamageToRootRatio);
-
-            float localMultiplier =
-                Mathf.Max(0f, partRootDamageMultiplier);
-
-            float rootDamage =
-                incomingDamage *
-                globalMultiplier *
-                localMultiplier;
-
-            if (rootDamage <= 0f)
-            {
-                return false;
-            }
-
-            float previousHealth =
-                currentRootHealth;
-
-            currentRootHealth =
-                Mathf.Max(
-                    0f,
-                    currentRootHealth - rootDamage);
+            RecalculateBossHealth();
 
             if (debugLog)
             {
                 Debug.Log(
-                    $"[BossPartRootTest] {part.PartType} -> Root 피해 | " +
-                    $"AttackDamage={incomingDamage:0.##}, " +
-                    $"GlobalRatio={globalMultiplier:0.##}, " +
-                    $"PartMultiplier={localMultiplier:0.##}, " +
-                    $"RootDamage={rootDamage:0.##}, " +
-                    $"RootHP={previousHealth:0.##}" +
-                    $"->{currentRootHealth:0.##}/" +
-                    $"{maxRootHealth:0.##}",
+                    $"[BossPartRootTest] HP 재계산 | " +
+                    $"HitPart={part.PartType}, " +
+                    $"BossHP={CurrentBossHealth:0.##}/" +
+                    $"{TotalMaxHealth:0.##}",
                     this);
             }
-
-            if (currentRootHealth <= 0f)
-            {
-                HandleRootHealthDepleted();
-            }
-
-            return rootHealthDepleted;
         }
 
         /// <summary>
-        /// 파괴된 파츠를 한 번만 기록합니다.
+        /// 파츠가 파괴됐을 때 호출됩니다.
+        ///
+        /// 일반 파츠는 해당 파츠만 파괴.
+        /// Core이면 즉시 전체 보스 사망.
         /// </summary>
         public void NotifyPartBroken(
             BossPartDamageTestPart part)
@@ -272,69 +341,160 @@ namespace Vampire
 
             RegisterPart(part);
 
-            int partId =
+            int instanceId =
                 part.gameObject.GetInstanceID();
 
-            if (!brokenPartIds.Add(partId))
-            {
-                return;
-            }
+            brokenPartIds.Add(instanceId);
 
             brokenPartCount =
                 brokenPartIds.Count;
+
+            RecalculateBossHealth();
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[BossPartRootTest] 파츠 파괴 감지 | " +
                     $"Part={part.PartType}, " +
+                    $"Core={part.IsCore}, " +
                     $"Broken={brokenPartCount}/" +
-                    $"{TotalPartCount}",
+                    $"{TotalPartCount}, " +
+                    $"합산HP={currentBossHealth:0.##}/" +
+                    $"{totalMaxHealth:0.##}",
                     this);
             }
-        }
 
-        /// <summary>
-        /// Root HP를 초기화합니다.
-        /// 등록된 파츠 목록은 지우지 않습니다.
-        /// </summary>
-        [ContextMenu("Reset Root Test State")]
-        public void ResetRootState()
-        {
-            currentRootHealth =
-                Mathf.Max(0.01f, maxRootHealth);
-
-            rootHealthDepleted = false;
-
-            brokenPartCount = 0;
-
-            brokenPartIds.Clear();
-
-            if (debugLog)
+            if (part.IsCore)
             {
-                Debug.Log(
-                    $"[BossPartRootTest] Root 초기화 | " +
-                    $"HP={currentRootHealth:0.##}/" +
-                    $"{maxRootHealth:0.##}",
+                HandleBossDeath(
+                    part,
+                    "Core 파괴");
+
+                return;
+            }
+
+            // Core 설정이 잘못되었더라도
+            // 모든 파츠 HP가 0이면 안전하게 사망 처리.
+            if (currentBossHealth <= 0f)
+            {
+                HandleBossDeath(
+                    part,
+                    "모든 파츠 HP 소진");
+            }
+        }
+
+        /// <summary>
+        /// 모든 파츠의 HP를 합산합니다.
+        /// </summary>
+        public void RecalculateBossHealth()
+        {
+            float maxHealthSum = 0f;
+            float currentHealthSum = 0f;
+
+            for (int i = 0;
+                 i < registeredParts.Count;
+                 i++)
+            {
+                BossPartDamageTestPart part =
+                    registeredParts[i];
+
+                if (part == null)
+                {
+                    continue;
+                }
+
+                maxHealthSum +=
+                    Mathf.Max(
+                        0f,
+                        part.MaxHealth);
+
+                currentHealthSum +=
+                    Mathf.Max(
+                        0f,
+                        part.CurrentHealth);
+            }
+
+            totalMaxHealth =
+                Mathf.Max(
+                    0f,
+                    maxHealthSum);
+
+            currentBossHealth =
+                bossDead
+                    ? 0f
+                    : Mathf.Clamp(
+                        currentHealthSum,
+                        0f,
+                        totalMaxHealth);
+        }
+
+        /// <summary>
+        /// Core 파츠를 탐색합니다.
+        /// </summary>
+        private void ResolveCorePart()
+        {
+            corePart = null;
+
+            int coreCount = 0;
+
+            for (int i = 0;
+                 i < registeredParts.Count;
+                 i++)
+            {
+                BossPartDamageTestPart part =
+                    registeredParts[i];
+
+                if (part == null ||
+                    !part.IsCore)
+                {
+                    continue;
+                }
+
+                coreCount++;
+
+                if (corePart == null)
+                {
+                    corePart = part;
+                }
+            }
+
+            if (debugLog &&
+                coreCount == 0)
+            {
+                Debug.LogWarning(
+                    "[BossPartRootTest] Core 파츠를 찾지 못했습니다. " +
+                    "Torso의 Auto Treat Torso As Core 또는 Is Core를 확인하세요.",
+                    this);
+            }
+            else if (debugLog &&
+                     coreCount > 1)
+            {
+                Debug.LogWarning(
+                    $"[BossPartRootTest] Core 파츠가 {coreCount}개입니다. " +
+                    "현재 테스트에서는 Core를 하나만 사용하는 것을 권장합니다.",
                     this);
             }
         }
 
         /// <summary>
-        /// Root HP가 0이 된 경우입니다.
-        /// 이번 테스트에서는 실제 BossMonster.Killed()는 호출하지 않습니다.
+        /// Core 파괴 등에 의한 최종 사망 처리입니다.
         /// </summary>
-        private void HandleRootHealthDepleted()
+        private void HandleBossDeath(
+            BossPartDamageTestPart causePart,
+            string reason)
         {
-            if (rootHealthDepleted)
+            if (bossDead)
             {
                 return;
             }
 
-            rootHealthDepleted = true;
-            currentRootHealth = 0f;
+            bossDead = true;
 
-            if (disableAllPartCollidersOnRootDeath)
+            // 실제 남은 파츠 내부 HP는 유지합니다.
+            // 플레이어에게 보여줄 Boss HP만 0으로 강제합니다.
+            currentBossHealth = 0f;
+
+            if (disableAllCollidersOnBossDeath)
             {
                 for (int i = 0;
                      i < registeredParts.Count;
@@ -350,34 +510,49 @@ namespace Vampire
                 }
             }
 
+            if (hideRemainingPartsOnBossDeath)
+            {
+                for (int i = 0;
+                     i < registeredParts.Count;
+                     i++)
+                {
+                    BossPartDamageTestPart part =
+                        registeredParts[i];
+
+                    if (part != null)
+                    {
+                        part.SetVisualEnabled(false);
+                    }
+                }
+            }
+
             if (debugLog)
             {
                 Debug.Log(
-                    "[BossPartRootTest] ★ 테스트 보스 전체 HP 0 ★ | " +
-                    "최종 사망 조건 도달. " +
-                    "아직 BossMonster.Killed(), 보상, 페이즈는 호출하지 않습니다.",
+                    $"[BossPartRootTest] ★ 보스 최종 사망 ★ | " +
+                    $"Reason={reason}, " +
+                    $"CausePart=" +
+                    $"{(causePart != null ? causePart.PartType.ToString() : "NULL")}, " +
+                    $"DisplayedBossHP=0/{totalMaxHealth:0.##}",
                     this);
             }
         }
 
         /// <summary>
-        /// 전체 테스트 보스를 수동 초기화합니다.
+        /// 테스트 전체를 다시 초기화합니다.
         /// </summary>
         [ContextMenu("Reset Whole Test Boss")]
-        private void ResetWholeTestBoss()
+        public void ResetWholeTestBoss()
         {
-            if (!Application.isPlaying)
+            bossDead = false;
+
+            brokenPartIds.Clear();
+            brokenPartCount = 0;
+
+            if (registeredParts.Count == 0)
             {
-                Debug.LogWarning(
-                    "[BossPartRootTest] Play Mode에서 실행하세요.",
-                    this);
-
-                return;
+                CollectParts();
             }
-
-            CollectParts();
-
-            ResetRootState();
 
             for (int i = 0;
                  i < registeredParts.Count;
@@ -392,14 +567,28 @@ namespace Vampire
                 }
             }
 
+            ResolveCorePart();
+            RecalculateBossHealth();
+
             if (debugLog)
             {
                 Debug.Log(
-                    $"[BossPartRootTest] 전체 테스트 보스 복구 완료 | " +
-                    $"HP={currentRootHealth:0.##}/{maxRootHealth:0.##}, " +
-                    $"Parts={TotalPartCount}",
+                    $"[BossPartRootTest] 전체 초기화 완료 | " +
+                    $"BossHP={CurrentBossHealth:0.##}/" +
+                    $"{TotalMaxHealth:0.##}",
                     this);
             }
+        }
+
+        private void ResetRuntimeState()
+        {
+            bossDead = false;
+
+            brokenPartIds.Clear();
+            brokenPartCount = 0;
+
+            currentBossHealth = 0f;
+            totalMaxHealth = 0f;
         }
 
         private void SyncPartsArray()
