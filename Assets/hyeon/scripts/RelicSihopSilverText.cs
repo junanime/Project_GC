@@ -32,7 +32,7 @@ namespace Vampire
         {
             if (silverText != null)
             {
-                silverText.text = $"보유 실버: {amount}";
+                silverText.text = $" {amount}";
             }
         }
     }
