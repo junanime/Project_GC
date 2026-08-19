@@ -39351,7 +39351,7 @@ MonoBehaviour:
     monsterPoolIndex: 10
     monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
     hpBuff: 0
-    spawnTimeMode: 1
+    spawnTimeMode: 0
     spawnTimeSeconds: 1
     randomStartTimeSeconds: 180
     randomEndTimeSeconds: 480
@@ -39363,7 +39363,7 @@ MonoBehaviour:
     intervalBetweenSpawns: 2
     trapSpawnOnStart: 1
     trapActivateTimeSeconds: 0
-    spawnInitialTrapsOnActivate: 0
+    spawnInitialTrapsOnActivate: 1
     maxActiveTraps: 6
     respawnDelay: 60
     minDistanceFromPlayer: 2

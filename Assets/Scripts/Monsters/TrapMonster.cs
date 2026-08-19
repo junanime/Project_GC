@@ -93,7 +93,7 @@ namespace Vampire
             this.monsterIndex = monsterIndex;
             monsterBlueprint = trapBlueprint;
             trapHpBuff = hpBuff;
-            currentHealth = trapBlueprint.activeHealth + trapHpBuff;
+           
             alive = true;
             killStarted = false;
             setupCompleted = true;
@@ -175,7 +175,7 @@ namespace Vampire
             StopTrapCoroutines();
             ReleaseTrappedPlayer();
 
-            ChangeState(TrapState.Dormant);
+            
 
             if (debugLog)
             {
@@ -412,10 +412,10 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log("[TrapMonster] 바인드 시간이 종료되어 플레이어를 해제", this);
+                Debug.Log("[TrapMonster] 바인드 시간이 종료되어 플레이어 해제 후 함정 사망 처리", this);
             }
 
-            ReleaseAndReturnToDormant();
+            ReleaseAndKillTrap();
         }
 
         private void StartArrowMiniGame()
@@ -573,13 +573,13 @@ namespace Vampire
         {
             if (debugLog)
             {
-                Debug.Log("[TrapMonster] 방향키 미니게임 성공 - 플레이어 해제", this);
+                Debug.Log("[TrapMonster] 방향키 미니게임 성공 - 플레이어 해제 후 함정 사망 처리", this);
             }
 
-            ReleaseAndReturnToDormant();
+            ReleaseAndKillTrap();
         }
 
-        private void ReleaseAndReturnToDormant()
+        private void ReleaseAndKillTrap()
         {
             if (currentState != TrapState.Active)
             {
@@ -588,11 +588,10 @@ namespace Vampire
 
             ReleaseTrappedPlayer();
 
-            currentHealth = trapBlueprint != null
-                ? trapBlueprint.activeHealth + trapHpBuff
-                : currentHealth;
-
-            ChangeState(TrapState.Dormant);
+            if (!killStarted)
+            {
+                StartCoroutine(Killed(false));
+            }
         }
 
         private char GetArrowCharacter(TrapArrowDirection direction)
