@@ -1150,10 +1150,10 @@ MonoBehaviour:
   spawnDistance: 0.5
   usePlayerLookDirection: 1
   fallbackDirection: {x: 1, y: 0}
-  spawnOnStart: 1
+  spawnOnStart: 0
   destroyPreviousBeforeSpawn: 1
   respawnKey: 277
-  debugLog: 1
+  debugLog: 0
 --- !u!4 &248952241
 Transform:
   m_ObjectHideFlags: 0
@@ -37644,6 +37644,9 @@ MonoBehaviour:
   bossHealthBar: {fileID: 1782205305}
   healthText: {fileID: 1014992174}
   bossLabel: BOSS
+  canvasGroup: {fileID: 0}
+  hideWhenNoBoss: 1
+  hideWhenBossDead: 1
   targetBoss: {fileID: 0}
   autoFindBoss: 1
   findInterval: 0.2
@@ -39358,7 +39361,7 @@ MonoBehaviour:
     randomMinSpawnCount: 1
     randomMaxSpawnCount: 2
     intervalBetweenSpawns: 2
-    trapSpawnOnStart: 0
+    trapSpawnOnStart: 1
     trapActivateTimeSeconds: 0
     spawnInitialTrapsOnActivate: 0
     maxActiveTraps: 6
@@ -39373,9 +39376,9 @@ MonoBehaviour:
     monsterPoolIndex: 10
     monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
     hpBuff: 0
-    spawnTimeMode: 1
+    spawnTimeMode: 0
     spawnTimeSeconds: 1
-    randomStartTimeSeconds: 540
+    randomStartTimeSeconds: 240
     randomEndTimeSeconds: 900
     randomEventCount: 8
     spawnCountMode: 1
@@ -39383,7 +39386,7 @@ MonoBehaviour:
     randomMinSpawnCount: 1
     randomMaxSpawnCount: 2
     intervalBetweenSpawns: 2
-    trapSpawnOnStart: 0
+    trapSpawnOnStart: 1
     trapActivateTimeSeconds: 0
     spawnInitialTrapsOnActivate: 0
     maxActiveTraps: 10
@@ -39450,7 +39453,7 @@ MonoBehaviour:
     hpBuff: 0
     spawnTimeMode: 1
     spawnTimeSeconds: 10
-    randomStartTimeSeconds: 540
+    randomStartTimeSeconds: 500
     randomEndTimeSeconds: 900
     randomEventCount: 8
     spawnCountMode: 1
@@ -39475,7 +39478,7 @@ MonoBehaviour:
     hpBuff: 0
     spawnTimeMode: 1
     spawnTimeSeconds: 15
-    randomStartTimeSeconds: 540
+    randomStartTimeSeconds: 500
     randomEndTimeSeconds: 900
     randomEventCount: 8
     spawnCountMode: 1
@@ -39500,7 +39503,7 @@ MonoBehaviour:
     hpBuff: 0
     spawnTimeMode: 1
     spawnTimeSeconds: 20
-    randomStartTimeSeconds: 540
+    randomStartTimeSeconds: 500
     randomEndTimeSeconds: 900
     randomEventCount: 8
     spawnCountMode: 1
@@ -39523,15 +39526,15 @@ MonoBehaviour:
     monsterPoolIndex: 10
     monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
     hpBuff: 0
-    spawnTimeMode: 0
+    spawnTimeMode: 1
     spawnTimeSeconds: 10
-    randomStartTimeSeconds: 540
+    randomStartTimeSeconds: 240
     randomEndTimeSeconds: 900
     randomEventCount: 8
     spawnCountMode: 1
     spawnCount: 1
     randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
+    randomMaxSpawnCount: 1
     intervalBetweenSpawns: 2
     trapSpawnOnStart: 1
     trapActivateTimeSeconds: 60
@@ -39548,15 +39551,15 @@ MonoBehaviour:
     monsterPoolIndex: 10
     monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
     hpBuff: 0
-    spawnTimeMode: 0
+    spawnTimeMode: 1
     spawnTimeSeconds: 30
-    randomStartTimeSeconds: 540
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
+    randomStartTimeSeconds: 500
+    randomEndTimeSeconds: 1000
+    randomEventCount: 2
     spawnCountMode: 1
     spawnCount: 1
     randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
+    randomMaxSpawnCount: 1
     intervalBetweenSpawns: 2
     trapSpawnOnStart: 1
     trapActivateTimeSeconds: 60
@@ -39569,7 +39572,7 @@ MonoBehaviour:
     spawnPositionTryCount: 20
   blockWhileRunFlowPaused: 1
   logMiniStageBlock: 1
-  debugLog: 1
+  debugLog: 0
 --- !u!4 &2093063619
 Transform:
   m_ObjectHideFlags: 0
