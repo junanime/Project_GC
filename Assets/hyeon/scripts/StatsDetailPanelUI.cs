@@ -5,7 +5,46 @@ namespace Vampire
 {
     public class StatsDetailPanelUI : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI statsText;
+        [Header("기본 스탯")]
+        [SerializeField] private TextMeshProUGUI hpValueText;
+        [SerializeField] private TextMeshProUGUI moveSpeedValueText;
+        [SerializeField] private TextMeshProUGUI armorValueText;
+
+        [Header("공격 스탯")]
+        [SerializeField] private TextMeshProUGUI damageMultiplierValueText;
+        [SerializeField] private TextMeshProUGUI attackSpeedValueText;
+        [SerializeField] private TextMeshProUGUI critChanceValueText;
+        [SerializeField] private TextMeshProUGUI rangeMultiplierValueText;
+        [SerializeField] private TextMeshProUGUI additionalProjectilesValueText;
+        [SerializeField] private TextMeshProUGUI projectileSpeedValueText;
+        [SerializeField] private TextMeshProUGUI projectileSizeValueText;
+        [SerializeField] private TextMeshProUGUI additionalPierceValueText;
+        [SerializeField] private TextMeshProUGUI burnChanceValueText;
+        [SerializeField] private TextMeshProUGUI slowChanceValueText;
+
+        [Header("회복 · 성장")]
+        [SerializeField] private TextMeshProUGUI lifeStealValueText;
+        [SerializeField] private TextMeshProUGUI healOnKillValueText;
+        [SerializeField] private TextMeshProUGUI idleHealPerSecondValueText;
+        [SerializeField] private TextMeshProUGUI magnetRangeBonusValueText;
+        [SerializeField] private TextMeshProUGUI experienceMultiplierValueText;
+        [SerializeField] private TextMeshProUGUI luckValueText;
+
+        [Header("대시 · 생존")]
+        [SerializeField] private TextMeshProUGUI dashChargesValueText;
+        [SerializeField] private TextMeshProUGUI dashDistanceValueText;
+        [SerializeField] private TextMeshProUGUI dashRechargeTimeValueText;
+        [SerializeField] private TextMeshProUGUI hasShieldValueText;
+        [SerializeField] private TextMeshProUGUI reviveCountValueText;
+        [SerializeField] private TextMeshProUGUI invincibilityTimeBonusValueText;
+
+        [Header("특수 효과")]
+        [SerializeField] private TextMeshProUGUI thermometerStacksValueText;
+        [SerializeField] private TextMeshProUGUI mouthwashCountValueText;
+        [SerializeField] private TextMeshProUGUI reflexHammerCountValueText;
+        [SerializeField] private TextMeshProUGUI antibioticBombChanceValueText;
+        [SerializeField] private TextMeshProUGUI hasGinsengStickValueText;
+        [SerializeField] private TextMeshProUGUI autoCollectItemsValueText;
 
         private Character playerCharacter;
 
@@ -30,11 +69,6 @@ namespace Vampire
 
         private void Refresh()
         {
-            if (statsText == null)
-            {
-                return;
-            }
-
             if (playerCharacter == null)
             {
                 ResolvePlayer();
@@ -42,53 +76,94 @@ namespace Vampire
 
             if (playerCharacter == null)
             {
-                statsText.text = "캐릭터 정보를 불러오는 중...";
+                SetAllTexts("-");
                 return;
             }
 
             Character c = playerCharacter;
 
-            statsText.text =
-                "<b>기본 스탯</b>\n" +
-                $"체력: {c.CurrentHealth:0} / {c.MaxHealth:0}\n" +
-                $"이동 속도: {c.CurrentMoveSpeed:0.0}\n" +
-                $"방어력: {c.CurrentArmor:0}\n\n" +
+            SetText(hpValueText, $"{c.CurrentHealth:0}/{c.MaxHealth:0}");
+            SetText(moveSpeedValueText, $"{c.CurrentMoveSpeed:0.0}");
+            SetText(armorValueText, $"{c.CurrentArmor:0}");
 
-                "<b>공격 스탯</b>\n" +
-                $"피해 배율: x{c.DamageMultiplier:0.00}\n" +
-                $"공격 속도: x{c.AttackSpeedMultiplier:0.00}\n" +
-                $"치명타 확률: {c.CritChance * 100f:0}%\n" +
-                $"공격 범위: x{c.RangeMultiplier:0.00}\n" +
-                $"투사체 추가: +{c.AdditionalProjectiles}\n" +
-                $"투사체 속도: x{c.ProjectileSpeedMultiplier:0.00}\n" +
-                $"투사체 크기: x{c.ProjectileSizeMultiplier:0.00}\n" +
-                $"관통 추가: +{c.AdditionalPierce}\n" +
-                $"화상 확률: {c.BurnChance * 100f:0}%\n" +
-                $"둔화 확률: {c.SlowChance * 100f:0}%\n\n" +
+            SetText(damageMultiplierValueText, $"x{c.DamageMultiplier:0.00}");
+            SetText(attackSpeedValueText, $"x{c.AttackSpeedMultiplier:0.00}");
+            SetText(critChanceValueText, $"{c.CritChance * 100f:0}%");
+            SetText(rangeMultiplierValueText, $"x{c.RangeMultiplier:0.00}");
+            SetText(additionalProjectilesValueText, $"+{c.AdditionalProjectiles}");
+            SetText(projectileSpeedValueText, $"x{c.ProjectileSpeedMultiplier:0.00}");
+            SetText(projectileSizeValueText, $"x{c.ProjectileSizeMultiplier:0.00}");
+            SetText(additionalPierceValueText, $"+{c.AdditionalPierce}");
+            SetText(burnChanceValueText, $"{c.BurnChance * 100f:0}%");
+            SetText(slowChanceValueText, $"{c.SlowChance * 100f:0}%");
 
-                "<b>회복 · 성장</b>\n" +
-                $"흡혈: {c.LifeSteal * 100f:0}%\n" +
-                $"처치 회복: {c.HealOnKill:0.##}\n" +
-                $"정지 회복: 최대 체력의 {c.IdleHealPerSecond * 100f:0.##}% / 초\n" +
-                $"자석 범위 추가: +{c.MagnetRangeBonus:0.##}\n" +
-                $"경험치 획득: x{c.ExperienceMultiplier:0.00}\n" +
-                $"행운: {c.Luck:0.##}\n\n" +
+            SetText(lifeStealValueText, $"{c.LifeSteal * 100f:0}%");
+            SetText(healOnKillValueText, $"{c.HealOnKill:0.##}");
+            SetText(idleHealPerSecondValueText, $"{c.IdleHealPerSecond * 100f:0.##}%");
+            SetText(magnetRangeBonusValueText, $"+{c.MagnetRangeBonus:0.##}");
+            SetText(experienceMultiplierValueText, $"x{c.ExperienceMultiplier:0.00}");
+            SetText(luckValueText, $"{c.Luck:0.##}");
 
-                "<b>대시 · 생존</b>\n" +
-                $"대시 충전: {c.CurrentDashCharges} / {c.MaxDashCharges}\n" +
-                $"대시 거리: {c.DashDistance:0.0}\n" +
-                $"대시 충전 시간: {c.DashRechargeTime:0.00}초\n" +
-                $"보호막: {(c.HasShield ? "활성" : "없음")}\n" +
-                $"부활 횟수: {c.ReviveCount}\n" +
-                $"피격 무적 추가: {c.InvincibilityTimeBonus:0.00}초\n\n" +
+            SetText(dashChargesValueText, $"{c.CurrentDashCharges}/{c.MaxDashCharges}");
+            SetText(dashDistanceValueText, $"{c.DashDistance:0.0}");
+            SetText(dashRechargeTimeValueText, $"{c.DashRechargeTime:0.00}s");
+            SetText(hasShieldValueText, c.HasShield ? "있음" : "없음");
+            SetText(reviveCountValueText, $"{c.ReviveCount}");
+            SetText(invincibilityTimeBonusValueText, $"{c.InvincibilityTimeBonus:0.00}s");
 
-                "<b>특수 효과</b>\n" +
-                $"체온계 스택: {c.ThermometerStacks}\n" +
-                $"구강청결제: {c.MouthwashCount}\n" +
-                $"반사신경 망치: {c.ReflexHammerCount}\n" +
-                $"항생제 폭탄 확률: {c.AntibioticBombChance * 100f:0}%\n" +
-                $"인삼 스틱: {(c.HasGinsengStick ? "보유" : "없음")}\n" +
-                $"자동 수집: {(c.AutoCollectItems ? "활성" : "비활성")}";
+            SetText(thermometerStacksValueText, $"{c.ThermometerStacks}");
+            SetText(mouthwashCountValueText, $"{c.MouthwashCount}");
+            SetText(reflexHammerCountValueText, $"{c.ReflexHammerCount}");
+            SetText(antibioticBombChanceValueText, $"{c.AntibioticBombChance * 100f:0}%");
+            SetText(hasGinsengStickValueText, c.HasGinsengStick ? "보유" : "없음");
+            SetText(autoCollectItemsValueText, c.AutoCollectItems ? "활성" : "비활성");
+        }
+
+        private void SetText(TextMeshProUGUI textUI, string value)
+        {
+            if (textUI != null)
+            {
+                textUI.text = value;
+            }
+        }
+
+        private void SetAllTexts(string value)
+        {
+            SetText(hpValueText, value);
+            SetText(moveSpeedValueText, value);
+            SetText(armorValueText, value);
+
+            SetText(damageMultiplierValueText, value);
+            SetText(attackSpeedValueText, value);
+            SetText(critChanceValueText, value);
+            SetText(rangeMultiplierValueText, value);
+            SetText(additionalProjectilesValueText, value);
+            SetText(projectileSpeedValueText, value);
+            SetText(projectileSizeValueText, value);
+            SetText(additionalPierceValueText, value);
+            SetText(burnChanceValueText, value);
+            SetText(slowChanceValueText, value);
+
+            SetText(lifeStealValueText, value);
+            SetText(healOnKillValueText, value);
+            SetText(idleHealPerSecondValueText, value);
+            SetText(magnetRangeBonusValueText, value);
+            SetText(experienceMultiplierValueText, value);
+            SetText(luckValueText, value);
+
+            SetText(dashChargesValueText, value);
+            SetText(dashDistanceValueText, value);
+            SetText(dashRechargeTimeValueText, value);
+            SetText(hasShieldValueText, value);
+            SetText(reviveCountValueText, value);
+            SetText(invincibilityTimeBonusValueText, value);
+
+            SetText(thermometerStacksValueText, value);
+            SetText(mouthwashCountValueText, value);
+            SetText(reflexHammerCountValueText, value);
+            SetText(antibioticBombChanceValueText, value);
+            SetText(hasGinsengStickValueText, value);
+            SetText(autoCollectItemsValueText, value);
         }
     }
 }

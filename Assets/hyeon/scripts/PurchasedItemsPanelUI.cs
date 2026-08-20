@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Vampire
 {
@@ -10,12 +12,38 @@ namespace Vampire
         [SerializeField] private PurchasedItemCardUI itemCardPrefab;
         [SerializeField] private GameObject emptyText;
 
+        [Header("Page")]
+        [SerializeField] private int itemsPerPage = 4;
+        [SerializeField] private int minimumPageCount = 2;
+        [SerializeField] private bool loopPages = true;
+        [SerializeField] private Button prevButton;
+        [SerializeField] private Button nextButton;
+        [SerializeField] private TextMeshProUGUI pageText;
+
         private SynergyManager synergyManager;
         private readonly List<PurchasedItemCardUI> spawnedCards = new();
 
+        private readonly List<MerchantItemBlueprint> orderedItems = new();
+        private readonly Dictionary<MerchantItemBlueprint, int> itemCounts = new();
+
+        private int currentPage = 0;
+
+        private void Awake()
+        {
+            SetupButton(prevButton, PrevPage);
+            SetupButton(nextButton, NextPage);
+        }
+
         private void OnEnable()
         {
-            ResolveAndSubscribe();
+            synergyManager = FindObjectOfType<SynergyManager>();
+
+            if (synergyManager != null)
+            {
+                synergyManager.ItemsChanged -= Refresh;
+                synergyManager.ItemsChanged += Refresh;
+            }
+
             Refresh();
         }
 
@@ -27,40 +55,87 @@ namespace Vampire
             }
         }
 
-        private void ResolveAndSubscribe()
+        public void NextPage()
         {
-            if (synergyManager != null)
+            int maxPage = GetMaxPage();
+
+            if (loopPages)
             {
-                return;
+                currentPage = currentPage >= maxPage ? 0 : currentPage + 1;
+            }
+            else
+            {
+                currentPage = Mathf.Min(currentPage + 1, maxPage);
             }
 
-            synergyManager = SynergyManager.Instance != null
-                ? SynergyManager.Instance
-                : FindObjectOfType<SynergyManager>();
+            Refresh();
+        }
 
-            if (synergyManager != null)
+        public void PrevPage()
+        {
+            int maxPage = GetMaxPage();
+
+            if (loopPages)
             {
-                synergyManager.ItemsChanged -= Refresh;
-                synergyManager.ItemsChanged += Refresh;
+                currentPage = currentPage <= 0 ? maxPage : currentPage - 1;
             }
+            else
+            {
+                currentPage = Mathf.Max(currentPage - 1, 0);
+            }
+
+            Refresh();
         }
 
         public void Refresh()
         {
-            ResolveAndSubscribe();
+            if (synergyManager == null)
+            {
+                synergyManager = FindObjectOfType<SynergyManager>();
+            }
 
-            if (synergyManager == null || itemGrid == null || itemCardPrefab == null)
+            if (itemGrid == null || itemCardPrefab == null)
             {
                 return;
             }
 
             ClearCards();
+            BuildItemList();
 
-            Dictionary<MerchantItemBlueprint, int> counts =
-                new Dictionary<MerchantItemBlueprint, int>();
+            int totalCount = orderedItems.Count;
+            int maxPage = GetMaxPage();
 
-            List<MerchantItemBlueprint> order =
-                new List<MerchantItemBlueprint>();
+            currentPage = Mathf.Clamp(currentPage, 0, maxPage);
+
+            if (emptyText != null)
+            {
+                emptyText.SetActive(totalCount == 0);
+            }
+
+            int startIndex = currentPage * itemsPerPage;
+            int endIndex = Mathf.Min(startIndex + itemsPerPage, totalCount);
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                MerchantItemBlueprint item = orderedItems[i];
+
+                PurchasedItemCardUI card = Instantiate(itemCardPrefab, itemGrid);
+                card.Setup(item, itemCounts[item]);
+                spawnedCards.Add(card);
+            }
+
+            RefreshPageUI(maxPage);
+        }
+
+        private void BuildItemList()
+        {
+            orderedItems.Clear();
+            itemCounts.Clear();
+
+            if (synergyManager == null)
+            {
+                return;
+            }
 
             foreach (MerchantItemBlueprint item in synergyManager.OwnedItems)
             {
@@ -69,29 +144,70 @@ namespace Vampire
                     continue;
                 }
 
-                if (counts.ContainsKey(item))
+                if (!itemCounts.ContainsKey(item))
                 {
-                    counts[item]++;
+                    itemCounts[item] = 0;
+                    orderedItems.Add(item);
                 }
-                else
-                {
-                    counts.Add(item, 1);
-                    order.Add(item);
-                }
+
+                itemCounts[item]++;
+            }
+        }
+
+        private int GetMaxPage()
+        {
+            int totalCount = orderedItems.Count;
+
+            int contentPageCount = Mathf.CeilToInt(totalCount / (float)itemsPerPage);
+            int pageCount = Mathf.Max(minimumPageCount, contentPageCount, 1);
+
+            return pageCount - 1;
+        }
+
+        private void RefreshPageUI(int maxPage)
+        {
+            if (prevButton != null)
+            {
+                prevButton.gameObject.SetActive(true);
+                prevButton.interactable = true;
             }
 
-            if (emptyText != null)
+            if (nextButton != null)
             {
-                emptyText.SetActive(order.Count == 0);
+                nextButton.gameObject.SetActive(true);
+                nextButton.interactable = true;
             }
 
-            foreach (MerchantItemBlueprint item in order)
+            if (pageText != null)
             {
-                PurchasedItemCardUI card =
-                    Instantiate(itemCardPrefab, itemGrid);
+                pageText.gameObject.SetActive(true);
+                pageText.text = $"{currentPage + 1} / {maxPage + 1}";
+            }
+        }
 
-                card.Setup(item, counts[item]);
-                spawnedCards.Add(card);
+        private void SetupButton(Button button, UnityEngine.Events.UnityAction action)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.transition = Selectable.Transition.None;
+            button.interactable = true;
+
+            button.onClick.RemoveListener(action);
+            button.onClick.AddListener(action);
+
+            if (button.targetGraphic != null)
+            {
+                Color color = button.targetGraphic.color;
+                color.a = 1f;
+                button.targetGraphic.color = color;
+            }
+
+            if (button.GetComponent<UIButtonPressEffect>() == null)
+            {
+                button.gameObject.AddComponent<UIButtonPressEffect>();
             }
         }
 
