@@ -809,6 +809,11 @@ namespace Vampire
 
         protected override void Attack()
         {
+            // 기본 주사기 공격 1회당 발사 효과음은 한 번만 재생합니다.
+            // 발사체가 2발, 5발, 10발이어도 한 묶음의 공격으로 취급합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.NeedleAttack
+            );
             StartCoroutine(LaunchSyringes());
         }
 
@@ -923,10 +928,6 @@ namespace Vampire
             {
                 return;
             }
-
-            GameAudioManager.PlaySfx(
-    GameAudioManager.GameSfxId.NeedleAttack
-);
 
             if (playerCharacter != null)
             {
