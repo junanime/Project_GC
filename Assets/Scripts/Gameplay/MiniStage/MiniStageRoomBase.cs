@@ -146,6 +146,17 @@ namespace Vampire
 
             roomCleared = true;
             rewardChestOpened = true;
+
+            // 미니 스테이지 보상 획득 SFX
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.RewardEvent
+            );
+            if (debugLog)
+            {
+                Debug.Log(
+                    "[MiniStageRoomBase] 보상 상자 획득 확인. 귀환 상호작용 활성화."
+                );
+            }
             optionalReturnUnlocked = true;
             activeRewardChest = null;
 

@@ -302,6 +302,12 @@ namespace Vampire
             }
 
             StopAllCoroutines();
+            if (eliteBlueprint != null)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.EliteSpawn
+                );
+            }
 
             if (eliteBlueprint != null && eliteBlueprint.debugLog)
             {
@@ -358,6 +364,13 @@ namespace Vampire
             }
 
             currentHealth -= damage;
+
+            if (damage > 0f)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.MonsterHit
+                );
+            }
 
             if (hitAnimationCoroutine != null)
             {

@@ -208,6 +208,7 @@ namespace Vampire
 
             MiniStageRuntimeState.EnterMiniStage(this);
             levelManager.SetRunFlowPaused(true);
+            GameAudioManager.EnterMiniStageAudio();
 
             Vector3 roomSpawnPosition = miniStageAnchor != null
                 ? miniStageAnchor.position
@@ -302,7 +303,9 @@ namespace Vampire
             }
 
             MiniStageRuntimeState.ExitMiniStage(this);
-
+            // MiniStage BGM 종료
+            // 기존 Ingame BGM을 Pause했던 위치부터 재생
+            GameAudioManager.ExitMiniStageAudio();
             isInsideMiniStage = false;
             isTransitioning = false;
 

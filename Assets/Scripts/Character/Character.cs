@@ -898,6 +898,11 @@ namespace Vampire
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
 
+            // 실제 HP가 감소한 경우에만 피격 효과음.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.PlayerHit
+            );
+
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
             statsManager.IncreaseDamageTaken(damage);
 
@@ -918,6 +923,10 @@ namespace Vampire
                     Revive();
                     return;
                 }
+
+                GameAudioManager.PlaySfx(
+        GameAudioManager.GameSfxId.PlayerDeath
+    );
 
                 StartCoroutine(DeathAnimation());
             }
