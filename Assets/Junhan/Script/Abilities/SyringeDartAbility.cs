@@ -924,6 +924,10 @@ namespace Vampire
                 return;
             }
 
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.NeedleAttack
+);
+
             if (playerCharacter != null)
             {
                 projectile.transform.localScale = Vector3.one * GetPlayerProjectileSizeMultiplier();

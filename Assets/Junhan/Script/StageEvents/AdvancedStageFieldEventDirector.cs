@@ -575,7 +575,9 @@ namespace Vampire
                 driftEvent.elapsed = 0f;
 
                 ShowEventStartedUI(driftEvent.eventName);
-
+                GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.FieldEventStart
+);
                 Debug.Log(
                     $"[AdvancedStageEvent] Start: {driftEvent.eventName} | " +
                     $"time={currentTime:F1}s | duration={driftEvent.duration:F1}s | " +
@@ -760,7 +762,9 @@ namespace Vampire
                 coffeeEvent.started = true;
                 coffeeEvent.monsterScanTimer = 0f;
                 ShowEventStartedUI(coffeeEvent.eventName);
-
+                GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.FieldEventStart
+);
                 if (logEventState)
                 {
                     Debug.Log($"[AdvancedStageEvent] Start: {coffeeEvent.eventName} | time={currentTime:F1}s");
@@ -878,6 +882,14 @@ namespace Vampire
             Color warningColor,
             bool visualOnly)
         {
+            // 실제 피해 파도일 때만 위험 경고음.
+            // 커피수혈의 VisualOnly 파도에는 재생하지 않습니다.
+            if (!visualOnly)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.DangerWave
+                );
+            }
             Rect cameraRect = GetCameraWorldRect(screenPadding);
 
             float centerY = (cameraRect.yMin + cameraRect.yMax) * 0.5f;
