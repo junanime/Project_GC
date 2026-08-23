@@ -839,9 +839,6 @@ namespace Vampire
             timeSinceLastAttack -=
                 totalProjectileCount * syringeDelay;
 
-            // 한 번의 기본 공격 묶음에서 효과음은 최대 1번.
-            bool attackSfxPlayed = false;
-
             for (int i = 0;
                  i < totalProjectileCount;
                  i++)
@@ -858,15 +855,13 @@ namespace Vampire
                         spreadDirection
                     );
 
-                // 실제 침이 처음으로 발사 성공한 순간에만 1회 재생.
-                if (launched &&
-                    !attackSfxPlayed)
+                // 실제 침 발사에 성공한 경우,
+                // 발사체 1개당 발사 효과음을 1회 재생합니다.
+                if (launched)
                 {
                     GameAudioManager.PlaySfx(
                         GameAudioManager.GameSfxId.NeedleAttack
                     );
-
-                    attackSfxPlayed = true;
                 }
 
                 yield return new WaitForSeconds(

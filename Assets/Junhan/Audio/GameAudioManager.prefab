@@ -64,7 +64,7 @@ MonoBehaviour:
   masterVolume: 1
   bgmVolume: 0.55
   sfxVolume: 0.8
-  needleAttackMinInterval: 0.06
+  needleAttackMinInterval: 0
   monsterHitMinInterval: 0.04
   eliteSpawnMinInterval: 0.1
   fieldEventStartMinInterval: 0.1
