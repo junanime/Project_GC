@@ -57,7 +57,7 @@ MonoBehaviour:
   fieldEventStartSfx: {fileID: 8300000, guid: eeeccc8e5965a9f43afbc3d158f80061, type: 3}
   miniStageEnterSfx: {fileID: 8300000, guid: 547a445410b11464aa6ce2773806a8fa, type: 3}
   monsterHitSfx: {fileID: 8300000, guid: 8f1334b852d31354299391b394458356, type: 3}
-  needleAttackSfx: {fileID: 8300000, guid: 971189b55eaaada4c90646131ef07e32, type: 3}
+  needleAttackSfx: {fileID: 8300000, guid: a4668c5feb0cac3489b741fcf1babcf0, type: 3}
   playerDeathSfx: {fileID: 8300000, guid: fa1d51722f97c8941bcbb1b8a88b7e55, type: 3}
   playerHitSfx: {fileID: 8300000, guid: 285a60c7b7bf32a4ea41e5d6ca325e11, type: 3}
   rewardEventSfx: {fileID: 8300000, guid: 127b240b61af9474595b8030395e23d4, type: 3}

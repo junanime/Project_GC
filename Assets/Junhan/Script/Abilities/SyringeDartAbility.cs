@@ -823,27 +823,24 @@ namespace Vampire
 
             if (baseDirection == Vector2.zero)
             {
-                baseDirection =
-                    Vector2.right;
+                baseDirection = Vector2.right;
             }
 
             if (bipolarNeedleEnabled)
             {
-                yield return
-                    LaunchBipolarSyringes(
-                        baseDirection,
-                        totalProjectileCount);
+                yield return LaunchBipolarSyringes(
+                    baseDirection,
+                    totalProjectileCount
+                );
 
                 yield break;
             }
 
             timeSinceLastAttack -=
-                totalProjectileCount *
-                syringeDelay;
+                totalProjectileCount * syringeDelay;
 
-            // 이번 "한 묶음 공격"에서
-            // 발사 효과음을 이미 재생했는지 확인합니다.
-            bool needleAttackSfxPlayed = false;
+            // 한 번의 기본 공격 묶음에서 효과음은 최대 1번.
+            bool attackSfxPlayed = false;
 
             for (int i = 0;
                  i < totalProjectileCount;
@@ -853,27 +850,28 @@ namespace Vampire
                     GetSpreadDirection(
                         baseDirection,
                         i,
-                        totalProjectileCount);
+                        totalProjectileCount
+                    );
 
-                // 실제 발사체 생성 성공 여부를 받습니다.
-                bool projectileLaunched =
+                bool launched =
                     LaunchSyringeProjectile(
-                        spreadDirection);
+                        spreadDirection
+                    );
 
-                // 실제 침이 하나라도 만들어졌을 때만
-                // 이번 공격 묶음의 사운드를 딱 한 번 재생합니다.
-                if (projectileLaunched &&
-                    !needleAttackSfxPlayed)
+                // 실제 침이 처음으로 발사 성공한 순간에만 1회 재생.
+                if (launched &&
+                    !attackSfxPlayed)
                 {
                     GameAudioManager.PlaySfx(
                         GameAudioManager.GameSfxId.NeedleAttack
                     );
 
-                    needleAttackSfxPlayed = true;
+                    attackSfxPlayed = true;
                 }
 
                 yield return new WaitForSeconds(
-                    syringeDelay);
+                    syringeDelay
+                );
             }
         }
         private IEnumerator LaunchBipolarSyringes(Vector2 baseDirection, int totalProjectileCount)
@@ -943,63 +941,58 @@ namespace Vampire
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
-        private bool LaunchSyringeProjectile(
-    Vector2 direction)
+        private bool LaunchSyringeProjectile(Vector2 direction)
         {
-            Vector2 spawnPosition =
-                GetProjectileSpawnPosition(
-                    direction);
+            Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
 
-            Projectile projectile =
-                entityManager.SpawnProjectile(
-                    projectileIndex,
-                    spawnPosition,
-                    GetEffectiveDamage(),
-                    GetEffectiveKnockback(),
-                    GetEffectiveSpeed(),
-                    monsterLayer
-                );
+            Projectile projectile = entityManager.SpawnProjectile(
+                projectileIndex,
+                spawnPosition,
+                GetEffectiveDamage(),
+                GetEffectiveKnockback(),
+                GetEffectiveSpeed(),
+                monsterLayer
+            );
 
-            // 실제 발사체가 만들어지지 않았으므로
-            // "발사하지 않았다"고 반환합니다.
             if (projectile == null)
             {
                 return false;
             }
 
+            // 기존 설정 코드 전부 그대로 유지
+            // 절대 삭제하지 않음
+
             if (playerCharacter != null)
             {
                 projectile.transform.localScale =
-                    Vector3.one *
-                    GetPlayerProjectileSizeMultiplier();
+                    Vector3.one * GetPlayerProjectileSizeMultiplier();
 
                 projectile.maxDistance =
                     GetEffectiveSyringeMaxDistance();
             }
 
-            if (projectile is
-                SyringeProjectile syringeProjectile)
+            if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(
-                    BuildSpecialRuntime());
+                    BuildSpecialRuntime()
+                );
             }
             else
             {
                 Debug.LogWarning(
                     $"[SyringeDartAbility] Spawned projectile is " +
-                    $"'{projectile.GetType().Name}', " +
-                    $"not 'SyringeProjectile'. " +
+                    $"'{projectile.GetType().Name}', not 'SyringeProjectile'. " +
                     "Projectile Prefab 연결을 다시 확인하세요."
                 );
             }
 
             projectile.OnHitDamageable.AddListener(
-                playerCharacter.OnDealDamage.Invoke);
+                playerCharacter.OnDealDamage.Invoke
+            );
 
-            projectile.Launch(
-                direction);
+            projectile.Launch(direction);
 
-            // 여기까지 왔다면 실제 침 발사 성공.
+            // 여기까지 왔을 때만 실제 발사 성공.
             return true;
         }
 
