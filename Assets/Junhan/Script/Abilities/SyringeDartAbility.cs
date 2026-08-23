@@ -809,39 +809,71 @@ namespace Vampire
 
         protected override void Attack()
         {
-            // 기본 주사기 공격 1회당 발사 효과음은 한 번만 재생합니다.
-            // 발사체가 2발, 5발, 10발이어도 한 묶음의 공격으로 취급합니다.
-            GameAudioManager.PlaySfx(
-                GameAudioManager.GameSfxId.NeedleAttack
-            );
+           
             StartCoroutine(LaunchSyringes());
         }
 
         protected IEnumerator LaunchSyringes()
         {
-            int totalProjectileCount = GetEffectiveProjectileCount();
+            int totalProjectileCount =
+                GetEffectiveProjectileCount();
 
-            Vector2 baseDirection = playerCharacter.LookDirection;
+            Vector2 baseDirection =
+                playerCharacter.LookDirection;
 
             if (baseDirection == Vector2.zero)
             {
-                baseDirection = Vector2.right;
+                baseDirection =
+                    Vector2.right;
             }
 
             if (bipolarNeedleEnabled)
             {
-                yield return LaunchBipolarSyringes(baseDirection, totalProjectileCount);
+                yield return
+                    LaunchBipolarSyringes(
+                        baseDirection,
+                        totalProjectileCount);
+
                 yield break;
             }
 
-            timeSinceLastAttack -= totalProjectileCount * syringeDelay;
+            timeSinceLastAttack -=
+                totalProjectileCount *
+                syringeDelay;
 
-            for (int i = 0; i < totalProjectileCount; i++)
+            // 이번 "한 묶음 공격"에서
+            // 발사 효과음을 이미 재생했는지 확인합니다.
+            bool needleAttackSfxPlayed = false;
+
+            for (int i = 0;
+                 i < totalProjectileCount;
+                 i++)
             {
-                Vector2 spreadDirection = GetSpreadDirection(baseDirection, i, totalProjectileCount);
-                LaunchSyringeProjectile(spreadDirection);
+                Vector2 spreadDirection =
+                    GetSpreadDirection(
+                        baseDirection,
+                        i,
+                        totalProjectileCount);
 
-                yield return new WaitForSeconds(syringeDelay);
+                // 실제 발사체 생성 성공 여부를 받습니다.
+                bool projectileLaunched =
+                    LaunchSyringeProjectile(
+                        spreadDirection);
+
+                // 실제 침이 하나라도 만들어졌을 때만
+                // 이번 공격 묶음의 사운드를 딱 한 번 재생합니다.
+                if (projectileLaunched &&
+                    !needleAttackSfxPlayed)
+                {
+                    GameAudioManager.PlaySfx(
+                        GameAudioManager.GameSfxId.NeedleAttack
+                    );
+
+                    needleAttackSfxPlayed = true;
+                }
+
+                yield return new WaitForSeconds(
+                    syringeDelay);
             }
         }
         private IEnumerator LaunchBipolarSyringes(Vector2 baseDirection, int totalProjectileCount)
@@ -911,47 +943,64 @@ namespace Vampire
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
-        private void LaunchSyringeProjectile(Vector2 direction)
+        private bool LaunchSyringeProjectile(
+    Vector2 direction)
         {
-            Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
+            Vector2 spawnPosition =
+                GetProjectileSpawnPosition(
+                    direction);
 
-            Projectile projectile = entityManager.SpawnProjectile(
-                projectileIndex,
-                spawnPosition,
-                GetEffectiveDamage(),
-                GetEffectiveKnockback(),
-                GetEffectiveSpeed(),
-                monsterLayer
-            );
+            Projectile projectile =
+                entityManager.SpawnProjectile(
+                    projectileIndex,
+                    spawnPosition,
+                    GetEffectiveDamage(),
+                    GetEffectiveKnockback(),
+                    GetEffectiveSpeed(),
+                    monsterLayer
+                );
 
+            // 실제 발사체가 만들어지지 않았으므로
+            // "발사하지 않았다"고 반환합니다.
             if (projectile == null)
             {
-                return;
+                return false;
             }
 
             if (playerCharacter != null)
             {
-                projectile.transform.localScale = Vector3.one * GetPlayerProjectileSizeMultiplier();
+                projectile.transform.localScale =
+                    Vector3.one *
+                    GetPlayerProjectileSizeMultiplier();
 
-                // Shuriken.prefab의 Max Distance를 곱해서 쓰지 않고,
-                // SyringeDartAbility의 baseSyringeMaxDistance를 기준으로 명확하게 세팅한다.
-                projectile.maxDistance = GetEffectiveSyringeMaxDistance();
+                projectile.maxDistance =
+                    GetEffectiveSyringeMaxDistance();
             }
 
-            if (projectile is SyringeProjectile syringeProjectile)
+            if (projectile is
+                SyringeProjectile syringeProjectile)
             {
-                syringeProjectile.ConfigureSpecials(BuildSpecialRuntime());
+                syringeProjectile.ConfigureSpecials(
+                    BuildSpecialRuntime());
             }
             else
             {
                 Debug.LogWarning(
-                    $"[SyringeDartAbility] Spawned projectile is '{projectile.GetType().Name}', not 'SyringeProjectile'. " +
+                    $"[SyringeDartAbility] Spawned projectile is " +
+                    $"'{projectile.GetType().Name}', " +
+                    $"not 'SyringeProjectile'. " +
                     "Projectile Prefab 연결을 다시 확인하세요."
                 );
             }
 
-            projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
-            projectile.Launch(direction);
+            projectile.OnHitDamageable.AddListener(
+                playerCharacter.OnDealDamage.Invoke);
+
+            projectile.Launch(
+                direction);
+
+            // 여기까지 왔다면 실제 침 발사 성공.
+            return true;
         }
 
         private void HandleCursorControlModeUpdate()
