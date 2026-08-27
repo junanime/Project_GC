@@ -1,91 +1,110 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace Vampire
 {
     public class CharacterSelection : MonoBehaviour
     {
+        public enum CharacterDisplayType
+        {
+            Sprite2D,
+            Model3D
+        }
+
         [System.Serializable]
         public struct CharacterData
         {
-            [Tooltip("CharacterBlueprint used by the game scene for this character.")]
             public CharacterBlueprint characterBlueprint;
-
-            [Tooltip("캐릭터 이름입니다. UI의 이름 텍스트에 표시됩니다.")]
             public string charName;
+            public CharacterDisplayType displayType;
 
-            [Tooltip("캐릭터 선택 화면에 표시할 캐릭터 이미지입니다.")]
+            [Tooltip("Sprite2D 표시에 사용할 이미지")]
             public Sprite charSprite;
 
+            [Tooltip("Model3D 표시에 사용할 프리팹")]
+            public GameObject characterPrefab;
+
+            [Header("3D Preview Transform")]
+            public Vector3 previewPosition;
+            public Vector3 previewRotation;
+            public Vector3 previewScale;
+
             [TextArea]
-            [Tooltip("캐릭터 설명입니다. UI의 설명 텍스트에 표시됩니다.")]
             public string description;
 
-            [Range(0, 5)]
-            [Tooltip("공격력 수치입니다. 공격력 슬라이더에 표시됩니다.")]
-            public int attackStat;
-
-            [Range(0, 5)]
-            [Tooltip("방어력 수치입니다. 방어력 슬라이더에 표시됩니다.")]
-            public int defenseStat;
-
-            [Range(0, 5)]
-            [Tooltip("속도 수치입니다. 속도 슬라이더에 표시됩니다.")]
-            public int speedStat;
+            [Range(0, 5)] public int attackStat;
+            [Range(0, 5)] public int defenseStat;
+            [Range(0, 5)] public int speedStat;
         }
 
         [Header("Character Data")]
-        [Tooltip("선택 가능한 캐릭터 데이터 배열입니다. 인스펙터에서 캐릭터 이름, 이미지, 설명, 능력치를 입력합니다.")]
         public CharacterData[] characters;
 
-        [Header("UI Elements - Center")]
-        [Tooltip("현재 선택된 중앙 캐릭터 이미지를 표시하는 Image입니다.")]
+        [Header("Controller")]
+        [Tooltip("중복 CharacterSelection 중 실제로 사용할 컴포넌트에서만 활성화합니다.")]
+        [SerializeField] private bool useAsPrimaryController = true;
+
+        [Header("2D Preview Images")]
+        [SerializeField] private Image leftCharImage;
         public Image centerCharImage;
+        [SerializeField] private Image rightCharImage;
 
-        [Tooltip("현재 선택된 캐릭터 이름을 표시하는 TextMeshProUGUI입니다.")]
+        [Header("3D Preview RawImages")]
+        [SerializeField] private RawImage leftCharRawImage;
+        [SerializeField] private RawImage centerCharRawImage;
+        [SerializeField] private RawImage rightCharRawImage;
+
+        [Header("3D Model Roots (Outside Overlay Canvas)")]
+        [SerializeField] private Transform leftModelRoot;
+        [SerializeField] private Transform centerModelRoot;
+        [SerializeField] private Transform rightModelRoot;
+
+        [Header("UI Text")]
         public TextMeshProUGUI nameText;
-
-        [Tooltip("현재 선택된 캐릭터 설명을 표시하는 TextMeshProUGUI입니다.")]
         public TextMeshProUGUI descText;
 
-        [Tooltip("현재 선택된 캐릭터의 공격력 수치를 표시하는 Slider입니다.")]
+        [Header("Stats")]
         public Slider attackSlider;
-
-        [Tooltip("현재 선택된 캐릭터의 방어력 수치를 표시하는 Slider입니다.")]
         public Slider defenseSlider;
-
-        [Tooltip("현재 선택된 캐릭터의 속도 수치를 표시하는 Slider입니다.")]
         public Slider speedSlider;
 
-        [Header("UI Elements - Left/Right Preview")]
-        [Tooltip("왼쪽에 표시할 이전 캐릭터 미리보기 이미지입니다.")]
-        public Image leftPreviewImage;
-
-        [Tooltip("왼쪽에 표시할 이전 캐릭터 이름 텍스트입니다.")]
+        [Header("Left / Right Cards")]
+        public GameObject leftCard;
+        public GameObject rightCard;
         public TextMeshProUGUI leftNameText;
-
-        [Tooltip("오른쪽에 표시할 다음 캐릭터 미리보기 이미지입니다.")]
-        public Image rightPreviewImage;
-
-        [Tooltip("오른쪽에 표시할 다음 캐릭터 이름 텍스트입니다.")]
         public TextMeshProUGUI rightNameText;
 
-        [Tooltip("이전 캐릭터가 있을 때만 켜지는 왼쪽 카드 오브젝트입니다.")]
-        public GameObject leftCard;
-
-        [Tooltip("다음 캐릭터가 있을 때만 켜지는 오른쪽 카드 오브젝트입니다.")]
-        public GameObject rightCard;
-
         [Header("Current Selection")]
-        [SerializeField]
-        [Tooltip("현재 선택된 캐릭터 인덱스입니다. 0부터 시작합니다.")]
-        private int currentIndex = 0;
+        [SerializeField] private int currentIndex = 0;
+
+        [Header("Animation")]
+        [SerializeField] private RectTransform leftCardRect;
+        [SerializeField] private RectTransform centerCardRect;
+        [SerializeField] private RectTransform rightCardRect;
+        [SerializeField] private float moveTime = 0.3f;
+
+        private Vector2 leftPos;
+        private Vector2 centerPos;
+        private Vector2 rightPos;
+
+        private GameObject leftModel;
+        private GameObject centerModel;
+        private GameObject rightModel;
+
+        private bool isMoving = false;
+        private static CharacterSelection primaryController;
+
+        private bool IsPrimaryController => primaryController == this;
 
         public CharacterBlueprint CurrentCharacterBlueprint
         {
             get
             {
+                if (!IsPrimaryController && primaryController != null)
+                    return primaryController.CurrentCharacterBlueprint;
+
                 if (characters == null || characters.Length == 0)
                     return null;
 
@@ -94,46 +113,84 @@ namespace Vampire
             }
         }
 
+        private void LegacyDuplicateWarning()
+        {
+            CharacterSelection[] selections = FindObjectsOfType<CharacterSelection>(true);
+            if (selections.Length > 1)
+            {
+                Debug.LogWarning(
+                    $"[CharacterSelection] 씬에 CharacterSelection이 {selections.Length}개 있습니다. " +
+                    "실제로 사용하는 컴포넌트 하나만 남기고 버튼과 MenuManager 참조를 그 컴포넌트에 연결하세요.",
+                    this);
+            }
+        }
+
+        private void Awake()
+        {
+            if (!useAsPrimaryController)
+            {
+                enabled = false;
+                return;
+            }
+
+            if (primaryController != null && primaryController != this)
+            {
+                Debug.LogWarning(
+                    $"[CharacterSelection] '{name}'은(는) 중복 컨트롤러이므로 실행을 중지합니다. " +
+                    $"현재 주 컨트롤러는 '{primaryController.name}'입니다. " +
+                    "Inspector에서 실제 사용할 하나만 Use As Primary Controller를 켜세요.",
+                    this);
+                enabled = false;
+                return;
+            }
+
+            primaryController = this;
+        }
+
+        private void OnDestroy()
+        {
+            if (IsPrimaryController)
+                primaryController = null;
+        }
+
         private void Start()
         {
+            leftPos = leftCardRect.anchoredPosition;
+            centerPos = centerCardRect.anchoredPosition;
+            rightPos = rightCardRect.anchoredPosition;
+
             ClampCurrentIndex();
             UpdateCharacterUI();
         }
 
-        [Tooltip("오른쪽 버튼에서 호출합니다. 다음 캐릭터로 이동합니다.")]
         public void OnClickNext()
         {
-            Debug.Log("Before : " + currentIndex);
-
-            if (characters == null || characters.Length == 0)
-                return;
-
-            if (currentIndex < characters.Length - 1)
+            if (!IsPrimaryController)
             {
-                currentIndex++;
+                if (primaryController != null)
+                    primaryController.OnClickNext();
+                return;
             }
 
-            Debug.Log("After : " + currentIndex);
+            if (isMoving) return;
+            if (characters == null || characters.Length == 0) return;
 
-            UpdateCharacterUI();
+            PlayNextAnimation();
         }
 
-        [Tooltip("왼쪽 버튼에서 호출합니다. 이전 캐릭터로 이동합니다.")]
         public void OnClickPrev()
         {
-            Debug.Log("Before : " + currentIndex);
-
-            if (characters == null || characters.Length == 0)
-                return;
-
-            if (currentIndex > 0)
+            if (!IsPrimaryController)
             {
-                currentIndex--;
+                if (primaryController != null)
+                    primaryController.OnClickPrev();
+                return;
             }
 
-            Debug.Log("After : " + currentIndex);
+            if (isMoving) return;
+            if (characters == null || characters.Length == 0) return;
 
-            UpdateCharacterUI();
+            PlayPrevAnimation();
         }
 
         private void ClampCurrentIndex()
@@ -149,27 +206,12 @@ namespace Vampire
 
         private void UpdateCharacterUI()
         {
-            Debug.Log("UpdateCharacterUI");
-
             if (characters == null || characters.Length == 0)
-            {
-                Debug.LogWarning("[CharacterSelection] characters 배열이 비어 있어서 캐릭터 선택 UI를 갱신할 수 없습니다.");
-
-                if (leftCard != null)
-                    leftCard.SetActive(false);
-
-                if (rightCard != null)
-                    rightCard.SetActive(false);
-
                 return;
-            }
 
             ClampCurrentIndex();
 
             CharacterData current = characters[currentIndex];
-
-            if (centerCharImage != null)
-                centerCharImage.sprite = current.charSprite;
 
             if (nameText != null)
                 nameText.text = current.charName;
@@ -186,46 +228,168 @@ namespace Vampire
             if (speedSlider != null)
                 speedSlider.value = current.speedStat;
 
-            UpdateLeftPreview();
-            UpdateRightPreview();
+            UpdateCharacterPreviews();
         }
 
-        private void UpdateLeftPreview()
+        private void UpdateCharacterPreviews()
         {
-            bool hasLeftCharacter = currentIndex > 0;
+            if (characters == null || characters.Length == 0)
+                return;
+
+            if (characters.Length <= 1)
+            {
+                if (leftCard != null) leftCard.SetActive(false);
+                if (rightCard != null) rightCard.SetActive(false);
+
+                leftModel = UpdatePreviewSlot(
+                    default, leftCharImage, leftCharRawImage,
+                    leftModelRoot, leftModel, false);
+                centerModel = UpdatePreviewSlot(
+                    characters[currentIndex], centerCharImage, centerCharRawImage,
+                    centerModelRoot, centerModel);
+                rightModel = UpdatePreviewSlot(
+                    default, rightCharImage, rightCharRawImage,
+                    rightModelRoot, rightModel, false);
+                return;
+            }
+
+            int leftIndex = GetLoopIndex(currentIndex - 1);
+            int rightIndex = GetLoopIndex(currentIndex + 1);
 
             if (leftCard != null)
-                leftCard.SetActive(hasLeftCharacter);
-
-            if (!hasLeftCharacter)
-                return;
-
-            CharacterData leftCharacter = characters[currentIndex - 1];
-
-            if (leftPreviewImage != null)
-                leftPreviewImage.sprite = leftCharacter.charSprite;
-
-            if (leftNameText != null)
-                leftNameText.text = leftCharacter.charName;
-        }
-
-        private void UpdateRightPreview()
-        {
-            bool hasRightCharacter = currentIndex < characters.Length - 1;
+                leftCard.SetActive(true);
 
             if (rightCard != null)
-                rightCard.SetActive(hasRightCharacter);
+                rightCard.SetActive(true);
 
-            if (!hasRightCharacter)
-                return;
-
-            CharacterData rightCharacter = characters[currentIndex + 1];
-
-            if (rightPreviewImage != null)
-                rightPreviewImage.sprite = rightCharacter.charSprite;
+            if (leftNameText != null)
+                leftNameText.text = characters[leftIndex].charName;
 
             if (rightNameText != null)
-                rightNameText.text = rightCharacter.charName;
+                rightNameText.text = characters[rightIndex].charName;
+
+            leftModel = UpdatePreviewSlot(
+                characters[leftIndex], leftCharImage, leftCharRawImage,
+                leftModelRoot, leftModel);
+            centerModel = UpdatePreviewSlot(
+                characters[currentIndex], centerCharImage, centerCharRawImage,
+                centerModelRoot, centerModel);
+            rightModel = UpdatePreviewSlot(
+                characters[rightIndex], rightCharImage, rightCharRawImage,
+                rightModelRoot, rightModel);
+        }
+
+        private int GetLoopIndex(int index)
+        {
+            if (characters == null || characters.Length == 0)
+                return 0;
+
+            if (index < 0)
+                return characters.Length - 1;
+
+            if (index >= characters.Length)
+                return 0;
+
+            return index;
+        }
+
+        private GameObject UpdatePreviewSlot(
+            CharacterData character,
+            Image spriteImage,
+            RawImage modelImage,
+            Transform modelRoot,
+            GameObject existingModel,
+            bool showPreview = true)
+        {
+            if (existingModel != null)
+                Destroy(existingModel);
+
+            bool showSprite = showPreview && character.displayType == CharacterDisplayType.Sprite2D;
+            bool showModel = showPreview && character.displayType == CharacterDisplayType.Model3D;
+
+            if (spriteImage != null)
+            {
+                spriteImage.sprite = showSprite ? character.charSprite : null;
+                spriteImage.enabled = showSprite;
+                spriteImage.gameObject.SetActive(showSprite);
+            }
+
+            if (modelImage != null)
+            {
+                modelImage.enabled = showModel;
+                modelImage.gameObject.SetActive(showModel);
+            }
+
+            if (!showModel || character.characterPrefab == null || modelRoot == null)
+                return null;
+
+            GameObject model = Instantiate(character.characterPrefab, modelRoot);
+            SetLayerRecursively(model, modelRoot.gameObject.layer);
+
+            model.transform.localPosition = character.previewPosition;
+            model.transform.localRotation = Quaternion.Euler(character.previewRotation);
+            model.transform.localScale = character.previewScale == Vector3.zero
+                ? Vector3.one
+                : character.previewScale;
+
+            return model;
+        }
+
+        private void SetLayerRecursively(GameObject target, int layer)
+        {
+            target.layer = layer;
+
+            foreach (Transform child in target.transform)
+                SetLayerRecursively(child.gameObject, layer);
+        }
+
+        private void PlayNextAnimation()
+        {
+            isMoving = true;
+
+            Sequence seq = DOTween.Sequence();
+
+            seq.Join(leftCardRect.DOAnchorPos(centerPos, moveTime));
+            seq.Join(centerCardRect.DOAnchorPos(rightPos, moveTime));
+            seq.Join(rightCardRect.DOAnchorPos(leftPos, moveTime));
+
+            seq.OnComplete(() =>
+            {
+                currentIndex++;
+
+                ResetCardPositions();
+                UpdateCharacterUI();
+
+                isMoving = false;
+            });
+        }
+
+        private void PlayPrevAnimation()
+        {
+            isMoving = true;
+
+            Sequence seq = DOTween.Sequence();
+
+            seq.Join(leftCardRect.DOAnchorPos(rightPos, moveTime));
+            seq.Join(centerCardRect.DOAnchorPos(leftPos, moveTime));
+            seq.Join(rightCardRect.DOAnchorPos(centerPos, moveTime));
+
+            seq.OnComplete(() =>
+            {
+                currentIndex--;
+
+                ResetCardPositions();
+                UpdateCharacterUI();
+
+                isMoving = false;
+            });
+        }
+
+        private void ResetCardPositions()
+        {
+            leftCardRect.anchoredPosition = leftPos;
+            centerCardRect.anchoredPosition = centerPos;
+            rightCardRect.anchoredPosition = rightPos;
         }
     }
 }
