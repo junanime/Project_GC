@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7510844512335404407
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1277388126278412713}
+  - component: {fileID: 1488155138081210608}
+  - component: {fileID: 7563526892963908148}
+  - component: {fileID: 7734458780909243282}
+  m_Layer: 0
+  m_Name: Map System
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1277388126278412713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7510844512335404407}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1.9645296, y: 1.9645296, z: 1.9645296}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1488155138081210608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7510844512335404407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e9a51e3c5e648840aaec7c3702bb2a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelManager: {fileID: 0}
+  playerCharacter: {fileID: 0}
+  miniMapRoot: {fileID: 0}
+  miniMapImage: {fileID: 0}
+  miniMapMarkerRoot: {fileID: 0}
+  miniMapPlayerIcon: {fileID: 0}
+  fullMapPanelRoot: {fileID: 0}
+  fullMapImage: {fileID: 0}
+  fullMapMarkerRoot: {fileID: 0}
+  fullMapPlayerIcon: {fileID: 0}
+  mapWorldSize: 160
+  centerMapOnPlayerStart: 1
+  customMapCenter: {x: 0, y: 0}
+  textureResolution: 256
+  revealWorldRadius: 7
+  updateInterval: 0.12
+  miniMapWorldRadius: 18
+  miniMapMarkerVisibleRadius: 18
+  unexploredColor: {r: 0, g: 0, b: 0, a: 1}
+  exploredColor: {r: 0.15, g: 0.16, b: 0.2, a: 1}
+  currentRevealColor: {r: 0.23, g: 0.24, b: 0.3, a: 1}
+  playerIconColor: {r: 1, g: 1, b: 1, a: 1}
+  miniPlayerIconSize: {x: 12, y: 12}
+  fullPlayerIconSize: {x: 10, y: 10}
+  compensateParentScale: 1
+  miniMarkerSizeMultiplier: 3
+  fullMarkerSizeMultiplier: 4.5
+  miniPlayerIconSizeMultiplier: 3.5
+  fullPlayerIconSizeMultiplier: 4
+  debugLog: 1
+--- !u!114 &7563526892963908148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7510844512335404407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e63e2581555d3124abbe064671de272a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelRoot: {fileID: 0}
+  mapSystem: {fileID: 1488155138081210608}
+  toggleKey: 3
+  holdToOpen: 0
+  closeWithEscape: 1
+  pauseGameWhileOpen: 1
+  openOnStart: 0
+--- !u!114 &7734458780909243282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7510844512335404407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c675a1b315d58da4eb04df7f1bec275f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
