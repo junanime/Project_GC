@@ -46,11 +46,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseBgmSource: {fileID: 0}
   overrideBgmSource: {fileID: 0}
+  modalBgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
   lobbyBgm: {fileID: 8300000, guid: c7b0837a84cf94146b1d1ecccd8d85f8, type: 3}
   ingameBgm: {fileID: 8300000, guid: b6f6ddcc8df738349b9cb181d4945caa, type: 3}
   miniStageBgm: {fileID: 8300000, guid: 027d47a62c656394eb90ab73a2c289f2, type: 3}
   bossBgm: {fileID: 8300000, guid: aa36705986baaf4499e1a68286b7ef2f, type: 3}
+  augmentSelectionBgm: {fileID: 8300000, guid: cb010637df86c6f4a9011519d9dd9016, type: 3}
   bossAppearSfx: {fileID: 8300000, guid: 94355323f69e0f3488c78237c26c49c5, type: 3}
   dangerWaveSfx: {fileID: 8300000, guid: 40567d44b4a99264891ca715ea156c84, type: 3}
   eliteSpawnSfx: {fileID: 8300000, guid: c8a4ed75919fd1f47a631e6af680966f, type: 3}
@@ -61,6 +63,38 @@ MonoBehaviour:
   playerDeathSfx: {fileID: 8300000, guid: fa1d51722f97c8941bcbb1b8a88b7e55, type: 3}
   playerHitSfx: {fileID: 8300000, guid: 285a60c7b7bf32a4ea41e5d6ca325e11, type: 3}
   rewardEventSfx: {fileID: 8300000, guid: 127b240b61af9474595b8030395e23d4, type: 3}
+  playerDashSfx: {fileID: 8300000, guid: 54377f33223b0cb4c9939d752f6919f7, type: 3}
+  playerLevelUpSfx: {fileID: 8300000, guid: a8701b5352afb7c47800488aafe3941b, type: 3}
+  criticalHitSfx: {fileID: 8300000, guid: 7b8dc733e5b20a9418297b4240a37d95, type: 3}
+  miniStagePortalSpawnSfx: {fileID: 8300000, guid: 3db60b6536afd054281e9d3b67c2d10f, type: 3}
+  chestOpenSfx: {fileID: 8300000, guid: 93fcce78b85b1e54d8a2325dfcbe845f, type: 3}
+  miniStageClearSfx: {fileID: 8300000, guid: d79ccf8d89f817d46bf42467666a6a87, type: 3}
+  expPickupSfx: {fileID: 0}
+  goldPickupSfx: {fileID: 0}
+  silverPickupSfx: {fileID: 0}
+  coinPouchPickupSfx: {fileID: 0}
+  magnetPickupSfx: {fileID: 0}
+  bombPickupSfx: {fileID: 0}
+  healPickupSfx: {fileID: 0}
+  redPotionPickupSfx: {fileID: 0}
+  specialItemPickupSfx: {fileID: 0}
+  rareItemPickupSfx: {fileID: 0}
+  acidRefluxWavePassSfx: {fileID: 0}
+  peristalsisTiltSfx: {fileID: 0}
+  coffeeTransfusionPourSfx: {fileID: 0}
+  antacidBubbleSpawnSfx: {fileID: 0}
+  acidPuddleSpawnSfx: {fileID: 0}
+  augmentSelectSfx: {fileID: 0}
+  uiClickSfx: {fileID: 0}
+  sniperFireSfx: {fileID: 0}
+  trapActivateSfx: {fileID: 0}
+  digestiveEnzymeAttackSfx: {fileID: 0}
+  acidLeechWallAttachSfx: {fileID: 0}
+  speedBufferCastSfx: {fileID: 0}
+  defenseBufferCastSfx: {fileID: 0}
+  attackSpeedDebuffCastSfx: {fileID: 0}
+  nutritionThiefStealSfx: {fileID: 0}
+  treasureRunnerSpawnSfx: {fileID: 0}
   masterVolume: 1
   bgmVolume: 0.55
   sfxVolume: 0.8

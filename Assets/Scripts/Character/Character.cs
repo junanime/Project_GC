@@ -455,11 +455,15 @@ namespace Vampire
 
             currentDashCharges--;
 
+            // 실제 대쉬 사용이 확정된 순간 효과음을 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.PlayerDash
+            );
+
             if (dashCoroutine != null)
             {
                 StopCoroutine(dashCoroutine);
             }
-
             dashCoroutine = StartCoroutine(DashCoroutine(dashDirection));
 
             if (dashRechargeCoroutine == null)
