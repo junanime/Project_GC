@@ -45,7 +45,8 @@ namespace Vampire
 
         private bool initialized;
         private bool isExpanded;
-
+        public bool IsExpanded => isExpanded;
+        public RectTransform MapPanel => mapPanel;
         private Coroutine buttonAnimationRoutine;
 
         private void Awake()
