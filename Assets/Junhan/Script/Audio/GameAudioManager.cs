@@ -30,7 +30,43 @@ namespace Vampire
             NeedleAttack = 6,
             PlayerDeath = 7,
             PlayerHit = 8,
-            RewardEvent = 9
+            RewardEvent = 9,
+            PlayerDash,
+            PlayerLevelUp,
+            CriticalHit,
+            MiniStagePortalSpawn,
+            ChestOpen,
+            MiniStageClear,
+
+            ExpPickup,
+            GoldPickup,
+            SilverPickup,
+            CoinPouchPickup,
+            MagnetPickup,
+            BombPickup,
+            HealPickup,
+            RedPotionPickup,
+            SpecialItemPickup,
+            RareItemPickup,
+
+            AcidRefluxWavePass,
+            PeristalsisTilt,
+            CoffeeTransfusionPour,
+            AntacidBubbleSpawn,
+            AcidPuddleSpawn,
+
+            AugmentSelect,
+            UiClick,
+
+            SniperFire,
+            TrapActivate,
+            DigestiveEnzymeAttack,
+            AcidLeechWallAttach,
+            SpeedBufferCast,
+            DefenseBufferCast,
+            AttackSpeedDebuffCast,
+            NutritionThiefSteal,
+            TreasureRunnerSpawn
         }
 
         private enum OverrideBgmType
@@ -57,6 +93,12 @@ namespace Vampire
         private AudioSource overrideBgmSource;
 
         [Tooltip(
+            "증강 선택창처럼 현재 재생 중인 BGM 위에 일시적으로 재생할 " +
+            "전용 BGM AudioSource입니다. 비워 두면 런타임에 자동 생성합니다.")]
+        [SerializeField]
+        private AudioSource modalBgmSource;
+
+        [Tooltip(
             "효과음을 PlayOneShot으로 재생하는 AudioSource입니다. " +
             "비워 두면 런타임에 자동 생성합니다.")]
         [SerializeField]
@@ -79,6 +121,12 @@ namespace Vampire
         [Tooltip("최종 보스 전투 중 반복 재생할 boss_bgm_10입니다.")]
         [SerializeField]
         private AudioClip bossBgm;
+
+        [Tooltip(
+            "증강 선택창이 열려 있는 동안 반복 재생할 augment_selection_bgm입니다. " +
+            "현재 BGM은 Pause하고, 선택 종료 후 원래 BGM을 이어서 재생하는 용도입니다.")]
+        [SerializeField]
+        private AudioClip augmentSelectionBgm;
 
         [Header("SFX Clips")]
 
@@ -121,6 +169,144 @@ namespace Vampire
         [Tooltip("보상 획득 효과음 reward_event_10입니다.")]
         [SerializeField]
         private AudioClip rewardEventSfx;
+
+        [Header("Core Action SFX")]
+
+        [Tooltip("플레이어가 실제 대쉬에 성공한 순간 재생할 player_dash입니다.")]
+        [SerializeField]
+        private AudioClip playerDashSfx;
+
+        [Tooltip("플레이어 레벨이 실제로 증가한 순간 재생할 player_level_up입니다.")]
+        [SerializeField]
+        private AudioClip playerLevelUpSfx;
+
+        [Tooltip("실제 치명타 피해가 적용된 순간 재생할 critical_hit입니다.")]
+        [SerializeField]
+        private AudioClip criticalHitSfx;
+
+        [Tooltip("미니 스테이지 포탈이 실제 필드에 생성된 순간 재생할 mini_stage_portal_spawn입니다.")]
+        [SerializeField]
+        private AudioClip miniStagePortalSpawnSfx;
+
+        [Tooltip("상자를 실제로 연 순간 재생할 chest_open입니다.")]
+        [SerializeField]
+        private AudioClip chestOpenSfx;
+
+        [Tooltip("미니 스테이지를 클리어하고 보상 상자가 등장하는 순간 재생할 mini_stage_clear입니다.")]
+        [SerializeField]
+        private AudioClip miniStageClearSfx;
+
+        [Header("Pickup SFX")]
+
+        [Tooltip("경험치 오브젝트를 실제 획득할 때 재생할 exp_pickup입니다.")]
+        [SerializeField]
+        private AudioClip expPickupSfx;
+
+        [Tooltip("골드 계열 화폐를 실제 획득할 때 재생할 gold_pickup입니다.")]
+        [SerializeField]
+        private AudioClip goldPickupSfx;
+
+        [Tooltip("실버 화폐를 실제 획득할 때 재생할 silver_pickup입니다.")]
+        [SerializeField]
+        private AudioClip silverPickupSfx;
+
+        [Tooltip("코인 주머니 또는 대량 화폐 묶음을 실제 획득할 때 재생할 coin_pouch_pickup입니다.")]
+        [SerializeField]
+        private AudioClip coinPouchPickupSfx;
+
+        [Tooltip("자석 아이템을 실제 획득하고 효과가 적용될 때 재생할 magnet_pickup입니다.")]
+        [SerializeField]
+        private AudioClip magnetPickupSfx;
+
+        [Tooltip("폭탄 아이템을 실제 획득하고 효과가 발동할 때 재생할 bomb_pickup입니다.")]
+        [SerializeField]
+        private AudioClip bombPickupSfx;
+
+        [Tooltip("회복 아이템을 실제 획득할 때 재생할 heal_pickup입니다.")]
+        [SerializeField]
+        private AudioClip healPickupSfx;
+
+        [Tooltip("RedPotion을 실제 획득할 때 재생할 red_potion_pickup입니다.")]
+        [SerializeField]
+        private AudioClip redPotionPickupSfx;
+
+        [Tooltip("일반 분류 외 특수 아이템을 실제 획득할 때 재생할 special_item_pickup입니다.")]
+        [SerializeField]
+        private AudioClip specialItemPickupSfx;
+
+        [Tooltip("희귀 아이템을 실제 획득할 때 재생할 rare_item_pickup입니다.")]
+        [SerializeField]
+        private AudioClip rareItemPickupSfx;
+
+        [Header("Field Event SFX")]
+
+        [Tooltip("산성 역류 파도가 실제로 화면/플레이 영역을 지나갈 때 재생할 acid_reflux_wave_pass입니다.")]
+        [SerializeField]
+        private AudioClip acidRefluxWavePassSfx;
+
+        [Tooltip("연동운동 이벤트에서 화면 기울기 액션이 실제 시작될 때 재생할 peristalsis_tilt입니다.")]
+        [SerializeField]
+        private AudioClip peristalsisTiltSfx;
+
+        [Tooltip("커피 수혈 연출에서 커피가 화면을 쓸어내리는 순간 재생할 coffee_transfusion_pour입니다.")]
+        [SerializeField]
+        private AudioClip coffeeTransfusionPourSfx;
+
+        [Tooltip("제산제 버블 하나가 실제 생성될 때마다 재생할 antacid_bubble_spawn입니다.")]
+        [SerializeField]
+        private AudioClip antacidBubbleSpawnSfx;
+
+        [Tooltip("Acid Puddle 웅덩이 하나가 실제 생성될 때마다 재생할 acid_puddle_spawn입니다.")]
+        [SerializeField]
+        private AudioClip acidPuddleSpawnSfx;
+
+        [Header("Augment / UI SFX")]
+
+        [Tooltip("증강 카드 선택을 실제 확정한 순간 재생할 augment_select입니다.")]
+        [SerializeField]
+        private AudioClip augmentSelectSfx;
+
+        [Tooltip("별도 전용음이 없는 공통 UI 버튼 클릭에 사용할 ui_click입니다.")]
+        [SerializeField]
+        private AudioClip uiClickSfx;
+
+        [Header("Special Monster SFX")]
+
+        [Tooltip("스나이퍼 몬스터가 실제 투사체를 발사한 순간 재생할 sniper_fire입니다.")]
+        [SerializeField]
+        private AudioClip sniperFireSfx;
+
+        [Tooltip("함정 몬스터가 휴면 상태에서 실제 활성 상태로 전환될 때 재생할 trap_activate입니다.")]
+        [SerializeField]
+        private AudioClip trapActivateSfx;
+
+        [Tooltip("소화효소 몬스터의 실제 공격이 발동할 때 재생할 digestive_enzyme_attack입니다.")]
+        [SerializeField]
+        private AudioClip digestiveEnzymeAttackSfx;
+
+        [Tooltip("위산 거머리가 실제로 벽에 고정되는 순간 재생할 acid_leech_wall_attach입니다.")]
+        [SerializeField]
+        private AudioClip acidLeechWallAttachSfx;
+
+        [Tooltip("이동속도 버퍼 몬스터가 실제 버프를 시전할 때 재생할 speed_buffer_cast입니다.")]
+        [SerializeField]
+        private AudioClip speedBufferCastSfx;
+
+        [Tooltip("피해감소 버퍼 몬스터가 실제 버프를 시전할 때 재생할 defense_buffer_cast입니다.")]
+        [SerializeField]
+        private AudioClip defenseBufferCastSfx;
+
+        [Tooltip("공격속도 디버퍼 몬스터가 실제 디버프를 적용할 때 재생할 attack_speed_debuff_cast입니다.")]
+        [SerializeField]
+        private AudioClip attackSpeedDebuffCastSfx;
+
+        [Tooltip("영양 도둑 몬스터가 실제 자원을 훔친 순간 재생할 nutrition_thief_steal입니다.")]
+        [SerializeField]
+        private AudioClip nutritionThiefStealSfx;
+
+        [Tooltip("Treasure Runner가 실제 필드에 생성된 순간 재생할 treasure_runner_spawn입니다.")]
+        [SerializeField]
+        private AudioClip treasureRunnerSpawnSfx;
 
         [Header("Volume")]
 
@@ -285,6 +471,12 @@ namespace Vampire
                     gameObject.AddComponent<AudioSource>();
             }
 
+            if (modalBgmSource == null)
+            {
+                modalBgmSource =
+                    gameObject.AddComponent<AudioSource>();
+            }
+
             if (sfxSource == null)
             {
                 sfxSource =
@@ -308,6 +500,13 @@ namespace Vampire
                 overrideBgmSource.spatialBlend = 0f;
             }
 
+            if (modalBgmSource != null)
+            {
+                modalBgmSource.playOnAwake = false;
+                modalBgmSource.loop = true;
+                modalBgmSource.spatialBlend = 0f;
+            }
+
             if (sfxSource != null)
             {
                 sfxSource.playOnAwake = false;
@@ -329,6 +528,12 @@ namespace Vampire
             if (overrideBgmSource != null)
             {
                 overrideBgmSource.volume =
+                    masterVolume * bgmVolume;
+            }
+
+            if (modalBgmSource != null)
+            {
+                modalBgmSource.volume =
                     masterVolume * bgmVolume;
             }
 
@@ -643,6 +848,12 @@ namespace Vampire
 
         private void StopAllBgmInternal()
         {
+            if (modalBgmSource != null)
+            {
+                modalBgmSource.Stop();
+                modalBgmSource.clip = null;
+            }
+
             if (overrideBgmSource != null)
             {
                 overrideBgmSource.Stop();
@@ -770,6 +981,102 @@ namespace Vampire
 
                 case GameSfxId.RewardEvent:
                     return rewardEventSfx;
+
+                case GameSfxId.PlayerDash:
+                    return playerDashSfx;
+
+                case GameSfxId.PlayerLevelUp:
+                    return playerLevelUpSfx;
+
+                case GameSfxId.CriticalHit:
+                    return criticalHitSfx;
+
+                case GameSfxId.MiniStagePortalSpawn:
+                    return miniStagePortalSpawnSfx;
+
+                case GameSfxId.ChestOpen:
+                    return chestOpenSfx;
+
+                case GameSfxId.MiniStageClear:
+                    return miniStageClearSfx;
+
+                case GameSfxId.ExpPickup:
+                    return expPickupSfx;
+
+                case GameSfxId.GoldPickup:
+                    return goldPickupSfx;
+
+                case GameSfxId.SilverPickup:
+                    return silverPickupSfx;
+
+                case GameSfxId.CoinPouchPickup:
+                    return coinPouchPickupSfx;
+
+                case GameSfxId.MagnetPickup:
+                    return magnetPickupSfx;
+
+                case GameSfxId.BombPickup:
+                    return bombPickupSfx;
+
+                case GameSfxId.HealPickup:
+                    return healPickupSfx;
+
+                case GameSfxId.RedPotionPickup:
+                    return redPotionPickupSfx;
+
+                case GameSfxId.SpecialItemPickup:
+                    return specialItemPickupSfx;
+
+                case GameSfxId.RareItemPickup:
+                    return rareItemPickupSfx;
+
+                case GameSfxId.AcidRefluxWavePass:
+                    return acidRefluxWavePassSfx;
+
+                case GameSfxId.PeristalsisTilt:
+                    return peristalsisTiltSfx;
+
+                case GameSfxId.CoffeeTransfusionPour:
+                    return coffeeTransfusionPourSfx;
+
+                case GameSfxId.AntacidBubbleSpawn:
+                    return antacidBubbleSpawnSfx;
+
+                case GameSfxId.AcidPuddleSpawn:
+                    return acidPuddleSpawnSfx;
+
+                case GameSfxId.AugmentSelect:
+                    return augmentSelectSfx;
+
+                case GameSfxId.UiClick:
+                    return uiClickSfx;
+
+                case GameSfxId.SniperFire:
+                    return sniperFireSfx;
+
+                case GameSfxId.TrapActivate:
+                    return trapActivateSfx;
+
+                case GameSfxId.DigestiveEnzymeAttack:
+                    return digestiveEnzymeAttackSfx;
+
+                case GameSfxId.AcidLeechWallAttach:
+                    return acidLeechWallAttachSfx;
+
+                case GameSfxId.SpeedBufferCast:
+                    return speedBufferCastSfx;
+
+                case GameSfxId.DefenseBufferCast:
+                    return defenseBufferCastSfx;
+
+                case GameSfxId.AttackSpeedDebuffCast:
+                    return attackSpeedDebuffCastSfx;
+
+                case GameSfxId.NutritionThiefSteal:
+                    return nutritionThiefStealSfx;
+
+                case GameSfxId.TreasureRunnerSpawn:
+                    return treasureRunnerSpawnSfx;
             }
 
             return null;
