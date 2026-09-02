@@ -386,6 +386,13 @@ namespace Vampire
 
         private bool baseBgmPausedByOverride;
 
+        // 증강 선택 BGM이 현재 재생 중인지 기록합니다.
+        private bool augmentSelectionBgmActive;
+
+        // 증강 선택창이 열리기 직전에 실제로 재생 중이던 BGM Source를 기억합니다.
+        private bool baseBgmPausedByAugmentSelection;
+        private bool overrideBgmPausedByAugmentSelection;
+
         private float lastNeedleAttackTime =
             float.NegativeInfinity;
 
@@ -626,6 +633,35 @@ namespace Vampire
                 true);
         }
 
+        /// <summary>
+        /// 실제 증강 선택지가 표시될 때 호출합니다.
+        /// 현재 재생 중인 Base/Override BGM을 Pause하고
+        /// 증강 선택 전용 BGM을 재생합니다.
+        /// </summary>
+        public static void EnterAugmentSelectionAudio()
+        {
+            if (Instance == null)
+            {
+                return;
+            }
+
+            Instance.BeginAugmentSelectionBgm();
+        }
+
+        /// <summary>
+        /// 증강 선택창이 닫힐 때 호출합니다.
+        /// 증강 선택 BGM을 정지하고, 열리기 직전에 재생 중이던 BGM을 이어서 재생합니다.
+        /// </summary>
+        public static void ExitAugmentSelectionAudio()
+        {
+            if (Instance == null)
+            {
+                return;
+            }
+
+            Instance.EndAugmentSelectionBgm();
+        }
+
         public static void PlayBossAppearOnly()
         {
             if (Instance != null)
@@ -710,7 +746,8 @@ namespace Vampire
                 return;
             }
 
-            // Scene 변경 시 이전 MiniStage / Boss 상태를 모두 제거합니다.
+            // Scene 변경 시 이전 Modal / MiniStage / Boss 상태를 모두 제거합니다.
+            StopAugmentSelectionBgmWithoutResume();
             StopOverrideBgmWithoutResume();
 
             if (baseBgmSource == null)
@@ -846,6 +883,138 @@ namespace Vampire
             baseBgmPausedByOverride = false;
         }
 
+        // =========================================================
+        // Augment Selection Modal BGM
+        // =========================================================
+
+        private void BeginAugmentSelectionBgm()
+        {
+            if (augmentSelectionBgmActive)
+            {
+                return;
+            }
+
+            if (augmentSelectionBgm == null)
+            {
+                if (debugLog)
+                {
+                    Debug.LogWarning(
+                        "[GameAudio] Augment Selection BGM Clip이 비어 있습니다.",
+                        this);
+                }
+
+                return;
+            }
+
+            if (modalBgmSource == null)
+            {
+                return;
+            }
+
+            // 증강창이 열리기 직전에 실제로 재생 중이던 Source만 기억합니다.
+            // MiniStage / Boss 중이면 Override만 재생 중이고 Base는 이미 Pause 상태입니다.
+            baseBgmPausedByAugmentSelection =
+                baseBgmSource != null &&
+                baseBgmSource.isPlaying;
+
+            overrideBgmPausedByAugmentSelection =
+                overrideBgmSource != null &&
+                overrideBgmSource.isPlaying;
+
+            if (baseBgmPausedByAugmentSelection)
+            {
+                baseBgmSource.Pause();
+            }
+
+            if (overrideBgmPausedByAugmentSelection)
+            {
+                overrideBgmSource.Pause();
+            }
+
+            modalBgmSource.Stop();
+            modalBgmSource.clip = augmentSelectionBgm;
+            modalBgmSource.loop = true;
+            modalBgmSource.time = 0f;
+            modalBgmSource.Play();
+
+            augmentSelectionBgmActive = true;
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[GameAudio] Augment Selection BGM START | " +
+                    $"Clip={augmentSelectionBgm.name} | " +
+                    $"PausedBase={baseBgmPausedByAugmentSelection} | " +
+                    $"PausedOverride={overrideBgmPausedByAugmentSelection}",
+                    this);
+            }
+        }
+
+        private void EndAugmentSelectionBgm()
+        {
+            if (!augmentSelectionBgmActive)
+            {
+                return;
+            }
+
+            if (modalBgmSource != null)
+            {
+                modalBgmSource.Stop();
+                modalBgmSource.clip = null;
+            }
+
+            // Override가 증강창이 열려 있던 사이 종료되지 않은 경우에만 이어서 재생합니다.
+            if (overrideBgmPausedByAugmentSelection &&
+                overrideBgmSource != null &&
+                currentOverrideBgm != OverrideBgmType.None &&
+                overrideBgmSource.clip != null)
+            {
+                overrideBgmSource.UnPause();
+            }
+            // 일반 필드처럼 Base BGM이 재생 중이던 상태에서 증강창이 열린 경우입니다.
+            else if (baseBgmPausedByAugmentSelection &&
+                     baseBgmSource != null &&
+                     currentOverrideBgm == OverrideBgmType.None &&
+                     baseBgmSource.clip != null)
+            {
+                baseBgmSource.UnPause();
+            }
+
+            bool resumedBase =
+                baseBgmPausedByAugmentSelection &&
+                currentOverrideBgm == OverrideBgmType.None;
+
+            bool resumedOverride =
+                overrideBgmPausedByAugmentSelection &&
+                currentOverrideBgm != OverrideBgmType.None;
+
+            augmentSelectionBgmActive = false;
+            baseBgmPausedByAugmentSelection = false;
+            overrideBgmPausedByAugmentSelection = false;
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[GameAudio] Augment Selection BGM END | " +
+                    $"ResumeBase={resumedBase} | " +
+                    $"ResumeOverride={resumedOverride}",
+                    this);
+            }
+        }
+
+        private void StopAugmentSelectionBgmWithoutResume()
+        {
+            if (modalBgmSource != null)
+            {
+                modalBgmSource.Stop();
+                modalBgmSource.clip = null;
+            }
+
+            augmentSelectionBgmActive = false;
+            baseBgmPausedByAugmentSelection = false;
+            overrideBgmPausedByAugmentSelection = false;
+        }
+
         private void StopAllBgmInternal()
         {
             if (modalBgmSource != null)
@@ -869,6 +1038,9 @@ namespace Vampire
                 OverrideBgmType.None;
 
             baseBgmPausedByOverride = false;
+            augmentSelectionBgmActive = false;
+            baseBgmPausedByAugmentSelection = false;
+            overrideBgmPausedByAugmentSelection = false;
 
             if (debugLog)
             {

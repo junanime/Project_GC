@@ -194,6 +194,9 @@ namespace Vampire
 
             if (displayedAbilities.Count > 0)
             {
+                // 실제 선택 가능한 증강 카드가 존재하는 경우에만
+                // 현재 BGM을 Pause하고 증강 선택 전용 BGM을 시작합니다.
+                GameAudioManager.EnterAugmentSelectionAudio();
                 Populate(displayedAbilities);
             }
             else
@@ -411,6 +414,10 @@ namespace Vampire
 
         public override void Close()
         {
+            // 증강 선택 BGM이 재생 중이었다면 종료하고,
+            // 증강창이 열리기 직전에 재생 중이던 BGM을 이어서 재생합니다.
+            GameAudioManager.ExitAugmentSelectionAudio();
+
             if (displayedAbilities != null)
             {
                 abilityManager.ReturnAbilities(displayedAbilities);

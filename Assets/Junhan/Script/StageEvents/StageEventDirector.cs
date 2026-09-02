@@ -427,9 +427,7 @@ namespace Vampire
 
                 ShowEventStartedUI(surgeEvent.eventName);
 
-                GameAudioManager.PlaySfx(
-    GameAudioManager.GameSfxId.FieldEventStart
-);
+                
 
                 if (logEventState)
                 {
@@ -502,10 +500,7 @@ namespace Vampire
 
                 ShowEventStartedUI(goldRushEvent.eventName);
 
-                GameAudioManager.PlaySfx(
-    GameAudioManager.GameSfxId.FieldEventStart
-);
-
+                
                 if (logEventState)
                 {
                     Debug.Log(
@@ -558,9 +553,7 @@ namespace Vampire
 
                 ShowEventStartedUI(acidEvent.eventName);
 
-                GameAudioManager.PlaySfx(
-    GameAudioManager.GameSfxId.FieldEventStart
-);
+               
 
                 if (logEventState)
                 {
