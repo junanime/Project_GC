@@ -85,7 +85,7 @@ MonoBehaviour:
   antacidBubbleSpawnSfx: {fileID: 0}
   acidPuddleSpawnSfx: {fileID: 0}
   augmentSelectSfx: {fileID: 0}
-  uiClickSfx: {fileID: 0}
+  uiClickSfx: {fileID: 8300000, guid: 7eb57c91d35126f488d155fa059b2097, type: 3}
   sniperFireSfx: {fileID: 0}
   trapActivateSfx: {fileID: 0}
   digestiveEnzymeAttackSfx: {fileID: 0}
