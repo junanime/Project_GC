@@ -44,10 +44,23 @@ namespace Vampire
         protected override void OnCollected()
         {
             spriteRenderer.enabled = false;
-            HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(playerCharacter);
 
-            playerCharacter.GainExp((float)gemType);
+            HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(
+                playerCharacter
+            );
+
+            playerCharacter.GainExp(
+                (float)gemType
+            );
+
+            // 실제 EXP 획득 처리가 완료된 순간
+            // EXP 양과 관계없이 동일한 획득 효과음을 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.ExpPickup
+            );
+
             entityManager.DespawnGem(this);
+
             spriteRenderer.enabled = true;
         }
     }

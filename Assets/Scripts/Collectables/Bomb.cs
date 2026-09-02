@@ -9,6 +9,9 @@ namespace Vampire
         protected override void OnCollected()
         {
             entityManager.DamageAllVisibileEnemies(bombDamage);
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.BombPickup
+);
             Destroy(gameObject);
         }
     }
