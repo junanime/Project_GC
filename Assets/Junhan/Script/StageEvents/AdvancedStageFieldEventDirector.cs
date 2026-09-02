@@ -155,6 +155,9 @@ namespace Vampire
             [HideInInspector] public bool finished;
             [HideInInspector] public float resolvedStartTime;
             [HideInInspector] public float elapsed;
+
+            // 카메라 Tilt 효과음이 이 이벤트에서 이미 재생됐는지 기록합니다.
+            [HideInInspector] public bool tiltSfxPlayed;
         }
 
         [System.Serializable]
@@ -376,6 +379,7 @@ namespace Vampire
                 driftEvent.started = false;
                 driftEvent.finished = false;
                 driftEvent.elapsed = 0f;
+                driftEvent.tiltSfxPlayed = false;
                 driftEvent.resolvedStartTime = ResolveStartTime(
                     driftEvent.eventName,
                     driftEvent.startTime,
@@ -530,7 +534,8 @@ namespace Vampire
                     affectMonsters: true,
                     waveColor: waveEvent.waveColor,
                     warningColor: waveEvent.warningColor,
-                    visualOnly: false);
+                    visualOnly: false,
+                    travelStartSfxId: GameAudioManager.GameSfxId.AcidRefluxWavePass);
 
                 if (i < safeWaveCount - 1)
                 {
@@ -575,9 +580,7 @@ namespace Vampire
                 driftEvent.elapsed = 0f;
 
                 ShowEventStartedUI(driftEvent.eventName);
-                GameAudioManager.PlaySfx(
-    GameAudioManager.GameSfxId.FieldEventStart
-);
+
                 Debug.Log(
                     $"[AdvancedStageEvent] Start: {driftEvent.eventName} | " +
                     $"time={currentTime:F1}s | duration={driftEvent.duration:F1}s | " +
@@ -712,6 +715,17 @@ namespace Vampire
                 mainCamera.transform.rotation,
                 targetRotation,
                 Time.deltaTime * Mathf.Max(0.1f, driftEvent.cameraTiltLerpSpeed));
+
+            // 카메라가 존재하고 실제 Tilt 처리가 처음 실행된 순간에만
+            // 연동운동 Tilt 효과음을 1회 재생합니다.
+            if (!driftEvent.tiltSfxPlayed)
+            {
+                driftEvent.tiltSfxPlayed = true;
+
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.PeristalsisTilt
+                );
+            }
         }
 
         private void RestoreCameraTiltIfNoActiveDrift()
@@ -762,9 +776,7 @@ namespace Vampire
                 coffeeEvent.started = true;
                 coffeeEvent.monsterScanTimer = 0f;
                 ShowEventStartedUI(coffeeEvent.eventName);
-                GameAudioManager.PlaySfx(
-    GameAudioManager.GameSfxId.FieldEventStart
-);
+
                 if (logEventState)
                 {
                     Debug.Log($"[AdvancedStageEvent] Start: {coffeeEvent.eventName} | time={currentTime:F1}s");
@@ -815,7 +827,8 @@ namespace Vampire
                 affectMonsters: false,
                 waveColor: coffeeEvent.coffeeWaveColor,
                 warningColor: coffeeEvent.warningColor,
-                visualOnly: true);
+                visualOnly: true,
+                travelStartSfxId: GameAudioManager.GameSfxId.CoffeeTransfusionPour);
 
             activeCoffeeWaveRoutine = null;
         }
@@ -880,7 +893,8 @@ namespace Vampire
             bool affectMonsters,
             Color waveColor,
             Color warningColor,
-            bool visualOnly)
+            bool visualOnly,
+            GameAudioManager.GameSfxId? travelStartSfxId = null)
         {
             // 실제 피해 파도일 때만 위험 경고음.
             // 커피수혈의 VisualOnly 파도에는 재생하지 않습니다.
@@ -965,6 +979,15 @@ namespace Vampire
                         knockbackDirection * knockbackPower,
                         affectPlayer,
                         affectMonsters);
+                }
+
+                // 경고가 끝난 뒤 실제 파도 오브젝트가 생성되고
+                // 이동을 시작하는 순간에만 해당 전용 효과음을 1회 재생합니다.
+                if (travelStartSfxId.HasValue)
+                {
+                    GameAudioManager.PlaySfx(
+                        travelStartSfxId.Value
+                    );
                 }
             }
 
@@ -1092,6 +1115,12 @@ namespace Vampire
         {
             string safeEventName = string.IsNullOrEmpty(eventName) ? "스테이지" : eventName;
             string message = string.Format(eventStartMessageFormat, safeEventName);
+
+            // 산성 역류 / 연동운동 / 커피수혈 모두
+            // 동일한 필드 이벤트 시작 효과음을 이벤트당 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.FieldEventStart
+            );
 
             if (eventToastUI != null)
             {

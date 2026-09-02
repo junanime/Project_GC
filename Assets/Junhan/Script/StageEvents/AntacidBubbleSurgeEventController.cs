@@ -166,7 +166,9 @@ namespace Vampire
                 : 0f;
 
             ShowToast($"{eventName} 이벤트가 시작됐습니다!");
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.FieldEventStart
+);
             SpawnBubbleWave();
 
             if (debugLog)
@@ -286,7 +288,11 @@ namespace Vampire
                 debugLog);
 
             activeBubbles.Add(bubbleZone);
-
+            // 거품이 실제 생성되고 초기화까지 완료된 순간
+            // 거품 하나당 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.AntacidBubbleSpawn
+            );
             if (debugLog)
             {
                 Debug.Log($"[제산 거품 폭주] 거품 생성 | pos={selectedPosition}", bubbleZone);
