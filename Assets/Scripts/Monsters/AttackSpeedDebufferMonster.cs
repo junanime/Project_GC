@@ -291,7 +291,9 @@ namespace Vampire
             }
 
             projectile.Launch(direction.normalized);
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.AttackSpeedDebuffCast
+);
             DebugDebuffer(
                 $"디버프 탄환 발사 | Spawn={spawnPosition} | Target={targetPosition} | Speed={debufferBlueprint.projectileSpeed}");
         }

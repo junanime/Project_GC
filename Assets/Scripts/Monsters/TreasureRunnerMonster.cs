@@ -82,6 +82,9 @@ namespace Vampire
             deathHandled = false;
             hasStartedFleeing = false;
 
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.TreasureRunnerSpawn
+);
             if (debugLog)
             {
                 Debug.Log(

@@ -404,6 +404,10 @@ namespace Vampire
 
             projectile.Launch(direction.normalized);
 
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.SniperFire
+);
+
             DebugSniper(
                 $"탄환 발사 | 시작 위치: {spawnPosition} | 목표 위치: {lockedTargetPosition} | 방향: {direction.normalized} | 속도: {sniperBlueprint.projectileSpeed} | 데미지: {sniperBlueprint.atk}"
             );

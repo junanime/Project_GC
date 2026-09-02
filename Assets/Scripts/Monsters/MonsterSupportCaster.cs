@@ -262,9 +262,27 @@ namespace Vampire
                 CreateCastPulseVisual();
             }
 
+            // 버프 시전이 실제로 시작된 순간,
+            // 버프 종류에 맞는 효과음을 1회 재생합니다.
+            if (buffType == MonsterSupportBuffType.MoveSpeed)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.SpeedBufferCast
+                );
+            }
+            else
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.DefenseBufferCast
+                );
+            }
+
             if (debugLog)
             {
-                Debug.Log($"[몬스터 버퍼] 버프 시전 시작 | Type={buffType}", this);
+                Debug.Log(
+                    $"[몬스터 버퍼] 버프 시전 시작 | Type={buffType}",
+                    this
+                );
             }
 
             yield return new WaitForSeconds(Mathf.Max(0.05f, castMotionDuration));

@@ -350,6 +350,10 @@ namespace Vampire
 
             ChangeState(TrapState.Active);
 
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.TrapActivate
+);
+
             if (tickDamageCoroutine != null)
             {
                 StopCoroutine(tickDamageCoroutine);

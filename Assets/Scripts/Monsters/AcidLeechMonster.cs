@@ -270,7 +270,9 @@ namespace Vampire
 
             currentState = LeechState.Feeding;
             LockFeedingPhysics();
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.AcidLeechWallAttach
+);
             PlayLoopAnimation(feedingSprites);
 
             if (stateRoutine != null)

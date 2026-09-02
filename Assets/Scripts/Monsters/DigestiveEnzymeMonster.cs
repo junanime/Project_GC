@@ -540,7 +540,9 @@ namespace Vampire
             string targetName = currentTarget.name;
 
             ApplyNeutralDamageToMonster(currentTarget, attackDamage, knockback);
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.DigestiveEnzymeAttack
+);
             lastAttackTime = Time.time;
 
             if (debugLog)

@@ -305,7 +305,9 @@ namespace Vampire
             {
                 gem.gameObject.SetActive(false);
             }
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.NutritionThiefSteal
+);
             if (debugLog)
             {
                 Debug.Log($"[영양 도둑균] 경험치 흡수 | +{expValue}, TotalExp={storedExpValue}", this);
@@ -338,7 +340,9 @@ namespace Vampire
             {
                 coin.gameObject.SetActive(false);
             }
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.NutritionThiefSteal
+);
             if (debugLog)
             {
                 Debug.Log($"[영양 도둑균] 골드 흡수 | +{coinValue}, TotalCoin={storedCoinValue}", this);
