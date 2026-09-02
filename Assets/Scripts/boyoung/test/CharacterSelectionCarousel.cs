@@ -125,12 +125,8 @@ namespace Vampire
         [SerializeField]
         private Slider speedSlider;
 
-        [Header("선택 후 이동 - 선택 사항")]
-        [SerializeField]
-        private bool loadSceneAfterSelect = false;
-
-        [SerializeField]
-        private string sceneName = "";
+        private const string MainMenuScenePath = "Assets/Scenes/Game/Main Menu";
+        private const string GameScenePath = "Assets/Scenes/Game/Level 1";
 
         private int currentIndex = 0;
         private bool isAnimating = false;
@@ -501,6 +497,11 @@ namespace Vampire
             }
         }
 
+        public void OnBackClicked()
+        {
+            SceneManager.LoadScene("Main Menu");
+        }
+
         public void OnSelectClicked()
         {
             SelectedCharacterIndex =
@@ -512,13 +513,7 @@ namespace Vampire
                     .characterName
             );
 
-            if (loadSceneAfterSelect &&
-                !string.IsNullOrEmpty(sceneName))
-            {
-                SceneManager.LoadScene(
-                    sceneName
-                );
-            }
+            SceneManager.LoadScene("Level 1");
         }
 
         public int GetCurrentCharacterIndex()
