@@ -133,6 +133,11 @@ namespace Vampire
             // BloodClotMiniStagePortal에는 Init()이 없고 Setup()이 있다.
             activeEntrancePortal.Setup(this);
 
+            // 포탈 생성 및 Setup까지 실제로 완료된 순간 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.MiniStagePortalSpawn
+            );
+
             if (debugLog)
             {
                 Debug.Log($"[MiniStageDirector] 혈전 포탈 생성 완료. position={spawnPosition}");

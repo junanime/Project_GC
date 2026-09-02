@@ -372,6 +372,16 @@ namespace Vampire
                 );
             }
 
+            // 치명타 판정이면서 실제 피해가 0보다 클 때만
+            // 치명타 효과음을 1회 재생합니다.
+            if (isCritical && damage > 0f)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.CriticalHit
+                );
+            }
+
+
             if (hitAnimationCoroutine != null)
             {
                 StopCoroutine(hitAnimationCoroutine);

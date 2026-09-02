@@ -812,6 +812,12 @@ namespace Vampire
             }
 
             currentLevel++;
+
+            // 실제 레벨 증가가 확정된 순간 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.PlayerLevelUp
+            );
+
             UpdateLevelDisplay();
 
             abilitySelectionDialog.Open();
