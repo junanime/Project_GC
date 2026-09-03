@@ -143,6 +143,199 @@ MonoBehaviour:
     m_Localized: Genaral reason Ability
     m_Metadata:
       m_Items: []
+  - m_Id: 287476704934678528
+    m_Localized: Fiber Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476712975159296
+    m_Localized: 'Leaves a thin fibrous trail behind the needle for 2 seconds.
+
+      Enemies
+      that step on the trail take 2 damage per second.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476734143811584
+    m_Localized: Corrosion Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476766737747968
+    m_Localized: 'Enemies hit by the needle take increased damage for 3 seconds.
+
+      Normal
+      monsters take 15% increased damage per stack, while boss monsters take 5% increased
+      damage per stack, up to 3 stacks.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476806835294208
+    m_Localized: Pressure Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476819426594816
+    m_Localized: 'The needle deals more damage based on the distance it travels.
+
+      Damage
+      increases for each unit of distance traveled, up to a maximum of 50%.
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476836514189312
+    m_Localized: 'Marked Needle
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287476863676502016
+    m_Localized: 'Marks enemies hit by the needle.
+
+      Hitting a marked enemy
+      again consumes the mark and deals bonus damage.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287499051590180864
+    m_Localized: 'Bipolar Needle
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287499053477617664
+    m_Localized: 'Needles are split and fired in both forward and backward directions
+      with 180-degree symmetry.
+
+      Your current projectile count is divided between
+      both directions, and projectile count is increased by 1.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508462152933376
+    m_Localized: Neural Block
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508470684147712
+    m_Localized: Enemies that spawn while Neural Block is active are also frozen
+      for the remaining duration.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508486823829504
+    m_Localized: Poison Contagion
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508511821881344
+    m_Localized: 'When a poisoned enemy is killed, poison spreads to nearby enemies
+      around it.
+
+      This legendary augment only appears after obtaining Poison
+      Needle.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508641639784448
+    m_Localized: Organ Compression
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287508647276929024
+    m_Localized: 'Every 20 seconds, creates an organ compression field at a dense
+      enemy cluster.
+
+      Enemies inside the field are pulled toward the center
+      and take damage over time.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672100126511104
+    m_Localized: Digestive Acid Sac Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672101636460544
+    m_Localized: 'Enemies hit by the needle form an acid sac.
+
+      When they die,
+      they leave an acid puddle that damages enemies standing on it.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672103217713152
+    m_Localized: 'Hunger Needle
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672104899629056
+    m_Localized: 'Each needle hit grants a temporary attack speed stack.
+
+      Hunger
+      stacks can build up to a maximum limit.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672106464104448
+    m_Localized: Gut Bacteria Needle
+    m_Metadata:
+      m_Items: []
+  - m_Id: 287672113502146560
+    m_Localized: 'Needle hits build gut bacteria stacks on enemies.
+
+      Enemies
+      killed with enough stacks drop extra experience gems.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300808520224768
+    m_Localized: 'Gastric Peristalsis Wave
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300810709651456
+    m_Localized: Periodically releases a circular gastric acid wave that damages
+      and knocks back enemies.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300820662734848
+    m_Localized: 'Mucosal Fortress
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 289300822550171648
+    m_Localized: Avoid taking damage to gain up to 3 mucosal shields. Each shield
+      blocks 1 hit.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940029500706816
+    m_Localized: 'Hungry Spirit
+
+'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940031191011328
+    m_Localized: 'Gain damage, range, and attack speed while avoiding EXP and Gold.
+
+      Collecting
+      a pickup resets all stacks.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940032717737984
+    m_Localized: Needle Shotgun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 290940034143801344
+    m_Localized: 'Turn your needle attack into a shotgun blast.
+
+      Load up to
+      4 shots and fire a piercing spread at nearby enemies.
+
+      Range is fixed
+      to 3. Dashing instantly reloads 1 shot.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292400886399160320
+    m_Localized: Legendary Linked Special Augment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 292400888429203456
+    m_Localized: A special augment that modifies or strengthens a legendary augment
+      you already own.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

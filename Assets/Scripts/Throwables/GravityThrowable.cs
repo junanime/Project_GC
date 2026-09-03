@@ -22,7 +22,7 @@ namespace Vampire
         {
             gravityWell.SetActive(true);
             throwableSpriteRenderer.enabled = false;
-            wellParticles.enableEmission = true;
+            SetWellParticleEmission(true);
             float currentRadius = 0;
             float t = 0;
             while (t < 1.0f)
@@ -51,12 +51,20 @@ namespace Vampire
                 yield return null;
             }
             gravityWell.transform.localScale = Vector2.zero;
-            wellParticles.enableEmission = false;
-            gravityWell.SetActive(false);
+            SetWellParticleEmission(false); gravityWell.SetActive(false);
             throwableSpriteRenderer.enabled = true;
             DestroyThrowable();
         }
+        private void SetWellParticleEmission(bool enabled)
+        {
+            if (wellParticles == null)
+            {
+                return;
+            }
 
+            ParticleSystem.EmissionModule emission = wellParticles.emission;
+            emission.enabled = enabled;
+        }
         protected void ApplyGravity(float radius)
         {
             Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, radius, targetLayer);

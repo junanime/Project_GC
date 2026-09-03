@@ -21,19 +21,24 @@ namespace Vampire
         [Tooltip("새 결과 패널입니다. 연결하면 GameOverDialog보다 우선 사용됩니다.")]
         [SerializeField] private LevelResultPanel levelResultPanel;
 
+        [Header("Runtime Pause")]
+        [Tooltip("혈전 미니 스테이지처럼 같은 씬 안에서 별도 콘텐츠를 진행할 때, 기본 런 시간/스폰/보스/상자 흐름을 잠시 멈출지 여부입니다.")]
+        [SerializeField] private bool logRunFlowPause = true;
+
         private float levelTime = 0f;
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
-
         private bool miniBossSpawned = false;
         private bool finalBossSpawned = false;
         private bool levelEnded = false;
+        private bool runFlowPaused = false;
 
         public float CurrentLevelTime => levelTime;
         public float LevelDuration => levelBlueprint != null ? levelBlueprint.levelTime : 0f;
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
+        public bool IsRunFlowPaused => runFlowPaused;
 
         public void Init(LevelBlueprint levelBlueprint)
         {
@@ -45,6 +50,7 @@ namespace Vampire
             miniBossSpawned = false;
             finalBossSpawned = false;
             levelEnded = false;
+            runFlowPaused = false;
 
             entityManager.Init(
                 this.levelBlueprint,
@@ -98,6 +104,11 @@ namespace Vampire
                 return;
             }
 
+            if (runFlowPaused)
+            {
+                return;
+            }
+
             levelTime += Time.deltaTime;
 
             if (gameTimer != null)
@@ -108,6 +119,27 @@ namespace Vampire
             HandleNormalMonsterSpawn();
             HandleBossSpawn();
             HandleChestSpawn();
+        }
+
+        public void SetRunFlowPaused(bool paused)
+        {
+            if (runFlowPaused == paused)
+            {
+                return;
+            }
+
+            runFlowPaused = paused;
+
+            if (!runFlowPaused)
+            {
+                timeSinceLastMonsterSpawned = 0f;
+                timeSinceLastChestSpawned = 0f;
+            }
+
+            if (logRunFlowPause)
+            {
+                Debug.Log($"[LevelManager] Run Flow Pause = {runFlowPaused}");
+            }
         }
 
         private void HandleNormalMonsterSpawn()
@@ -125,6 +157,11 @@ namespace Vampire
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
+       
+            // 소화효소 처치 난이도 상승 연결:
+            // 선택된 난이도가 SpawnRate이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
+            spawnRate *= DigestiveEnzymeDifficultyManager.SpawnRateMultiplier;
+
             float monsterSpawnDelay = spawnRate > 0f
                 ? 1.0f / spawnRate
                 : float.PositiveInfinity;
@@ -154,6 +191,7 @@ namespace Vampire
 
             SpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
         }
+
         public void SpawnMonsterFromCurrentSpawnTable()
         {
             SpawnMonsterFromSpawnTable();
@@ -177,6 +215,7 @@ namespace Vampire
                     levelBlueprint.monsters.Length,
                     levelBlueprint.miniBosses[0].bossBlueprint
                 );
+                GameAudioManager.PlayBossAppearOnly();
             }
 
             if (!finalBossSpawned && levelTime > levelBlueprint.levelTime)
@@ -190,6 +229,8 @@ namespace Vampire
 
                 if (finalBoss != null)
                 {
+
+                    GameAudioManager.StartBossAudio();
                     finalBoss.OnKilled.AddListener(LevelPassed);
                 }
             }
@@ -247,7 +288,6 @@ namespace Vampire
                 Debug.LogWarning(
                     "[LevelManager] SpawnMonsterByFlatIndex 실패: LevelBlueprint 또는 EntityManager가 비어 있습니다."
                 );
-
                 return;
             }
 
@@ -280,20 +320,23 @@ namespace Vampire
                 Debug.LogWarning(
                     $"[LevelManager] MonsterBlueprint가 비어 있습니다. monsterIndex={monsterIndex}"
                 );
-
                 return;
             }
+
+            // 소화효소 처치 난이도 상승 연결:
+            // 선택된 난이도가 MonsterHealth이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
+            float finalHp = monsterBlueprint.hp *
+                            hpMultiplier *
+                            DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
 
             entityManager.SpawnMonsterRandomPosition(
                 poolIndex,
                 monsterBlueprint,
-                monsterBlueprint.hp * hpMultiplier
+                finalHp
             );
         }
 
-        public void SpawnRandomMonsterFromFlatIndexList(
-            List<int> monsterIndices,
-            float hpMultiplier = 1f)
+        public void SpawnRandomMonsterFromFlatIndexList(List<int> monsterIndices, float hpMultiplier = 1f)
         {
             if (monsterIndices == null || monsterIndices.Count == 0)
             {
@@ -301,7 +344,6 @@ namespace Vampire
             }
 
             int selectedIndex = monsterIndices[Random.Range(0, monsterIndices.Count)];
-
             SpawnMonsterByFlatIndex(selectedIndex, hpMultiplier);
         }
 
@@ -326,9 +368,7 @@ namespace Vampire
                     continue;
                 }
 
-                for (int blueprintIndex = 0;
-                     blueprintIndex < container.monsterBlueprints.Length;
-                     blueprintIndex++)
+                for (int blueprintIndex = 0; blueprintIndex < container.monsterBlueprints.Length; blueprintIndex++)
                 {
                     MonsterBlueprint blueprint = container.monsterBlueprints[blueprintIndex];
                     string monsterName = blueprint != null ? blueprint.name : "NULL";
@@ -358,6 +398,8 @@ namespace Vampire
 
             SaveCoinsGained();
 
+            GameAudioManager.EndRunAudio(false);
+
             Time.timeScale = 0f;
 
             if (levelResultPanel != null)
@@ -382,7 +424,10 @@ namespace Vampire
             levelEnded = true;
 
             SaveCoinsGained();
-
+            GameAudioManager.EndRunAudio(true);
+            // Boss BGM 종료.
+            // Ingame BGM은 재개하지 않음.
+            // 승리 보상 효과음 재생.
             Time.timeScale = 0f;
 
             if (levelResultPanel != null)

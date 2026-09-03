@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 121.9}
+  m_AnchoredPosition: {x: 0, y: 169.4}
   m_SizeDelta: {x: 260, y: 40}
   m_Pivot: {x: 0.5, y: 5}
 --- !u!222 &2775637357327924508
@@ -166,10 +166,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 5629613628450112858}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -478.5}
-  m_SizeDelta: {x: 270, y: 20}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -54}
+  m_SizeDelta: {x: 250, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9082173500482066547
 CanvasRenderer:
@@ -226,8 +226,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 20
+  m_fontSizeBase: 20
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
@@ -302,7 +302,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 115.5}
+  m_AnchoredPosition: {x: 0, y: 142}
   m_SizeDelta: {x: 0, y: -389}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8790076360121616577
@@ -349,7 +349,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 121}
+  m_AnchoredPosition: {x: 0, y: 176.7}
   m_SizeDelta: {x: 200, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5629613627916440745
@@ -759,7 +759,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 42d9b56e5eb190c42a7241ac85f90e80, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 71be800ac462fde47949f05ee169ec7a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -791,21 +791,21 @@ MonoBehaviour:
   descriptionBackgroundImage: {fileID: 0}
   selectionButtonImage: {fileID: 0}
   bottomEmblemImage: {fileID: 0}
-  generalCardBackgroundSprite: {fileID: 21300000, guid: f7e25b6221c71f1468147e2029043bf0, type: 3}
+  generalCardBackgroundSprite: {fileID: 21300000, guid: 71be800ac462fde47949f05ee169ec7a, type: 3}
   generalIconFrameSprite: {fileID: 0}
   generalBottomEmblemSprite: {fileID: 0}
-  specialCardBackgroundSprite: {fileID: 21300000, guid: 910065ddbcc71114283083f31b565b15, type: 3}
+  specialCardBackgroundSprite: {fileID: 21300000, guid: 973c36ad295d2e2438311d345e4b2674, type: 3}
   specialIconFrameSprite: {fileID: 0}
   specialBottomEmblemSprite: {fileID: 0}
-  legendaryCardBackgroundSprite: {fileID: 21300000, guid: 867ac2b57edc2eb49a0e060f8e87d7cd, type: 3}
+  legendaryCardBackgroundSprite: {fileID: 21300000, guid: 55bcb625e283960489002dbcebeb50ee, type: 3}
   legendaryIconFrameSprite: {fileID: 0}
   legendaryBottomEmblemSprite: {fileID: 0}
-  generalNameColor: {r: 0.75, g: 0.9, b: 1, a: 1}
-  specialNameColor: {r: 0.9, g: 0.65, b: 1, a: 1}
-  legendaryNameColor: {r: 1, g: 0.82, b: 0.35, a: 1}
-  generalDescriptionColor: {r: 1, g: 1, b: 1, a: 1}
-  specialDescriptionColor: {r: 1, g: 1, b: 1, a: 1}
-  legendaryDescriptionColor: {r: 1, g: 1, b: 1, a: 1}
+  generalNameColor: {r: 0, g: 0, b: 0, a: 1}
+  specialNameColor: {r: 0, g: 0, b: 0, a: 1}
+  legendaryNameColor: {r: 0, g: 0, b: 0, a: 1}
+  generalDescriptionColor: {r: 0, g: 0, b: 0, a: 1}
+  specialDescriptionColor: {r: 0, g: 0, b: 0, a: 1}
+  legendaryDescriptionColor: {r: 0, g: 0, b: 0, a: 1}
   generalButtonColor: {r: 0.25, g: 0.55, b: 0.9, a: 1}
   specialButtonColor: {r: 0.55, g: 0.25, b: 0.85, a: 1}
   legendaryButtonColor: {r: 0.95, g: 0.45, b: 0.1, a: 1}
@@ -885,8 +885,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -6.2}
-  m_SizeDelta: {x: 220, y: 220}
+  m_AnchoredPosition: {x: 0, y: -10.4}
+  m_SizeDelta: {x: 180, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5629613628922674392
 CanvasRenderer:
@@ -1056,7 +1056,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 42d9b56e5eb190c42a7241ac85f90e80, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 71be800ac462fde47949f05ee169ec7a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

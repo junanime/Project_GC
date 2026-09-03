@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: "\uBB3C\uD30C\uC2A4"
   itemRarity: 0
-  itemTag: 0
+  itemTag: 1
   description: "\uCE58\uBA85\uD0C0 \uD655\uB960 +4%"
   itemIcon: {fileID: 21300000, guid: 985e682549aeef04295234f40386f513, type: 3}
   cost: 25

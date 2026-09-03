@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Default Chest
   m_EditorClassIdentifier: 
   abilityChest: 0
-  closedChest: {fileID: 56875098, guid: 47d8a91e3026e405a96bac590c863934, type: 3}
-  openingChest: {fileID: -1761747347, guid: 47d8a91e3026e405a96bac590c863934, type: 3}
-  openChest: {fileID: -369494663, guid: 47d8a91e3026e405a96bac590c863934, type: 3}
+  closedChest: {fileID: 21300000, guid: 7d1fac3f4f4fd6d439975fbcaaa2c9fb, type: 3}
+  openingChest: {fileID: 21300000, guid: 753aa6a2d0793364ebcb51b8579f9ded, type: 3}
+  openChest: {fileID: 21300000, guid: 12bcb2ff88d3b0344a22086b5a450328, type: 3}
   lootTable:
     lootTable:
     - item: {fileID: 1437905727660197986, guid: abf49d6cb814647109c1773c37109e8e, type: 3}

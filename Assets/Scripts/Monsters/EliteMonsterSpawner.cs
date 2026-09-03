@@ -8,12 +8,12 @@ namespace Vampire
     //
     // 핵심 구조:
     // 1. ManualFlatIndexPool 모드
-    //    - 기존 방식처럼 Elite Monster Flat Indices에서 랜덤으로 엘리트 선택
+    // - 기존 방식처럼 Elite Monster Flat Indices에서 랜덤으로 엘리트 선택
     //
     // 2. FollowNormalSpawnTable 모드
-    //    - 현재 Level 1의 일반 몬스터 스폰 테이블에서 먼저 일반 몬스터 flat index를 뽑음
-    //    - Normal To Elite Mappings에 등록된 대응 관계를 보고 엘리트 flat index로 변환
-    //    - 결과적으로 "현재 시간대에 많이 나오는 일반 몬스터의 엘리트"가 더 자주 등장함
+    // - 현재 Level 1의 일반 몬스터 스폰 테이블에서 먼저 일반 몬스터 flat index를 뽑음
+    // - Normal To Elite Mappings에 등록된 대응 관계를 보고 엘리트 flat index로 변환
+    // - 결과적으로 "현재 시간대에 많이 나오는 일반 몬스터의 엘리트"가 더 자주 등장함
     public class EliteMonsterSpawner : MonoBehaviour
     {
         public enum EliteSelectionMode
@@ -116,6 +116,13 @@ namespace Vampire
         [Tooltip("스폰된 엘리트가 죽거나 비활성화되었는지 매 프레임 정리합니다.")]
         [SerializeField] private bool cleanupInactiveElitesEveryFrame = true;
 
+        [Header("Mini Stage Guard")]
+        [Tooltip("미니 스테이지 진행 중에는 필드 엘리트 몬스터 스폰을 멈춥니다.")]
+        [SerializeField] private bool blockWhileRunFlowPaused = true;
+
+        [Tooltip("미니 스테이지 때문에 엘리트 스폰이 차단될 때 로그를 출력합니다.")]
+        [SerializeField] private bool logMiniStageBlock = false;
+
         [Header("Spawn Phases")]
         [SerializeField] private EliteSpawnPhase[] spawnPhases;
 
@@ -132,7 +139,6 @@ namespace Vampire
 
         private float[] phaseTimers;
         private bool[] phaseStarted;
-
         private bool ready = false;
 
         private void Awake()
@@ -196,11 +202,22 @@ namespace Vampire
             }
 
             ready = true;
+
             EnsureRuntimeArrays();
 
             if (cleanupInactiveElitesEveryFrame)
             {
                 CleanupActiveElites();
+            }
+
+            if (IsMiniStageSpawnBlocked())
+            {
+                if (logMiniStageBlock)
+                {
+                    Debug.Log("[EliteMonsterSpawner] 미니 스테이지 진행 중이라 엘리트 스폰 타이머를 멈춥니다.", this);
+                }
+
+                return;
             }
 
             float currentTime = levelManager.CurrentLevelTime;
@@ -296,6 +313,16 @@ namespace Vampire
 
         private void TrySpawnFromPhase(EliteSpawnPhase phase)
         {
+            if (IsMiniStageSpawnBlocked())
+            {
+                if (logMiniStageBlock)
+                {
+                    Debug.Log("[EliteMonsterSpawner] 미니 스테이지 진행 중이라 엘리트 즉시 스폰을 막았습니다.", this);
+                }
+
+                return;
+            }
+
             if (!ready)
             {
                 if (debugLog)
@@ -309,7 +336,6 @@ namespace Vampire
             CleanupActiveElites();
 
             int currentAlive = activeElites.Count;
-
             int globalCapacity = Mathf.Max(0, globalMaxAliveElites - currentAlive);
             int phaseCapacity = Mathf.Max(0, phase.maxAliveInPhase - currentAlive);
             int finalCapacity = Mathf.Min(globalCapacity, phaseCapacity);
@@ -320,7 +346,7 @@ namespace Vampire
                 {
                     Debug.Log(
                         $"[EliteMonsterSpawner] 스폰 생략 | Phase: {phase.phaseName} | " +
-                        $"Alive: {currentAlive} | GlobalMax: {globalMaxAliveElites} | PhaseMax: {phase.maxAliveInPhase}",
+                        $"GlobalCapacity: {globalCapacity} | PhaseCapacity: {phaseCapacity} | Active: {currentAlive}",
                         this
                     );
                 }
@@ -330,29 +356,27 @@ namespace Vampire
 
             int minCount = Mathf.Max(1, phase.minSpawnCount);
             int maxCount = Mathf.Max(minCount, phase.maxSpawnCount);
+            int spawnCount = Random.Range(minCount, maxCount + 1);
+            spawnCount = Mathf.Min(spawnCount, finalCapacity);
 
-            int requestedSpawnCount = Random.Range(minCount, maxCount + 1);
-            int spawnCount = Mathf.Min(requestedSpawnCount, finalCapacity);
-
-            int spawnedCount = 0;
             HashSet<int> selectedEliteIndicesThisWave = new HashSet<int>();
+            int spawnedCount = 0;
 
             for (int i = 0; i < spawnCount; i++)
             {
-                int selectedEliteFlatIndex;
+                if (IsMiniStageSpawnBlocked())
+                {
+                    return;
+                }
 
-                bool selected = TrySelectEliteFlatIndex(
-                    phase,
-                    selectedEliteIndicesThisWave,
-                    out selectedEliteFlatIndex
-                );
+                int eliteFlatIndex;
 
-                if (!selected)
+                if (!TrySelectEliteFlatIndex(phase, selectedEliteIndicesThisWave, out eliteFlatIndex))
                 {
                     if (debugLog)
                     {
                         Debug.LogWarning(
-                            $"[EliteMonsterSpawner] 엘리트 선택 실패 | Phase: {phase.phaseName} | Mode: {phase.selectionMode}",
+                            $"[EliteMonsterSpawner] 엘리트 후보 선택 실패 | Phase: {phase.phaseName}",
                             this
                         );
                     }
@@ -360,10 +384,10 @@ namespace Vampire
                     continue;
                 }
 
-                selectedEliteIndicesThisWave.Add(selectedEliteFlatIndex);
+                selectedEliteIndicesThisWave.Add(eliteFlatIndex);
 
                 Monster spawnedElite = TrySpawnEliteByFlatIndex(
-                    selectedEliteFlatIndex,
+                    eliteFlatIndex,
                     phase.additionalHpBuff
                 );
 
@@ -585,6 +609,11 @@ namespace Vampire
 
         private Monster TrySpawnEliteByFlatIndex(int flatIndex, float additionalHpBuff)
         {
+            if (IsMiniStageSpawnBlocked())
+            {
+                return null;
+            }
+
             FlatMonsterEntry entry;
 
             if (!TryGetFlatMonsterEntry(flatIndex, out entry))
@@ -745,6 +774,26 @@ namespace Vampire
             }
 
             return false;
+        }
+
+        private bool IsMiniStageSpawnBlocked()
+        {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return true;
+            }
+
+            if (!blockWhileRunFlowPaused)
+            {
+                return false;
+            }
+
+            if (levelManager == null)
+            {
+                ResolveReferences();
+            }
+
+            return levelManager != null && levelManager.IsRunFlowPaused;
         }
 
         private void OnEliteKilled(Monster killedMonster)

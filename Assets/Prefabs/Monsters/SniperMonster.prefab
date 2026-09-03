@@ -189,7 +189,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 917104541, guid: eca16508fe74f4f5fa8d6de6667f30c4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0c2884b107302c44897959cf3aa32fda, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -330,6 +330,7 @@ MonoBehaviour:
   deathParticles: {fileID: 7790484987453093343}
   shadow: {fileID: 5780809235177417232}
   projectileSpawnPosition: {fileID: 7505372799654811089}
+  debugSniperMonster: 1
 --- !u!1001 &2836955108497938538
 PrefabInstance:
   m_ObjectHideFlags: 0

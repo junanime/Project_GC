@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7378740072262091319
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3303242751642225015}
+  - component: {fileID: -5175061104896079071}
+  m_Layer: 9
+  m_Name: Ability_Syringe_LegendaryConditionalSpecial
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &3303242751642225015
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7378740072262091319}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-5175061104896079071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7378740072262091319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e3d95cd083747c47b2ddd4f7a4e08af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  image: {fileID: 0}
+  localizedName:
+    m_TableReference:
+      m_TableCollectionName: GUID:7293f9ffd63774eb1b5120a3e14cb7f5
+    m_TableEntryReference:
+      m_KeyId: 292400886399160320
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  localizedDescription:
+    m_TableReference:
+      m_TableCollectionName: GUID:7293f9ffd63774eb1b5120a3e14cb7f5
+    m_TableEntryReference:
+      m_KeyId: 292400888429203456
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  rarity: 15
+  augmentTier: 1
+  canAppearAsOwnedUpgrade: 1
+  debugLog: 1
+  sourceIconEntries:
+  - legendaryType: 0
+    sourceAbility: {fileID: -3629666374954996886, guid: b8ae7f34be6ce7e4ba50ea2d283dac2e, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 1
+    sourceAbility: {fileID: 3020181257210482451, guid: 43e4dc6239cc60f4d8e9440eceb849e2, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 2
+    sourceAbility: {fileID: 3020181257210482451, guid: 1528d3a995fc76e498100e9c9aaaecde, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 3
+    sourceAbility: {fileID: 3020181257210482451, guid: 533d819dd06174a4c9bedfe7a5c71a8c, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 4
+    sourceAbility: {fileID: 3020181257210482451, guid: 228f48811db777343bb38c3419605e4a, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 5
+    sourceAbility: {fileID: -3629666374954996886, guid: 815cbaf089418254db0f6bf31736024c, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 7
+    sourceAbility: {fileID: -3629666374954996886, guid: a805b7866d315e04cb53d5837ff1410b, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 8
+    sourceAbility: {fileID: 3020181257210482451, guid: b336b244bd7fe1241b70b8cd7bddbcb1, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 9
+    sourceAbility: {fileID: 3020181257210482451, guid: 0f58f76faaa588040b6f8d4c5f4b0438, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 10
+    sourceAbility: {fileID: 3020181257210482451, guid: 8eb4577e53f90e8459233d8e2a71cec7, type: 3}
+    fallbackSprite: {fileID: 0}
+  - legendaryType: 11
+    sourceAbility: {fileID: 3020181257210482451, guid: 72d1d2b468d800b45a221401c953df9d, type: 3}
+    fallbackSprite: {fileID: 0}
+  references:
+    version: 2
+    RefIds: []

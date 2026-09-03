@@ -138,17 +138,40 @@ namespace Vampire
             public List<EventStartTimeRange> startTimeRanges = new List<EventStartTimeRange>();
 
             [Header("Acid Puddle")]
+            [Tooltip("위산 바닥 프리팹입니다.")]
             public GameObject acidPuddlePrefab;
+
+            [Tooltip("위산 바닥 생성 간격입니다.")]
             public float puddleSpawnInterval = 1f;
+
+            [Tooltip("한 번 생성될 때 몇 개의 위산 바닥을 만들지 정합니다.")]
             public int puddlesPerWave = 3;
+
+            [Tooltip("동시에 존재할 수 있는 위산 바닥 최대 개수입니다.")]
             public int maxActivePuddles = 12;
+
+            [Tooltip("플레이어 기준 최소 생성 거리입니다.")]
             public float minSpawnDistanceFromPlayer = 1.2f;
+
+            [Tooltip("플레이어 기준 최대 생성 거리입니다.")]
             public float maxSpawnDistanceFromPlayer = 6f;
+
+            [Tooltip("위산 바닥이 유지되는 시간입니다.")]
             public float puddleLifeTime = 6f;
+
+            [Tooltip("위산 바닥이 틱마다 주는 데미지입니다.")]
             public float puddleDamagePerTick = 3f;
+
+            [Tooltip("위산 바닥 데미지 틱 간격입니다.")]
             public float puddleTickInterval = 0.5f;
+
+            [Tooltip("위산 바닥 크기입니다.")]
             public float puddleScale = 1.6f;
+
+            [Tooltip("위산 바닥 생성 후 데미지가 활성화되기 전 경고 시간입니다.")]
             public float puddleWarningDuration = 0.4f;
+
+            [Tooltip("체크하면 플레이어가 위산 바닥에 들어간 즉시 데미지를 받습니다.")]
             public bool damageImmediatelyOnEnter = false;
 
             [Header("Acid Slime Spawn")]
@@ -165,7 +188,10 @@ namespace Vampire
             public float acidSlimeHpMultiplier = 1f;
 
             [Header("Reward")]
+            [Tooltip("위산분비 이벤트 종료 시 보상을 지급할지 여부입니다.")]
             public bool rewardOnEnd = true;
+
+            [Tooltip("위산분비 이벤트 종료 보상으로 임시 아이템 보상용 상자를 생성할지 여부입니다.")]
             public bool spawnChestAsTemporaryItemReward = true;
 
             [Header("Runtime")]
@@ -185,6 +211,9 @@ namespace Vampire
 
         [Tooltip("이벤트 시작 알림 UI입니다.")]
         [SerializeField] private StageEventToastUI eventToastUI;
+
+        [Tooltip("위산분비 이벤트 중 화면 전체에 녹색 위산비를 뿌리는 VFX 컨트롤러입니다. 비워두면 씬에서 자동으로 찾습니다.")]
+        [SerializeField] private global::AcidRainScreenVFXController acidRainScreenVFX;
 
         [Header("UI Message")]
         [Tooltip("{0} 위치에 이벤트 이름이 들어갑니다.")]
@@ -206,6 +235,8 @@ namespace Vampire
         [SerializeField] private bool logGoldRushModifier = false;
         [SerializeField] private bool logAcidEvent = false;
 
+        private int activeAcidRainEventCount;
+
         private void Start()
         {
             if (levelManager == null)
@@ -217,6 +248,8 @@ namespace Vampire
             {
                 eventToastUI = FindObjectOfType<StageEventToastUI>();
             }
+
+            FindAcidRainVFXIfNeeded();
 
             PrepareAllEvents();
 
@@ -255,6 +288,13 @@ namespace Vampire
 
         private void PrepareAllEvents()
         {
+            activeAcidRainEventCount = 0;
+
+            if (acidRainScreenVFX != null)
+            {
+                acidRainScreenVFX.StopImmediately();
+            }
+
             foreach (MonsterSurgeEvent surgeEvent in monsterSurgeEvents)
             {
                 if (surgeEvent == null)
@@ -384,7 +424,10 @@ namespace Vampire
             {
                 surgeEvent.started = true;
                 surgeEvent.spawnAccumulator = 0f;
+
                 ShowEventStartedUI(surgeEvent.eventName);
+
+                
 
                 if (logEventState)
                 {
@@ -414,7 +457,6 @@ namespace Vampire
         {
             float baseSpawnRate = levelManager.GetCurrentBaseMonsterSpawnRate();
             float referenceSpawnRate = Mathf.Max(baseSpawnRate, surgeEvent.minimumReferenceSpawnRate);
-
             float extraMultiplier = Mathf.Max(0f, surgeEvent.spawnMultiplier - 1f);
             float extraSpawnRate = referenceSpawnRate * extraMultiplier;
 
@@ -455,8 +497,10 @@ namespace Vampire
             if (!goldRushEvent.started)
             {
                 goldRushEvent.started = true;
+
                 ShowEventStartedUI(goldRushEvent.eventName);
 
+                
                 if (logEventState)
                 {
                     Debug.Log(
@@ -504,7 +548,12 @@ namespace Vampire
                 acidEvent.started = true;
                 acidEvent.puddleSpawnTimer = 0f;
                 acidEvent.acidSlimeAccumulator = 0f;
+
+                PlayAcidRainVFX();
+
                 ShowEventStartedUI(acidEvent.eventName);
+
+               
 
                 if (logEventState)
                 {
@@ -518,6 +567,8 @@ namespace Vampire
             if (currentTime >= acidEvent.EndTime)
             {
                 acidEvent.finished = true;
+
+                StopAcidRainVFX();
 
                 if (logEventState)
                 {
@@ -597,6 +648,14 @@ namespace Vampire
                 );
             }
 
+            // 위산 웅덩이 GameObject가 실제 생성된 순간
+            // 웅덩이 하나당 1회 재생합니다.
+            if (puddleObject != null)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.AcidPuddleSpawn
+                );
+            }
             if (logAcidEvent)
             {
                 Debug.Log($"[StageEvent] Acid puddle spawned at {spawnPosition}");
@@ -605,8 +664,7 @@ namespace Vampire
 
         private void TickAcidSlimeSpawn(AcidSecretionEvent acidEvent)
         {
-            if (acidEvent.acidSlimeMonsterIndices == null ||
-                acidEvent.acidSlimeMonsterIndices.Count == 0)
+            if (acidEvent.acidSlimeMonsterIndices == null || acidEvent.acidSlimeMonsterIndices.Count == 0)
             {
                 return;
             }
@@ -617,8 +675,7 @@ namespace Vampire
                 acidEvent.acidSlimeMinimumReferenceSpawnRate
             );
 
-            float extraSpawnRate =
-                referenceSpawnRate * Mathf.Max(0f, acidEvent.acidSlimeExtraSpawnMultiplier);
+            float extraSpawnRate = referenceSpawnRate * Mathf.Max(0f, acidEvent.acidSlimeExtraSpawnMultiplier);
 
             if (extraSpawnRate <= 0f)
             {
@@ -659,7 +716,9 @@ namespace Vampire
                 randomDirection = Vector2.up;
             }
 
-            float distance = Random.Range(minDistance, maxDistance);
+            float safeMinDistance = Mathf.Max(0f, minDistance);
+            float safeMaxDistance = Mathf.Max(safeMinDistance, maxDistance);
+            float distance = Random.Range(safeMinDistance, safeMaxDistance);
 
             return playerCharacter.transform.position + (Vector3)(randomDirection * distance);
         }
@@ -671,9 +730,7 @@ namespace Vampire
                 return;
             }
 
-            if (levelManager == null ||
-                levelManager.EntityManager == null ||
-                levelManager.CurrentLevelBlueprint == null)
+            if (levelManager == null || levelManager.EntityManager == null || levelManager.CurrentLevelBlueprint == null)
             {
                 Debug.LogWarning("[StageEvent] 위산분비 보상 지급 실패: LevelManager 정보가 비어 있습니다.");
                 return;
@@ -706,11 +763,21 @@ namespace Vampire
 
         private void ShowEventStartedUI(string eventName)
         {
-            string safeEventName = string.IsNullOrEmpty(eventName)
-                ? "스테이지"
-                : eventName;
+            string safeEventName =
+                string.IsNullOrEmpty(eventName)
+                    ? "스테이지"
+                    : eventName;
 
-            string message = string.Format(eventStartMessageFormat, safeEventName);
+            string message =
+                string.Format(
+                    eventStartMessageFormat,
+                    safeEventName
+                );
+
+            // 기존 필드 이벤트도 모두 동일한 시작 효과음을 사용합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.FieldEventStart
+            );
 
             if (eventToastUI != null)
             {
@@ -719,8 +786,61 @@ namespace Vampire
 
             if (logEventState)
             {
-                Debug.Log($"[StageEvent UI] {message}");
+                Debug.Log(
+                    $"[StageEvent UI] {message}"
+                );
             }
+        }
+
+        private void FindAcidRainVFXIfNeeded()
+        {
+            if (acidRainScreenVFX != null)
+            {
+                return;
+            }
+
+            acidRainScreenVFX = FindObjectOfType<global::AcidRainScreenVFXController>();
+        }
+
+        private void PlayAcidRainVFX()
+        {
+            activeAcidRainEventCount = Mathf.Max(0, activeAcidRainEventCount) + 1;
+
+            FindAcidRainVFXIfNeeded();
+
+            if (acidRainScreenVFX == null)
+            {
+                if (logAcidEvent)
+                {
+                    Debug.LogWarning("[StageEvent] AcidRainScreenVFXController를 찾지 못했습니다. 위산비 VFX는 재생되지 않습니다.");
+                }
+
+                return;
+            }
+
+            if (activeAcidRainEventCount == 1)
+            {
+                acidRainScreenVFX.PlayRain();
+            }
+        }
+
+        private void StopAcidRainVFX()
+        {
+            activeAcidRainEventCount = Mathf.Max(0, activeAcidRainEventCount - 1);
+
+            if (activeAcidRainEventCount > 0)
+            {
+                return;
+            }
+
+            FindAcidRainVFXIfNeeded();
+
+            if (acidRainScreenVFX == null)
+            {
+                return;
+            }
+
+            acidRainScreenVFX.StopRain();
         }
 
         [ContextMenu("Reset Stage Events Runtime")]
@@ -745,6 +865,16 @@ namespace Vampire
             }
 
             StageEventRuntimeModifiers.ResetCoinModifiers();
+
+            activeAcidRainEventCount = 0;
+
+            FindAcidRainVFXIfNeeded();
+
+            if (acidRainScreenVFX != null)
+            {
+                acidRainScreenVFX.StopImmediately();
+            }
+
             PrepareAllEvents();
 
             Debug.Log("[StageEvent] Runtime reset complete.");

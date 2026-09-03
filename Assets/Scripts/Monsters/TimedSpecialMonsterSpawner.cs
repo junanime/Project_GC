@@ -34,7 +34,7 @@ namespace Vampire
         public class TimedSpawnEntry
         {
             [Header("Entry Mode")]
-            [Tooltip("Timed Spawn: 저격수, 미니보스처럼 특정 시간 또는 랜덤 시간대에 스폰합니다. Trap Field Maintain: 함정 몬스터처럼 필드에 일정 수를 유지합니다.")]
+            [Tooltip("Timed Spawn: 저격수, 미니보스처럼 특정 시간 또는 랜덤 시간대에 스폰합니다.\nTrap Field Maintain: 함정 몬스터처럼 필드에 일정 수를 유지합니다.")]
             public SpecialSpawnMode specialSpawnMode = SpecialSpawnMode.TimedSpawn;
 
             [Tooltip("디버그용 이름입니다. 예: 2~3분 저격수 랜덤 스폰 / 함정 몬스터 필드 유지")]
@@ -47,7 +47,7 @@ namespace Vampire
             [Tooltip("autoResolvePoolIndex가 꺼져 있을 때만 사용하는 수동 poolIndex입니다.")]
             public int monsterPoolIndex = 4;
 
-            [Tooltip("스폰할 몬스터 블루프린트입니다. 저격수면 Sniper Monster Blueprint, 함정이면 Trap Monster Blueprint를 넣어주세요.")]
+            [Tooltip("스폰할 몬스터 블루프린트입니다.\n저격수면 Sniper Monster Blueprint, 함정이면 Trap Monster Blueprint를 넣어주세요.")]
             public MonsterBlueprint monsterBlueprint;
 
             [Tooltip("추가 HP 보정값입니다. 보통 0으로 둡니다.")]
@@ -57,7 +57,7 @@ namespace Vampire
             [Tooltip("Exact Time: 지정한 시간에 스폰합니다. Random Time Window: 시작 시간과 종료 시간 사이의 랜덤한 시간에 스폰합니다.")]
             public SpawnTimeMode spawnTimeMode = SpawnTimeMode.ExactTime;
 
-            [Tooltip("Exact Time 모드일 때 사용합니다. 게임 시작 후 몇 초에 스폰할지 설정합니다. 예: 150 = 2분 30초")]
+            [Tooltip("Exact Time 모드일 때 사용합니다. 게임 시작 후 몇 초에 스폰할지 설정합니다.\n예: 150 = 2분 30초")]
             public float spawnTimeSeconds = 150f;
 
             [Tooltip("Random Time Window 모드일 때 사용합니다. 이 시간부터 랜덤 스폰 후보가 됩니다. 예: 120 = 2분")]
@@ -70,7 +70,7 @@ namespace Vampire
             public int randomEventCount = 1;
 
             [Header("Timed Spawn - Count")]
-            [Tooltip("Fixed Count: 고정 마릿수 스폰. Random Range: 최소~최대 사이 랜덤 마릿수 스폰.")]
+            [Tooltip("Fixed Count: 고정 마릿수 스폰.\nRandom Range: 최소~최대 사이 랜덤 마릿수 스폰.")]
             public SpawnCountMode spawnCountMode = SpawnCountMode.FixedCount;
 
             [Tooltip("Fixed Count 모드일 때 사용합니다. 한 번 스폰 이벤트가 발생할 때 몇 마리를 스폰할지 설정합니다.")]
@@ -82,14 +82,14 @@ namespace Vampire
             [Tooltip("Random Range 모드일 때 사용합니다. 한 번 스폰 이벤트가 발생할 때 스폰될 최대 마릿수입니다.")]
             public int randomMaxSpawnCount = 3;
 
-            [Tooltip("여러 마리를 스폰할 때 한 마리씩 나오는 간격입니다. 0이면 동시에 스폰됩니다.")]
+            [Tooltip("여러 마리를 스폰할 때 한 마리씩 나오는 간격입니다.\n0이면 동시에 스폰됩니다.")]
             public float intervalBetweenSpawns = 0.15f;
 
             [Header("Trap Field Maintain - Start")]
             [Tooltip("Trap Field Maintain 모드일 때 사용합니다. 체크하면 게임 시작 후 바로 함정을 최대 개수만큼 배치합니다.")]
             public bool trapSpawnOnStart = true;
 
-            [Tooltip("trapSpawnOnStart가 꺼져 있을 때 사용합니다. 게임 시작 후 몇 초에 함정 필드 유지 기능을 시작할지 설정합니다.")]
+            [Tooltip("trapSpawnOnStart가 꺼져 있을 때 사용합니다.\n게임 시작 후 몇 초에 함정 필드 유지 기능을 시작할지 설정합니다.")]
             public float trapActivateTimeSeconds = 0f;
 
             [Tooltip("함정 필드 유지 기능이 시작될 때 즉시 최대 개수만큼 함정을 스폰합니다.")]
@@ -134,12 +134,19 @@ namespace Vampire
         }
 
         [Header("References")]
-        [Tooltip("씬에 있는 LevelManager를 넣어주세요. 비워두면 자동으로 찾습니다.")]
+        [Tooltip("씬에 있는 LevelManager를 넣어주세요.\n비워두면 자동으로 찾습니다.")]
         [SerializeField] private LevelManager levelManager;
 
         [Header("Schedule")]
-        [Tooltip("특수 몬스터 스폰 테이블입니다. 저격수는 Timed Spawn, 함정은 Trap Field Maintain 모드로 추가하면 됩니다.")]
+        [Tooltip("특수 몬스터 스폰 테이블입니다.\n저격수는 Timed Spawn, 함정은 Trap Field Maintain 모드로 추가하면 됩니다.")]
         [SerializeField] private TimedSpawnEntry[] spawnEntries;
+
+        [Header("Mini Stage Guard")]
+        [Tooltip("미니 스테이지 진행 중에는 시간표 특수 몬스터와 함정 몬스터 스폰을 멈춥니다.")]
+        [SerializeField] private bool blockWhileRunFlowPaused = true;
+
+        [Tooltip("미니 스테이지 때문에 스폰이 차단될 때 로그를 출력합니다.")]
+        [SerializeField] private bool logMiniStageBlock = false;
 
         [Header("Debug")]
         [Tooltip("체크하면 특수 몬스터 스폰 시간표 계산, 스폰 성공, 오류 로그를 Console에 출력합니다.")]
@@ -189,6 +196,16 @@ namespace Vampire
                 }
             }
 
+            if (IsMiniStageSpawnBlocked())
+            {
+                if (logMiniStageBlock)
+                {
+                    Debug.Log("[TimedSpecialMonsterSpawner] 미니 스테이지 진행 중이라 특수 몬스터 스폰 타이머를 멈춥니다.", this);
+                }
+
+                return;
+            }
+
             elapsedTime += Time.deltaTime;
 
             UpdateTimedSpawnEvents();
@@ -202,7 +219,6 @@ namespace Vampire
         public void ResetSpawnerRuntime()
         {
             StopAllCoroutines();
-
             RemoveAllTrapListeners();
 
             elapsedTime = 0f;
@@ -406,7 +422,7 @@ namespace Vampire
                 if (entityManager == null)
                 {
                     Debug.LogWarning(
-                        "[TimedSpecialMonsterSpawner] EntityManager를 아직 찾지 못했습니다. LevelManager 연결을 확인하세요.",
+                        "[TimedSpecialMonsterSpawner] EntityManager를 아직 찾지 못했습니다.\nLevelManager 연결을 확인하세요.",
                         this
                     );
                 }
@@ -430,7 +446,7 @@ namespace Vampire
                 if (entityManager != null && spawnMonsterMethod == null)
                 {
                     Debug.LogWarning(
-                        "[TimedSpecialMonsterSpawner] EntityManager의 SpawnMonster 메서드를 찾지 못했습니다. 함정 몬스터 위치 지정 스폰이 불가능합니다.",
+                        "[TimedSpecialMonsterSpawner] EntityManager의 SpawnMonster 메서드를 찾지 못했습니다.\n함정 몬스터 위치 지정 스폰이 불가능합니다.",
                         this
                     );
                 }
@@ -439,6 +455,8 @@ namespace Vampire
 
         private IEnumerator SpawnTimedEventRoutine(RuntimeTimedSpawnEvent runtimeEvent)
         {
+            yield return WaitUntilMiniStageUnblocked();
+
             if (runtimeEvent == null || runtimeEvent.entry == null)
             {
                 yield break;
@@ -474,6 +492,8 @@ namespace Vampire
 
             for (int i = 0; i < count; i++)
             {
+                yield return WaitUntilMiniStageUnblocked();
+
                 Monster monster = entityManager.SpawnMonsterRandomPosition(
                     resolvedPoolIndex,
                     entry.monsterBlueprint,
@@ -493,13 +513,23 @@ namespace Vampire
 
                 if (entry.intervalBetweenSpawns > 0f && i < count - 1)
                 {
-                    yield return new WaitForSeconds(entry.intervalBetweenSpawns);
+                    yield return WaitSecondsRespectingMiniStagePause(entry.intervalBetweenSpawns);
                 }
             }
         }
 
         private void ActivateTrapField(RuntimeTrapFieldState state)
         {
+            if (IsMiniStageSpawnBlocked())
+            {
+                if (logMiniStageBlock)
+                {
+                    Debug.Log("[TimedSpecialMonsterSpawner] 미니 스테이지 진행 중이라 Trap Field 활성화를 막았습니다.", this);
+                }
+
+                return;
+            }
+
             if (state == null || state.entry == null)
             {
                 return;
@@ -536,7 +566,7 @@ namespace Vampire
                 if (debugLog)
                 {
                     Debug.Log(
-                        $"[TimedSpecialMonsterSpawner] Spawn Initial Traps On Activate가 꺼져 있어서 초기 함정을 스폰하지 않습니다. Memo: {entry.memo}",
+                        $"[TimedSpecialMonsterSpawner] Spawn Initial Traps On Activate가 꺼져 있어서 초기 함정을 스폰하지 않습니다.\nMemo: {entry.memo}",
                         this
                     );
                 }
@@ -549,7 +579,7 @@ namespace Vampire
             if (targetCount <= 0)
             {
                 Debug.LogWarning(
-                    $"[TimedSpecialMonsterSpawner] Max Active Traps가 0 이하라서 함정을 스폰하지 않습니다. Memo: {entry.memo}",
+                    $"[TimedSpecialMonsterSpawner] Max Active Traps가 0 이하라서 함정을 스폰하지 않습니다.\nMemo: {entry.memo}",
                     this
                 );
 
@@ -583,7 +613,7 @@ namespace Vampire
                 if (spawnMonsterMethod == null)
                 {
                     Debug.LogError(
-                        "[TimedSpecialMonsterSpawner] EntityManager의 SpawnMonster 메서드를 찾지 못했습니다. 함정 몬스터를 지정 위치에 스폰할 수 없습니다.",
+                        "[TimedSpecialMonsterSpawner] EntityManager의 SpawnMonster 메서드를 찾지 못했습니다.\n함정 몬스터를 지정 위치에 스폰할 수 없습니다.",
                         this
                     );
 
@@ -610,7 +640,7 @@ namespace Vampire
             {
                 Debug.LogWarning(
                     $"[TimedSpecialMonsterSpawner] Trap Field Maintain 모드인데 Monster Blueprint가 TrapMonsterBlueprint 타입이 아닙니다. " +
-                    $"그래도 스폰은 시도합니다. Blueprint: {entry.monsterBlueprint.name} | Memo: {entry.memo}",
+                    $"그래도 스폰은 시도합니다.\nBlueprint: {entry.monsterBlueprint.name} | Memo: {entry.memo}",
                     this
                 );
             }
@@ -620,6 +650,16 @@ namespace Vampire
 
         private void SpawnOneTrap(RuntimeTrapFieldState state)
         {
+            if (IsMiniStageSpawnBlocked())
+            {
+                if (logMiniStageBlock)
+                {
+                    Debug.Log("[TimedSpecialMonsterSpawner] 미니 스테이지 진행 중이라 함정 스폰을 막았습니다.", this);
+                }
+
+                return;
+            }
+
             if (state == null || state.entry == null)
             {
                 return;
@@ -641,7 +681,7 @@ namespace Vampire
                 if (debugLog)
                 {
                     Debug.Log(
-                        $"[TimedSpecialMonsterSpawner] 최대 함정 수에 도달해서 함정을 추가 스폰하지 않습니다. " +
+                        $"[TimedSpecialMonsterSpawner] 최대 함정 수에 도달해서 함정을 추가 스폰하지 않습니다.\n" +
                         $"현재 {state.activeTraps.Count}/{maxActiveTraps} | Memo: {entry.memo}",
                         this
                     );
@@ -678,8 +718,8 @@ namespace Vampire
             if (spawnedMonster == null)
             {
                 Debug.LogError(
-                    $"[TimedSpecialMonsterSpawner] 함정 스폰 실패: SpawnMonster 결과가 NULL입니다. " +
-                    $"PoolIndex와 Monster Blueprint 등록 상태를 확인하세요. Memo: {entry.memo}",
+                    $"[TimedSpecialMonsterSpawner] 함정 스폰 실패: SpawnMonster 결과가 NULL입니다.\n" +
+                    $"PoolIndex와 Monster Blueprint 등록 상태를 확인하세요.\nMemo: {entry.memo}",
                     this
                 );
 
@@ -786,9 +826,16 @@ namespace Vampire
             }
 
             float delay = Mathf.Max(0f, state.entry.respawnDelay);
-            yield return new WaitForSeconds(delay);
+
+            yield return WaitSecondsRespectingMiniStagePause(delay);
+            yield return WaitUntilMiniStageUnblocked();
 
             if (state == null || state.entry == null || !state.activated)
+            {
+                yield break;
+            }
+
+            if (IsMiniStageSpawnBlocked())
             {
                 yield break;
             }
@@ -847,6 +894,7 @@ namespace Vampire
             }
 
             float distance = UnityEngine.Random.Range(minDistance, maxDistance);
+
             return playerPosition + direction * distance;
         }
 
@@ -927,7 +975,7 @@ namespace Vampire
             if (entry.monsterBlueprint == null)
             {
                 Debug.LogError(
-                    $"[TimedSpecialMonsterSpawner] Monster Blueprint가 비어 있습니다. Memo: {entry.memo}",
+                    $"[TimedSpecialMonsterSpawner] Monster Blueprint가 비어 있습니다.\nMemo: {entry.memo}",
                     this
                 );
 
@@ -964,7 +1012,7 @@ namespace Vampire
             if (!IsValidPoolIndex(resolvedPoolIndex))
             {
                 Debug.LogError(
-                    $"[TimedSpecialMonsterSpawner] 잘못된 poolIndex입니다. " +
+                    $"[TimedSpecialMonsterSpawner] 잘못된 poolIndex입니다.\n" +
                     $"PoolIndex={resolvedPoolIndex} | " +
                     $"Blueprint={entry.monsterBlueprint.name} | " +
                     $"Memo={entry.memo}",
@@ -1145,6 +1193,50 @@ namespace Vampire
             int remainSeconds = totalSeconds % 60;
 
             return $"{minutes:00}:{remainSeconds:00}";
+        }
+
+        private bool IsMiniStageSpawnBlocked()
+        {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return true;
+            }
+
+            if (!blockWhileRunFlowPaused)
+            {
+                return false;
+            }
+
+            if (levelManager == null)
+            {
+                ResolveReferences();
+            }
+
+            return levelManager != null && levelManager.IsRunFlowPaused;
+        }
+
+        private IEnumerator WaitUntilMiniStageUnblocked()
+        {
+            while (IsMiniStageSpawnBlocked())
+            {
+                yield return null;
+            }
+        }
+
+        private IEnumerator WaitSecondsRespectingMiniStagePause(float seconds)
+        {
+            float timer = 0f;
+            float targetTime = Mathf.Max(0f, seconds);
+
+            while (timer < targetTime)
+            {
+                if (!IsMiniStageSpawnBlocked())
+                {
+                    timer += Time.deltaTime;
+                }
+
+                yield return null;
+            }
         }
 
         private void RemoveAllTrapListeners()

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 namespace Vampire
 {
@@ -28,6 +29,27 @@ namespace Vampire
         [Tooltip("독침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool poisonEnabled = false;
 
+        [Tooltip("섬유침 활성화 여부입니다. 침이 지나간 자리에 피해 선을 남깁니다.")]
+        [SerializeField] private bool fiberNeedleEnabled = false;
+
+        [Tooltip("부식침 활성화 여부입니다. 적에게 받는 피해 증가 스택을 부여합니다.")]
+        [SerializeField] private bool corrosionNeedleEnabled = false;
+
+        [Tooltip("압력침 활성화 여부입니다. 침이 멀리 날아갈수록 피해가 증가합니다.")]
+        [SerializeField] private bool pressureNeedleEnabled = false;
+
+        [Tooltip("표식침 활성화 여부입니다. 첫 피격 시 표식, 다음 피격 시 추가 피해를 줍니다.")]
+        [SerializeField] private bool markNeedleEnabled = false;
+        [Tooltip("양극침 활성화 여부입니다. 침을 전방과 후방 180도 대칭 방향으로 나누어 발사합니다.")]
+        [SerializeField] private bool bipolarNeedleEnabled = false;
+        [Tooltip("소화액낭침 활성화 여부입니다. 침에 맞은 적이 죽으면 소화액 웅덩이를 생성합니다.")]
+        [SerializeField] private bool digestiveAcidSacNeedleEnabled = false;
+
+        [Tooltip("공복침 활성화 여부입니다. 침 적중 시 일정 시간 공격속도 스택을 얻습니다.")]
+        [SerializeField] private bool hungerNeedleEnabled = false;
+
+        [Tooltip("장내균침 활성화 여부입니다. 침 적중 시 장내균 스택을 쌓고, 일정 스택 이상에서 사망 시 추가 경험치를 생성합니다.")]
+        [SerializeField] private bool gutBacteriaNeedleEnabled = false;
         [Tooltip("폭발침 특수증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool explosionEnabled = false;
 
@@ -53,9 +75,26 @@ namespace Vampire
         [Tooltip("생명연소 전설증강을 테스트용으로 강제 활성화합니다.")]
         [SerializeField] private bool lifeBurnEnabled = false;
 
+        [Tooltip("헝그리정신 전설증강을 테스트용으로 강제 활성화합니다.")]
+        [SerializeField] private bool hungrySpiritEnabled = false;
+
+        [Tooltip("침샷건 전설증강을 테스트용으로 강제 활성화합니다.")]
+        [SerializeField] private bool needleShotgunEnabled = false;
+
         [Tooltip("분신배양 전설증강을 테스트용으로 보유 처리합니다. 실제 분신 생성은 분신배양 전설증강/컨트롤러 쪽 구현을 따릅니다.")]
         [SerializeField] private bool cloneLegendaryTaken = false;
+        [Tooltip("신경차단 전설증강 활성화 여부입니다. 일정 주기로 화면 안 적을 정지시킵니다.")]
+        [SerializeField] private bool neuralBlockEnabled = false;
 
+        [Tooltip("독 전염 전설증강 활성화 여부입니다. 독에 걸린 적 처치 시 주변 적에게 독을 전염시킵니다.")]
+        [SerializeField] private bool poisonContagionEnabled = false;
+        [Tooltip("위산 연동파 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 원형 위산 파동 컨트롤러가 자동 생성됩니다.")]
+        [SerializeField] private bool gastricPeristalsisWaveEnabled = false;
+
+        [Tooltip("점막 요새 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 점막 실드 컨트롤러가 자동 생성됩니다.")]
+        [SerializeField] private bool mucosalFortressEnabled = false;
+        [Tooltip("장기압착 전설증강 활성화 여부입니다. 일정 주기로 적 밀집 구역에 압착장을 생성합니다.")]
+        [SerializeField] private bool organCompressionEnabled = false;
         [Tooltip("고슴도침 전설증강을 테스트용으로 강제 활성화합니다. 플레이 시작 전에 체크하면 Init 시 침 결계 컨트롤러까지 자동 생성됩니다.")]
         [SerializeField] private bool hedgehogNeedleEnabled = false;
 
@@ -80,7 +119,156 @@ namespace Vampire
         [Header("Homing Settings")]
         [SerializeField] private float homingRange = 6f;
         [SerializeField] private float homingLerpSpeed = 8f;
+        [Header("Fiber Needle / 섬유침 Settings")]
+        [Tooltip("섬유침이 남긴 선이 유지되는 시간입니다.")]
+        [SerializeField] private float fiberTrailLifetime = 2f;
 
+        [Tooltip("섬유침 선 위에 있는 적이 1초마다 받는 피해입니다.")]
+        [SerializeField] private float fiberTrailDamagePerSecond = 2f;
+
+        [Tooltip("섬유침 피해가 들어가는 간격입니다. 0.5이면 0.5초마다 damagePerSecond의 절반 피해가 들어갑니다.")]
+        [SerializeField] private float fiberTrailTickInterval = 0.5f;
+
+        [Tooltip("섬유침 선의 두께입니다.")]
+        [SerializeField] private float fiberTrailWidth = 0.12f;
+
+        [Tooltip("침이 이 거리 이상 이동할 때마다 섬유 선분을 하나 생성합니다. 낮을수록 선이 촘촘하지만 오브젝트가 많아집니다.")]
+        [SerializeField] private float fiberTrailMinSegmentDistance = 0.25f;
+
+        [Tooltip("섬유침 선의 색상입니다.")]
+        [SerializeField] private Color fiberTrailColor = new Color(0.75f, 1f, 0.95f, 0.75f);
+        [Header("Digestive Acid Sac Needle / 소화액낭침 Settings")]
+        [Tooltip("소화액낭침 대상이 죽었을 때 생성되는 소화액 웅덩이 유지 시간입니다.")]
+        [SerializeField] private float digestiveAcidPuddleLifetime = 3f;
+
+        [Tooltip("소화액 웅덩이 반경입니다.")]
+        [SerializeField] private float digestiveAcidPuddleRadius = 1.2f;
+
+        [Tooltip("소화액 웅덩이 위 적이 1초마다 받는 피해입니다.")]
+        [SerializeField] private float digestiveAcidPuddleDamagePerSecond = 2f;
+
+        [Tooltip("소화액 웅덩이 피해 간격입니다. 0.5이면 0.5초마다 damagePerSecond의 절반 피해가 들어갑니다.")]
+        [SerializeField] private float digestiveAcidPuddleTickInterval = 0.5f;
+
+        [Tooltip("소화액 웅덩이 색상입니다.")]
+        [SerializeField] private Color digestiveAcidPuddleColor = new Color(0.6f, 1f, 0.15f, 0.75f);
+
+        [Header("Hunger Needle / 공복침 Settings")]
+        [Tooltip("공복침 스택이 유지되는 무적중 허용 시간입니다. 이 시간 동안 몬스터를 맞히지 못하면 모든 공복 스택이 초기화됩니다.")]
+        [SerializeField] private float hungerStackDuration = 3f;
+
+        [Tooltip("공복침 1스택당 공격속도 증가량입니다. 0.04이면 1스택당 4% 증가입니다.")]
+        [SerializeField] private float hungerAttackSpeedBonusPerStack = 0.04f;
+
+        [Tooltip("공복침 최대 중첩 수입니다.")]
+        [SerializeField] private int hungerMaxStacks = 8;
+
+        [Tooltip("체크하면 공복침 스택 로그를 출력합니다.")]
+        [SerializeField] private bool debugHungerNeedle = false;
+
+        [Header("Gut Bacteria Needle / 장내균침 Settings")]
+        [Tooltip("장내균침 스택 지속 시간입니다.")]
+        [SerializeField] private float gutBacteriaStackDuration = 6f;
+
+        [Tooltip("추가 경험치가 생성되기 위해 필요한 장내균 스택 수입니다.")]
+        [SerializeField] private int gutBacteriaRequiredStacks = 3;
+
+        [Tooltip("장내균 최대 중첩 수입니다.")]
+        [SerializeField] private int gutBacteriaMaxStacks = 5;
+
+        [Tooltip("조건 달성 후 몬스터 사망 시 추가 생성되는 경험치 구슬 개수입니다.")]
+        [SerializeField] private int gutBacteriaBonusGemCount = 1;
+
+        [Tooltip("추가 생성되는 경험치 구슬 종류입니다. White1=1, Blue2=2, Green10=10, Red50=50 경험치입니다.")]
+        [SerializeField] private GemType gutBacteriaBonusGemType = GemType.White1;
+
+        [Tooltip("추가 경험치 구슬이 사망 위치 주변에 흩어지는 반경입니다.")]
+        [SerializeField] private float gutBacteriaBonusGemSpawnRadius = 0.35f;
+
+        [Tooltip("체크하면 장내균침 스택/보상 로그를 출력합니다.")]
+        [SerializeField] private bool debugGutBacteria = false;
+        [Header("Corrosion Needle / 부식침 Settings")]
+        [Tooltip("부식침 스택 지속 시간입니다.")]
+        [SerializeField] private float corrosionDuration = 3f;
+
+        [Tooltip("일반 몬스터에게 부식 1스택당 적용되는 받는 피해 증가량입니다. 0.15이면 15%입니다.")]
+        [SerializeField] private float corrosionDamageTakenBonusPerStack = 0.15f;
+
+        [Tooltip("보스 몬스터에게 부식 1스택당 적용되는 받는 피해 증가량입니다. 0.05이면 5%입니다.")]
+        [SerializeField] private float corrosionBossDamageTakenBonusPerStack = 0.05f;
+
+        [Tooltip("부식 최대 중첩 수입니다.")]
+        [SerializeField] private int corrosionMaxStacks = 3;
+
+        [Header("Pressure Needle / 압력침 Settings")]
+        [Tooltip("침이 1유닛 이동할 때마다 증가하는 피해량입니다. 0.08이면 거리 1당 8% 증가합니다.")]
+        [SerializeField] private float pressureDamageBonusPerDistance = 0.08f;
+
+        [Tooltip("압력침 최대 피해 증가량입니다. 0.5이면 최대 50% 증가입니다.")]
+        [SerializeField] private float pressureMaxDamageBonus = 0.5f;
+
+        [Header("Mark Needle / 표식침 Settings")]
+        [Tooltip("표식 지속 시간입니다.")]
+        [SerializeField] private float markDuration = 4f;
+
+        [Tooltip("표식이 있는 적을 다시 맞혔을 때 추가로 더해지는 피해 배율입니다. 0.5이면 현재 피해의 50%가 추가됩니다.")]
+        [SerializeField] private float markBonusDamageMultiplier = 0.5f;
+
+        [Header("Gastric Peristalsis Wave / 위산 연동파")]
+        [Tooltip("위산 연동파가 자동으로 발사되는 주기입니다.")]
+        [SerializeField] private float gastricWaveInterval = 6f;
+
+        [Tooltip("위산 연동파 피해량입니다. 현재 주사기 최종 피해량에 이 배율을 곱합니다.")]
+        [SerializeField] private float gastricWaveDamageMultiplier = 0.75f;
+
+        [Tooltip("위산 연동파 넉백 힘입니다. 현재 주사기 넉백 값에 이 배율을 곱합니다.")]
+        [SerializeField] private float gastricWaveKnockbackMultiplier = 1.4f;
+
+        [Tooltip("위산 연동파가 퍼져나가는 최대 반경입니다.")]
+        [SerializeField] private float gastricWaveMaxRadius = 5.5f;
+
+        [Tooltip("위산 연동파가 최대 반경까지 퍼지는 데 걸리는 시간입니다.")]
+        [SerializeField] private float gastricWaveDuration = 0.65f;
+
+        [Tooltip("위산 연동파 링의 두께입니다. 두꺼울수록 적중 판정이 쉬워집니다.")]
+        [SerializeField] private float gastricWaveThickness = 0.35f;
+
+        [Tooltip("위산 연동파 시각 효과 색상입니다.")]
+        [SerializeField] private Color gastricWaveColor = new Color(0.55f, 1f, 0.15f, 0.65f);
+
+        [Tooltip("위산 연동파 디버그 로그를 출력할지 여부입니다.")]
+        [SerializeField] private bool debugGastricWave = false;
+
+        private GastricPeristalsisWaveController gastricWaveController;
+        private bool gastricWaveRuntimeConfigured = false;
+
+        [Header("Mucosal Fortress / 점막 요새")]
+        [Tooltip("피해를 받지 않고 이 시간이 지나면 점막 실드가 1개 생성됩니다.")]
+        [SerializeField] private float mucosalFortressNoDamageSeconds = 5f;
+
+        [Tooltip("점막 요새 실드의 최대 중첩 수입니다.")]
+        [SerializeField] private int mucosalFortressMaxStacks = 3;
+
+        [Tooltip("점막 요새 실드 시각 효과 색상입니다.")]
+        [SerializeField] private Color mucosalFortressShieldColor = new Color(0.85f, 1f, 0.75f, 0.6f);
+
+        [Tooltip("점막 요새 디버그 로그를 출력할지 여부입니다.")]
+        [SerializeField] private bool debugMucosalFortress = false;
+
+        private MucosalFortressShieldController mucosalFortressController;
+        private bool mucosalFortressRuntimeConfigured = false;
+        [Header("Bipolar Needle / 양극침 Settings")]
+        [Tooltip("양극침 획득 시 추가되는 발사체 개수입니다. 기본값 1이면 현재 총 침 개수에 +1이 적용됩니다.")]
+        [SerializeField] private int bipolarNeedleBonusProjectileCount = 1;
+
+        [Tooltip("반대 방향 침이 몇 도 뒤쪽으로 발사될지 정합니다. 180이면 완전한 전후방 대칭입니다.")]
+        [SerializeField] private float bipolarNeedleBackAngleOffset = 180f;
+
+        [Tooltip("총 발사체 수가 홀수일 때 남는 1발을 전방에 줄지 여부입니다. 체크하면 전방이 1발 더 많아집니다.")]
+        [SerializeField] private bool bipolarNeedleFrontGetsExtraProjectile = true;
+
+        [Tooltip("체크하면 양극침 발사 로그를 출력합니다.")]
+        [SerializeField] private bool debugBipolarNeedle = false;
         [Header("Pierce Settings")]
         [Tooltip("관통침 기본 관통 횟수. 2라면 첫 적중 이후 추가로 2번 더 관통 가능.")]
         [SerializeField] private int pierceCount = 2;
@@ -289,24 +477,209 @@ namespace Vampire
         // 이기어침 + 대물침 조합에서 사용하는 현재 차지율
         private float cursorHeavyChargeRatio = 0f;
 
-        [Header("Legendary - Cursor Controlled Needle / 이기어침")]
-        [Tooltip("마우스 포인트를 따라가는 속도. 높을수록 더 즉각적으로 따라갑니다.")]
-        [SerializeField] private float cursorNeedleFollowSpeed = 8f;
+        [Header("Legendary - Hungry Spirit / 헝그리정신")]
+        [Tooltip("픽업을 먹지 않고 이 시간이 지날 때마다 헝그리정신 스택이 1 증가합니다.")]
+        [SerializeField] private float hungrySpiritStackInterval = 2f;
 
-        [Tooltip("이기어침 피해 판정 반경")]
+        [Tooltip("헝그리정신 최대 스택 수입니다.")]
+        [SerializeField] private int hungrySpiritMaxStacks = 8;
+
+        [Tooltip("헝그리정신 1스택당 공격력 증가량입니다. 0.05 = 5% 증가입니다.")]
+        [SerializeField] private float hungrySpiritDamageBonusPerStack = 0.05f;
+
+        [Tooltip("헝그리정신 1스택당 사거리 증가량입니다. 0.04 = 4% 증가입니다.")]
+        [SerializeField] private float hungrySpiritRangeBonusPerStack = 0.04f;
+
+        [Tooltip("헝그리정신 1스택당 공격속도 증가량입니다. 0.04 = 4% 증가입니다.")]
+        [SerializeField] private float hungrySpiritAttackSpeedBonusPerStack = 0.04f;
+
+        [Tooltip("체크하면 헝그리정신 스택 로그를 출력합니다.")]
+        [SerializeField] private bool debugHungrySpirit = false;
+
+        private HungrySpiritController hungrySpiritController;
+
+        [Header("Legendary - Needle Shotgun / 침샷건")]
+        [Tooltip("침샷건 최대 장전 수입니다. 그레이브즈 방식이지만 4발까지 장전됩니다.")]
+        [SerializeField] private int needleShotgunMaxAmmo = 4;
+
+        [Tooltip("침샷건 1발 장전에 걸리는 시간입니다.")]
+        [SerializeField] private float needleShotgunReloadTime = 0.3f;
+
+        [Tooltip("침샷건 공격 사이의 기본 시간 간격입니다. 공격속도 스탯의 영향을 받습니다.")]
+        [SerializeField] private float needleShotgunAttackInterval = 0.5f;
+
+        [Tooltip("침샷건이 적을 인지하는 반경입니다. 기본 사거리와 같은 3을 추천합니다.")]
+        [SerializeField] private float needleShotgunDetectionRange = 3f;
+
+        [Tooltip("침샷건 투사체의 최대 사거리입니다. 요구사항 기준 3으로 고정합니다.")]
+        [SerializeField] private float needleShotgunFixedRange = 3f;
+
+        [Tooltip("침샷건 발사체 속도 배율입니다. 1.25 = 25% 증가입니다.")]
+        [SerializeField] private float needleShotgunProjectileSpeedMultiplier = 1.25f;
+
+        [Tooltip("침샷건 피해 배율입니다. 1이면 기존 침 피해와 같습니다.")]
+        [SerializeField] private float needleShotgunDamageMultiplier = 1f;
+
+        [Tooltip("침샷건 발사체 1개가 늘어날 때마다 벌어지는 각도입니다.")]
+        [SerializeField] private float needleShotgunAnglePerProjectile = 18f;
+
+        [Tooltip("침샷건 최대 발사각입니다. 요구사항 기준 최대 120도입니다.")]
+        [SerializeField] private float needleShotgunMaxSpreadAngle = 120f;
+
+        [Tooltip("대쉬 시작을 감지하면 장전되는 침 수입니다.")]
+        [SerializeField] private int needleShotgunReloadOnDash = 1;
+
+        [Tooltip("플레이어 머리 위에 침샷건 장전 수를 숫자로 표시할지 여부입니다.")]
+        [SerializeField] private bool showNeedleShotgunAmmoNumber = true;
+
+        [Tooltip("침샷건 장전 숫자가 플레이어 중심에서 위로 떨어지는 거리입니다.")]
+        [SerializeField] private float needleShotgunAmmoTextYOffset = 1.1f;
+
+        [Tooltip("침샷건 장전 숫자 크기입니다.")]
+        [SerializeField] private float needleShotgunAmmoTextFontSize = 3f;
+
+        [Tooltip("침샷건 장전 숫자의 Sorting Order입니다.")]
+        [SerializeField] private int needleShotgunAmmoTextSortingOrder = 200;
+
+        [Tooltip("침샷건 장전 숫자 색상입니다.")]
+        [SerializeField] private Color needleShotgunAmmoTextColor = Color.white;
+
+        [Tooltip("체크하면 침샷건 발사/장전 로그를 출력합니다.")]
+        [SerializeField] private bool debugNeedleShotgun = false;
+
+        private int needleShotgunAmmo;
+        private float needleShotgunReloadTimer;
+        private float needleShotgunAttackTimer;
+        private bool needleShotgunWasDashing;
+        private TextMeshPro needleShotgunAmmoText;
+        [Header("Neural Block / 신경차단 Settings")]
+        [Tooltip("신경차단 발동 주기입니다.")]
+        [SerializeField] private float neuralBlockInterval = 12f;
+
+        [Tooltip("신경차단으로 몬스터가 멈추는 시간입니다.")]
+        [SerializeField] private float neuralBlockFreezeDuration = 1f;
+
+        [Tooltip("화면 가장자리 밖 몬스터까지 살짝 포함할 여유값입니다.")]
+        [SerializeField] private float neuralBlockScreenPadding = 0.08f;
+
+        [Tooltip("체크하면 신경차단 로그를 출력합니다.")]
+        [SerializeField] private bool debugNeuralBlock = false;
+
+        [Header("Poison Contagion / 독 전염 Settings")]
+        [Tooltip("독 전염 범위입니다. 1이면 처치된 몬스터 기준 약 1칸 범위입니다.")]
+        [SerializeField] private float poisonContagionRadius = 1f;
+
+        [Tooltip("전염된 독의 지속시간 배율입니다. 1이면 원래 독 지속시간과 같습니다.")]
+        [SerializeField] private float poisonContagionDurationMultiplier = 1f;
+
+        [Tooltip("전염된 독의 피해 배율입니다. 1이면 원래 독 피해와 같습니다.")]
+        [SerializeField] private float poisonContagionDamageMultiplier = 1f;
+
+        [Tooltip("체크하면 독 전염 로그를 출력합니다.")]
+        [SerializeField] private bool debugPoisonContagion = false;
+
+        [Header("Organ Compression / 장기압착 Settings")]
+        [Tooltip("장기압착장 생성 주기입니다.")]
+        [SerializeField] private float organCompressionInterval = 20f;
+
+        [Tooltip("적 밀집 구역을 계산할 때 사용할 반경입니다.")]
+        [SerializeField] private float organCompressionClusterSearchRadius = 2.5f;
+
+        [Tooltip("장기압착장의 실제 피해/흡입 반경입니다.")]
+        [SerializeField] private float organCompressionFieldRadius = 2f;
+
+        [Tooltip("장기압착장 유지 시간입니다.")]
+        [SerializeField] private float organCompressionFieldDuration = 4f;
+
+        [Tooltip("장기압착장 피해 간격입니다.")]
+        [SerializeField] private float organCompressionDamageTickInterval = 0.5f;
+
+        [Tooltip("장기압착장 1틱당 피해량입니다.")]
+        [SerializeField] private float organCompressionDamagePerTick = 3f;
+
+        [Tooltip("장기압착장이 적을 중앙으로 끌어당기는 속도입니다.")]
+        [SerializeField] private float organCompressionPullSpeed = 2.5f;
+
+        [Tooltip("화면 가장자리 밖 몬스터까지 살짝 포함할 여유값입니다.")]
+        [SerializeField] private float organCompressionScreenPadding = 0.08f;
+
+        [Tooltip("체크하면 장기압착 로그를 출력합니다.")]
+        [SerializeField] private bool debugOrganCompression = false;
+        private NeuralBlockController neuralBlockController;
+        private OrganCompressionController organCompressionController;
+
+        [Header("Legendary - Cursor Controlled Needle / 이기어침")]
+        [Tooltip("이기어침이 가로 8자 무한궤도를 따라 진행하는 기본 속도입니다.")]
+        [SerializeField] private float cursorNeedleFollowSpeed = 2.2f;
+
+        [Header("Cursor Needle Visual / 이기어침 시각 보정")]
+        [Tooltip("이기어침 본체가 비행할 때 사용하는 스프라이트 방향 보정값입니다. 침 날끝이 궤도 접선 방향을 향하도록 맞춥니다.")]
+        [SerializeField] private float cursorNeedleOrbitVisualAngleOffset = 0f;
+
+        [Tooltip("등 뒤에 표시되는 특수증강 침들의 기본 각도입니다. 침 스프라이트 원본 방향에 맞춰 조절하세요.")]
+        [SerializeField] private float cursorNeedleBackDisplayBaseAngle = 90f;
+
+        [Tooltip("등 뒤 부채꼴 침들의 벌어지는 각도 범위입니다.")]
+        [SerializeField] private float cursorNeedleBackDisplaySpreadAngle = 24f;
+
+        [Header("Cursor Needle Orbit Shape / 이기어침 궤도 형태")]
+        [Tooltip("0이면 둥근 8자, 1에 가까울수록 중앙 교차가 좁고 양쪽으로 더 길게 뻗는 8자가 됩니다.")]
+        [SerializeField, Range(0f, 1f)] private float cursorNeedleOrbitStraightness = 0.6f;
+
+        [Tooltip("이기어침 피해 판정 반경입니다.")]
         [SerializeField] private float cursorNeedleHitRadius = 0.45f;
 
-        [Tooltip("이기어침 피해 배율. 1이면 현재 침 데미지 100%")]
+        [Tooltip("이기어침 기본 피해 배율입니다. 1이면 현재 침 데미지 100%입니다.")]
         [SerializeField] private float cursorNeedleDamageMultiplier = 1f;
 
-        [Tooltip("같은 적에게 다시 피해를 줄 수 있기까지의 시간")]
+        [Tooltip("같은 적에게 다시 피해를 줄 수 있기까지의 시간입니다.")]
         [SerializeField] private float cursorNeedleDamageInterval = 0.25f;
 
-        [Tooltip("마우스를 따라다니는 이기어침 시각 크기")]
+        [Tooltip("이기어침 시각 크기입니다.")]
         [SerializeField] private float cursorNeedleVisualScale = 1.2f;
 
-        [Tooltip("유도침을 보유 중일 때 이기어침의 피해 판정 반경 증가량")]
+        [Tooltip("유도침을 보유 중일 때 이기어침의 피해 판정 반경 증가량입니다.")]
         [SerializeField] private float cursorNeedleHomingHitRadiusBonus = 0.35f;
+
+        [Header("Cursor Needle Orbit / 이기어침 무한궤도")]
+        [Tooltip("플레이어 중심 기준 이기어침 무한궤도 중심 위치입니다. Y를 0.45 정도로 두면 플레이어 살짝 위를 중심으로 돕니다.")]
+        [SerializeField] private Vector2 cursorNeedleOrbitCenterOffset = new Vector2(0f, 0.45f);
+
+        [Tooltip("가로 8자 궤도의 좌우 반경입니다.")]
+        [SerializeField] private float cursorNeedleOrbitHorizontalRadius = 2.4f;
+
+        [Tooltip("가로 8자 궤도의 위아래 반경입니다.")]
+        [SerializeField] private float cursorNeedleOrbitVerticalRadius = 0.75f;
+
+        [Tooltip("근처 적 보정 계산용 반경입니다. 침 위치를 끌어당기지는 않고, 피해 판정 보너스 계산에만 사용합니다.")]
+        [SerializeField] private float cursorNeedleTargetAssistRadius = 0.5f;
+
+        [Tooltip("근처 적 보정 강도입니다. 침 위치 보정이 아니라 피해 판정 보너스에만 사용합니다.")]
+        [SerializeField, Range(0f, 1f)] private float cursorNeedleTargetAssistStrength = 0.2f;
+
+        [Tooltip("근처 적 보정으로 추가되는 피해 판정 반경의 최대값입니다. 0.08~0.12 추천.")]
+        [SerializeField] private float cursorNeedleMaxAssistHitRadiusBonus = 0.1f;
+
+        [Tooltip("특수증강 1개당 이기어침 피해 판정 반경 증가량입니다. 0.035이면 특수증강 1개당 반경이 0.035 증가합니다.")]
+        [SerializeField] private float cursorNeedleHitRadiusBonusPerSpecial = 0.035f;
+
+        [Tooltip("특수증강 개수로 증가할 수 있는 이기어침 피해 판정 반경 최대 보너스입니다.")]
+        [SerializeField] private float cursorNeedleMaxHitRadiusBonusFromSpecial = 0.45f;
+
+        [Tooltip("특수증강 1개당 이기어침 데미지 증가량입니다. 0.08이면 특수증강 1개당 8% 증가입니다.")]
+        [SerializeField] private float cursorNeedleDamageBonusPerSpecial = 0.08f;
+
+        [Tooltip("특수증강 1개당 이기어침 궤도 이동속도 증가량입니다. 0.06이면 특수증강 1개당 6% 증가입니다.")]
+        [SerializeField] private float cursorNeedleSpeedBonusPerSpecial = 0.06f;
+
+        [Tooltip("이기어침 데미지/속도 보너스 계산에 사용할 최대 특수증강 개수입니다. 12면 12개까지만 보너스를 받습니다.")]
+        [SerializeField] private int cursorNeedleMaxSpecialBonusCount = 12;
+
+        [Tooltip("이기어침이 한 프레임/틱에서 동시에 피해를 줄 수 있는 최대 대상 수입니다.")]
+        [SerializeField] private int cursorNeedleMaxTargetsPerTick = 12;
+
+        [Tooltip("체크하면 이기어침 무한궤도 생성 로그를 출력합니다.")]
+        [SerializeField] private bool debugCursorNeedleOrbit = false;
 
         [Header("Cursor Needle Back Display / 이기어침 등 뒤 전시")]
         [Tooltip("플레이어 중심 기준 등 뒤 전시 위치")]
@@ -323,6 +696,7 @@ namespace Vampire
 
         private CursorControlledNeedleController cursorControlledNeedleController;
 
+    
         public GameObject ProjectilePrefab => projectilePrefab;
         public LayerMask MonsterLayer => monsterLayer;
 
@@ -346,10 +720,45 @@ namespace Vampire
             {
                 EnableHedgehogNeedleLegendary();
             }
+            if (hungrySpiritEnabled)
+            {
+                EnableHungrySpiritLegendary();
+            }
 
+            if (needleShotgunEnabled)
+            {
+                EnableNeedleShotgunLegendary();
+            }
             if (cursorControlEnabled)
             {
                 EnableCursorControlLegendary();
+            }
+            if (neuralBlockEnabled)
+            {
+                EnableNeuralBlockLegendary();
+            }
+
+            if (poisonContagionEnabled)
+            {
+                EnablePoisonContagionLegendary();
+            }
+
+            if (organCompressionEnabled)
+            {
+                EnableOrganCompressionLegendary();
+            }
+            // 위산 연동파는 전설증강으로 등장하지만,
+            // SyringeDartAbility 내부 실제 활성화 메서드는 현재 Augment 이름을 유지한다.
+            if (gastricPeristalsisWaveEnabled)
+            {
+                EnableGastricPeristalsisWaveAugment();
+            }
+
+            // 점막 요새도 전설증강으로 등장하지만,
+            // 실제 기능 활성화는 기존 Augment 메서드로 연결한다.
+            if (mucosalFortressEnabled)
+            {
+                EnableMucosalFortressAugment();
             }
         }
 
@@ -382,7 +791,12 @@ namespace Vampire
                 base.Update();
                 return;
             }
-
+            if (needleShotgunEnabled)
+            {
+                HideHeavySnipeChargePreview();
+                HandleNeedleShotgunUpdate();
+                return;
+            }
             HideHeavySnipeChargePreview();
             base.Update();
         }
@@ -390,34 +804,139 @@ namespace Vampire
         private void OnDisable()
         {
             DestroyHeavySnipeChargePreview();
+            DestroyNeedleShotgunAmmoText();
         }
 
         protected override void Attack()
         {
+           
             StartCoroutine(LaunchSyringes());
         }
 
         protected IEnumerator LaunchSyringes()
         {
-            int totalProjectileCount = GetEffectiveProjectileCount();
-            Vector2 baseDirection = playerCharacter.LookDirection;
+            int totalProjectileCount =
+                GetEffectiveProjectileCount();
+
+            Vector2 baseDirection =
+                playerCharacter.LookDirection;
 
             if (baseDirection == Vector2.zero)
             {
                 baseDirection = Vector2.right;
             }
 
+            if (bipolarNeedleEnabled)
+            {
+                yield return LaunchBipolarSyringes(
+                    baseDirection,
+                    totalProjectileCount
+                );
+
+                yield break;
+            }
+
+            timeSinceLastAttack -=
+                totalProjectileCount * syringeDelay;
+
+            for (int i = 0;
+                 i < totalProjectileCount;
+                 i++)
+            {
+                Vector2 spreadDirection =
+                    GetSpreadDirection(
+                        baseDirection,
+                        i,
+                        totalProjectileCount
+                    );
+
+                bool launched =
+                    LaunchSyringeProjectile(
+                        spreadDirection
+                    );
+
+                // 실제 침 발사에 성공한 경우,
+                // 발사체 1개당 발사 효과음을 1회 재생합니다.
+                if (launched)
+                {
+                    GameAudioManager.PlaySfx(
+                        GameAudioManager.GameSfxId.NeedleAttack
+                    );
+                }
+
+                yield return new WaitForSeconds(
+                    syringeDelay
+                );
+            }
+        }
+        private IEnumerator LaunchBipolarSyringes(Vector2 baseDirection, int totalProjectileCount)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = Vector2.right;
+            }
+
+            baseDirection.Normalize();
+
+            totalProjectileCount = Mathf.Max(1, totalProjectileCount);
+
+            int frontCount;
+            int backCount;
+
+            if (bipolarNeedleFrontGetsExtraProjectile)
+            {
+                frontCount = Mathf.CeilToInt(totalProjectileCount * 0.5f);
+                backCount = totalProjectileCount - frontCount;
+            }
+            else
+            {
+                backCount = Mathf.CeilToInt(totalProjectileCount * 0.5f);
+                frontCount = totalProjectileCount - backCount;
+            }
+
+            // 최소 2발 이상일 때는 반드시 전방/후방에 1발씩은 배치한다.
+            if (totalProjectileCount >= 2)
+            {
+                frontCount = Mathf.Max(1, frontCount);
+                backCount = Mathf.Max(1, backCount);
+            }
+
+            Vector2 backDirection = RotateVector(baseDirection, bipolarNeedleBackAngleOffset);
+
+            int pairCount = Mathf.Max(frontCount, backCount);
+
+            // 기존 한 방향 연사와 전체 쿨타임 감각이 크게 달라지지 않도록
+            // 실제 발사체 총량 기준으로 시간 보정을 유지한다.
             timeSinceLastAttack -= totalProjectileCount * syringeDelay;
 
-            for (int i = 0; i < totalProjectileCount; i++)
+            if (debugBipolarNeedle)
             {
-                Vector2 spreadDirection = GetSpreadDirection(baseDirection, i, totalProjectileCount);
-                LaunchSyringeProjectile(spreadDirection);
+                Debug.Log(
+                    $"[양극침] 발사 | Total={totalProjectileCount} | " +
+                    $"Front={frontCount} | Back={backCount} | " +
+                    $"BackAngle={bipolarNeedleBackAngleOffset}",
+                    this
+                );
+            }
+
+            for (int i = 0; i < pairCount; i++)
+            {
+                if (i < frontCount)
+                {
+                    Vector2 frontSpreadDirection = GetSpreadDirection(baseDirection, i, frontCount);
+                    LaunchSyringeProjectile(frontSpreadDirection);
+                }
+
+                if (i < backCount)
+                {
+                    Vector2 backSpreadDirection = GetSpreadDirection(backDirection, i, backCount);
+                    LaunchSyringeProjectile(backSpreadDirection);
+                }
+
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
-
-        private void LaunchSyringeProjectile(Vector2 direction)
+        private bool LaunchSyringeProjectile(Vector2 direction)
         {
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
 
@@ -432,32 +951,44 @@ namespace Vampire
 
             if (projectile == null)
             {
-                return;
+                return false;
             }
+
+            // 기존 설정 코드 전부 그대로 유지
+            // 절대 삭제하지 않음
 
             if (playerCharacter != null)
             {
-                projectile.transform.localScale = Vector3.one * GetPlayerProjectileSizeMultiplier();
+                projectile.transform.localScale =
+                    Vector3.one * GetPlayerProjectileSizeMultiplier();
 
-                // Shuriken.prefab의 Max Distance를 곱해서 쓰지 않고,
-                // SyringeDartAbility의 baseSyringeMaxDistance를 기준으로 명확하게 세팅한다.
-                projectile.maxDistance = GetEffectiveSyringeMaxDistance();
+                projectile.maxDistance =
+                    GetEffectiveSyringeMaxDistance();
             }
 
             if (projectile is SyringeProjectile syringeProjectile)
             {
-                syringeProjectile.ConfigureSpecials(BuildSpecialRuntime());
+                syringeProjectile.ConfigureSpecials(
+                    BuildSpecialRuntime()
+                );
             }
             else
             {
                 Debug.LogWarning(
-                    $"[SyringeDartAbility] Spawned projectile is '{projectile.GetType().Name}', not 'SyringeProjectile'. " +
+                    $"[SyringeDartAbility] Spawned projectile is " +
+                    $"'{projectile.GetType().Name}', not 'SyringeProjectile'. " +
                     "Projectile Prefab 연결을 다시 확인하세요."
                 );
             }
 
-            projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            projectile.OnHitDamageable.AddListener(
+                playerCharacter.OnDealDamage.Invoke
+            );
+
             projectile.Launch(direction);
+
+            // 여기까지 왔을 때만 실제 발사 성공.
+            return true;
         }
 
         private void HandleCursorControlModeUpdate()
@@ -519,7 +1050,388 @@ namespace Vampire
                 HideHeavySnipeChargePreview();
             }
         }
+        private void HandleNeedleShotgunUpdate()
+        {
+            if (playerCharacter == null || entityManager == null)
+            {
+                return;
+            }
 
+            EnsureNeedleShotgunAmmoText();
+            UpdateNeedleShotgunDashReload();
+
+            needleShotgunAttackTimer += Time.deltaTime;
+
+            Vector2 targetDirection;
+            bool hasTargetInRange = TryFindNeedleShotgunTargetDirection(out targetDirection);
+
+            if (needleShotgunAmmo < needleShotgunMaxAmmo)
+            {
+                bool shouldReload = !hasTargetInRange || needleShotgunAmmo <= 0;
+
+                if (shouldReload)
+                {
+                    needleShotgunReloadTimer += Time.deltaTime;
+
+                    while (needleShotgunReloadTimer >= Mathf.Max(0.01f, needleShotgunReloadTime) &&
+                           needleShotgunAmmo < needleShotgunMaxAmmo)
+                    {
+                        needleShotgunReloadTimer -= Mathf.Max(0.01f, needleShotgunReloadTime);
+                        needleShotgunAmmo++;
+
+                        if (debugNeedleShotgun)
+                        {
+                            Debug.Log($"[침샷건] 장전 +1 | Ammo={needleShotgunAmmo}/{needleShotgunMaxAmmo}", this);
+                        }
+
+                        UpdateNeedleShotgunAmmoText();
+                    }
+                }
+                else
+                {
+                    needleShotgunReloadTimer = 0f;
+                }
+            }
+            else
+            {
+                needleShotgunReloadTimer = 0f;
+            }
+
+            if (!hasTargetInRange)
+            {
+                UpdateNeedleShotgunAmmoText();
+                return;
+            }
+
+            if (needleShotgunAmmo <= 0)
+            {
+                UpdateNeedleShotgunAmmoText();
+                return;
+            }
+
+            float attackSpeedMultiplier = playerCharacter != null
+                ? Mathf.Max(0.01f, playerCharacter.AttackSpeedMultiplier)
+                : 1f;
+
+            float effectiveAttackInterval = Mathf.Max(0.01f, needleShotgunAttackInterval) / attackSpeedMultiplier;
+
+            if (needleShotgunAttackTimer < effectiveAttackInterval)
+            {
+                UpdateNeedleShotgunAmmoText();
+                return;
+            }
+
+            needleShotgunAttackTimer = 0f;
+            needleShotgunAmmo = Mathf.Max(0, needleShotgunAmmo - 1);
+
+            FireNeedleShotgunVolley(targetDirection);
+            UpdateNeedleShotgunAmmoText();
+        }
+
+        private void UpdateNeedleShotgunDashReload()
+        {
+            bool isDashingNow = playerCharacter != null && playerCharacter.IsDashing;
+
+            if (isDashingNow && !needleShotgunWasDashing)
+            {
+                int reloadAmount = Mathf.Max(0, needleShotgunReloadOnDash);
+
+                if (reloadAmount > 0)
+                {
+                    needleShotgunAmmo = Mathf.Min(needleShotgunMaxAmmo, needleShotgunAmmo + reloadAmount);
+                    needleShotgunReloadTimer = 0f;
+
+                    if (debugNeedleShotgun)
+                    {
+                        Debug.Log($"[침샷건] 대쉬 장전 +{reloadAmount} | Ammo={needleShotgunAmmo}/{needleShotgunMaxAmmo}", this);
+                    }
+
+                    UpdateNeedleShotgunAmmoText();
+                }
+            }
+
+            needleShotgunWasDashing = isDashingNow;
+        }
+
+        private bool TryFindNeedleShotgunTargetDirection(out Vector2 targetDirection)
+        {
+            targetDirection = playerCharacter != null && playerCharacter.LookDirection != Vector2.zero
+                ? playerCharacter.LookDirection.normalized
+                : Vector2.right;
+
+            Vector2 origin = GetPlayerCenterPosition();
+            float range = Mathf.Max(0.1f, needleShotgunDetectionRange);
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(origin, range, monsterLayer);
+
+            float closestDistanceSqr = float.MaxValue;
+            Vector2 closestDirection = targetDirection;
+            bool found = false;
+
+            for (int i = 0; i < hits.Length; i++)
+            {
+                Collider2D hit = hits[i];
+
+                if (hit == null)
+                {
+                    continue;
+                }
+
+                IDamageable damageable = hit.GetComponentInParent<IDamageable>();
+                Component damageableComponent = damageable as Component;
+
+                if (damageable == null || damageableComponent == null)
+                {
+                    continue;
+                }
+
+                Monster monster = damageableComponent.GetComponentInParent<Monster>();
+
+                if (monster != null)
+                {
+                    TrapMonster trapMonster = monster as TrapMonster;
+
+                    if (trapMonster != null && !trapMonster.IsActive)
+                    {
+                        continue;
+                    }
+                }
+
+                Vector2 targetPosition = damageableComponent.transform.position;
+
+                if (monster != null && monster.CenterTransform != null)
+                {
+                    targetPosition = monster.CenterTransform.position;
+                }
+
+                Vector2 toTarget = targetPosition - origin;
+                float distanceSqr = toTarget.sqrMagnitude;
+
+                if (distanceSqr < closestDistanceSqr && distanceSqr > 0.0001f)
+                {
+                    closestDistanceSqr = distanceSqr;
+                    closestDirection = toTarget.normalized;
+                    found = true;
+                }
+            }
+
+            if (found)
+            {
+                targetDirection = closestDirection;
+            }
+
+            return found;
+        }
+
+        private void FireNeedleShotgunVolley(Vector2 baseDirection)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = playerCharacter != null && playerCharacter.LookDirection != Vector2.zero
+                    ? playerCharacter.LookDirection.normalized
+                    : Vector2.right;
+            }
+
+            baseDirection.Normalize();
+
+            int totalProjectileCount = GetNeedleShotgunProjectileCount();
+
+            if (debugNeedleShotgun)
+            {
+                Debug.Log(
+                    $"[침샷건] 발사 | Count={totalProjectileCount} | " +
+                    $"Ammo={needleShotgunAmmo}/{needleShotgunMaxAmmo} | Range={needleShotgunFixedRange}",
+                    this);
+            }
+
+            for (int i = 0; i < totalProjectileCount; i++)
+            {
+                Vector2 shotDirection = GetNeedleShotgunSpreadDirection(baseDirection, i, totalProjectileCount);
+                LaunchNeedleShotgunProjectile(shotDirection);
+            }
+        }
+
+        private int GetNeedleShotgunProjectileCount()
+        {
+            int totalCount = projectileCount.Value;
+
+            if (playerCharacter != null)
+            {
+                totalCount += playerCharacter.AdditionalProjectiles;
+            }
+
+            if (lifeBurnEnabled)
+            {
+                totalCount += lifeBurnBonusProjectiles;
+            }
+
+            return Mathf.Max(1, totalCount);
+        }
+
+        private Vector2 GetNeedleShotgunSpreadDirection(Vector2 baseDirection, int projectileIndex, int totalCount)
+        {
+            if (baseDirection == Vector2.zero)
+            {
+                baseDirection = Vector2.right;
+            }
+
+            baseDirection.Normalize();
+
+            if (totalCount <= 1)
+            {
+                return baseDirection;
+            }
+
+            float totalSpreadAngle = Mathf.Max(0f, needleShotgunAnglePerProjectile) * (totalCount - 1);
+            totalSpreadAngle = Mathf.Min(totalSpreadAngle, Mathf.Max(0f, needleShotgunMaxSpreadAngle));
+
+            float actualAngleStep = totalSpreadAngle / (totalCount - 1);
+            float startAngle = -totalSpreadAngle * 0.5f;
+            float angleOffset = startAngle + actualAngleStep * projectileIndex;
+
+            return RotateVector(baseDirection, angleOffset);
+        }
+
+        private void LaunchNeedleShotgunProjectile(Vector2 direction)
+        {
+            if (entityManager == null)
+            {
+                return;
+            }
+
+            Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
+
+            Projectile projectile = entityManager.SpawnProjectile(
+                projectileIndex,
+                spawnPosition,
+                GetEffectiveDamage() * Mathf.Max(0f, needleShotgunDamageMultiplier),
+                GetEffectiveKnockback(),
+                GetEffectiveSpeed() * Mathf.Max(0.01f, needleShotgunProjectileSpeedMultiplier),
+                monsterLayer
+            );
+
+            if (projectile == null)
+            {
+                return;
+            }
+
+            projectile.transform.localScale = Vector3.one * GetEffectiveProjectileSizeMultiplier();
+
+            // 침샷건은 요구사항대로 최대 사거리를 3으로 고정합니다.
+            projectile.maxDistance = Mathf.Max(0.1f, needleShotgunFixedRange);
+
+            if (projectile is SyringeProjectile syringeProjectile)
+            {
+                syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"[침샷건] Spawned projectile is '{projectile.GetType().Name}', not 'SyringeProjectile'. " +
+                    "Projectile Prefab 연결을 확인하세요.",
+                    this);
+            }
+
+            if (playerCharacter != null)
+            {
+                projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            }
+
+            projectile.Launch(direction);
+        }
+
+        private SyringeSpecialRuntime BuildNeedleShotgunRuntime()
+        {
+            SyringeSpecialRuntime runtime = BuildSpecialRuntime();
+
+            // 침샷건은 발사 방식 자체가 샷건이므로 이동 방식 특수증강은 꺼둡니다.
+            // 대신 독/꿀/모기/부식/표식/소화액낭/공복/장내균 같은 적중형 특수증강은 그대로 적용됩니다.
+            runtime.homingEnabled = false;
+            runtime.homingRange = 0f;
+            runtime.homingLerpSpeed = 0f;
+
+            runtime.returnNeedleEnabled = false;
+            runtime.returnNeedleSpeedMultiplier = 0f;
+            runtime.returnNeedleDamageMultiplier = 0f;
+            runtime.returnNeedleArriveDistance = 0f;
+            runtime.returnNeedleMaxDuration = 0f;
+
+            // 요구사항: 사거리 이내의 적은 모두 관통.
+            runtime.pierceEnabled = true;
+            runtime.pierceCount = int.MaxValue;
+
+            // 침샷건은 projectile.maxDistance 자체를 3으로 고정하므로 추가 사거리 보너스는 제거합니다.
+            runtime.rangeBonus = 0f;
+
+            return runtime;
+        }
+
+        private void EnsureNeedleShotgunAmmoText()
+        {
+            if (!showNeedleShotgunAmmoNumber)
+            {
+                return;
+            }
+
+            if (needleShotgunAmmoText != null)
+            {
+                return;
+            }
+
+            if (playerCharacter == null)
+            {
+                return;
+            }
+
+            Transform parent = playerCharacter.CenterTransform != null
+                ? playerCharacter.CenterTransform
+                : playerCharacter.transform;
+
+            GameObject textObject = new GameObject("Needle Shotgun Ammo Number");
+            textObject.transform.SetParent(parent, false);
+            textObject.transform.localPosition = new Vector3(0f, needleShotgunAmmoTextYOffset, 0f);
+
+            needleShotgunAmmoText = textObject.AddComponent<TextMeshPro>();
+            needleShotgunAmmoText.alignment = TextAlignmentOptions.Center;
+            needleShotgunAmmoText.fontSize = Mathf.Max(0.1f, needleShotgunAmmoTextFontSize);
+            needleShotgunAmmoText.color = needleShotgunAmmoTextColor;
+            needleShotgunAmmoText.text = needleShotgunAmmo.ToString();
+
+            MeshRenderer renderer = needleShotgunAmmoText.GetComponent<MeshRenderer>();
+
+            if (renderer != null)
+            {
+                renderer.sortingOrder = needleShotgunAmmoTextSortingOrder;
+            }
+        }
+
+        private void UpdateNeedleShotgunAmmoText()
+        {
+            if (!showNeedleShotgunAmmoNumber)
+            {
+                return;
+            }
+
+            EnsureNeedleShotgunAmmoText();
+
+            if (needleShotgunAmmoText == null)
+            {
+                return;
+            }
+
+            needleShotgunAmmoText.text = needleShotgunAmmo.ToString();
+        }
+
+        private void DestroyNeedleShotgunAmmoText()
+        {
+            if (needleShotgunAmmoText == null)
+            {
+                return;
+            }
+
+            Destroy(needleShotgunAmmoText.gameObject);
+            needleShotgunAmmoText = null;
+        }
         private void HandleHeavySnipeUpdate()
         {
             timeSinceLastAttack += Time.deltaTime;
@@ -1203,7 +2115,48 @@ namespace Vampire
                 returnNeedleDamageMultiplier = returnNeedleDamageMultiplier,
                 returnNeedleArriveDistance = returnNeedleArriveDistance,
                 returnNeedleMaxDuration = returnNeedleMaxDuration,
+                fiberEnabled = fiberNeedleEnabled,
+                fiberTrailLifetime = fiberTrailLifetime,
+                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond,
+                fiberTrailTickInterval = fiberTrailTickInterval,
+                fiberTrailWidth = fiberTrailWidth,
+                fiberTrailMinSegmentDistance = fiberTrailMinSegmentDistance,
+                fiberTrailColor = fiberTrailColor,
 
+                corrosionEnabled = corrosionNeedleEnabled,
+                corrosionDuration = corrosionDuration,
+                corrosionDamageTakenBonusPerStack = corrosionDamageTakenBonusPerStack,
+                corrosionBossDamageTakenBonusPerStack = corrosionBossDamageTakenBonusPerStack,
+                corrosionMaxStacks = corrosionMaxStacks,
+
+                pressureEnabled = pressureNeedleEnabled,
+                pressureDamageBonusPerDistance = pressureDamageBonusPerDistance,
+                pressureMaxDamageBonus = pressureMaxDamageBonus,
+
+                markEnabled = markNeedleEnabled,
+                markDuration = markDuration,
+                markBonusDamageMultiplier = markBonusDamageMultiplier,
+                digestiveAcidSacEnabled = digestiveAcidSacNeedleEnabled,
+                digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime,
+                digestiveAcidPuddleRadius = digestiveAcidPuddleRadius,
+                digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond,
+                digestiveAcidPuddleTickInterval = digestiveAcidPuddleTickInterval,
+                digestiveAcidPuddleColor = digestiveAcidPuddleColor,
+
+                hungerNeedleEnabled = hungerNeedleEnabled,
+                hungerStackDuration = hungerStackDuration,
+                hungerAttackSpeedBonusPerStack = hungerAttackSpeedBonusPerStack,
+                hungerMaxStacks = hungerMaxStacks,
+                debugHungerNeedle = debugHungerNeedle,
+
+                gutBacteriaEnabled = gutBacteriaNeedleEnabled,
+                gutBacteriaStackDuration = gutBacteriaStackDuration,
+                gutBacteriaRequiredStacks = gutBacteriaRequiredStacks,
+                gutBacteriaMaxStacks = gutBacteriaMaxStacks,
+                gutBacteriaBonusGemCount = gutBacteriaBonusGemCount,
+                gutBacteriaBonusGemType = gutBacteriaBonusGemType,
+                gutBacteriaBonusGemSpawnRadius = gutBacteriaBonusGemSpawnRadius,
+                debugGutBacteria = debugGutBacteria,
                 healingBlocked = lifeBurnEnabled,
 
                 rangeBonus = lifeBurnEnabled ? lifeBurnBonusRange : 0f
@@ -1286,7 +2239,12 @@ namespace Vampire
                 attackSpeedMultiplier = Mathf.Max(0.01f, playerCharacter.AttackSpeedMultiplier);
             }
 
-            return cooldown.Value / attackSpeedMultiplier;
+            if (hungerNeedleEnabled && playerCharacter != null)
+            {
+                attackSpeedMultiplier *= HungerNeedleRuntime.GetAttackSpeedMultiplier(playerCharacter);
+            }
+
+            return cooldown.Value / Mathf.Max(0.01f, attackSpeedMultiplier);
         }
 
         public int GetEffectiveProjectileCount()
@@ -1301,6 +2259,11 @@ namespace Vampire
             if (lifeBurnEnabled)
             {
                 totalCount += lifeBurnBonusProjectiles;
+            }
+
+            if (bipolarNeedleEnabled)
+            {
+                totalCount += Mathf.Max(0, bipolarNeedleBonusProjectileCount);
             }
 
             return Mathf.Max(1, totalCount);
@@ -1328,6 +2291,14 @@ namespace Vampire
             if (mosquitoEnabled) count++;
             if (returnNeedleEnabled) count++;
             if (acupunctureFormationEnabled) count++;
+            if (fiberNeedleEnabled) count++;
+            if (corrosionNeedleEnabled) count++;
+            if (pressureNeedleEnabled) count++;
+            if (markNeedleEnabled) count++;
+            if (bipolarNeedleEnabled) count++;
+            if (digestiveAcidSacNeedleEnabled) count++;
+            if (hungerNeedleEnabled) count++;
+            if (gutBacteriaNeedleEnabled) count++;
 
             return count;
         }
@@ -1473,7 +2444,181 @@ namespace Vampire
         public void EnableExplosionAugment() => explosionEnabled = true;
 
         public void EnableHomingAugment() => homingEnabled = true;
+        public void EnableFiberNeedleAugment() => fiberNeedleEnabled = true;
 
+        public void EnableCorrosionNeedleAugment() => corrosionNeedleEnabled = true;
+
+        public void EnablePressureNeedleAugment() => pressureNeedleEnabled = true;
+
+        public void EnableMarkNeedleAugment() => markNeedleEnabled = true;
+        public void EnableDigestiveAcidSacNeedleAugment() => digestiveAcidSacNeedleEnabled = true;
+
+        public void EnableHungerNeedleAugment() => hungerNeedleEnabled = true;
+
+        public void EnableGutBacteriaNeedleAugment() => gutBacteriaNeedleEnabled = true;
+        /// <summary>
+        /// 특수증강: 위산 연동파 활성화.
+        /// 기존 주사기 발사체를 수정하지 않고 플레이어에게 전용 컨트롤러를 붙인다.
+        /// </summary>
+        /// <summary>
+        /// 전설증강: 위산 연동파 활성화.
+        /// 전설증강으로 등장하지만, 기존 작업에서 만든 Augment 메서드명을 유지해
+        /// SyringeLegendaryAugmentAbility와 인스펙터 강제 활성화 양쪽에서 안전하게 호출할 수 있게 한다.
+        /// </summary>
+        public void EnableGastricPeristalsisWaveAugment()
+        {
+            gastricPeristalsisWaveEnabled = true;
+
+            // Update()에서 ApplyInspectorForcedAugmentRuntimeSetup()이 반복 호출되므로
+            // 이미 컨트롤러가 설정된 상태라면 Configure를 다시 호출하지 않는다.
+            if (gastricWaveRuntimeConfigured && gastricWaveController != null)
+            {
+                return;
+            }
+
+            if (playerCharacter == null)
+            {
+                Debug.LogWarning("[위산 연동파] playerCharacter가 없어 컨트롤러를 생성할 수 없습니다.");
+                return;
+            }
+
+            if (gastricWaveController == null)
+            {
+                gastricWaveController = playerCharacter.GetComponent<GastricPeristalsisWaveController>();
+
+                if (gastricWaveController == null)
+                {
+                    gastricWaveController = playerCharacter.gameObject.AddComponent<GastricPeristalsisWaveController>();
+                }
+            }
+
+            gastricWaveController.Configure(
+                this,
+                playerCharacter,
+                monsterLayer,
+                gastricWaveInterval,
+                gastricWaveMaxRadius,
+                gastricWaveDuration,
+                gastricWaveThickness,
+                gastricWaveColor,
+                debugGastricWave);
+
+            gastricWaveRuntimeConfigured = true;
+        }
+
+        public bool HasGastricPeristalsisWaveAugment()
+        {
+            return gastricPeristalsisWaveEnabled;
+        }
+
+        /// <summary>
+        /// 호환용 래퍼.
+        /// 혹시 다른 파일이나 이전 수정본에서 Legendary 이름으로 호출하더라도 컴파일 오류가 나지 않게 한다.
+        /// 실제 동작은 기존 Augment 메서드로 위임한다.
+        /// </summary>
+        public void EnableGastricPeristalsisWaveLegendary()
+        {
+            EnableGastricPeristalsisWaveAugment();
+        }
+
+        public bool HasGastricPeristalsisWaveLegendary()
+        {
+            return HasGastricPeristalsisWaveAugment();
+        }
+
+        /// <summary>
+        /// 위산 연동파가 사용할 최종 피해량.
+        /// 일반 공격력 증가/피해량 강화가 반영되도록 SyringeDartAbility 내부 계산값을 사용한다.
+        /// </summary>
+        public float GetGastricPeristalsisWaveDamage()
+        {
+            return GetEffectiveDamage() * gastricWaveDamageMultiplier;
+        }
+
+        /// <summary>
+        /// 위산 연동파가 사용할 최종 넉백 값.
+        /// 기존 주사기 넉백 강화가 반영되도록 SyringeDartAbility 내부 계산값을 사용한다.
+        /// </summary>
+        public float GetGastricPeristalsisWaveKnockback()
+        {
+            return GetEffectiveKnockback() * gastricWaveKnockbackMultiplier;
+        }
+
+        /// <summary>
+        /// 전설증강: 점막 요새 활성화.
+        /// 전설증강으로 등장하지만, 기존 작업에서 만든 Augment 메서드명을 유지한다.
+        /// Configure가 반복 호출되면 무피해 시간이 계속 초기화되므로 반드시 1회만 설정한다.
+        /// </summary>
+        public void EnableMucosalFortressAugment()
+        {
+            mucosalFortressEnabled = true;
+
+            // 점막 요새가 발동하지 않던 핵심 원인 방지:
+            // Configure()가 매 프레임 호출되면 lastDamageOrShieldConsumeTime이 계속 Time.time으로 초기화된다.
+            if (mucosalFortressRuntimeConfigured && mucosalFortressController != null)
+            {
+                return;
+            }
+
+            if (playerCharacter == null)
+            {
+                Debug.LogWarning("[점막 요새] playerCharacter가 없어 컨트롤러를 생성할 수 없습니다.");
+                return;
+            }
+
+            if (mucosalFortressController == null)
+            {
+                mucosalFortressController = playerCharacter.GetComponent<MucosalFortressShieldController>();
+
+                if (mucosalFortressController == null)
+                {
+                    mucosalFortressController = playerCharacter.gameObject.AddComponent<MucosalFortressShieldController>();
+                }
+            }
+
+            mucosalFortressController.Configure(
+                mucosalFortressNoDamageSeconds,
+                mucosalFortressMaxStacks,
+                mucosalFortressShieldColor,
+                debugMucosalFortress);
+
+            mucosalFortressRuntimeConfigured = true;
+        }
+
+        public bool HasMucosalFortressAugment()
+        {
+            return mucosalFortressEnabled;
+        }
+
+        /// <summary>
+        /// 호환용 래퍼.
+        /// 혹시 다른 파일이나 이전 수정본에서 Legendary 이름으로 호출하더라도 컴파일 오류가 나지 않게 한다.
+        /// 실제 동작은 기존 Augment 메서드로 위임한다.
+        /// </summary>
+        public void EnableMucosalFortressLegendary()
+        {
+            EnableMucosalFortressAugment();
+        }
+
+        public bool HasMucosalFortressLegendary()
+        {
+            return HasMucosalFortressAugment();
+        }
+        public bool HasDigestiveAcidSacNeedleAugment() => digestiveAcidSacNeedleEnabled;
+
+        public bool HasHungerNeedleAugment() => hungerNeedleEnabled;
+
+        public bool HasGutBacteriaNeedleAugment() => gutBacteriaNeedleEnabled;
+        public void EnableBipolarNeedleAugment() => bipolarNeedleEnabled = true;
+        public bool HasBipolarNeedleAugment() => bipolarNeedleEnabled;
+        public bool HasFiberNeedleAugment() => fiberNeedleEnabled;
+
+        public bool HasCorrosionNeedleAugment() => corrosionNeedleEnabled;
+
+        public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
+
+        public bool HasMarkNeedleAugment() => markNeedleEnabled;
+       
         public void EnablePierceAugment()
         {
             pierceEnabled = true;
@@ -1541,13 +2686,184 @@ namespace Vampire
         public bool HasAcupunctureFormationAugment() => acupunctureFormationEnabled;
 
         public void EnableLifeBurnLegendary() => lifeBurnEnabled = true;
+        public void EnableHungrySpiritLegendary()
+        {
+            hungrySpiritEnabled = true;
 
+            if (playerCharacter == null)
+            {
+                Debug.LogWarning("[헝그리정신] playerCharacter가 없어 컨트롤러를 생성할 수 없습니다.", this);
+                return;
+            }
+
+            if (hungrySpiritController == null)
+            {
+                hungrySpiritController = playerCharacter.GetComponent<HungrySpiritController>();
+
+                if (hungrySpiritController == null)
+                {
+                    hungrySpiritController = playerCharacter.gameObject.AddComponent<HungrySpiritController>();
+                }
+            }
+
+            hungrySpiritController.Configure(
+                playerCharacter,
+                hungrySpiritStackInterval,
+                hungrySpiritMaxStacks,
+                hungrySpiritDamageBonusPerStack,
+                hungrySpiritRangeBonusPerStack,
+                hungrySpiritAttackSpeedBonusPerStack,
+                debugHungrySpirit);
+
+            Debug.Log("[헝그리정신] 전설 증강 활성화.");
+        }
+
+        public bool HasHungrySpiritLegendary()
+        {
+            return hungrySpiritEnabled;
+        }
+
+        public void EnableNeedleShotgunLegendary()
+        {
+            if (heavySnipeEnabled || cursorControlEnabled)
+            {
+                Debug.LogWarning(
+                    "[침샷건] 대물침/이기어침과 공격 방식이 충돌하므로 현재 상태에서는 활성화하지 않습니다.",
+                    this);
+                return;
+            }
+
+            if (needleShotgunEnabled)
+            {
+                return;
+            }
+
+            needleShotgunEnabled = true;
+            needleShotgunAmmo = Mathf.Max(1, needleShotgunMaxAmmo);
+            needleShotgunReloadTimer = 0f;
+            needleShotgunAttackTimer = Mathf.Max(0.01f, needleShotgunAttackInterval);
+            needleShotgunWasDashing = playerCharacter != null && playerCharacter.IsDashing;
+
+            EnsureNeedleShotgunAmmoText();
+            UpdateNeedleShotgunAmmoText();
+
+            Debug.Log("[침샷건] 전설 증강 활성화.");
+        }
+
+        public bool HasNeedleShotgunLegendary()
+        {
+            return needleShotgunEnabled;
+        }
         public bool HasLifeBurnLegendary() => lifeBurnEnabled;
 
         public void MarkCloneLegendaryTaken() => cloneLegendaryTaken = true;
 
         public bool HasCloneLegendary() => cloneLegendaryTaken;
+        public void EnableNeuralBlockLegendary()
+        {
+            if (neuralBlockEnabled && neuralBlockController != null)
+            {
+                ConfigureNeuralBlockController();
+                return;
+            }
 
+            neuralBlockEnabled = true;
+
+            neuralBlockController = GetComponent<NeuralBlockController>();
+
+            if (neuralBlockController == null)
+            {
+                neuralBlockController = gameObject.AddComponent<NeuralBlockController>();
+            }
+
+            ConfigureNeuralBlockController();
+        }
+
+        private void ConfigureNeuralBlockController()
+        {
+            if (neuralBlockController == null)
+            {
+                return;
+            }
+
+            neuralBlockController.Configure(
+                neuralBlockInterval,
+                neuralBlockFreezeDuration,
+                neuralBlockScreenPadding,
+                monsterLayer,
+                debugNeuralBlock
+            );
+        }
+
+        public bool HasNeuralBlockLegendary()
+        {
+            return neuralBlockEnabled;
+        }
+
+        public void EnablePoisonContagionLegendary()
+        {
+            poisonContagionEnabled = true;
+
+            PoisonContagionRuntime.Enable(
+                poisonContagionRadius,
+                poisonContagionDurationMultiplier,
+                poisonContagionDamageMultiplier,
+                monsterLayer,
+                debugPoisonContagion
+            );
+        }
+
+        public bool HasPoisonContagionLegendary()
+        {
+            return poisonContagionEnabled;
+        }
+
+        public void EnableOrganCompressionLegendary()
+        {
+            if (organCompressionEnabled && organCompressionController != null)
+            {
+                ConfigureOrganCompressionController();
+                return;
+            }
+
+            organCompressionEnabled = true;
+
+            organCompressionController = GetComponent<OrganCompressionController>();
+
+            if (organCompressionController == null)
+            {
+                organCompressionController = gameObject.AddComponent<OrganCompressionController>();
+            }
+
+            ConfigureOrganCompressionController();
+        }
+
+        private void ConfigureOrganCompressionController()
+        {
+            if (organCompressionController == null)
+            {
+                return;
+            }
+
+            organCompressionController.Configure(
+                organCompressionInterval,
+                organCompressionClusterSearchRadius,
+                organCompressionFieldRadius,
+                organCompressionFieldDuration,
+                organCompressionDamageTickInterval,
+                organCompressionDamagePerTick,
+                organCompressionPullSpeed,
+                organCompressionScreenPadding,
+                monsterLayer,
+                debugOrganCompression,
+    this
+            );
+        }
+
+        public bool HasOrganCompressionLegendary()
+        {
+            return organCompressionEnabled;
+        }
         public void EnableHedgehogNeedleLegendary()
         {
             hedgehogNeedleEnabled = true;
@@ -1631,10 +2947,29 @@ namespace Vampire
                 cursorNeedleBackDisplayOffset,
                 cursorNeedleBackDisplaySpacing,
                 cursorNeedleBackDisplayArcHeight,
-                cursorNeedleBackDisplayScale
+                cursorNeedleBackDisplayScale,
+                cursorNeedleOrbitCenterOffset,
+                cursorNeedleOrbitHorizontalRadius,
+                cursorNeedleOrbitVerticalRadius,
+                cursorNeedleTargetAssistRadius,
+                cursorNeedleTargetAssistStrength,
+                cursorNeedleDamageBonusPerSpecial,
+                cursorNeedleSpeedBonusPerSpecial,
+                cursorNeedleMaxSpecialBonusCount,
+                cursorNeedleMaxTargetsPerTick,
+                debugCursorNeedleOrbit,
+                cursorNeedleOrbitVisualAngleOffset,
+               cursorNeedleBackDisplayBaseAngle,
+               cursorNeedleBackDisplaySpreadAngle,
+cursorNeedleOrbitStraightness,
+cursorNeedleMaxAssistHitRadiusBonus,
+cursorNeedleHitRadiusBonusPerSpecial,
+cursorNeedleMaxHitRadiusBonusFromSpecial
             );
 
-            Debug.Log("[이기어침] 전설 증강 활성화. 기본 자동 공격을 중지하고, 마우스 포인트를 따라다니는 조종 침을 생성했습니다.");
+            Debug.Log(
+                "[이기어침] 전설 증강 활성화. 기본 자동 공격을 중지하고, 플레이어 위쪽 중심의 가로 8자 무한궤도를 도는 침을 생성했습니다."
+            );
         }
 
         public bool HasCursorControlLegendary()

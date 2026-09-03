@@ -16,7 +16,18 @@ namespace Vampire
         [SerializeField] private TMP_Text rerollCostText;
 
         [Header("Hide While Shop Open")]
+        [Tooltip("상점창이 열렸을 때 패널 뒤로 보낼 미니맵 루트 오브젝트입니다. 기존에 연결해둔 미니맵 오브젝트를 그대로 넣으면 됩니다.")]
         [SerializeField] private GameObject minimapObject;
+
+        [Header("Mini Map Layer Fix")]
+        [Tooltip("Minimap Object가 비어 있을 때 이름에 Minimap, MiniMap, Mini Map, Mini_Map이 들어간 UI 오브젝트를 자동으로 찾아봅니다.")]
+        [SerializeField] private bool autoFindMinimapIfEmpty = true;
+
+        [Tooltip("미니맵 오브젝트에 Canvas가 없으면 런타임에 Canvas를 추가해서 레이어 순서를 강제로 제어합니다.")]
+        [SerializeField] private bool addCanvasToMinimapIfMissing = true;
+
+        [Tooltip("상점창이 열렸을 때 미니맵에 적용할 Sorting Order입니다. 낮을수록 뒤로 갑니다.")]
+        [SerializeField] private int minimapModalSortingOrder = -100;
 
         [Header("Dynamic Shop Card Settings")]
         [SerializeField] private Transform shopCardsParent;
@@ -56,21 +67,43 @@ namespace Vampire
         private int globalRerollCount = 0;
         private int currentRerollCost;
 
+        private Canvas minimapCanvas;
+        private CanvasGroup minimapCanvasGroup;
+        private Transform minimapOriginalParent;
+        private int minimapOriginalSiblingIndex;
+        private bool minimapOriginalOverrideSorting;
+        private int minimapOriginalSortingOrder;
+        private bool minimapOriginalCanvasCached = false;
+        private bool minimapLayerMovedForModal = false;
+
         private void Awake()
         {
-            if (Instance == null) Instance = this;
-            else Destroy(gameObject);
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
 
             currentRerollCost = baseRerollCost;
 
             if (shopUIContainer != null)
+            {
                 shopUIContainer.SetActive(false);
+            }
 
             if (closeButton != null)
+            {
                 closeButton.onClick.AddListener(CloseShop);
+            }
 
             if (rerollButton != null)
+            {
                 rerollButton.onClick.AddListener(OnClickRerollItems);
+            }
         }
 
         private void Update()
@@ -86,10 +119,12 @@ namespace Vampire
             currentInteractingNPC = npc;
 
             if (shopUIContainer != null)
+            {
                 shopUIContainer.SetActive(true);
+                shopUIContainer.transform.SetAsLastSibling();
+            }
 
-            if (minimapObject != null)
-                minimapObject.SetActive(false);
+            ApplyMinimapBehindModal();
 
             Time.timeScale = 0f;
 
@@ -108,7 +143,6 @@ namespace Vampire
         private List<MerchantItemBlueprint> GenerateNewShopItems(bool useRerollBonus, int rerollCount)
         {
             List<MerchantItemBlueprint> generatedItems = new List<MerchantItemBlueprint>();
-
             int safetyCount = 0;
 
             while (generatedItems.Count < shopItemCount && safetyCount < 100)
@@ -158,22 +192,30 @@ namespace Vampire
             int total = common + uncommon + rare + legendary;
 
             if (total <= 0)
+            {
                 return MerchantItemBlueprint.Rarity.Common;
+            }
 
             int roll = Random.Range(0, total);
 
             if (roll < common)
+            {
                 return MerchantItemBlueprint.Rarity.Common;
+            }
 
             roll -= common;
 
             if (roll < uncommon)
+            {
                 return MerchantItemBlueprint.Rarity.Uncommon;
+            }
 
             roll -= uncommon;
 
             if (roll < rare)
+            {
                 return MerchantItemBlueprint.Rarity.Rare;
+            }
 
             return MerchantItemBlueprint.Rarity.Legendary;
         }
@@ -184,7 +226,9 @@ namespace Vampire
                 allAvailableItems.FindAll(item => item.itemRarity == rarity);
 
             if (candidates.Count == 0)
+            {
                 return null;
+            }
 
             return candidates[Random.Range(0, candidates.Count)];
         }
@@ -196,12 +240,15 @@ namespace Vampire
             foreach (MerchantItemBlueprint item in allAvailableItems)
             {
                 if (!targetItems.Contains(item))
+                {
                     remainingItems.Add(item);
+                }
             }
 
             while (targetItems.Count < shopItemCount && remainingItems.Count > 0)
             {
                 int randomIndex = Random.Range(0, remainingItems.Count);
+
                 targetItems.Add(remainingItems[randomIndex]);
                 remainingItems.RemoveAt(randomIndex);
             }
@@ -230,6 +277,7 @@ namespace Vampire
                 GameObject cardObj = Instantiate(shopItemCardPrefab, shopCardsParent);
 
                 RectTransform rect = cardObj.GetComponent<RectTransform>();
+
                 if (rect != null)
                 {
                     rect.localScale = Vector3.one;
@@ -239,6 +287,7 @@ namespace Vampire
                 }
 
                 LayoutElement layoutElement = cardObj.GetComponent<LayoutElement>();
+
                 if (layoutElement != null)
                 {
                     layoutElement.preferredWidth = runtimeCardSize.x;
@@ -266,7 +315,9 @@ namespace Vampire
             for (int i = 0; i < spawnedShopCards.Count; i++)
             {
                 if (spawnedShopCards[i] != null)
+                {
                     Destroy(spawnedShopCards[i].gameObject);
+                }
             }
 
             spawnedShopCards.Clear();
@@ -275,7 +326,9 @@ namespace Vampire
         public void OnClickRerollItems()
         {
             if (currentInteractingNPC == null)
+            {
                 return;
+            }
 
             if (ProcessPayment(currentRerollCost))
             {
@@ -320,10 +373,11 @@ namespace Vampire
         public void CloseShop()
         {
             if (shopUIContainer != null)
+            {
                 shopUIContainer.SetActive(false);
+            }
 
-            if (minimapObject != null)
-                minimapObject.SetActive(true);
+            RestoreMinimapLayer();
 
             Time.timeScale = 1f;
 
@@ -345,6 +399,15 @@ namespace Vampire
                 if (statApplier != null)
                 {
                     statApplier.ApplyStats(itemToBuy);
+                }
+
+                if (SynergyManager.Instance != null)
+                {
+                    SynergyManager.Instance.AddItem(itemToBuy);
+                }
+                else
+                {
+                    Debug.LogWarning("[시너지] SynergyManager가 씬에 없습니다!");
                 }
 
                 MerchantNPC npcToDestroy = currentInteractingNPC;
@@ -381,6 +444,130 @@ namespace Vampire
             }
 
             return false;
+        }
+
+        private void ApplyMinimapBehindModal()
+        {
+            ResolveMinimapObject();
+
+            if (minimapObject == null)
+            {
+                return;
+            }
+
+            minimapObject.SetActive(true);
+
+            if (!minimapLayerMovedForModal)
+            {
+                minimapOriginalParent = minimapObject.transform.parent;
+                minimapOriginalSiblingIndex = minimapObject.transform.GetSiblingIndex();
+                minimapLayerMovedForModal = true;
+            }
+
+            if (minimapOriginalParent != null)
+            {
+                minimapObject.transform.SetAsFirstSibling();
+            }
+
+            PrepareMinimapCanvas();
+
+            if (minimapCanvas != null)
+            {
+                minimapCanvas.overrideSorting = true;
+                minimapCanvas.sortingOrder = minimapModalSortingOrder;
+            }
+
+            if (minimapCanvasGroup != null)
+            {
+                minimapCanvasGroup.interactable = false;
+                minimapCanvasGroup.blocksRaycasts = false;
+            }
+        }
+
+        private void RestoreMinimapLayer()
+        {
+            if (minimapObject == null)
+            {
+                return;
+            }
+
+            if (minimapLayerMovedForModal && minimapOriginalParent != null && minimapObject.transform.parent == minimapOriginalParent)
+            {
+                int safeIndex = Mathf.Clamp(minimapOriginalSiblingIndex, 0, minimapOriginalParent.childCount - 1);
+                minimapObject.transform.SetSiblingIndex(safeIndex);
+            }
+
+            if (minimapCanvas != null && minimapOriginalCanvasCached)
+            {
+                minimapCanvas.overrideSorting = minimapOriginalOverrideSorting;
+                minimapCanvas.sortingOrder = minimapOriginalSortingOrder;
+            }
+
+            if (minimapCanvasGroup != null)
+            {
+                minimapCanvasGroup.interactable = true;
+                minimapCanvasGroup.blocksRaycasts = false;
+            }
+
+            minimapLayerMovedForModal = false;
+        }
+
+        private void ResolveMinimapObject()
+        {
+            if (minimapObject != null || !autoFindMinimapIfEmpty)
+            {
+                return;
+            }
+
+            RectTransform[] rectTransforms = FindObjectsOfType<RectTransform>(true);
+
+            for (int i = 0; i < rectTransforms.Length; i++)
+            {
+                string lowerName = rectTransforms[i].gameObject.name.ToLower();
+
+                if (lowerName.Contains("minimap") ||
+                    lowerName.Contains("mini_map") ||
+                    lowerName.Contains("mini map"))
+                {
+                    minimapObject = rectTransforms[i].gameObject;
+                    return;
+                }
+            }
+        }
+
+        private void PrepareMinimapCanvas()
+        {
+            if (minimapObject == null)
+            {
+                return;
+            }
+
+            if (minimapCanvas == null)
+            {
+                minimapCanvas = minimapObject.GetComponent<Canvas>();
+
+                if (minimapCanvas == null && addCanvasToMinimapIfMissing)
+                {
+                    minimapCanvas = minimapObject.AddComponent<Canvas>();
+                }
+            }
+
+            if (minimapCanvas != null && !minimapOriginalCanvasCached)
+            {
+                minimapOriginalOverrideSorting = minimapCanvas.overrideSorting;
+                minimapOriginalSortingOrder = minimapCanvas.sortingOrder;
+                minimapOriginalCanvasCached = true;
+            }
+
+            if (minimapCanvasGroup == null)
+            {
+                minimapCanvasGroup = minimapObject.GetComponent<CanvasGroup>();
+
+                if (minimapCanvasGroup == null)
+                {
+                    minimapCanvasGroup = minimapObject.AddComponent<CanvasGroup>();
+                }
+            }
         }
     }
 }

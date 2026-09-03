@@ -84,7 +84,7 @@ MonoBehaviour:
     value: 1
     upgrades: []
   cooldown:
-    value: 0.5
+    value: 0.7
     upgrades: []
   useProjectileSpawnOffset: 1
   projectileSpawnForwardOffset: 0.28
@@ -102,6 +102,14 @@ MonoBehaviour:
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
   poisonEnabled: 0
+  fiberNeedleEnabled: 0
+  corrosionNeedleEnabled: 0
+  pressureNeedleEnabled: 0
+  markNeedleEnabled: 0
+  bipolarNeedleEnabled: 0
+  digestiveAcidSacNeedleEnabled: 0
+  hungerNeedleEnabled: 0
+  gutBacteriaNeedleEnabled: 0
   explosionEnabled: 0
   homingEnabled: 0
   pierceEnabled: 0
@@ -110,9 +118,16 @@ MonoBehaviour:
   returnNeedleEnabled: 0
   acupunctureFormationEnabled: 0
   lifeBurnEnabled: 0
+  hungrySpiritEnabled: 0
+  needleShotgunEnabled: 0
   cloneLegendaryTaken: 0
+  neuralBlockEnabled: 0
+  poisonContagionEnabled: 0
+  gastricPeristalsisWaveEnabled: 0
+  mucosalFortressEnabled: 0
+  organCompressionEnabled: 0
   hedgehogNeedleEnabled: 0
-  heavySnipeEnabled: 1
+  heavySnipeEnabled: 0
   cursorControlEnabled: 0
   poisonDuration: 3
   poisonTickInterval: 0.5
@@ -122,6 +137,52 @@ MonoBehaviour:
   specialExplosionChance: 1
   homingRange: 5
   homingLerpSpeed: 8
+  fiberTrailLifetime: 2
+  fiberTrailDamagePerSecond: 2
+  fiberTrailTickInterval: 0.5
+  fiberTrailWidth: 0.12
+  fiberTrailMinSegmentDistance: 0.25
+  fiberTrailColor: {r: 0.75, g: 1, b: 0.95, a: 0.75}
+  digestiveAcidPuddleLifetime: 3
+  digestiveAcidPuddleRadius: 1
+  digestiveAcidPuddleDamagePerSecond: 2
+  digestiveAcidPuddleTickInterval: 0.5
+  digestiveAcidPuddleColor: {r: 0.6, g: 1, b: 0.15, a: 0.75}
+  hungerStackDuration: 3
+  hungerAttackSpeedBonusPerStack: 0.04
+  hungerMaxStacks: 8
+  debugHungerNeedle: 0
+  gutBacteriaStackDuration: 6
+  gutBacteriaRequiredStacks: 3
+  gutBacteriaMaxStacks: 5
+  gutBacteriaBonusGemCount: 1
+  gutBacteriaBonusGemType: 2
+  gutBacteriaBonusGemSpawnRadius: 0.35
+  debugGutBacteria: 0
+  corrosionDuration: 3
+  corrosionDamageTakenBonusPerStack: 0.15
+  corrosionBossDamageTakenBonusPerStack: 0.05
+  corrosionMaxStacks: 3
+  pressureDamageBonusPerDistance: 0.08
+  pressureMaxDamageBonus: 0.5
+  markDuration: 4
+  markBonusDamageMultiplier: 0.5
+  gastricWaveInterval: 6
+  gastricWaveDamageMultiplier: 0.75
+  gastricWaveKnockbackMultiplier: 1.4
+  gastricWaveMaxRadius: 5.5
+  gastricWaveDuration: 0.65
+  gastricWaveThickness: 0.35
+  gastricWaveColor: {r: 0.55, g: 1, b: 0.15, a: 0.65}
+  debugGastricWave: 1
+  mucosalFortressNoDamageSeconds: 5
+  mucosalFortressMaxStacks: 3
+  mucosalFortressShieldColor: {r: 0.85, g: 1, b: 0.75, a: 0.6}
+  debugMucosalFortress: 1
+  bipolarNeedleBonusProjectileCount: 1
+  bipolarNeedleBackAngleOffset: 180
+  bipolarNeedleFrontGetsExtraProjectile: 1
+  debugBipolarNeedle: 0
   pierceCount: 1
   honeyDuration: 2
   honeySlowMultiplier: 0.6
@@ -186,12 +247,68 @@ MonoBehaviour:
   heavyChargePreviewAlpha: 0.9
   heavyChargePreviewSortingOrderBonus: 30
   debugHeavySnipe: 1
+  hungrySpiritStackInterval: 2
+  hungrySpiritMaxStacks: 8
+  hungrySpiritDamageBonusPerStack: 0.05
+  hungrySpiritRangeBonusPerStack: 0.04
+  hungrySpiritAttackSpeedBonusPerStack: 0.04
+  debugHungrySpirit: 0
+  needleShotgunMaxAmmo: 4
+  needleShotgunReloadTime: 0.3
+  needleShotgunAttackInterval: 0.5
+  needleShotgunDetectionRange: 3
+  needleShotgunFixedRange: 3
+  needleShotgunProjectileSpeedMultiplier: 1.25
+  needleShotgunDamageMultiplier: 1
+  needleShotgunAnglePerProjectile: 18
+  needleShotgunMaxSpreadAngle: 120
+  needleShotgunReloadOnDash: 1
+  showNeedleShotgunAmmoNumber: 1
+  needleShotgunAmmoTextYOffset: 1.1
+  needleShotgunAmmoTextFontSize: 3
+  needleShotgunAmmoTextSortingOrder: 200
+  needleShotgunAmmoTextColor: {r: 1, g: 1, b: 1, a: 1}
+  debugNeedleShotgun: 0
+  neuralBlockInterval: 30
+  neuralBlockFreezeDuration: 5
+  neuralBlockScreenPadding: 0.08
+  debugNeuralBlock: 1
+  poisonContagionRadius: 1
+  poisonContagionDurationMultiplier: 1
+  poisonContagionDamageMultiplier: 1
+  debugPoisonContagion: 1
+  organCompressionInterval: 20
+  organCompressionClusterSearchRadius: 2.5
+  organCompressionFieldRadius: 1
+  organCompressionFieldDuration: 3
+  organCompressionDamageTickInterval: 0.5
+  organCompressionDamagePerTick: 2
+  organCompressionPullSpeed: 2.5
+  organCompressionScreenPadding: 0.08
+  debugOrganCompression: 1
   cursorNeedleFollowSpeed: 3
+  cursorNeedleOrbitVisualAngleOffset: 180
+  cursorNeedleBackDisplayBaseAngle: 90
+  cursorNeedleBackDisplaySpreadAngle: 24
+  cursorNeedleOrbitStraightness: 0.72
   cursorNeedleHitRadius: 0.2
   cursorNeedleDamageMultiplier: 0.7
-  cursorNeedleDamageInterval: 0.25
+  cursorNeedleDamageInterval: 0.5
   cursorNeedleVisualScale: 1.2
   cursorNeedleHomingHitRadiusBonus: 0.35
+  cursorNeedleOrbitCenterOffset: {x: 0, y: 0.45}
+  cursorNeedleOrbitHorizontalRadius: 2.2
+  cursorNeedleOrbitVerticalRadius: 1
+  cursorNeedleTargetAssistRadius: 0.75
+  cursorNeedleTargetAssistStrength: 0.35
+  cursorNeedleMaxAssistHitRadiusBonus: 0.1
+  cursorNeedleHitRadiusBonusPerSpecial: 0.3
+  cursorNeedleMaxHitRadiusBonusFromSpecial: 0.45
+  cursorNeedleDamageBonusPerSpecial: 0.1
+  cursorNeedleSpeedBonusPerSpecial: 0.1
+  cursorNeedleMaxSpecialBonusCount: 12
+  cursorNeedleMaxTargetsPerTick: 12
+  debugCursorNeedleOrbit: 0
   cursorNeedleBackDisplayOffset: {x: 0, y: 0.9}
   cursorNeedleBackDisplaySpacing: 0.35
   cursorNeedleBackDisplayArcHeight: 0.25

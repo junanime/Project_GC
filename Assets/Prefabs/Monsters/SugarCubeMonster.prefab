@@ -293,7 +293,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  whiteMaterial: {fileID: 2100000, guid: 6e8eea0ed92094605ac676c1b177e375, type: 2}
+  whiteMaterial: {fileID: 2100000, guid: 4348fe5ea103a41bd9779c159297602c, type: 2}
   dissolveMaterial: {fileID: 2100000, guid: 6e8eea0ed92094605ac676c1b177e375, type: 2}
   deathParticles: {fileID: 6710381995318333818}
   shadow: {fileID: 2877871657500550848}
@@ -311,11 +311,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2966476183713896167, guid: 88e5d6bdd8d834beda5df6f67ea9f117, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.158
       objectReference: {fileID: 0}
     - target: {fileID: 2966476183713896167, guid: 88e5d6bdd8d834beda5df6f67ea9f117, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.2
+      value: -0.168
       objectReference: {fileID: 0}
     - target: {fileID: 2966476183713896167, guid: 88e5d6bdd8d834beda5df6f67ea9f117, type: 3}
       propertyPath: m_LocalPosition.z

@@ -50,10 +50,15 @@ MonoBehaviour:
   damagePerTick: 3
   tickInterval: 0.5
   damageImmediatelyOnEnter: 0
-  spriteRenderer: {fileID: 0}
+  spriteRenderer: {fileID: 4045584077578594558}
+  spriteRenderers:
+  - {fileID: 4045584077578594558}
   activeColor: {r: 0.4, g: 1, b: 0.1, a: 0.55}
-  warningColor: {r: 0.4, g: 1, b: 0.1, a: 0.25}
-  warningDuration: 0.4
+  warningColor: {r: 0.10479069, g: 0.24528301, b: 0.03316715, a: 1}
+  warningDuration: 0.9
+  forceVisualSorting: 1
+  puddleSortingLayerName: Default
+  puddleOrderInLayer: -5
 --- !u!212 &4045584077578594558
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -94,9 +99,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 100
-  m_Sprite: {fileID: 21300000, guid: c5164ffb826f3469db584349ea8fb550, type: 3}
-  m_Color: {r: 0.5089422, g: 1, b: 0.2358489, a: 1}
+  m_SortingOrder: -5
+  m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -140,4 +145,4 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.7

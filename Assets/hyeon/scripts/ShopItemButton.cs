@@ -1,6 +1,7 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 namespace Vampire
 {
@@ -21,32 +22,68 @@ namespace Vampire
         [SerializeField] private Sprite legendaryCardSprite;
 
         private MerchantItemBlueprint currentItem;
-        private bool isSoldOut = false;
+        private bool isSoldOut;
+
+        // 로비에서만 사용되는 구매 함수
+        private Action<MerchantItemBlueprint, ShopItemButton> customPurchaseHandler;
+        private string normalPriceText;
 
         private void Awake()
         {
-            purchaseButton.onClick.AddListener(OnPurchaseClicked);
+            if (purchaseButton != null)
+                purchaseButton.onClick.AddListener(OnPurchaseClicked);
         }
 
+        // 기존 인게임 상점용
         public void Setup(MerchantItemBlueprint item)
+        {
+            SetupInternal(item, $"{item.cost} G", null);
+        }
+
+        // 로비 상점용
+        public void SetupForLobby(
+            MerchantItemBlueprint item,
+            int silverCost,
+            Action<MerchantItemBlueprint, ShopItemButton> purchaseHandler)
+        {
+            SetupInternal(item, $"{silverCost} Silver", purchaseHandler);
+        }
+
+        private void SetupInternal(
+            MerchantItemBlueprint item,
+            string priceText,
+            Action<MerchantItemBlueprint, ShopItemButton> purchaseHandler)
         {
             currentItem = item;
             isSoldOut = false;
+            customPurchaseHandler = purchaseHandler;
+            normalPriceText = priceText;
 
-            purchaseButton.interactable = true;
+            if (purchaseButton != null)
+                purchaseButton.interactable = true;
 
-            itemIcon.sprite = item.itemIcon;
-            itemNameText.text = item.itemName;
-            itemDescriptionText.text = item.description;
-            itemCostText.text = item.cost.ToString() + " G";
-            itemCostText.color = Color.black;
+            if (itemIcon != null)
+                itemIcon.sprite = item.itemIcon;
+
+            if (itemNameText != null)
+                itemNameText.text = item.itemName;
+
+            if (itemDescriptionText != null)
+                itemDescriptionText.text = item.description;
+
+            if (itemCostText != null)
+            {
+                itemCostText.text = normalPriceText;
+                itemCostText.color = Color.black;
+            }
 
             SetCardByRarity(item.itemRarity);
         }
 
         private void SetCardByRarity(MerchantItemBlueprint.Rarity rarity)
         {
-            if (itemCardImage == null) return;
+            if (itemCardImage == null)
+                return;
 
             switch (rarity)
             {
@@ -70,35 +107,61 @@ namespace Vampire
 
         private void OnPurchaseClicked()
         {
-            if (currentItem == null || isSoldOut) return;
+            if (currentItem == null || isSoldOut)
+                return;
 
-            MerchantUIManager.Instance.OnClickPurchaseItem(currentItem, this);
+            // 로비에서 생성된 카드면 로비 구매 처리
+            if (customPurchaseHandler != null)
+            {
+                customPurchaseHandler.Invoke(currentItem, this);
+                return;
+            }
+
+            // 원래 인게임 상점 구매 처리
+            if (MerchantUIManager.Instance != null)
+            {
+                MerchantUIManager.Instance.OnClickPurchaseItem(currentItem, this);
+            }
         }
 
-        public void MarkAsSoldOut()
+        public void MarkAsSoldOut(string text = "SOLD OUT")
         {
             isSoldOut = true;
-            purchaseButton.interactable = false;
 
-            itemCostText.text = "SOLD OUT";
-            itemCostText.color = Color.gray;
+            if (purchaseButton != null)
+                purchaseButton.interactable = false;
+
+            if (itemCostText != null)
+            {
+                itemCostText.text = text;
+                itemCostText.color = Color.gray;
+            }
         }
 
-        public void ShowNotEnoughGold()
+        public void ShowTemporaryMessage(string message, Color color)
         {
-            itemCostText.text = "돈 부족!";
-            itemCostText.color = Color.red;
+            if (itemCostText == null)
+                return;
 
-            Invoke(nameof(ResetPriceText), 1f);
+            itemCostText.text = message;
+            itemCostText.color = color;
+
+            CancelInvoke(nameof(ResetPriceText));
+            Invoke(nameof(ResetPriceText), 1.2f);
         }
 
         private void ResetPriceText()
         {
-            if (!isSoldOut && currentItem != null)
-            {
-                itemCostText.text = currentItem.cost.ToString() + " G";
-                itemCostText.color = Color.black;
-            }
+            if (isSoldOut || itemCostText == null)
+                return;
+
+            itemCostText.text = normalPriceText;
+            itemCostText.color = Color.black;
+        }
+
+        public void ShowNotEnoughGold()
+        {
+            ShowTemporaryMessage("골드 부족!", Color.red);
         }
     }
 }

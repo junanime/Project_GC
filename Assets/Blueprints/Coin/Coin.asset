@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coinSprites:
     content:
-    - {fileID: 21300000, guid: 296af48805bcd4f9ba29455452574e29, type: 3}
-    - {fileID: 21300000, guid: effb6763c16d349228dfcc6423520918, type: 3}
-    - {fileID: 21300000, guid: f9f8baf64fad74a08a717c43cccb2f04, type: 3}
-    - {fileID: 21300000, guid: c4bb0734513c34756ade72d254666850, type: 3}
-    - {fileID: 21300000, guid: 36a18b04299514fddac3e34217aee043, type: 3}
+    - {fileID: 21300000, guid: af9432daf23040d4ea5d927ceb689bc5, type: 3}
+    - {fileID: 21300000, guid: ce34aedb742dfd84984bf6fd3f677e0f, type: 3}
+    - {fileID: 21300000, guid: 7e0820255ddc0764c99507236fba838d, type: 3}
+    - {fileID: 21300000, guid: e621a128887a8bc42b0c9ccff1f0b61f, type: 3}
+    - {fileID: 21300000, guid: bf257e0b7c8bdc946af7ba86807bf20e, type: 3}
     enumType: 0

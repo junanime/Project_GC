@@ -361,7 +361,16 @@ namespace Vampire
                 return;
             }
 
+            // 실제 증강 적용을 먼저 처리합니다.
             ability.Select();
+
+            // 증강 선택이 실제로 처리된 뒤 선택 효과음을 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.AugmentSelect
+            );
+
+            // 선택창을 닫으면서 증강 선택 BGM을 종료하고
+            // 이전에 재생 중이던 BGM으로 복귀합니다.
             levelUpMenu.Close();
         }
     }

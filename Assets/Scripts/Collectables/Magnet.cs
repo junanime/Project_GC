@@ -5,6 +5,9 @@ namespace Vampire
         protected override void OnCollected()
         {
             entityManager.CollectAllCoinsAndGems();
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.MagnetPickup
+);
             Destroy(gameObject);
         }
     }

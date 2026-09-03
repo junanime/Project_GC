@@ -46,7 +46,10 @@ public class MenuManager : MonoBehaviour
         }
 
         Vampire.CrossSceneData.CharacterBlueprint = selectedCharacter;
-        Vampire.CrossSceneData.ClearStartingLobbyItems();
+
+        // 로비에서 구매한 아이템을 인게임으로 전달
+        Vampire.CrossSceneData.StartingLobbyItems =
+            Vampire.LobbyLoadoutData.ConsumeSelectedCarryItems();
 
         Debug.Log($"Character selected: {selectedCharacter.name}. Starting game.");
         SceneManager.LoadScene(gameSceneBuildIndex);

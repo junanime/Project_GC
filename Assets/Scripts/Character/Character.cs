@@ -180,6 +180,16 @@ namespace Vampire
         public Collider2D CollectableCollider => collectableCollider;
         public float Luck => characterBlueprint.luck * luckMultiplier;
         public int CurrentLevel => currentLevel;
+        public float CurrentHealth => currentHealth;
+        public float MaxHealth => GetMaxHealth();
+        public float CurrentMoveSpeed => movementSpeed != null ? movementSpeed.Value : 0f;
+        public float CurrentArmor => armor != null ? armor.Value : 0f;
+
+        public string DisplayName =>
+            characterBlueprint != null && !string.IsNullOrWhiteSpace(characterBlueprint.name)
+                ? characterBlueprint.name
+                : gameObject.name;
+
         public bool HasThermometer => hasThermometer;
 
         private int thermometerStacks = 0;
@@ -216,6 +226,20 @@ namespace Vampire
         public bool IsDashing => isDashing;
         public float AntibioticBombChance => antibioticBombChance;
         public bool AutoCollectItems => autoCollectItems;
+        public float IdleHealPerSecond => healOnIdlePerSecond;
+        public float MagnetRangeBonus => magnetRangeBonus;
+        public float ExperienceMultiplier => expMultiplier;
+
+        public float DashDistance => dashDistance;
+        public float DashRechargeTime => dashRechargeTime;
+
+        public bool HasShield => hasShield;
+        public int ReviveCount => reviveCount;
+
+        public int ThermometerStacks => thermometerStacks;
+        public int ReflexHammerCount => reflexHammerCount;
+        public bool HasGinsengStick => hasGinsengStick;
+
 
         public UnityEvent<float> OnDealDamage { get; } = new UnityEvent<float>();
         public UnityEvent OnDeath { get; } = new UnityEvent();
@@ -431,11 +455,15 @@ namespace Vampire
 
             currentDashCharges--;
 
+            // 실제 대쉬 사용이 확정된 순간 효과음을 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.PlayerDash
+            );
+
             if (dashCoroutine != null)
             {
                 StopCoroutine(dashCoroutine);
             }
-
             dashCoroutine = StartCoroutine(DashCoroutine(dashDirection));
 
             if (dashRechargeCoroutine == null)
@@ -784,6 +812,12 @@ namespace Vampire
             }
 
             currentLevel++;
+
+            // 실제 레벨 증가가 확정된 순간 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.PlayerLevelUp
+            );
+
             UpdateLevelDisplay();
 
             abilitySelectionDialog.Open();
@@ -819,6 +853,11 @@ namespace Vampire
                 return;
             }
 
+            // 전설증강: 점막 요새 컨트롤러.
+            // Character와 같은 namespace Vampire 안에 있으므로 별도 using 없이 접근 가능하다.
+            MucosalFortressShieldController mucosalFortressShield =
+                GetComponent<MucosalFortressShieldController>();
+
             if (IsDashInvincibilityActive())
             {
                 if (debugDashLog)
@@ -834,6 +873,15 @@ namespace Vampire
                 return;
             }
 
+            // 전설증강: 점막 요새
+            // 실드 스택이 있으면 1개 소모하고 이번 피격 피해를 완전히 막는다.
+            // 대쉬 무적/일반 무적보다 뒤, 기존 hasShield보다 앞에서 처리한다.
+            if (mucosalFortressShield != null && mucosalFortressShield.TryConsumeShieldStack())
+            {
+                return;
+            }
+
+            // 기존 실드 기능은 그대로 유지한다.
             if (hasShield)
             {
                 hasShield = false;
@@ -849,8 +897,22 @@ namespace Vampire
                 damage -= armor.Value;
             }
 
+            // 여기까지 왔다는 것은 실제 체력 피해가 발생한다는 뜻이다.
+            // 점막 요새는 "피해를 받지 않은 시간"을 기준으로 실드를 충전하므로,
+            // 실제 피해가 들어가기 직전에 타이머를 초기화한다.
+            if (mucosalFortressShield != null)
+            {
+                mucosalFortressShield.NotifyPlayerDamaged();
+            }
+
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+
+            // 실제 HP가 감소한 경우에만 피격 효과음.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.PlayerHit
+            );
+
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
             statsManager.IncreaseDamageTaken(damage);
 
@@ -871,6 +933,10 @@ namespace Vampire
                     Revive();
                     return;
                 }
+
+                GameAudioManager.PlaySfx(
+        GameAudioManager.GameSfxId.PlayerDeath
+    );
 
                 StartCoroutine(DeathAnimation());
             }

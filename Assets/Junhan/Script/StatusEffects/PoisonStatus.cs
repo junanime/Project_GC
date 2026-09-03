@@ -8,6 +8,13 @@ namespace Vampire
         private Monster targetMonster;
         private Coroutine poisonCoroutine;
 
+        private bool poisonActive = false;
+        private bool contagionAlreadyTriggered = false;
+
+        private float currentDuration = 0f;
+        private float currentTickInterval = 0.5f;
+        private float currentTickDamage = 1f;
+
         private void Awake()
         {
             targetMonster = GetComponent<Monster>() ?? GetComponentInParent<Monster>();
@@ -25,12 +32,19 @@ namespace Vampire
                 return;
             }
 
+            currentDuration = Mathf.Max(0.05f, duration);
+            currentTickInterval = Mathf.Max(0.05f, tickInterval);
+            currentTickDamage = Mathf.Max(0f, tickDamage);
+
+            poisonActive = true;
+            contagionAlreadyTriggered = false;
+
             if (poisonCoroutine != null)
             {
                 StopCoroutine(poisonCoroutine);
             }
 
-            poisonCoroutine = StartCoroutine(PoisonRoutine(duration, tickInterval, tickDamage));
+            poisonCoroutine = StartCoroutine(PoisonRoutine(currentDuration, currentTickInterval, currentTickDamage));
         }
 
         private IEnumerator PoisonRoutine(float duration, float tickInterval, float tickDamage)
@@ -55,16 +69,48 @@ namespace Vampire
                 elapsed += tickInterval;
             }
 
+            poisonActive = false;
             poisonCoroutine = null;
+        }
+
+        private void TryTriggerContagion()
+        {
+            if (!poisonActive)
+            {
+                return;
+            }
+
+            if (contagionAlreadyTriggered)
+            {
+                return;
+            }
+
+            contagionAlreadyTriggered = true;
+
+            PoisonContagionRuntime.TrySpreadFrom(
+                targetMonster,
+                currentDuration,
+                currentTickInterval,
+                currentTickDamage
+            );
         }
 
         private void OnDisable()
         {
+            TryTriggerContagion();
+
             if (poisonCoroutine != null)
             {
                 StopCoroutine(poisonCoroutine);
                 poisonCoroutine = null;
             }
+
+            poisonActive = false;
+        }
+
+        private void OnDestroy()
+        {
+            TryTriggerContagion();
         }
     }
 }

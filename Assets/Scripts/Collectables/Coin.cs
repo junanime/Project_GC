@@ -35,6 +35,34 @@ namespace Vampire
 
         protected override void OnCollected()
         {
+            HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(
+                playerCharacter
+            );
+
+            switch (coinType)
+            {
+                case CoinType.Silver2:
+                    GameAudioManager.PlaySfx(
+                        GameAudioManager.GameSfxId.SilverPickup
+                    );
+                    break;
+
+                case CoinType.Pouch30:
+                case CoinType.Bag50:
+                    GameAudioManager.PlaySfx(
+                        GameAudioManager.GameSfxId.CoinPouchPickup
+                    );
+                    break;
+
+                case CoinType.Bronze1:
+                case CoinType.Gold5:
+                default:
+                    GameAudioManager.PlaySfx(
+                        GameAudioManager.GameSfxId.GoldPickup
+                    );
+                    break;
+            }
+
             entityManager.DespawnCoin(this);
         }
     }

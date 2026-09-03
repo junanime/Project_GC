@@ -6,13 +6,39 @@ namespace Vampire
 {
     public class Projectile : MonoBehaviour
     {
+        [Header("References")]
+        [Tooltip("투사체의 실제 스프라이트를 표시하는 SpriteRenderer입니다.")]
         [SerializeField] protected SpriteRenderer projectileSpriteRenderer;
+
+        [Header("Movement Settings")]
+        [Tooltip("투사체가 이동할 수 있는 최대 거리입니다. 이 거리를 넘으면 자동으로 사라집니다.")]
         [SerializeField] public float maxDistance;
+
+        [Tooltip("투사체가 날아가는 동안 회전하는 속도입니다. 오이처럼 방향을 고정해서 날아가야 하는 탄환은 0으로 두세요.")]
         [SerializeField] protected float rotationSpeed = 0;
+
+        [Tooltip("투사체가 날아가는 동안 속도가 줄어드는 정도입니다. 오이 저격 탄환처럼 직선으로 빠르게 날아가야 하면 0으로 두세요.")]
         [SerializeField] protected float airResistance = 0;
+
+        [Header("Launch Direction Visual Settings")]
+        [Tooltip("체크하면 투사체 이미지가 발사 방향을 바라보도록 자동 회전합니다. 오이 저격 탄환은 체크하세요.")]
+        [SerializeField] private bool alignVisualToLaunchDirection = false;
+
+        [Tooltip("스프라이트의 기본 앞 방향 보정 각도입니다. 이미지가 오른쪽을 바라보면 0, 왼쪽을 바라보면 180, 위쪽을 바라보면 -90, 아래쪽을 바라보면 90을 넣으세요.")]
+        [SerializeField] private float visualAngleOffset = 0f;
+
+        [Tooltip("오브젝트 풀에서 재사용될 때 이전 회전값을 초기화합니다. 대부분 켜두는 것이 안전합니다.")]
+        [SerializeField] private bool resetRotationOnSetup = true;
+
+        [Tooltip("이동 중에도 계속 방향 회전을 다시 맞춥니다. 일반 직선 탄환은 꺼도 됩니다.")]
+        [SerializeField] private bool keepVisualAlignedWhileMoving = false;
+
+        [Header("Effects")]
+        [Tooltip("투사체가 사라질 때 재생할 파티클입니다. 없으면 비워둬도 됩니다.")]
         [SerializeField] protected ParticleSystem destructionParticleSystem;
 
         [Header("Critical Settings")]
+        [Tooltip("치명타가 발생했을 때 데미지 배율입니다.")]
         [SerializeField] protected float criticalDamageMultiplier = 2f;
 
         protected float despawnTime = 1;
@@ -20,6 +46,7 @@ namespace Vampire
         protected float speed;
         protected float damage;
         protected float knockback;
+
         protected EntityManager entityManager;
         protected Character playerCharacter;
         protected Collider2D col;
@@ -30,10 +57,14 @@ namespace Vampire
         protected TrailRenderer trailRenderer = null;
         protected bool isDespawning = false;
 
+        private Quaternion initialRotation;
+
         public UnityEvent<float> OnHitDamageable { get; private set; }
 
         protected virtual void Awake()
         {
+            initialRotation = transform.rotation;
+
             col = GetComponent<Collider2D>();
             zPositioner = gameObject.AddComponent<ZPositioner>();
             TryGetComponent<TrailRenderer>(out trailRenderer);
@@ -43,12 +74,28 @@ namespace Vampire
         {
             this.entityManager = entityManager;
             this.playerCharacter = playerCharacter;
-            zPositioner.Init(playerCharacter.transform);
+
+            if (zPositioner != null && playerCharacter != null)
+            {
+                zPositioner.Init(playerCharacter.transform);
+            }
         }
 
-        public virtual void Setup(int projectileIndex, Vector2 position, float damage, float knockback, float speed, LayerMask targetLayer)
+        public virtual void Setup(
+            int projectileIndex,
+            Vector2 position,
+            float damage,
+            float knockback,
+            float speed,
+            LayerMask targetLayer)
         {
             transform.position = position;
+
+            if (resetRotationOnSetup)
+            {
+                transform.rotation = initialRotation;
+            }
+
             trailRenderer?.Clear();
 
             this.projectileIndex = projectileIndex;
@@ -74,7 +121,22 @@ namespace Vampire
 
         public virtual void Launch(Vector2 direction)
         {
-            this.direction = direction.normalized;
+            if (direction.sqrMagnitude <= 0.0001f)
+            {
+                this.direction = Vector2.right;
+            }
+            else
+            {
+                this.direction = direction.normalized;
+            }
+
+            ApplyVisualRotationToDirection();
+
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+            }
+
             moveCoroutine = StartCoroutine(Move());
         }
 
@@ -86,16 +148,41 @@ namespace Vampire
             while (distanceTravelled < maxDistance && timeOffScreen < despawnTime && speed > 0)
             {
                 float step = speed * Time.deltaTime;
+
+                if (keepVisualAlignedWhileMoving)
+                {
+                    ApplyVisualRotationToDirection();
+                }
+
                 transform.position += step * (Vector3)direction;
                 distanceTravelled += step;
 
-                transform.RotateAround(transform.position, Vector3.back, Time.deltaTime * 100 * rotationSpeed);
+                if (Mathf.Abs(rotationSpeed) > 0.001f)
+                {
+                    transform.RotateAround(
+                        transform.position,
+                        Vector3.back,
+                        Time.deltaTime * 100 * rotationSpeed
+                    );
+                }
 
                 speed -= airResistance * Time.deltaTime;
+
                 yield return null;
             }
 
             HitNothing();
+        }
+
+        private void ApplyVisualRotationToDirection()
+        {
+            if (!alignVisualToLaunchDirection)
+            {
+                return;
+            }
+
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle + visualAngleOffset);
         }
 
         protected virtual void HitDamageable(IDamageable damageable)
@@ -112,7 +199,6 @@ namespace Vampire
             {
                 isCritical = true;
                 finalDamage *= criticalDamageMultiplier;
-
                 Debug.Log($"<color=red>[치명타]</color> Critical Hit! Damage: {finalDamage}");
             }
 
@@ -195,9 +281,15 @@ namespace Vampire
 
             if ((targetLayer & (1 << collider.gameObject.layer)) != 0)
             {
-                if (collider.transform.parent.TryGetComponent<IDamageable>(out IDamageable damageable))
+                Transform parent = collider.transform.parent;
+
+                if (parent != null && parent.TryGetComponent<IDamageable>(out IDamageable damageable))
                 {
                     HitDamageable(damageable);
+                }
+                else if (collider.TryGetComponent<IDamageable>(out IDamageable directDamageable))
+                {
+                    HitDamageable(directDamageable);
                 }
                 else
                 {

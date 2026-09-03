@@ -24,6 +24,19 @@ namespace Vampire
         [Tooltip("선택 가능한 증강이 없을 때 대체로 생성할 상자 블루프린트입니다.")]
         [SerializeField] private ChestBlueprint failsafeChestBlueprint;
 
+        [Header("Mini Map Layer Fix")]
+        [Tooltip("증강 선택창이 열렸을 때 패널 뒤로 보낼 미니맵 루트 오브젝트입니다. 미니맵 배경, 마커, 테두리를 포함한 최상위 오브젝트를 넣는 것을 추천합니다.")]
+        [SerializeField] private GameObject minimapObject;
+
+        [Tooltip("Minimap Object가 비어 있을 때 이름에 Minimap, MiniMap, Mini Map, Mini_Map이 들어간 UI 오브젝트를 자동으로 찾아봅니다.")]
+        [SerializeField] private bool autoFindMinimapIfEmpty = true;
+
+        [Tooltip("미니맵 오브젝트에 Canvas가 없으면 런타임에 Canvas를 추가해서 레이어 순서를 강제로 제어합니다.")]
+        [SerializeField] private bool addCanvasToMinimapIfMissing = true;
+
+        [Tooltip("증강 선택창이 열렸을 때 미니맵에 적용할 Sorting Order입니다. 낮을수록 뒤로 갑니다.")]
+        [SerializeField] private int minimapModalSortingOrder = -100;
+
         [Header("Card Animation")]
         [Tooltip("카드가 하나씩 등장할 때의 지연 시간입니다.")]
         [SerializeField] private float cardPopupDelay = 0.1f;
@@ -70,12 +83,20 @@ namespace Vampire
         private AbilityManager abilityManager;
         private EntityManager entityManager;
         private Character playerCharacter;
-
         private List<AbilityCard> abilityCards;
         private List<Ability> displayedAbilities;
 
         private bool menuOpen = false;
         private bool rerollUsed = false;
+
+        private Canvas minimapCanvas;
+        private CanvasGroup minimapCanvasGroup;
+        private Transform minimapOriginalParent;
+        private int minimapOriginalSiblingIndex;
+        private bool minimapOriginalOverrideSorting;
+        private int minimapOriginalSortingOrder;
+        private bool minimapOriginalCanvasCached = false;
+        private bool minimapLayerMovedForModal = false;
 
         public bool MenuOpen
         {
@@ -131,7 +152,6 @@ namespace Vampire
             }
 
             ColorBlock colors = rerollButton.colors;
-
             colors.normalColor = rerollAvailableImageColor;
             colors.highlightedColor = rerollAvailableImageColor;
             colors.selectedColor = rerollAvailableImageColor;
@@ -141,7 +161,6 @@ namespace Vampire
                 rerollAvailableImageColor.b * 0.85f,
                 rerollAvailableImageColor.a
             );
-
             colors.disabledColor = rerollUsedImageColor;
             colors.colorMultiplier = 1f;
 
@@ -152,9 +171,11 @@ namespace Vampire
         {
             base.Open();
 
+            transform.SetAsLastSibling();
+            ApplyMinimapBehindModal();
+
             menuOpen = true;
             rerollUsed = false;
-
             Time.timeScale = 0;
 
             if (pauseMenu != null)
@@ -173,6 +194,9 @@ namespace Vampire
 
             if (displayedAbilities.Count > 0)
             {
+                // 실제 선택 가능한 증강 카드가 존재하는 경우에만
+                // 현재 BGM을 Pause하고 증강 선택 전용 BGM을 시작합니다.
+                GameAudioManager.EnterAugmentSelectionAudio();
                 Populate(displayedAbilities);
             }
             else
@@ -266,6 +290,7 @@ namespace Vampire
 
                     rerollUsed = true;
                     UpdateRerollButtonState();
+
                     return;
                 }
             }
@@ -367,7 +392,6 @@ namespace Vampire
             }
 
             bool canUseReroll = !rerollUsed;
-
             rerollButton.interactable = canUseReroll;
 
             if (rerollButtonImage != null)
@@ -390,14 +414,19 @@ namespace Vampire
 
         public override void Close()
         {
+            // 증강 선택 BGM이 재생 중이었다면 종료하고,
+            // 증강창이 열리기 직전에 재생 중이던 BGM을 이어서 재생합니다.
+            GameAudioManager.ExitAugmentSelectionAudio();
+
             if (displayedAbilities != null)
             {
                 abilityManager.ReturnAbilities(displayedAbilities);
                 displayedAbilities = null;
             }
 
-            menuOpen = false;
+            RestoreMinimapLayer();
 
+            menuOpen = false;
             Time.timeScale = 1;
 
             if (pauseMenu != null)
@@ -418,6 +447,130 @@ namespace Vampire
         public bool HasAvailableAbilities()
         {
             return abilityManager.HasAvailableAbilities();
+        }
+
+        private void ApplyMinimapBehindModal()
+        {
+            ResolveMinimapObject();
+
+            if (minimapObject == null)
+            {
+                return;
+            }
+
+            minimapObject.SetActive(true);
+
+            if (!minimapLayerMovedForModal)
+            {
+                minimapOriginalParent = minimapObject.transform.parent;
+                minimapOriginalSiblingIndex = minimapObject.transform.GetSiblingIndex();
+                minimapLayerMovedForModal = true;
+            }
+
+            if (minimapOriginalParent != null)
+            {
+                minimapObject.transform.SetAsFirstSibling();
+            }
+
+            PrepareMinimapCanvas();
+
+            if (minimapCanvas != null)
+            {
+                minimapCanvas.overrideSorting = true;
+                minimapCanvas.sortingOrder = minimapModalSortingOrder;
+            }
+
+            if (minimapCanvasGroup != null)
+            {
+                minimapCanvasGroup.interactable = false;
+                minimapCanvasGroup.blocksRaycasts = false;
+            }
+        }
+
+        private void RestoreMinimapLayer()
+        {
+            if (minimapObject == null)
+            {
+                return;
+            }
+
+            if (minimapLayerMovedForModal && minimapOriginalParent != null && minimapObject.transform.parent == minimapOriginalParent)
+            {
+                int safeIndex = Mathf.Clamp(minimapOriginalSiblingIndex, 0, minimapOriginalParent.childCount - 1);
+                minimapObject.transform.SetSiblingIndex(safeIndex);
+            }
+
+            if (minimapCanvas != null && minimapOriginalCanvasCached)
+            {
+                minimapCanvas.overrideSorting = minimapOriginalOverrideSorting;
+                minimapCanvas.sortingOrder = minimapOriginalSortingOrder;
+            }
+
+            if (minimapCanvasGroup != null)
+            {
+                minimapCanvasGroup.interactable = true;
+                minimapCanvasGroup.blocksRaycasts = false;
+            }
+
+            minimapLayerMovedForModal = false;
+        }
+
+        private void ResolveMinimapObject()
+        {
+            if (minimapObject != null || !autoFindMinimapIfEmpty)
+            {
+                return;
+            }
+
+            RectTransform[] rectTransforms = FindObjectsOfType<RectTransform>(true);
+
+            for (int i = 0; i < rectTransforms.Length; i++)
+            {
+                string lowerName = rectTransforms[i].gameObject.name.ToLower();
+
+                if (lowerName.Contains("minimap") ||
+                    lowerName.Contains("mini_map") ||
+                    lowerName.Contains("mini map"))
+                {
+                    minimapObject = rectTransforms[i].gameObject;
+                    return;
+                }
+            }
+        }
+
+        private void PrepareMinimapCanvas()
+        {
+            if (minimapObject == null)
+            {
+                return;
+            }
+
+            if (minimapCanvas == null)
+            {
+                minimapCanvas = minimapObject.GetComponent<Canvas>();
+
+                if (minimapCanvas == null && addCanvasToMinimapIfMissing)
+                {
+                    minimapCanvas = minimapObject.AddComponent<Canvas>();
+                }
+            }
+
+            if (minimapCanvas != null && !minimapOriginalCanvasCached)
+            {
+                minimapOriginalOverrideSorting = minimapCanvas.overrideSorting;
+                minimapOriginalSortingOrder = minimapCanvas.sortingOrder;
+                minimapOriginalCanvasCached = true;
+            }
+
+            if (minimapCanvasGroup == null)
+            {
+                minimapCanvasGroup = minimapObject.GetComponent<CanvasGroup>();
+
+                if (minimapCanvasGroup == null)
+                {
+                    minimapCanvasGroup = minimapObject.AddComponent<CanvasGroup>();
+                }
+            }
         }
     }
 }
