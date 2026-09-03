@@ -1341,7 +1341,7 @@ GameObject:
   m_Component:
   - component: {fileID: 387839462}
   - component: {fileID: 387839463}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PreviewCamera_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1402,9 +1402,9 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 2304
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: 5f32f1efda8c7cc4d9f7a8a8423bf933, type: 2}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -1811,7 +1811,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 488133681}
-  m_Layer: 11
+  m_Layer: 8
   m_Name: ModelRoot_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3664,7 +3664,7 @@ GameObject:
   m_Component:
   - component: {fileID: 815418571}
   - component: {fileID: 815418572}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Directional Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5109,7 +5109,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1075441220}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PreviewRig_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5179,7 +5179,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1260226468}
   - component: {fileID: 1260226469}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PreviewCamera_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5240,9 +5240,9 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 2304
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: e885012a508450043b51d66b7345fad4, type: 2}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -5954,7 +5954,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1433136267}
-  m_Layer: 11
+  m_Layer: 8
   m_Name: ModelRoot_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6412,7 +6412,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1584641019}
   - component: {fileID: 1584641020}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Directional Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7581,7 +7581,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1941298470}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: PreviewRig_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
