@@ -74,8 +74,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6232104052560610756}
   - component: {fileID: 5203499052640802703}
+  - component: {fileID: 5786321188722772871}
   m_Layer: 6
-  m_Name: BossHomingMissilePattern
+  m_Name: Homing_BombLob
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -110,7 +111,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uC720\uB3C4\uD0C4"
   cooldown: 3
-  coreTraits: 7
+  coreTraits: 4
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
@@ -146,6 +147,52 @@ MonoBehaviour:
   forceMissileSortingOrder: 1
   missileSortingOrder: 560
   debugShot: 0
+--- !u!114 &5786321188722772871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 454542699816596496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: 
+  cooldown: 3
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  warningCirclePrefab: {fileID: 0}
+  warningDuration: 1
+  bombProjectilePrefab: {fileID: 0}
+  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
+  arcHeight: 3
+  projectileScaleMultiplier: 1
+  rotateProjectileToMoveDirection: 1
+  projectileVisualAngleOffset: 0
+  spinProjectile: 0
+  projectileSpinSpeed: 360
+  disableProjectileColliders: 1
+  disableProjectileRigidbodySimulation: 1
+  forceProjectileSortingOrder: 1
+  projectileSortingOrder: 800
+  explosionRadius: 2
+  explosionDamage: 20
+  explosionEffectPrefab: {fileID: 0}
+  projectileDestroyDelayAfterImpact: 0
+  bombCountPhase1: 1
+  bombCountPhase2: 3
+  bombCountPhase3: 4
+  randomOffsetRadius: 1.5
+  intervalBetweenBombs: 0.15
+  debugBomb: 0
 --- !u!1 &544462092901458673
 GameObject:
   m_ObjectHideFlags: 0
@@ -822,6 +869,38 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &2024181424677677167
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4663564927574019808}
+  m_Layer: 7
+  m_Name: SharedPatterns
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4663564927574019808
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2024181424677677167}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1597109577630589099}
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2139600039794973047
 GameObject:
   m_ObjectHideFlags: 0
@@ -831,7 +910,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4947243970473018804}
-  - component: {fileID: 6742456839337701565}
   m_Layer: 6
   m_Name: BossRadialBurstPattern
   m_TagString: Untagged
@@ -854,45 +932,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7984993256475767407}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6742456839337701565
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2139600039794973047}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: "360\uB3C4 \uBC1C\uC0AC"
-  cooldown: 3
-  coreTraits: 7
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 1
-  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
-  bulletSpeed: 3
-  bulletDamage: 10
-  bulletCountPhase1: 8
-  bulletCountPhase2: 10
-  bulletCountPhase3: 12
-  ringCountPhase1: 1
-  ringCountPhase2: 1
-  ringCountPhase3: 2
-  ringInterval: 0.6
-  patternRepeatAngleOffsetStep: 20
-  ringAngleOffsetStep: 8
-  accumulateRepeatAngleOffset: 1
-  resetRepeatIndexOnDisable: 1
-  forceBulletSortingOrder: 1
-  bulletSortingOrder: 550
-  debugShot: 0
 --- !u!1 &2142986565384266587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1058,7 +1097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uBD80\uCC44\uAF34\uBC1C\uC0AC"
   cooldown: 3
-  coreTraits: 7
+  coreTraits: 1
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
@@ -1251,9 +1290,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5347791370697970624}
-  - component: {fileID: 2759813064396467651}
+  - component: {fileID: 1591953743476179956}
   m_Layer: 6
-  m_Name: BossBombLobPattern
+  m_Name: BossRadialBurstPattern
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1274,7 +1313,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2971196653146443672}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2759813064396467651
+--- !u!114 &1591953743476179956
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1283,43 +1322,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 3303437612744755116}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
+  m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patternName: "\uD3ED\uD0C4\uD22C\uD558"
+  patternName: 
   cooldown: 3
-  coreTraits: -1
+  coreTraits: 4
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 1
-  warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
-  warningDuration: 1.5
-  bombProjectilePrefab: {fileID: 8245624705231244960, guid: 1f765432043d93443880bc493ff2defb, type: 3}
-  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
-  arcHeight: 3
-  projectileScaleMultiplier: 1
-  rotateProjectileToMoveDirection: 1
-  projectileVisualAngleOffset: 0
-  spinProjectile: 0
-  projectileSpinSpeed: 30
-  disableProjectileColliders: 1
-  disableProjectileRigidbodySimulation: 1
-  forceProjectileSortingOrder: 1
-  projectileSortingOrder: 800
-  explosionRadius: 1.5
-  explosionDamage: 20
-  explosionEffectPrefab: {fileID: 0}
-  projectileDestroyDelayAfterImpact: 0
-  bombCountPhase1: 1
-  bombCountPhase2: 2
-  bombCountPhase3: 4
-  randomOffsetRadius: 1.5
-  intervalBetweenBombs: 0.15
-  debugBomb: 0
+  debugPartBinding: 0
+  bulletPrefab: {fileID: 0}
+  bulletSpeed: 6
+  bulletDamage: 8
+  bulletCountPhase1: 12
+  bulletCountPhase2: 20
+  bulletCountPhase3: 24
+  ringCountPhase1: 1
+  ringCountPhase2: 2
+  ringCountPhase3: 2
+  ringInterval: 0.25
+  patternRepeatAngleOffsetStep: 20
+  ringAngleOffsetStep: 8
+  accumulateRepeatAngleOffset: 1
+  resetRepeatIndexOnDisable: 1
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
+  debugShot: 0
 --- !u!1 &4903031752004193839
 GameObject:
   m_ObjectHideFlags: 0
@@ -1366,6 +1398,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5605262267314009720}
+  - component: {fileID: 8259392432251160973}
+  - component: {fileID: 6615172398683260717}
   m_Layer: 6
   m_Name: Patterns
   m_TagString: Untagged
@@ -1388,6 +1422,90 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8736929898052857229}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8259392432251160973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382908300445371302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d67eafb7a322bc4888956f4dcd020b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: Cola Bottle Heal
+  cooldown: 40
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  colaBottlePrefab: {fileID: 0}
+  bottleCount: 4
+  spawnDistance: 4.5
+  spawnAngleOffset: 45
+  bottleHp: 60
+  healDelayAfterSpawn: 20
+  healPerSecond: 8
+  healTickInterval: 0.25
+  maxPatternDuration: 0
+  makeBossInvincibleWhileBottleExists: 1
+  allowOtherPatternsWhileBottleExists: 1
+  bottleSpawnVfxPrefab: {fileID: 0}
+  bottleDestroyVfxPrefab: {fileID: 0}
+  bossHealVfxPrefab: {fileID: 0}
+  healVfxInterval: 1
+  forceBottleSortingOrder: 1
+  bottleSortingOrder: 450
+  patternCastSeconds: 0.2
+  debugLog: 0
+--- !u!114 &6615172398683260717
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382908300445371302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbaa3b5cf8867a45bcb8fa5d5403e71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: Absorb Minion Heal
+  cooldown: 45
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  absorbMinionPrefab: {fileID: 0}
+  spawnCount: 12
+  spawnInterval: 0.08
+  spawnDistanceMin: 6
+  spawnDistanceMax: 8
+  spawnAngleJitter: 20
+  minionHp: 15
+  minionMoveSpeed: 2.4
+  healAmountPerMinion: 10
+  absorbDistance: 1.1
+  maxPatternDuration: 18
+  playDeathVfxOnTimeout: 0
+  lockBossMovementDuringPattern: 1
+  suppressBossContactDamageDuringPattern: 1
+  minionSpawnVfxPrefab: {fileID: 0}
+  minionDeathVfxPrefab: {fileID: 0}
+  minionAbsorbVfxPrefab: {fileID: 0}
+  bossHealVfxPrefab: {fileID: 0}
+  forceMinionSortingOrder: 1
+  minionSortingOrder: 430
+  debugLog: 0
 --- !u!1 &6401697086027491985
 GameObject:
   m_ObjectHideFlags: 0
@@ -1426,6 +1544,7 @@ Transform:
   - {fileID: 4169506148560627945}
   - {fileID: 4386367549207381930}
   - {fileID: 7420338502666811484}
+  - {fileID: 4663564927574019808}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &1903366919834822943
@@ -1717,6 +1836,93 @@ MonoBehaviour:
   lastForwardedMaxHealth: 0
   deathForwarded: 0
   debugLog: 1
+--- !u!1 &6971903549722050324
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1597109577630589099}
+  - component: {fileID: 3928037255374213534}
+  m_Layer: 7
+  m_Name: BossChargePattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1597109577630589099
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6971903549722050324}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4663564927574019808}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3928037255374213534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6971903549722050324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b923e28faba368542b3af3c6a397e39d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: 
+  cooldown: 3
+  coreTraits: 1
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 0}
+  additionalRequiredParts:
+  - {fileID: 8651513597194303065}
+  - {fileID: 1677727757487493342}
+  requireAllAdditionalParts: 0
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  warningLinePrefab: {fileID: 0}
+  warningTime: 0.9
+  warningWidth: 1.5
+  warningColor: {r: 0.4, g: 0.85, b: 1, a: 0.45}
+  chargeCountPhase1: 1
+  chargeCountPhase2: 2
+  chargeCountPhase3: 3
+  betweenChargeDelayPhase2: 0.5
+  betweenChargeDelayPhase3: 0.2
+  reAimBeforeEachCharge: 1
+  zigzagAngle: 12
+  randomizeFirstZigzagSide: 1
+  chargeDistancePhase1: 6
+  chargeDistancePhase2: 8
+  chargeDistancePhase3: 9
+  chargeSpeedPhase1: 14
+  chargeSpeedPhase2: 18
+  chargeSpeedPhase3: 20
+  chargeDamagePhase1: 15
+  chargeDamagePhase2: 25
+  chargeDamagePhase3: 30
+  endLag: 0.4
+  hitboxSize: {x: 1.6, y: 1.6}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  canHitPlayerOncePerCharge: 1
+  ignorePlayerPhysicsCollisionDuringCharge: 1
+  forceExactChargeMovement: 1
+  showDebugHitbox: 0
+  debugCharge: 0
 --- !u!1 &8066779690579954938
 GameObject:
   m_ObjectHideFlags: 0
@@ -1887,7 +2093,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8191151475866271141}
-  - component: {fileID: 2114766737342873551}
   m_Layer: 6
   m_Name: BossChargePattern
   m_TagString: Untagged
@@ -1910,56 +2115,3 @@ Transform:
   m_Children: []
   m_Father: {fileID: 165491489848385023}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2114766737342873551
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9076683618319760946}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b923e28faba368542b3af3c6a397e39d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: "\uB3CC\uC9C4\uD328\uD134"
-  cooldown: 3
-  coreTraits: 7
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 1
-  warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
-  warningTime: 0.5
-  warningWidth: 1.5
-  warningColor: {r: 1, g: 1, b: 1, a: 1}
-  chargeCountPhase1: 1
-  chargeCountPhase2: 2
-  chargeCountPhase3: 3
-  betweenChargeDelayPhase2: 0.5
-  betweenChargeDelayPhase3: 0.2
-  reAimBeforeEachCharge: 1
-  zigzagAngle: 0
-  randomizeFirstZigzagSide: 1
-  chargeDistancePhase1: 3
-  chargeDistancePhase2: 4
-  chargeDistancePhase3: 5
-  chargeSpeedPhase1: 10
-  chargeSpeedPhase2: 12
-  chargeSpeedPhase3: 15
-  chargeDamagePhase1: 20
-  chargeDamagePhase2: 25
-  chargeDamagePhase3: 30
-  endLag: 2
-  hitboxSize: {x: 1.2, y: 1.2}
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  canHitPlayerOncePerCharge: 1
-  ignorePlayerPhysicsCollisionDuringCharge: 1
-  forceExactChargeMovement: 1
-  showDebugHitbox: 1
-  debugCharge: 0
