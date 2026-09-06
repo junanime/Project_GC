@@ -164,17 +164,43 @@ namespace Vampire
             ResetPart();
         }
 
-        /// <summary>
-        /// SyringeProjectile 등의 실제 피해 진입점입니다.
+        //// <summary>
+        /// 기존 IDamageable 피해 진입점입니다.
+        ///
+        /// 피해 출처를 알 수 없는 기존 시스템과의 호환성을 위해
+        /// Unknown으로 전달합니다.
         /// </summary>
         public override void TakeDamage(
             float damage,
             Vector2 knockback = default(Vector2),
             bool isCritical = false)
         {
+            TakeDamageFromSource(
+                damage,
+                knockback,
+                isCritical,
+                BossDamageSourceType.Unknown
+            );
+        }
+
+        /// <summary>
+        /// 보스 전용 피해 출처를 포함하여 피해를 적용합니다.
+        ///
+        /// SyringeProjectile은 PlayerProjectile,
+        /// 향후 돌진 자해는 BossSelf,
+        /// 지형 기믹은 Environment를 전달합니다.
+        ///
+        /// 반환값은 실제 HP에서 감소한 피해량입니다.
+        /// </summary>
+        public float TakeDamageFromSource(
+            float damage,
+            Vector2 knockback,
+            bool isCritical,
+            BossDamageSourceType damageSource)
+        {
             if (isBroken)
             {
-                return;
+                return 0f;
             }
 
             ResolveRootController();
@@ -184,15 +210,35 @@ namespace Vampire
             if (rootController != null &&
                 rootController.IsBossDead)
             {
-                return;
+                return 0f;
             }
 
-            float appliedDamage =
+            float rawDamage =
                 Mathf.Max(0f, damage);
+
+            if (rawDamage <= 0f)
+            {
+                return 0f;
+            }
+
+            BossPartDamageRules damageRules =
+                GetComponentInParent
+                <
+                    BossPartDamageRules
+                >(true);
+
+            float appliedDamage =
+                damageRules != null
+                    ? damageRules.CalculateAppliedDamage(
+                        this,
+                        damageSource,
+                        rawDamage
+                    )
+                    : rawDamage;
 
             if (appliedDamage <= 0f)
             {
-                return;
+                return 0f;
             }
 
             float healthBeforeDamage =
@@ -201,48 +247,71 @@ namespace Vampire
             currentHealth =
                 Mathf.Max(
                     0f,
-                    currentHealth - appliedDamage);
+                    currentHealth - appliedDamage
+                );
 
             float actualDamage =
                 Mathf.Max(
                     0f,
-                    healthBeforeDamage - currentHealth);
+                    healthBeforeDamage - currentHealth
+                );
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[BossPartTest] {GetPartLabel()} 피격 | " +
-                    $"Damage={appliedDamage:0.##}, " +
+                    $"Source={damageSource}, " +
+                    $"RawDamage={rawDamage:0.##}, " +
+                    $"AppliedDamage={appliedDamage:0.##}, " +
                     $"ActualDamage={actualDamage:0.##}, " +
                     $"Critical={isCritical}, " +
                     $"HP={currentHealth:0.##}/{maxHealth:0.##}, " +
                     $"Core={IsCore}",
-                    this);
+                    this
+                );
             }
 
-            // 파츠 HP가 변경되었음을 Root에 알립니다.
+            // 기존 Root HP 집계 구조는 그대로 유지합니다.
             if (rootController != null)
             {
                 rootController.RegisterPart(this);
 
                 rootController.NotifyPartHealthChanged(
-                    this);
+                    this
+                );
             }
             else if (debugLog)
             {
                 Debug.LogWarning(
                     $"[BossPartTest] {GetPartLabel()} | " +
                     "BossPartDamageTestRootController를 찾지 못했습니다.",
-                    this);
+                    this
+                );
+            }
+
+            // 향후 Pressure Gauge 등이 여기서
+            // 플레이어 피해만 골라 집계할 수 있습니다.
+            if (damageRules != null)
+            {
+                damageRules.NotifyDamageApplied(
+                    this,
+                    damageSource,
+                    rawDamage,
+                    appliedDamage,
+                    actualDamage,
+                    isCritical
+                );
             }
 
             if (currentHealth <= 0f)
             {
                 BreakPart();
-                return;
+                return actualDamage;
             }
 
             PlayHitFlash();
+
+            return actualDamage;
         }
 
         /// <summary>

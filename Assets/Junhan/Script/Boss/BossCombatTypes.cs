@@ -58,13 +58,7 @@ namespace Vampire
     /// 보스가 받은 피해의 출처입니다.
     /// 이후 압력 게이지, 보스 자폭, 보스 전용 증강/아이템을 구분할 때 사용합니다.
     /// </summary>
-    public enum BossDamageSourceType
-    {
-        Player = 0,
-        BossSelf = 1,
-        Environment = 2
-    }
-
+    
     public static class BossCoreTraitUtility
     {
         public static bool Matches(
