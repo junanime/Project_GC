@@ -110,15 +110,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uC720\uB3C4\uD0C4"
   cooldown: 3
-  nearWeightPhase1: 0
-  midWeightPhase1: 6
-  farWeightPhase1: 10
-  nearWeightPhase2: 0
-  midWeightPhase2: 6
-  farWeightPhase2: 10
-  nearWeightPhase3: 0
-  midWeightPhase3: 6
-  farWeightPhase3: 10
+  coreTraits: 7
+  coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -875,15 +868,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "360\uB3C4 \uBC1C\uC0AC"
   cooldown: 3
-  nearWeightPhase1: 4
-  midWeightPhase1: 8
-  farWeightPhase1: 6
-  nearWeightPhase2: 4
-  midWeightPhase2: 8
-  farWeightPhase2: 6
-  nearWeightPhase3: 4
-  midWeightPhase3: 8
-  farWeightPhase3: 6
+  coreTraits: 7
+  coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -1072,15 +1058,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uBD80\uCC44\uAF34\uBC1C\uC0AC"
   cooldown: 3
-  nearWeightPhase1: 2
-  midWeightPhase1: 6
-  farWeightPhase1: 8
-  nearWeightPhase2: 2
-  midWeightPhase2: 6
-  farWeightPhase2: 8
-  nearWeightPhase3: 2
-  midWeightPhase3: 6
-  farWeightPhase3: 8
+  coreTraits: 7
+  coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -1309,15 +1288,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uD3ED\uD0C4\uD22C\uD558"
   cooldown: 3
-  nearWeightPhase1: 5
-  midWeightPhase1: 10
-  farWeightPhase1: 6
-  nearWeightPhase2: 5
-  midWeightPhase2: 10
-  farWeightPhase2: 6
-  nearWeightPhase3: 5
-  midWeightPhase3: 10
-  farWeightPhase3: 6
+  coreTraits: -1
+  coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -1428,6 +1400,9 @@ GameObject:
   - component: {fileID: 1903366919834822943}
   - component: {fileID: 6664851940520555436}
   - component: {fileID: 6570138584400201331}
+  - component: {fileID: 4702268150450973767}
+  - component: {fileID: 8814728266142066049}
+  - component: {fileID: 7729581201309114801}
   m_Layer: 7
   m_Name: BossPartDamageTestRoot
   m_TagString: Untagged
@@ -1530,6 +1505,8 @@ MonoBehaviour:
   playerCharacter: {fileID: 0}
   rb: {fileID: 1903366919834822943}
   spriteRenderer: {fileID: 0}
+  coreStateController: {fileID: 0}
+  autoCreateCoreStateController: 1
   patterns: []
   autoCollectPatternsFromChildren: 1
   maxHp: 500
@@ -1543,6 +1520,8 @@ MonoBehaviour:
   basicAttackBulletSpeed: 4.5
   basicAttackMuzzleOffset: 1.2
   basicAttackWhileUsingPattern: 0
+  basicAttackCoreTraits: 1
+  basicAttackCoreMatchMode: 0
   basicAttackBurstCountPhase1: 4
   basicAttackBurstCountPhase2: 5
   basicAttackBurstCountPhase3: 7
@@ -1566,8 +1545,6 @@ MonoBehaviour:
   patternIntervalMax: 7
   thinkInterval: 0.3
   patternGap: 1.2
-  nearDistanceThreshold: 4
-  midDistanceThreshold: 8
   phase1Settings:
     phaseName: Phase 1
     enterHpRatio: 1
@@ -1578,14 +1555,13 @@ MonoBehaviour:
     patternCooldownMultiplier: 1
     patternIntervalMultiplier: 1
     patternGapMultiplier: 1
-    ignoreDistanceAndUseRandomPattern: 0
     transitionPauseSeconds: 0
     invincibleDuringTransition: 0
     phaseSprite: {fileID: 0}
     phaseTransitionEffectPrefab: {fileID: 0}
   phase2Settings:
     phaseName: Phase 2
-    enterHpRatio: 0.5
+    enterHpRatio: 0.6
     damageMultiplier: 1.5
     projectileSpeedMultiplier: 1.5
     movementSpeedMultiplier: 1.5
@@ -1593,14 +1569,13 @@ MonoBehaviour:
     patternCooldownMultiplier: 1
     patternIntervalMultiplier: 1
     patternGapMultiplier: 1
-    ignoreDistanceAndUseRandomPattern: 0
     transitionPauseSeconds: 2
     invincibleDuringTransition: 1
     phaseSprite: {fileID: 0}
     phaseTransitionEffectPrefab: {fileID: 0}
   phase3Settings:
     phaseName: Phase 3
-    enterHpRatio: 0.2
+    enterHpRatio: 0.3
     damageMultiplier: 2
     projectileSpeedMultiplier: 2
     movementSpeedMultiplier: 2
@@ -1608,17 +1583,86 @@ MonoBehaviour:
     patternCooldownMultiplier: 0.5
     patternIntervalMultiplier: 0.5
     patternGapMultiplier: 0.5
-    ignoreDistanceAndUseRandomPattern: 1
     transitionPauseSeconds: 2
     invincibleDuringTransition: 1
     phaseSprite: {fileID: 0}
     phaseTransitionEffectPrefab: {fileID: 0}
-  reduceIncomingDamageInPhase3: 1
-  phase3IncomingDamageMultiplier: 0.7
   debugMovement: 0
   debugPattern: 1
   debugBasicAttack: 0
   debugPhase: 1
+  debugCore: 0
+--- !u!114 &4702268150450973767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26de472d631926e458ad9b730f5416b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  partsSearchRoot: {fileID: 0}
+  autoCollectParts: 1
+  parts: []
+  corePart: {fileID: 0}
+  totalMaxHealth: 0
+  currentBossHealth: 0
+  bossDead: 0
+  brokenPartCount: 0
+  disableAllCollidersOnBossDeath: 1
+  hideRemainingPartsOnBossDeath: 1
+  debugLog: 1
+--- !u!114 &8814728266142066049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6eaa93efbd91604a83c24c1ec81b6d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  partRootController: {fileID: 4724437389618723344}
+  bossController: {fileID: 6570138584400201331}
+  synchronizePartHealthToBossController: 1
+  healthChangeEpsilon: 0.001
+  stopBossControllerOnPartBossDeath: 1
+  healthInitialized: 0
+  lastForwardedCurrentHealth: 0
+  lastForwardedMaxHealth: 0
+  deathForwarded: 0
+  debugLog: 1
+--- !u!114 &7729581201309114801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2b5aad634526a2479a68c6f3481ebf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startingSingleCore: 1
+  singleCoreDurationMin: 10
+  singleCoreDurationMax: 12
+  dualCoreDurationMin: 12
+  dualCoreDurationMax: 15
+  rainbowHighlightIntervalMin: 7
+  rainbowHighlightIntervalMax: 9
+  rainbowHighlightDuration: 3.5
+  currentMode: 0
+  activeTraits: 1
+  rainbowHighlightedTraits: 0
+  patternLocked: 0
+  swapPending: 0
+  debugLog: 0
 --- !u!1 &6830737390532902033
 GameObject:
   m_ObjectHideFlags: 0
@@ -1665,7 +1709,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partRootController: {fileID: 4724437389618723344}
   bossController: {fileID: 0}
+  synchronizePartHealthToBossController: 1
+  healthChangeEpsilon: 0.001
   stopBossControllerOnPartBossDeath: 1
+  healthInitialized: 0
+  lastForwardedCurrentHealth: 0
+  lastForwardedMaxHealth: 0
+  deathForwarded: 0
   debugLog: 1
 --- !u!1 &8066779690579954938
 GameObject:
@@ -1874,15 +1924,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uB3CC\uC9C4\uD328\uD134"
   cooldown: 3
-  nearWeightPhase1: 10
-  midWeightPhase1: 6
-  farWeightPhase1: 1
-  nearWeightPhase2: 10
-  midWeightPhase2: 6
-  farWeightPhase2: 1
-  nearWeightPhase3: 10
-  midWeightPhase3: 6
-  farWeightPhase3: 1
+  coreTraits: 7
+  coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []

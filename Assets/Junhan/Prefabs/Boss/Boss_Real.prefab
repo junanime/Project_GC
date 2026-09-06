@@ -5217,6 +5217,8 @@ MonoBehaviour:
   playerCharacter: {fileID: 0}
   rb: {fileID: 0}
   spriteRenderer: {fileID: -7992988690108218509}
+  coreStateController: {fileID: 0}
+  autoCreateCoreStateController: 1
   patterns:
   - {fileID: 0}
   - {fileID: 0}
@@ -5234,6 +5236,8 @@ MonoBehaviour:
   basicAttackBulletSpeed: 1.9
   basicAttackMuzzleOffset: 1.2
   basicAttackWhileUsingPattern: 0
+  basicAttackCoreTraits: 1
+  basicAttackCoreMatchMode: 0
   basicAttackBurstCountPhase1: 3
   basicAttackBurstCountPhase2: 4
   basicAttackBurstCountPhase3: 5
@@ -5257,8 +5261,6 @@ MonoBehaviour:
   patternIntervalMax: 20
   thinkInterval: 0.3
   patternGap: 1
-  nearDistanceThreshold: 4
-  midDistanceThreshold: 8
   phase1Settings:
     phaseName: Phase 1
     enterHpRatio: 1
@@ -5269,7 +5271,6 @@ MonoBehaviour:
     patternCooldownMultiplier: 1
     patternIntervalMultiplier: 1
     patternGapMultiplier: 1
-    ignoreDistanceAndUseRandomPattern: 0
     transitionPauseSeconds: 0
     invincibleDuringTransition: 0
     phaseSprite: {fileID: 0}
@@ -5284,7 +5285,6 @@ MonoBehaviour:
     patternCooldownMultiplier: 0.7
     patternIntervalMultiplier: 0.7
     patternGapMultiplier: 0.7
-    ignoreDistanceAndUseRandomPattern: 0
     transitionPauseSeconds: 2
     invincibleDuringTransition: 1
     phaseSprite: {fileID: 0}
@@ -5299,17 +5299,15 @@ MonoBehaviour:
     patternCooldownMultiplier: 0.4
     patternIntervalMultiplier: 0.4
     patternGapMultiplier: 0.4
-    ignoreDistanceAndUseRandomPattern: 1
     transitionPauseSeconds: 2
     invincibleDuringTransition: 1
     phaseSprite: {fileID: 0}
     phaseTransitionEffectPrefab: {fileID: 0}
-  reduceIncomingDamageInPhase3: 1
-  phase3IncomingDamageMultiplier: 0.7
   debugMovement: 0
   debugPattern: 1
   debugBasicAttack: 0
   debugPhase: 1
+  debugCore: 0
 --- !u!114 &5015667122555973235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5324,17 +5322,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uD3ED\uD0C4\uD22C\uD558"
   cooldown: 3
-  coreTraits: -1
+  coreTraits: 2
   coreMatchMode: 0
-  nearWeightPhase1: 5
-  midWeightPhase1: 10
-  farWeightPhase1: 6
-  nearWeightPhase2: 5
-  midWeightPhase2: 10
-  farWeightPhase2: 6
-  nearWeightPhase3: 5
-  midWeightPhase3: 10
-  farWeightPhase3: 6
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -5379,17 +5368,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uB3CC\uC9C4\uD328\uD134"
   cooldown: 3
-  coreTraits: -1
+  coreTraits: 1
   coreMatchMode: 0
-  nearWeightPhase1: 10
-  midWeightPhase1: 6
-  farWeightPhase1: 1
-  nearWeightPhase2: 10
-  midWeightPhase2: 6
-  farWeightPhase2: 1
-  nearWeightPhase3: 10
-  midWeightPhase3: 6
-  farWeightPhase3: 1
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -5441,17 +5421,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uBD80\uCC44\uAF34\uBC1C\uC0AC"
   cooldown: 3
-  coreTraits: -1
+  coreTraits: 1
   coreMatchMode: 0
-  nearWeightPhase1: 2
-  midWeightPhase1: 6
-  farWeightPhase1: 8
-  nearWeightPhase2: 2
-  midWeightPhase2: 6
-  farWeightPhase2: 8
-  nearWeightPhase3: 2
-  midWeightPhase3: 6
-  farWeightPhase3: 8
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -5487,17 +5458,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "360\uB3C4 \uBC1C\uC0AC"
   cooldown: 3
-  coreTraits: -1
+  coreTraits: 4
   coreMatchMode: 0
-  nearWeightPhase1: 4
-  midWeightPhase1: 8
-  farWeightPhase1: 6
-  nearWeightPhase2: 4
-  midWeightPhase2: 8
-  farWeightPhase2: 6
-  nearWeightPhase3: 4
-  midWeightPhase3: 8
-  farWeightPhase3: 6
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -5535,17 +5497,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uC720\uB3C4\uD0C4"
   cooldown: 3
-  coreTraits: -1
+  coreTraits: 4
   coreMatchMode: 0
-  nearWeightPhase1: 0
-  midWeightPhase1: 6
-  farWeightPhase1: 10
-  nearWeightPhase2: 0
-  midWeightPhase2: 6
-  farWeightPhase2: 10
-  nearWeightPhase3: 0
-  midWeightPhase3: 6
-  farWeightPhase3: 10
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -5594,17 +5547,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uCF5C\uB77C\uBCD1\uD68C\uBCF5\uD328\uD134"
   cooldown: 40
-  coreTraits: -1
+  coreTraits: 2
   coreMatchMode: 0
-  nearWeightPhase1: 0
-  midWeightPhase1: 4
-  farWeightPhase1: 10
-  nearWeightPhase2: 0
-  midWeightPhase2: 4
-  farWeightPhase2: 10
-  nearWeightPhase3: 0
-  midWeightPhase3: 4
-  farWeightPhase3: 10
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []
@@ -5644,17 +5588,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: Absorb Minion Heal
   cooldown: 45
-  coreTraits: -1
+  coreTraits: 4
   coreMatchMode: 0
-  nearWeightPhase1: 8
-  midWeightPhase1: 4
-  farWeightPhase1: 0
-  nearWeightPhase2: 8
-  midWeightPhase2: 4
-  farWeightPhase2: 1
-  nearWeightPhase3: 8
-  midWeightPhase3: 4
-  farWeightPhase3: 1
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 0}
   additionalRequiredParts: []

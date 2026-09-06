@@ -78,18 +78,6 @@ namespace Vampire
         {
             patternName = "Cola Bottle Heal";
             cooldown = 40f;
-
-            nearWeightPhase1 = 0;
-            midWeightPhase1 = 3;
-            farWeightPhase1 = 5;
-
-            nearWeightPhase2 = 0;
-            midWeightPhase2 = 5;
-            farWeightPhase2 = 8;
-
-            nearWeightPhase3 = 0;
-            midWeightPhase3 = 6;
-            farWeightPhase3 = 10;
         }
 
         public override void Init(BossController controller)
