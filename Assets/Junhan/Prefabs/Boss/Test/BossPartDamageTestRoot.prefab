@@ -721,7 +721,7 @@ GameObject:
   - component: {fileID: 9209490905332283166}
   - component: {fileID: 1195880323785226795}
   m_Layer: 6
-  m_Name: BossPartDamageTestPart
+  m_Name: Core
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1387,7 +1387,39 @@ Transform:
   - {fileID: 6754685083464912470}
   - {fileID: 8334487762599879908}
   - {fileID: 8736929898052857229}
+  - {fileID: 5850962794303374350}
   m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5089323812370767977
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8928178873563066190}
+  m_Layer: 6
+  m_Name: LeftArmGuardAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8928178873563066190
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5089323812370767977}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.347, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5850962794303374350}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6382908300445371302
 GameObject:
@@ -1521,6 +1553,7 @@ GameObject:
   - component: {fileID: 4702268150450973767}
   - component: {fileID: 8814728266142066049}
   - component: {fileID: 7729581201309114801}
+  - component: {fileID: 7411012346261789803}
   m_Layer: 7
   m_Name: BossPartDamageTestRoot
   m_TagString: Untagged
@@ -1782,6 +1815,37 @@ MonoBehaviour:
   patternLocked: 0
   swapPending: 0
   debugLog: 0
+--- !u!114 &7411012346261789803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6dcd26104ee4644cb1a5034b58589d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossController: {fileID: 6570138584400201331}
+  leftArmPart: {fileID: 2932483004890724307}
+  rightArmPart: {fileID: 3201666542532363358}
+  corePart: {fileID: 1195880323785226795}
+  leftArmGuardAnchor: {fileID: 8928178873563066190}
+  rightArmGuardAnchor: {fileID: 3698250899254999128}
+  armMoveSpeed: 6
+  armRotateSpeed: 540
+  applyGuardAnchorRotation: 0
+  positionSnapDistance: 0.01
+  normalCoreDamageMultiplier: 1
+  openCoreDamageMultiplier: 1.5
+  coreGuarded: 0
+  coreOpen: 0
+  externalCoreOpen: 0
+  currentGuardArmType: 6
+  guardArmUsingPattern: 0
+  currentCoreDamageMultiplier: 1
+  debugLog: 1
 --- !u!1 &6830737390532902033
 GameObject:
   m_ObjectHideFlags: 0
@@ -1923,6 +1987,37 @@ MonoBehaviour:
   forceExactChargeMovement: 1
   showDebugHitbox: 0
   debugCharge: 0
+--- !u!1 &7159461583432778197
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3698250899254999128}
+  m_Layer: 6
+  m_Name: RightArmGuardAnchor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3698250899254999128
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7159461583432778197}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.242, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5850962794303374350}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8066779690579954938
 GameObject:
   m_ObjectHideFlags: 0
@@ -2084,6 +2179,39 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &8191717723223359474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5850962794303374350}
+  m_Layer: 6
+  m_Name: 'GuardAnchors             '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5850962794303374350
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8191717723223359474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8928178873563066190}
+  - {fileID: 3698250899254999128}
+  m_Father: {fileID: 7420338502666811484}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9076683618319760946
 GameObject:
   m_ObjectHideFlags: 0
