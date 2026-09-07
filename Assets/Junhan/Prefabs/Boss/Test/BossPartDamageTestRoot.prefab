@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patternName: 
+  patternName: "\uD3ED\uD0C4"
   cooldown: 3
   coreTraits: 2
   coreMatchMode: 0
@@ -181,15 +181,15 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  warningCirclePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
+  warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
   warningDuration: 1
-  bombProjectilePrefab: {fileID: 0}
+  bombProjectilePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
   projectileStartOffsetFromBoss: {x: 0, y: 1.6}
   arcHeight: 3
   projectileScaleMultiplier: 1
   rotateProjectileToMoveDirection: 1
   projectileVisualAngleOffset: 0
-  spinProjectile: 0
+  spinProjectile: 1
   projectileSpinSpeed: 360
   disableProjectileColliders: 1
   disableProjectileRigidbodySimulation: 1
@@ -199,6 +199,9 @@ MonoBehaviour:
   explosionDamage: 20
   explosionEffectPrefab: {fileID: 0}
   projectileDestroyDelayAfterImpact: 0
+  enableBossSelfDamage: 1
+  bossSelfMaxHpDamagePercent: 0.497
+  bossSelfDamageRadiusPadding: 0
   bombCountPhase1: 1
   bombCountPhase2: 3
   bombCountPhase3: 4
