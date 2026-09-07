@@ -562,6 +562,57 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &1530106799911000102
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6538461416465978299}
+  - component: {fileID: 70732553245908362}
+  m_Layer: 7
+  m_Name: BossPartDamageRules
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6538461416465978299
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530106799911000102}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &70732553245908362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530106799911000102}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc487b2250352e4281de88380e7d213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coreDamageState: 1
+  guardedDamageMultiplier: 1
+  normalDamageMultiplier: 1
+  openDamageMultiplier: 1.5
+  groggyDamageMultiplier: 2
+  coreMultiplierPlayerDamageOnly: 1
+  debugLog: 0
 --- !u!1 &1950556429746003123
 GameObject:
   m_ObjectHideFlags: 0
@@ -988,7 +1039,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4169506148560627945}
-  - component: {fileID: 4724437389618723344}
+  - component: {fileID: 8798942031376210255}
   m_Layer: 7
   m_Name: 'BossPartDamageTestRootController  '
   m_TagString: Untagged
@@ -1011,7 +1062,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4724437389618723344
+--- !u!114 &8798942031376210255
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1023,10 +1074,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26de472d631926e458ad9b730f5416b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  partsSearchRoot: {fileID: 7420338502666811484}
+  partsSearchRoot: {fileID: 0}
   autoCollectParts: 1
   parts: []
-  corePart: {fileID: 0}
+  corePart: {fileID: 1195880323785226795}
   totalMaxHealth: 0
   currentBossHealth: 0
   bossDead: 0
@@ -1405,6 +1456,140 @@ Transform:
   - {fileID: 5850962794303374350}
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5041699929294152883
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3703967020147427319}
+  - component: {fileID: 3274473199323281411}
+  m_Layer: 7
+  m_Name: BossController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3703967020147427319
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5041699929294152883}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3274473199323281411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5041699929294152883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 265cd75a7792291468765ac6edd93081, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCharacter: {fileID: 0}
+  rb: {fileID: 1903366919834822943}
+  spriteRenderer: {fileID: 0}
+  coreStateController: {fileID: 0}
+  autoCreateCoreStateController: 1
+  patterns: []
+  autoCollectPatternsFromChildren: 1
+  maxHp: 4000
+  currentHp: 4000
+  contactDamage: 10
+  contactDamageCooldown: 0.6
+  enableBasicAttack: 1
+  basicAttackBulletPrefab: {fileID: 0}
+  basicAttackCooldown: 1.6
+  basicAttackDamage: 5
+  basicAttackBulletSpeed: 4.5
+  basicAttackMuzzleOffset: 1.2
+  basicAttackWhileUsingPattern: 0
+  basicAttackCoreTraits: 1
+  basicAttackCoreMatchMode: 0
+  basicAttackBurstCountPhase1: 4
+  basicAttackBurstCountPhase2: 5
+  basicAttackBurstCountPhase3: 7
+  basicAttackBurstInterval: 0.2
+  reAimEachBasicBurstShot: 1
+  usePredictiveBasicAim: 1
+  basicAimLeadTime: 0.45
+  basicAimInaccuracyAngle: 5
+  minPlayerVelocityForPrediction: 0.1
+  forceBasicBulletSortingOrder: 1
+  basicBulletSortingOrder: 500
+  enableMovement: 1
+  baseMoveSpeed: 0.8
+  stopDistanceFromPlayer: 3
+  moveWhileUsingPattern: 1
+  patternMoveSpeedMultiplier: 0.35
+  movementSmoothTime: 0.18
+  flipSpriteToPlayer: 1
+  firstPatternDelay: 3
+  patternIntervalMin: 4
+  patternIntervalMax: 7
+  thinkInterval: 0.3
+  patternGap: 1.2
+  phase1Settings:
+    phaseName: Phase 1
+    enterHpRatio: 1
+    damageMultiplier: 1
+    projectileSpeedMultiplier: 1
+    movementSpeedMultiplier: 1
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    transitionPauseSeconds: 0
+    invincibleDuringTransition: 0
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase2Settings:
+    phaseName: Phase 2
+    enterHpRatio: 0.6
+    damageMultiplier: 1.5
+    projectileSpeedMultiplier: 1.5
+    movementSpeedMultiplier: 1.5
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase3Settings:
+    phaseName: Phase 3
+    enterHpRatio: 0.3
+    damageMultiplier: 2
+    projectileSpeedMultiplier: 2
+    movementSpeedMultiplier: 2
+    basicAttackCooldownMultiplier: 0.5
+    patternCooldownMultiplier: 0.5
+    patternIntervalMultiplier: 0.5
+    patternGapMultiplier: 0.5
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  debugMovement: 0
+  debugPattern: 1
+  debugBasicAttack: 0
+  debugPhase: 1
+  debugCore: 0
 --- !u!1 &5089323812370767977
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,6 +1621,67 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5850962794303374350}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5925274145856348176
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4910484913846140674}
+  - component: {fileID: 1595845278966615525}
+  m_Layer: 7
+  m_Name: BossPressureGaugeController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4910484913846140674
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925274145856348176}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1595845278966615525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5925274145856348176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c8b30aadaf25db42a37a13a356ee6c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageRules: {fileID: 70732553245908362}
+  partRootController: {fileID: 8798942031376210255}
+  bossController: {fileID: 3274473199323281411}
+  pressureThresholdMaxHpPercent: 0.5
+  resetPressureOnPhaseChange: 1
+  useActualDamage: 1
+  autoCreateGaugeUI: 1
+  destroyGaugeOnBossDeath: 1
+  accumulatedPressureDamage: 0
+  pressureThresholdDamage: 0
+  pressureNormalized: 0
+  pressureFull: 0
+  currentPhase: 0
+  damageEventSubscribed: 0
+  phaseEventSubscribed: 0
+  gaugeUI: {fileID: 0}
+  debugLog: 1
 --- !u!1 &6382908300445371302
 GameObject:
   m_ObjectHideFlags: 0
@@ -1589,6 +1835,19 @@ MonoBehaviour:
   coreDamageStateBridge: {fileID: 0}
   successVfxPrefab: {fileID: 0}
   failureVfxPrefab: {fileID: 0}
+  enableFailureLethalWave: 1
+  failureWaveTelegraphDuration: 0.75
+  failureWaveExpansionDuration: 2.5
+  failureWaveStartRadius: 0.5
+  failureWaveMaxRadius: 30
+  failureWaveHitThickness: 1
+  failureWaveLethalDamageMultiplier: 2
+  drawFailureRuntimeRing: 1
+  failureRuntimeRingSegments: 96
+  failureRuntimeRingWidth: 0.16
+  failureRuntimeRingColor: {r: 1, g: 0.78, b: 0.08, a: 0.9}
+  failureRuntimeRingSortingOrder: 900
+  failureWaveEndLinger: 0.2
   injectorSpawnVfxPrefab: {fileID: 0}
   injectorDestroyVfxPrefab: {fileID: 0}
   forceInjectorSortingOrder: 1
@@ -1598,6 +1857,7 @@ MonoBehaviour:
   currentChallengeElapsed: 0
   lastChallengeSucceeded: 0
   lastChallengeFailed: 0
+  failureSequenceActive: 0
   debugLog: 1
 --- !u!1 &6401697086027491985
 GameObject:
@@ -1610,12 +1870,8 @@ GameObject:
   - component: {fileID: 2467251893734352727}
   - component: {fileID: 1903366919834822943}
   - component: {fileID: 6664851940520555436}
-  - component: {fileID: 6570138584400201331}
-  - component: {fileID: 4702268150450973767}
-  - component: {fileID: 8814728266142066049}
   - component: {fileID: 7729581201309114801}
   - component: {fileID: 7411012346261789803}
-  - component: {fileID: 2501895950791632859}
   - component: {fileID: 9160298367617575420}
   m_Layer: 7
   m_Name: BossPartDamageTestRoot
@@ -1639,8 +1895,11 @@ Transform:
   m_Children:
   - {fileID: 4169506148560627945}
   - {fileID: 4386367549207381930}
+  - {fileID: 6538461416465978299}
   - {fileID: 7420338502666811484}
   - {fileID: 4663564927574019808}
+  - {fileID: 4910484913846140674}
+  - {fileID: 3703967020147427319}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &1903366919834822943
@@ -1705,153 +1964,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
---- !u!114 &6570138584400201331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6401697086027491985}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 265cd75a7792291468765ac6edd93081, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerCharacter: {fileID: 0}
-  rb: {fileID: 1903366919834822943}
-  spriteRenderer: {fileID: 0}
-  coreStateController: {fileID: 0}
-  autoCreateCoreStateController: 1
-  patterns: []
-  autoCollectPatternsFromChildren: 1
-  maxHp: 4000
-  currentHp: 4000
-  contactDamage: 10
-  contactDamageCooldown: 0.6
-  enableBasicAttack: 1
-  basicAttackBulletPrefab: {fileID: 0}
-  basicAttackCooldown: 1.6
-  basicAttackDamage: 5
-  basicAttackBulletSpeed: 4.5
-  basicAttackMuzzleOffset: 1.2
-  basicAttackWhileUsingPattern: 0
-  basicAttackCoreTraits: 1
-  basicAttackCoreMatchMode: 0
-  basicAttackBurstCountPhase1: 4
-  basicAttackBurstCountPhase2: 5
-  basicAttackBurstCountPhase3: 7
-  basicAttackBurstInterval: 0.2
-  reAimEachBasicBurstShot: 1
-  usePredictiveBasicAim: 1
-  basicAimLeadTime: 0.45
-  basicAimInaccuracyAngle: 5
-  minPlayerVelocityForPrediction: 0.1
-  forceBasicBulletSortingOrder: 1
-  basicBulletSortingOrder: 500
-  enableMovement: 1
-  baseMoveSpeed: 0.8
-  stopDistanceFromPlayer: 3
-  moveWhileUsingPattern: 1
-  patternMoveSpeedMultiplier: 0.35
-  movementSmoothTime: 0.18
-  flipSpriteToPlayer: 1
-  firstPatternDelay: 3
-  patternIntervalMin: 4
-  patternIntervalMax: 7
-  thinkInterval: 0.3
-  patternGap: 1.2
-  phase1Settings:
-    phaseName: Phase 1
-    enterHpRatio: 1
-    damageMultiplier: 1
-    projectileSpeedMultiplier: 1
-    movementSpeedMultiplier: 1
-    basicAttackCooldownMultiplier: 1
-    patternCooldownMultiplier: 1
-    patternIntervalMultiplier: 1
-    patternGapMultiplier: 1
-    transitionPauseSeconds: 0
-    invincibleDuringTransition: 0
-    phaseSprite: {fileID: 0}
-    phaseTransitionEffectPrefab: {fileID: 0}
-  phase2Settings:
-    phaseName: Phase 2
-    enterHpRatio: 0.6
-    damageMultiplier: 1.5
-    projectileSpeedMultiplier: 1.5
-    movementSpeedMultiplier: 1.5
-    basicAttackCooldownMultiplier: 1
-    patternCooldownMultiplier: 1
-    patternIntervalMultiplier: 1
-    patternGapMultiplier: 1
-    transitionPauseSeconds: 2
-    invincibleDuringTransition: 1
-    phaseSprite: {fileID: 0}
-    phaseTransitionEffectPrefab: {fileID: 0}
-  phase3Settings:
-    phaseName: Phase 3
-    enterHpRatio: 0.3
-    damageMultiplier: 2
-    projectileSpeedMultiplier: 2
-    movementSpeedMultiplier: 2
-    basicAttackCooldownMultiplier: 0.5
-    patternCooldownMultiplier: 0.5
-    patternIntervalMultiplier: 0.5
-    patternGapMultiplier: 0.5
-    transitionPauseSeconds: 2
-    invincibleDuringTransition: 1
-    phaseSprite: {fileID: 0}
-    phaseTransitionEffectPrefab: {fileID: 0}
-  debugMovement: 0
-  debugPattern: 1
-  debugBasicAttack: 0
-  debugPhase: 1
-  debugCore: 0
---- !u!114 &4702268150450973767
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6401697086027491985}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 26de472d631926e458ad9b730f5416b8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  partsSearchRoot: {fileID: 0}
-  autoCollectParts: 1
-  parts: []
-  corePart: {fileID: 0}
-  totalMaxHealth: 0
-  currentBossHealth: 0
-  bossDead: 0
-  brokenPartCount: 0
-  disableAllCollidersOnBossDeath: 1
-  hideRemainingPartsOnBossDeath: 1
-  debugLog: 1
---- !u!114 &8814728266142066049
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6401697086027491985}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6eaa93efbd91604a83c24c1ec81b6d8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  partRootController: {fileID: 4724437389618723344}
-  bossController: {fileID: 6570138584400201331}
-  synchronizePartHealthToBossController: 1
-  healthChangeEpsilon: 0.001
-  stopBossControllerOnPartBossDeath: 1
-  healthInitialized: 0
-  lastForwardedCurrentHealth: 0
-  lastForwardedMaxHealth: 0
-  deathForwarded: 0
-  debugLog: 1
 --- !u!114 &7729581201309114801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1890,7 +2002,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6dcd26104ee4644cb1a5034b58589d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bossController: {fileID: 6570138584400201331}
+  bossController: {fileID: 0}
   leftArmPart: {fileID: 2932483004890724307}
   rightArmPart: {fileID: 3201666542532363358}
   corePart: {fileID: 1195880323785226795}
@@ -1909,25 +2021,6 @@ MonoBehaviour:
   guardArmUsingPattern: 0
   currentCoreDamageMultiplier: 1
   debugLog: 1
---- !u!114 &2501895950791632859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6401697086027491985}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dc487b2250352e4281de88380e7d213, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  coreDamageState: 1
-  guardedDamageMultiplier: 1
-  normalDamageMultiplier: 1
-  openDamageMultiplier: 1.5
-  groggyDamageMultiplier: 2
-  coreMultiplierPlayerDamageOnly: 1
-  debugLog: 0
 --- !u!114 &9160298367617575420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1941,7 +2034,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coreGuardController: {fileID: 7411012346261789803}
-  damageRules: {fileID: 2501895950791632859}
+  damageRules: {fileID: 0}
   groggyOverride: 0
   lastAppliedState: 1
   subscribed: 0
@@ -1955,7 +2048,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4386367549207381930}
-  - component: {fileID: 6898058556201504535}
+  - component: {fileID: 5241054971814786975}
   m_Layer: 7
   m_Name: 'BossPartPatternTestDeathBridge '
   m_TagString: Untagged
@@ -1978,7 +2071,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6898058556201504535
+--- !u!114 &5241054971814786975
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1990,7 +2083,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6eaa93efbd91604a83c24c1ec81b6d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  partRootController: {fileID: 4724437389618723344}
+  partRootController: {fileID: 0}
   bossController: {fileID: 0}
   synchronizePartHealthToBossController: 1
   healthChangeEpsilon: 0.001
