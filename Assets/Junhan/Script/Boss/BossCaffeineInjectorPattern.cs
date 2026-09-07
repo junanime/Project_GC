@@ -7,16 +7,12 @@ namespace Vampire
     /// <summary>
     /// Yellow Core 전용 카페인 주입기 챌린지 패턴입니다.
     ///
-    /// Step 8A:
+    /// Step 8B:
     /// - 보스 몸 주변에 카페인 주입기 3개 생성
     /// - 10초 안에 모두 파괴하면 성공
     /// - 성공 시 보스 이동/접촉을 잠시 봉쇄하고 Groggy + Core Open
-    /// - 실패 시 현재는 주입기 정리 + Fail 로그까지만 수행
-    ///
-    /// Step 8B에서:
-    /// - 실패 시 전장 확산 공격
-    /// - 최종 Instant Kill 규칙
-    /// 을 추가합니다.
+    /// - 실패 시 보스 중심에서 카페인 전멸 파동이 바깥으로 확산
+    /// - 파동에 닿으면 Character의 기존 피해 파이프라인으로 치명 피해 적용
     /// </summary>
     public class BossCaffeineInjectorPattern :
         BossPatternBase
@@ -113,14 +109,89 @@ namespace Vampire
         [SerializeField]
         private GameObject successVfxPrefab;
 
-        [Header("Failure - Step 8B Hook")]
+        [Header("Failure - Step 8B / 카페인 확산 전멸 공격")]
 
         [Tooltip(
-            "실패 시 생성할 임시 VFX입니다. " +
-            "Step 8A에서는 실패 즉사 공격을 아직 적용하지 않습니다."
+            "실패 시 보스 중심에 생성할 시작 VFX입니다. " +
+            "비워 두어도 확산 판정은 정상 동작합니다."
         )]
         [SerializeField]
         private GameObject failureVfxPrefab;
+
+        [Tooltip(
+            "체크하면 제한 시간 실패 후 보스 중심에서 바깥으로 퍼지는 카페인 전멸 파동을 생성합니다."
+        )]
+        [SerializeField]
+        private bool enableFailureLethalWave = true;
+
+        [Tooltip(
+            "실패 확정 후 실제 파동이 퍼지기 전 경고 시간입니다."
+        )]
+        [SerializeField, Min(0f)]
+        private float failureWaveTelegraphDuration = 0.75f;
+
+        [Tooltip(
+            "파동이 시작 반경에서 최대 반경까지 확장되는 시간입니다."
+        )]
+        [SerializeField, Min(0.05f)]
+        private float failureWaveExpansionDuration = 2.5f;
+
+        [Tooltip(
+            "확산 파동이 시작하는 반경입니다."
+        )]
+        [SerializeField, Min(0f)]
+        private float failureWaveStartRadius = 0.5f;
+
+        [Tooltip(
+            "확산 파동의 최대 반경입니다. " +
+            "현재 필드 테스트에서는 30 정도로 시작하세요."
+        )]
+        [SerializeField, Min(0.1f)]
+        private float failureWaveMaxRadius = 30f;
+
+        [Tooltip(
+            "플레이어와 충돌하는 파동 띠의 두께입니다. " +
+            "고속 확산 시 판정 누락 방지를 위해 0.8~1.2를 권장합니다."
+        )]
+        [SerializeField, Min(0.05f)]
+        private float failureWaveHitThickness = 1f;
+
+        [Tooltip(
+            "플레이어에게 넣을 치명 피해 계산 배율입니다. " +
+            "실제 피해 = CurrentHealth + CurrentArmor + MaxHealth × 이 값 + 1. " +
+            "기본 2면 일반 HP/방어 기준 사실상 즉사 피해입니다."
+        )]
+        [SerializeField, Min(0.1f)]
+        private float failureWaveLethalDamageMultiplier = 2f;
+
+        [Tooltip(
+            "체크하면 별도 아트가 없어도 테스트할 수 있도록 LineRenderer 원형 파동을 런타임에 표시합니다."
+        )]
+        [SerializeField]
+        private bool drawFailureRuntimeRing = true;
+
+        [Tooltip("런타임 원형 파동의 선분 수입니다.")]
+        [SerializeField, Range(24, 180)]
+        private int failureRuntimeRingSegments = 96;
+
+        [Tooltip("런타임 원형 파동의 선 두께입니다.")]
+        [SerializeField, Min(0.01f)]
+        private float failureRuntimeRingWidth = 0.16f;
+
+        [Tooltip("런타임 원형 파동 색상입니다.")]
+        [SerializeField]
+        private Color failureRuntimeRingColor =
+            new Color(1f, 0.78f, 0.08f, 0.9f);
+
+        [Tooltip("런타임 원형 파동 Sprite/LineRenderer Sorting Order입니다.")]
+        [SerializeField]
+        private int failureRuntimeRingSortingOrder = 900;
+
+        [Tooltip(
+            "파동 최대 반경 도달 후 화면에 남아 있다가 제거되는 시간입니다."
+        )]
+        [SerializeField, Min(0f)]
+        private float failureWaveEndLinger = 0.2f;
 
         [Header("Injector Visual")]
 
@@ -167,6 +238,10 @@ namespace Vampire
         [SerializeField]
         private bool lastChallengeFailed;
 
+        [Tooltip("현재 실패 전멸 파동 시퀀스가 진행 중인지 표시합니다.")]
+        [SerializeField]
+        private bool failureSequenceActive;
+
         [Header("Debug")]
 
         [Tooltip(
@@ -181,6 +256,8 @@ namespace Vampire
 
         private Coroutine challengeRoutine;
         private bool successGroggyApplied;
+        private bool failureRuntimeLockApplied;
+        private BossCaffeineFailureWave activeFailureWave;
 
         public bool IsChallengeActive => challengeActive;
         public int RemainingInjectorCount => remainingInjectorCount;
@@ -296,8 +373,10 @@ namespace Vampire
                 yield return null;
             }
 
-            // 성공 Groggy까지 이 패턴이 유지되도록 합니다.
-            while (successGroggyApplied)
+            // 성공 Groggy 또는 실패 전멸 파동이 끝날 때까지
+            // 이 패턴을 실행 상태로 유지합니다.
+            while (successGroggyApplied ||
+                   failureSequenceActive)
             {
                 yield return null;
             }
@@ -458,7 +537,9 @@ namespace Vampire
                         0.1f,
                         challengeDuration))
                 {
-                    HandleFailure();
+                    yield return
+                        HandleFailure();
+
                     yield break;
                 }
 
@@ -566,11 +647,11 @@ namespace Vampire
                 null;
         }
 
-        private void HandleFailure()
+        private IEnumerator HandleFailure()
         {
             if (!challengeActive)
             {
-                return;
+                yield break;
             }
 
             challengeActive =
@@ -580,6 +661,9 @@ namespace Vampire
                 false;
 
             lastChallengeFailed =
+                true;
+
+            failureSequenceActive =
                 true;
 
             if (failureVfxPrefab != null &&
@@ -597,18 +681,159 @@ namespace Vampire
                     $"[BossCaffeineInjectorPattern] FAILURE | " +
                     $"Time Limit={challengeDuration:0.##}s, " +
                     $"Remain={CountAliveInjectors()} | " +
-                    $"Step 8A에서는 즉사 확산 공격을 아직 실행하지 않습니다.",
+                    $"Caffeine lethal wave START",
                     this
                 );
             }
 
+            // 남은 주입기는 실패가 확정되는 순간 제거합니다.
             ForceDestroyRemainingInjectors();
 
             remainingInjectorCount =
                 0;
 
+            if (bossController == null ||
+                bossController.IsDead)
+            {
+                failureSequenceActive =
+                    false;
+
+                challengeRoutine =
+                    null;
+
+                yield break;
+            }
+
+            // 실패 전멸 연출 중에는 보스가 움직이거나 접촉 피해를 주지 않게 고정합니다.
+            bossController.SetExternalMovementLock(
+                true);
+
+            bossController.SetSuppressContactDamage(
+                true);
+
+            failureRuntimeLockApplied =
+                true;
+
+            StopBossMotion();
+
+            if (enableFailureLethalWave)
+            {
+                SpawnFailureWave();
+
+                while (activeFailureWave != null &&
+                       !activeFailureWave.IsFinished)
+                {
+                    if (bossController == null ||
+                        bossController.IsDead ||
+                        bossController.IsPhaseTransitioning)
+                    {
+                        activeFailureWave.CancelWave();
+                        break;
+                    }
+
+                    StopBossMotion();
+
+                    yield return null;
+                }
+            }
+            else
+            {
+                // 기능을 꺼둔 경우에도 실패 연출이 너무 즉시 끝나지 않도록
+                // Telegraph 시간만큼 잠깐 유지합니다.
+                float waitTime =
+                    Mathf.Max(
+                        0f,
+                        failureWaveTelegraphDuration);
+
+                if (waitTime > 0f)
+                {
+                    yield return
+                        new WaitForSeconds(
+                            waitTime);
+                }
+            }
+
+            ClearFailureSequence();
+
             challengeRoutine =
                 null;
+        }
+
+        private void SpawnFailureWave()
+        {
+            if (bossController == null ||
+                bossController.PlayerCharacter == null)
+            {
+                return;
+            }
+
+            if (activeFailureWave != null)
+            {
+                activeFailureWave.CancelWave();
+                activeFailureWave =
+                    null;
+            }
+
+            GameObject waveObject =
+                new GameObject(
+                    "Boss_CaffeineFailureWave");
+
+            waveObject.transform.position =
+                bossController.BossCenterPosition;
+
+            activeFailureWave =
+                waveObject.AddComponent
+                <
+                    BossCaffeineFailureWave
+                >();
+
+            activeFailureWave.Setup(
+                bossController.PlayerCharacter,
+                bossController.BossCenterPosition,
+                failureWaveTelegraphDuration,
+                failureWaveExpansionDuration,
+                failureWaveStartRadius,
+                failureWaveMaxRadius,
+                failureWaveHitThickness,
+                failureWaveLethalDamageMultiplier,
+                drawFailureRuntimeRing,
+                failureRuntimeRingSegments,
+                failureRuntimeRingWidth,
+                failureRuntimeRingColor,
+                failureRuntimeRingSortingOrder,
+                failureWaveEndLinger,
+                debugLog
+            );
+        }
+
+        private void ClearFailureSequence()
+        {
+            if (activeFailureWave != null)
+            {
+                if (!activeFailureWave.IsFinished)
+                {
+                    activeFailureWave.CancelWave();
+                }
+
+                activeFailureWave =
+                    null;
+            }
+
+            if (failureRuntimeLockApplied &&
+                bossController != null)
+            {
+                bossController.SetSuppressContactDamage(
+                    false);
+
+                bossController.SetExternalMovementLock(
+                    false);
+            }
+
+            failureRuntimeLockApplied =
+                false;
+
+            failureSequenceActive =
+                false;
         }
 
         private void ResolveCoreDamageStateBridge()
@@ -819,6 +1044,7 @@ namespace Vampire
                 false;
 
             ClearSuccessGroggy();
+            ClearFailureSequence();
             CleanupInjectors();
         }
     }
