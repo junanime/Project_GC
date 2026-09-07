@@ -974,7 +974,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4169506148560627945}
   - component: {fileID: 4724437389618723344}
-  - component: {fileID: 251552733539848161}
   m_Layer: 7
   m_Name: 'BossPartDamageTestRootController  '
   m_TagString: Untagged
@@ -1019,25 +1018,6 @@ MonoBehaviour:
   brokenPartCount: 0
   disableAllCollidersOnBossDeath: 1
   hideRemainingPartsOnBossDeath: 1
-  debugLog: 1
---- !u!114 &251552733539848161
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2320860237157246596}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dc487b2250352e4281de88380e7d213, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  coreDamageState: 1
-  guardedDamageMultiplier: 1
-  normalDamageMultiplier: 1
-  openDamageMultiplier: 1.5
-  groggyDamageMultiplier: 2
-  coreMultiplierPlayerDamageOnly: 1
   debugLog: 1
 --- !u!1 &2495929574641497292
 GameObject:
@@ -1574,6 +1554,8 @@ GameObject:
   - component: {fileID: 8814728266142066049}
   - component: {fileID: 7729581201309114801}
   - component: {fileID: 7411012346261789803}
+  - component: {fileID: 2501895950791632859}
+  - component: {fileID: 9160298367617575420}
   m_Layer: 7
   m_Name: BossPartDamageTestRoot
   m_TagString: Untagged
@@ -1865,6 +1847,43 @@ MonoBehaviour:
   currentGuardArmType: 6
   guardArmUsingPattern: 0
   currentCoreDamageMultiplier: 1
+  debugLog: 1
+--- !u!114 &2501895950791632859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dc487b2250352e4281de88380e7d213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coreDamageState: 1
+  guardedDamageMultiplier: 1
+  normalDamageMultiplier: 1
+  openDamageMultiplier: 1.5
+  groggyDamageMultiplier: 2
+  coreMultiplierPlayerDamageOnly: 1
+  debugLog: 0
+--- !u!114 &9160298367617575420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6401697086027491985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 75444ddf288ae9f4ab06c92823328443, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coreGuardController: {fileID: 7411012346261789803}
+  damageRules: {fileID: 2501895950791632859}
+  groggyOverride: 0
+  lastAppliedState: 1
+  subscribed: 0
   debugLog: 1
 --- !u!1 &6830737390532902033
 GameObject:
