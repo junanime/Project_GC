@@ -222,10 +222,7 @@ namespace Vampire
             }
 
             BossPartDamageRules damageRules =
-                GetComponentInParent
-                <
-                    BossPartDamageRules
-                >(true);
+    ResolveDamageRules();
 
             float appliedDamage =
                 damageRules != null
@@ -528,7 +525,72 @@ namespace Vampire
                     >(true);
             }
         }
+        /// <summary>
+        /// 이 보스 파츠가 사용할 BossPartDamageRules를 찾습니다.
+        ///
+        /// 우선순위:
+        /// 1. 현재 파츠의 부모 계층
+        /// 2. RootController 오브젝트
+        /// 3. RootController의 자식 전체
+        /// 4. Prefab 최상위의 자식 전체
+        ///
+        /// 현재 테스트 프리팹처럼 BossPartDamageRules가
+        /// Root의 별도 자식 GameObject에 있어도 정상적으로 찾을 수 있습니다.
+        /// </summary>
+        private BossPartDamageRules ResolveDamageRules()
+        {
+            BossPartDamageRules damageRules =
+                GetComponentInParent
+                <
+                    BossPartDamageRules
+                >(true);
 
+            if (damageRules != null)
+            {
+                return damageRules;
+            }
+
+            ResolveRootController();
+
+            if (rootController != null)
+            {
+                damageRules =
+                    rootController.GetComponent
+                    <
+                        BossPartDamageRules
+                    >();
+
+                if (damageRules != null)
+                {
+                    return damageRules;
+                }
+
+                damageRules =
+                    rootController.GetComponentInChildren
+                    <
+                        BossPartDamageRules
+                    >(true);
+
+                if (damageRules != null)
+                {
+                    return damageRules;
+                }
+            }
+
+            Transform topRoot =
+                transform.root;
+
+            if (topRoot != null)
+            {
+                damageRules =
+                    topRoot.GetComponentInChildren
+                    <
+                        BossPartDamageRules
+                    >(true);
+            }
+
+            return damageRules;
+        }
         private void ResolveReferences()
         {
             if (hitColliders == null ||

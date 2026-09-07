@@ -1896,10 +1896,10 @@ Transform:
   - {fileID: 4169506148560627945}
   - {fileID: 4386367549207381930}
   - {fileID: 6538461416465978299}
-  - {fileID: 7420338502666811484}
-  - {fileID: 4663564927574019808}
   - {fileID: 4910484913846140674}
   - {fileID: 3703967020147427319}
+  - {fileID: 7420338502666811484}
+  - {fileID: 4663564927574019808}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &1903366919834822943
@@ -2083,8 +2083,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6eaa93efbd91604a83c24c1ec81b6d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  partRootController: {fileID: 0}
-  bossController: {fileID: 0}
+  partRootController: {fileID: 8798942031376210255}
+  bossController: {fileID: 3274473199323281411}
   synchronizePartHealthToBossController: 1
   healthChangeEpsilon: 0.001
   stopBossControllerOnPartBossDeath: 1
