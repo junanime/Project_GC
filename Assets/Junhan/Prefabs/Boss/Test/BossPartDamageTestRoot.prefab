@@ -114,7 +114,7 @@ MonoBehaviour:
   coreTraits: 4
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
+  ownerPart: {fileID: 2932483004890724307}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -124,13 +124,25 @@ MonoBehaviour:
   missileCountPhase2: 6
   missileCountPhase3: 8
   totalSpreadAngle: 90
-  missileSpeed: 7
+  missileSpeed: 4
   missileDamage: 15
   missileLifeTime: 30
   turnSpeed: 3
   laneOffsetDistance: 1.4
   laneFadeDistance: 2.2
   initialSpreadDuration: 0.2
+  enableEmbeddedBehavior: 1
+  trackingDuration: 4
+  fallingDuration: 0.6
+  embeddedLifetime: 18
+  maxEmbeddedMissiles: 4
+  embeddedScaleMultiplier: 0.8
+  fallingSpinDegrees: 180
+  embeddedExplosionRadius: 2.25
+  embeddedBossMaxHpDamagePercent: 0.025
+  embeddedMonsterDamage: 50
+  embeddedLandingEffectPrefab: {fileID: 0}
+  embeddedExplosionEffectPrefab: {fileID: 0}
   muzzleOffsetFromBoss: 0.9
   burstCountPhase1: 1
   burstCountPhase2: 1
@@ -534,7 +546,7 @@ MonoBehaviour:
   displayName: "\uC628\uD314"
   isCore: 0
   autoTreatTorsoAsCore: 1
-  maxHealth: 10
+  maxHealth: 500
   currentHealth: 0
   isBroken: 0
   rootController: {fileID: 0}
@@ -856,7 +868,7 @@ MonoBehaviour:
   displayName: "\uD1A0\uB974\uC18C"
   isCore: 1
   autoTreatTorsoAsCore: 1
-  maxHealth: 30
+  maxHealth: 1000
   currentHealth: 0
   isBroken: 0
   rootController: {fileID: 0}
@@ -1268,7 +1280,7 @@ MonoBehaviour:
   displayName: "\uBA38\uB9AC"
   isCore: 0
   autoTreatTorsoAsCore: 1
-  maxHealth: 10
+  maxHealth: 500
   currentHealth: 0
   isBroken: 0
   rootController: {fileID: 0}
@@ -1663,8 +1675,8 @@ MonoBehaviour:
   autoCreateCoreStateController: 1
   patterns: []
   autoCollectPatternsFromChildren: 1
-  maxHp: 500
-  currentHp: 500
+  maxHp: 4000
+  currentHp: 4000
   contactDamage: 10
   contactDamageCooldown: 0.6
   enableBasicAttack: 1
