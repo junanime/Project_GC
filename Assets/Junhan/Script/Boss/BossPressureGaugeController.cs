@@ -913,6 +913,14 @@ namespace Vampire
             }
         }
 
+        public void ConsumePressure(
+    string reason)
+        {
+            ResetPressureInternal(
+                string.IsNullOrEmpty(reason)
+                    ? "Pressure Overload Resolved"
+                    : reason);
+        }
 
         // =========================================================
         // Debug
