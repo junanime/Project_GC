@@ -1447,6 +1447,7 @@ GameObject:
   - component: {fileID: 5605262267314009720}
   - component: {fileID: 8259392432251160973}
   - component: {fileID: 6615172398683260717}
+  - component: {fileID: 3777465881077800087}
   m_Layer: 6
   m_Name: Patterns
   m_TagString: Untagged
@@ -1486,7 +1487,7 @@ MonoBehaviour:
   coreTraits: 2
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
+  ownerPart: {fileID: 1195880323785226795}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -1527,7 +1528,7 @@ MonoBehaviour:
   coreTraits: 4
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
+  ownerPart: {fileID: 1195880323785226795}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -1553,6 +1554,51 @@ MonoBehaviour:
   forceMinionSortingOrder: 1
   minionSortingOrder: 430
   debugLog: 0
+--- !u!114 &3777465881077800087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6382908300445371302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c42bbe6b68423459b7581028a7ce05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: Caffeine Injector
+  cooldown: 35
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 1195880323785226795}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  injectorPrefab: {fileID: 1717462325660897561, guid: 8ec71fd61cbf6d842a5033e3311461ac, type: 3}
+  injectorCount: 3
+  injectorHp: 10
+  spawnRadius: 1.25
+  spawnAngleOffset: 90
+  parentInjectorsToBoss: 1
+  challengeDuration: 15
+  blockOtherPatternsDuringChallenge: 1
+  patternCastSeconds: 0.25
+  successGroggyDuration: 3.5
+  coreDamageStateBridge: {fileID: 0}
+  successVfxPrefab: {fileID: 0}
+  failureVfxPrefab: {fileID: 0}
+  injectorSpawnVfxPrefab: {fileID: 0}
+  injectorDestroyVfxPrefab: {fileID: 0}
+  forceInjectorSortingOrder: 1
+  injectorSortingOrder: 600
+  challengeActive: 0
+  remainingInjectorCount: 0
+  currentChallengeElapsed: 0
+  lastChallengeSucceeded: 0
+  lastChallengeFailed: 0
+  debugLog: 1
 --- !u!1 &6401697086027491985
 GameObject:
   m_ObjectHideFlags: 0
