@@ -56,6 +56,7 @@ namespace Vampire
         [SerializeField]
         private Text phaseText;
 
+
         [Header("Gauge Layout")]
 
         [Tooltip("게이지 높이입니다. 기존 미니스테이지 세로 게이지와 동일하게 420을 기본값으로 사용합니다.")]
@@ -64,7 +65,7 @@ namespace Vampire
 
         [Tooltip("게이지 너비입니다.")]
         [SerializeField]
-        private float gaugeWidth = 60f;
+        private float gaugeWidth = 50f;
 
         [Tooltip("UI가 화면 오른쪽 끝에서 얼마나 떨어질지 설정합니다.")]
         [SerializeField]
@@ -73,6 +74,7 @@ namespace Vampire
         [Tooltip("화면 중앙 기준 세로 위치 보정값입니다.")]
         [SerializeField]
         private float verticalOffset = 0f;
+
 
         [Header("Temporary Colors")]
 
@@ -111,14 +113,15 @@ namespace Vampire
         private Color fullPressureColor =
             new Color(1f, 0.2f, 0.2f, 1f);
 
+
         private Text titleText;
         private bool initialized;
+
 
         public static BossPressureGaugeUI CreateTemporaryGauge()
         {
             GameObject canvasObject =
-                new GameObject(
-                    "BossPressureGaugeCanvas");
+                new GameObject("BossPressureGaugeCanvas");
 
             Canvas runtimeCanvas =
                 canvasObject.AddComponent<Canvas>();
@@ -131,10 +134,7 @@ namespace Vampire
                 30000;
 
             CanvasScaler scaler =
-                canvasObject.AddComponent
-                <
-                    CanvasScaler
-                >();
+                canvasObject.AddComponent<CanvasScaler>();
 
             scaler.uiScaleMode =
                 CanvasScaler.ScaleMode.ScaleWithScreenSize;
@@ -147,16 +147,10 @@ namespace Vampire
             scaler.matchWidthOrHeight =
                 0.5f;
 
-            canvasObject.AddComponent
-            <
-                GraphicRaycaster
-            >();
+            canvasObject.AddComponent<GraphicRaycaster>();
 
             BossPressureGaugeUI gaugeUI =
-                canvasObject.AddComponent
-                <
-                    BossPressureGaugeUI
-                >();
+                canvasObject.AddComponent<BossPressureGaugeUI>();
 
             gaugeUI.canvas =
                 runtimeCanvas;
@@ -165,6 +159,7 @@ namespace Vampire
 
             return gaugeUI;
         }
+
 
         public void Initialize(
             float thresholdDamage,
@@ -210,6 +205,7 @@ namespace Vampire
                 false,
                 currentPhase);
         }
+
 
         public void UpdateGauge(
             float normalized,
@@ -310,6 +306,7 @@ namespace Vampire
             }
         }
 
+
         public void ShowWaitingForBossHealth(
             int currentPhase)
         {
@@ -353,11 +350,13 @@ namespace Vampire
             }
         }
 
+
         public void DestroyGauge()
         {
             Destroy(
                 gameObject);
         }
+
 
         private void UpdateFillSize(
             float normalized)
@@ -382,6 +381,7 @@ namespace Vampire
             gaugeFillRect.anchoredPosition =
                 Vector2.zero;
         }
+
 
         private void UpdateFillColor(
             float normalized,
@@ -431,6 +431,7 @@ namespace Vampire
                     lowT);
         }
 
+
         private void BuildTemporaryLayout()
         {
             ClearChildren(
@@ -445,10 +446,7 @@ namespace Vampire
                 false);
 
             rootRect =
-                rootObject.AddComponent
-                <
-                    RectTransform
-                >();
+                rootObject.AddComponent<RectTransform>();
 
             rootRect.anchorMin =
                 new Vector2(
@@ -465,9 +463,10 @@ namespace Vampire
                     0.5f,
                     0.5f);
 
+            // 기존 280 -> 250
             rootRect.sizeDelta =
                 new Vector2(
-                    280f,
+                    250f,
                     650f);
 
             rootRect.anchoredPosition =
@@ -478,6 +477,7 @@ namespace Vampire
             rootRect.localScale =
                 Vector3.one;
 
+
             GameObject panelObject =
                 CreateImageObject(
                     "Panel",
@@ -485,10 +485,7 @@ namespace Vampire
                     panelColor);
 
             RectTransform panelRect =
-                panelObject.GetComponent
-                <
-                    RectTransform
-                >();
+                panelObject.GetComponent<RectTransform>();
 
             panelRect.anchorMin =
                 new Vector2(
@@ -505,13 +502,15 @@ namespace Vampire
                     0.5f,
                     0.5f);
 
+            // 기존 260 -> 230
             panelRect.sizeDelta =
                 new Vector2(
-                    260f,
+                    230f,
                     630f);
 
             panelRect.anchoredPosition =
                 Vector2.zero;
+
 
             titleText =
                 CreateTextObject(
@@ -522,7 +521,7 @@ namespace Vampire
                         gaugeHeight * 0.5f +
                         105f),
                     new Vector2(
-                        250f,
+                        220f,
                         44f),
                     26,
                     TextAnchor.MiddleCenter);
@@ -537,6 +536,7 @@ namespace Vampire
                     0.7f,
                     1f);
 
+
             damageText =
                 CreateTextObject(
                     "DamageText",
@@ -546,10 +546,11 @@ namespace Vampire
                         gaugeHeight * 0.5f +
                         55f),
                     new Vector2(
-                        250f,
+                        220f,
                         70f),
                     22,
                     TextAnchor.MiddleCenter);
+
 
             GameObject borderObject =
                 CreateImageObject(
@@ -558,10 +559,7 @@ namespace Vampire
                     borderColor);
 
             RectTransform borderRect =
-                borderObject.GetComponent
-                <
-                    RectTransform
-                >();
+                borderObject.GetComponent<RectTransform>();
 
             borderRect.anchorMin =
                 new Vector2(
@@ -586,6 +584,7 @@ namespace Vampire
             borderRect.anchoredPosition =
                 Vector2.zero;
 
+
             GameObject backgroundObject =
                 CreateImageObject(
                     "GaugeBackground",
@@ -593,10 +592,7 @@ namespace Vampire
                     backgroundColor);
 
             gaugeBackgroundRect =
-                backgroundObject.GetComponent
-                <
-                    RectTransform
-                >();
+                backgroundObject.GetComponent<RectTransform>();
 
             gaugeBackgroundRect.anchorMin =
                 new Vector2(
@@ -621,6 +617,7 @@ namespace Vampire
             gaugeBackgroundRect.anchoredPosition =
                 Vector2.zero;
 
+
             GameObject fillObject =
                 CreateImageObject(
                     "PressureFill",
@@ -628,16 +625,10 @@ namespace Vampire
                     lowPressureColor);
 
             gaugeFillRect =
-                fillObject.GetComponent
-                <
-                    RectTransform
-                >();
+                fillObject.GetComponent<RectTransform>();
 
             gaugeFillImage =
-                fillObject.GetComponent
-                <
-                    Image
-                >();
+                fillObject.GetComponent<Image>();
 
             gaugeFillRect.anchorMin =
                 new Vector2(
@@ -662,6 +653,7 @@ namespace Vampire
             gaugeFillRect.anchoredPosition =
                 Vector2.zero;
 
+
             percentText =
                 CreateTextObject(
                     "PercentText",
@@ -673,6 +665,7 @@ namespace Vampire
                     30,
                     TextAnchor.MiddleCenter);
 
+
             stateText =
                 CreateTextObject(
                     "StateText",
@@ -682,10 +675,11 @@ namespace Vampire
                         -gaugeHeight * 0.5f -
                         58f),
                     new Vector2(
-                        250f,
+                        220f,
                         50f),
                     24,
                     TextAnchor.MiddleCenter);
+
 
             phaseText =
                 CreateTextObject(
@@ -696,17 +690,17 @@ namespace Vampire
                         -gaugeHeight * 0.5f -
                         108f),
                     new Vector2(
-                        250f,
+                        220f,
                         42f),
                     20,
                     TextAnchor.MiddleCenter);
         }
 
+
         private void ClearChildren(
             Transform root)
         {
-            for (int i =
-                     root.childCount - 1;
+            for (int i = root.childCount - 1;
                  i >= 0;
                  i--)
             {
@@ -715,6 +709,7 @@ namespace Vampire
                         .gameObject);
             }
         }
+
 
         private GameObject CreateImageObject(
             string objectName,
@@ -730,19 +725,13 @@ namespace Vampire
                 false);
 
             RectTransform rectTransform =
-                imageObject.AddComponent
-                <
-                    RectTransform
-                >();
+                imageObject.AddComponent<RectTransform>();
 
             rectTransform.localScale =
                 Vector3.one;
 
             Image image =
-                imageObject.AddComponent
-                <
-                    Image
-                >();
+                imageObject.AddComponent<Image>();
 
             image.color =
                 color;
@@ -752,6 +741,7 @@ namespace Vampire
 
             return imageObject;
         }
+
 
         private Text CreateTextObject(
             string objectName,
@@ -770,10 +760,7 @@ namespace Vampire
                 false);
 
             RectTransform rectTransform =
-                textObject.AddComponent
-                <
-                    RectTransform
-                >();
+                textObject.AddComponent<RectTransform>();
 
             rectTransform.anchorMin =
                 new Vector2(
@@ -800,10 +787,7 @@ namespace Vampire
                 Vector3.one;
 
             Text text =
-                textObject.AddComponent
-                <
-                    Text
-                >();
+                textObject.AddComponent<Text>();
 
             text.font =
                 GetBuiltInFont();
@@ -823,22 +807,17 @@ namespace Vampire
             return text;
         }
 
+
         private Font GetBuiltInFont()
         {
             Font font =
-                Resources.GetBuiltinResource
-                <
-                    Font
-                >(
+                Resources.GetBuiltinResource<Font>(
                     "LegacyRuntime.ttf");
 
             if (font == null)
             {
                 font =
-                    Resources.GetBuiltinResource
-                    <
-                        Font
-                    >(
+                    Resources.GetBuiltinResource<Font>(
                         "Arial.ttf");
             }
 

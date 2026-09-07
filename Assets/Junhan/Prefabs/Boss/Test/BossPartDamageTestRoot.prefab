@@ -64,150 +64,6 @@ Transform:
   - {fileID: 5347791370697970624}
   m_Father: {fileID: 7986375170990739833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &454542699816596496
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6232104052560610756}
-  - component: {fileID: 5203499052640802703}
-  - component: {fileID: 5786321188722772871}
-  m_Layer: 6
-  m_Name: Homing_BombLob
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6232104052560610756
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 454542699816596496}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5700942751532892869}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5203499052640802703
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 454542699816596496}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7850e71ecc209584c9aa612b22ff21a8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: "\uC720\uB3C4\uD0C4"
-  cooldown: 3
-  coreTraits: 4
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 2932483004890724307}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 1
-  missilePrefab: {fileID: 79574699671740622, guid: e45b96cccb487f34ba156a57101ef984, type: 3}
-  missileCountPhase1: 4
-  missileCountPhase2: 6
-  missileCountPhase3: 8
-  totalSpreadAngle: 90
-  missileSpeed: 4
-  missileDamage: 15
-  missileLifeTime: 30
-  turnSpeed: 3
-  laneOffsetDistance: 1.4
-  laneFadeDistance: 2.2
-  initialSpreadDuration: 0.2
-  enableEmbeddedBehavior: 1
-  trackingDuration: 4
-  fallingDuration: 0.6
-  embeddedLifetime: 18
-  maxEmbeddedMissiles: 4
-  embeddedScaleMultiplier: 0.8
-  fallingSpinDegrees: 180
-  embeddedExplosionRadius: 2.25
-  embeddedBossMaxHpDamagePercent: 0.025
-  embeddedMonsterDamage: 50
-  embeddedLandingEffectPrefab: {fileID: 0}
-  embeddedExplosionEffectPrefab: {fileID: 0}
-  muzzleOffsetFromBoss: 0.9
-  burstCountPhase1: 1
-  burstCountPhase2: 1
-  burstCountPhase3: 2
-  burstInterval: 0.35
-  destroyByPlayerProjectile: 1
-  playerProjectileLayerMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  projectileHitCheckRadius: 0.25
-  rotateToMoveDirection: 1
-  visualForwardAngleOffset: 0
-  destroyEffectPrefab: {fileID: 0}
-  forceMissileSortingOrder: 1
-  missileSortingOrder: 560
-  debugShot: 0
---- !u!114 &5786321188722772871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 454542699816596496}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: "\uD3ED\uD0C4"
-  cooldown: 3
-  coreTraits: 2
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 2932483004890724307}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 0
-  warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
-  warningDuration: 1
-  bombProjectilePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
-  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
-  arcHeight: 3
-  projectileScaleMultiplier: 1
-  rotateProjectileToMoveDirection: 1
-  projectileVisualAngleOffset: 0
-  spinProjectile: 1
-  projectileSpinSpeed: 360
-  disableProjectileColliders: 1
-  disableProjectileRigidbodySimulation: 1
-  forceProjectileSortingOrder: 1
-  projectileSortingOrder: 800
-  explosionRadius: 2
-  explosionDamage: 20
-  explosionEffectPrefab: {fileID: 0}
-  projectileDestroyDelayAfterImpact: 0
-  enableBossSelfDamage: 1
-  bossSelfMaxHpDamagePercent: 0.497
-  bossSelfDamageRadiusPadding: 0
-  bombCountPhase1: 1
-  bombCountPhase2: 3
-  bombCountPhase3: 4
-  randomOffsetRadius: 1.5
-  intervalBetweenBombs: 0.15
-  debugBomb: 0
 --- !u!1 &544462092901458673
 GameObject:
   m_ObjectHideFlags: 0
@@ -397,8 +253,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 8191151475866271141}
+  m_Children: []
   m_Father: {fileID: 6754685083464912470}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1091430698650513677
@@ -562,6 +417,87 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &1294367680816387405
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 69445405548228240}
+  - component: {fileID: 2407376650872729076}
+  m_Layer: 6
+  m_Name: BossBombLobPattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &69445405548228240
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294367680816387405}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5700942751532892869}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2407376650872729076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1294367680816387405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uD3ED\uD0C4"
+  cooldown: 3
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 2932483004890724307}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
+  warningDuration: 1
+  bombProjectilePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
+  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
+  arcHeight: 3
+  projectileScaleMultiplier: 1
+  rotateProjectileToMoveDirection: 1
+  projectileVisualAngleOffset: 0
+  spinProjectile: 1
+  projectileSpinSpeed: 360
+  disableProjectileColliders: 1
+  disableProjectileRigidbodySimulation: 1
+  forceProjectileSortingOrder: 1
+  projectileSortingOrder: 800
+  explosionRadius: 2
+  explosionDamage: 20
+  explosionEffectPrefab: {fileID: 0}
+  projectileDestroyDelayAfterImpact: 0
+  enableBossSelfDamage: 1
+  bossSelfMaxHpDamagePercent: 0.497
+  bossSelfDamageRadiusPadding: 0
+  bombCountPhase1: 1
+  bombCountPhase2: 3
+  bombCountPhase3: 4
+  randomOffsetRadius: 1.5
+  intervalBetweenBombs: 0.15
+  debugBomb: 0
 --- !u!1 &1530106799911000102
 GameObject:
   m_ObjectHideFlags: 0
@@ -967,37 +903,6 @@ Transform:
   - {fileID: 1597109577630589099}
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2139600039794973047
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4947243970473018804}
-  m_Layer: 6
-  m_Name: BossRadialBurstPattern
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4947243970473018804
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2139600039794973047}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7984993256475767407}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2142986565384266587
 GameObject:
   m_ObjectHideFlags: 0
@@ -1026,8 +931,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4947243970473018804}
+  m_Children: []
   m_Father: {fileID: 8334487762599879908}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2320860237157246596
@@ -1085,6 +989,81 @@ MonoBehaviour:
   disableAllCollidersOnBossDeath: 1
   hideRemainingPartsOnBossDeath: 1
   debugLog: 1
+--- !u!1 &2376971065276721339
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3568539660419170415}
+  - component: {fileID: 7066270716999092120}
+  m_Layer: 6
+  m_Name: BossAbsorbMinionHealPattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3568539660419170415
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2376971065276721339}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5605262267314009720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7066270716999092120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2376971065276721339}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbaa3b5cf8867a45bcb8fa5d5403e71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: Absorb Minion Heal
+  cooldown: 45
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 1195880323785226795}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  absorbMinionPrefab: {fileID: 0}
+  spawnCount: 12
+  spawnInterval: 0.08
+  spawnDistanceMin: 6
+  spawnDistanceMax: 8
+  spawnAngleJitter: 20
+  minionHp: 15
+  minionMoveSpeed: 2.4
+  healAmountPerMinion: 10
+  absorbDistance: 1.1
+  maxPatternDuration: 18
+  playDeathVfxOnTimeout: 0
+  lockBossMovementDuringPattern: 1
+  suppressBossContactDamageDuringPattern: 1
+  minionSpawnVfxPrefab: {fileID: 0}
+  minionDeathVfxPrefab: {fileID: 0}
+  minionAbsorbVfxPrefab: {fileID: 0}
+  bossHealVfxPrefab: {fileID: 0}
+  forceMinionSortingOrder: 1
+  minionSortingOrder: 430
+  debugLog: 0
 --- !u!1 &2495929574641497292
 GameObject:
   m_ObjectHideFlags: 0
@@ -1114,7 +1093,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6232104052560610756}
+  - {fileID: 7588315767169020126}
+  - {fileID: 69445405548228240}
   m_Father: {fileID: 5061847562344212676}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2674308100336383734
@@ -1347,6 +1327,191 @@ MonoBehaviour:
   fallbackHitColor: {r: 1, g: 0.35, b: 0.35, a: 1}
   hideRenderersWhenBroken: 1
   debugLog: 1
+--- !u!1 &3183629003082810310
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1966213166764689107}
+  - component: {fileID: 1720767624745351738}
+  m_Layer: 6
+  m_Name: BossCaffeineInjectorPattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1966213166764689107
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3183629003082810310}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5605262267314009720}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1720767624745351738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3183629003082810310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05c42bbe6b68423459b7581028a7ce05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: Caffeine Injector
+  cooldown: 35
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 1195880323785226795}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  injectorPrefab: {fileID: 1717462325660897561, guid: 8ec71fd61cbf6d842a5033e3311461ac, type: 3}
+  injectorCount: 3
+  injectorHp: 10
+  spawnRadius: 1.25
+  spawnAngleOffset: 90
+  parentInjectorsToBoss: 1
+  challengeDuration: 15
+  blockOtherPatternsDuringChallenge: 0
+  patternCastSeconds: 0.25
+  successGroggyDuration: 3.5
+  coreDamageStateBridge: {fileID: 0}
+  successVfxPrefab: {fileID: 0}
+  failureVfxPrefab: {fileID: 0}
+  enableFailureLethalWave: 1
+  failureWaveTelegraphDuration: 0.75
+  failureWaveExpansionDuration: 2.5
+  failureWaveStartRadius: 0.5
+  failureWaveMaxRadius: 30
+  failureWaveHitThickness: 1
+  failureWaveLethalDamageMultiplier: 2
+  drawFailureRuntimeRing: 1
+  failureRuntimeRingSegments: 96
+  failureRuntimeRingWidth: 0.16
+  failureRuntimeRingColor: {r: 1, g: 0.78, b: 0.08, a: 0.9}
+  failureRuntimeRingSortingOrder: 900
+  failureWaveEndLinger: 0.2
+  injectorSpawnVfxPrefab: {fileID: 0}
+  injectorDestroyVfxPrefab: {fileID: 0}
+  forceInjectorSortingOrder: 1
+  injectorSortingOrder: 600
+  challengeActive: 0
+  remainingInjectorCount: 0
+  currentChallengeElapsed: 0
+  lastChallengeSucceeded: 0
+  lastChallengeFailed: 0
+  failureSequenceActive: 0
+  debugLog: 1
+--- !u!1 &3216924336690909340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7588315767169020126}
+  - component: {fileID: 2388886299359203738}
+  m_Layer: 6
+  m_Name: BossHomingMissilePattern
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7588315767169020126
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3216924336690909340}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5700942751532892869}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2388886299359203738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3216924336690909340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7850e71ecc209584c9aa612b22ff21a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uC720\uB3C4\uD0C4"
+  cooldown: 3
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 2932483004890724307}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  missilePrefab: {fileID: 79574699671740622, guid: e45b96cccb487f34ba156a57101ef984, type: 3}
+  missileCountPhase1: 4
+  missileCountPhase2: 6
+  missileCountPhase3: 8
+  totalSpreadAngle: 90
+  missileSpeed: 4
+  missileDamage: 15
+  missileLifeTime: 30
+  turnSpeed: 3
+  laneOffsetDistance: 1.4
+  laneFadeDistance: 2.2
+  initialSpreadDuration: 0.2
+  enableEmbeddedBehavior: 1
+  trackingDuration: 4
+  fallingDuration: 0.6
+  embeddedLifetime: 18
+  maxEmbeddedMissiles: 4
+  embeddedScaleMultiplier: 0.8
+  fallingSpinDegrees: 180
+  embeddedExplosionRadius: 2.25
+  embeddedBossMaxHpDamagePercent: 0.025
+  embeddedMonsterDamage: 50
+  embeddedLandingEffectPrefab: {fileID: 0}
+  embeddedExplosionEffectPrefab: {fileID: 0}
+  muzzleOffsetFromBoss: 0.9
+  burstCountPhase1: 1
+  burstCountPhase2: 1
+  burstCountPhase3: 2
+  burstInterval: 0.35
+  destroyByPlayerProjectile: 1
+  playerProjectileLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  projectileHitCheckRadius: 0.25
+  rotateToMoveDirection: 1
+  visualForwardAngleOffset: 0
+  destroyEffectPrefab: {fileID: 0}
+  forceMissileSortingOrder: 1
+  missileSortingOrder: 560
+  debugShot: 0
 --- !u!1 &3303437612744755116
 GameObject:
   m_ObjectHideFlags: 0
@@ -1691,9 +1856,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5605262267314009720}
-  - component: {fileID: 8259392432251160973}
-  - component: {fileID: 6615172398683260717}
-  - component: {fileID: 3777465881077800087}
   m_Layer: 6
   m_Name: Patterns
   m_TagString: Untagged
@@ -1713,152 +1875,12 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1412369082391224689}
+  - {fileID: 3568539660419170415}
+  - {fileID: 1966213166764689107}
   m_Father: {fileID: 8736929898052857229}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8259392432251160973
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382908300445371302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4d67eafb7a322bc4888956f4dcd020b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: Cola Bottle Heal
-  cooldown: 40
-  coreTraits: 2
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 1195880323785226795}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 0
-  colaBottlePrefab: {fileID: 0}
-  bottleCount: 4
-  spawnDistance: 4.5
-  spawnAngleOffset: 45
-  bottleHp: 60
-  healDelayAfterSpawn: 20
-  healPerSecond: 8
-  healTickInterval: 0.25
-  maxPatternDuration: 0
-  makeBossInvincibleWhileBottleExists: 1
-  allowOtherPatternsWhileBottleExists: 1
-  bottleSpawnVfxPrefab: {fileID: 0}
-  bottleDestroyVfxPrefab: {fileID: 0}
-  bossHealVfxPrefab: {fileID: 0}
-  healVfxInterval: 1
-  forceBottleSortingOrder: 1
-  bottleSortingOrder: 450
-  patternCastSeconds: 0.2
-  debugLog: 0
---- !u!114 &6615172398683260717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382908300445371302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffbaa3b5cf8867a45bcb8fa5d5403e71, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: Absorb Minion Heal
-  cooldown: 45
-  coreTraits: 4
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 1195880323785226795}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 0
-  absorbMinionPrefab: {fileID: 0}
-  spawnCount: 12
-  spawnInterval: 0.08
-  spawnDistanceMin: 6
-  spawnDistanceMax: 8
-  spawnAngleJitter: 20
-  minionHp: 15
-  minionMoveSpeed: 2.4
-  healAmountPerMinion: 10
-  absorbDistance: 1.1
-  maxPatternDuration: 18
-  playDeathVfxOnTimeout: 0
-  lockBossMovementDuringPattern: 1
-  suppressBossContactDamageDuringPattern: 1
-  minionSpawnVfxPrefab: {fileID: 0}
-  minionDeathVfxPrefab: {fileID: 0}
-  minionAbsorbVfxPrefab: {fileID: 0}
-  bossHealVfxPrefab: {fileID: 0}
-  forceMinionSortingOrder: 1
-  minionSortingOrder: 430
-  debugLog: 0
---- !u!114 &3777465881077800087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6382908300445371302}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 05c42bbe6b68423459b7581028a7ce05, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  patternName: Caffeine Injector
-  cooldown: 35
-  coreTraits: 2
-  coreMatchMode: 0
-  autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 1195880323785226795}
-  additionalRequiredParts: []
-  requireAllAdditionalParts: 1
-  useOwnerPartAsPatternOrigin: 1
-  debugPartBinding: 0
-  injectorPrefab: {fileID: 1717462325660897561, guid: 8ec71fd61cbf6d842a5033e3311461ac, type: 3}
-  injectorCount: 3
-  injectorHp: 10
-  spawnRadius: 1.25
-  spawnAngleOffset: 90
-  parentInjectorsToBoss: 1
-  challengeDuration: 15
-  blockOtherPatternsDuringChallenge: 1
-  patternCastSeconds: 0.25
-  successGroggyDuration: 3.5
-  coreDamageStateBridge: {fileID: 0}
-  successVfxPrefab: {fileID: 0}
-  failureVfxPrefab: {fileID: 0}
-  enableFailureLethalWave: 1
-  failureWaveTelegraphDuration: 0.75
-  failureWaveExpansionDuration: 2.5
-  failureWaveStartRadius: 0.5
-  failureWaveMaxRadius: 30
-  failureWaveHitThickness: 1
-  failureWaveLethalDamageMultiplier: 2
-  drawFailureRuntimeRing: 1
-  failureRuntimeRingSegments: 96
-  failureRuntimeRingWidth: 0.16
-  failureRuntimeRingColor: {r: 1, g: 0.78, b: 0.08, a: 0.9}
-  failureRuntimeRingSortingOrder: 900
-  failureWaveEndLinger: 0.2
-  injectorSpawnVfxPrefab: {fileID: 0}
-  injectorDestroyVfxPrefab: {fileID: 0}
-  forceInjectorSortingOrder: 1
-  injectorSortingOrder: 600
-  challengeActive: 0
-  remainingInjectorCount: 0
-  currentChallengeElapsed: 0
-  lastChallengeSucceeded: 0
-  lastChallengeFailed: 0
-  failureSequenceActive: 0
-  debugLog: 1
 --- !u!1 &6401697086027491985
 GameObject:
   m_ObjectHideFlags: 0
@@ -2413,7 +2435,7 @@ Transform:
   - {fileID: 3698250899254999128}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &9076683618319760946
+--- !u!1 &8270675815151910399
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2421,26 +2443,68 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8191151475866271141}
+  - component: {fileID: 1412369082391224689}
+  - component: {fileID: 9219851296843236936}
   m_Layer: 6
-  m_Name: BossChargePattern
+  m_Name: BossColaBottleHealPattern
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8191151475866271141
+--- !u!4 &1412369082391224689
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9076683618319760946}
+  m_GameObject: {fileID: 8270675815151910399}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 165491489848385023}
+  m_Father: {fileID: 5605262267314009720}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9219851296843236936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8270675815151910399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d67eafb7a322bc4888956f4dcd020b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: Cola Bottle Heal
+  cooldown: 40
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 1195880323785226795}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  colaBottlePrefab: {fileID: 0}
+  bottleCount: 4
+  spawnDistance: 4.5
+  spawnAngleOffset: 45
+  bottleHp: 60
+  healDelayAfterSpawn: 20
+  healPerSecond: 8
+  healTickInterval: 0.25
+  maxPatternDuration: 0
+  makeBossInvincibleWhileBottleExists: 1
+  allowOtherPatternsWhileBottleExists: 1
+  bottleSpawnVfxPrefab: {fileID: 0}
+  bottleDestroyVfxPrefab: {fileID: 0}
+  bossHealVfxPrefab: {fileID: 0}
+  healVfxInterval: 1
+  forceBottleSortingOrder: 1
+  bottleSortingOrder: 450
+  patternCastSeconds: 0.2
+  debugLog: 0
