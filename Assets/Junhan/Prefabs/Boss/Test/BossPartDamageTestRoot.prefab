@@ -176,12 +176,12 @@ MonoBehaviour:
   coreTraits: 2
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
+  ownerPart: {fileID: 2932483004890724307}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  warningCirclePrefab: {fileID: 0}
+  warningCirclePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
   warningDuration: 1
   bombProjectilePrefab: {fileID: 0}
   projectileStartOffsetFromBoss: {x: 0, y: 1.6}
@@ -353,7 +353,7 @@ MonoBehaviour:
   displayName: "\uC624\uB978\uB2E4\uB9AC"
   isCore: 0
   autoTreatTorsoAsCore: 1
-  maxHealth: 10
+  maxHealth: 500
   currentHealth: 0
   isBroken: 0
   rootController: {fileID: 0}
@@ -707,7 +707,7 @@ MonoBehaviour:
   displayName: "\uC67C\u3137\uB9AC"
   isCore: 0
   autoTreatTorsoAsCore: 1
-  maxHealth: 10
+  maxHealth: 500
   currentHealth: 0
   isBroken: 0
   rootController: {fileID: 0}
@@ -1342,12 +1342,12 @@ MonoBehaviour:
   coreTraits: 4
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
+  ownerPart: {fileID: 2980815833220635940}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  bulletPrefab: {fileID: 0}
+  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 6
   bulletDamage: 8
   bulletCountPhase1: 12
@@ -2007,10 +2007,10 @@ MonoBehaviour:
   requireAllAdditionalParts: 0
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  warningLinePrefab: {fileID: 0}
+  warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
   warningTime: 0.9
   warningWidth: 1.5
-  warningColor: {r: 0.4, g: 0.85, b: 1, a: 0.45}
+  warningColor: {r: 0.735849, g: 0.1365254, b: 0.17703183, a: 0.45}
   chargeCountPhase1: 1
   chargeCountPhase2: 2
   chargeCountPhase3: 3
@@ -2037,6 +2037,14 @@ MonoBehaviour:
   ignorePlayerPhysicsCollisionDuringCharge: 1
   forceExactChargeMovement: 1
   showDebugHitbox: 0
+  enableEmbeddedMissileCrash: 1
+  embeddedMissileLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  embeddedMissileBossDamageMultiplier: 2
+  embeddedMissileCrashPadding: 0.1
+  embeddedMissileGroggyDuration: 2
+  coreDamageStateBridge: {fileID: 0}
   debugCharge: 0
 --- !u!1 &7159461583432778197
 GameObject:

@@ -499,14 +499,9 @@ namespace Vampire
                 return;
             }
 
-            if (destroyByPlayerProjectile &&
-                CheckPlayerProjectileOverlapEmbedded())
-            {
-                DetonateEmbedded(
-                    1f,
-                    "PlayerProjectile"
-                );
-            }
+            // 매립 상태에서는 플레이어 공격으로 절대 기폭하지 않습니다.
+            // 기폭은 BossChargePattern에서
+            // TryDetonateByBossCharge()를 호출했을 때만 발생합니다.
         }
 
         private void MoveMissile()
@@ -740,16 +735,14 @@ namespace Vampire
             }
 
             if (currentState ==
-                BossHomingMissileState.Embedded)
+    BossHomingMissileState.Embedded)
             {
-                if (destroyByPlayerProjectile &&
-                    TryDetectPlayerProjectile(other))
-                {
-                    DetonateEmbedded(
-                        1f,
-                        "PlayerProjectileTrigger"
-                    );
-                }
+                // 매립된 미사일은 플레이어 캐릭터 및
+                // 플레이어 투사체와 접촉해도 기폭하지 않습니다.
+                //
+                // BossChargePattern에서 보스 돌진 충돌을 감지하고
+                // TryDetonateByBossCharge()를 호출할 때만 기폭합니다.
+                return;
             }
         }
 
