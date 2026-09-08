@@ -160,7 +160,8 @@ namespace Vampire
                 return;
             }
 
-            BossController bossController = spawnedBossMonster.GetComponent<BossController>();
+            BossController bossController =
+    spawnedBossMonster.GetComponentInChildren<BossController>(true);
 
             if (bossController != null)
             {

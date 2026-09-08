@@ -2,10 +2,6 @@ using UnityEngine;
 
 namespace Vampire
 {
-    /// <summary>
-    /// 플레이어 위치를 기준으로 테스트용 파츠 보스를 생성합니다.
-    /// 정식 보스 스포너, EntityManager, BossMonsterBlueprint에는 연결하지 않습니다.
-    /// </summary>
     public sealed class BossPartDamageTestSpawner : MonoBehaviour
     {
         [Header("테스트 프리팹")]
@@ -44,18 +40,13 @@ namespace Vampire
         private void Start()
         {
             if (spawnOnStart)
-            {
                 SpawnTestBoss();
-            }
         }
 
         private void Update()
         {
-            if (respawnKey != KeyCode.None &&
-                Input.GetKeyDown(respawnKey))
-            {
+            if (respawnKey != KeyCode.None && Input.GetKeyDown(respawnKey))
                 SpawnTestBoss();
-            }
         }
 
         [ContextMenu("Spawn Test Boss")]
@@ -66,14 +57,11 @@ namespace Vampire
                 Debug.LogError(
                     "[BossPartTestSpawner] Test Boss Prefab이 비어 있습니다.",
                     this);
-
                 return;
             }
 
             if (!TryResolvePlayer())
-            {
                 return;
-            }
 
             Vector2 direction = GetSpawnDirection();
 
@@ -81,16 +69,15 @@ namespace Vampire
                 playerCharacter.transform.position +
                 (Vector3)(direction * spawnDistance);
 
-            if (destroyPreviousBeforeSpawn &&
-                spawnedBoss != null)
-            {
+            if (destroyPreviousBeforeSpawn && spawnedBoss != null)
                 Destroy(spawnedBoss);
-            }
 
             spawnedBoss = Instantiate(
                 testBossPrefab,
                 spawnPosition,
                 Quaternion.identity);
+
+            InitializeSpawnedBoss();
 
             if (debugLog)
             {
@@ -104,19 +91,46 @@ namespace Vampire
             }
         }
 
+        private void InitializeSpawnedBoss()
+        {
+            if (spawnedBoss == null)
+                return;
+
+            if (playerCharacter == null && !TryResolvePlayer())
+                return;
+
+            BossController bossController =
+                spawnedBoss.GetComponentInChildren<BossController>(true);
+
+            if (bossController == null)
+            {
+                Debug.LogError(
+                    "[BossPartTestSpawner] 생성된 테스트 보스에서 BossController를 찾지 못했습니다.",
+                    spawnedBoss);
+                return;
+            }
+
+            bossController.SetPlayerCharacter(playerCharacter);
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[BossPartTestSpawner] BossController Player 연결 완료 | " +
+                    $"Player={playerCharacter.name}, " +
+                    $"BossController={bossController.name}",
+                    bossController);
+            }
+        }
+
         private bool TryResolvePlayer()
         {
             if (playerCharacter != null)
-            {
                 return true;
-            }
 
             playerCharacter = FindObjectOfType<Character>();
 
             if (playerCharacter != null)
-            {
                 return true;
-            }
 
             Debug.LogError(
                 "[BossPartTestSpawner] 씬에서 Character를 찾지 못했습니다. " +
@@ -128,19 +142,16 @@ namespace Vampire
 
         private Vector2 GetSpawnDirection()
         {
-            Vector2 direction = usePlayerLookDirection
-                ? playerCharacter.LookDirection
-                : fallbackDirection;
+            Vector2 direction =
+                usePlayerLookDirection
+                    ? playerCharacter.LookDirection
+                    : fallbackDirection;
 
             if (direction.sqrMagnitude <= 0.0001f)
-            {
                 direction = fallbackDirection;
-            }
 
             if (direction.sqrMagnitude <= 0.0001f)
-            {
                 direction = Vector2.right;
-            }
 
             return direction.normalized;
         }
