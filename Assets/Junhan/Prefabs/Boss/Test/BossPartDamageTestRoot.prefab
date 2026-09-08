@@ -1155,6 +1155,87 @@ Transform:
   - {fileID: 69445405548228240}
   m_Father: {fileID: 5061847562344212676}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2540274524649961072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3306192739818235}
+  - component: {fileID: 7362553580389487340}
+  m_Layer: 7
+  m_Name: 'BossRainbowAnnihilationController   '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3306192739818235
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2540274524649961072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7362553580389487340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2540274524649961072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01ec5424ee56cac4aaf8c389f43e145f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossController: {fileID: 3274473199323281411}
+  coreStateController: {fileID: 3576277722249316081}
+  autoTriggerFromRainbowHighlight: 1
+  highlightsPerAnnihilation: 3
+  minimumSecondsBetweenAnnihilations: 10
+  telegraphDuration: 3
+  lockBossMovementDuringSequence: 1
+  suppressBossContactDamageDuringSequence: 1
+  resultLingerDuration: 0.35
+  zoneDistanceFromBoss: 4.5
+  zoneRadius: 1.4
+  redZoneAngle: 90
+  yellowZoneAngle: 210
+  blueZoneAngle: 330
+  outsideAllZonesIsLethal: 1
+  lethalDamageMultiplier: 2
+  drawRuntimeZones: 1
+  zoneSegments: 64
+  safeZoneLineWidth: 0.16
+  dangerZoneLineWidth: 0.3
+  safeZoneAlpha: 0.45
+  dangerZoneMinAlpha: 0.55
+  dangerZoneMaxAlpha: 1
+  dangerPulseSpeed: 6
+  zoneSortingOrder: 930
+  redZoneColor: {r: 1, g: 0.15, b: 0.12, a: 1}
+  yellowZoneColor: {r: 1, g: 0.82, b: 0.12, a: 1}
+  blueZoneColor: {r: 0.18, g: 0.55, b: 1, a: 1}
+  annihilationActive: 0
+  capturedDangerTraits: 0
+  rainbowHighlightCount: 0
+  lastAnnihilationStartTime: -999
+  lastResultSafe: 0
+  lastPlayerHit: 0
+  highlightEventSubscribed: 0
+  debugDangerTraits: 3
+  debugLog: 1
 --- !u!1 &2674308100336383734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1824,7 +1905,7 @@ MonoBehaviour:
   contactDamage: 10
   contactDamageCooldown: 0.6
   enableBasicAttack: 1
-  basicAttackBulletPrefab: {fileID: 0}
+  basicAttackBulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   basicAttackCooldown: 1.6
   basicAttackDamage: 5
   basicAttackBulletSpeed: 4.5
@@ -2128,11 +2209,12 @@ Transform:
   - {fileID: 4910484913846140674}
   - {fileID: 6466263660212914621}
   - {fileID: 3703967020147427319}
-  - {fileID: 7420338502666811484}
-  - {fileID: 4663564927574019808}
+  - {fileID: 3306192739818235}
   - {fileID: 256991129677252108}
   - {fileID: 469206818176660541}
   - {fileID: 3840280864699902805}
+  - {fileID: 7420338502666811484}
+  - {fileID: 4663564927574019808}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &1903366919834822943
