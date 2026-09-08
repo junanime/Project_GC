@@ -628,7 +628,7 @@ namespace Vampire
                 MaintainOverloadActionLock();
                 StopBossMotion();
 
-                StopBossMotion();
+               
                 yield return null;
             }
 
