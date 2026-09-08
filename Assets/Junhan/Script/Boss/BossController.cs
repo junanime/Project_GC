@@ -641,11 +641,38 @@ namespace Vampire
 
             patterns.Clear();
 
+            // 1차:
+            // 기존 구조와의 호환성을 위해
+            // BossController 자신과 자식부터 검색합니다.
             BossPatternBase[] foundPatterns =
                 GetComponentsInChildren
                 <
                     BossPatternBase
                 >(true);
+
+            // 2차:
+            // 현재 파츠 보스 구조에서는
+            // BossController와 PartsRoot / SharedPatterns가
+            // 형제 오브젝트이므로 바로 부모인 보스 루트에서 재검색합니다.
+            if (foundPatterns.Length == 0 &&
+                transform.parent != null)
+            {
+                foundPatterns =
+                    transform.parent.GetComponentsInChildren
+                    <
+                        BossPatternBase
+                    >(true);
+
+                if (debugPattern &&
+                    foundPatterns.Length > 0)
+                {
+                    Debug.Log(
+                        $"[BossController] 현재 오브젝트 아래에서 패턴을 찾지 못해 " +
+                        $"부모 보스 루트에서 다시 수집했습니다. " +
+                        $"Found={foundPatterns.Length}",
+                        this);
+                }
+            }
 
             for (int i = 0;
                  i < foundPatterns.Length;
