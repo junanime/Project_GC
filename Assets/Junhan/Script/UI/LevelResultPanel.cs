@@ -10,9 +10,11 @@ namespace Vampire
         [Header("Root")]
         [SerializeField] private GameObject panelRoot;
 
+
         [Header("Game References")]
         [SerializeField] private LevelManager levelManager;
         [SerializeField] private StatsManager statsManager;
+
 
         [Header("Result Texts")]
         [SerializeField] private TextMeshProUGUI survivalTimeText;
@@ -22,31 +24,47 @@ namespace Vampire
         [SerializeField] private TextMeshProUGUI buildNameText;
         [SerializeField] private TextMeshProUGUI topDamageAugmentText;
 
+
         [Header("Character Result")]
         [SerializeField] private Image selectedCharacterImage;
         [SerializeField] private TextMeshProUGUI selectedCharacterNameText;
         [SerializeField] private TextMeshProUGUI selectedCharacterDescriptionText;
 
+        // 결과화면 캐릭터 애니메이션
+        [SerializeField] private ResultCharacterAnimator selectedCharacterAnimator;
+
+
         [Header("Buttons")]
         [SerializeField] private Button retryButton;
         [SerializeField] private Button mainMenuButton;
 
+
         [Header("Scene")]
         [SerializeField] private int mainMenuSceneIndex = 0;
 
+
         private bool initialized;
 
+
+        // =========================================================
+        // Unity
+        // =========================================================
 
         private void Awake()
         {
             InitializeIfNeeded();
 
+            // 게임 시작 시 결과창 숨김
             if (panelRoot != null)
             {
                 panelRoot.SetActive(false);
             }
         }
 
+
+        // =========================================================
+        // Initialize
+        // =========================================================
 
         private void InitializeIfNeeded()
         {
@@ -55,16 +73,19 @@ namespace Vampire
 
             initialized = true;
 
+
             if (panelRoot == null)
             {
                 panelRoot = gameObject;
             }
+
 
             if (retryButton != null)
             {
                 retryButton.onClick.RemoveListener(Restart);
                 retryButton.onClick.AddListener(Restart);
             }
+
 
             if (mainMenuButton != null)
             {
@@ -74,23 +95,35 @@ namespace Vampire
         }
 
 
+        // =========================================================
+        // Open
+        // =========================================================
+
         public void Open(bool levelPassed)
         {
             InitializeIfNeeded();
 
-            // 결과 데이터 갱신
-            UpdateResultData();
 
             // 게임 정지
             Time.timeScale = 0f;
 
-            // 결과 패널 표시
+
+            // 먼저 패널을 활성화해야
+            // ResultCharacterAnimator의 Coroutine이 정상적으로 실행됨
             if (panelRoot != null)
             {
                 panelRoot.SetActive(true);
             }
+
+
+            // 결과 데이터 갱신
+            UpdateResultData();
         }
 
+
+        // =========================================================
+        // Result Data
+        // =========================================================
 
         private void UpdateResultData()
         {
@@ -151,6 +184,7 @@ namespace Vampire
 
             // =========================
             // 최종 빌드 이름
+            // 추후 구현
             // =========================
 
             if (buildNameText != null)
@@ -161,6 +195,7 @@ namespace Vampire
 
             // =========================
             // 가장 피해를 많이 준 증강
+            // 추후 구현
             // =========================
 
             if (topDamageAugmentText != null)
@@ -170,12 +205,16 @@ namespace Vampire
 
 
             // =========================
-            // 선택한 캐릭터 정보
+            // 선택한 캐릭터
             // =========================
 
             UpdateSelectedCharacter();
         }
 
+
+        // =========================================================
+        // Selected Character
+        // =========================================================
 
         private void UpdateSelectedCharacter()
         {
@@ -183,27 +222,37 @@ namespace Vampire
                 CrossSceneData.CharacterBlueprint;
 
 
-            // =========================
-            // Blueprint가 없는 경우
-            // =========================
+            // =====================================================
+            // CharacterBlueprint이 없는 경우
+            // =====================================================
 
             if (selectedCharacter == null)
             {
-                if (selectedCharacterImage != null)
+                // 애니메이션 제거
+                if (selectedCharacterAnimator != null)
+                {
+                    selectedCharacterAnimator.Clear();
+                }
+                else if (selectedCharacterImage != null)
                 {
                     selectedCharacterImage.sprite = null;
                     selectedCharacterImage.enabled = false;
                 }
 
+
+                // 이름
                 if (selectedCharacterNameText != null)
                 {
                     selectedCharacterNameText.text = "-";
                 }
 
+
+                // 설명
                 if (selectedCharacterDescriptionText != null)
                 {
                     selectedCharacterDescriptionText.text = "-";
                 }
+
 
                 Debug.LogWarning(
                     "[LevelResultPanel] 선택된 CharacterBlueprint이 없습니다."
@@ -213,37 +262,29 @@ namespace Vampire
             }
 
 
-            // =========================
-            // 캐릭터 이미지
-            // =========================
+            // =====================================================
+            // 캐릭터 이미지 + 애니메이션
+            // =====================================================
 
-            if (selectedCharacterImage != null)
+            if (selectedCharacterAnimator != null)
             {
-                if (selectedCharacter.walkSpriteSequence != null &&
-                    selectedCharacter.walkSpriteSequence.Length > 0)
-                {
-                    selectedCharacterImage.sprite =
-                        selectedCharacter.walkSpriteSequence[0];
-
-                    selectedCharacterImage.enabled = true;
-                    selectedCharacterImage.preserveAspect = true;
-                }
-                else
-                {
-                    selectedCharacterImage.sprite = null;
-                    selectedCharacterImage.enabled = false;
-
-                    Debug.LogWarning(
-                        $"[LevelResultPanel] {selectedCharacter.name}의 " +
-                        "walkSpriteSequence가 비어 있습니다."
-                    );
-                }
+                // ResultCharacterAnimator가
+                // 캐릭터에 맞는 애니메이션을 실행
+                selectedCharacterAnimator.SetCharacter(
+                    selectedCharacter
+                );
+            }
+            else
+            {
+                // ResultCharacterAnimator가 연결되지 않았다면
+                // 기존처럼 정적인 첫 번째 이미지 사용
+                SetStaticCharacterImage(selectedCharacter);
             }
 
 
-            // =========================
+            // =====================================================
             // 캐릭터 이름
-            // =========================
+            // =====================================================
 
             if (selectedCharacterNameText != null)
             {
@@ -254,9 +295,9 @@ namespace Vampire
             }
 
 
-            // =========================
+            // =====================================================
             // 캐릭터 설명
-            // =========================
+            // =====================================================
 
             if (selectedCharacterDescriptionText != null)
             {
@@ -268,10 +309,51 @@ namespace Vampire
         }
 
 
+        // =========================================================
+        // Static Character Image Fallback
+        // =========================================================
+
+        private void SetStaticCharacterImage(
+            CharacterBlueprint selectedCharacter
+        )
+        {
+            if (selectedCharacterImage == null)
+                return;
+
+
+            if (selectedCharacter.walkSpriteSequence != null &&
+                selectedCharacter.walkSpriteSequence.Length > 0)
+            {
+                selectedCharacterImage.sprite =
+                    selectedCharacter.walkSpriteSequence[0];
+
+                selectedCharacterImage.enabled = true;
+                selectedCharacterImage.preserveAspect = true;
+            }
+            else
+            {
+                selectedCharacterImage.sprite = null;
+                selectedCharacterImage.enabled = false;
+
+                Debug.LogWarning(
+                    $"[LevelResultPanel] {selectedCharacter.name}의 " +
+                    "walkSpriteSequence가 비어 있습니다."
+                );
+            }
+        }
+
+
+        // =========================================================
+        // Time Format
+        // =========================================================
+
         private string FormatTime(float seconds)
         {
             int totalSeconds =
-                Mathf.Max(0, Mathf.FloorToInt(seconds));
+                Mathf.Max(
+                    0,
+                    Mathf.FloorToInt(seconds)
+                );
 
             int minutes = totalSeconds / 60;
             int secs = totalSeconds % 60;
@@ -279,6 +361,10 @@ namespace Vampire
             return $"{minutes:00}:{secs:00}";
         }
 
+
+        // =========================================================
+        // Close
+        // =========================================================
 
         public void Close()
         {
@@ -289,6 +375,10 @@ namespace Vampire
         }
 
 
+        // =========================================================
+        // Retry
+        // =========================================================
+
         public void Restart()
         {
             Time.timeScale = 1f;
@@ -298,6 +388,10 @@ namespace Vampire
             );
         }
 
+
+        // =========================================================
+        // Main Menu
+        // =========================================================
 
         public void ReturnToMainMenu()
         {

@@ -22173,6 +22173,7 @@ GameObject:
   - component: {fileID: 1307179156}
   - component: {fileID: 1307179158}
   - component: {fileID: 1307179157}
+  - component: {fileID: 1307179159}
   m_Layer: 5
   m_Name: SelectedCharacterImage
   m_TagString: Untagged
@@ -22237,6 +22238,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1307179155}
   m_CullTransparentMesh: 1
+--- !u!114 &1307179159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307179155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a97eb9a8f011a14aa3b9f23d09157ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetImage: {fileID: 1307179157}
+  fallbackIdleFrameTime: 0.2
+  playRandomAction: 1
+  minRandomActionInterval: 2
+  maxRandomActionInterval: 4
 --- !u!1 &1321567718
 GameObject:
   m_ObjectHideFlags: 0
@@ -33818,6 +33836,7 @@ MonoBehaviour:
   selectedCharacterImage: {fileID: 1307179157}
   selectedCharacterNameText: {fileID: 2124542546}
   selectedCharacterDescriptionText: {fileID: 1506517663}
+  selectedCharacterAnimator: {fileID: 1307179159}
   retryButton: {fileID: 1206248748}
   mainMenuButton: {fileID: 1415461414}
   mainMenuSceneIndex: 0
@@ -41661,6 +41680,7 @@ MonoBehaviour:
   selectedCharacterImage: {fileID: 0}
   selectedCharacterNameText: {fileID: 0}
   selectedCharacterDescriptionText: {fileID: 0}
+  selectedCharacterAnimator: {fileID: 0}
   retryButton: {fileID: 2078098898}
   mainMenuButton: {fileID: 499932412}
   mainMenuSceneIndex: 0

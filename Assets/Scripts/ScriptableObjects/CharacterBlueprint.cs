@@ -29,7 +29,15 @@ namespace Vampire
 
         [Header("Sprites")]
         public Sprite[] walkSpriteSequence;
-        public float walkFrameTime;
+        public float walkFrameTime = 0.15f;
+
+        [Header("Result Animation")]
+        public Sprite[] resultIdleSpriteSequence;
+        public float resultIdleFrameTime = 0.2f;
+
+        public Sprite[] resultActionASpriteSequence;
+        public Sprite[] resultActionBSpriteSequence;
+        public float resultActionFrameTime = 0.12f;
 
         [Header("Abilities")]
         public GameObject[] startingAbilities;
