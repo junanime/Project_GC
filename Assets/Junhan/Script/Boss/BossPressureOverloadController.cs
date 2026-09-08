@@ -442,6 +442,8 @@ namespace Vampire
 
                 nodeObject.name = $"Boss_PressureNode_{i + 1}";
 
+                InitializeNodeZPositioners(nodeObject);
+
                 if (parentNodesToBoss)
                     nodeObject.transform.SetParent(bossController.transform, true);
 
@@ -457,6 +459,54 @@ namespace Vampire
 
                 if (nodeSpawnVfxPrefab != null)
                     Instantiate(nodeSpawnVfxPrefab, spawnPosition, Quaternion.identity);
+            }
+        }
+
+        private void InitializeNodeZPositioners(GameObject nodeObject)
+        {
+            if (nodeObject == null)
+                return;
+
+            if (bossController == null ||
+                bossController.PlayerCharacter == null)
+            {
+                if (debugLog)
+                {
+                    Debug.LogWarning(
+                        "[BossPressureOverload] Pressure Node의 ZPositioner를 초기화할 PlayerCharacter가 없습니다.",
+                        this);
+                }
+
+                return;
+            }
+
+            ZPositioner[] zPositioners =
+                nodeObject.GetComponentsInChildren<ZPositioner>(true);
+
+            if (zPositioners == null ||
+                zPositioners.Length == 0)
+            {
+                return;
+            }
+
+            Transform playerTransform =
+                bossController.PlayerCharacter.transform;
+
+            for (int i = 0; i < zPositioners.Length; i++)
+            {
+                ZPositioner zPositioner = zPositioners[i];
+
+                if (zPositioner != null)
+                {
+                    zPositioner.Init(playerTransform);
+                }
+            }
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[BossPressureOverload] Pressure Node ZPositioner 초기화 | Count={zPositioners.Length}",
+                    nodeObject);
             }
         }
 
