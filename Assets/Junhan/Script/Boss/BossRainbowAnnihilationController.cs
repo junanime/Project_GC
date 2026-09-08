@@ -153,6 +153,7 @@ namespace Vampire
         private bool movementLockApplied;
         private bool contactSuppressApplied;
         private bool corePatternLockApplied;
+        private bool actionLockApplied;
 
         public bool IsAnnihilationActive => annihilationActive;
         public BossCoreTrait CapturedDangerTraits => capturedDangerTraits;
@@ -667,6 +668,9 @@ namespace Vampire
         {
             if (bossController != null)
             {
+                bossController.SetExternalActionLock(true);
+                actionLockApplied = true;
+
                 if (lockBossMovementDuringSequence)
                 {
                     bossController.SetExternalMovementLock(true);
@@ -690,32 +694,65 @@ namespace Vampire
         private void MaintainRuntimeLocks()
         {
             if (!annihilationActive)
+            {
                 return;
+            }
 
-            if (movementLockApplied && bossController != null)
+            if (actionLockApplied &&
+                bossController != null)
+            {
+                bossController.SetExternalActionLock(true);
+            }
+
+            if (movementLockApplied &&
+                bossController != null)
+            {
                 bossController.SetExternalMovementLock(true);
+            }
 
-            if (contactSuppressApplied && bossController != null)
+            if (contactSuppressApplied &&
+                bossController != null)
+            {
                 bossController.SetSuppressContactDamage(true);
+            }
 
-            if (corePatternLockApplied && coreStateController != null)
+            if (corePatternLockApplied &&
+                coreStateController != null)
+            {
                 coreStateController.SetPatternLocked(true);
+            }
         }
 
         private void ClearRuntimeLocks()
         {
-            if (corePatternLockApplied && coreStateController != null)
+            if (corePatternLockApplied &&
+                coreStateController != null)
+            {
                 coreStateController.SetPatternLocked(false);
+            }
 
-            if (contactSuppressApplied && bossController != null)
+            if (contactSuppressApplied &&
+                bossController != null)
+            {
                 bossController.SetSuppressContactDamage(false);
+            }
 
-            if (movementLockApplied && bossController != null)
+            if (movementLockApplied &&
+                bossController != null)
+            {
                 bossController.SetExternalMovementLock(false);
+            }
+
+            if (actionLockApplied &&
+                bossController != null)
+            {
+                bossController.SetExternalActionLock(false);
+            }
 
             corePatternLockApplied = false;
             contactSuppressApplied = false;
             movementLockApplied = false;
+            actionLockApplied = false;
         }
 
         private void StopBossMotion()

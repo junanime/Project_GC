@@ -398,6 +398,11 @@ namespace Vampire
         private bool externalMovementLock;
         private bool suppressContactDamage;
 
+        [Tooltip(
+    "외부 보스 기믹이 기본 공격과 특수 패턴의 새 실행을 잠그는 런타임 상태입니다.")]
+        [SerializeField]
+
+        private bool externalActionLock;
         private float basicAttackTimer;
         private bool isBasicAttackBursting;
 
@@ -428,6 +433,8 @@ namespace Vampire
         public bool IsDead => isDead;
         public bool IsUsingPattern => isUsingPattern;
         public bool IsPhaseTransitioning => isPhaseTransitioning;
+        public bool IsExternalActionLocked =>
+    externalActionLock;
         public bool IsInvincibleToDamage =>
             isDead ||
             isPhaseTransitioning ||
@@ -786,7 +793,35 @@ namespace Vampire
         {
             suppressContactDamage = value;
         }
+        public void SetExternalActionLock(
+    bool value)
+        {
+            if (externalActionLock == value)
+            {
+                return;
+            }
 
+            externalActionLock = value;
+
+            // 잠금 중 충전된 기본탄이
+            // 해제 순간 즉발하지 않도록 초기화합니다.
+            basicAttackTimer = 0f;
+
+            if (value)
+            {
+                return;
+            }
+
+            // 전멸기 종료 직후 특수 패턴이
+            // 즉시 튀어나오는 것을 방지합니다.
+            if (!isDead)
+            {
+                ScheduleNextPattern(
+                    Mathf.Max(
+                        0.1f,
+                        patternGap));
+            }
+        }
         public float GetModifiedDamage(
             float baseDamage)
         {
@@ -892,9 +927,10 @@ namespace Vampire
         private void UpdateBasicAttack()
         {
             if (!enableBasicAttack ||
-                isDead ||
-                isPhaseTransitioning ||
-                playerCharacter == null)
+    isDead ||
+    isPhaseTransitioning ||
+    externalActionLock ||
+    playerCharacter == null)
             {
                 return;
             }
@@ -1422,10 +1458,11 @@ namespace Vampire
             while (!isDead)
             {
                 if (!isPhaseTransitioning &&
-                    !isUsingPattern &&
-                    !isBasicAttackBursting &&
-                    playerCharacter != null &&
-                    Time.time >= nextPatternTime)
+     !externalActionLock &&
+     !isUsingPattern &&
+     !isBasicAttackBursting &&
+     playerCharacter != null &&
+     Time.time >= nextPatternTime)
                 {
                     BossPatternBase selectedPattern =
                         SelectPattern();
