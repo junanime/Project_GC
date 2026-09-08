@@ -1896,8 +1896,8 @@ MonoBehaviour:
   playerCharacter: {fileID: 0}
   rb: {fileID: 1903366919834822943}
   spriteRenderer: {fileID: 0}
-  coreStateController: {fileID: 0}
-  autoCreateCoreStateController: 1
+  coreStateController: {fileID: 3576277722249316081}
+  autoCreateCoreStateController: 0
   patterns: []
   autoCollectPatternsFromChildren: 1
   maxHp: 4000
