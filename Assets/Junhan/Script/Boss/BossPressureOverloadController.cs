@@ -123,6 +123,11 @@ namespace Vampire
         [SerializeField, Min(0f)] private float failureWaveEndLinger = 0.2f;
 
         [Header("Runtime - Read Only")]
+        [Tooltip(
+    "Pressure Overload가 BossController의 외부 행동 잠금을 " +
+    "현재 적용 중인지 표시합니다.")]
+        [SerializeField]
+        private bool overloadActionLockApplied;
         [Tooltip("현재 Pressure Overload 진행 여부입니다.")]
         [SerializeField] private bool overloadActive;
 
@@ -194,7 +199,11 @@ namespace Vampire
             }
 
             SubscribeEvents();
-
+            if (overloadActive &&
+    overloadActionLockApplied)
+            {
+                MaintainOverloadActionLock();
+            }
             if (overloadActive && IsBossDead())
             {
                 CancelActiveOverload("Boss Dead", false);
@@ -311,6 +320,20 @@ namespace Vampire
             lastOverloadFailed = false;
             remainingNodeCount = 0;
             currentChallengeElapsed = 0f;
+
+            ApplyOverloadActionLock();
+
+            yield return
+                WaitForExistingBossAction();
+
+            if (!overloadActive ||
+                IsBossDead())
+            {
+                yield break;
+            }
+
+            telegraphActive = true;
+
 
             CleanupNodes();
             DestroyActiveTelegraph();
@@ -602,6 +625,8 @@ namespace Vampire
             {
                 if (IsBossDead())
                     break;
+                MaintainOverloadActionLock();
+                StopBossMotion();
 
                 StopBossMotion();
                 yield return null;
@@ -653,7 +678,7 @@ namespace Vampire
                     activeFailureWave.CancelWave();
                     break;
                 }
-
+                MaintainOverloadActionLock();
                 StopBossMotion();
                 yield return null;
             }
@@ -740,7 +765,95 @@ namespace Vampire
             bossController.Rigidbody.velocity = Vector2.zero;
             bossController.Rigidbody.angularVelocity = 0f;
         }
+        private void ApplyOverloadActionLock()
+        {
+            if (bossController == null)
+            {
+                ResolveReferences();
+            }
 
+            if (bossController == null)
+            {
+                if (debugLog)
+                {
+                    Debug.LogWarning(
+                        "[BossPressureOverload] " +
+                        "BossController가 없어 Action Lock을 적용하지 못했습니다.",
+                        this);
+                }
+
+                return;
+            }
+
+            bossController.SetExternalActionLock(true);
+            overloadActionLockApplied = true;
+        }
+
+
+        private void MaintainOverloadActionLock()
+        {
+            if (!overloadActionLockApplied ||
+                bossController == null)
+            {
+                return;
+            }
+
+            bossController.SetExternalActionLock(true);
+        }
+
+
+        private void ClearOverloadActionLock()
+        {
+            if (overloadActionLockApplied &&
+                bossController != null)
+            {
+                bossController.SetExternalActionLock(false);
+            }
+
+            overloadActionLockApplied = false;
+        }
+
+
+        private IEnumerator WaitForExistingBossAction()
+        {
+            if (bossController == null)
+            {
+                yield break;
+            }
+
+            bool hadExistingAction =
+                bossController.IsUsingPattern ||
+                bossController.IsBasicAttackBursting;
+
+            if (hadExistingAction &&
+                debugLog)
+            {
+                Debug.Log(
+                    "[BossPressureOverload] " +
+                    "현재 실행 중인 보스 행동 종료 대기",
+                    this);
+            }
+
+            while (!IsBossDead() &&
+                   (
+                       bossController.IsUsingPattern ||
+                       bossController.IsBasicAttackBursting
+                   ))
+            {
+                MaintainOverloadActionLock();
+
+                yield return null;
+            }
+
+            if (hadExistingAction &&
+                debugLog)
+            {
+                Debug.Log(
+                    "[BossPressureOverload] " +
+                    "기존 보스 행동 종료 확인 -> Pressure Overload 시작",
+                    this);
+            }
+        }
         private int CountAliveNodes()
         {
             int count = 0;
@@ -786,7 +899,8 @@ namespace Vampire
             remainingNodeCount = 0;
         }
 
-        private void FinishAndConsumePressure(string reason)
+        private void FinishAndConsumePressure(
+    string reason)
         {
             CleanupNodes();
             DestroyActiveTelegraph();
@@ -798,11 +912,21 @@ namespace Vampire
             overloadActive = false;
             overloadRoutine = null;
 
-            if (pressureGaugeController != null && !IsBossDead())
-                pressureGaugeController.ConsumePressure(reason);
+            ClearOverloadActionLock();
+
+            if (pressureGaugeController != null &&
+                !IsBossDead())
+            {
+                pressureGaugeController.ConsumePressure(
+                    reason);
+            }
 
             if (debugLog)
-                Debug.Log($"[BossPressureOverload] END | {reason}", this);
+            {
+                Debug.Log(
+                    $"[BossPressureOverload] END | {reason}",
+                    this);
+            }
         }
 
         private void CancelActiveOverload(string reason, bool consumePressure)
@@ -822,6 +946,7 @@ namespace Vampire
             nodeChallengeActive = false;
             overloadActive = false;
             currentChallengeElapsed = 0f;
+            ClearOverloadActionLock();
 
             if (consumePressure && pressureGaugeController != null && !IsBossDead())
                 pressureGaugeController.ConsumePressure(reason);

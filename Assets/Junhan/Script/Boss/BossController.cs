@@ -385,6 +385,12 @@ namespace Vampire
         [SerializeField]
         private bool debugCore = false;
 
+        [Tooltip(
+    "Debug/Force Pattern By Index에서 강제로 실행할 패턴 번호입니다. " +
+    "먼저 Debug/Print Pattern List로 번호를 확인하세요.")]
+        [SerializeField, Min(0)]
+
+        private int debugForcePatternIndex = 0;
         private bool isDead;
         private bool isUsingPattern;
         private bool isPhaseTransitioning;
@@ -418,6 +424,7 @@ namespace Vampire
         private Coroutine activePatternCoroutine;
         private Coroutine phaseTransitionCoroutine;
         private Coroutine basicAttackBurstCoroutine;
+        private Coroutine debugForcedPatternCoroutine;
 
         public int CurrentPhase => currentPhase;
         public Character PlayerCharacter => playerCharacter;
@@ -435,6 +442,8 @@ namespace Vampire
         public bool IsPhaseTransitioning => isPhaseTransitioning;
         public bool IsExternalActionLocked =>
     externalActionLock;
+        public bool IsBasicAttackBursting =>
+    isBasicAttackBursting;
         public bool IsInvincibleToDamage =>
             isDead ||
             isPhaseTransitioning ||
@@ -461,7 +470,160 @@ namespace Vampire
         /// 파츠 기반 보스는 다음 파츠 정식화 단계에서 동일 Damage Source 구조로 연결합니다.
         /// </summary>
         public event Action<float, BossDamageSourceType> DamageTaken;
+        [ContextMenu("Debug/Print Pattern List")]
+        private void DebugPrintPatternList()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning(
+                    "[BossController] Play Mode에서 실행하세요.",
+                    this);
 
+                return;
+            }
+
+            if (patterns == null ||
+                patterns.Count == 0)
+            {
+                CollectPatternsIfNeeded();
+            }
+
+            Debug.Log(
+                $"[BossController] ===== Pattern List | Count={patterns.Count} =====",
+                this);
+
+            for (int i = 0;
+                 i < patterns.Count;
+                 i++)
+            {
+                BossPatternBase pattern =
+                    patterns[i];
+
+                if (pattern == null)
+                {
+                    Debug.Log(
+                        $"[BossController] [{i}] NULL",
+                        this);
+
+                    continue;
+                }
+
+                Debug.Log(
+                    $"[BossController] [{i}] " +
+                    $"{pattern.PatternName} | " +
+                    $"Core={pattern.CoreTraits} | " +
+                    $"Owner=" +
+                    $"{(pattern.OwnerPart != null ? pattern.OwnerPart.PartType.ToString() : "None")}",
+                    pattern);
+            }
+        }
+
+
+        [ContextMenu("Debug/Force Pattern By Index")]
+        private void DebugForcePatternByIndex()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning(
+                    "[BossController] Play Mode에서 실행하세요.",
+                    this);
+
+                return;
+            }
+
+            if (isDead)
+            {
+                Debug.LogWarning(
+                    "[BossController] 보스가 사망 상태라 패턴을 강제 실행할 수 없습니다.",
+                    this);
+
+                return;
+            }
+
+            if (patterns == null ||
+                patterns.Count == 0)
+            {
+                CollectPatternsIfNeeded();
+            }
+
+            if (patterns == null ||
+                patterns.Count == 0)
+            {
+                Debug.LogWarning(
+                    "[BossController] 강제 실행할 패턴이 없습니다.",
+                    this);
+
+                return;
+            }
+
+            if (debugForcedPatternCoroutine != null ||
+                isUsingPattern ||
+                isPhaseTransitioning ||
+                isBasicAttackBursting ||
+                externalActionLock)
+            {
+                Debug.LogWarning(
+                    "[BossController] 현재 다른 행동이 진행 중입니다. " +
+                    "행동이 끝난 뒤 다시 강제 실행하세요.",
+                    this);
+
+                return;
+            }
+
+            int index =
+                Mathf.Clamp(
+                    debugForcePatternIndex,
+                    0,
+                    patterns.Count - 1);
+
+            BossPatternBase selectedPattern =
+                patterns[index];
+
+            if (selectedPattern == null)
+            {
+                Debug.LogWarning(
+                    $"[BossController] Pattern[{index}]가 NULL입니다.",
+                    this);
+
+                return;
+            }
+
+            debugForcedPatternCoroutine =
+                StartCoroutine(
+                    DebugForcePatternRoutine(
+                        selectedPattern,
+                        index));
+        }
+
+
+        private IEnumerator DebugForcePatternRoutine(
+            BossPatternBase pattern,
+            int patternIndex)
+        {
+            SetExternalActionLock(true);
+
+            Debug.LogWarning(
+                $"[BossController] DEBUG FORCE PATTERN START | " +
+                $"Index={patternIndex}, " +
+                $"Pattern={pattern.PatternName}, " +
+                $"Phase={currentPhase}, " +
+                $"Core={ActiveCoreTraits}",
+                pattern);
+
+            yield return
+                StartCoroutine(
+                    UsePattern(pattern));
+
+            SetExternalActionLock(false);
+
+            Debug.LogWarning(
+                $"[BossController] DEBUG FORCE PATTERN END | " +
+                $"Index={patternIndex}, " +
+                $"Pattern={pattern.PatternName}",
+                pattern);
+
+            debugForcedPatternCoroutine = null;
+        }
         private void Awake()
         {
             ResolveReferences();
