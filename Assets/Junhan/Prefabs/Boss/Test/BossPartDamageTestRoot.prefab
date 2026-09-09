@@ -1137,7 +1137,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  absorbMinionPrefab: {fileID: 0}
+  absorbMinionPrefab: {fileID: 6534739195885250090, guid: 61389d7341a774c41812bdddec1c1bf4, type: 3}
   spawnCount: 12
   spawnInterval: 0.08
   spawnDistanceMin: 6
@@ -1548,8 +1548,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: Caffeine Injector
   cooldown: 35
-  coreTraits: 2
-  coreMatchMode: 0
+  coreTraits: -1
+  coreMatchMode: 1
   autoFindOwnerPartFromParent: 1
   ownerPart: {fileID: 1195880323785226795}
   additionalRequiredParts: []
@@ -2796,7 +2796,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  colaBottlePrefab: {fileID: 0}
+  colaBottlePrefab: {fileID: 8778423848610247580, guid: 73ff580fe533a144aa62e9a2a44bdfe3, type: 3}
   bottleCount: 4
   spawnDistance: 4.5
   spawnAngleOffset: 45
