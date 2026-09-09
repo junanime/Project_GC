@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: c5164ffb826f3469db584349ea8fb550, type: 3}
-  m_Color: {r: 0, g: 0.16613008, b: 0.9748427, a: 1}
+  m_Color: {r: 0.9764706, g: 0, b: 0.898468, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -185,6 +185,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 750889e4646f4e34983605c3ceddd4e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetSceneName: Level 1
+  debugLog: 1
 --- !u!1001 &6210005823290302181
 PrefabInstance:
   m_ObjectHideFlags: 0

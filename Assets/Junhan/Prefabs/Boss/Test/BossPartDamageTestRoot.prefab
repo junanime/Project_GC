@@ -801,6 +801,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5605262267314009720}
+  - {fileID: 1218031659738744653}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7987428932394529546
@@ -2814,3 +2815,60 @@ MonoBehaviour:
   bottleSortingOrder: 450
   patternCastSeconds: 0.2
   debugLog: 0
+--- !u!1 &8476177023597971301
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1218031659738744653}
+  - component: {fileID: 8755952512592070209}
+  m_Layer: 6
+  m_Name: 'CoreVisualRoot       '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1218031659738744653
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8476177023597971301}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8736929898052857229}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8755952512592070209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8476177023597971301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 505e48272331aa243a3bf1cb40fb3149, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coreStateController: {fileID: 3576277722249316081}
+  coreVisualRoot: {fileID: 1218031659738744653}
+  redCorePrefab: {fileID: 6326675434172693389, guid: 653afae6b96a54746a39dd826a6f6f7c, type: 3}
+  yellowCorePrefab: {fileID: 6326675434172693389, guid: 08cf4059cb952a74281cdbd945a52ed8, type: 3}
+  blueCorePrefab: {fileID: 6326675434172693389, guid: 010f97dc17b3eea4ba5953fa6d2982a1, type: 3}
+  orangeCorePrefab: {fileID: 6326675434172693389, guid: 19778351b280bdb41ad1313dc86aa6d9, type: 3}
+  purpleCorePrefab: {fileID: 6326675434172693389, guid: 0b3d033a908f38d439c1ac573e878865, type: 3}
+  greenCorePrefab: {fileID: 6326675434172693389, guid: abfc27a4897902e45b322ba7bed7a626, type: 3}
+  rainbowCorePrefab: {fileID: 6326675434172693389, guid: 27bec72739b36f845bd35223a1b89917, type: 3}
+  currentVisualMode: 0
+  currentVisualTraits: 0
+  currentVisualInstance: {fileID: 0}
+  debugLog: 1
