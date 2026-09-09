@@ -7,14 +7,15 @@ namespace Vampire
     /// <summary>
     /// 크리피커피 돌진 패턴입니다.
     ///
-    /// Step 6B 추가:
-    /// - 돌진 경로에서 같은 보스가 생성한 Embedded 호밍 미사일을 감지합니다.
-    /// - 충돌하면 BossHomingMissile.TryDetonateByBossCharge()로 기폭합니다.
-    /// - 돌진을 즉시 중단하고 남은 연속 돌진도 취소합니다.
-    /// - BossCoreDamageStateBridge를 통해 일정 시간 Groggy를 적용합니다.
-    ///
-    /// 기존 경고선 / 지그재그 / 페이즈별 거리·속도·피해 /
-    /// 플레이어 히트 판정 / 물리 충돌 무시 구조는 유지합니다.
+    /// 기능:
+    /// - 돌진 전 경고선 표시
+    /// - 페이즈별 연속 돌진
+    /// - 지그재그 돌진
+    /// - 플레이어 충돌 피해
+    /// - 돌진 중 플레이어 물리 충돌 무시
+    /// - Embedded 호밍 미사일 충돌
+    /// - 미사일 충돌 시 보스 자해 + Groggy
+    /// - 보스 사망/패턴 중단 시 남은 돌진 경고선 강제 제거
     /// </summary>
     public class BossChargePattern : BossPatternBase
     {
@@ -36,6 +37,7 @@ namespace Vampire
         [SerializeField]
         private Color warningColor =
             new Color(0.4f, 0.85f, 1f, 0.45f);
+
 
         [Header("Charge Combo")]
 
@@ -71,45 +73,48 @@ namespace Vampire
         [SerializeField]
         private bool randomizeFirstZigzagSide = true;
 
+
         [Header("Charge Distance")]
 
-        [Tooltip("1페이즈에서 보스가 무조건 돌진하는 거리입니다. 플레이어와 충돌해도 이 거리만큼 이동합니다.")]
+        [Tooltip("1페이즈에서 보스가 무조건 돌진하는 거리입니다.")]
         [SerializeField]
         private float chargeDistancePhase1 = 6f;
 
-        [Tooltip("2페이즈에서 보스가 무조건 돌진하는 거리입니다. 플레이어와 충돌해도 이 거리만큼 이동합니다.")]
+        [Tooltip("2페이즈에서 보스가 무조건 돌진하는 거리입니다.")]
         [SerializeField]
         private float chargeDistancePhase2 = 8f;
 
-        [Tooltip("3페이즈에서 보스가 무조건 돌진하는 거리입니다. 플레이어와 충돌해도 이 거리만큼 이동합니다.")]
+        [Tooltip("3페이즈에서 보스가 무조건 돌진하는 거리입니다.")]
         [SerializeField]
         private float chargeDistancePhase3 = 9f;
 
+
         [Header("Charge Speed")]
 
-        [Tooltip("1페이즈 돌진 기본 속도입니다. 실제 속도는 BossController의 현재 페이즈 Movement Speed Multiplier가 곱해집니다.")]
+        [Tooltip("1페이즈 돌진 기본 속도입니다. BossController의 현재 페이즈 Movement Speed Multiplier가 적용됩니다.")]
         [SerializeField]
         private float chargeSpeedPhase1 = 14f;
 
-        [Tooltip("2페이즈 돌진 기본 속도입니다. 실제 속도는 BossController의 현재 페이즈 Movement Speed Multiplier가 곱해집니다.")]
+        [Tooltip("2페이즈 돌진 기본 속도입니다. BossController의 현재 페이즈 Movement Speed Multiplier가 적용됩니다.")]
         [SerializeField]
         private float chargeSpeedPhase2 = 18f;
 
-        [Tooltip("3페이즈 돌진 기본 속도입니다. 실제 속도는 BossController의 현재 페이즈 Movement Speed Multiplier가 곱해집니다.")]
+        [Tooltip("3페이즈 돌진 기본 속도입니다. BossController의 현재 페이즈 Movement Speed Multiplier가 적용됩니다.")]
         [SerializeField]
         private float chargeSpeedPhase3 = 20f;
 
+
         [Header("Charge Damage")]
 
-        [Tooltip("1페이즈 돌진 기본 데미지입니다. 실제 데미지는 BossController의 현재 페이즈 Damage Multiplier가 곱해집니다.")]
+        [Tooltip("1페이즈 돌진 기본 데미지입니다. BossController의 현재 페이즈 Damage Multiplier가 적용됩니다.")]
         [SerializeField]
         private float chargeDamagePhase1 = 15f;
 
-        [Tooltip("2페이즈 돌진 기본 데미지입니다. 실제 데미지는 BossController의 현재 페이즈 Damage Multiplier가 곱해집니다.")]
+        [Tooltip("2페이즈 돌진 기본 데미지입니다. BossController의 현재 페이즈 Damage Multiplier가 적용됩니다.")]
         [SerializeField]
         private float chargeDamagePhase2 = 25f;
 
-        [Tooltip("3페이즈 돌진 기본 데미지입니다. 실제 데미지는 BossController의 현재 페이즈 Damage Multiplier가 곱해집니다.")]
+        [Tooltip("3페이즈 돌진 기본 데미지입니다. BossController의 현재 페이즈 Damage Multiplier가 적용됩니다.")]
         [SerializeField]
         private float chargeDamagePhase3 = 30f;
 
@@ -117,32 +122,34 @@ namespace Vampire
         [SerializeField]
         private float endLag = 0.4f;
 
+
         [Header("Hit Settings")]
 
-        [Tooltip("돌진 중 플레이어를 맞추는 히트박스 크기입니다. X는 돌진 방향 앞뒤 판정 여유, Y는 돌진 경로의 좌우 폭입니다.")]
+        [Tooltip("돌진 중 플레이어를 맞추는 히트박스 크기입니다. X는 진행 방향, Y는 좌우 폭입니다.")]
         [SerializeField]
         private Vector2 hitboxSize =
             new Vector2(1.6f, 1.6f);
 
-        [Tooltip("플레이어가 속한 레이어입니다. 돌진 히트 판정에 사용됩니다. Player 레이어를 지정하세요.")]
+        [Tooltip("플레이어가 속한 레이어입니다.")]
         [SerializeField]
         private LayerMask playerLayer;
 
-        [Tooltip("체크하면 한 번의 돌진 패턴 안에서 플레이어가 돌진마다 각각 한 번씩 맞을 수 있습니다.")]
+        [Tooltip("체크하면 연속 돌진 각각에서 플레이어가 한 번씩 피해를 받을 수 있습니다.")]
         [SerializeField]
         private bool canHitPlayerOncePerCharge = true;
 
-        [Tooltip("체크하면 돌진 중 보스와 플레이어의 물리 충돌을 잠시 무시합니다. 돌진이 플레이어 몸에 막히지 않게 하려면 켜두세요.")]
+        [Tooltip("체크하면 돌진 중 보스와 플레이어 사이의 물리 충돌을 임시로 무시합니다.")]
         [SerializeField]
         private bool ignorePlayerPhysicsCollisionDuringCharge = true;
 
-        [Tooltip("체크하면 Rigidbody2D.MovePosition이 아니라 위치를 직접 갱신해서 돌진 거리를 강제로 보장합니다.")]
+        [Tooltip("체크하면 위치를 직접 갱신해 지정된 돌진 거리를 보장합니다.")]
         [SerializeField]
         private bool forceExactChargeMovement = true;
 
-        [Tooltip("체크하면 Scene 뷰에서 돌진 히트박스 크기를 Gizmo로 표시합니다.")]
+        [Tooltip("체크하면 Scene 뷰에서 돌진 히트박스를 표시합니다.")]
         [SerializeField]
         private bool showDebugHitbox = false;
+
 
         [Header("Embedded Missile Crash / 매립 미사일 돌진 충돌")]
 
@@ -155,55 +162,88 @@ namespace Vampire
 
         [Tooltip(
             "돌진 중 매립 미사일을 검색할 레이어입니다. " +
-            "현재 Boss_HomingMissile 레이어가 확정되지 않았다면 Everything으로 두세요."
+            "Boss_HomingMissile 레이어가 별도로 없다면 Everything으로 둘 수 있습니다."
         )]
         [SerializeField]
         private LayerMask embeddedMissileLayerMask = ~0;
 
         [Tooltip(
-            "매립 미사일을 돌진으로 터뜨릴 때 BossHomingMissile의 기본 BossSelf 피해에 곱할 값입니다. " +
-            "Step 6A 기본 2.5%에 2를 곱하면 보스 전체 Max HP의 약 5% 피해입니다."
+            "매립 미사일을 돌진으로 터뜨릴 때 BossHomingMissile의 기본 BossSelf 피해에 곱할 값입니다."
         )]
         [SerializeField, Min(0f)]
         private float embeddedMissileBossDamageMultiplier = 2f;
 
         [Tooltip(
-            "돌진 히트박스보다 매립 미사일 충돌 판정을 추가로 넓힐 여유값입니다. " +
-            "너무 크게 잡으면 실제로 닿기 전에 충돌하므로 0~0.15 정도를 권장합니다."
+            "돌진 히트박스보다 매립 미사일 충돌 판정을 추가로 넓힐 값입니다."
         )]
         [SerializeField, Min(0f)]
         private float embeddedMissileCrashPadding = 0.1f;
 
         [Tooltip(
-            "매립 미사일에 돌진 충돌한 뒤 보스가 Groggy 상태로 멈춰 있는 시간입니다. " +
-            "Groggy 동안 BossPartDamageRules 기본값 기준 Core에 대한 플레이어 피해가 x2가 됩니다."
+            "매립 미사일에 돌진 충돌한 뒤 보스가 Groggy 상태로 멈춰 있는 시간입니다."
         )]
         [SerializeField, Min(0f)]
         private float embeddedMissileGroggyDuration = 2f;
 
         [Tooltip(
             "Groggy 상태를 BossPartDamageRules와 연결하는 BossCoreDamageStateBridge입니다. " +
-            "비워 두면 BossController의 현재 오브젝트/부모/최상위 루트 자식에서 자동 탐색합니다."
+            "비워 두면 자동 탐색합니다."
         )]
         [SerializeField]
         private BossCoreDamageStateBridge coreDamageStateBridge;
 
+
         [Header("Debug")]
 
-        [Tooltip("체크하면 돌진 패턴 실행, 속도, 데미지, 매립 미사일 충돌/Groggy 로그를 Console에 출력합니다.")]
+        [Tooltip("체크하면 돌진 실행 및 매립 미사일 충돌 관련 로그를 출력합니다.")]
         [SerializeField]
         private bool debugCharge = false;
 
-        private readonly List<Collider2D>
-            ignoredBossColliders =
-                new List<Collider2D>();
 
-        private readonly List<Collider2D>
-            ignoredPlayerColliders =
-                new List<Collider2D>();
+        private readonly List<Collider2D> ignoredBossColliders =
+            new List<Collider2D>();
+
+        private readonly List<Collider2D> ignoredPlayerColliders =
+            new List<Collider2D>();
 
         private bool embeddedMissileCrashTriggered;
         private bool groggyAppliedByThisPattern;
+
+        // 현재 씬에 떠 있는 돌진 경고선.
+        // 패턴 Coroutine이 외부에서 중단되더라도 제거할 수 있도록
+        // 지역 변수가 아니라 필드로 보관합니다.
+        private GameObject activeWarningObject;
+
+
+        private void Update()
+        {
+            if (activeWarningObject == null)
+            {
+                return;
+            }
+
+            // BossController가 보스 사망 처리 과정에서
+            // 현재 패턴 Coroutine을 중단하더라도
+            // 남은 Telegraph는 이쪽에서 제거합니다.
+            if (bossController == null ||
+                bossController.IsDead)
+            {
+                CleanupActiveWarning();
+            }
+        }
+
+
+        private void OnDisable()
+        {
+            CleanupActiveWarning();
+        }
+
+
+        private void OnDestroy()
+        {
+            CleanupActiveWarning();
+        }
+
 
         protected override IEnumerator ExecutePattern()
         {
@@ -211,11 +251,14 @@ namespace Vampire
                 bossController.PlayerCharacter == null ||
                 bossController.IsDead)
             {
+                CleanupActiveWarning();
                 yield break;
             }
 
             embeddedMissileCrashTriggered = false;
             groggyAppliedByThisPattern = false;
+
+            CleanupActiveWarning();
 
             ResolveCoreDamageStateBridge();
 
@@ -280,7 +323,10 @@ namespace Vampire
                             ? warningTime
                             : GetPhaseBetweenChargeDelay();
 
-                    GameObject warningObject =
+                    // 이전 Telegraph가 혹시 남아 있다면 먼저 제거.
+                    CleanupActiveWarning();
+
+                    activeWarningObject =
                         CreateWarningLine(
                             startPosition,
                             direction,
@@ -288,16 +334,24 @@ namespace Vampire
 
                     if (telegraphTime > 0f)
                     {
-                        yield return
-                            new WaitForSeconds(
-                                telegraphTime);
+                        float endTime =
+                            Time.time + telegraphTime;
+
+                        while (Time.time < endTime)
+                        {
+                            if (bossController == null ||
+                                bossController.IsDead ||
+                                bossController.IsPhaseTransitioning)
+                            {
+                                break;
+                            }
+
+                            yield return null;
+                        }
                     }
 
-                    if (warningObject != null)
-                    {
-                        Destroy(
-                            warningObject);
-                    }
+                    // 정상적인 Telegraph 종료.
+                    CleanupActiveWarning();
 
                     if (bossController == null ||
                         bossController.IsDead ||
@@ -324,9 +378,7 @@ namespace Vampire
                                 chargeDistance,
                                 chargeSpeed,
                                 chargeDamage,
-                                hitTargets
-                            )
-                        );
+                                hitTargets));
 
                     if (ignorePlayerPhysicsCollisionDuringCharge)
                     {
@@ -342,8 +394,7 @@ namespace Vampire
                                 $"[BossChargePattern] " +
                                 $"Embedded missile crash -> charge combo aborted | " +
                                 $"charge={i + 1}/{chargeCount}",
-                                this
-                            );
+                                this);
                         }
 
                         break;
@@ -357,8 +408,7 @@ namespace Vampire
                             $"distance={chargeDistance}, " +
                             $"speed={chargeSpeed}, " +
                             $"damage={chargeDamage}",
-                            this
-                        );
+                            this);
                     }
                 }
 
@@ -367,15 +417,31 @@ namespace Vampire
                     yield return
                         WaitForEmbeddedMissileGroggy();
                 }
-                else if (endLag > 0f)
+                else if (endLag > 0f &&
+                         bossController != null &&
+                         !bossController.IsDead)
                 {
-                    yield return
-                        new WaitForSeconds(
-                            endLag);
+                    float endLagEndTime =
+                        Time.time + endLag;
+
+                    while (Time.time < endLagEndTime)
+                    {
+                        if (bossController == null ||
+                            bossController.IsDead ||
+                            bossController.IsPhaseTransitioning)
+                        {
+                            break;
+                        }
+
+                        yield return null;
+                    }
                 }
             }
             finally
             {
+                // 가장 먼저 Telegraph부터 제거합니다.
+                CleanupActiveWarning();
+
                 SetPlayerCollisionIgnore(
                     false);
 
@@ -397,6 +463,7 @@ namespace Vampire
             }
         }
 
+
         private int GetPhaseChargeCount()
         {
             if (bossController.CurrentPhase >= 3)
@@ -411,6 +478,7 @@ namespace Vampire
 
             return chargeCountPhase1;
         }
+
 
         private float GetPhaseBetweenChargeDelay()
         {
@@ -427,6 +495,7 @@ namespace Vampire
             return 0f;
         }
 
+
         private float GetPhaseChargeDistance()
         {
             if (bossController.CurrentPhase >= 3)
@@ -441,6 +510,7 @@ namespace Vampire
 
             return chargeDistancePhase1;
         }
+
 
         private float GetPhaseChargeSpeed()
         {
@@ -457,6 +527,7 @@ namespace Vampire
             return chargeSpeedPhase1;
         }
 
+
         private float GetPhaseChargeDamage()
         {
             if (bossController.CurrentPhase >= 3)
@@ -471,6 +542,7 @@ namespace Vampire
 
             return chargeDamagePhase1;
         }
+
 
         private Vector2 GetChargeDirection(
             Vector2 startPosition,
@@ -521,6 +593,7 @@ namespace Vampire
             return direction.normalized;
         }
 
+
         private GameObject CreateWarningLine(
             Vector2 startPosition,
             Vector2 direction,
@@ -532,8 +605,7 @@ namespace Vampire
                 {
                     Debug.LogWarning(
                         "[BossChargePattern] Warning Line Prefab이 비어 있어 경고선 없이 돌진합니다.",
-                        this
-                    );
+                        this);
                 }
 
                 return null;
@@ -571,8 +643,7 @@ namespace Vampire
                     Quaternion.Euler(
                         0f,
                         0f,
-                        angle)
-                );
+                        angle));
 
             warning.transform.localScale =
                 new Vector3(
@@ -586,10 +657,7 @@ namespace Vampire
             if (sr == null)
             {
                 sr =
-                    warning.GetComponentInChildren
-                    <
-                        SpriteRenderer
-                    >();
+                    warning.GetComponentInChildren<SpriteRenderer>();
             }
 
             if (sr != null)
@@ -604,6 +672,30 @@ namespace Vampire
             return warning;
         }
 
+
+        private void CleanupActiveWarning()
+        {
+            if (activeWarningObject == null)
+            {
+                activeWarningObject = null;
+                return;
+            }
+
+            Destroy(
+                activeWarningObject);
+
+            activeWarningObject =
+                null;
+
+            if (debugCharge)
+            {
+                Debug.Log(
+                    "[BossChargePattern] Active charge warning cleaned up.",
+                    this);
+            }
+        }
+
+
         private IEnumerator ChargeForward(
             Vector2 direction,
             float chargeDistance,
@@ -611,6 +703,11 @@ namespace Vampire
             float chargeDamage,
             HashSet<Character> hitTargets)
         {
+            if (bossController == null)
+            {
+                yield break;
+            }
+
             Rigidbody2D rb =
                 bossController.Rigidbody;
 
@@ -664,14 +761,6 @@ namespace Vampire
                     direction *
                     step;
 
-                // --------------------------------------------------
-                // Step 6B:
-                // 이동하기 전에 현재 FixedUpdate 이동 구간을 Sweep 검사합니다.
-                //
-                // 미사일을 먼저 감지하므로 같은 구간 안에 플레이어가 있어도
-                // 매립 미사일 충돌이 성립하면 돌진 플레이어 피해보다
-                // 충돌/정지가 우선합니다.
-                // --------------------------------------------------
                 BossHomingMissile embeddedMissile =
                     FindEmbeddedMissileOnChargePath(
                         currentPosition,
@@ -709,8 +798,7 @@ namespace Vampire
                                 $"BossDamageMultiplier=x{embeddedMissileBossDamageMultiplier:0.##}, " +
                                 $"Groggy={embeddedMissileGroggyDuration:0.##}s, " +
                                 $"Position={crashPosition}",
-                                this
-                            );
+                                this);
                         }
 
                         yield break;
@@ -803,8 +891,7 @@ namespace Vampire
                                 Debug.Log(
                                     "[BossChargePattern] " +
                                     "Embedded missile hit during exact-end correction.",
-                                    this
-                                );
+                                    this);
                             }
 
                             yield break;
@@ -825,9 +912,10 @@ namespace Vampire
             StopBossRigidbody();
         }
 
+
         /// <summary>
         /// 현재 돌진 이동 구간에 같은 보스 소유의 Embedded 미사일이 있는지 찾습니다.
-        /// 여러 개가 겹치면 진행 방향상 가장 먼저 만나는 미사일을 선택합니다.
+        /// 여러 개가 있으면 진행 방향상 가장 먼저 만나는 미사일을 반환합니다.
         /// </summary>
         private BossHomingMissile FindEmbeddedMissileOnChargePath(
             Vector2 fromPosition,
@@ -874,16 +962,14 @@ namespace Vampire
                         0.05f,
                         hitboxSize.y +
                         embeddedMissileCrashPadding *
-                        2f)
-                );
+                        2f));
 
             Collider2D[] hits =
                 Physics2D.OverlapBoxAll(
                     center,
                     searchSize,
                     angle,
-                    embeddedMissileLayerMask
-                );
+                    embeddedMissileLayerMask);
 
             BossHomingMissile nearestMissile =
                 null;
@@ -907,27 +993,20 @@ namespace Vampire
                 }
 
                 BossHomingMissile missile =
-                    hit.GetComponentInParent
-                    <
-                        BossHomingMissile
-                    >(true);
+                    hit.GetComponentInParent<BossHomingMissile>(
+                        true);
 
                 if (missile == null)
                 {
                     missile =
-                        hit.GetComponent
-                        <
-                            BossHomingMissile
-                        >();
+                        hit.GetComponent<BossHomingMissile>();
                 }
 
                 if (missile == null)
                 {
                     missile =
-                        hit.GetComponentInChildren
-                        <
-                            BossHomingMissile
-                        >(true);
+                        hit.GetComponentInChildren<BossHomingMissile>(
+                            true);
                 }
 
                 if (missile == null ||
@@ -936,7 +1015,7 @@ namespace Vampire
                     continue;
                 }
 
-                // 다른 보스의 매립 미사일은 무시합니다.
+                // 다른 보스가 만든 미사일은 무시합니다.
                 if (missile.OwnerBossController !=
                     bossController)
                 {
@@ -992,9 +1071,10 @@ namespace Vampire
             return nearestMissile;
         }
 
+
         /// <summary>
-        /// 미사일 중심까지 그대로 이동하지 않고,
-        /// 돌진 히트박스 앞쪽이 미사일에 닿는 정도에서 멈추게 합니다.
+        /// 보스 히트박스 앞쪽이 미사일에 닿는 위치에서 정지하도록
+        /// 충돌 위치를 계산합니다.
         /// </summary>
         private Vector2 CalculateEmbeddedMissileCrashPosition(
             Vector2 fromPosition,
@@ -1048,6 +1128,7 @@ namespace Vampire
                 stopDistance;
         }
 
+
         private void ApplyGroggyFromEmbeddedMissileCrash()
         {
             ResolveCoreDamageStateBridge();
@@ -1059,8 +1140,7 @@ namespace Vampire
                     "매립 미사일 돌진 충돌은 발생했지만 " +
                     "BossCoreDamageStateBridge를 찾지 못해 Groggy/Core x2를 적용할 수 없습니다. " +
                     "BossPartDamageTestRoot 또는 BossController 루트의 Bridge 배치를 확인하세요.",
-                    this
-                );
+                    this);
 
                 return;
             }
@@ -1071,6 +1151,7 @@ namespace Vampire
             groggyAppliedByThisPattern =
                 true;
         }
+
 
         private IEnumerator WaitForEmbeddedMissileGroggy()
         {
@@ -1102,6 +1183,7 @@ namespace Vampire
             ClearGroggyAppliedByThisPattern();
         }
 
+
         private void ClearGroggyAppliedByThisPattern()
         {
             if (!groggyAppliedByThisPattern)
@@ -1119,6 +1201,7 @@ namespace Vampire
                 false;
         }
 
+
         private void ResolveCoreDamageStateBridge()
         {
             if (coreDamageStateBridge != null)
@@ -1132,18 +1215,13 @@ namespace Vampire
             }
 
             coreDamageStateBridge =
-                bossController.GetComponent
-                <
-                    BossCoreDamageStateBridge
-                >();
+                bossController.GetComponent<BossCoreDamageStateBridge>();
 
             if (coreDamageStateBridge == null)
             {
                 coreDamageStateBridge =
-                    bossController.GetComponentInParent
-                    <
-                        BossCoreDamageStateBridge
-                    >(true);
+                    bossController.GetComponentInParent<BossCoreDamageStateBridge>(
+                        true);
             }
 
             if (coreDamageStateBridge == null &&
@@ -1151,12 +1229,11 @@ namespace Vampire
             {
                 coreDamageStateBridge =
                     bossController.transform.root
-                        .GetComponentInChildren
-                        <
-                            BossCoreDamageStateBridge
-                        >(true);
+                        .GetComponentInChildren<BossCoreDamageStateBridge>(
+                            true);
             }
         }
+
 
         private void ForceMoveBossTo(
             Vector2 position)
@@ -1196,6 +1273,7 @@ namespace Vampire
             Physics2D.SyncTransforms();
         }
 
+
         private void StopBossRigidbody()
         {
             if (bossController == null)
@@ -1217,6 +1295,7 @@ namespace Vampire
             rb.angularVelocity =
                 0f;
         }
+
 
         private void CheckChargePathHit(
             Vector2 fromPosition,
@@ -1263,16 +1342,14 @@ namespace Vampire
                         hitboxSize.x),
                     Mathf.Max(
                         0.05f,
-                        hitboxSize.y)
-                );
+                        hitboxSize.y));
 
             Collider2D[] hits =
                 Physics2D.OverlapBoxAll(
                     center,
                     boxSize,
                     angle,
-                    playerLayer
-                );
+                    playerLayer);
 
             for (int i = 0;
                  i < hits.Length;
@@ -1284,6 +1361,7 @@ namespace Vampire
                     hitTargets);
             }
         }
+
 
         private void CheckChargeHitAtPosition(
             Vector2 center,
@@ -1295,8 +1373,7 @@ namespace Vampire
                     center,
                     hitboxSize,
                     0f,
-                    playerLayer
-                );
+                    playerLayer);
 
             for (int i = 0;
                  i < hits.Length;
@@ -1308,6 +1385,7 @@ namespace Vampire
                     hitTargets);
             }
         }
+
 
         private void TryDamagePlayerFromCollider(
             Collider2D hit,
@@ -1321,10 +1399,7 @@ namespace Vampire
             }
 
             Character character =
-                hit.GetComponentInParent
-                <
-                    Character
-                >();
+                hit.GetComponentInParent<Character>();
 
             if (character == null)
             {
@@ -1353,10 +1428,10 @@ namespace Vampire
             {
                 Debug.Log(
                     $"[BossChargePattern] Player hit by charge / damage={damage}",
-                    this
-                );
+                    this);
             }
         }
+
 
         private void SetPlayerCollisionIgnore(
             bool ignore)
@@ -1377,17 +1452,13 @@ namespace Vampire
 
             Collider2D[] bossColliders =
                 bossController
-                    .GetComponentsInChildren
-                    <
-                        Collider2D
-                    >(true);
+                    .GetComponentsInChildren<Collider2D>(
+                        true);
 
             Collider2D[] playerColliders =
                 bossController.PlayerCharacter
-                    .GetComponentsInChildren
-                    <
-                        Collider2D
-                    >(true);
+                    .GetComponentsInChildren<Collider2D>(
+                        true);
 
             for (int i = 0;
                  i < bossColliders.Length;
@@ -1434,6 +1505,7 @@ namespace Vampire
             }
         }
 
+
         private void RestoreIgnoredPlayerCollisions()
         {
             int pairCount =
@@ -1465,6 +1537,7 @@ namespace Vampire
             ignoredPlayerColliders.Clear();
         }
 
+
         private Vector2 RotateVector(
             Vector2 vector,
             float angleDegrees)
@@ -1486,6 +1559,7 @@ namespace Vampire
                 vector.y * cos
             ).normalized;
         }
+
 
         private void OnDrawGizmosSelected()
         {

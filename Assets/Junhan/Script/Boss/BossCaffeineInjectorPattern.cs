@@ -508,12 +508,27 @@ namespace Vampire
             while (challengeActive)
             {
                 if (bossController == null ||
-                    bossController.IsDead)
+     bossController.IsDead)
                 {
                     challengeActive =
                         false;
 
-                    break;
+                    ClearSuccessGroggy();
+                    ClearFailureSequence();
+                    CleanupInjectors();
+
+                    challengeRoutine =
+                        null;
+
+                    if (debugLog)
+                    {
+                        Debug.Log(
+                            "[BossCaffeineInjectorPattern] " +
+                            "Boss Dead -> Challenge Cleanup",
+                            this);
+                    }
+
+                    yield break;
                 }
 
                 CleanupInjectorList();
