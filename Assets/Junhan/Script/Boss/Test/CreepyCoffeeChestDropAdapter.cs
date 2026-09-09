@@ -4,9 +4,11 @@ namespace Vampire
 {
     /// <summary>
     /// 크리피커피 파츠 보스의 최종 사망을 감지해
-    /// 기존 Boss Clear Reward Prefab을 3개 원형 배치로 생성합니다.
+    /// 프로젝트의 기존 Boss Chest 시스템으로 보상 상자 3개를 생성합니다.
     ///
-    /// 기존 Boss_Real 또는 BossMonster 보상 코드에는 의존하지 않습니다.
+    /// Boss_Real / BossMonster의 사망 보상 코드를 직접 호출하지 않고,
+    /// EntityManager.SpawnChest(ChestBlueprint, Vector2)를 통해
+    /// 기존 Chest Pool / Chest / AbilitySelectionDialog 흐름을 그대로 사용합니다.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class CreepyCoffeeChestDropAdapter : MonoBehaviour
@@ -21,13 +23,20 @@ namespace Vampire
         [SerializeField]
         private BossPartDamageTestRootController bossRootController;
 
-        [Header("Chest Drop")]
+        [Header("Existing Chest System")]
         [Tooltip(
-            "보스 사망 시 그대로 생성할 기존 Boss Chest Prefab입니다. " +
-            "현재 프로젝트에서는 Boss_ClearReward_test Prefab을 연결하면 됩니다.")]
+            "현재 레벨의 EntityManager입니다. " +
+            "비워 두면 씬에서 자동으로 찾습니다.")]
         [SerializeField]
-        private GameObject chestPrefab;
+        private EntityManager entityManager;
 
+        [Tooltip(
+            "기존 보스가 사용하는 ChestBlueprint입니다. " +
+            "현재 프로젝트에서는 Assets/Blueprints/Chests/Boss Chest.asset을 연결하세요.")]
+        [SerializeField]
+        private ChestBlueprint bossChestBlueprint;
+
+        [Header("Drop Layout")]
         [Tooltip(
             "보스 중심에서 각 Chest를 배치할 반지름입니다. " +
             "3개는 0도, 120도, 240도 위치에 생성됩니다.")]
@@ -36,14 +45,15 @@ namespace Vampire
 
         [Header("Debug")]
         [Tooltip(
-            "체크하면 Chest 생성 완료 로그를 Console에 출력합니다. " +
+            "체크하면 보스 사망 감지 및 Chest 생성 완료 로그를 출력합니다. " +
             "필수 참조가 없을 때의 오류는 이 옵션과 관계없이 한 번만 출력됩니다.")]
         [SerializeField]
         private bool debugLog;
 
         private bool hasDropped;
         private bool missingRootLogged;
-        private bool missingPrefabLogged;
+        private bool missingEntityManagerLogged;
+        private bool missingBlueprintLogged;
 
         private void Reset()
         {
@@ -53,7 +63,7 @@ namespace Vampire
 
         private void Awake()
         {
-            ResolveBossRootController();
+            ResolveReferences();
         }
 
         private void Update()
@@ -63,8 +73,11 @@ namespace Vampire
                 return;
             }
 
-            if (!ResolveBossRootController())
+            ResolveReferences();
+
+            if (bossRootController == null)
             {
+                LogMissingRootOnce();
                 return;
             }
 
@@ -73,15 +86,27 @@ namespace Vampire
                 return;
             }
 
-            DropChestsOnce(
+            if (entityManager == null)
+            {
+                LogMissingEntityManagerOnce();
+                return;
+            }
+
+            if (bossChestBlueprint == null)
+            {
+                LogMissingBlueprintOnce();
+                return;
+            }
+
+            DropBossChestsOnce(
                 bossRootController.transform.position);
         }
 
         /// <summary>
-        /// 지정된 중심을 기준으로 기존 Chest Prefab을 정확히 3개 생성합니다.
+        /// 지정된 중심을 기준으로 기존 Boss Chest를 정확히 3개 생성합니다.
         /// 동일 어댑터 인스턴스에서는 한 번만 실행됩니다.
         /// </summary>
-        private void DropChestsOnce(
+        private void DropBossChestsOnce(
             Vector3 center)
         {
             if (hasDropped)
@@ -89,29 +114,25 @@ namespace Vampire
                 return;
             }
 
-            if (chestPrefab == null)
+            if (entityManager == null ||
+                bossChestBlueprint == null)
             {
-                if (!missingPrefabLogged)
-                {
-                    Debug.LogError(
-                        "[CreepyCoffeeChestDropAdapter] " +
-                        "Chest Prefab이 비어 있어 보상을 생성할 수 없습니다.",
-                        this);
-
-                    missingPrefabLogged = true;
-                }
-
                 return;
             }
 
-            // 중복 사망 전달이나 여러 프레임 감지에도
-            // 정확히 한 번만 생성되도록 Instantiate 전에 잠급니다.
+            // 같은 사망 상태를 여러 프레임 감지해도
+            // 정확히 한 번만 생성되도록 SpawnChest 호출 전에 잠급니다.
             hasDropped = true;
 
             float radius =
                 Mathf.Max(
                     0f,
                     dropRadius);
+
+            Vector2 center2D =
+                new Vector2(
+                    center.x,
+                    center.y);
 
             for (int i = 0;
                  i < ChestCount;
@@ -122,62 +143,95 @@ namespace Vampire
                     AngleStepDegrees *
                     Mathf.Deg2Rad;
 
-                Vector3 offset =
-                    new Vector3(
+                Vector2 offset =
+                    new Vector2(
                         Mathf.Cos(angleRadians),
-                        Mathf.Sin(angleRadians),
-                        0f) *
+                        Mathf.Sin(angleRadians)) *
                     radius;
 
-                Instantiate(
-                    chestPrefab,
-                    center + offset,
-                    Quaternion.identity);
+                entityManager.SpawnChest(
+                    bossChestBlueprint,
+                    center2D + offset);
             }
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[CreepyCoffeeChestDropAdapter] " +
-                    $"보스 사망 Chest 드랍 완료 | " +
+                    $"기존 Boss Chest 드랍 완료 | " +
                     $"Count={ChestCount}, " +
                     $"Radius={radius:0.##}, " +
-                    $"Center={center}",
+                    $"Center={center2D}, " +
+                    $"Blueprint={bossChestBlueprint.name}",
                     this);
             }
         }
 
         /// <summary>
-        /// Inspector 참조가 비어 있을 때 같은 GameObject에서
-        /// BossPartDamageTestRootController를 자동으로 찾습니다.
+        /// Inspector 참조가 비어 있는 경우
+        /// 현재 프로젝트의 실제 컴포넌트를 자동 탐색합니다.
         /// </summary>
-        private bool ResolveBossRootController()
+        private void ResolveReferences()
         {
-            if (bossRootController != null)
+            if (bossRootController == null)
             {
-                return true;
+                bossRootController =
+                    GetComponent<BossPartDamageTestRootController>();
             }
 
-            bossRootController =
-                GetComponent<BossPartDamageTestRootController>();
-
-            if (bossRootController != null)
+            if (entityManager == null)
             {
-                return true;
+                entityManager =
+                    FindObjectOfType<EntityManager>();
+            }
+        }
+
+        private void LogMissingRootOnce()
+        {
+            if (missingRootLogged)
+            {
+                return;
             }
 
-            if (!missingRootLogged)
-            {
-                Debug.LogError(
-                    "[CreepyCoffeeChestDropAdapter] " +
-                    "같은 GameObject에서 " +
-                    "BossPartDamageTestRootController를 찾지 못했습니다.",
-                    this);
+            missingRootLogged = true;
 
-                missingRootLogged = true;
+            Debug.LogError(
+                "[CreepyCoffeeChestDropAdapter] " +
+                "BossPartDamageTestRootController를 찾지 못했습니다. " +
+                "이 어댑터를 RootController와 같은 GameObject에 붙이거나 " +
+                "Inspector에서 직접 연결하세요.",
+                this);
+        }
+
+        private void LogMissingEntityManagerOnce()
+        {
+            if (missingEntityManagerLogged)
+            {
+                return;
             }
 
-            return false;
+            missingEntityManagerLogged = true;
+
+            Debug.LogError(
+                "[CreepyCoffeeChestDropAdapter] " +
+                "현재 씬에서 EntityManager를 찾지 못해 Boss Chest를 생성할 수 없습니다.",
+                this);
+        }
+
+        private void LogMissingBlueprintOnce()
+        {
+            if (missingBlueprintLogged)
+            {
+                return;
+            }
+
+            missingBlueprintLogged = true;
+
+            Debug.LogError(
+                "[CreepyCoffeeChestDropAdapter] " +
+                "Boss Chest Blueprint가 비어 있습니다. " +
+                "Assets/Blueprints/Chests/Boss Chest.asset을 연결하세요.",
+                this);
         }
     }
 }

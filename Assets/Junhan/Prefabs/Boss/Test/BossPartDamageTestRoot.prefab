@@ -1061,8 +1061,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bossRootController: {fileID: 8798942031376210255}
-  chestPrefab: {fileID: 3141833122139879170, guid: 4d53fbd787fd1994f81ebc0231c6697c, type: 3}
-  dropRadius: 1.5
+  entityManager: {fileID: 0}
+  bossChestBlueprint: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}
+  dropRadius: 1.1
   debugLog: 1
 --- !u!1 &2376971065276721339
 GameObject:
