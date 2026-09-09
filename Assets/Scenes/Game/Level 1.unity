@@ -1777,7 +1777,7 @@ MonoBehaviour:
   warningEdgeCanvasGroup: {fileID: 0}
   eventName: "\uC81C\uC0B0 \uAC70\uD488 \uD3ED\uC8FC"
   eventEnabled: 1
-  startTime: 200
+  startTime: 10
   duration: 20
   warningDuration: 2
   bubbleSpawnInterval: 1
@@ -38144,7 +38144,7 @@ SortingGroup:
   m_GameObject: {fileID: 1852338036}
   m_Enabled: 1
   m_SortingLayerID: 1017377967
-  m_SortingLayer: -1
+  m_SortingLayer: 0
   m_SortingOrder: -10
   m_SortAtRoot: 0
 --- !u!114 &1852338042
@@ -38672,7 +38672,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 779922199
-  m_SortingLayer: 1
+  m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
