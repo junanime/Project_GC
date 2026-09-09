@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 6831156195593140693}
   - component: {fileID: 3403168334448554487}
   - component: {fileID: 8282624200855818825}
+  - component: {fileID: 2184069190794331601}
   m_Layer: 0
   m_Name: CreepyCoffeeExitPortal
   m_TagString: Untagged
@@ -134,6 +135,8 @@ MonoBehaviour:
   interactionGuide: {fileID: 4765031747994983265}
   interactionKey: 101
   interactionEnabled: 1
+  targetSceneName: Level 1
+  loadSceneOnInteract: 1
   debugLog: 1
 --- !u!58 &8282624200855818825
 CircleCollider2D:
@@ -170,6 +173,18 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 1
+--- !u!114 &2184069190794331601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6805854508028677751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 750889e4646f4e34983605c3ceddd4e7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &6210005823290302181
 PrefabInstance:
   m_ObjectHideFlags: 0

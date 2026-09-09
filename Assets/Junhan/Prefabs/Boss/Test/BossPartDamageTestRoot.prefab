@@ -1565,7 +1565,7 @@ MonoBehaviour:
   blockOtherPatternsDuringChallenge: 0
   patternCastSeconds: 0.25
   successGroggyDuration: 3.5
-  coreDamageStateBridge: {fileID: 0}
+  coreDamageStateBridge: {fileID: 6901034237014711775}
   successVfxPrefab: {fileID: 0}
   failureVfxPrefab: {fileID: 0}
   enableFailureLethalWave: 1
