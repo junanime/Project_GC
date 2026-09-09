@@ -1003,6 +1003,7 @@ GameObject:
   - component: {fileID: 4169506148560627945}
   - component: {fileID: 8798942031376210255}
   - component: {fileID: 5124656648097356510}
+  - component: {fileID: 9102986397004345656}
   m_Layer: 7
   m_Name: 'BossPartDamageTestRootController  '
   m_TagString: Untagged
@@ -1064,6 +1065,22 @@ MonoBehaviour:
   entityManager: {fileID: 0}
   bossChestBlueprint: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}
   dropRadius: 1.1
+  debugLog: 1
+--- !u!114 &9102986397004345656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2320860237157246596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f32e3f49a9b49924ca7e54fc8f0ba425, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossRootController: {fileID: 8798942031376210255}
+  exitPortalPrefab: {fileID: 6805854508028677751, guid: 370b2ed8b9dfe094a9006d1a1d83d2d3, type: 3}
+  spawnOffset: {x: 0, y: 0, z: 0}
   debugLog: 1
 --- !u!1 &2376971065276721339
 GameObject:
