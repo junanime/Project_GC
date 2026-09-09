@@ -125,8 +125,8 @@ namespace Vampire
         [SerializeField]
         private Slider speedSlider;
 
-        private const string MainMenuScenePath = "Assets/Scenes/Game/Main Menu";
-        private const string GameScenePath = "Assets/Scenes/Game/Level 1";
+        private const string MainMenuSceneName = "Main Menu";
+        private const string GameSceneName = "Level 1";
 
         private int currentIndex = 0;
         private bool isAnimating = false;
@@ -185,17 +185,7 @@ namespace Vampire
 
         public void OnPreviousClicked()
         {
-            if (isAnimating)
-                return;
-
-            int newIndex =
-                (currentIndex - 1 +
-                 characters.Length) %
-                characters.Length;
-
-            StartCoroutine(
-                RotateCarousel(newIndex)
-            );
+            SceneManager.LoadScene("Level 1");
         }
 
         private IEnumerator RotateCarousel(
@@ -499,6 +489,7 @@ namespace Vampire
 
         public void OnBackClicked()
         {
+            Debug.Log("뒤로가기 버튼 클릭!");
             SceneManager.LoadScene("Main Menu");
         }
 
@@ -513,7 +504,7 @@ namespace Vampire
                     .characterName
             );
 
-            SceneManager.LoadScene("Level 1");
+            SceneManager.LoadScene(GameSceneName);
         }
 
         public int GetCurrentCharacterIndex()
