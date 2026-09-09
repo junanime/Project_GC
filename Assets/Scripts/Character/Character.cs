@@ -1413,5 +1413,419 @@ namespace Vampire
             dashRechargeTime -= amount;
             dashRechargeTime = Mathf.Max(0.1f, dashRechargeTime);
         }
+
+        /// <summary>
+        /// 씬 전환 테스트용으로 현재 Character 런타임 상태를 복사합니다.
+        ///
+        /// GameObject, Transform, Rigidbody, Coroutine은 저장하지 않고
+        /// 다음 씬에서도 유지되어야 하는 플레이어 런 값만 저장합니다.
+        /// </summary>
+        public RunSceneCharacterSnapshot CaptureRunSceneState()
+        {
+            RunSceneCharacterSnapshot snapshot =
+                new RunSceneCharacterSnapshot();
+
+            // --------------------------------------------------------
+            // Level / EXP / HP
+            // --------------------------------------------------------
+
+            snapshot.CurrentLevel =
+                currentLevel;
+
+            snapshot.CurrentExp =
+                currentExp;
+
+            snapshot.NextLevelExp =
+                nextLevelExp;
+
+            snapshot.ExpToNextLevel =
+                expToNextLevel;
+
+            snapshot.CurrentHealth =
+                currentHealth;
+
+            // --------------------------------------------------------
+            // Base Runtime Stats
+            // --------------------------------------------------------
+
+            snapshot.MovementSpeed =
+                movementSpeed != null
+                    ? movementSpeed.Value
+                    : 0f;
+
+            snapshot.Armor =
+                armor != null
+                    ? armor.Value
+                    : 0f;
+
+            snapshot.RangeMultiplier =
+                rangeMultiplier;
+
+            snapshot.AttackSpeedMultiplier =
+                attackSpeedMultiplier;
+
+            snapshot.DamageMultiplier =
+                damageMultiplier;
+
+            snapshot.MaxHealthBonus =
+                maxHealthBonus;
+
+            snapshot.ProjectileSpeedMultiplier =
+                projectileSpeedMultiplier;
+
+            // --------------------------------------------------------
+            // Utility
+            // --------------------------------------------------------
+
+            snapshot.MagnetRangeBonus =
+                magnetRangeBonus;
+
+            snapshot.ExpMultiplier =
+                expMultiplier;
+
+            snapshot.CritChance =
+                critChance;
+
+            snapshot.LuckMultiplier =
+                luckMultiplier;
+
+            snapshot.LifeSteal =
+                lifeSteal;
+
+            snapshot.HealOnKill =
+                healOnKill;
+
+            snapshot.ProjectileSizeMultiplier =
+                projectileSizeMultiplier;
+
+            // --------------------------------------------------------
+            // Combat / Utility State
+            // --------------------------------------------------------
+
+            snapshot.AdditionalProjectiles =
+                additionalProjectiles;
+
+            snapshot.HasShield =
+                hasShield;
+
+            snapshot.ReviveCount =
+                reviveCount;
+
+            snapshot.InvincibilityTimeBonus =
+                invincibilityTimeBonus;
+
+            snapshot.HasAntibioticBomb =
+                hasAntibioticBomb;
+
+            snapshot.HealOnIdlePerSecond =
+                healOnIdlePerSecond;
+
+            snapshot.AutoCollectItems =
+                autoCollectItems;
+
+            snapshot.SlowChance =
+                slowChance;
+
+            snapshot.AdditionalPierce =
+                additionalPierce;
+
+            snapshot.BurnChance =
+                burnChance;
+
+            // --------------------------------------------------------
+            // Rare Item
+            // --------------------------------------------------------
+
+            snapshot.HasGinsengStick =
+                hasGinsengStick;
+
+            snapshot.AntibioticBombChance =
+                antibioticBombChance;
+
+            snapshot.HasThermometer =
+                hasThermometer;
+
+            snapshot.MouthwashCount =
+                mouthwashCount;
+
+            snapshot.ReflexHammerCount =
+                reflexHammerCount;
+
+            // --------------------------------------------------------
+            // Dash
+            // --------------------------------------------------------
+
+            snapshot.DashDistance =
+                dashDistance;
+
+            snapshot.DashRechargeTime =
+                dashRechargeTime;
+
+            snapshot.MaxDashCharges =
+                maxDashCharges;
+
+            snapshot.CurrentDashCharges =
+                currentDashCharges;
+
+            // --------------------------------------------------------
+            // Runtime Stack
+            // --------------------------------------------------------
+
+            snapshot.ThermometerStacks =
+                thermometerStacks;
+
+            return snapshot;
+        }
+
+        /// <summary>
+        /// 새 씬에서 Character.Init이 끝난 뒤
+        /// 이전 씬에서 저장했던 현재 런 상태를 복원합니다.
+        /// </summary>
+        public void RestoreRunSceneState(
+            RunSceneCharacterSnapshot snapshot)
+        {
+            if (snapshot == null)
+            {
+                Debug.LogWarning(
+                    "[Character] Run Scene 복원 실패: " +
+                    "Character Snapshot이 없습니다.",
+                    this);
+
+                return;
+            }
+
+            // --------------------------------------------------------
+            // Level / EXP
+            // --------------------------------------------------------
+
+            currentLevel =
+                Mathf.Max(
+                    1,
+                    snapshot.CurrentLevel);
+
+            currentExp =
+                Mathf.Max(
+                    0f,
+                    snapshot.CurrentExp);
+
+            nextLevelExp =
+                Mathf.Max(
+                    0.0001f,
+                    snapshot.NextLevelExp);
+
+            expToNextLevel =
+                Mathf.Max(
+                    0.0001f,
+                    snapshot.ExpToNextLevel);
+
+            // --------------------------------------------------------
+            // Stats
+            // --------------------------------------------------------
+
+            rangeMultiplier =
+                snapshot.RangeMultiplier;
+
+            attackSpeedMultiplier =
+                snapshot.AttackSpeedMultiplier;
+
+            damageMultiplier =
+                snapshot.DamageMultiplier;
+
+            maxHealthBonus =
+                snapshot.MaxHealthBonus;
+
+            projectileSpeedMultiplier =
+                snapshot.ProjectileSpeedMultiplier;
+
+            magnetRangeBonus =
+                snapshot.MagnetRangeBonus;
+
+            expMultiplier =
+                snapshot.ExpMultiplier;
+
+            critChance =
+                snapshot.CritChance;
+
+            luckMultiplier =
+                snapshot.LuckMultiplier;
+
+            lifeSteal =
+                snapshot.LifeSteal;
+
+            healOnKill =
+                snapshot.HealOnKill;
+
+            projectileSizeMultiplier =
+                snapshot.ProjectileSizeMultiplier;
+
+            additionalProjectiles =
+                snapshot.AdditionalProjectiles;
+
+            hasShield =
+                snapshot.HasShield;
+
+            reviveCount =
+                snapshot.ReviveCount;
+
+            invincibilityTimeBonus =
+                snapshot.InvincibilityTimeBonus;
+
+            hasAntibioticBomb =
+                snapshot.HasAntibioticBomb;
+
+            healOnIdlePerSecond =
+                snapshot.HealOnIdlePerSecond;
+
+            autoCollectItems =
+                snapshot.AutoCollectItems;
+
+            slowChance =
+                snapshot.SlowChance;
+
+            additionalPierce =
+                snapshot.AdditionalPierce;
+
+            burnChance =
+                snapshot.BurnChance;
+
+            // --------------------------------------------------------
+            // Rare Items
+            // --------------------------------------------------------
+
+            hasGinsengStick =
+                snapshot.HasGinsengStick;
+
+            antibioticBombChance =
+                snapshot.AntibioticBombChance;
+
+            hasThermometer =
+                snapshot.HasThermometer;
+
+            mouthwashCount =
+                snapshot.MouthwashCount;
+
+            reflexHammerCount =
+                snapshot.ReflexHammerCount;
+
+            // --------------------------------------------------------
+            // Dash
+            // --------------------------------------------------------
+
+            dashDistance =
+                Mathf.Max(
+                    0.1f,
+                    snapshot.DashDistance);
+
+            dashRechargeTime =
+                Mathf.Max(
+                    0.1f,
+                    snapshot.DashRechargeTime);
+
+            maxDashCharges =
+                Mathf.Max(
+                    1,
+                    snapshot.MaxDashCharges);
+
+            currentDashCharges =
+                Mathf.Clamp(
+                    snapshot.CurrentDashCharges,
+                    0,
+                    maxDashCharges);
+
+            // --------------------------------------------------------
+            // Upgradeable Values
+            // --------------------------------------------------------
+
+            if (movementSpeed != null)
+            {
+                movementSpeed.Value =
+                    Mathf.Max(
+                        0.01f,
+                        snapshot.MovementSpeed);
+
+                UpdateMoveSpeed();
+            }
+
+            if (armor != null)
+            {
+                // Snapshot stores Armor as float; UpgradeableArmor.Value is int.
+                // Convert safely by clamping to >=0 and rounding to nearest int.
+                armor.Value =
+                    Mathf.RoundToInt(Mathf.Max(0f, snapshot.Armor));
+            }
+
+            // --------------------------------------------------------
+            // Runtime Stack
+            // --------------------------------------------------------
+
+            thermometerStacks =
+                Mathf.Max(
+                    0,
+                    snapshot.ThermometerStacks);
+
+            thermometerStackTimer =
+                thermometerStacks > 0
+                    ? 3f
+                    : 0f;
+
+            thermometerMoveAccumulator =
+                0f;
+
+            // --------------------------------------------------------
+            // HP는 MaxHealthBonus 복구 후 마지막에 설정
+            // --------------------------------------------------------
+
+            currentHealth =
+                Mathf.Clamp(
+                    snapshot.CurrentHealth,
+                    0f,
+                    GetMaxHealth());
+
+            alive =
+                currentHealth > 0f;
+
+            // --------------------------------------------------------
+            // UI Refresh
+            // --------------------------------------------------------
+
+            UpdateLevelDisplay();
+            UpdateThermometerDisplay();
+
+            if (healthBar != null)
+            {
+                healthBar.Setup(
+                    currentHealth,
+                    0f,
+                    GetMaxHealth());
+            }
+
+            if (expBar != null)
+            {
+                float previousLevelExp =
+                    Mathf.Max(
+                        0f,
+                        nextLevelExp -
+                        expToNextLevel);
+
+                expBar.Setup(
+                    currentExp,
+                    previousLevelExp,
+                    nextLevelExp);
+            }
+
+            if (debugDashLog)
+            {
+                Debug.Log(
+                    $"[RunSceneTransfer][Character] 복원 완료 | " +
+                    $"LV={currentLevel}, " +
+                    $"HP={currentHealth:0.##}/{GetMaxHealth():0.##}, " +
+                    $"MoveSpeed={CurrentMoveSpeed:0.##}, " +
+                    $"Armor={CurrentArmor:0.##}, " +
+                    $"Dash={currentDashCharges}/{maxDashCharges}",
+                    this);
+            }
+        }
+
     }
+
 }

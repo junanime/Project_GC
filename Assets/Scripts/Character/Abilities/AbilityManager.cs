@@ -420,7 +420,294 @@ namespace Vampire
                     break;
             }
         }
+        /// <summary>
+        /// 현재 소유 중인 Ability의 종류와 레벨을 저장합니다.
+        ///
+        /// 1차 씬 전환 테스트에서는 랜덤 카드 컨테이너 형태의
+        /// 조건부 일반 / 조건부 특수증강은 의도적으로 제외합니다.
+        /// 이 두 시스템은 Level만 재생하면 이전과 다른 랜덤 효과가
+        /// 적용될 수 있기 때문입니다.
+        /// </summary>
+        public List<RunSceneAbilitySnapshot>
+            CaptureRunSceneAbilities()
+        {
+            List<RunSceneAbilitySnapshot> snapshots =
+                new List<RunSceneAbilitySnapshot>();
 
+            if (ownedAbilities == null)
+            {
+                return snapshots;
+            }
+
+            foreach (Ability ability in ownedAbilities)
+            {
+                if (ability == null ||
+                    !ability.Owned)
+                {
+                    continue;
+                }
+
+                if (IsRandomConditionalContainer(ability))
+                {
+                    Debug.LogWarning(
+                        $"[RunSceneTransfer][AbilityManager] " +
+                        $"1차 테스트에서 랜덤 조건부 증강 컨테이너는 " +
+                        $"재선택하지 않습니다. " +
+                        $"Ability={ability.gameObject.name}",
+                        ability);
+
+                    continue;
+                }
+
+                snapshots.Add(
+                    new RunSceneAbilitySnapshot
+                    {
+                        AbilityTypeName =
+                            GetRunSceneAbilityTypeName(
+                                ability),
+
+                        AbilityObjectName =
+                            GetRunSceneAbilityObjectName(
+                                ability),
+
+                        Level =
+                            ability.Level
+                    });
+            }
+
+            return snapshots;
+        }
+
+        /// <summary>
+        /// 새 씬에서 AbilityManager.Init 완료 후
+        /// 이전 씬의 소유 Ability와 레벨을 복원합니다.
+        /// </summary>
+        public int RestoreRunSceneAbilities(
+            List<RunSceneAbilitySnapshot> snapshots)
+        {
+            if (snapshots == null ||
+                snapshots.Count == 0)
+            {
+                return 0;
+            }
+
+            if (ownedAbilities == null ||
+                newAbilities == null)
+            {
+                Debug.LogWarning(
+                    "[RunSceneTransfer][AbilityManager] " +
+                    "AbilityManager.Init 이전이라 복원할 수 없습니다.",
+                    this);
+
+                return 0;
+            }
+
+            int restoredCount = 0;
+
+            for (int i = 0;
+                 i < snapshots.Count;
+                 i++)
+            {
+                RunSceneAbilitySnapshot snapshot =
+                    snapshots[i];
+
+                if (snapshot == null)
+                {
+                    continue;
+                }
+
+                Ability ability =
+                    FindRunSceneAbility(
+                        ownedAbilities,
+                        snapshot);
+
+                bool cameFromNewAbilities =
+                    false;
+
+                if (ability == null)
+                {
+                    ability =
+                        FindRunSceneAbility(
+                            newAbilities,
+                            snapshot);
+
+                    cameFromNewAbilities =
+                        ability != null;
+                }
+
+                if (ability == null)
+                {
+                    Debug.LogWarning(
+                        $"[RunSceneTransfer][AbilityManager] " +
+                        $"복원할 Ability를 현재 LevelBlueprint에서 찾지 못했습니다. " +
+                        $"Type={snapshot.AbilityTypeName}, " +
+                        $"Object={snapshot.AbilityObjectName}",
+                        this);
+
+                    continue;
+                }
+
+                if (cameFromNewAbilities)
+                {
+                    newAbilities.Remove(
+                        ability);
+                }
+
+                int targetLevel =
+                    Mathf.Max(
+                        1,
+                        snapshot.Level);
+
+                bool restoreFailed =
+                    false;
+
+                while (ability.Level <
+                       targetLevel)
+                {
+                    if (!ability.RequirementsMet())
+                    {
+                        Debug.LogWarning(
+                            $"[RunSceneTransfer][AbilityManager] " +
+                            $"RequirementsMet=false로 Ability 복원을 중단했습니다. " +
+                            $"Ability={ability.gameObject.name}, " +
+                            $"Current={ability.Level}, " +
+                            $"Target={targetLevel}",
+                            ability);
+
+                        restoreFailed =
+                            true;
+
+                        break;
+                    }
+
+                    ability.Select();
+                }
+
+                if (cameFromNewAbilities)
+                {
+                    if (ability.Owned)
+                    {
+                        ownedAbilities.Add(
+                            ability);
+                    }
+                    else
+                    {
+                        // 복원이 실패했으면 원래 후보 풀에 돌려놓습니다.
+                        newAbilities.Add(
+                            ability);
+                    }
+                }
+
+                if (!restoreFailed &&
+                    ability.Level >= targetLevel)
+                {
+                    restoredCount++;
+                }
+            }
+
+            Debug.Log(
+                $"[RunSceneTransfer][AbilityManager] " +
+                $"Ability 복원 완료 | " +
+                $"Requested={snapshots.Count}, " +
+                $"Restored={restoredCount}",
+                this);
+
+            return restoredCount;
+        }
+
+        private Ability FindRunSceneAbility(
+            WeightedAbilities abilities,
+            RunSceneAbilitySnapshot snapshot)
+        {
+            if (abilities == null ||
+                snapshot == null)
+            {
+                return null;
+            }
+
+            foreach (Ability ability in abilities)
+            {
+                if (ability == null)
+                {
+                    continue;
+                }
+
+                string typeName =
+                    GetRunSceneAbilityTypeName(
+                        ability);
+
+                string objectName =
+                    GetRunSceneAbilityObjectName(
+                        ability);
+
+                if (typeName ==
+                        snapshot.AbilityTypeName &&
+                    objectName ==
+                        snapshot.AbilityObjectName)
+                {
+                    return ability;
+                }
+            }
+
+            return null;
+        }
+
+        private static string
+            GetRunSceneAbilityTypeName(
+                Ability ability)
+        {
+            if (ability == null)
+            {
+                return string.Empty;
+            }
+
+            string fullName =
+                ability.GetType().FullName;
+
+            return !string.IsNullOrEmpty(fullName)
+                ? fullName
+                : ability.GetType().Name;
+        }
+
+        private static string
+            GetRunSceneAbilityObjectName(
+                Ability ability)
+        {
+            if (ability == null ||
+                ability.gameObject == null)
+            {
+                return string.Empty;
+            }
+
+            string objectName =
+                ability.gameObject.name;
+
+            const string cloneSuffix =
+                "(Clone)";
+
+            if (objectName.EndsWith(
+                    cloneSuffix))
+            {
+                objectName =
+                    objectName.Substring(
+                        0,
+                        objectName.Length -
+                        cloneSuffix.Length);
+            }
+
+            return objectName.Trim();
+        }
+
+        private static bool
+            IsRandomConditionalContainer(
+                Ability ability)
+        {
+            return
+                ability is
+                    SyringeSpecialConditionalGeneralAugmentAbility ||
+                ability is
+                    SyringeLegendaryConditionalSpecialAugmentAbility;
+        }
         private class WeightedAbilities : IEnumerable<Ability>
         {
             private readonly FastList<Ability> abilities;
