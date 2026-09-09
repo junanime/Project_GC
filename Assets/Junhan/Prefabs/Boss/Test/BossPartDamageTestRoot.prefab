@@ -1002,6 +1002,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4169506148560627945}
   - component: {fileID: 8798942031376210255}
+  - component: {fileID: 5124656648097356510}
   m_Layer: 7
   m_Name: 'BossPartDamageTestRootController  '
   m_TagString: Untagged
@@ -1046,6 +1047,22 @@ MonoBehaviour:
   brokenPartCount: 0
   disableAllCollidersOnBossDeath: 1
   hideRemainingPartsOnBossDeath: 1
+  debugLog: 1
+--- !u!114 &5124656648097356510
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2320860237157246596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94c2bfe70c407dc46aaa4ae00b6539a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossRootController: {fileID: 8798942031376210255}
+  chestPrefab: {fileID: 3141833122139879170, guid: 4d53fbd787fd1994f81ebc0231c6697c, type: 3}
+  dropRadius: 1.5
   debugLog: 1
 --- !u!1 &2376971065276721339
 GameObject:
