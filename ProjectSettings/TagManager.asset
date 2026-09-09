@@ -11,14 +11,14 @@ TagManager:
   - 
   - Water
   - UI
-  - Monster Full
-  - Monster Legs
-  - Player Full
-  - Player Legs
-  - Chest
-  - MiniStageReflector
-  - MiniStageWaveTarget
-  - MiniStageWaveBlocker
+  - 
+  - 
+  - CharacterPreview
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 
@@ -38,15 +38,6 @@ TagManager:
   - 
   - 
   m_SortingLayers:
-  - name: Background
-    uniqueID: 1017377967
-    locked: 0
   - name: Default
     uniqueID: 0
-    locked: 0
-  - name: Foreground
-    uniqueID: 779922199
-    locked: 0
-  - name: Monster Full
-    uniqueID: 4198867471
     locked: 0
