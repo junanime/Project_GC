@@ -131,7 +131,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f8eb5a59bcc6ed42b4e5a1a0dd91058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionGuide: {fileID: 0}
+  interactionGuide: {fileID: 4765031747994983265}
   interactionKey: 101
   interactionEnabled: 1
   debugLog: 1
@@ -184,7 +184,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
       propertyPath: m_LocalScale.y
@@ -192,7 +192,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
       propertyPath: m_LocalPosition.x
@@ -200,7 +200,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
       propertyPath: m_LocalPosition.z
@@ -242,5 +242,10 @@ PrefabInstance:
 --- !u!4 &3865083028742681691 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7173627197428230846, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
+  m_PrefabInstance: {fileID: 6210005823290302181}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4765031747994983265 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1445255550293001604, guid: dfcfbaaa6cab791438d9140f112c8c01, type: 3}
   m_PrefabInstance: {fileID: 6210005823290302181}
   m_PrefabAsset: {fileID: 0}
