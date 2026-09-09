@@ -117,7 +117,7 @@ MonoBehaviour:
   - {fileID: 9099428089634229859}
   fallbackSpawnRadius: 5
   clearRemainingMonstersOnEnd: 1
-  debugLog: 1
+  debugForgetMonsterHistory: 0
 --- !u!114 &3024191918555604478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -205,8 +205,8 @@ Transform:
   m_GameObject: {fileID: 1469898776327051128}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -10, z: 0}
-  m_LocalScale: {x: 30, y: 3, z: 1}
+  m_LocalPosition: {x: 0, y: -11.02, z: 0}
+  m_LocalScale: {x: 30, y: 4.9154997, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7878067681244374660}
@@ -492,6 +492,7 @@ MonoBehaviour:
   nearCompleteColor: {r: 0.7607844, g: 0.5254902, b: 0.9215687, a: 1}
   completedColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.15}
   hideFieldOnComplete: 1
+  disableAllRenderersOnComplete: 1
   forceRenderOrder: 1
   acidSortingLayerName: Default
   acidSortingOrder: -700
@@ -506,6 +507,7 @@ MonoBehaviour:
   disableMarkerObjectOnKill: 1
   debugLog: 1
   debugInsideMonsterCount: 0
+  debugForgetMonsterHistory: 0
 --- !u!1 &2241096404602867000
 GameObject:
   m_ObjectHideFlags: 0
@@ -819,8 +821,8 @@ Transform:
   m_GameObject: {fileID: 4262150341906499049}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
-  m_LocalScale: {x: 25, y: 3, z: 1}
+  m_LocalPosition: {x: 0, y: 11.55, z: 0}
+  m_LocalScale: {x: 25, y: 5.2683, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7878067681244374660}
@@ -1177,6 +1179,7 @@ MonoBehaviour:
   nearCompleteColor: {r: 1, g: 0.9, b: 0.2, a: 0.45}
   completedColor: {r: 0.54901963, g: 0.3529412, b: 0.8352942, a: 1}
   hideFieldOnComplete: 1
+  disableAllRenderersOnComplete: 1
   forceRenderOrder: 1
   acidSortingLayerName: Default
   acidSortingOrder: -700
@@ -1191,6 +1194,7 @@ MonoBehaviour:
   disableMarkerObjectOnKill: 1
   debugLog: 1
   debugInsideMonsterCount: 0
+  debugForgetMonsterHistory: 0
 --- !u!1 &6376433431005991532
 GameObject:
   m_ObjectHideFlags: 0
@@ -1217,8 +1221,8 @@ Transform:
   m_GameObject: {fileID: 6376433431005991532}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 22, z: 1}
+  m_LocalPosition: {x: 11.82, y: 0, z: 0}
+  m_LocalScale: {x: 5.175, y: 22, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7878067681244374660}
@@ -1454,6 +1458,7 @@ MonoBehaviour:
   nearCompleteColor: {r: 0.54901963, g: 0.34901962, b: 0.8431373, a: 1}
   completedColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.15}
   hideFieldOnComplete: 1
+  disableAllRenderersOnComplete: 1
   forceRenderOrder: 1
   acidSortingLayerName: Default
   acidSortingOrder: -700
@@ -1468,6 +1473,7 @@ MonoBehaviour:
   disableMarkerObjectOnKill: 1
   debugLog: 1
   debugInsideMonsterCount: 0
+  debugForgetMonsterHistory: 0
 --- !u!1 &8729309582882877907
 GameObject:
   m_ObjectHideFlags: 0
@@ -1494,8 +1500,8 @@ Transform:
   m_GameObject: {fileID: 8729309582882877907}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 20, z: 1}
+  m_LocalPosition: {x: -11.37, y: 0, z: 0}
+  m_LocalScale: {x: 4.575, y: 20, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7878067681244374660}

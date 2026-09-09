@@ -130,5 +130,6 @@ namespace Vampire.EditorTools
 
             return false;
         }
+
     }
 }

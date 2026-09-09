@@ -82,10 +82,10 @@ MonoBehaviour:
   spawnPositionTryLimit: 30
   forcePositionAfterSpawn: 1
   gaugeUIPrefab: {fileID: 0}
+  forceTemporaryGaugeUI: 1
   gaugeMaxCount: 40
-  keepGaugeVisibleUntilReturn: 1
-  disableRemainingSlimesOnCleanup: 1
-  debugLog: 1
+  removeSlimesWhenTimerEnds: 1
+  removeSlimesOnCleanup: 1
 --- !u!114 &433590251832961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,8 +138,8 @@ Transform:
   m_GameObject: {fileID: 1469898776327051128}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -10.5, z: 0}
-  m_LocalScale: {x: 22, y: 3, z: 1}
+  m_LocalPosition: {x: 0, y: -11.78, z: 0}
+  m_LocalScale: {x: 22, y: 5.9091, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 20957234813465503}
@@ -553,8 +553,8 @@ Transform:
   m_GameObject: {fileID: 4262150341906499049}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
-  m_LocalScale: {x: 22, y: 3, z: 1}
+  m_LocalPosition: {x: 0, y: 11.82, z: 0}
+  m_LocalScale: {x: 22, y: 5.2820997, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 20957234813465503}
@@ -760,8 +760,8 @@ Transform:
   m_GameObject: {fileID: 6376433431005991532}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11, y: 0, z: 0}
-  m_LocalScale: {x: 4, y: 20, z: 1}
+  m_LocalPosition: {x: 12.18, y: 0, z: 0}
+  m_LocalScale: {x: 5.5332, y: 20, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 20957234813465503}
@@ -837,8 +837,8 @@ Transform:
   m_GameObject: {fileID: 8729309582882877907}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -11, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 20, z: 1}
+  m_LocalPosition: {x: -11.66, y: 0, z: 0}
+  m_LocalScale: {x: 5.3247, y: 20, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 20957234813465503}

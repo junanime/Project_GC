@@ -142,10 +142,7 @@ namespace Vampire
         [Tooltip("타이머 텍스트 앞에 붙일 문구입니다.")]
         [SerializeField] private string timerPrefix = "EXP TIME ";
 
-        [Header("Debug")]
-        [Tooltip("경험치 타임어택 방 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
-
+        
         private readonly List<SpawnedGemRecord> spawnedGems = new List<SpawnedGemRecord>();
 
         private Coroutine timeAttackRoutine;

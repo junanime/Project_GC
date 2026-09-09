@@ -80,9 +80,6 @@ namespace Vampire
         [Tooltip("자폭 몬스터 Blueprint나 Setup 과정에서 위치가 바뀌는 경우를 막기 위해, 스폰 직후 지정 위치로 한 번 더 고정합니다.")]
         [SerializeField] private bool forcePositionAfterSpawn = true;
 
-        [Header("Debug")]
-        [Tooltip("자폭 러시 방 진행 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
 
         private readonly List<Monster> spawnedMonsters = new List<Monster>();
 

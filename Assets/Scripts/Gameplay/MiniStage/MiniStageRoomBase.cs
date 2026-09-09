@@ -26,7 +26,7 @@ namespace Vampire
 
         [Header("Debug")]
         [Tooltip("방 시작/클리어/보상/귀환 상태 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+        [SerializeField] protected bool debugLog = true;
 
         protected MiniStageDirector director;
         protected EntityManager entityManager;

@@ -123,9 +123,7 @@ namespace Vampire
         [Tooltip("플레이어 주변 낙석이 생성될 때 플레이어 기준 랜덤 반경입니다.")]
         [SerializeField] private float targetPlayerRandomRadius = 2.5f;
 
-        [Header("Debug")]
-        [Tooltip("낙석 방 진행 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+       
 
         private readonly List<MiniStageFallingFoodStrike> activeStrikes = new List<MiniStageFallingFoodStrike>();
 

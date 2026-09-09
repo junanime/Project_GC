@@ -97,9 +97,7 @@ namespace Vampire
         [Tooltip("방을 나갈 때 남아 있는 위산 슬라임을 한 번 더 제거합니다.")]
         [SerializeField] private bool removeSlimesOnCleanup = true;
 
-        [Header("Debug")]
-        [Tooltip("위장 산도 조절 방 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+       
 
         private readonly List<Monster> activeSlimes = new List<Monster>();
 

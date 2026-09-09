@@ -1801,6 +1801,7 @@ MonoBehaviour:
   failureRuntimeRingColor: {r: 1, g: 0.18, b: 0.08, a: 0.92}
   failureRuntimeRingSortingOrder: 920
   failureWaveEndLinger: 0.2
+  overloadActionLockApplied: 0
   overloadActive: 0
   telegraphActive: 0
   nodeChallengeActive: 0
@@ -1983,6 +1984,8 @@ MonoBehaviour:
   debugBasicAttack: 0
   debugPhase: 1
   debugCore: 0
+  debugForcePatternIndex: 0
+  externalActionLock: 0
 --- !u!1 &5089323812370767977
 GameObject:
   m_ObjectHideFlags: 0
