@@ -166,7 +166,10 @@ namespace Vampire
         /// <summary>
         /// 현재 링 영역에 닿은 IDamageable 대상에게 피해와 넉백을 준다.
         /// </summary>
-        private void DamageTargetsOnRing(Vector3 center, float currentRadius, HashSet<MonoBehaviour> hitTargets)
+        private void DamageTargetsOnRing(
+            Vector3 center,
+            float currentRadius,
+            HashSet<MonoBehaviour> hitTargets)
         {
             float checkRadius = currentRadius + waveThickness;
             Collider2D[] hits = Physics2D.OverlapCircleAll(center, checkRadius, targetLayer);
@@ -184,10 +187,16 @@ namespace Vampire
                 if (hitTargets.Contains(damageableBehaviour))
                     continue;
 
-                float distance = Vector2.Distance(center, damageableBehaviour.transform.position);
+                float distance = Vector2.Distance(
+                    center,
+                    damageableBehaviour.transform.position
+                );
 
-                if (distance < currentRadius - waveThickness || distance > currentRadius + waveThickness)
+                if (distance < currentRadius - waveThickness ||
+                    distance > currentRadius + waveThickness)
+                {
                     continue;
+                }
 
                 IDamageable damageable = damageableBehaviour as IDamageable;
 
@@ -202,16 +211,48 @@ namespace Vampire
                     knockbackDirection = Vector2.up;
                 }
 
-                float damage = sourceAbility.GetGastricPeristalsisWaveDamage();
-                float knockbackPower = sourceAbility.GetGastricPeristalsisWaveKnockback();
+                // 기존 위산 연동파 피해 계산을 그대로 사용한다.
+                // 실제 TakeDamage에 넘기는 이 값을 최종 계산 피해량으로 기록한다.
+                float finalDamage =
+                    sourceAbility.GetGastricPeristalsisWaveDamage();
 
-                damageable.TakeDamage(damage, knockbackDirection * knockbackPower, false);
+                float knockbackPower =
+                    sourceAbility.GetGastricPeristalsisWaveKnockback();
+
+                damageable.TakeDamage(
+                    finalDamage,
+                    knockbackDirection * knockbackPower,
+                    false
+                );
+
+                // 위산 연동파는 Projectile.OnHitDamageable을 거치지 않는 독립 피해이므로
+                // 기존 전체 피해량 시스템에도 여기서 정확히 1회 전달한다.
+                if (finalDamage > 0f &&
+                    ownerCharacter != null &&
+                    ownerCharacter.OnDealDamage != null)
+                {
+                    ownerCharacter.OnDealDamage.Invoke(
+                        finalDamage
+                    );
+                }
+
+                // 결과 화면의 "가장 피해를 많이 준 증강" 계산에 기록한다.
+                if (finalDamage > 0f &&
+                    AugmentDamageTracker.Instance != null)
+                {
+                    AugmentDamageTracker.Instance.RecordDamage(
+                        "위산 연동파",
+                        finalDamage
+                    );
+                }
 
                 hitTargets.Add(damageableBehaviour);
 
                 if (debugLog)
                 {
-                    Debug.Log($"[위산 연동파] {damageableBehaviour.name} 피해 {damage}, 넉백 {knockbackPower}");
+                    Debug.Log(
+                        $"[위산 연동파] {damageableBehaviour.name} 피해 {finalDamage}, 넉백 {knockbackPower}"
+                    );
                 }
             }
         }
@@ -221,7 +262,8 @@ namespace Vampire
         /// </summary>
         private MonoBehaviour FindDamageableBehaviour(Collider2D collider)
         {
-            MonoBehaviour[] behaviours = collider.GetComponentsInParent<MonoBehaviour>();
+            MonoBehaviour[] behaviours =
+                collider.GetComponentsInParent<MonoBehaviour>();
 
             foreach (MonoBehaviour behaviour in behaviours)
             {

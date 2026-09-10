@@ -19,6 +19,13 @@ namespace Vampire
         private bool initialized = false;
         private bool puddleCreated = false;
 
+        // 피해 출처
+        private Character sourceCharacter;
+        private string damageSourceName = "소화액낭침";
+
+        /// <summary>
+        /// 기존 호출부 호환용 Apply.
+        /// </summary>
         public void Apply(
             float puddleLifetime,
             float puddleRadius,
@@ -26,11 +33,42 @@ namespace Vampire
             float puddleTickInterval,
             Color puddleColor)
         {
+            Apply(
+                puddleLifetime,
+                puddleRadius,
+                puddleDamagePerSecond,
+                puddleTickInterval,
+                puddleColor,
+                null,
+                "소화액낭침"
+            );
+        }
+
+        /// <summary>
+        /// 소화액낭침 상태 적용.
+        /// sourceCharacter와 damageSourceName을 저장해
+        /// 이후 생성되는 웅덩이까지 피해 출처를 전달합니다.
+        /// </summary>
+        public void Apply(
+            float puddleLifetime,
+            float puddleRadius,
+            float puddleDamagePerSecond,
+            float puddleTickInterval,
+            Color puddleColor,
+            Character sourceCharacter,
+            string damageSourceName)
+        {
             this.puddleLifetime = Mathf.Max(0.1f, puddleLifetime);
             this.puddleRadius = Mathf.Max(0.1f, puddleRadius);
             this.puddleDamagePerSecond = Mathf.Max(0f, puddleDamagePerSecond);
             this.puddleTickInterval = Mathf.Max(0.05f, puddleTickInterval);
             this.puddleColor = puddleColor;
+
+            this.sourceCharacter = sourceCharacter;
+            this.damageSourceName =
+                string.IsNullOrWhiteSpace(damageSourceName)
+                    ? "소화액낭침"
+                    : damageSourceName;
 
             if (!initialized)
             {
@@ -40,7 +78,9 @@ namespace Vampire
 
         private void Initialize()
         {
-            ownerMonster = GetComponent<Monster>() ?? GetComponentInParent<Monster>();
+            ownerMonster =
+                GetComponent<Monster>() ??
+                GetComponentInParent<Monster>();
 
             if (ownerMonster == null)
             {
@@ -61,20 +101,28 @@ namespace Vampire
 
             puddleCreated = true;
 
-            Vector2 spawnPosition = killedMonster != null
-                ? (Vector2)killedMonster.transform.position
-                : (Vector2)transform.position;
+            Vector2 spawnPosition =
+                killedMonster != null
+                    ? (Vector2)killedMonster.transform.position
+                    : (Vector2)transform.position;
 
-            GameObject puddleObject = new GameObject("Digestive Acid Puddle");
-            puddleObject.transform.position = spawnPosition;
+            GameObject puddleObject =
+                new GameObject("Digestive Acid Puddle");
 
-            DigestiveAcidPuddle puddle = puddleObject.AddComponent<DigestiveAcidPuddle>();
+            puddleObject.transform.position =
+                spawnPosition;
+
+            DigestiveAcidPuddle puddle =
+                puddleObject.AddComponent<DigestiveAcidPuddle>();
+
             puddle.Init(
                 puddleLifetime,
                 puddleRadius,
                 puddleDamagePerSecond,
                 puddleTickInterval,
-                puddleColor
+                puddleColor,
+                sourceCharacter,
+                damageSourceName
             );
         }
 

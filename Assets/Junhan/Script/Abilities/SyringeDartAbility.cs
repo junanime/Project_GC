@@ -696,7 +696,7 @@ namespace Vampire
 
         private CursorControlledNeedleController cursorControlledNeedleController;
 
-    
+
         public GameObject ProjectilePrefab => projectilePrefab;
         public LayerMask MonsterLayer => monsterLayer;
 
@@ -945,8 +945,29 @@ namespace Vampire
                 );
             }
 
-            projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            // 기본침 피해는 기존 전체 피해량에는 포함하지만
+            // AugmentDamageTracker의 증강별 피해 경쟁에서는 제외합니다.
+            projectile.OnHitDamageable.AddListener(ReportBaseNeedleDamage);
             projectile.Launch(direction);
+        }
+
+        // =========================================================
+        // Base Needle Damage Report
+        // =========================================================
+
+        private void ReportBaseNeedleDamage(float dealtDamage)
+        {
+            if (dealtDamage <= 0f)
+            {
+                return;
+            }
+
+            // 기본침 피해는 기존 전체 피해량 시스템에만 전달합니다.
+            // 증강별 피해 추적에는 기록하지 않습니다.
+            if (playerCharacter != null)
+            {
+                playerCharacter.OnDealDamage.Invoke(dealtDamage);
+            }
         }
 
         private void HandleCursorControlModeUpdate()
@@ -1290,10 +1311,9 @@ namespace Vampire
                     this);
             }
 
-            if (playerCharacter != null)
-            {
-                projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
-            }
+            projectile.OnHitDamageable.AddListener(
+                dealtDamage => ReportDamage("침샷건", dealtDamage)
+            );
 
             projectile.Launch(direction);
         }
@@ -1516,7 +1536,9 @@ namespace Vampire
                 syringeProjectile.ConfigureSpecials(runtime);
             }
 
-            projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            projectile.OnHitDamageable.AddListener(
+                dealtDamage => ReportDamage("대물침", dealtDamage)
+            );
             projectile.Launch(aimDirection);
 
             if (debugHeavySnipe)
@@ -2576,7 +2598,7 @@ namespace Vampire
         public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
 
         public bool HasMarkNeedleAugment() => markNeedleEnabled;
-       
+
         public void EnablePierceAugment()
         {
             pierceEnabled = true;

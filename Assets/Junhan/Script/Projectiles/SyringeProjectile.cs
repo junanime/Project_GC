@@ -380,7 +380,9 @@ namespace Vampire
             poisonStatus.Apply(
                 specials.poisonDuration,
                 specials.poisonTickInterval,
-                specials.poisonTickDamage
+                specials.poisonTickDamage,
+                playerCharacter,
+                "독침"
             );
         }
 
@@ -437,7 +439,9 @@ namespace Vampire
                 specials.fiberTrailDamagePerSecond,
                 specials.fiberTrailTickInterval,
                 specials.fiberTrailWidth,
-                specials.fiberTrailColor
+                specials.fiberTrailColor,
+                playerCharacter,
+                "섬유침"
             );
 
             fiberSegmentStartPosition = currentPosition;
@@ -569,7 +573,9 @@ namespace Vampire
                 specials.digestiveAcidPuddleRadius,
                 specials.digestiveAcidPuddleDamagePerSecond,
                 specials.digestiveAcidPuddleTickInterval,
-                specials.digestiveAcidPuddleColor
+                specials.digestiveAcidPuddleColor,
+                playerCharacter,
+                "소화액낭침"
             );
         }
 
@@ -1093,6 +1099,16 @@ namespace Vampire
             damageable.TakeDamage(finalDamage, finalKnockback * direction, isCritical);
             OnHitDamageable?.Invoke(finalDamage);
 
+            // 침귀환 상태의 적중 피해는 기존 OnHitDamageable을 통해
+            // 전체 피해량에는 이미 1회 기록되므로 Tracker에만 별도 기록합니다.
+            if (IsReturnMode)
+            {
+                RecordAugmentDamageOnly(
+                    "침귀환",
+                    finalDamage
+                );
+            }
+
             if (isCritical) Debug.Log($"[치명타] 침 공격 치명타 발생 | 피해 {finalDamage:0.##}");
 
             // --------------------------------------------------
@@ -1237,9 +1253,67 @@ namespace Vampire
                 }
 
                 splashDamageable.TakeDamage(splashDamage, Vector2.zero);
+
+                // 폭발침 스플래시는 OnHitDamageable을 거치지 않는 독립 피해이므로
+                // 기존 전체 피해량과 증강별 피해량에 직접 기록합니다.
+                ReportStandaloneAugmentDamage(
+                    "폭발침",
+                    splashDamage
+                );
+
                 Debug.Log($"<color=yellow><b> └ [↳ 💥 스플래시 피해 완수]</b></color> 휩쓸린 몹: {monster.gameObject.name} | 입은 피해: {splashDamage}");
             }
         }
+
+        // =====================================================================
+        // 📊 증강 피해 기록 헬퍼
+        // =====================================================================
+
+        /// <summary>
+        /// 기존 공격 적중 이벤트가 전체 피해량을 이미 기록하는 경우,
+        /// AugmentDamageTracker에 증강 피해만 추가합니다.
+        /// </summary>
+        private void RecordAugmentDamageOnly(string augmentName, float finalDamage)
+        {
+            if (finalDamage <= 0f)
+            {
+                return;
+            }
+
+            if (AugmentDamageTracker.Instance != null)
+            {
+                AugmentDamageTracker.Instance.RecordDamage(
+                    augmentName,
+                    finalDamage
+                );
+            }
+        }
+
+        /// <summary>
+        /// OnHitDamageable을 거치지 않는 독립 증강 피해를
+        /// 기존 전체 피해량과 AugmentDamageTracker에 동시에 기록합니다.
+        /// </summary>
+        private void ReportStandaloneAugmentDamage(string augmentName, float finalDamage)
+        {
+            if (finalDamage <= 0f)
+            {
+                return;
+            }
+
+            if (playerCharacter != null &&
+                playerCharacter.OnDealDamage != null)
+            {
+                playerCharacter.OnDealDamage.Invoke(
+                    finalDamage
+                );
+            }
+
+            RecordAugmentDamageOnly(
+                augmentName,
+                finalDamage
+            );
+        }
+
 
         // =====================================================================
         // 💡 구강 청결제 반사 전용 엔진

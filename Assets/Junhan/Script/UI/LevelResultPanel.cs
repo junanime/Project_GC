@@ -108,8 +108,8 @@ namespace Vampire
             Time.timeScale = 0f;
 
 
-            // 먼저 패널을 활성화해야
-            // ResultCharacterAnimator의 Coroutine이 정상적으로 실행됨
+            // 먼저 패널을 활성화
+            // ResultCharacterAnimator Coroutine 실행을 위해 필요
             if (panelRoot != null)
             {
                 panelRoot.SetActive(true);
@@ -184,24 +184,17 @@ namespace Vampire
 
             // =========================
             // 최종 빌드 이름
-            // 추후 구현
+            // 가장 많이 모은 태그의 대표 시너지
             // =========================
 
-            if (buildNameText != null)
-            {
-                buildNameText.text = "-";
-            }
+            UpdateBuildName();
 
 
             // =========================
             // 가장 피해를 많이 준 증강
-            // 추후 구현
             // =========================
 
-            if (topDamageAugmentText != null)
-            {
-                topDamageAugmentText.text = "-";
-            }
+            UpdateTopDamageAugment();
 
 
             // =========================
@@ -209,6 +202,108 @@ namespace Vampire
             // =========================
 
             UpdateSelectedCharacter();
+        }
+
+
+        // =========================================================
+        // Build Name / Dominant Synergy
+        // =========================================================
+
+        private void UpdateBuildName()
+        {
+            if (buildNameText == null)
+                return;
+
+
+            if (SynergyManager.Instance == null)
+            {
+                buildNameText.text = "시너지 없음";
+
+                Debug.LogWarning(
+                    "[LevelResultPanel] SynergyManager.Instance를 찾을 수 없습니다."
+                );
+
+                return;
+            }
+
+
+            string synergyName =
+                SynergyManager.Instance.GetDominantSynergyName();
+
+
+            if (string.IsNullOrEmpty(synergyName))
+            {
+                buildNameText.text = "시너지 없음";
+            }
+            else
+            {
+                buildNameText.text = synergyName;
+            }
+
+
+            Debug.Log(
+                $"[LevelResultPanel] 최종 빌드 : {buildNameText.text}"
+            );
+        }
+
+
+        // =========================================================
+        // Top Damage Augment
+        // =========================================================
+
+        private void UpdateTopDamageAugment()
+        {
+            if (topDamageAugmentText == null)
+                return;
+
+
+            // AugmentDamageTracker가 씬에 없는 경우
+            // 증강 피해 기록이 없다고 보고 기본침 표시
+            if (AugmentDamageTracker.Instance == null)
+            {
+                topDamageAugmentText.text = "기본침";
+
+                Debug.LogWarning(
+                    "[LevelResultPanel] AugmentDamageTracker.Instance를 찾을 수 없습니다. 기본침으로 표시합니다."
+                );
+
+                return;
+            }
+
+
+            // 가장 피해를 많이 준 증강 이름 / 피해량
+            string topAugmentName =
+                AugmentDamageTracker.Instance.GetTopDamageAugmentName();
+
+            float topDamage =
+                AugmentDamageTracker.Instance.GetTopDamageAmount();
+
+
+            // 피해를 준 증강이 하나도 없는 경우
+            // 기본침은 Tracker에서 제외되어 있으므로 결과창에는 기본침을 표시
+            if (topDamage <= 0f ||
+                string.IsNullOrWhiteSpace(topAugmentName) ||
+                topAugmentName == "-")
+            {
+                topDamageAugmentText.text = "기본침";
+
+                Debug.Log(
+                    "[LevelResultPanel] 피해를 준 증강 없음 → 기본침 표시"
+                );
+
+                return;
+            }
+
+
+            // 피해를 준 증강이 있으면 최고 피해 증강 표시
+            topDamageAugmentText.text = topAugmentName;
+
+
+            Debug.Log(
+                $"[LevelResultPanel] 최고 피해 증강 : " +
+                $"{topDamageAugmentText.text} / " +
+                $"누적 피해 : {topDamage:0.##}"
+            );
         }
 
 
@@ -268,16 +363,14 @@ namespace Vampire
 
             if (selectedCharacterAnimator != null)
             {
-                // ResultCharacterAnimator가
-                // 캐릭터에 맞는 애니메이션을 실행
                 selectedCharacterAnimator.SetCharacter(
                     selectedCharacter
                 );
             }
             else
             {
-                // ResultCharacterAnimator가 연결되지 않았다면
-                // 기존처럼 정적인 첫 번째 이미지 사용
+                // Animator가 연결되지 않았다면
+                // 첫 번째 걷기 Sprite 사용
                 SetStaticCharacterImage(selectedCharacter);
             }
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 namespace Vampire
@@ -11,75 +10,311 @@ namespace Vampire
         [SerializeField] protected UpgradeableAOE radius;
         [SerializeField] protected UpgradeableDamageRate damageRate;
         [SerializeField] protected UpgradeableKnockback knockback;
+
         private float timeSinceLastAttack;
         private FastList<GameObject> hitMonsters;
         private CircleCollider2D damageCollider;
         private SpriteRenderer spriteRenderer;
 
-        void Awake()
+
+        // =========================================================
+        // Awake
+        // =========================================================
+
+        private void Awake()
         {
-            damageCollider = GetComponent<CircleCollider2D>();
-            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            damageCollider =
+                GetComponent<CircleCollider2D>();
+
+            spriteRenderer =
+                GetComponentInChildren<SpriteRenderer>();
         }
 
-        public override void Init(AbilityManager abilityManager, EntityManager entityManager, Character playerCharacter)
+
+        // =========================================================
+        // Init
+        // =========================================================
+
+        public override void Init(
+            AbilityManager abilityManager,
+            EntityManager entityManager,
+            Character playerCharacter
+        )
         {
-            base.Init(abilityManager, entityManager, playerCharacter);
-            transform.SetParent(playerCharacter.transform);
-            transform.localPosition = Vector3.zero;
+            base.Init(
+                abilityManager,
+                entityManager,
+                playerCharacter
+            );
+
+            transform.SetParent(
+                playerCharacter.transform
+            );
+
+            transform.localPosition =
+                Vector3.zero;
         }
+
+
+        // =========================================================
+        // Use
+        // =========================================================
 
         protected override void Use()
         {
             base.Use();
+
             gameObject.SetActive(true);
-            hitMonsters = new FastList<GameObject>();
-            damageCollider.radius = radius.Value;
-            spriteRenderer.transform.localScale = Vector3.one * radius.Value * 2;
+
+            hitMonsters =
+                new FastList<GameObject>();
+
+
+            if (damageCollider != null)
+            {
+                damageCollider.radius =
+                    radius.Value;
+            }
+
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.transform.localScale =
+                    Vector3.one *
+                    radius.Value *
+                    2f;
+            }
         }
+
+
+        // =========================================================
+        // Upgrade
+        // =========================================================
 
         protected override void Upgrade()
         {
             base.Upgrade();
-            damageCollider.radius = radius.Value;
-            spriteRenderer.transform.localScale = Vector3.one * radius.Value * 2;
+
+
+            if (damageCollider != null)
+            {
+                damageCollider.radius =
+                    radius.Value;
+            }
+
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.transform.localScale =
+                    Vector3.one *
+                    radius.Value *
+                    2f;
+            }
         }
 
-        void Update()
+
+        // =========================================================
+        // Update
+        // =========================================================
+
+        private void Update()
         {
-            timeSinceLastAttack += Time.deltaTime;
-            if (timeSinceLastAttack >= 1/damageRate.Value)
+            float safeDamageRate =
+                Mathf.Max(
+                    0.01f,
+                    damageRate.Value
+                );
+
+
+            float attackInterval =
+                1f / safeDamageRate;
+
+
+            timeSinceLastAttack +=
+                Time.deltaTime;
+
+
+            if (timeSinceLastAttack >= attackInterval)
             {
-                Collider2D[] hitColliders = Physics2D.OverlapCircleAll(transform.position, radius.Value, monsterLayer);
-                foreach (Collider2D collider in hitColliders)
+                Collider2D[] hitColliders =
+                    Physics2D.OverlapCircleAll(
+                        transform.position,
+                        radius.Value,
+                        monsterLayer
+                    );
+
+
+                foreach (
+                    Collider2D collider in hitColliders
+                )
                 {
-                    Damage(collider.GetComponentInParent<IDamageable>());
+                    IDamageable damageable =
+                        collider.GetComponentInParent<IDamageable>();
+
+
+                    if (damageable == null)
+                    {
+                        continue;
+                    }
+
+
+                    Damage(
+                        damageable
+                    );
                 }
-                timeSinceLastAttack = Mathf.Repeat(timeSinceLastAttack, 1/damageRate.Value);
+
+
+                timeSinceLastAttack =
+                    Mathf.Repeat(
+                        timeSinceLastAttack,
+                        attackInterval
+                    );
             }
         }
 
-        private void Damage(IDamageable damageable)
-        {
-            Vector2 knockbackDirection = (damageable.transform.position - transform.position).normalized;
-            damageable.TakeDamage(damage.Value, knockback.Value * knockbackDirection);
-            playerCharacter.OnDealDamage.Invoke(damage.Value);
-        }
 
-        private void DeregisterMonster(Monster monster)
-        {
-            hitMonsters.Remove(monster.gameObject);
-        }
+        // =========================================================
+        // Damage
+        // =========================================================
 
-        void OnTriggerEnter2D(Collider2D collider)
+        private void Damage(
+            IDamageable damageable
+        )
         {
-            if (!hitMonsters.Contains(collider.gameObject) && (monsterLayer & (1 << collider.gameObject.layer)) != 0)
+            if (damageable == null)
             {
-                hitMonsters.Add(collider.gameObject);
-                Monster monster = collider.gameObject.GetComponentInParent<Monster>();
-                monster.OnKilled.AddListener(DeregisterMonster);
-                Damage(monster);
+                return;
             }
+
+
+            Vector2 knockbackDirection =
+                (
+                    damageable.transform.position -
+                    transform.position
+                ).normalized;
+
+
+            float dealtDamage =
+                damage.Value;
+
+
+            // 실제 피해
+            damageable.TakeDamage(
+                dealtDamage,
+                knockback.Value *
+                knockbackDirection
+            );
+
+
+            // =====================================================
+            // 피해량 기록
+            // =====================================================
+            //
+            // 기존:
+            //
+            // playerCharacter.OnDealDamage.Invoke(
+            //     damage.Value
+            // );
+            //
+            // 변경:
+            //
+            // ReportDamage()
+            //
+            // 1. StatsManager 총 피해량
+            // 2. AugmentDamageTracker 증강별 피해량
+            //
+            // 을 동시에 기록
+            // =====================================================
+
+            ReportDamage(
+                dealtDamage
+            );
+        }
+
+
+        // =========================================================
+        // Deregister Monster
+        // =========================================================
+
+        private void DeregisterMonster(
+            Monster monster
+        )
+        {
+            if (
+                monster == null ||
+                hitMonsters == null
+            )
+            {
+                return;
+            }
+
+
+            hitMonsters.Remove(
+                monster.gameObject
+            );
+        }
+
+
+        // =========================================================
+        // Trigger Enter
+        // =========================================================
+
+        private void OnTriggerEnter2D(
+            Collider2D collider
+        )
+        {
+            if (hitMonsters == null)
+            {
+                return;
+            }
+
+
+            bool isMonsterLayer =
+                (monsterLayer &
+                 (1 << collider.gameObject.layer)) != 0;
+
+
+            if (!isMonsterLayer)
+            {
+                return;
+            }
+
+
+            if (
+                hitMonsters.Contains(
+                    collider.gameObject
+                )
+            )
+            {
+                return;
+            }
+
+
+            Monster monster =
+                collider.gameObject
+                    .GetComponentInParent<Monster>();
+
+
+            if (monster == null)
+            {
+                return;
+            }
+
+
+            hitMonsters.Add(
+                collider.gameObject
+            );
+
+
+            monster.OnKilled.AddListener(
+                DeregisterMonster
+            );
+
+
+            // 범위에 처음 들어온 순간 1회 피해
+            Damage(
+                monster
+            );
         }
     }
 }
