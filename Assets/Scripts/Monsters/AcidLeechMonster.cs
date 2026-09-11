@@ -188,6 +188,11 @@ namespace Vampire
         /// </summary>
         protected override void Update()
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (!alive)
             {
                 return;
@@ -203,6 +208,11 @@ namespace Vampire
         /// </summary>
         protected override void FixedUpdate()
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (!alive || rb == null)
             {
                 return;
@@ -255,7 +265,15 @@ namespace Vampire
 
         private IEnumerator MovePhaseRoutine()
         {
-            yield return new WaitForSeconds(Mathf.Max(0.1f, moveDuration));
+            yield return WaitForFieldRuntimeSeconds(
+                Mathf.Max(0.1f, moveDuration)
+            );
+
+            if (!alive || currentState != LeechState.Moving)
+            {
+                stateRoutine = null;
+                yield break;
+            }
 
             stateRoutine = null;
             StartFeedingPhase();
@@ -290,7 +308,15 @@ namespace Vampire
 
         private IEnumerator FeedingPhaseRoutine()
         {
-            yield return new WaitForSeconds(Mathf.Max(0.1f, feedingDuration));
+            yield return WaitForFieldRuntimeSeconds(
+                Mathf.Max(0.1f, feedingDuration)
+            );
+
+            if (!alive || currentState != LeechState.Feeding)
+            {
+                stateRoutine = null;
+                yield break;
+            }
 
             stateRoutine = null;
 
@@ -300,13 +326,43 @@ namespace Vampire
 
                 if (debugLog)
                 {
-                    Debug.Log("[AcidLeechMonster] 흡혈 완료 - 랜덤 난이도 상승 시도", this);
+                    Debug.Log(
+                        "[AcidLeechMonster] 흡혈 완료 - 랜덤 난이도 상승 시도",
+                        this
+                    );
                 }
             }
 
             StartMovingPhase();
         }
+        /// <summary>
+        /// MiniStage 진행 중에는 elapsed를 증가시키지 않는 대기 함수.
+        ///
+        /// 일반 WaitForSeconds를 사용하면
+        /// 플레이어가 MiniStage에 있는 동안에도
+        /// 위산 거머리의 이동/흡혈 페이즈 시간이 진행되기 때문에
+        /// 이 몬스터의 gameplay timer는 이 함수를 사용한다.
+        /// </summary>
+        private IEnumerator WaitForFieldRuntimeSeconds(float duration)
+        {
+            float safeDuration = Mathf.Max(0f, duration);
+            float elapsed = 0f;
 
+            while (elapsed < safeDuration)
+            {
+                if (!alive)
+                {
+                    yield break;
+                }
+
+                if (!IsFieldRuntimeSuspended)
+                {
+                    elapsed += Time.deltaTime;
+                }
+
+                yield return null;
+            }
+        }
         private void PrepareCurvePath()
         {
             moveStartPosition = transform.position;

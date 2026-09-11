@@ -355,9 +355,26 @@ namespace Vampire
             {
                 Monster monster = spawnedMonsters[i];
 
-                if (monster != null)
+                if (monster == null)
                 {
-                    monster.OnKilled.RemoveListener(OnExplodingMonsterKilled);
+                    continue;
+                }
+
+                monster.OnKilled.RemoveListener(OnExplodingMonsterKilled);
+
+                if (!monster.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+
+                if (entityManager != null)
+                {
+                    entityManager.LivingMonsters.Remove(monster);
+                    entityManager.DespawnMonster(explodingMonsterPoolIndex, monster, false);
+                }
+                else
+                {
+                    monster.gameObject.SetActive(false);
                 }
             }
 

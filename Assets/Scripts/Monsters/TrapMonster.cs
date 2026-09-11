@@ -98,6 +98,10 @@ namespace Vampire
             killStarted = false;
             setupCompleted = true;
             arrowProgress = 0;
+            // 중요:
+            // Pool에서 이전 사망 상태(Dead/Dying)가 남지 않도록
+            // 매 스폰마다 반드시 Dormant로 초기화한다.
+            currentState = TrapState.Dormant;
 
             if (!entityManager.LivingMonsters.Contains(this))
             {
@@ -175,11 +179,15 @@ namespace Vampire
             StopTrapCoroutines();
             ReleaseTrappedPlayer();
 
-            
+            // Pool에서 다시 나온 뒤 Dormant 애니메이션도 반드시 다시 시작.
+            ChangeState(TrapState.Dormant);
 
             if (debugLog)
             {
-                Debug.Log($"[TrapMonster] 스폰 완료 | 위치 {transform.position} | 휴면 상태", this);
+                Debug.Log(
+                    $"[TrapMonster] 스폰 완료 | 위치 {transform.position} | 휴면 상태",
+                    this
+                );
             }
         }
 
@@ -189,8 +197,13 @@ namespace Vampire
             // 함정 몬스터는 자체 상태머신으로만 동작한다.
         }
 
-        protected new void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (rb != null)
             {
                 rb.velocity = Vector2.zero;
@@ -212,6 +225,11 @@ namespace Vampire
             Vector2 direction = default(Vector2),
             bool isCritical = false)
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (!setupCompleted || trapBlueprint == null)
             {
                 return;
@@ -296,6 +314,10 @@ namespace Vampire
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
             if (!setupCompleted || currentState != TrapState.Dormant)
             {
                 return;
@@ -614,7 +636,37 @@ namespace Vampire
                     return '?';
             }
         }
+        protected override void OnFieldRuntimeSuspended()
+        {
+            if (!setupCompleted || !alive)
+            {
+                return;
+            }
 
+            // MiniStage 포탈 진입 순간 Trap에 잡혀 있었다면
+            // PlayerTrapBindRuntime이 플레이어를 예전 필드 위치로 잡아당길 수 있으므로
+            // 반드시 구속 / 틱데미지 / 방향키 UI를 해제한다.
+            if (currentState == TrapState.Active)
+            {
+                ReleaseTrappedPlayer();
+
+                currentState = TrapState.Dormant;
+                ChangeState(TrapState.Dormant);
+
+                if (debugLog)
+                {
+                    Debug.Log(
+                        "[TrapMonster] MiniStage 진입 - 플레이어 구속 해제 및 Dormant 복귀",
+                        this
+                    );
+                }
+            }
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            // Dormant 상태 그대로 다시 필드에서 작동하면 된다.
+        }
         private void ReleaseTrappedPlayer()
         {
             StopArrowMiniGame();

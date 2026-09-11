@@ -212,6 +212,12 @@ namespace Vampire
             }
 
             MiniStageRuntimeState.EnterMiniStage(this);
+
+            // 기존 필드에 있던 몬스터만 정지.
+            // 이후 Room에서 allowDuringMiniStage=true로 생성되는 몬스터는
+            // MiniStageOwned 처리되어 정상적으로 움직인다.
+            entityManager.SetFieldMonsterRuntimeSuspended(true);
+
             levelManager.SetRunFlowPaused(true);
             GameAudioManager.EnterMiniStageAudio();
 
@@ -302,18 +308,27 @@ namespace Vampire
 
             CleanupCurrentRoom();
 
+            // 먼저 전역 MiniStage 상태를 해제한다.
+            MiniStageRuntimeState.ExitMiniStage(this);
+
+            // 기존 필드 몬스터 행동 재개.
+            if (entityManager != null)
+            {
+                entityManager.SetFieldMonsterRuntimeSuspended(false);
+            }
+
+            // 일반 런 흐름 재개.
             if (levelManager != null)
             {
                 levelManager.SetRunFlowPaused(false);
             }
 
-            MiniStageRuntimeState.ExitMiniStage(this);
             // MiniStage BGM 종료
             // 기존 Ingame BGM을 Pause했던 위치부터 재생
             GameAudioManager.ExitMiniStageAudio();
+
             isInsideMiniStage = false;
             isTransitioning = false;
-
             if (debugLog)
             {
                 Debug.Log("[MiniStageDirector] 원래 필드 복귀 완료.");
@@ -359,21 +374,36 @@ namespace Vampire
                 playerRigidbody.angularVelocity = 0f;
             }
         }
+        private void EmergencyReleaseMiniStageRuntime()
+        {
+            if (!isInsideMiniStage && !isTransitioning)
+            {
+                return;
+            }
 
+            if (entityManager != null)
+            {
+                entityManager.SetFieldMonsterRuntimeSuspended(false);
+            }
+
+            if (levelManager != null)
+            {
+                levelManager.SetRunFlowPaused(false);
+            }
+
+            MiniStageRuntimeState.ExitMiniStage(this);
+
+            isInsideMiniStage = false;
+            isTransitioning = false;
+        }
         private void OnDisable()
         {
-            if (isInsideMiniStage || isTransitioning)
-            {
-                MiniStageRuntimeState.ExitMiniStage(this);
-            }
+            EmergencyReleaseMiniStageRuntime();
         }
 
         private void OnDestroy()
         {
-            if (isInsideMiniStage || isTransitioning)
-            {
-                MiniStageRuntimeState.ExitMiniStage(this);
-            }
+            EmergencyReleaseMiniStageRuntime();
         }
     }
 }

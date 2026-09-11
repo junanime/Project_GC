@@ -259,8 +259,24 @@ namespace Vampire
             }
 
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
-            newMonster.Setup(monsterPoolIndex, position, monsterBlueprint, hpBuff);
+
+            // 중요:
+            // Setup()보다 먼저 소유권을 설정해야 한다.
+            //
+            // 이유:
+            // SniperMonster / TrapMonster처럼 base.Setup()을 호출하지 않고
+            // 자체 Setup()을 사용하는 특수 몬스터도 있기 때문이다.
+            newMonster.PrepareForSpawnRuntime(allowDuringMiniStage);
+
+            newMonster.Setup(
+                monsterPoolIndex,
+                position,
+                monsterBlueprint,
+                hpBuff
+            );
+
             grid.InsertClient(newMonster);
+
             return newMonster;
         }
         private bool ShouldBlockFieldMonsterSpawn(bool allowDuringMiniStage)
@@ -271,6 +287,29 @@ namespace Vampire
             }
 
             return MiniStageRuntimeState.IsInsideMiniStage;
+        }
+        /// <summary>
+        /// 현재 살아있는 메인 필드 몬스터들의 행동을
+        /// MiniStage 진입/종료에 맞춰 정지 또는 재개합니다.
+        ///
+        /// MiniStage 전용 몬스터는 Monster 내부에서 자동 제외됩니다.
+        /// </summary>
+        public void SetFieldMonsterRuntimeSuspended(bool suspended)
+        {
+            if (livingMonsters == null)
+            {
+                return;
+            }
+
+            foreach (Monster monster in livingMonsters.ToList())
+            {
+                if (monster == null)
+                {
+                    continue;
+                }
+
+                monster.SetFieldRuntimeSuspended(suspended);
+            }
         }
         public void DespawnMonster(int monsterPoolIndex, Monster monster, bool killedByPlayer = true)
         {

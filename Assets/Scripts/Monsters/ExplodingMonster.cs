@@ -128,7 +128,15 @@ namespace Vampire
         {
             base.Update();
 
-            if (!alive || explosionStarted || missedAutoDeathStarted || playerCharacter == null)
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
+            if (!alive ||
+                explosionStarted ||
+                missedAutoDeathStarted ||
+                playerCharacter == null)
             {
                 return;
             }
@@ -142,15 +150,17 @@ namespace Vampire
         {
             base.FixedUpdate();
 
-            if (!alive || explosionStarted || missedAutoDeathStarted || playerCharacter == null || rb == null)
+            if (IsFieldRuntimeSuspended)
             {
                 return;
             }
 
-            if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
+            if (!alive ||
+                explosionStarted ||
+                missedAutoDeathStarted ||
+                playerCharacter == null ||
+                rb == null)
             {
-                MoveTowardPlayer();
-                UpdateGridPosition();
                 return;
             }
 
@@ -385,16 +395,15 @@ namespace Vampire
 
         private void TryExplodeByDistance()
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (!alive || explosionStarted || missedAutoDeathStarted)
             {
                 return;
             }
-
-            if (explodingBlueprint == null || playerCharacter == null)
-            {
-                return;
-            }
-
             if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
             {
                 return;
@@ -438,12 +447,12 @@ namespace Vampire
 
         private void TryExplodeFromCollider(Collider2D other)
         {
-            if (!alive || explosionStarted || missedAutoDeathStarted)
+            if (IsFieldRuntimeSuspended)
             {
                 return;
             }
 
-            if (explodingBlueprint == null)
+            if (!alive || explosionStarted || missedAutoDeathStarted)
             {
                 return;
             }
@@ -540,7 +549,28 @@ namespace Vampire
 
             StartCoroutine(MissedAutoDeathRoutine());
         }
+        protected override void OnFieldRuntimeSuspended()
+        {
+            StopWarningCoroutine();
 
+            // Resume 후 필요하면 다시 거리 체크해서 경고를 시작할 수 있게 한다.
+            warningActive = false;
+
+            if (monsterSpriteRenderer != null)
+            {
+                monsterSpriteRenderer.color = originalColor;
+            }
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            warningActive = false;
+
+            if (monsterSpriteRenderer != null)
+            {
+                monsterSpriteRenderer.color = originalColor;
+            }
+        }
         private void StopWarningCoroutine()
         {
             if (warningCoroutine != null)
