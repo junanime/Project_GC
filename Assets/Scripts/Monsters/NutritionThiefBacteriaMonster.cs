@@ -103,7 +103,10 @@ namespace Vampire
         {
             base.Update();
 
-            if (!alive)
+            // MiniStage 진행 중 기존 필드 몬스터는 완전히 정지합니다.
+            // 부모 Monster.Update()가 return하더라도
+            // 자식 Update()는 계속 실행되므로 여기서 한 번 더 차단해야 합니다.
+            if (!alive || IsFieldRuntimeSuspended)
             {
                 return;
             }
@@ -120,7 +123,7 @@ namespace Vampire
 
         protected override void FixedUpdate()
         {
-            if (!alive || rb == null)
+            if (!alive || rb == null || IsFieldRuntimeSuspended)
             {
                 return;
             }

@@ -69,7 +69,9 @@ namespace Vampire
         private float spawnTime;
         private bool deathHandled;
         private bool hasStartedFleeing;
-
+        // MiniStage 진입으로 필드 런타임이 정지된 시점을 저장합니다.
+        // 풀에서 재사용될 때 Setup()에서 반드시 초기화합니다.
+        private float fieldSuspendStartTime = -1f;
         public override void Setup(
             int monsterIndex,
             Vector2 position,
@@ -81,6 +83,7 @@ namespace Vampire
             spawnTime = Time.time;
             deathHandled = false;
             hasStartedFleeing = false;
+            fieldSuspendStartTime = -1f;
 
             GameAudioManager.PlaySfx(
     GameAudioManager.GameSfxId.TreasureRunnerSpawn
@@ -97,7 +100,9 @@ namespace Vampire
         {
             base.Update();
 
-            if (!alive)
+            // 기존 필드 보물 몬스터는 MiniStage 진행 중
+            // 제한시간을 포함한 자체 런타임을 진행하지 않습니다.
+            if (!alive || IsFieldRuntimeSuspended)
             {
                 return;
             }
@@ -115,7 +120,7 @@ namespace Vampire
 
         protected override void FixedUpdate()
         {
-            if (!alive || rb == null)
+            if (!alive || rb == null || IsFieldRuntimeSuspended)
             {
                 return;
             }
@@ -151,6 +156,37 @@ namespace Vampire
             }
 
             FleeFromPlayer(toPlayer, distanceToPlayer);
+        }
+
+        protected override void OnFieldRuntimeSuspended()
+        {
+            base.OnFieldRuntimeSuspended();
+
+            // MiniStage 진입 시점을 기록합니다.
+            // SetFieldRuntimeSuspended()가 중복 호출을 막고 있으므로
+            // 정상적인 경우 한 번만 기록됩니다.
+            fieldSuspendStartTime = Time.time;
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            base.OnFieldRuntimeResumed();
+
+            if (fieldSuspendStartTime < 0f)
+            {
+                return;
+            }
+
+            float suspendedDuration = Mathf.Max(
+                0f,
+                Time.time - fieldSuspendStartTime
+            );
+
+            // spawnTime을 정지했던 시간만큼 뒤로 밀어
+            // lifetime과 Quick Kill 판정에서 MiniStage 시간을 제외합니다.
+            spawnTime += suspendedDuration;
+
+            fieldSuspendStartTime = -1f;
         }
 
         public override IEnumerator Killed(bool killedByPlayer = true)
