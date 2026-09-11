@@ -114,7 +114,7 @@ namespace Vampire
 
         protected override void FixedUpdate()
         {
-            if (!alive || isCasting || rb == null)
+            if (!alive || IsFieldRuntimeSuspended || isCasting || rb == null)
             {
                 return;
             }
@@ -406,6 +406,40 @@ namespace Vampire
             }
 
             Destroy(pulseObject, Mathf.Max(0.05f, castMotionDuration));
+        }
+        protected override void OnFieldRuntimeSuspended()
+        {
+            // 진행 중이던 버프 시전을 중단한다.
+            // MiniStage 안에서 버프가 뒤늦게 발동하는 것을 방지한다.
+            StopAllCoroutines();
+
+            isCasting = false;
+
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+
+            if (monsterSpriteAnimator != null)
+            {
+                monsterSpriteAnimator.StopAnimating(true);
+            }
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            if (!alive)
+            {
+                return;
+            }
+
+            // 기존 타이머 값은 그대로 유지한다.
+            // 즉 MiniStage에 있었던 시간이 버프 쿨타임에 포함되지 않는다.
+            if (monsterSpriteAnimator != null)
+            {
+                monsterSpriteAnimator.StartAnimating(true);
+            }
         }
     }
 }
