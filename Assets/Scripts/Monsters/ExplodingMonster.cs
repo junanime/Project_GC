@@ -159,8 +159,18 @@ namespace Vampire
                 explosionStarted ||
                 missedAutoDeathStarted ||
                 playerCharacter == null ||
-                rb == null)
+                rb == null ||
+                explodingBlueprint == null)
             {
+                return;
+            }
+
+            // Arm Delay 동안에는 플레이어를 추적해서 이동만 한다.
+            // 이 시간에는 궤도 고정 / 빗나감 자동사망을 시작하지 않는다.
+            if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
+            {
+                MoveTowardPlayer();
+                UpdateGridPosition();
                 return;
             }
 
@@ -178,7 +188,8 @@ namespace Vampire
 
             UpdateGridPosition();
 
-            // 충돌 이벤트가 누락되거나, 몬스터끼리 겹쳐서 물리 판정이 흔들리는 경우를 대비한 안전장치.
+            // 충돌 이벤트가 누락되거나
+            // 몬스터끼리 겹쳐 물리 판정이 흔들리는 경우의 안전장치.
             TryExplodeByDistance();
         }
 
@@ -400,7 +411,11 @@ namespace Vampire
                 return;
             }
 
-            if (!alive || explosionStarted || missedAutoDeathStarted)
+            if (!alive ||
+     explosionStarted ||
+     missedAutoDeathStarted ||
+     explodingBlueprint == null ||
+     playerCharacter == null)
             {
                 return;
             }
