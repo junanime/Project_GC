@@ -36,16 +36,6 @@ namespace Vampire
                 monster = GetComponent<Monster>();
             }
 
-            // MiniStage에 들어간 동안 기존 필드 몬스터에게 걸려 있던
-            // 이동속도 / 피해감소 버프의 남은 시간을 소모하지 않는다.
-            //
-            // MiniStage 전용 몬스터는 IsFieldRuntimeSuspended가 false이므로
-            // 해당 몬스터의 Runtime에는 영향을 주지 않는다.
-            if (monster != null && monster.IsFieldRuntimeSuspended)
-            {
-                return;
-            }
-
             TickMoveSpeedBuff();
             TickDamageReductionBuff();
         }
