@@ -95,6 +95,19 @@ namespace Vampire
 
             if (enableForceSpawnKey && Input.GetKeyDown(forceSpawnKey))
             {
+                if (!CanSpawnNow())
+                {
+                    if (debugLog)
+                    {
+                        Debug.Log(
+                            "[DigestiveEnzymeFieldSpawner] MiniStage 또는 RunFlow 정지 중이라 강제 스폰을 차단했습니다.",
+                            this
+                        );
+                    }
+
+                    return;
+                }
+
                 SpawnOne();
                 return;
             }
