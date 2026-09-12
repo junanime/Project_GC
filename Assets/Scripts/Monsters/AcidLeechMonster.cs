@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -454,6 +455,8 @@ namespace Vampire
             }
         }
 
+        private readonly List<GameObject> bloodTrails = new List<GameObject>();
+
         private void SpawnBloodTrail(Vector2 position)
         {
             Sprite sprite = GetWhiteSprite();
@@ -464,6 +467,7 @@ namespace Vampire
             }
 
             GameObject trailObject = new GameObject("AcidLeech_BloodTrail");
+            bloodTrails.Add(trailObject);
             trailObject.transform.position = position;
 
             float minSize = Mathf.Max(0.01f, bloodTrailMinSize);
@@ -491,11 +495,13 @@ namespace Vampire
             GameObject trailObject,
             float lifetime)
         {
+            // Scheduled destruction survives the owner being disabled or its coroutines stopping.
+            Destroy(trailObject, Mathf.Max(0.1f, lifetime));
             float safeLifetime = Mathf.Max(0.1f, lifetime);
             float elapsed = 0f;
             Color startColor = sr != null ? sr.color : bloodTrailColor;
 
-            while (elapsed < safeLifetime)
+            while (elapsed < safeLifetime && trailObject != null)
             {
                 elapsed += Time.deltaTime;
 
@@ -508,6 +514,7 @@ namespace Vampire
                 yield return null;
             }
 
+            bloodTrails.Remove(trailObject);
             if (trailObject != null)
             {
                 Destroy(trailObject);
@@ -617,6 +624,7 @@ namespace Vampire
             }
 
             currentState = LeechState.Dead;
+            ClearBloodTrails();
             RestoreMovementPhysicsSettings();
             StopRuntimeCoroutines();
 
@@ -816,8 +824,21 @@ namespace Vampire
             return whiteSprite;
         }
 
+        private void ClearBloodTrails()
+        {
+            foreach (GameObject trail in bloodTrails)
+            {
+                if (trail != null)
+                {
+                    trail.SetActive(false);
+                    Destroy(trail);
+                }
+            }
+            bloodTrails.Clear();
+        }
         private void OnDisable()
         {
+            ClearBloodTrails();
             RestoreMovementPhysicsSettings();
             StopRuntimeCoroutines();
         }

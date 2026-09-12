@@ -123,6 +123,11 @@ namespace Vampire
                 rb = GetComponent<Rigidbody2D>();
             }
 
+            if (trapSpriteRenderer != null)
+            {
+                trapSpriteRenderer.enabled = true;
+            }
+
             Vector2 spawnPosition = position;
 
             if (trapBlueprint.spawnNearPlayerForTest)
@@ -278,6 +283,15 @@ namespace Vampire
             killStarted = true;
             alive = false;
 
+            if (triggerCollider != null)
+            {
+                triggerCollider.enabled = false;
+            }
+            if (monsterHitbox != null)
+            {
+                monsterHitbox.enabled = false;
+            }
+
             ReleaseTrappedPlayer();
 
             ChangeState(TrapState.Dying);
@@ -303,6 +317,15 @@ namespace Vampire
             }
 
             currentState = TrapState.Dead;
+            if (stateAnimationCoroutine != null)
+            {
+                StopCoroutine(stateAnimationCoroutine);
+                stateAnimationCoroutine = null;
+            }
+            if (trapSpriteRenderer != null)
+            {
+                trapSpriteRenderer.enabled = false;
+            }
 
             if (debugLog)
             {
@@ -703,6 +726,7 @@ namespace Vampire
 
             if (arrowMiniGameUI != null)
             {
+                arrowMiniGameUI.gameObject.SetActive(false);
                 Destroy(arrowMiniGameUI.gameObject);
                 arrowMiniGameUI = null;
             }
