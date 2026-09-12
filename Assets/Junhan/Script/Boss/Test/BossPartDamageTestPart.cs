@@ -24,7 +24,7 @@ namespace Vampire
     /// - 각 파츠는 독립 HP를 가집니다.
     /// - 모든 파츠 HP의 합이 보스 표시 HP가 됩니다.
     /// - 일반 파츠 HP가 0이면 해당 파츠만 파괴됩니다.
-    /// - Core 파츠 HP가 0이면 전체 보스가 즉시 사망합니다.
+    /// - 기존 모드는 Core 하나, UFO 모드는 지정된 5코어 모두 파괴 시 보스가 사망합니다.
     /// - Monster를 상속하지 않으므로 일반 몬스터 처치 보상은 발생하지 않습니다.
     /// </summary>
     public sealed class BossPartDamageTestPart : IDamageable
@@ -46,7 +46,7 @@ namespace Vampire
 
         [Tooltip(
             "체크하면 이 파츠가 보스의 핵심 Core가 됩니다. " +
-            "Core의 HP가 0이 되면 다른 파츠의 남은 HP와 관계없이 보스가 즉시 사망합니다.")]
+            "기존 모드에서 Core의 HP가 0이면 즉시 보스가 사망합니다. UFO 모드에서는 Root의 5코어 지정이 우선합니다.")]
         [SerializeField]
         private bool isCore = false;
 
@@ -60,7 +60,7 @@ namespace Vampire
 
         [Tooltip(
             "이 파츠의 최대 체력입니다. " +
-            "모든 파츠 Max Health의 합이 보스 전체 최대 체력이 됩니다.")]
+            "기존 모드는 파츠별로 입력하며 UFO 모드에서는 시작 시 Root 최대 HP의 20%로 설정됩니다.")]
         [SerializeField, Min(0.01f)]
         private float maxHealth = 30f;
 
@@ -132,12 +132,14 @@ namespace Vampire
         private Material[][] originalSharedMaterials;
         private Color[] originalColors;
         private Coroutine hitFlashCoroutine;
+        private bool damageEnabled = true;
 
         public BossPartDamageTestType PartType => partType;
 
         public float CurrentHealth => currentHealth;
 
-        public float MaxHealth => maxHealth;
+        public float MaxHealth => rootController != null
+            ? rootController.GetPartMaxHealth(this, maxHealth) : maxHealth;
 
         public bool IsBroken => isBroken;
 
@@ -146,7 +148,9 @@ namespace Vampire
         /// Auto Treat Torso As Core가 켜진 Torso이면 Core입니다.
         /// </summary>
         public bool IsCore =>
-            isCore ||
+            rootController != null && rootController.UsesFiveCoreHealth
+            ? rootController.IsFiveCoreMember(this)
+            : isCore ||
             (
                 autoTreatTorsoAsCore &&
                 partType == BossPartDamageTestType.Torso
@@ -198,12 +202,18 @@ namespace Vampire
             bool isCritical,
             BossDamageSourceType damageSource)
         {
-            if (isBroken)
+            if (isBroken || !damageEnabled || !isActiveAndEnabled)
             {
                 return 0f;
             }
 
             ResolveRootController();
+
+            if (rootController != null && !rootController.CanReceivePartDamage(this))
+                return 0f;
+
+            if (float.IsNaN(damage) || float.IsInfinity(damage))
+                return 0f;
 
             // Core가 이미 파괴되어 전체 보스가 죽었다면
             // 추가 피해를 받지 않습니다.
@@ -262,7 +272,7 @@ namespace Vampire
                     $"AppliedDamage={appliedDamage:0.##}, " +
                     $"ActualDamage={actualDamage:0.##}, " +
                     $"Critical={isCritical}, " +
-                    $"HP={currentHealth:0.##}/{maxHealth:0.##}, " +
+                    $"HP={currentHealth:0.##}/{MaxHealth:0.##}, " +
                     $"Core={IsCore}",
                     this
                 );
@@ -338,8 +348,10 @@ namespace Vampire
 
             StopHitFlashAndRestore();
 
+            // Inspector에도 Root가 배정한 코어 최대 HP를 표시합니다.
+            maxHealth = MaxHealth;
             currentHealth =
-                Mathf.Max(0.01f, maxHealth);
+                Mathf.Max(0.01f, MaxHealth);
 
             isBroken = false;
 
@@ -351,13 +363,14 @@ namespace Vampire
             if (rootController != null)
             {
                 rootController.RegisterPart(this);
+                rootController.NotifyPartHealthChanged(this);
             }
 
             if (debugLog)
             {
                 Debug.Log(
                     $"[BossPartTest] {GetPartLabel()} 초기화 | " +
-                    $"HP={currentHealth:0.##}/{maxHealth:0.##}, " +
+                    $"HP={currentHealth:0.##}/{MaxHealth:0.##}, " +
                     $"Core={IsCore}",
                     this);
             }
@@ -427,7 +440,7 @@ namespace Vampire
                 {
                     Debug.Log(
                         $"[BossPartTest] ★ CORE 파괴 ★ | " +
-                        $"{GetPartLabel()} 파괴 → 전체 보스 사망 요청",
+                        $"{GetPartLabel()} 파괴 → Root의 사망 조건 확인",
                         this);
                 }
                 else
@@ -456,6 +469,7 @@ namespace Vampire
             bool enabled)
         {
             ResolveReferences();
+            damageEnabled = enabled && (rootController == null || rootController.CanReceivePartDamage(this));
 
             for (int i = 0;
                  i < hitColliders.Length;
@@ -464,7 +478,7 @@ namespace Vampire
                 if (hitColliders[i] != null)
                 {
                     hitColliders[i].enabled =
-                        enabled;
+                        damageEnabled;
                 }
             }
         }

@@ -103,6 +103,10 @@ namespace Vampire
     /// </summary>
     public class BossController : MonoBehaviour
     {
+        [Header("UFO Health Link")]
+        [Tooltip("UFO 5코어 모드의 HP Root입니다. 연결된 Root가 5코어 모드일 때 본체 TakeDamage 호출을 차단합니다. 기존 보스는 비워 두세요.")]
+        [SerializeField] private BossPartDamageTestRootController fiveCoreHealthRoot;
+
         [Header("Boss References")]
         [Tooltip(
             "플레이어 캐릭터입니다. " +
@@ -1885,6 +1889,10 @@ namespace Vampire
             float damage,
             BossDamageSourceType sourceType)
         {
+            // 5코어 모드에서는 본체 직접 피해가 합산 HP/사망 조건을 우회할 수 없습니다.
+            if (fiveCoreHealthRoot != null && fiveCoreHealthRoot.UsesFiveCoreHealth)
+                return;
+
             if (IsInvincibleToDamage)
             {
                 return;
