@@ -542,6 +542,12 @@ namespace Vampire
 
             while (alive)
             {
+                if (IsFieldRuntimeSuspended)
+                {
+                    yield return null;
+                    continue;
+                }
+
                 if (frames != null && frames.Length > 0)
                 {
                     monsterSpriteRenderer.sprite = frames[frameIndex];

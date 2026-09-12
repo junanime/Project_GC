@@ -49,7 +49,11 @@ namespace Vampire
                 return;
             }
 
-            ApplyDamage();
+            if (!MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                ApplyDamage();
+            }
+
             UpdateVisual();
         }
 

@@ -316,7 +316,23 @@ namespace Vampire
 
         private IEnumerator RespawnAfterDelay()
         {
-            yield return new WaitForSeconds(Mathf.Max(0f, respawnDelay));
+            float elapsed = 0f;
+            float delay = Mathf.Max(0f, respawnDelay);
+
+            while (elapsed < delay)
+            {
+                if (!IsMiniStageSpawnBlocked())
+                {
+                    elapsed += Time.deltaTime;
+                }
+
+                yield return null;
+            }
+
+            while (IsMiniStageSpawnBlocked())
+            {
+                yield return null;
+            }
 
             CleanupNullTraps();
 
@@ -324,6 +340,21 @@ namespace Vampire
             {
                 SpawnOneTrap();
             }
+        }
+
+        private bool IsMiniStageSpawnBlocked()
+        {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return true;
+            }
+
+            if (levelManager == null)
+            {
+                levelManager = FindObjectOfType<LevelManager>();
+            }
+
+            return levelManager != null && levelManager.IsRunFlowPaused;
         }
 
         private Vector2 GetRandomTrapSpawnPosition()
