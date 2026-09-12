@@ -60,7 +60,7 @@ Transform:
   m_GameObject: {fileID: 113540149490856718}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.6, y: 0, z: 0}
+  m_LocalPosition: {x: 0.553, y: -0.424, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -163,8 +163,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be4c6cfa4ee1ab347b92d6d0391cb739, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   partType: 6
   displayName: Green Core
   isCore: 1
@@ -996,7 +996,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 10
-  m_Sprite: {fileID: 21300000, guid: 5d6c97cfb8901024e8c397f3f6cc6ac5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a08715df9f1a83c40a471d3b81d21e3a, type: 3}
   m_Color: {r: 0.55, g: 0.6, b: 0.65, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1181,7 +1181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useFiveCoreHealth: 1
-  fiveCoreMaxHealth: 100
+  fiveCoreMaxHealth: 4000
   redCore: {fileID: 4346352809294327159}
   orangeCore: {fileID: 6202724119696504209}
   yellowCore: {fileID: 4885141670365998839}
@@ -1863,7 +1863,7 @@ Transform:
   m_GameObject: {fileID: 3285928993014171053}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.6, y: 0, z: 0}
+  m_LocalPosition: {x: -0.583, y: -0.42, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1966,8 +1966,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be4c6cfa4ee1ab347b92d6d0391cb739, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   partType: 6
   displayName: Orange Core
   isCore: 1
@@ -2028,9 +2028,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  patternName:
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: 
   cooldown: 3
   coreTraits: 4
   coreMatchMode: 0
@@ -2234,6 +2234,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 265cd75a7792291468765ac6edd93081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fiveCoreHealthRoot: {fileID: 8798942031376210255}
   playerCharacter: {fileID: 0}
   rb: {fileID: 1903366919834822943}
   spriteRenderer: {fileID: 0}
@@ -2385,7 +2386,7 @@ Transform:
   m_GameObject: {fileID: 5340186478670190866}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.015, y: -0.46, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2488,8 +2489,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be4c6cfa4ee1ab347b92d6d0391cb739, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   partType: 6
   displayName: Yellow Core
   isCore: 1
@@ -2536,7 +2537,7 @@ Transform:
   m_GameObject: {fileID: 5904360231514699186}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.2, y: 0, z: 0}
+  m_LocalPosition: {x: 1.086, y: -0.302, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2639,8 +2640,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be4c6cfa4ee1ab347b92d6d0391cb739, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   partType: 6
   displayName: Blue Core
   isCore: 1
@@ -3449,7 +3450,7 @@ Transform:
   m_GameObject: {fileID: 8417100391682804312}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.2, y: 0, z: 0}
+  m_LocalPosition: {x: -1.11, y: -0.298, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3552,8 +3553,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: be4c6cfa4ee1ab347b92d6d0391cb739, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   partType: 6
   displayName: Red Core
   isCore: 1
