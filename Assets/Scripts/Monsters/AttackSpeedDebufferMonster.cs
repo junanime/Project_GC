@@ -290,6 +290,10 @@ namespace Vampire
                 return;
             }
 
+            // 결과 화면용:
+            // 이 투사체를 발사한 몬스터 정보를 Projectile에 전달합니다.
+            projectile.SetSourceMonster(debufferBlueprint);
+
             projectile.Launch(direction.normalized);
 
             DebugDebuffer(

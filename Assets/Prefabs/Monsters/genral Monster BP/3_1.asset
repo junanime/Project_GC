@@ -45,6 +45,8 @@ MonoBehaviour:
   - {fileID: -248303118, guid: 07cbd5fa1cf8a8e4fa08b25c3558d926, type: 3}
   - {fileID: -1456532820, guid: 07cbd5fa1cf8a8e4fa08b25c3558d926, type: 3}
   walkFrameTime: 0.2
+  description: "\uC601\uC591\uC81C?"
+  resultSprite: {fileID: 0}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 512

@@ -27,6 +27,8 @@ MonoBehaviour:
   walkSpriteSequence:
   - {fileID: 917104541, guid: 4a53ef156a05949b693de4f347057d87, type: 3}
   walkFrameTime: 0.2
+  description: ??
+  resultSprite: {fileID: 0}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 0

@@ -34,6 +34,13 @@ namespace Vampire
         [SerializeField] private ResultCharacterAnimator selectedCharacterAnimator;
 
 
+        [Header("Killed By Monster")]
+        [SerializeField] private GameObject killedByMonsterRoot;
+        [SerializeField] private Image killedByMonsterImage;
+        [SerializeField] private TextMeshProUGUI killedByMonsterNameText;
+        [SerializeField] private TextMeshProUGUI killedByMonsterDescriptionText;
+
+
         [Header("Buttons")]
         [SerializeField] private Button retryButton;
         [SerializeField] private Button mainMenuButton;
@@ -44,6 +51,7 @@ namespace Vampire
 
 
         private bool initialized;
+        private bool currentLevelPassed;
 
 
         // =========================================================
@@ -58,6 +66,12 @@ namespace Vampire
             if (panelRoot != null)
             {
                 panelRoot.SetActive(false);
+            }
+
+            // 나를 죽인 몬스터 UI도 게임 시작 시 확실하게 숨김
+            if (killedByMonsterRoot != null)
+            {
+                killedByMonsterRoot.SetActive(false);
             }
         }
 
@@ -102,6 +116,8 @@ namespace Vampire
         public void Open(bool levelPassed)
         {
             InitializeIfNeeded();
+
+            currentLevelPassed = levelPassed;
 
 
             // 게임 정지
@@ -202,6 +218,13 @@ namespace Vampire
             // =========================
 
             UpdateSelectedCharacter();
+
+
+            // =========================
+            // 나를 죽인 몬스터
+            // =========================
+
+            UpdateKilledByMonster();
         }
 
 
@@ -437,6 +460,168 @@ namespace Vampire
 
 
         // =========================================================
+        // Killed By Monster
+        // =========================================================
+
+        private void UpdateKilledByMonster()
+        {
+            // 스테이지 클리어라면 죽인 몬스터가 없으므로 비워둔다.
+            if (currentLevelPassed)
+            {
+                ClearKilledByMonsterUI();
+                return;
+            }
+
+
+            Character player =
+                levelManager != null
+                    ? levelManager.PlayerCharacter
+                    : null;
+
+
+            if (player == null)
+            {
+                ClearKilledByMonsterUI();
+
+                Debug.LogWarning(
+                    "[LevelResultPanel] 나를 죽인 몬스터 표시 실패 - PlayerCharacter를 찾을 수 없습니다."
+                );
+
+                return;
+            }
+
+
+            MonsterBlueprint killer =
+                player.LastDamageMonsterBlueprint;
+
+
+            // 환경 피해, 스테이지 이벤트 등 몬스터가 아닌 원인으로 죽은 경우
+            if (killer == null)
+            {
+                ClearKilledByMonsterUI();
+
+                Debug.Log(
+                    "[LevelResultPanel] 마지막 피해 원인이 몬스터가 아닙니다."
+                );
+
+                return;
+            }
+
+
+            // 실제 몬스터에게 죽었을 때만 UI 표시
+            if (killedByMonsterRoot != null)
+            {
+                killedByMonsterRoot.SetActive(true);
+            }
+
+
+            // =========================
+            // 몬스터 이미지
+            // =========================
+
+            Sprite monsterSprite = killer.resultSprite;
+
+
+            // 결과용 전용 Sprite가 없으면 일반 걷기 Sprite의 첫 프레임 사용
+            if (monsterSprite == null &&
+                killer.walkSpriteSequence != null &&
+                killer.walkSpriteSequence.Length > 0)
+            {
+                monsterSprite =
+                    killer.walkSpriteSequence[0];
+            }
+
+
+            // 엘리트 몬스터가 별도 애니메이션을 사용하는 경우까지 fallback
+            if (monsterSprite == null &&
+                killer is EliteMonsterBlueprint eliteBlueprint)
+            {
+                Sprite[] eliteSprites =
+                    eliteBlueprint.GetEffectiveWalkSpriteSequence();
+
+                if (eliteSprites != null &&
+                    eliteSprites.Length > 0)
+                {
+                    monsterSprite =
+                        eliteSprites[0];
+                }
+            }
+
+
+            if (killedByMonsterImage != null)
+            {
+                killedByMonsterImage.sprite =
+                    monsterSprite;
+
+                killedByMonsterImage.enabled =
+                    monsterSprite != null;
+
+                killedByMonsterImage.preserveAspect =
+                    true;
+            }
+
+
+            // =========================
+            // 몬스터 이름
+            // =========================
+
+            if (killedByMonsterNameText != null)
+            {
+                killedByMonsterNameText.text =
+                    string.IsNullOrWhiteSpace(killer.name)
+                        ? "-"
+                        : killer.name;
+            }
+
+
+            // =========================
+            // 몬스터 특징 / 설명
+            // =========================
+
+            if (killedByMonsterDescriptionText != null)
+            {
+                killedByMonsterDescriptionText.text =
+                    string.IsNullOrWhiteSpace(killer.description)
+                        ? "-"
+                        : killer.description;
+            }
+
+
+            Debug.Log(
+                $"[LevelResultPanel] 나를 죽인 몬스터 : " +
+                $"{(string.IsNullOrWhiteSpace(killer.name) ? "-" : killer.name)}"
+            );
+        }
+
+
+        private void ClearKilledByMonsterUI()
+        {
+            if (killedByMonsterRoot != null)
+            {
+                killedByMonsterRoot.SetActive(false);
+            }
+
+            if (killedByMonsterImage != null)
+            {
+                killedByMonsterImage.sprite = null;
+                killedByMonsterImage.enabled = false;
+            }
+
+
+            if (killedByMonsterNameText != null)
+            {
+                killedByMonsterNameText.text = "-";
+            }
+
+
+            if (killedByMonsterDescriptionText != null)
+            {
+                killedByMonsterDescriptionText.text = "-";
+            }
+        }
+
+
+        // =========================================================
         // Time Format
         // =========================================================
 
@@ -461,6 +646,11 @@ namespace Vampire
 
         public void Close()
         {
+            if (killedByMonsterRoot != null)
+            {
+                killedByMonsterRoot.SetActive(false);
+            }
+
             if (panelRoot != null)
             {
                 panelRoot.SetActive(false);

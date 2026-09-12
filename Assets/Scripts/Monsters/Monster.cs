@@ -43,6 +43,10 @@ namespace Vampire
         public UnityEvent<Monster> OnKilled { get; } = new UnityEvent<Monster>();
 
         public float HP => currentHealth;
+
+        // 결과 화면 및 공격 출처 추적용
+        public MonsterBlueprint Blueprint => monsterBlueprint;
+
         public Vector2 Position => transform.position;
         public Vector2 Size => monsterLegsCollider != null ? monsterLegsCollider.bounds.size : Vector2.one;
 

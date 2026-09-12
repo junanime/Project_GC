@@ -59,6 +59,16 @@ namespace Vampire
 
         private Quaternion initialRotation;
 
+        // =========================================================
+        // Result Screen - 몬스터 투사체 출처
+        // =========================================================
+
+        /// <summary>
+        /// 이 투사체를 발사한 몬스터의 Blueprint.
+        /// 플레이어가 발사한 투사체라면 null입니다.
+        /// </summary>
+        protected MonsterBlueprint sourceMonsterBlueprint;
+
         public UnityEvent<float> OnHitDamageable { get; private set; }
 
         protected virtual void Awake()
@@ -66,11 +76,20 @@ namespace Vampire
             initialRotation = transform.rotation;
 
             col = GetComponent<Collider2D>();
-            zPositioner = gameObject.AddComponent<ZPositioner>();
+
+            zPositioner = GetComponent<ZPositioner>();
+
+            if (zPositioner == null)
+            {
+                zPositioner = gameObject.AddComponent<ZPositioner>();
+            }
+
             TryGetComponent<TrailRenderer>(out trailRenderer);
         }
 
-        public virtual void Init(EntityManager entityManager, Character playerCharacter)
+        public virtual void Init(
+            EntityManager entityManager,
+            Character playerCharacter)
         {
             this.entityManager = entityManager;
             this.playerCharacter = playerCharacter;
@@ -104,6 +123,13 @@ namespace Vampire
             this.speed = speed;
             this.targetLayer = targetLayer;
 
+            // =====================================================
+            // 중요
+            // Projectile은 오브젝트 풀에서 재사용되므로
+            // 이전 몬스터의 공격자 정보가 남아있으면 안 됩니다.
+            // =====================================================
+            sourceMonsterBlueprint = null;
+
             isDespawning = false;
 
             if (projectileSpriteRenderer != null)
@@ -117,6 +143,15 @@ namespace Vampire
             }
 
             OnHitDamageable = new UnityEvent<float>();
+        }
+
+        /// <summary>
+        /// 몬스터가 이 투사체를 발사했을 때
+        /// 발사한 몬스터의 Blueprint를 등록합니다.
+        /// </summary>
+        public void SetSourceMonster(MonsterBlueprint sourceMonster)
+        {
+            sourceMonsterBlueprint = sourceMonster;
         }
 
         public virtual void Launch(Vector2 direction)
@@ -145,7 +180,10 @@ namespace Vampire
             float distanceTravelled = 0;
             float timeOffScreen = 0;
 
-            while (distanceTravelled < maxDistance && timeOffScreen < despawnTime && speed > 0)
+            while (
+                distanceTravelled < maxDistance &&
+                timeOffScreen < despawnTime &&
+                speed > 0)
             {
                 float step = speed * Time.deltaTime;
 
@@ -154,7 +192,9 @@ namespace Vampire
                     ApplyVisualRotationToDirection();
                 }
 
-                transform.position += step * (Vector3)direction;
+                transform.position +=
+                    step * (Vector3)direction;
+
                 distanceTravelled += step;
 
                 if (Mathf.Abs(rotationSpeed) > 0.001f)
@@ -181,8 +221,16 @@ namespace Vampire
                 return;
             }
 
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            transform.rotation = Quaternion.Euler(0f, 0f, angle + visualAngleOffset);
+            float angle =
+                Mathf.Atan2(direction.y, direction.x) *
+                Mathf.Rad2Deg;
+
+            transform.rotation =
+                Quaternion.Euler(
+                    0f,
+                    0f,
+                    angle + visualAngleOffset
+                );
         }
 
         protected virtual void HitDamageable(IDamageable damageable)
@@ -195,14 +243,57 @@ namespace Vampire
             float finalDamage = damage;
             bool isCritical = false;
 
-            if (playerCharacter != null && Random.value < playerCharacter.CritChance)
+            // =====================================================
+            // 플레이어가 발사한 Projectile에만 플레이어 치명타 적용
+            //
+            // sourceMonsterBlueprint != null이면
+            // 몬스터가 발사한 Projectile이므로
+            // 플레이어의 CritChance를 사용하지 않습니다.
+            // =====================================================
+
+            if (sourceMonsterBlueprint == null &&
+                playerCharacter != null &&
+                Random.value < playerCharacter.CritChance)
             {
                 isCritical = true;
-                finalDamage *= criticalDamageMultiplier;
-                Debug.Log($"<color=red>[치명타]</color> Critical Hit! Damage: {finalDamage}");
+
+                finalDamage *=
+                    criticalDamageMultiplier;
+
+                Debug.Log(
+                    $"<color=red>[치명타]</color> " +
+                    $"Critical Hit! Damage: {finalDamage}"
+                );
             }
 
-            damageable.TakeDamage(finalDamage, knockback * direction, isCritical);
+            // =====================================================
+            // 플레이어가 몬스터 Projectile에 맞은 경우
+            // 몬스터 Blueprint를 Character에게 전달
+            // =====================================================
+
+            Character targetCharacter =
+                damageable as Character;
+
+            if (targetCharacter != null &&
+                sourceMonsterBlueprint != null)
+            {
+                targetCharacter.TakeDamageFromMonster(
+                    finalDamage,
+                    knockback * direction,
+                    sourceMonsterBlueprint,
+                    isCritical
+                );
+            }
+            else
+            {
+                // 기존 플레이어 Projectile 및 기타 피해 대상
+                damageable.TakeDamage(
+                    finalDamage,
+                    knockback * direction,
+                    isCritical
+                );
+            }
+
             OnHitDamageable?.Invoke(finalDamage);
 
             DestroyProjectile();
@@ -240,24 +331,37 @@ namespace Vampire
 
             if (!gameObject.activeInHierarchy)
             {
-                entityManager.DespawnProjectile(projectileIndex, this);
+                entityManager.DespawnProjectile(
+                    projectileIndex,
+                    this
+                );
+
                 return;
             }
 
-            StartCoroutine(DestroyProjectileAnimation());
+            StartCoroutine(
+                DestroyProjectileAnimation()
+            );
         }
 
         protected IEnumerator DestroyProjectileAnimation()
         {
             if (projectileSpriteRenderer != null)
             {
-                projectileSpriteRenderer.gameObject.SetActive(false);
+                projectileSpriteRenderer
+                    .gameObject
+                    .SetActive(false);
             }
 
             if (destructionParticleSystem != null)
             {
                 destructionParticleSystem.Play();
-                yield return new WaitForSeconds(destructionParticleSystem.main.duration);
+
+                yield return new WaitForSeconds(
+                    destructionParticleSystem
+                        .main
+                        .duration
+                );
             }
             else
             {
@@ -266,28 +370,40 @@ namespace Vampire
 
             if (projectileSpriteRenderer != null)
             {
-                projectileSpriteRenderer.gameObject.SetActive(true);
+                projectileSpriteRenderer
+                    .gameObject
+                    .SetActive(true);
             }
 
-            entityManager.DespawnProjectile(projectileIndex, this);
+            entityManager.DespawnProjectile(
+                projectileIndex,
+                this
+            );
         }
 
-        protected void CollisionCheck(Collider2D collider)
+        protected void CollisionCheck(
+            Collider2D collider)
         {
             if (isDespawning)
             {
                 return;
             }
 
-            if ((targetLayer & (1 << collider.gameObject.layer)) != 0)
+            if ((targetLayer &
+                 (1 << collider.gameObject.layer)) != 0)
             {
-                Transform parent = collider.transform.parent;
+                Transform parent =
+                    collider.transform.parent;
 
-                if (parent != null && parent.TryGetComponent<IDamageable>(out IDamageable damageable))
+                if (parent != null &&
+                    parent.TryGetComponent<IDamageable>(
+                        out IDamageable damageable))
                 {
                     HitDamageable(damageable);
                 }
-                else if (collider.TryGetComponent<IDamageable>(out IDamageable directDamageable))
+                else if (
+                    collider.TryGetComponent<IDamageable>(
+                        out IDamageable directDamageable))
                 {
                     HitDamageable(directDamageable);
                 }
@@ -298,7 +414,8 @@ namespace Vampire
             }
         }
 
-        protected virtual void OnTriggerEnter2D(Collider2D collider)
+        protected virtual void OnTriggerEnter2D(
+            Collider2D collider)
         {
             CollisionCheck(collider);
         }
