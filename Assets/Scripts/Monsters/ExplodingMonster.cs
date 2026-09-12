@@ -65,6 +65,13 @@ namespace Vampire
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
 
+            // Apply on every pooled spawn, including inactive child hitboxes.
+            // Keep player layers and the existing collision/trigger damage path intact.
+            int monsterLayers = LayerMask.GetMask("Monster Full", "Monster Legs");
+            foreach (Collider2D collider in GetComponentsInChildren<Collider2D>(true))
+            {
+                collider.excludeLayers |= monsterLayers;
+            }
             timeSinceSpawn = 0f;
             lockedTrajectoryTimer = 0f;
 
