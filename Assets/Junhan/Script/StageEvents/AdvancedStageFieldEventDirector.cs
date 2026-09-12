@@ -274,6 +274,7 @@ namespace Vampire
         private Camera mainCamera;
         private Quaternion originalCameraRotation;
         private bool hasOriginalCameraRotation;
+        private bool miniStageCameraRestored;
         private Coroutine activeAcidRefluxRoutine;
         private Coroutine activeCoffeeWaveRoutine;
 
@@ -307,6 +308,20 @@ namespace Vampire
 
         private void Update()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                // 필드 기류가 MiniStage 카메라에 남지 않도록 기본 회전을 사용합니다.
+                if (!miniStageCameraRestored && mainCamera != null && hasOriginalCameraRotation)
+                {
+                    mainCamera.transform.rotation = originalCameraRotation;
+                }
+
+                miniStageCameraRestored = true;
+                return;
+            }
+
+            miniStageCameraRestored = false;
+
             if (levelManager == null)
             {
                 return;
@@ -334,6 +349,11 @@ namespace Vampire
 
         private void FixedUpdate()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             for (int i = 0; i < peristalsisDriftEvents.Count; i++)
             {
                 PeristalsisDriftEvent driftEvent = peristalsisDriftEvents[i];
@@ -539,8 +559,13 @@ namespace Vampire
 
                 if (i < safeWaveCount - 1)
                 {
-                    yield return new WaitForSeconds(Mathf.Max(0f, waveEvent.intervalBetweenWaves));
+                    yield return WaitForFieldSeconds(Mathf.Max(0f, waveEvent.intervalBetweenWaves));
                 }
+            }
+
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
             }
 
             waveEvent.finished = true;
@@ -626,7 +651,7 @@ namespace Vampire
 
             for (int i = 0; i < monsters.Length; i++)
             {
-                if (monsters[i] == null)
+                if (monsters[i] == null || monsters[i].IsMiniStageOwned || monsters[i].IsFieldRuntimeSuspended)
                 {
                     continue;
                 }
@@ -663,7 +688,7 @@ namespace Vampire
             float force,
             float maxAddedVelocity)
         {
-            if (targetRb == null)
+            if (targetRb == null || !targetRb.simulated)
             {
                 return;
             }
@@ -843,7 +868,7 @@ namespace Vampire
             {
                 Monster monster = monsters[i];
 
-                if (monster == null)
+                if (monster == null || monster.IsMiniStageOwned || monster.IsFieldRuntimeSuspended)
                 {
                     continue;
                 }
@@ -896,6 +921,11 @@ namespace Vampire
             bool visualOnly,
             GameAudioManager.GameSfxId? travelStartSfxId = null)
         {
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
+            }
+
             // 실제 피해 파도일 때만 위험 경고음.
             // 커피수혈의 VisualOnly 파도에는 재생하지 않습니다.
             if (!visualOnly)
@@ -940,7 +970,12 @@ namespace Vampire
                     warningColor);
             }
 
-            yield return new WaitForSeconds(Mathf.Max(0f, warningDuration));
+            yield return WaitForFieldSeconds(Mathf.Max(0f, warningDuration));
+
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
+            }
 
             if (warningObject != null)
             {
@@ -991,12 +1026,34 @@ namespace Vampire
                 }
             }
 
-            yield return new WaitForSeconds(Mathf.Max(0.05f, travelDuration));
+            yield return WaitForFieldSeconds(Mathf.Max(0.05f, travelDuration));
+
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
+            }
 
             if (waveObject != null)
             {
                 Destroy(waveObject);
             }
+        }
+
+        // 새 내부 대기 함수: 일반 버프 시간이 아닌 필드 이벤트의 대기 시간만 셉니다.
+        private IEnumerator WaitForFieldSeconds(float duration)
+        {
+            float remaining = Mathf.Max(0f, duration);
+
+            do
+            {
+                yield return null;
+
+                if (!MiniStageRuntimeState.IsInsideMiniStage)
+                {
+                    remaining -= Time.deltaTime;
+                }
+            }
+            while (remaining > 0f || MiniStageRuntimeState.IsInsideMiniStage);
         }
 
         private GameObject CreateWaveVisualObject(

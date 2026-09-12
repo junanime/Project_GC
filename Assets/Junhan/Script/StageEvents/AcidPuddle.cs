@@ -98,6 +98,11 @@ namespace Vampire
 
         private void Update()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             UpdateLifetime();
             UpdateWarningState();
             UpdateDamageTick();
@@ -160,7 +165,11 @@ namespace Vampire
             }
 
             targetCharacter = character;
-            tickTimer = damageImmediatelyOnEnter ? 0f : tickInterval;
+            // 위치 이동에 따른 접촉 정보는 갱신하되, 정지 중 피해 타이머는 보존합니다.
+            if (!MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                tickTimer = damageImmediatelyOnEnter ? 0f : tickInterval;
+            }
         }
 
         private void OnTriggerExit2D(Collider2D other)

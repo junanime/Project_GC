@@ -16,6 +16,7 @@ namespace Vampire
     {
         private Character targetPlayer;
         private Rigidbody2D rb;
+        private Monster monster;
 
         private SpriteRenderer[] sourceRenderers;
         private SpriteRenderer[] overlayRenderers;
@@ -63,6 +64,14 @@ namespace Vampire
                 return;
             }
 
+            // 버프 만료 시간은 계속 흐르고, 필드 몬스터의 행동만 정지합니다.
+            if (monster != null &&
+                (monster.IsFieldRuntimeSuspended ||
+                 (MiniStageRuntimeState.IsInsideMiniStage && !monster.IsMiniStageOwned)))
+            {
+                return;
+            }
+
             ApplyExtraMovementTowardPlayer();
         }
 
@@ -79,6 +88,7 @@ namespace Vampire
         private void CacheComponents()
         {
             rb = GetComponent<Rigidbody2D>();
+            monster = GetComponent<Monster>();
             sourceRenderers = GetComponentsInChildren<SpriteRenderer>(true);
             overlayRenderers = new SpriteRenderer[sourceRenderers.Length];
         }
@@ -179,7 +189,7 @@ namespace Vampire
 
         private void ApplyExtraMovementTowardPlayer()
         {
-            if (rb == null || targetPlayer == null)
+            if (rb == null || !rb.simulated || targetPlayer == null)
             {
                 return;
             }

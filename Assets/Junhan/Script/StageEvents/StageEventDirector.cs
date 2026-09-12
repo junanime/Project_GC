@@ -261,7 +261,9 @@ namespace Vampire
 
         private void Update()
         {
-            if (levelManager == null)
+            // 이벤트 시간표와 별도 생성 타이머를 함께 보존합니다.
+            // 골드 러시 값은 유지하고, MiniStage 중 사용 여부는 소비 지점에서 차단합니다.
+            if (MiniStageRuntimeState.IsInsideMiniStage || levelManager == null)
             {
                 return;
             }

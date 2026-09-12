@@ -40,6 +40,8 @@ namespace Vampire
             elapsed = 0f;
             configured = true;
 
+            lastDamageTimeByTarget.Clear();
+
             ApplyColor(color);
         }
 
@@ -67,12 +69,14 @@ namespace Vampire
             elapsed = 0f;
             configured = true;
 
+            lastDamageTimeByTarget.Clear();
+
             ApplyColor(color);
         }
 
         private void Update()
         {
-            if (!configured)
+            if (!configured || MiniStageRuntimeState.IsInsideMiniStage)
             {
                 return;
             }
@@ -84,7 +88,7 @@ namespace Vampire
 
         private void OnTriggerStay2D(Collider2D other)
         {
-            if (!configured || visualOnly)
+            if (!configured || visualOnly || MiniStageRuntimeState.IsInsideMiniStage)
             {
                 return;
             }
@@ -116,7 +120,7 @@ namespace Vampire
 
             if (lastDamageTimeByTarget.TryGetValue(damageableBehaviour, out float lastDamageTime))
             {
-                if (Time.time - lastDamageTime < damageCooldownPerTarget)
+                if (elapsed - lastDamageTime < damageCooldownPerTarget)
                 {
                     return;
                 }
@@ -130,7 +134,8 @@ namespace Vampire
             }
 
             damageable.TakeDamage(damage, knockback, false);
-            lastDamageTimeByTarget[damageableBehaviour] = Time.time;
+            // 재피격 간격도 이동과 같은 필드 시계를 사용합니다.
+            lastDamageTimeByTarget[damageableBehaviour] = elapsed;
         }
 
         private MonoBehaviour FindDamageableBehaviour(Collider2D collider)

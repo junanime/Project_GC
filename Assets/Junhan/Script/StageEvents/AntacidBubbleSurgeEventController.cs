@@ -116,7 +116,7 @@ namespace Vampire
 
         private void Update()
         {
-            if (!eventEnabled || finished || levelManager == null)
+            if (MiniStageRuntimeState.IsInsideMiniStage || !eventEnabled || finished || levelManager == null)
             {
                 return;
             }
@@ -443,6 +443,11 @@ namespace Vampire
         [ContextMenu("Test Start Antacid Bubble Surge Now")]
         private void TestStartNow()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             if (started && !finished)
             {
                 return;

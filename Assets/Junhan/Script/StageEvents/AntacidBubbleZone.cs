@@ -70,6 +70,11 @@ namespace Vampire
 
         private void Update()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             age += Time.deltaTime;
 
             if (spriteRenderer != null)
@@ -92,6 +97,11 @@ namespace Vampire
 
         public bool ContainsPoint(Vector2 point)
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return false;
+            }
+
             float effectiveRadius = Mathf.Max(0.1f, radius);
             return Vector2.Distance(transform.position, point) <= effectiveRadius;
         }
