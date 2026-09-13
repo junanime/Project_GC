@@ -304,7 +304,9 @@ namespace Vampire
         {
             if (sourceCharacter == null ||
                 entityManager == null ||
-                sourceNeedleAbility == null || sourceCharacter.CurrentHealth <= 0f || !sourceCharacter.gameObject.activeInHierarchy)
+                sourceNeedleAbility == null ||
+                sourceCharacter.CurrentHealth <= 0f ||
+                !sourceCharacter.gameObject.activeInHierarchy)
             {
                 Destroy(gameObject);
 
@@ -962,7 +964,7 @@ namespace Vampire
             if (damageable == null ||
                 targetComponent == null ||
                 sourceCharacter == null ||
-                sourceNeedleAbility == null || sourceCharacter.CurrentHealth <= 0f || !sourceCharacter.gameObject.activeInHierarchy)
+                sourceNeedleAbility == null)
             {
                 return;
             }
