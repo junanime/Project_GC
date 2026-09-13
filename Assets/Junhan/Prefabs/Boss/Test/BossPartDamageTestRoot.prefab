@@ -2613,6 +2613,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7420338502666811484}
+  - component: {fileID: 348927542507964395}
   m_Layer: 6
   m_Name: PartsRoot
   m_TagString: Untagged
@@ -2647,6 +2648,25 @@ Transform:
   - {fileID: 795050451767656494}
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &348927542507964395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4903031752004193839}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fa74030edbd7e94a8febb08dcb3533e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  verticalAmplitude: 0.08
+  verticalFrequency: 1.2
+  rotationAmplitude: 2
+  rotationFrequency: 0.8
+  randomizePhase: 1
+  useUnscaledTime: 0
 --- !u!1 &5041699929294152883
 GameObject:
   m_ObjectHideFlags: 0
@@ -2726,7 +2746,7 @@ MonoBehaviour:
   minPlayerVelocityForPrediction: 0.1
   forceBasicBulletSortingOrder: 1
   basicBulletSortingOrder: 500
-  enableMovement: 0
+  enableMovement: 1
   baseMoveSpeed: 0.8
   stopDistanceFromPlayer: 3
   moveWhileUsingPattern: 1
@@ -3002,6 +3022,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6459966704605984215}
   - component: {fileID: 9184241988985730918}
+  - component: {fileID: 2252318116959696309}
   m_Layer: 0
   m_Name: Skills
   m_TagString: Untagged
@@ -3064,6 +3085,68 @@ MonoBehaviour:
   forceBulletSortingOrder: 1
   bulletSortingOrder: 550
   debugShot: 0
+--- !u!114 &2252318116959696309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538438574821719249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b923e28faba368542b3af3c6a397e39d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patternName: "\uB3CC\uC9C4"
+  cooldown: 3
+  coreTraits: 3
+  coreMatchMode: 1
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 6202724119696504209}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  combinationCore: {fileID: 4885141670365998839}
+  warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
+  warningTime: 0.9
+  warningWidth: 1.5
+  warningColor: {r: 1, g: 0.023867305, b: 0, a: 0.45}
+  chargeCountPhase1: 1
+  chargeCountPhase2: 2
+  chargeCountPhase3: 3
+  betweenChargeDelayPhase2: 0.5
+  betweenChargeDelayPhase3: 0.2
+  reAimBeforeEachCharge: 1
+  zigzagAngle: 12
+  randomizeFirstZigzagSide: 1
+  chargeDistancePhase1: 6
+  chargeDistancePhase2: 8
+  chargeDistancePhase3: 9
+  chargeSpeedPhase1: 14
+  chargeSpeedPhase2: 18
+  chargeSpeedPhase3: 20
+  chargeDamagePhase1: 15
+  chargeDamagePhase2: 25
+  chargeDamagePhase3: 30
+  endLag: 0.4
+  hitboxSize: {x: 1.6, y: 1.6}
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  canHitPlayerOncePerCharge: 1
+  ignorePlayerPhysicsCollisionDuringCharge: 1
+  forceExactChargeMovement: 1
+  showDebugHitbox: 0
+  enableEmbeddedMissileCrash: 1
+  embeddedMissileLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  embeddedMissileBossDamageMultiplier: 2
+  embeddedMissileCrashPadding: 0.1
+  embeddedMissileGroggyDuration: 2
+  coreDamageStateBridge: {fileID: 0}
+  debugCharge: 0
 --- !u!1 &5904360231514699186
 GameObject:
   m_ObjectHideFlags: 0
