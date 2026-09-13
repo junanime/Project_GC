@@ -113,6 +113,7 @@ namespace Vampire
         private void FireRadialNeedles(Vector3 origin)
         {
             int finalNeedleCount = GetFinalNeedleCount();
+            SyringeAugmentVfx.Play("AcupunctureFormation", origin, SyringeAugmentVfx.FindTarget(sourceCharacter));
 
             if (debugLog)
             {

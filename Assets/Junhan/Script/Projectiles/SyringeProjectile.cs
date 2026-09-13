@@ -16,6 +16,9 @@ namespace Vampire
         }
 
         private SyringeSpecialRuntime specials;
+        [SerializeField, Tooltip("Minimum seconds between homing trail pulses.")]
+        private float homingVfxInterval = 0.16f;
+        private float nextHomingVfxTime;
         private int remainingPierces;
         // 일반 몬스터용 기존 Pierce.
 
@@ -116,6 +119,7 @@ namespace Vampire
             base.Setup(projectileIndex, position, damage, knockback, speed, targetLayer);
 
             specials = default;
+            nextHomingVfxTime = 0f;
             remainingPierces = 0;
             remainingBossPierces = 0;
 
@@ -334,6 +338,7 @@ namespace Vampire
                 return;
             }
 
+            Vector2 previousDirection = direction;
             Vector2 desiredDirection =
                 ((Vector2)target.position - (Vector2)transform.position).normalized;
 
@@ -342,6 +347,11 @@ namespace Vampire
                 desiredDirection,
                 specials.homingLerpSpeed * Time.deltaTime
             ).normalized;
+            if (Time.deltaTime > 0f && Vector2.Angle(previousDirection, desiredDirection) > 1f && Time.time >= nextHomingVfxTime)
+            {
+                SyringeAugmentVfx.PlayDirected("Homing", transform.position, direction, projectileSpriteRenderer);
+                nextHomingVfxTime = Time.time + Mathf.Max(0.08f, homingVfxInterval);
+            }
         }
 
         private void ApplyVisualRotationToDirection(Vector2 moveDirection)
@@ -692,7 +702,7 @@ namespace Vampire
                 healAmount *= specials.mosquitoBossHealMultiplier;
             }
 
-            TryHealPlayer(healAmount);
+            TryHealPlayer(healAmount, damageableComponent);
         }
 
         private bool IsBossLikeTarget(Component damageableComponent)
@@ -713,7 +723,7 @@ namespace Vampire
             return objectName.Contains("Boss") || objectName.Contains("보스");
         }
 
-        private void TryHealPlayer(float healAmount)
+        private void TryHealPlayer(float healAmount, Component impactSource)
         {
             if (playerCharacter == null || healAmount <= 0f) return;
 
@@ -744,6 +754,7 @@ namespace Vampire
             }
 
             healMethod.Invoke(playerCharacter, new object[] { healAmount });
+            SyringeAugmentVfx.PlayAbsorption(impactSource, playerCharacter);
         }
 
         // =====================================================================
@@ -1059,6 +1070,7 @@ namespace Vampire
             if (canPierce)
             {
                 remainingPierces--;
+                SyringeAugmentVfx.PlayDirected("Pierce", transform.position, direction, projectileSpriteRenderer);
 
                 if (col != null)
                 {
@@ -1206,6 +1218,7 @@ namespace Vampire
 
             returnCurveTimer = 0f;
             flightState = NeedleFlightState.ReturnCurveToPlayer;
+            SyringeAugmentVfx.PlayDirected("ReturnNeedle", transform.position, returnForwardDirection, projectileSpriteRenderer);
         }
 
         private void MoveReturnCurveToPlayer()
@@ -1302,12 +1315,16 @@ namespace Vampire
 
             bool isCritical = false;
 
+            float damageBeforePressure = rawDamage;
             // 압력침:
             // 이동 거리에 따라 기본 피해 증가.
             rawDamage =
                 ApplyPressureDamageIfNeeded(
                     rawDamage
                 );
+
+            if (specials.pressureEnabled && rawDamage > damageBeforePressure)
+                SyringeAugmentVfx.Play("PressureNeedle", transform.position, SyringeAugmentVfx.FindTarget(damageableComponent));
 
             float finalDamage =
                 rawDamage;

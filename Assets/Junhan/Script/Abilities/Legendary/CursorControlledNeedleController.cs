@@ -1112,7 +1112,7 @@ float maxHitRadiusBonusFromSpecial)
                 healAmount *= runtime.mosquitoBossHealMultiplier;
             }
 
-            TryHealPlayer(healAmount);
+            TryHealPlayer(healAmount, damageableComponent);
         }
 
         private bool IsBossLikeTarget(Component damageableComponent)
@@ -1143,7 +1143,7 @@ float maxHitRadiusBonusFromSpecial)
             return objectName.Contains("Boss") || objectName.Contains("보스");
         }
 
-        private void TryHealPlayer(float healAmount)
+        private void TryHealPlayer(float healAmount, Component impactSource)
         {
             if (sourceCharacter == null || healAmount <= 0f)
             {
@@ -1192,6 +1192,7 @@ float maxHitRadiusBonusFromSpecial)
             }
 
             healMethod.Invoke(sourceCharacter, new object[] { healAmount });
+            SyringeAugmentVfx.PlayAbsorption(impactSource, sourceCharacter);
         }
 
         private void ApplyExplosion(GameObject originalTarget, SyringeSpecialRuntime runtime)

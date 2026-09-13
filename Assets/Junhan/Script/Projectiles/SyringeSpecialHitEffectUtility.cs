@@ -474,10 +474,10 @@ namespace Vampire
                 healAmount *= runtime.mosquitoBossHealMultiplier;
             }
 
-            TryHealPlayer(sourceCharacter, healAmount);
+            TryHealPlayer(sourceCharacter, healAmount, damageableComponent);
         }
 
-        private static void TryHealPlayer(Character sourceCharacter, float healAmount)
+        private static void TryHealPlayer(Character sourceCharacter, float healAmount, Component impactSource)
         {
             if (sourceCharacter == null || healAmount <= 0f)
             {
@@ -526,6 +526,7 @@ namespace Vampire
             }
 
             healMethod.Invoke(sourceCharacter, new object[] { healAmount });
+            SyringeAugmentVfx.PlayAbsorption(impactSource, sourceCharacter);
         }
 
         private static void ApplyExplosion(
