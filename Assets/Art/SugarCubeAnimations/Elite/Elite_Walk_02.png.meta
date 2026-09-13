@@ -25,7 +25,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 9
   spritePivot: {x: 0.5, y: 0}
-  spritePixelsToUnits: 120.0
+  spritePixelsToUnits: 320.0
   alphaUsage: 1
   alphaIsTransparency: 1
   textureType: 8
