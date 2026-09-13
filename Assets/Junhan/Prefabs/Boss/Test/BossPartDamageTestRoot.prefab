@@ -28,8 +28,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2294504552883589553}
+  m_Children: []
   m_Father: {fileID: 2917293784945834702}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &113540149490856718
@@ -65,6 +64,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8540085493100490359}
+  - {fileID: 1412369082391224689}
+  - {fileID: 3568539660419170415}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2129110465740694476
@@ -187,6 +188,8 @@ MonoBehaviour:
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
   skillPool:
+  - {fileID: 9219851296843236936}
+  - {fileID: 7066270716999092120}
   - {fileID: 5820505102720108475}
 --- !u!1 &263277817357249273
 GameObject:
@@ -216,8 +219,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 5347791370697970624}
+  m_Children: []
   m_Father: {fileID: 7986375170990739833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &534203677269753138
@@ -259,7 +261,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534203677269753138}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2b5aad634526a2479a68c6f3481ebf9, type: 3}
   m_Name: 
@@ -488,8 +490,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: YellowGreenColaHeal
   cooldown: 40
-  coreTraits: 2
-  coreMatchMode: 0
+  coreTraits: 18
+  coreMatchMode: 1
   autoFindOwnerPartFromParent: 0
   ownerPart: {fileID: 4885141670365998839}
   additionalRequiredParts: []
@@ -727,7 +729,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &69445405548228240
 Transform:
   m_ObjectHideFlags: 0
@@ -741,7 +743,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5700942751532892869}
+  m_Father: {fileID: 9050054974222421587}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2407376650872729076
 MonoBehaviour:
@@ -760,7 +762,7 @@ MonoBehaviour:
   coreTraits: 2
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 2932483004890724307}
+  ownerPart: {fileID: 4885141670365998839}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -1192,8 +1194,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1597109577630589099}
+  m_Children: []
   m_Father: {fileID: 2467251893734352727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2142986565384266587
@@ -1341,7 +1342,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &3568539660419170415
 Transform:
   m_ObjectHideFlags: 0
@@ -1355,7 +1356,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5605262267314009720}
+  m_Father: {fileID: 712223532637269082}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7066270716999092120
 MonoBehaviour:
@@ -1371,10 +1372,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: Absorb Minion Heal
   cooldown: 45
-  coreTraits: 4
+  coreTraits: 16
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 1195880323785226795}
+  ownerPart: {fileID: 7074903920464498731}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -1524,9 +1525,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 7588315767169020126}
-  - {fileID: 69445405548228240}
+  m_Children: []
   m_Father: {fileID: 5061847562344212676}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2540274524649961072
@@ -1626,7 +1625,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2294504552883589553
 Transform:
   m_ObjectHideFlags: 0
@@ -1640,7 +1639,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2231097270297896435}
+  m_Father: {fileID: 3906345431295861327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3174429195430321517
 MonoBehaviour:
@@ -1659,7 +1658,7 @@ MonoBehaviour:
   coreTraits: 1
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 0}
+  ownerPart: {fileID: 4346352809294327159}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -1860,7 +1859,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1966213166764689107
 Transform:
   m_ObjectHideFlags: 0
@@ -1874,7 +1873,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5605262267314009720}
+  m_Father: {fileID: 9050054974222421587}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1720767624745351738
 MonoBehaviour:
@@ -1890,10 +1889,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: Caffeine Injector
   cooldown: 35
-  coreTraits: -1
-  coreMatchMode: 1
+  coreTraits: 2
+  coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 1195880323785226795}
+  ownerPart: {fileID: 4885141670365998839}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -1906,7 +1905,7 @@ MonoBehaviour:
   spawnAngleOffset: 90
   parentInjectorsToBoss: 1
   challengeDuration: 15
-  blockOtherPatternsDuringChallenge: 0
+  blockOtherPatternsDuringChallenge: 1
   patternCastSeconds: 0.25
   successGroggyDuration: 3.5
   coreDamageStateBridge: {fileID: 6901034237014711775}
@@ -1952,7 +1951,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7588315767169020126
 Transform:
   m_ObjectHideFlags: 0
@@ -1966,7 +1965,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5700942751532892869}
+  m_Father: {fileID: 795050451767656494}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2388886299359203738
 MonoBehaviour:
@@ -1985,7 +1984,7 @@ MonoBehaviour:
   coreTraits: 4
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 2932483004890724307}
+  ownerPart: {fileID: 891109568445951041}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -2094,7 +2093,7 @@ Transform:
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6459966704605984215}
+  - {fileID: 5347791370697970624}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1512832047151083172
@@ -2217,6 +2216,7 @@ MonoBehaviour:
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
   skillPool:
+  - {fileID: 1591953743476179956}
   - {fileID: 9184241988985730918}
 --- !u!1 &3303437612744755116
 GameObject:
@@ -2234,7 +2234,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5347791370697970624
 Transform:
   m_ObjectHideFlags: 0
@@ -2248,7 +2248,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2971196653146443672}
+  m_Father: {fileID: 5180640164166070425}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1591953743476179956
 MonoBehaviour:
@@ -2264,10 +2264,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: 
   cooldown: 3
-  coreTraits: 4
+  coreTraits: 8
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 2980815833220635940}
+  ownerPart: {fileID: 6202724119696504209}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -2578,7 +2578,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: GreenRadial
   cooldown: 3
-  coreTraits: 4
+  coreTraits: 16
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 0
   ownerPart: {fileID: 7074903920464498731}
@@ -2819,6 +2819,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 318cbbf73d61721489f99e9557ce1dd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  combinationSlots:
+  - label: Red + Orange
+    primary: {fileID: 4346352809294327159}
+    secondary: {fileID: 6202724119696504209}
+    pattern: {fileID: 2252318116959696309}
+  - label: Red + Yellow
+    primary: {fileID: 4346352809294327159}
+    secondary: {fileID: 4885141670365998839}
+    pattern: {fileID: 0}
+  - label: Red + Green
+    primary: {fileID: 4346352809294327159}
+    secondary: {fileID: 7074903920464498731}
+    pattern: {fileID: 0}
+  - label: Red + Blue
+    primary: {fileID: 4346352809294327159}
+    secondary: {fileID: 891109568445951041}
+    pattern: {fileID: 0}
+  - label: Orange + Yellow
+    primary: {fileID: 6202724119696504209}
+    secondary: {fileID: 4885141670365998839}
+    pattern: {fileID: 0}
+  - label: Orange + Green
+    primary: {fileID: 6202724119696504209}
+    secondary: {fileID: 7074903920464498731}
+    pattern: {fileID: 0}
+  - label: Orange + Blue
+    primary: {fileID: 6202724119696504209}
+    secondary: {fileID: 891109568445951041}
+    pattern: {fileID: 0}
+  - label: Yellow + Green
+    primary: {fileID: 4885141670365998839}
+    secondary: {fileID: 7074903920464498731}
+    pattern: {fileID: 1005179381146040194}
+  - label: Yellow + Blue
+    primary: {fileID: 4885141670365998839}
+    secondary: {fileID: 891109568445951041}
+    pattern: {fileID: 0}
+  - label: Green + Blue
+    primary: {fileID: 7074903920464498731}
+    secondary: {fileID: 891109568445951041}
+    pattern: {fileID: 0}
   healthRoot: {fileID: 8798942031376210255}
   basicAttackOwner: {fileID: 4346352809294327159}
   activePrimary: {fileID: 0}
@@ -2888,6 +2929,8 @@ Transform:
   m_Children:
   - {fileID: 4128365554187134289}
   - {fileID: 7020443938697450112}
+  - {fileID: 69445405548228240}
+  - {fileID: 1966213166764689107}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7729777068822595769
@@ -3010,6 +3053,8 @@ MonoBehaviour:
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
   skillPool:
+  - {fileID: 2407376650872729076}
+  - {fileID: 1720767624745351738}
   - {fileID: 7511844744557738623}
   - {fileID: 1005179381146040194}
 --- !u!1 &5538438574821719249
@@ -3043,7 +3088,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5180640164166070425}
+  m_Father: {fileID: 3906345431295861327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9184241988985730918
 MonoBehaviour:
@@ -3059,7 +3104,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: OrangeRadial
   cooldown: 3
-  coreTraits: 4
+  coreTraits: 8
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 0
   ownerPart: {fileID: 6202724119696504209}
@@ -3099,15 +3144,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uB3CC\uC9C4"
   cooldown: 3
-  coreTraits: 3
+  coreTraits: 9
   coreMatchMode: 1
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 6202724119696504209}
+  ownerPart: {fileID: 4346352809294327159}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
-  combinationCore: {fileID: 4885141670365998839}
+  combinationCore: {fileID: 6202724119696504209}
   warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
   warningTime: 0.9
   warningWidth: 1.5
@@ -3180,6 +3225,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3986104144375800599}
+  - {fileID: 7588315767169020126}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4145483996531824860
@@ -3302,6 +3348,7 @@ MonoBehaviour:
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
   skillPool:
+  - {fileID: 2388886299359203738}
   - {fileID: 5443519271201448822}
 --- !u!1 &5925274145856348176
 GameObject:
@@ -3455,10 +3502,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1412369082391224689}
-  - {fileID: 3568539660419170415}
-  - {fileID: 1966213166764689107}
+  m_Children: []
   m_Father: {fileID: 8736929898052857229}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6401697086027491985
@@ -3504,6 +3548,7 @@ Transform:
   - {fileID: 3840280864699902805}
   - {fileID: 7420338502666811484}
   - {fileID: 4663564927574019808}
+  - {fileID: 753547586940043798}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &1903366919834822943
@@ -3638,7 +3683,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1597109577630589099
 Transform:
   m_ObjectHideFlags: 0
@@ -3652,7 +3697,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 4663564927574019808}
+  m_Father: {fileID: 3906345431295861327}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &3928037255374213534
 MonoBehaviour:
@@ -3671,10 +3716,8 @@ MonoBehaviour:
   coreTraits: 1
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 0
-  ownerPart: {fileID: 0}
-  additionalRequiredParts:
-  - {fileID: 8651513597194303065}
-  - {fileID: 1677727757487493342}
+  ownerPart: {fileID: 4346352809294327159}
+  additionalRequiredParts: []
   requireAllAdditionalParts: 0
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
@@ -3963,6 +4006,106 @@ MonoBehaviour:
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
   skillPool: []
+--- !u!1 &8140237983363585484
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 753547586940043798}
+  - component: {fileID: 9198881778672266545}
+  - component: {fileID: 5717568496540496654}
+  m_Layer: 0
+  m_Name: UFOGroundShadow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &753547586940043798
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8140237983363585484}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1.05, z: 0}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2467251893734352727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &9198881778672266545
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8140237983363585484}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: -20
+  m_Sprite: {fileID: 21300000, guid: 0a75d06996c71b34b89093528019cef7, type: 3}
+  m_Color: {r: 0.12, g: 0.1, b: 0.16, a: 0.45}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 4.8, y: 1.8}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!114 &5717568496540496654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8140237983363585484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaefae6fca6dac2419636725e5df02b0, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  healthRoot: {fileID: 8798942031376210255}
+  radius: {x: 2.4, y: 0.9}
+  shadowColor: {r: 0.12, g: 0.1, b: 0.16, a: 0.45}
 --- !u!1 &8191717723223359474
 GameObject:
   m_ObjectHideFlags: 0
@@ -4012,7 +4155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1412369082391224689
 Transform:
   m_ObjectHideFlags: 0
@@ -4026,7 +4169,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5605262267314009720}
+  m_Father: {fileID: 712223532637269082}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9219851296843236936
 MonoBehaviour:
@@ -4042,10 +4185,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: Cola Bottle Heal
   cooldown: 40
-  coreTraits: 2
+  coreTraits: 16
   coreMatchMode: 0
   autoFindOwnerPartFromParent: 1
-  ownerPart: {fileID: 1195880323785226795}
+  ownerPart: {fileID: 7074903920464498731}
   additionalRequiredParts: []
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
@@ -4061,7 +4204,7 @@ MonoBehaviour:
   healTickInterval: 0.25
   maxPatternDuration: 0
   makeBossInvincibleWhileBottleExists: 1
-  allowOtherPatternsWhileBottleExists: 1
+  allowOtherPatternsWhileBottleExists: 0
   bottleSpawnVfxPrefab: {fileID: 0}
   bottleDestroyVfxPrefab: {fileID: 0}
   bossHealVfxPrefab: {fileID: 0}
@@ -4103,6 +4246,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3286357660152499774}
+  - {fileID: 2294504552883589553}
+  - {fileID: 6459966704605984215}
+  - {fileID: 1597109577630589099}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1367593545811312600
@@ -4225,7 +4371,10 @@ MonoBehaviour:
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
   skillPool:
+  - {fileID: 3174429195430321517}
   - {fileID: 8269633066815087445}
+  - {fileID: 2252318116959696309}
+  - {fileID: 3928037255374213534}
 --- !u!1 &8476177023597971301
 GameObject:
   m_ObjectHideFlags: 0
@@ -4265,7 +4414,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8476177023597971301}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 505e48272331aa243a3bf1cb40fb3149, type: 3}
   m_Name: 

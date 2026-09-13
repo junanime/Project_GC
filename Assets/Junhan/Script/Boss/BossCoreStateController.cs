@@ -282,7 +282,9 @@ namespace Vampire
             {
                 BossCoreTrait.Red,
                 BossCoreTrait.Yellow,
-                BossCoreTrait.Blue
+                BossCoreTrait.Blue,
+                BossCoreTrait.Orange,
+                BossCoreTrait.Green
             };
 
             return GetRandomDifferent(candidates, exclude);
@@ -290,14 +292,12 @@ namespace Vampire
 
         private BossCoreTrait GetRandomDual(BossCoreTrait exclude)
         {
-            BossCoreTrait[] candidates =
-            {
-                BossCoreTrait.Red | BossCoreTrait.Yellow,
-                BossCoreTrait.Red | BossCoreTrait.Blue,
-                BossCoreTrait.Yellow | BossCoreTrait.Blue
-            };
-
-            return GetRandomDifferent(candidates, exclude);
+            BossCoreTrait[] singles = { BossCoreTrait.Red, BossCoreTrait.Orange, BossCoreTrait.Yellow, BossCoreTrait.Green, BossCoreTrait.Blue };
+            var candidates = new System.Collections.Generic.List<BossCoreTrait>();
+            for (int a = 0; a < singles.Length; ++a)
+                for (int b = a + 1; b < singles.Length; ++b)
+                    candidates.Add(singles[a] | singles[b]);
+            return GetRandomDifferent(candidates.ToArray(), exclude);
         }
 
         private BossCoreTrait GetRandomRainbowHighlight()
@@ -307,9 +307,12 @@ namespace Vampire
                 BossCoreTrait.Red,
                 BossCoreTrait.Yellow,
                 BossCoreTrait.Blue,
+                BossCoreTrait.Red | BossCoreTrait.Orange,
                 BossCoreTrait.Red | BossCoreTrait.Yellow,
                 BossCoreTrait.Red | BossCoreTrait.Blue,
-                BossCoreTrait.Yellow | BossCoreTrait.Blue
+                BossCoreTrait.Yellow | BossCoreTrait.Blue,
+                BossCoreTrait.Orange,
+                BossCoreTrait.Green
             };
 
             return candidates[UnityEngine.Random.Range(0, candidates.Length)];

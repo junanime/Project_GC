@@ -757,6 +757,7 @@ namespace Vampire
 
         private void ResolveCoreStateController()
         {
+            if (IsFiveCoreBoss) return;
             if (coreStateController != null)
             {
                 return;
@@ -797,6 +798,7 @@ namespace Vampire
 
         private void InitializeCoreState()
         {
+            if (IsFiveCoreBoss) return;
             ResolveCoreStateController();
 
             if (coreStateController == null)
@@ -835,6 +837,10 @@ namespace Vampire
                             patterns.Add(pattern);
                     }
                 }
+                if (UsesFiveCoreSkills)
+                    foreach (var slot in fiveCoreSkills.CombinationSlots)
+                        if (slot != null && slot.pattern != null && !patterns.Contains(slot.pattern))
+                            patterns.Add(slot.pattern);
                 return;
             }
             if (!autoCollectPatternsFromChildren &&

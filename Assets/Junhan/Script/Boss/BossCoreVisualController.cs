@@ -2,25 +2,7 @@ using UnityEngine;
 
 namespace Vampire
 {
-    /// <summary>
-    /// BossCoreStateController의 현재 Core 상태에 맞춰
-    /// 시각용 Core Prefab만 생성/교체합니다.
-    ///
-    /// 중요:
-    /// - 실제 Core HP / Collider / BossPartDamageTestPart는 교체하지 않습니다.
-    /// - 이 컴포넌트는 외형만 담당합니다.
-    ///
-    /// Phase 1:
-    /// Red / Yellow / Blue
-    ///
-    /// Phase 2:
-    /// Orange = Red + Yellow
-    /// Purple = Red + Blue
-    /// Green = Yellow + Blue
-    ///
-    /// Phase 3:
-    /// Rainbow = Red + Yellow + Blue
-    /// </summary>
+    /// <summary>Visual prefabs for independent cores. Multi-core masks never synthesize another color.</summary>
     [DisallowMultipleComponent]
     public class BossCoreVisualController : MonoBehaviour
     {
@@ -63,19 +45,19 @@ namespace Vampire
 
         [Tooltip(
             "Orange Core 상태에서 표시할 Prefab입니다. " +
-            "Orange는 Red + Yellow Trait입니다.")]
+            "Orange is an independent core.")]
         [SerializeField]
         private GameObject orangeCorePrefab;
 
         [Tooltip(
             "Purple Core 상태에서 표시할 Prefab입니다. " +
-            "Purple은 Red + Blue Trait입니다.")]
+            "Reserved legacy reference; not used for color mixing.")]
         [SerializeField]
         private GameObject purpleCorePrefab;
 
         [Tooltip(
             "Green Core 상태에서 표시할 Prefab입니다. " +
-            "Green은 Yellow + Blue Trait입니다.")]
+            "Green is an independent core.")]
         [SerializeField]
         private GameObject greenCorePrefab;
 
@@ -264,53 +246,24 @@ namespace Vampire
             currentVisualMode = mode;
             currentVisualTraits = traits;
 
-            GameObject targetPrefab =
-                GetPrefabFor(mode, traits);
-
             ClearCurrentVisual();
-
-            if (targetPrefab == null)
+            Transform parent = coreVisualRoot != null ? coreVisualRoot : transform;
+            currentVisualInstance = new GameObject("Active Core Visuals");
+            currentVisualInstance.transform.SetParent(parent, false);
+            BossCoreTrait[] singles = { BossCoreTrait.Red, BossCoreTrait.Orange, BossCoreTrait.Yellow, BossCoreTrait.Green, BossCoreTrait.Blue };
+            int count = 0;
+            foreach (var single in singles) if ((traits & single) != 0) count++;
+            int index = 0;
+            foreach (var single in singles)
             {
-                Debug.LogWarning(
-                    "[BossCoreVisual] " +
-                    "현재 Core 상태에 대응하는 Prefab이 없습니다. " +
-                    $"Mode={mode}, Traits={traits}",
-                    this);
-
-                return;
-            }
-
-            Transform parent =
-                coreVisualRoot != null
-                    ? coreVisualRoot
-                    : transform;
-
-            currentVisualInstance =
-                Instantiate(
-                    targetPrefab,
-                    parent);
-
-            currentVisualInstance.transform.localPosition =
-                Vector3.zero;
-
-            currentVisualInstance.transform.localRotation =
-                Quaternion.identity;
-
-            // Scale은 Prefab 제작자가 설정한 값을 유지합니다.
-            currentVisualInstance.name =
-                $"{targetPrefab.name} (Runtime)";
-
-            if (debugLog)
-            {
-                Debug.Log(
-                    "[BossCoreVisual] Core Visual 변경 | " +
-                    $"Mode={mode}, " +
-                    $"Traits={traits}, " +
-                    $"Prefab={targetPrefab.name}",
-                    this);
+                if ((traits & single) == 0) continue;
+                GameObject prefab = GetPrefabFor(BossCoreMode.Single, single);
+                if (prefab == null) continue;
+                var instance = Instantiate(prefab, currentVisualInstance.transform);
+                instance.transform.localPosition = new Vector3((index++ - (count - 1) * 0.5f) * 0.8f, 0, 0);
+                instance.transform.localRotation = Quaternion.identity;
             }
         }
-
 
         private GameObject GetPrefabFor(
             BossCoreMode mode,
@@ -339,30 +292,8 @@ namespace Vampire
                 return blueCorePrefab;
             }
 
-            // Phase 2 - Orange
-            if (traits ==
-                (BossCoreTrait.Red |
-                 BossCoreTrait.Yellow))
-            {
-                return orangeCorePrefab;
-            }
-
-            // Phase 2 - Purple
-            if (traits ==
-                (BossCoreTrait.Red |
-                 BossCoreTrait.Blue))
-            {
-                return purpleCorePrefab;
-            }
-
-            // Phase 2 - Green
-            if (traits ==
-                (BossCoreTrait.Yellow |
-                 BossCoreTrait.Blue))
-            {
-                return greenCorePrefab;
-            }
-
+            if (traits == BossCoreTrait.Orange) return orangeCorePrefab;
+            if (traits == BossCoreTrait.Green) return greenCorePrefab;
             return null;
         }
 

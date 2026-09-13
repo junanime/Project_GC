@@ -29,8 +29,8 @@ namespace Vampire
         [Header("Core Pattern Rule")]
         [Tooltip(
             "이 패턴을 사용할 수 있는 코어 속성입니다. " +
-            "Red / Yellow / Blue 중 필요한 속성을 체크합니다. " +
-            "듀얼코어에서는 현재 두 속성 중 하나라도 맞으면 해당 싱글코어 패턴이 사용됩니다.")]
+            "Red / Orange / Yellow / Green / Blue는 독립 코어입니다. " +
+            "UFO 합체기는 Owner Part와 Combination Core 또는 Combination Slots에 요구 코어를 등록합니다.")]
         [SerializeField]
         private BossCoreTrait coreTraits = BossCoreTrait.All;
 

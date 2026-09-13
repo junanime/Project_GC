@@ -1039,6 +1039,12 @@ namespace Vampire
             CleanupRuntime();
         }
 
+        public override void CancelExecution()
+        {
+            CleanupRuntime();
+            base.CancelExecution();
+        }
+
         private void OnDestroy()
         {
             CleanupRuntime();

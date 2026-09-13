@@ -2,20 +2,7 @@ using System;
 
 namespace Vampire
 {
-    /// <summary>
-    /// 크리피커피 보스 코어가 현재 가지고 있는 기본 속성입니다.
-    ///
-    /// Single Core:
-    /// - Red / Yellow / Blue 중 하나
-    ///
-    /// Dual Core:
-    /// - Red | Yellow = Orange
-    /// - Red | Blue = Purple
-    /// - Yellow | Blue = Green
-    ///
-    /// Rainbow Core:
-    /// - All
-    /// </summary>
+    /// <summary>Independent core flags; a bitwise union means simultaneous activation, never color mixing.</summary>
     [Flags]
     public enum BossCoreTrait
     {
@@ -23,7 +10,9 @@ namespace Vampire
         Red = 1 << 0,
         Yellow = 1 << 1,
         Blue = 1 << 2,
-        All = Red | Yellow | Blue
+        Orange = 1 << 3,
+        Green = 1 << 4,
+        All = Red | Orange | Yellow | Green | Blue
     }
 
     /// <summary>
@@ -89,14 +78,15 @@ namespace Vampire
         {
             return traits == BossCoreTrait.Red ||
                    traits == BossCoreTrait.Yellow ||
-                   traits == BossCoreTrait.Blue;
+                   traits == BossCoreTrait.Blue || traits == BossCoreTrait.Orange || traits == BossCoreTrait.Green;
         }
 
         public static bool IsDual(BossCoreTrait traits)
         {
-            return traits == (BossCoreTrait.Red | BossCoreTrait.Yellow) ||
-                   traits == (BossCoreTrait.Red | BossCoreTrait.Blue) ||
-                   traits == (BossCoreTrait.Yellow | BossCoreTrait.Blue);
+            int bits = (int)traits;
+            int remaining = bits & (bits - 1);
+            return bits > 0 && (traits & ~BossCoreTrait.All) == 0 &&
+                remaining != 0 && (remaining & (remaining - 1)) == 0;
         }
     }
 }

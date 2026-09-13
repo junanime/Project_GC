@@ -402,6 +402,12 @@ namespace Vampire
             }
         }
 
+        public override void CancelExecution()
+        {
+            CleanupOnDisableOrDestroy();
+            base.CancelExecution();
+        }
+
         private void OnDisable()
         {
             CleanupOnDisableOrDestroy();

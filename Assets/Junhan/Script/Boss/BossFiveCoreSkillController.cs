@@ -7,6 +7,26 @@ namespace Vampire
     /// <summary>Independent UFO core pools; the existing boss owns timing and execution.</summary>
     public sealed class BossFiveCoreSkillController : MonoBehaviour
     {
+        [Serializable]
+        public sealed class CombinationSlot
+        {
+            public string label;
+            public BossPartDamageTestPart primary;
+            public BossPartDamageTestPart secondary;
+            [Tooltip("Leave empty until the combination Pattern script is implemented.")]
+            public BossPatternBase pattern;
+        }
+
+        [SerializeField] private CombinationSlot[] combinationSlots = new CombinationSlot[0];
+        public IReadOnlyList<CombinationSlot> CombinationSlots => combinationSlots;
+
+        private BossPartDamageTestPart RequiredSecondary(BossPatternBase pattern)
+        {
+            foreach (var slot in combinationSlots)
+                if (slot != null && slot.pattern == pattern && slot.primary == pattern.OwnerPart)
+                    return slot.secondary;
+            return pattern.CombinationCore;
+        }
         [Tooltip("The UFO health root with five distinct registered cores.")]
         [SerializeField] private BossPartDamageTestRootController healthRoot;
         [Tooltip("Owner of the UFO basic attack. Its destruction stops further basic shots.")]
@@ -26,8 +46,13 @@ namespace Vampire
         public bool CanSelect(BossPatternBase pattern, int phase)
         {
             if (pattern == null || !pattern.isActiveAndEnabled || !IsAlive(pattern.OwnerPart)) return false;
-            if (pattern.CombinationCore != null && (phase < 2 ||
-                pattern.CombinationCore == pattern.OwnerPart || !IsAlive(pattern.CombinationCore))) return false;
+            foreach (var slot in combinationSlots)
+                if (slot != null && slot.pattern == pattern && (slot.primary != pattern.OwnerPart ||
+                    slot.secondary == null || slot.secondary == slot.primary ||
+                    (pattern.CombinationCore != null && pattern.CombinationCore != slot.secondary))) return false;
+            var secondary = RequiredSecondary(pattern);
+            if (secondary != null && (phase < 2 ||
+                secondary == pattern.OwnerPart || !IsAlive(secondary))) return false;
             return pattern.CanUse();
         }
 
@@ -38,11 +63,15 @@ namespace Vampire
             if (IsConfigured)
                 foreach (var core in healthRoot.FiveCores)
                 {
-                    if (!IsAlive(core) || !seen.Add(core) || core.SkillPool == null) continue;
+                    if (!IsAlive(core) || !seen.Add(core)) continue;
                     var skills = new List<BossPatternBase>();
-                    foreach (var skill in core.SkillPool)
+                    foreach (var skill in core.SkillPool ?? Array.Empty<BossPatternBase>())
                         if (skill != null && skill.OwnerPart == core && CanSelect(skill, phase) && !skills.Contains(skill))
                             skills.Add(skill);
+                    foreach (var slot in combinationSlots)
+                        if (slot != null && slot.primary == core && slot.secondary != null &&
+                            slot.pattern != null && slot.pattern.OwnerPart == core &&
+                            CanSelect(slot.pattern, phase) && !skills.Contains(slot.pattern)) skills.Add(slot.pattern);
                     if (skills.Count > 0) available.Add(skills);
                 }
             if (available.Count == 0) return null;
@@ -57,7 +86,7 @@ namespace Vampire
             activePrimary = pattern.OwnerPart;
             if (phase >= 2)
             {
-                activeSecondary = pattern.CombinationCore;
+                activeSecondary = RequiredSecondary(pattern);
                 if (activeSecondary == null)
                 {
                     var others = new List<BossPartDamageTestPart>();
@@ -72,7 +101,7 @@ namespace Vampire
         public bool CanContinue(BossPatternBase pattern) => pattern != null && pattern.isActiveAndEnabled &&
             IsAlive(activePrimary) && activePrimary == pattern.OwnerPart &&
             (activeSecondary == null || IsAlive(activeSecondary)) &&
-            (pattern.CombinationCore == null || activeSecondary == pattern.CombinationCore);
+            (RequiredSecondary(pattern) == null || activeSecondary == RequiredSecondary(pattern));
 
         public void EndPattern() { activePrimary = null; activeSecondary = null; }
         private void OnDisable() { EndPattern(); }

@@ -238,6 +238,21 @@ namespace Vampire
             CleanupActiveWarning();
         }
 
+        public override void CancelExecution()
+        {
+            base.CancelExecution();
+            CleanupActiveWarning();
+            SetPlayerCollisionIgnore(false);
+            ClearGroggyAppliedByThisPattern();
+            if (bossController != null)
+            {
+                StopBossRigidbody();
+                bossController.SetSuppressContactDamage(false);
+                bossController.SetExternalMovementLock(false);
+            }
+            embeddedMissileCrashTriggered = false;
+        }
+
 
         private void OnDestroy()
         {
