@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 namespace Vampire
 {
@@ -7,6 +8,7 @@ namespace Vampire
     {
         [SerializeField] protected RectTransform barBackground, barFill;
         [SerializeField] protected UnityEvent onEmpty, onFull;
+        [SerializeField] private Image filledImage;
 
         protected float currentPoints, minPoints, maxPoints;
         protected bool clamp;
@@ -45,7 +47,16 @@ namespace Vampire
 
         public void UpdateDisplay()
         {
-            barFill.sizeDelta = new Vector2(barBackground.rect.width * (currentPoints - minPoints)/(maxPoints - minPoints), barFill.sizeDelta.y);
+            float range = maxPoints - minPoints;
+            float fraction = range > 0f ? Mathf.Clamp01((currentPoints - minPoints) / range) : 0f;
+            if (filledImage != null)
+            {
+                // Clip the liquid at full size so its pixels and highlights never stretch.
+                filledImage.fillAmount = fraction;
+                return;
+            }
+            if (barFill != null && barBackground != null)
+                barFill.sizeDelta = new Vector2(barBackground.rect.width * fraction, barFill.sizeDelta.y);
         }
 
         private void CheckPoints()

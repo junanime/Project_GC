@@ -540,6 +540,7 @@ namespace Vampire
                 return false;
             }
 
+            int matches = 0;
             for (int i = 0; i < phase.normalToEliteMappings.Length; i++)
             {
                 NormalToEliteMapping mapping = phase.normalToEliteMappings[i];
@@ -554,11 +555,12 @@ namespace Vampire
                     continue;
                 }
 
-                eliteFlatIndex = mapping.eliteMonsterFlatIndex;
-                return true;
+                matches++;
+                if (Random.Range(0, matches) == 0)
+                    eliteFlatIndex = mapping.eliteMonsterFlatIndex;
             }
 
-            return false;
+            return matches > 0;
         }
 
         private bool TrySelectManualEliteFlatIndex(

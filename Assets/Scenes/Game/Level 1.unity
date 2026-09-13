@@ -267,6 +267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   barBackground: {fileID: 1854457387}
   barFill: {fileID: 1736393773}
+  filledImage: {fileID: 1736393774}
   onEmpty:
     m_PersistentCalls:
       m_Calls: []
@@ -20202,10 +20203,10 @@ RectTransform:
   m_Father: {fileID: 1913837646}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 678, y: 30}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: -56, y: -16}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &894753798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20219,18 +20220,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.46862754, b: 0.8301887, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 5034b9e68db344f39542e4e722efaa8c, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -22326,10 +22327,13 @@ MonoBehaviour:
     - normalMonsterFlatIndex: 1
       eliteMonsterFlatIndex: 9
       enabled: 1
+    - normalMonsterFlatIndex: 0
+      eliteMonsterFlatIndex: 26
+      enabled: 1
     maxNormalTableSampleAttempts: 30
     avoidDuplicateEliteInOneWave: 1
     fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 0800000009000000
+    eliteMonsterFlatIndices: 08000000090000001a000000
     additionalHpBuff: 0
   - phaseName: "Phase 2: 5\uBD84~8\uBD84"
     startTime: 225
@@ -22353,10 +22357,13 @@ MonoBehaviour:
     - normalMonsterFlatIndex: 4
       eliteMonsterFlatIndex: 10
       enabled: 1
+    - normalMonsterFlatIndex: 2
+      eliteMonsterFlatIndex: 26
+      enabled: 1
     maxNormalTableSampleAttempts: 30
     avoidDuplicateEliteInOneWave: 1
     fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 0300000008000000090000000a000000
+    eliteMonsterFlatIndices: 0300000008000000090000000a0000001a000000
     additionalHpBuff: 0
   - phaseName: "Phase 3: 8\uBD84~14\uBD84"
     startTime: 360
@@ -22383,10 +22390,13 @@ MonoBehaviour:
     - normalMonsterFlatIndex: 5
       eliteMonsterFlatIndex: 11
       enabled: 1
+    - normalMonsterFlatIndex: 2
+      eliteMonsterFlatIndex: 26
+      enabled: 1
     maxNormalTableSampleAttempts: 30
     avoidDuplicateEliteInOneWave: 1
     fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 0300000008000000090000000a0000000b000000
+    eliteMonsterFlatIndices: 0300000008000000090000000a0000000b0000001a000000
     additionalHpBuff: 0
   - phaseName: "Phase 3: 14\uBD84~20"
     startTime: 630
@@ -22413,10 +22423,13 @@ MonoBehaviour:
     - normalMonsterFlatIndex: 7
       eliteMonsterFlatIndex: 13
       enabled: 1
+    - normalMonsterFlatIndex: 2
+      eliteMonsterFlatIndex: 26
+      enabled: 1
     maxNormalTableSampleAttempts: 30
     avoidDuplicateEliteInOneWave: 1
     fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 030000000a0000000b0000000c0000000d000000
+    eliteMonsterFlatIndices: 030000000a0000000b0000000c0000000d0000001a000000
     additionalHpBuff: 0
   debugLog: 0
   logMonsterIndexTableOnStart: 0
@@ -40057,10 +40070,10 @@ RectTransform:
   m_Father: {fileID: 1854457387}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 678, y: 30}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: -56, y: -16}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1736393774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40074,18 +40087,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.46862754, b: 0.8301887, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 420fdbcfe3b54030ae74cc02b3630835, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -40391,6 +40404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   barBackground: {fileID: 1913837646}
   barFill: {fileID: 894753797}
+  filledImage: {fileID: 894753798}
   onEmpty:
     m_PersistentCalls:
       m_Calls: []
@@ -40667,7 +40681,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 30}
+  m_SizeDelta: {x: 0, y: 40}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1854457388
 MonoBehaviour:
@@ -40682,14 +40696,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: bcf9d17220f44cd2ab5abfdb97da99d1, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -41401,7 +41415,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 30}
+  m_SizeDelta: {x: 0, y: 40}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1913837647
 MonoBehaviour:
@@ -41416,14 +41430,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.8679245, g: 0.12827808, b: 0.21438403, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: ed515c3ec09a4eff8eb13e2033b89a4a, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1

@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 652861d122f24d741823f114aa23b102, type: 3}
+  m_Name: Elite Dubai Cookie
+  m_EditorClassIdentifier:
+  name: "\ub450\ubc14\uc774 \ucab8\ub4dd \ucfe0\ud0a4"
+  hp: 50
+  atk: 2
+  recovery: 0
+  armor: 0
+  atkspeed: 0
+  movespeed: 0.7
+  acceleration: 5
+  gemLootTable:
+    lootTable: []
+  coinLootTable:
+    lootTable: []
+  walkSpriteSequence:
+  - {fileID: 21300000, guid: 5581e33708034da59b7c79489a1b999c, type: 3}
+  - {fileID: 21300000, guid: acb946f822064aecadc1689fa341d0a8, type: 3}
+  - {fileID: 21300000, guid: 3f6b0220f02445ed9edc75dfbd5d8fec, type: 3}
+  - {fileID: 21300000, guid: 4b5e0fc449234869b0b732d6b0e8a4a9, type: 3}
+  - {fileID: 21300000, guid: bd48e794afb84e9ebd99c830b7bfe803, type: 3}
+  - {fileID: 21300000, guid: fec723044e724120bc8bad4c5d31d9a3, type: 3}
+  walkFrameTime: 0.1
+  description: "\ud480\uca4d\ud480\uca4d \ub6f0\uc5b4\uc624\ub294 \ub450\ubc14\uc774 \ucab8\ub4dd \ucfe0\ud0a4 \uc5d8\ub9ac\ud2b8"
+  resultSprite: {fileID: 21300000, guid: 5581e33708034da59b7c79489a1b999c, type: 3}
+  meleeLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  sourceNormalBlueprint: {fileID: 11400000, guid: 23cbbabfbfc14e4498b09675b4940a0c, type: 2}
+  useSourceVisual: 0
+  useSourceCombatStats: 1
+  useSourceLootTables: 1
+  scaleMultiplier: 2
+  hpMultiplier: 4
+  silverRewardCalls: 2
+  guaranteedExtraCoinCount: 2
+  guaranteedExtraCoinType: 5
+  extraCoinScatterRadius: 0.35
+  debugLog: 0
