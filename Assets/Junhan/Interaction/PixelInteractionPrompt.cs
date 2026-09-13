@@ -10,6 +10,7 @@ namespace Vampire
         private SpriteRenderer[] bodyRenderers;
         private Transform legacyRoot;
         private bool requestedVisible;
+        private float shownAt;
         private const float WorldWidth = 0.48f;
 
         public static void Show(Component owner, bool visible, GameObject oldGuide = null)
@@ -19,6 +20,7 @@ namespace Vampire
             if (prompt == null && !visible) return;
             if (prompt == null) prompt = owner.gameObject.AddComponent<PixelInteractionPrompt>();
             if (oldGuide != null) prompt.legacyRoot = oldGuide.transform;
+            if (visible && !prompt.requestedVisible) prompt.shownAt = Time.unscaledTime;
             prompt.requestedVisible = visible;
             prompt.Refresh();
         }
@@ -58,13 +60,27 @@ namespace Vampire
                     body.name.ToLowerInvariant().Contains("shadow")) continue;
                 top = Mathf.Max(top, body.bounds.max.y);
             }
-            keyRenderer.transform.position = new Vector3(transform.position.x, top + 0.12f + WorldWidth * 0.5f, transform.position.z);
+            float press = EvaluatePress(Time.unscaledTime - shownAt);
+            keyRenderer.transform.position = new Vector3(transform.position.x,
+                top + 0.12f + WorldWidth * 0.5f - press * 0.035f, transform.position.z);
             keyRenderer.transform.rotation = Quaternion.identity;
             Vector3 parentScale = transform.lossyScale;
             float scale = WorldWidth / Mathf.Max(0.001f, keyRenderer.sprite.bounds.size.x);
+            float verticalScale = scale * (1f - 0.10f * press);
             keyRenderer.transform.localScale = new Vector3(
                 Mathf.Abs(parentScale.x) > 0.001f ? scale / parentScale.x : scale,
-                Mathf.Abs(parentScale.y) > 0.001f ? scale / parentScale.y : scale, 1f);
+                Mathf.Abs(parentScale.y) > 0.001f ? verticalScale / parentScale.y : verticalScale, 1f);
+        }
+
+        // Rest, short downstroke, brief hold, then a soft release. No changes to input timing.
+        public static float EvaluatePress(float elapsed)
+        {
+            float phase = Mathf.Repeat(Mathf.Max(0f, elapsed), 1.35f);
+            if (phase < 0.70f) return 0f;
+            if (phase < 0.82f) return Mathf.SmoothStep(0f, 1f, (phase - 0.70f) / 0.12f);
+            if (phase < 0.94f) return 1f;
+            if (phase < 1.14f) return 1f - Mathf.SmoothStep(0f, 1f, (phase - 0.94f) / 0.20f);
+            return 0f;
         }
 
         private void LateUpdate() { Refresh(); }

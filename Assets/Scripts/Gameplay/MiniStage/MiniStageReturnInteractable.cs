@@ -46,6 +46,7 @@ namespace Vampire
 
         private void Awake()
         {
+            BloodClotObstacle.Ensure(gameObject);
             if (miniStageDirector == null)
             {
                 miniStageDirector = FindObjectOfType<MiniStageDirector>();

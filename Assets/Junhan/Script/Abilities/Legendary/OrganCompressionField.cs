@@ -289,6 +289,7 @@ SyringeDartAbility sourceNeedleAbility)
 
         private void PullTarget(CompressionTarget target)
         {
+            if (target.component.GetComponentInParent<BloodClotObstacle>() != null) return;
             Vector2 targetPosition = GetTargetWorldPosition(target);
             Vector2 toCenter = center - targetPosition;
             float distance = toCenter.magnitude;

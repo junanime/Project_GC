@@ -53,6 +53,7 @@ namespace Vampire
 
         private void Awake()
         {
+            BloodClotObstacle.Ensure(gameObject);
             RefreshGuide();
         }
 

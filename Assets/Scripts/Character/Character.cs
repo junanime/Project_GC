@@ -553,7 +553,7 @@ namespace Vampire
 
                 if (rb != null)
                 {
-                    rb.MovePosition(nextPosition);
+                    rb.MovePosition(BloodClotObstacle.ClampDash(rb, nextPosition));
                 }
                 else
                 {
@@ -566,7 +566,7 @@ namespace Vampire
 
             if (rb != null)
             {
-                rb.MovePosition(targetPosition);
+                rb.MovePosition(BloodClotObstacle.ClampDash(rb, targetPosition));
 
                 if (stopVelocityAfterDash)
                 {

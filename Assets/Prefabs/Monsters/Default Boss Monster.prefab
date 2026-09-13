@@ -5001,6 +5001,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 8000205498209451136}
   - component: {fileID: 1680239685074238797}
   - component: {fileID: 7551458388777804727}
   - component: {fileID: 1509248373225648304}
@@ -5168,3 +5169,15 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2966476183713896167, guid: 88e5d6bdd8d834beda5df6f67ea9f117, type: 3}
   m_PrefabInstance: {fileID: 6061857700174536434}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8000205498209451136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8960830493049914446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0210077932f244c79670be89d1c3a28a, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
