@@ -161,7 +161,11 @@ namespace Vampire
 
             if (runtime.poisonEnabled)
             {
-                ApplyPoison(damageableComponent, runtime);
+                ApplyPoison(
+                    damageableComponent,
+                    runtime,
+                    sourceCharacter
+                );
             }
 
             if (runtime.honeyEnabled)
@@ -181,7 +185,11 @@ namespace Vampire
 
             if (runtime.digestiveAcidSacEnabled)
             {
-                ApplyDigestiveAcidSac(damageableComponent, runtime);
+                ApplyDigestiveAcidSac(
+                    damageableComponent,
+                    runtime,
+                    sourceCharacter
+                );
             }
 
             if (runtime.hungerNeedleEnabled)
@@ -250,7 +258,10 @@ namespace Vampire
             return objectName.Contains("Boss") || objectName.Contains("보스");
         }
 
-        private static void ApplyPoison(Component damageableComponent, SyringeSpecialRuntime runtime)
+        private static void ApplyPoison(
+            Component damageableComponent,
+            SyringeSpecialRuntime runtime,
+            Character sourceCharacter)
         {
             Monster monster = GetMonster(damageableComponent);
 
@@ -269,7 +280,9 @@ namespace Vampire
             poisonStatus.Apply(
                 runtime.poisonDuration,
                 runtime.poisonTickInterval,
-                runtime.poisonTickDamage
+                runtime.poisonTickDamage,
+                sourceCharacter,
+                "독침"
             );
         }
 
@@ -379,7 +392,10 @@ namespace Vampire
             markStatus.Apply(runtime.markDuration);
         }
 
-        private static void ApplyDigestiveAcidSac(Component damageableComponent, SyringeSpecialRuntime runtime)
+        private static void ApplyDigestiveAcidSac(
+            Component damageableComponent,
+            SyringeSpecialRuntime runtime,
+            Character sourceCharacter)
         {
             Monster monster = GetMonster(damageableComponent);
 
@@ -405,7 +421,9 @@ namespace Vampire
                 runtime.digestiveAcidPuddleRadius,
                 runtime.digestiveAcidPuddleDamagePerSecond,
                 runtime.digestiveAcidPuddleTickInterval,
-                runtime.digestiveAcidPuddleColor
+                runtime.digestiveAcidPuddleColor,
+                sourceCharacter,
+                "소화액낭침"
             );
         }
 
@@ -581,7 +599,33 @@ namespace Vampire
                     continue;
                 }
 
-                splashDamageable.TakeDamage(runtime.explosionDamage, Vector2.zero, false);
+                float finalDamage = runtime.explosionDamage;
+
+                splashDamageable.TakeDamage(
+                    finalDamage,
+                    Vector2.zero,
+                    false
+                );
+
+                // 이 폭발은 메인 적중 이벤트와 별개의 독립 피해이므로
+                // 기존 전체 피해량과 증강별 피해량에 각각 1회 기록한다.
+                if (finalDamage > 0f &&
+                    sourceCharacter != null &&
+                    sourceCharacter.OnDealDamage != null)
+                {
+                    sourceCharacter.OnDealDamage.Invoke(
+                        finalDamage
+                    );
+                }
+
+                if (finalDamage > 0f &&
+                    AugmentDamageTracker.Instance != null)
+                {
+                    AugmentDamageTracker.Instance.RecordDamage(
+                        "폭발침",
+                        finalDamage
+                    );
+                }
             }
         }
     }

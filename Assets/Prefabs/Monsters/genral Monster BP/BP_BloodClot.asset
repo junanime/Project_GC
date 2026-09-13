@@ -39,6 +39,8 @@ MonoBehaviour:
   walkSpriteSequence:
   - {fileID: 21300000, guid: b0a0763c53083ba449dbc606aec37a39, type: 3}
   walkFrameTime: 0.2
+  description: "\uC138\uADE0??"
+  resultSprite: {fileID: 0}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 512

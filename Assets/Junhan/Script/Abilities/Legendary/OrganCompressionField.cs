@@ -25,6 +25,7 @@ namespace Vampire
         private float endTime;
         private float visualSpinAngle;
         private SyringeDartAbility sourceNeedleAbility;
+        private Character sourceCharacter;
         private LineRenderer outerCircleLine;
         private LineRenderer innerPulseLine;
 
@@ -55,6 +56,16 @@ SyringeDartAbility sourceNeedleAbility)
             this.pullSpeed = Mathf.Max(0f, pullSpeed);
             this.monsterLayer = monsterLayer;
             this.sourceNeedleAbility = sourceNeedleAbility;
+
+            // 장기압착 피해의 원본 플레이어를 캐시한다.
+            // SyringeDartAbility는 플레이어 쪽 Ability이므로 같은 오브젝트/부모에서 Character를 찾는다.
+            if (sourceNeedleAbility != null)
+            {
+                sourceCharacter =
+                    sourceNeedleAbility.GetComponent<Character>() ??
+                    sourceNeedleAbility.GetComponentInParent<Character>();
+            }
+
             transform.position = center;
             endTime = Time.time + this.duration;
 
@@ -377,12 +388,31 @@ SyringeDartAbility sourceNeedleAbility)
 
             target.damageable.TakeDamage(finalDamage, Vector2.zero, false);
 
+            // 장기압착은 Projectile.OnHitDamageable을 거치지 않는 독립 피해이므로
+            // 기존 전체 피해량 시스템에 여기서 정확히 1회 기록한다.
+            if (finalDamage > 0f &&
+                sourceCharacter != null &&
+                sourceCharacter.OnDealDamage != null)
+            {
+                sourceCharacter.OnDealDamage.Invoke(finalDamage);
+            }
+
+            // 결과 화면의 "가장 피해를 많이 준 증강" 계산에 장기압착 피해를 기록한다.
+            if (finalDamage > 0f &&
+                AugmentDamageTracker.Instance != null)
+            {
+                AugmentDamageTracker.Instance.RecordDamage(
+                    "장기압착",
+                    finalDamage
+                );
+            }
+
             if (sourceNeedleAbility != null)
             {
                 SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
                     target.component,
                     runtime,
-                    null,
+                    sourceCharacter,
                     GetTargetWorldPosition(target),
                     monsterLayer,
                     target.component.gameObject,

@@ -19,12 +19,14 @@ namespace Vampire
 
             public bool Equals(NeedleTargetKey other)
             {
-                return needleIndex == other.needleIndex && targetId == other.targetId;
+                return needleIndex == other.needleIndex &&
+                       targetId == other.targetId;
             }
 
             public override bool Equals(object obj)
             {
-                return obj is NeedleTargetKey other && Equals(other);
+                return obj is NeedleTargetKey other &&
+                       Equals(other);
             }
 
             public override int GetHashCode()
@@ -35,6 +37,7 @@ namespace Vampire
                 }
             }
         }
+
 
         private Character sourceCharacter;
         private EntityManager entityManager;
@@ -50,40 +53,90 @@ namespace Vampire
         private float damageMultiplier;
 
         private Transform visualRoot;
-        private readonly List<Transform> orbitNeedleVisuals = new List<Transform>();
+
+        private readonly List<Transform> orbitNeedleVisuals =
+            new List<Transform>();
 
         private Sprite projectileSprite;
         private int projectileSortingLayerId;
         private int projectileSortingOrder;
-        private Vector3 projectileVisualBaseScale = Vector3.one;
-        private Quaternion projectileVisualBaseRotation = Quaternion.identity;
+
+        private Vector3 projectileVisualBaseScale =
+            Vector3.one;
+
+        private Quaternion projectileVisualBaseRotation =
+            Quaternion.identity;
 
         private int currentOrbitNeedleCount = -1;
 
+
+        // =========================================================
+        // Visual
+        // =========================================================
+
         [Header("Needle Visual")]
-        [Tooltip("침 이미지의 날 부분이 바깥쪽을 향하도록 보정하는 각도입니다. 방향이 이상하면 135, -45, 45, -135 중 하나로 테스트하세요.")]
-        [SerializeField] private float visualForwardAngleOffset = 135f;
 
-        [Tooltip("고슴도침 회전 침 시각 크기 배율입니다. Visual_Needle의 실제 크기에 곱해집니다.")]
-        [SerializeField] private float orbitVisualScaleMultiplier = 1f;
+        [Tooltip(
+            "침 이미지의 날 부분이 바깥쪽을 향하도록 보정하는 각도입니다. " +
+            "방향이 이상하면 135, -45, 45, -135 중 하나로 테스트하세요."
+        )]
+        [SerializeField]
+        private float visualForwardAngleOffset = 135f;
 
-        [Tooltip("고슴도침 회전 속도 배율입니다. 기존 속도가 너무 빠르므로 기본값은 0.35배입니다.")]
-        [SerializeField] private float rotationSpeedMultiplier = 0.35f;
+
+        [Tooltip(
+            "고슴도침 회전 침 시각 크기 배율입니다. " +
+            "Visual_Needle의 실제 크기에 곱해집니다."
+        )]
+        [SerializeField]
+        private float orbitVisualScaleMultiplier = 1f;
+
+
+        [Tooltip(
+            "고슴도침 회전 속도 배율입니다. " +
+            "기존 속도가 너무 빠르므로 기본값은 0.35배입니다."
+        )]
+        [SerializeField]
+        private float rotationSpeedMultiplier = 0.35f;
+
+
+        // =========================================================
+        // Hit
+        // =========================================================
 
         [Header("Needle Hit")]
-        [Tooltip("회전하는 침 하나하나의 피격 반경입니다.")]
-        [SerializeField] private float orbitNeedleHitRadius = 0.18f;
 
-        [Tooltip("같은 회전 침이 같은 적에게 다시 피해를 줄 수 있기까지의 시간입니다. 1번 침에게 맞은 적은 3초 동안 1번 침에게 다시 맞지 않습니다.")]
-        [SerializeField] private float sameNeedleSameTargetCooldown = 3f;
+        [Tooltip("회전하는 침 하나하나의 피격 반경입니다.")]
+        [SerializeField]
+        private float orbitNeedleHitRadius = 0.18f;
+
+
+        [Tooltip(
+            "같은 회전 침이 같은 적에게 다시 피해를 줄 수 있기까지의 시간입니다. " +
+            "1번 침에게 맞은 적은 3초 동안 1번 침에게 다시 맞지 않습니다."
+        )]
+        [SerializeField]
+        private float sameNeedleSameTargetCooldown = 3f;
+
 
         [Tooltip("고슴도침 데미지 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = false;
+        [SerializeField]
+        private bool debugLog = false;
 
-        private readonly Dictionary<NeedleTargetKey, float> nextDamageAllowedTimeByNeedleAndTarget =
-            new Dictionary<NeedleTargetKey, float>();
 
-        private readonly List<NeedleTargetKey> removeCooldownKeys = new List<NeedleTargetKey>();
+        private readonly Dictionary<NeedleTargetKey, float>
+            nextDamageAllowedTimeByNeedleAndTarget =
+                new Dictionary<NeedleTargetKey, float>();
+
+
+        private readonly List<NeedleTargetKey>
+            removeCooldownKeys =
+                new List<NeedleTargetKey>();
+
+
+        // =========================================================
+        // Create
+        // =========================================================
 
         public static HedgehogNeedleController Create(
             Character sourceCharacter,
@@ -93,10 +146,19 @@ namespace Vampire
             float orbitRadius,
             float rotationSpeed,
             float touchFireCooldown,
-            float damageMultiplier)
+            float damageMultiplier
+        )
         {
-            GameObject controllerObject = new GameObject("Hedgehog Needle Barrier");
-            HedgehogNeedleController controller = controllerObject.AddComponent<HedgehogNeedleController>();
+            GameObject controllerObject =
+                new GameObject(
+                    "Hedgehog Needle Barrier"
+                );
+
+
+            HedgehogNeedleController controller =
+                controllerObject
+                    .AddComponent<HedgehogNeedleController>();
+
 
             controller.Init(
                 sourceCharacter,
@@ -109,8 +171,14 @@ namespace Vampire
                 damageMultiplier
             );
 
+
             return controller;
         }
+
+
+        // =========================================================
+        // Init
+        // =========================================================
 
         private void Init(
             Character sourceCharacter,
@@ -120,143 +188,326 @@ namespace Vampire
             float orbitRadius,
             float rotationSpeed,
             float touchFireCooldown,
-            float damageMultiplier)
+            float damageMultiplier
+        )
         {
-            this.sourceCharacter = sourceCharacter;
-            this.entityManager = entityManager;
-            this.sourceNeedleAbility = sourceNeedleAbility;
+            this.sourceCharacter =
+                sourceCharacter;
 
-            fallbackNeedleCount = Mathf.Max(1, needleCount);
-            this.orbitRadius = Mathf.Max(0.1f, orbitRadius);
-            this.rotationSpeed = rotationSpeed;
+            this.entityManager =
+                entityManager;
 
-            // 기존 인스펙터 값도 살리되, 기본적으로는 3초 쿨타임을 사용한다.
-            this.touchFireCooldown = Mathf.Max(0.05f, touchFireCooldown);
-            sameNeedleSameTargetCooldown = Mathf.Max(3f, sameNeedleSameTargetCooldown);
+            this.sourceNeedleAbility =
+                sourceNeedleAbility;
 
-            this.damageMultiplier = Mathf.Max(0.01f, damageMultiplier);
 
-            projectilePrefab = sourceNeedleAbility.ProjectilePrefab;
-            monsterLayer = sourceNeedleAbility.MonsterLayer;
+            fallbackNeedleCount =
+                Mathf.Max(
+                    1,
+                    needleCount
+                );
 
-            CacheProjectileVisualInfo();
 
-            transform.position = GetSourceCenterPosition();
+            this.orbitRadius =
+                Mathf.Max(
+                    0.1f,
+                    orbitRadius
+                );
 
-            RebuildOrbitVisuals(GetDesiredOrbitNeedleCount());
 
-            if (sourceCharacter != null && sourceCharacter.OnDeath != null)
+            this.rotationSpeed =
+                rotationSpeed;
+
+
+            // 기존 인스펙터 값도 살리되
+            // 기본적으로는 3초 쿨타임 사용
+            this.touchFireCooldown =
+                Mathf.Max(
+                    0.05f,
+                    touchFireCooldown
+                );
+
+
+            sameNeedleSameTargetCooldown =
+                Mathf.Max(
+                    3f,
+                    sameNeedleSameTargetCooldown
+                );
+
+
+            this.damageMultiplier =
+                Mathf.Max(
+                    0.01f,
+                    damageMultiplier
+                );
+
+
+            if (sourceNeedleAbility == null ||
+                entityManager == null)
             {
-                sourceCharacter.OnDeath.AddListener(DestroySelf);
-            }
+                Debug.LogWarning(
+                    "[고슴도침] 초기화 실패 - 필요한 참조가 없습니다."
+                );
 
-            if (debugLog)
-            {
-                Debug.Log("[고슴도침] HedgehogNeedleController 생성 완료 - 회전 침별 개별 피격 판정 사용");
-            }
-        }
-
-        private void Update()
-        {
-            if (sourceCharacter == null || entityManager == null || sourceNeedleAbility == null)
-            {
                 Destroy(gameObject);
+
                 return;
             }
 
-            transform.position = GetSourceCenterPosition();
 
-            int desiredCount = GetDesiredOrbitNeedleCount();
+            projectilePrefab =
+                sourceNeedleAbility.ProjectilePrefab;
 
-            if (desiredCount != currentOrbitNeedleCount)
+
+            monsterLayer =
+                sourceNeedleAbility.MonsterLayer;
+
+
+            CacheProjectileVisualInfo();
+
+
+            transform.position =
+                GetSourceCenterPosition();
+
+
+            RebuildOrbitVisuals(
+                GetDesiredOrbitNeedleCount()
+            );
+
+
+            if (sourceCharacter != null &&
+                sourceCharacter.OnDeath != null)
             {
-                RebuildOrbitVisuals(desiredCount);
+                sourceCharacter.OnDeath.AddListener(
+                    DestroySelf
+                );
             }
 
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    "[고슴도침] HedgehogNeedleController 생성 완료 - " +
+                    "회전 침별 개별 피격 판정 사용"
+                );
+            }
+        }
+
+
+        // =========================================================
+        // Update
+        // =========================================================
+
+        private void Update()
+        {
+            if (sourceCharacter == null ||
+                entityManager == null ||
+                sourceNeedleAbility == null)
+            {
+                Destroy(gameObject);
+
+                return;
+            }
+
+
+            transform.position =
+                GetSourceCenterPosition();
+
+
+            int desiredCount =
+                GetDesiredOrbitNeedleCount();
+
+
+            if (desiredCount !=
+                currentOrbitNeedleCount)
+            {
+                RebuildOrbitVisuals(
+                    desiredCount
+                );
+            }
+
+
             UpdateOrbitVisualScales();
+
 
             if (visualRoot != null)
             {
                 visualRoot.Rotate(
                     Vector3.forward,
-                    rotationSpeed * Mathf.Max(0f, rotationSpeedMultiplier) * Time.deltaTime
+                    rotationSpeed *
+                    Mathf.Max(
+                        0f,
+                        rotationSpeedMultiplier
+                    ) *
+                    Time.deltaTime
                 );
             }
 
+
             DetectEnemiesTouchingOrbitNeedles();
+
             CleanupExpiredCooldowns();
         }
+
+
+        // =========================================================
+        // Needle Count
+        // =========================================================
 
         private int GetDesiredOrbitNeedleCount()
         {
             if (sourceNeedleAbility != null)
             {
-                return Mathf.Max(1, sourceNeedleAbility.GetEffectiveProjectileCount());
+                return Mathf.Max(
+                    1,
+                    sourceNeedleAbility
+                        .GetEffectiveProjectileCount()
+                );
             }
 
-            return Mathf.Max(1, fallbackNeedleCount);
+
+            return Mathf.Max(
+                1,
+                fallbackNeedleCount
+            );
         }
+
+
+        // =========================================================
+        // Projectile Visual Cache
+        // =========================================================
 
         private void CacheProjectileVisualInfo()
         {
-            SpriteRenderer sourceRenderer = FindPreferredProjectileSpriteRenderer();
+            SpriteRenderer sourceRenderer =
+                FindPreferredProjectileSpriteRenderer();
+
 
             if (sourceRenderer != null)
             {
-                projectileSprite = sourceRenderer.sprite;
-                projectileSortingLayerId = sourceRenderer.sortingLayerID;
-                projectileSortingOrder = sourceRenderer.sortingOrder;
-                projectileVisualBaseScale = sourceRenderer.transform.localScale;
-                projectileVisualBaseRotation = sourceRenderer.transform.localRotation;
+                projectileSprite =
+                    sourceRenderer.sprite;
+
+
+                projectileSortingLayerId =
+                    sourceRenderer.sortingLayerID;
+
+
+                projectileSortingOrder =
+                    sourceRenderer.sortingOrder;
+
+
+                projectileVisualBaseScale =
+                    sourceRenderer
+                        .transform
+                        .localScale;
+
+
+                projectileVisualBaseRotation =
+                    sourceRenderer
+                        .transform
+                        .localRotation;
             }
             else
             {
-                Debug.LogWarning("[고슴도침] 투사체 프리팹에서 SpriteRenderer를 찾지 못했습니다. 고슴도침 시각 오브젝트가 보이지 않을 수 있습니다.");
-                projectileVisualBaseScale = Vector3.one;
-                projectileVisualBaseRotation = Quaternion.identity;
+                Debug.LogWarning(
+                    "[고슴도침] 투사체 프리팹에서 SpriteRenderer를 찾지 못했습니다. " +
+                    "고슴도침 시각 오브젝트가 보이지 않을 수 있습니다."
+                );
+
+
+                projectileVisualBaseScale =
+                    Vector3.one;
+
+
+                projectileVisualBaseRotation =
+                    Quaternion.identity;
             }
         }
 
-        private SpriteRenderer FindPreferredProjectileSpriteRenderer()
+
+        private SpriteRenderer
+            FindPreferredProjectileSpriteRenderer()
         {
             if (projectilePrefab == null)
             {
                 return null;
             }
 
-            SpriteRenderer[] renderers = projectilePrefab.GetComponentsInChildren<SpriteRenderer>(true);
 
-            SpriteRenderer firstEnabledRenderer = null;
-            SpriteRenderer firstRendererWithSprite = null;
+            SpriteRenderer[] renderers =
+                projectilePrefab
+                    .GetComponentsInChildren<SpriteRenderer>(
+                        true
+                    );
 
-            for (int i = 0; i < renderers.Length; i++)
+
+            SpriteRenderer firstEnabledRenderer =
+                null;
+
+
+            SpriteRenderer firstRendererWithSprite =
+                null;
+
+
+            for (int i = 0;
+                 i < renderers.Length;
+                 i++)
             {
-                SpriteRenderer renderer = renderers[i];
+                SpriteRenderer renderer =
+                    renderers[i];
 
-                if (renderer == null || renderer.sprite == null)
+
+                if (renderer == null ||
+                    renderer.sprite == null)
                 {
                     continue;
                 }
 
+
                 if (firstRendererWithSprite == null)
                 {
-                    firstRendererWithSprite = renderer;
+                    firstRendererWithSprite =
+                        renderer;
                 }
 
-                if (renderer.enabled && firstEnabledRenderer == null)
+
+                if (renderer.enabled &&
+                    firstEnabledRenderer == null)
                 {
-                    firstEnabledRenderer = renderer;
+                    firstEnabledRenderer =
+                        renderer;
                 }
 
-                if (renderer.gameObject.name.IndexOf("Visual", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                    renderer.gameObject.name.IndexOf("Needle", StringComparison.OrdinalIgnoreCase) >= 0)
+
+                if (
+                    renderer.gameObject.name
+                        .IndexOf(
+                            "Visual",
+                            StringComparison.OrdinalIgnoreCase
+                        ) >= 0
+                    ||
+                    renderer.gameObject.name
+                        .IndexOf(
+                            "Needle",
+                            StringComparison.OrdinalIgnoreCase
+                        ) >= 0
+                )
                 {
                     return renderer;
                 }
             }
 
-            return firstEnabledRenderer != null ? firstEnabledRenderer : firstRendererWithSprite;
+
+            return firstEnabledRenderer != null
+                ? firstEnabledRenderer
+                : firstRendererWithSprite;
         }
+
+
+        // =========================================================
+        // Source Position
+        // =========================================================
 
         private Vector2 GetSourceCenterPosition()
         {
@@ -265,305 +516,673 @@ namespace Vampire
                 return transform.position;
             }
 
+
             if (sourceCharacter.CenterTransform != null)
             {
-                return sourceCharacter.CenterTransform.position;
+                return sourceCharacter
+                    .CenterTransform
+                    .position;
             }
 
-            return sourceCharacter.transform.position;
+
+            return sourceCharacter
+                .transform
+                .position;
         }
 
-        private void RebuildOrbitVisuals(int needleCount)
+
+        // =========================================================
+        // Rebuild Orbit Visuals
+        // =========================================================
+
+        private void RebuildOrbitVisuals(
+            int needleCount
+        )
         {
             if (visualRoot != null)
             {
-                Destroy(visualRoot.gameObject);
+                Destroy(
+                    visualRoot.gameObject
+                );
             }
+
 
             orbitNeedleVisuals.Clear();
 
-            currentOrbitNeedleCount = Mathf.Max(1, needleCount);
 
-            visualRoot = new GameObject("Orbit Needle Visuals").transform;
-            visualRoot.SetParent(transform);
-            visualRoot.localPosition = Vector3.zero;
+            currentOrbitNeedleCount =
+                Mathf.Max(
+                    1,
+                    needleCount
+                );
 
-            for (int i = 0; i < currentOrbitNeedleCount; i++)
+
+            visualRoot =
+                new GameObject(
+                    "Orbit Needle Visuals"
+                ).transform;
+
+
+            visualRoot.SetParent(
+                transform
+            );
+
+
+            visualRoot.localPosition =
+                Vector3.zero;
+
+
+            for (int i = 0;
+                 i < currentOrbitNeedleCount;
+                 i++)
             {
-                GameObject visualObject = new GameObject($"Orbit Needle Visual {i + 1}");
-                visualObject.transform.SetParent(visualRoot);
+                GameObject visualObject =
+                    new GameObject(
+                        $"Orbit Needle Visual {i + 1}"
+                    );
 
-                // 항상 원점 기준 균등 배치:
-                // 2개 = 180도, 3개 = 120도, 4개 = 90도
-                float angle = i * 360f / currentOrbitNeedleCount;
-                Vector2 direction = AngleToVector(angle);
 
-                visualObject.transform.localPosition = direction * orbitRadius;
+                visualObject
+                    .transform
+                    .SetParent(
+                        visualRoot
+                    );
+
+
+                // 2개 = 180도
+                // 3개 = 120도
+                // 4개 = 90도
+                float angle =
+                    i *
+                    360f /
+                    currentOrbitNeedleCount;
+
+
+                Vector2 direction =
+                    AngleToVector(
+                        angle
+                    );
+
+
+                visualObject.transform.localPosition =
+                    direction *
+                    orbitRadius;
+
+
                 visualObject.transform.localRotation =
-                    Quaternion.Euler(0f, 0f, angle + visualForwardAngleOffset) *
+                    Quaternion.Euler(
+                        0f,
+                        0f,
+                        angle +
+                        visualForwardAngleOffset
+                    )
+                    *
                     projectileVisualBaseRotation;
 
-                SpriteRenderer visualRenderer = visualObject.AddComponent<SpriteRenderer>();
+
+                SpriteRenderer visualRenderer =
+                    visualObject
+                        .AddComponent<SpriteRenderer>();
+
 
                 if (projectileSprite != null)
                 {
-                    visualRenderer.sprite = projectileSprite;
-                    visualRenderer.sortingLayerID = projectileSortingLayerId;
-                    visualRenderer.sortingOrder = projectileSortingOrder + 10;
-                    visualRenderer.color = new Color(1f, 1f, 1f, 0.65f);
+                    visualRenderer.sprite =
+                        projectileSprite;
+
+
+                    visualRenderer.sortingLayerID =
+                        projectileSortingLayerId;
+
+
+                    visualRenderer.sortingOrder =
+                        projectileSortingOrder +
+                        10;
+
+
+                    visualRenderer.color =
+                        new Color(
+                            1f,
+                            1f,
+                            1f,
+                            0.65f
+                        );
                 }
 
-                visualObject.transform.localScale = GetOrbitVisualScale();
 
-                orbitNeedleVisuals.Add(visualObject.transform);
+                visualObject.transform.localScale =
+                    GetOrbitVisualScale();
+
+
+                orbitNeedleVisuals.Add(
+                    visualObject.transform
+                );
             }
 
-            nextDamageAllowedTimeByNeedleAndTarget.Clear();
+
+            nextDamageAllowedTimeByNeedleAndTarget
+                .Clear();
+
 
             if (debugLog)
             {
-                Debug.Log($"[고슴도침] 회전 침 재배치 완료 | 개수 {currentOrbitNeedleCount}");
+                Debug.Log(
+                    $"[고슴도침] 회전 침 재배치 완료 | " +
+                    $"개수 {currentOrbitNeedleCount}"
+                );
             }
         }
 
+
+        // =========================================================
+        // Visual Scale
+        // =========================================================
+
         private void UpdateOrbitVisualScales()
         {
-            Vector3 visualScale = GetOrbitVisualScale();
+            Vector3 visualScale =
+                GetOrbitVisualScale();
 
-            for (int i = 0; i < orbitNeedleVisuals.Count; i++)
+
+            for (int i = 0;
+                 i < orbitNeedleVisuals.Count;
+                 i++)
             {
                 if (orbitNeedleVisuals[i] != null)
                 {
-                    orbitNeedleVisuals[i].localScale = visualScale;
+                    orbitNeedleVisuals[i]
+                        .localScale =
+                            visualScale;
                 }
             }
         }
 
+
         private Vector3 GetOrbitVisualScale()
         {
-            float projectileSizeMultiplier = 1f;
+            float projectileSizeMultiplier =
+                1f;
+
 
             if (sourceNeedleAbility != null)
             {
-                projectileSizeMultiplier = sourceNeedleAbility.GetEffectiveProjectileSizeMultiplier();
+                projectileSizeMultiplier =
+                    sourceNeedleAbility
+                        .GetEffectiveProjectileSizeMultiplier();
             }
 
-            return projectileVisualBaseScale * orbitVisualScaleMultiplier * projectileSizeMultiplier;
+
+            return
+                projectileVisualBaseScale *
+                orbitVisualScaleMultiplier *
+                projectileSizeMultiplier;
         }
+
+
+        // =========================================================
+        // Hit Radius
+        // =========================================================
 
         private float GetOrbitHitRadius()
         {
-            float projectileSizeMultiplier = 1f;
+            float projectileSizeMultiplier =
+                1f;
+
 
             if (sourceNeedleAbility != null)
             {
-                projectileSizeMultiplier = sourceNeedleAbility.GetEffectiveProjectileSizeMultiplier();
+                projectileSizeMultiplier =
+                    sourceNeedleAbility
+                        .GetEffectiveProjectileSizeMultiplier();
             }
 
-            return Mathf.Max(0.03f, orbitNeedleHitRadius * projectileSizeMultiplier);
+
+            return Mathf.Max(
+                0.03f,
+                orbitNeedleHitRadius *
+                projectileSizeMultiplier
+            );
         }
+
+
+        // =========================================================
+        // Detect Enemies
+        // =========================================================
 
         private void DetectEnemiesTouchingOrbitNeedles()
         {
-            if (orbitNeedleVisuals == null || orbitNeedleVisuals.Count == 0)
+            if (orbitNeedleVisuals == null ||
+                orbitNeedleVisuals.Count == 0)
             {
                 return;
             }
 
-            float hitRadius = GetOrbitHitRadius();
 
-            for (int needleIndex = 0; needleIndex < orbitNeedleVisuals.Count; needleIndex++)
+            float hitRadius =
+                GetOrbitHitRadius();
+
+
+            for (
+                int needleIndex = 0;
+                needleIndex < orbitNeedleVisuals.Count;
+                needleIndex++
+            )
             {
-                Transform needleTransform = orbitNeedleVisuals[needleIndex];
+                Transform needleTransform =
+                    orbitNeedleVisuals[
+                        needleIndex
+                    ];
+
 
                 if (needleTransform == null)
                 {
                     continue;
                 }
 
-                Collider2D[] hits = Physics2D.OverlapCircleAll(needleTransform.position, hitRadius);
 
-                if (hits == null || hits.Length == 0)
+                Collider2D[] hits =
+                    Physics2D.OverlapCircleAll(
+                        needleTransform.position,
+                        hitRadius
+                    );
+
+
+                if (hits == null ||
+                    hits.Length == 0)
                 {
                     continue;
                 }
 
-                HashSet<int> checkedTargetsThisNeedle = new HashSet<int>();
 
-                for (int i = 0; i < hits.Length; i++)
+                HashSet<int>
+                    checkedTargetsThisNeedle =
+                        new HashSet<int>();
+
+
+                for (int i = 0;
+                     i < hits.Length;
+                     i++)
                 {
-                    Collider2D hit = hits[i];
+                    Collider2D hit =
+                        hits[i];
+
 
                     IDamageable damageable;
                     Component damageableComponent;
                     int targetId;
 
-                    if (!SyringeSpecialHitEffectUtility.TryGetValidDamageableTarget(
-                            hit,
-                            sourceCharacter,
-                            out damageable,
-                            out damageableComponent,
-                            out targetId))
+
+                    if (
+                        !SyringeSpecialHitEffectUtility
+                            .TryGetValidDamageableTarget(
+                                hit,
+                                sourceCharacter,
+                                out damageable,
+                                out damageableComponent,
+                                out targetId
+                            )
+                    )
                     {
                         continue;
                     }
 
-                    if (checkedTargetsThisNeedle.Contains(targetId))
+
+                    if (
+                        checkedTargetsThisNeedle
+                            .Contains(
+                                targetId
+                            )
+                    )
                     {
                         continue;
                     }
 
-                    checkedTargetsThisNeedle.Add(targetId);
 
-                    NeedleTargetKey key = new NeedleTargetKey(needleIndex, targetId);
+                    checkedTargetsThisNeedle.Add(
+                        targetId
+                    );
+
+
+                    NeedleTargetKey key =
+                        new NeedleTargetKey(
+                            needleIndex,
+                            targetId
+                        );
+
 
                     if (!CanDamageWithNeedle(key))
                     {
                         continue;
                     }
 
-                    DamageTargetWithOrbitNeedle(damageable, damageableComponent, needleIndex);
 
-                    nextDamageAllowedTimeByNeedleAndTarget[key] =
-                        Time.time + Mathf.Max(0.05f, sameNeedleSameTargetCooldown);
+                    DamageTargetWithOrbitNeedle(
+                        damageable,
+                        damageableComponent,
+                        needleIndex
+                    );
+
+
+                    nextDamageAllowedTimeByNeedleAndTarget[
+                        key
+                    ] =
+                        Time.time +
+                        Mathf.Max(
+                            0.05f,
+                            sameNeedleSameTargetCooldown
+                        );
                 }
             }
         }
 
-        private bool TryGetValidMonsterTarget(Collider2D collider, out Monster monster)
+
+        // =========================================================
+        // Valid Monster
+        // =========================================================
+
+        private bool TryGetValidMonsterTarget(
+            Collider2D collider,
+            out Monster monster
+        )
         {
-            monster = null;
+            monster =
+                null;
+
 
             if (collider == null)
             {
                 return false;
             }
 
-            monster = collider.GetComponentInParent<Monster>();
+
+            monster =
+                collider
+                    .GetComponentInParent<Monster>();
+
 
             if (monster == null)
             {
                 return false;
             }
 
-            TrapMonster trapMonster = monster as TrapMonster;
 
-            if (trapMonster != null && !trapMonster.IsActive)
+            TrapMonster trapMonster =
+                monster as TrapMonster;
+
+
+            if (trapMonster != null &&
+                !trapMonster.IsActive)
             {
                 return false;
             }
 
+
             return true;
         }
 
-        private bool CanDamageWithNeedle(NeedleTargetKey key)
+
+        // =========================================================
+        // Damage Cooldown
+        // =========================================================
+
+        private bool CanDamageWithNeedle(
+            NeedleTargetKey key
+        )
         {
-            if (!nextDamageAllowedTimeByNeedleAndTarget.TryGetValue(key, out float nextAllowedTime))
+            if (
+                !nextDamageAllowedTimeByNeedleAndTarget
+                    .TryGetValue(
+                        key,
+                        out float nextAllowedTime
+                    )
+            )
             {
                 return true;
             }
 
-            return Time.time >= nextAllowedTime;
+
+            return Time.time >=
+                   nextAllowedTime;
         }
 
+
+        // =========================================================
+        // Damage Target
+        // =========================================================
+
         private void DamageTargetWithOrbitNeedle(
-    IDamageable damageable,
-    Component targetComponent,
-    int needleIndex)
+            IDamageable damageable,
+            Component targetComponent,
+            int needleIndex
+        )
         {
-            if (damageable == null || targetComponent == null || sourceCharacter == null || sourceNeedleAbility == null)
+            if (damageable == null ||
+                targetComponent == null ||
+                sourceCharacter == null ||
+                sourceNeedleAbility == null)
             {
                 return;
             }
 
-            SyringeSpecialRuntime runtime = sourceNeedleAbility.GetCurrentSpecialRuntime();
+
+            SyringeSpecialRuntime runtime =
+                sourceNeedleAbility
+                    .GetCurrentSpecialRuntime();
+
 
             bool consumedNeedleMark;
-            float statusDamageMultiplier = SyringeSpecialHitEffectUtility.GetPreDamageMultiplier(
-                targetComponent,
-                runtime,
-                out consumedNeedleMark
-            );
+
+
+            float statusDamageMultiplier =
+                SyringeSpecialHitEffectUtility
+                    .GetPreDamageMultiplier(
+                        targetComponent,
+                        runtime,
+                        out consumedNeedleMark
+                    );
+
 
             float rawDamage =
-                sourceNeedleAbility.GetEffectiveDamage() *
-                damageMultiplier *
+                sourceNeedleAbility
+                    .GetEffectiveDamage()
+                *
+                damageMultiplier
+                *
                 statusDamageMultiplier;
 
-            PlayerGeneralStatRuntime statRuntime = PlayerGeneralStatRuntime.GetOrCreate(sourceCharacter);
 
-            bool isCritical = false;
-            float finalDamage = rawDamage;
+            PlayerGeneralStatRuntime statRuntime =
+                PlayerGeneralStatRuntime
+                    .GetOrCreate(
+                        sourceCharacter
+                    );
+
+
+            bool isCritical =
+                false;
+
+
+            float finalDamage =
+                rawDamage;
+
 
             if (statRuntime != null)
             {
-                finalDamage = statRuntime.CalculateOffensiveDamage(
-                    sourceCharacter,
-                    targetComponent,
-                    rawDamage,
-                    out isCritical
-                );
+                finalDamage =
+                    statRuntime
+                        .CalculateOffensiveDamage(
+                            sourceCharacter,
+                            targetComponent,
+                            rawDamage,
+                            out isCritical
+                        );
             }
+
+
+            // =====================================================
+            // 실제 피해
+            // =====================================================
 
             // 고슴도침은 넉백 없음.
-            damageable.TakeDamage(finalDamage, Vector2.zero);
-
-            if (sourceCharacter.OnDealDamage != null)
-            {
-                sourceCharacter.OnDealDamage.Invoke(finalDamage);
-            }
-
-            SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
-                targetComponent,
-                runtime,
-                sourceCharacter,
-                targetComponent.transform.position,
-                monsterLayer,
-                targetComponent.gameObject,
-                consumedNeedleMark
+            damageable.TakeDamage(
+                finalDamage,
+                Vector2.zero
             );
+
+
+            // =====================================================
+            // 피해량 기록
+            // =====================================================
+
+            ReportHedgehogDamage(
+                finalDamage
+            );
+
+
+            // =====================================================
+            // 특수 효과
+            // =====================================================
+
+            SyringeSpecialHitEffectUtility
+                .ApplyPostHitEffects(
+                    targetComponent,
+                    runtime,
+                    sourceCharacter,
+                    targetComponent.transform.position,
+                    monsterLayer,
+                    targetComponent.gameObject,
+                    consumedNeedleMark
+                );
+
 
             if (debugLog)
             {
                 Debug.Log(
-                    $"[고슴도침] {needleIndex + 1}번 침 피격 | Target={targetComponent.name} | Damage={finalDamage:0.##}"
+                    $"[고슴도침] {needleIndex + 1}번 침 피격 | " +
+                    $"Target={targetComponent.name} | " +
+                    $"Damage={finalDamage:0.##}"
                 );
             }
 
+
             if (isCritical)
             {
-                Debug.Log($"[치명타] 고슴도침 치명타 발생 | 피해 {finalDamage:0.##}");
+                Debug.Log(
+                    $"[치명타] 고슴도침 치명타 발생 | " +
+                    $"피해 {finalDamage:0.##}"
+                );
             }
         }
 
-        private void CleanupExpiredCooldowns()
+
+        // =========================================================
+        // Damage Report
+        // =========================================================
+
+        private void ReportHedgehogDamage(
+            float dealtDamage
+        )
         {
-            if (nextDamageAllowedTimeByNeedleAndTarget.Count == 0)
+            if (dealtDamage <= 0f)
             {
                 return;
             }
 
-            removeCooldownKeys.Clear();
 
-            foreach (KeyValuePair<NeedleTargetKey, float> pair in nextDamageAllowedTimeByNeedleAndTarget)
+            // =====================================================
+            // 기존 총 피해량 시스템
+            // =====================================================
+
+            if (sourceCharacter != null &&
+                sourceCharacter.OnDealDamage != null)
             {
-                // 너무 오래 지난 기록만 정리한다.
-                // 일반 쿨타임보다 조금 늦게 지워도 기능에는 영향 없음.
-                if (Time.time >= pair.Value + 1f)
-                {
-                    removeCooldownKeys.Add(pair.Key);
-                }
+                sourceCharacter
+                    .OnDealDamage
+                    .Invoke(
+                        dealtDamage
+                    );
             }
 
-            for (int i = 0; i < removeCooldownKeys.Count; i++)
+
+            // =====================================================
+            // 증강별 피해량
+            // =====================================================
+
+            if (AugmentDamageTracker.Instance != null)
             {
-                nextDamageAllowedTimeByNeedleAndTarget.Remove(removeCooldownKeys[i]);
+                AugmentDamageTracker.Instance
+                    .RecordDamage(
+                        "고슴도침",
+                        dealtDamage
+                    );
             }
         }
 
-        private Vector2 AngleToVector(float angleDegrees)
+
+        // =========================================================
+        // Cleanup Cooldowns
+        // =========================================================
+
+        private void CleanupExpiredCooldowns()
         {
-            float rad = angleDegrees * Mathf.Deg2Rad;
+            if (
+                nextDamageAllowedTimeByNeedleAndTarget
+                    .Count == 0
+            )
+            {
+                return;
+            }
+
+
+            removeCooldownKeys.Clear();
+
+
+            foreach (
+                KeyValuePair<NeedleTargetKey, float>
+                    pair
+                in nextDamageAllowedTimeByNeedleAndTarget
+            )
+            {
+                // 너무 오래 지난 기록만 정리
+                if (
+                    Time.time >=
+                    pair.Value +
+                    1f
+                )
+                {
+                    removeCooldownKeys.Add(
+                        pair.Key
+                    );
+                }
+            }
+
+
+            for (
+                int i = 0;
+                i < removeCooldownKeys.Count;
+                i++
+            )
+            {
+                nextDamageAllowedTimeByNeedleAndTarget
+                    .Remove(
+                        removeCooldownKeys[i]
+                    );
+            }
+        }
+
+
+        // =========================================================
+        // Angle → Vector
+        // =========================================================
+
+        private Vector2 AngleToVector(
+            float angleDegrees
+        )
+        {
+            float rad =
+                angleDegrees *
+                Mathf.Deg2Rad;
+
 
             return new Vector2(
                 Mathf.Cos(rad),
@@ -571,35 +1190,64 @@ namespace Vampire
             ).normalized;
         }
 
+
+        // =========================================================
+        // Destroy
+        // =========================================================
+
         private void DestroySelf()
         {
             if (gameObject != null)
             {
-                Destroy(gameObject);
+                Destroy(
+                    gameObject
+                );
             }
         }
+
 
         private void OnDestroy()
         {
-            if (sourceCharacter != null && sourceCharacter.OnDeath != null)
+            if (sourceCharacter != null &&
+                sourceCharacter.OnDeath != null)
             {
-                sourceCharacter.OnDeath.RemoveListener(DestroySelf);
+                sourceCharacter.OnDeath.RemoveListener(
+                    DestroySelf
+                );
             }
         }
 
+
+        // =========================================================
+        // Gizmos
+        // =========================================================
+
         private void OnDrawGizmosSelected()
         {
-            Gizmos.DrawWireSphere(transform.position, orbitRadius);
+            Gizmos.DrawWireSphere(
+                transform.position,
+                orbitRadius
+            );
+
 
             if (orbitNeedleVisuals != null)
             {
-                float hitRadius = GetOrbitHitRadius();
+                float hitRadius =
+                    GetOrbitHitRadius();
 
-                for (int i = 0; i < orbitNeedleVisuals.Count; i++)
+
+                for (
+                    int i = 0;
+                    i < orbitNeedleVisuals.Count;
+                    i++
+                )
                 {
                     if (orbitNeedleVisuals[i] != null)
                     {
-                        Gizmos.DrawWireSphere(orbitNeedleVisuals[i].position, hitRadius);
+                        Gizmos.DrawWireSphere(
+                            orbitNeedleVisuals[i].position,
+                            hitRadius
+                        );
                     }
                 }
             }
