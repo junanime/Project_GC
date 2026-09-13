@@ -140,6 +140,38 @@ namespace Vampire
             }
 
             RefreshColliderSizeFromSprite();
+            RefreshGroundShadow(firstSprite);
+        }
+
+        private void RefreshGroundShadow(Sprite sprite)
+        {
+            if (shadow == null || sprite == null || monsterSpriteRenderer == null) return;
+            var renderer = shadow.GetComponent<SpriteRenderer>();
+            if (renderer == null || renderer.sprite == null) return;
+
+            // Use the whole animation's landing footprint, not the current jumping frame.
+            // Pixel-normalized data keeps this aligned when PPU or stage scale changes.
+            Vector2 uv = sugarCubeBlueprint.shadowGroundCenterUV;
+            Vector2 localGround = new Vector2(
+                (uv.x * sprite.rect.width - sprite.pivot.x) / sprite.pixelsPerUnit,
+                (uv.y * sprite.rect.height - sprite.pivot.y) / sprite.pixelsPerUnit);
+            Transform body = monsterSpriteRenderer.transform;
+            float width = sprite.rect.width / sprite.pixelsPerUnit
+                * sugarCubeBlueprint.shadowGroundWidthUV * Mathf.Abs(body.lossyScale.x);
+            Vector3 target = body.TransformPoint(localGround);
+            target.y += width * 0.025f;
+            target.z = renderer.bounds.center.z;
+
+            Vector3 parentScale = renderer.transform.parent != null
+                ? renderer.transform.parent.lossyScale : Vector3.one;
+            Vector3 spriteSize = renderer.sprite.bounds.size;
+            renderer.transform.localScale = new Vector3(
+                width * 0.94f / Mathf.Max(0.0001f, spriteSize.x * Mathf.Abs(parentScale.x)),
+                width * 0.235f / Mathf.Max(0.0001f, spriteSize.y * Mathf.Abs(parentScale.y)),
+                renderer.transform.localScale.z);
+            renderer.transform.position += target - renderer.bounds.center;
+            renderer.sortingLayerID = monsterSpriteRenderer.sortingLayerID;
+            renderer.sortingOrder = monsterSpriteRenderer.sortingOrder - 1;
         }
 
         private Sprite GetFirstValidSprite(Sprite[] sprites)

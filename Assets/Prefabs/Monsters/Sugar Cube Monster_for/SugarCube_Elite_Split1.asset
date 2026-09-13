@@ -57,6 +57,8 @@ MonoBehaviour:
   splitChildBlueprint: {fileID: 11400000, guid: c0fb1c6263b6740488ad92700105824f, type: 2}
   splitChildCount: 2
   visualScaleMultiplier: 1.5
+  shadowGroundCenterUV: {x: 0.548828125, y: 0.0390625}
+  shadowGroundWidthUV: 0.83203125
   splitSpawnRadius: 0.35
   splitScatterKnockback: 1.5
   splitOnlyWhenKilledByPlayer: 1
