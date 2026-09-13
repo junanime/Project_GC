@@ -1562,6 +1562,10 @@ namespace Vampire
             {
                 Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
             }
+            else
+            {
+                SyringeAugmentVfx.Play("Explosion", transform.position, SyringeAugmentVfx.FindTarget(originalTarget.transform));
+            }
 
             Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");
 
