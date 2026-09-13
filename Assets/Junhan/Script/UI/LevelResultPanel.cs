@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -41,6 +42,24 @@ namespace Vampire
         [SerializeField] private TextMeshProUGUI killedByMonsterDescriptionText;
 
 
+        [Header("Acquired Augments")]
+        [Tooltip("1~4번째 증강 이미지가 생성될 왼쪽 Grid입니다.")]
+        [SerializeField] private Transform acquiredAugmentGridLeft;
+
+        [Tooltip("5~8번째 증강 이미지가 생성될 오른쪽 Grid입니다.")]
+        [SerializeField] private Transform acquiredAugmentGridRight;
+
+        [Tooltip("이전 증강 페이지 버튼(<)")]
+        [SerializeField] private Button previousAugmentPageButton;
+
+        [Tooltip("다음 증강 페이지 버튼(>)")]
+        [SerializeField] private Button nextAugmentPageButton;
+
+        [Tooltip("결과 화면에서 사용할 증강 최대 페이지 수입니다. 페이지당 8개가 표시됩니다.")]
+        [Min(1)]
+        [SerializeField] private int maxAugmentPages = 2;
+
+
         [Header("Buttons")]
         [SerializeField] private Button retryButton;
         [SerializeField] private Button mainMenuButton;
@@ -52,6 +71,16 @@ namespace Vampire
 
         private bool initialized;
         private bool currentLevelPassed;
+
+        private const int AugmentsPerSide = 4;
+        private const int AugmentsPerPage = 8;
+
+        private int currentAugmentPage = 0;
+
+        private IReadOnlyList<AugmentHistoryManager.AugmentEntry> currentAugmentEntries;
+
+        private readonly List<Image> spawnedAugmentImages =
+            new List<Image>();
 
 
         // =========================================================
@@ -73,6 +102,7 @@ namespace Vampire
             {
                 killedByMonsterRoot.SetActive(false);
             }
+
         }
 
 
@@ -105,6 +135,20 @@ namespace Vampire
             {
                 mainMenuButton.onClick.RemoveListener(ReturnToMainMenu);
                 mainMenuButton.onClick.AddListener(ReturnToMainMenu);
+            }
+
+
+            if (previousAugmentPageButton != null)
+            {
+                previousAugmentPageButton.onClick.RemoveListener(PreviousAugmentPage);
+                previousAugmentPageButton.onClick.AddListener(PreviousAugmentPage);
+            }
+
+
+            if (nextAugmentPageButton != null)
+            {
+                nextAugmentPageButton.onClick.RemoveListener(NextAugmentPage);
+                nextAugmentPageButton.onClick.AddListener(NextAugmentPage);
             }
         }
 
@@ -225,6 +269,13 @@ namespace Vampire
             // =========================
 
             UpdateKilledByMonster();
+
+
+            // =========================
+            // 이번 판에 획득한 증강
+            // =========================
+
+            UpdateAcquiredAugments();
         }
 
 
@@ -465,10 +516,15 @@ namespace Vampire
 
         private void UpdateKilledByMonster()
         {
-            // 스테이지 클리어라면 죽인 몬스터가 없으므로 비워둔다.
+            // 스테이지 클리어 등 몬스터에게 죽은 상황이 아니면 X 표시
             if (currentLevelPassed)
             {
-                ClearKilledByMonsterUI();
+                ShowNoKillerMonsterUI();
+
+                Debug.Log(
+                    "[LevelResultPanel] 스테이지 클리어 상태 → 나를 죽인 몬스터 X 표시"
+                );
+
                 return;
             }
 
@@ -481,10 +537,10 @@ namespace Vampire
 
             if (player == null)
             {
-                ClearKilledByMonsterUI();
+                ShowNoKillerMonsterUI();
 
                 Debug.LogWarning(
-                    "[LevelResultPanel] 나를 죽인 몬스터 표시 실패 - PlayerCharacter를 찾을 수 없습니다."
+                    "[LevelResultPanel] PlayerCharacter를 찾을 수 없습니다. 나를 죽인 몬스터를 X로 표시합니다."
                 );
 
                 return;
@@ -495,20 +551,20 @@ namespace Vampire
                 player.LastDamageMonsterBlueprint;
 
 
-            // 환경 피해, 스테이지 이벤트 등 몬스터가 아닌 원인으로 죽은 경우
+            // 환경 피해, 이벤트 피해 등 몬스터가 아닌 원인으로 죽은 경우
             if (killer == null)
             {
-                ClearKilledByMonsterUI();
+                ShowNoKillerMonsterUI();
 
                 Debug.Log(
-                    "[LevelResultPanel] 마지막 피해 원인이 몬스터가 아닙니다."
+                    "[LevelResultPanel] 마지막 피해 원인이 몬스터가 아닙니다. X 표시"
                 );
 
                 return;
             }
 
 
-            // 실제 몬스터에게 죽었을 때만 UI 표시
+            // 실제 몬스터에게 죽었을 때
             if (killedByMonsterRoot != null)
             {
                 killedByMonsterRoot.SetActive(true);
@@ -519,10 +575,11 @@ namespace Vampire
             // 몬스터 이미지
             // =========================
 
-            Sprite monsterSprite = killer.resultSprite;
+            Sprite monsterSprite =
+                killer.resultSprite;
 
 
-            // 결과용 전용 Sprite가 없으면 일반 걷기 Sprite의 첫 프레임 사용
+            // 결과용 전용 Sprite가 없으면 일반 걷기 Sprite 첫 프레임 사용
             if (monsterSprite == null &&
                 killer.walkSpriteSequence != null &&
                 killer.walkSpriteSequence.Length > 0)
@@ -532,7 +589,7 @@ namespace Vampire
             }
 
 
-            // 엘리트 몬스터가 별도 애니메이션을 사용하는 경우까지 fallback
+            // 엘리트 몬스터 별도 애니메이션 fallback
             if (monsterSprite == null &&
                 killer is EliteMonsterBlueprint eliteBlueprint)
             {
@@ -594,12 +651,14 @@ namespace Vampire
         }
 
 
-        private void ClearKilledByMonsterUI()
+        private void ShowNoKillerMonsterUI()
         {
+            // 몬스터가 없어도 영역 자체는 보여주고 X를 표시합니다.
             if (killedByMonsterRoot != null)
             {
-                killedByMonsterRoot.SetActive(false);
+                killedByMonsterRoot.SetActive(true);
             }
+
 
             if (killedByMonsterImage != null)
             {
@@ -610,14 +669,307 @@ namespace Vampire
 
             if (killedByMonsterNameText != null)
             {
-                killedByMonsterNameText.text = "-";
+                killedByMonsterNameText.text = "X";
             }
 
 
             if (killedByMonsterDescriptionText != null)
             {
-                killedByMonsterDescriptionText.text = "-";
+                killedByMonsterDescriptionText.text = "";
             }
+        }
+
+
+        private void ClearKilledByMonsterUI()
+        {
+            if (killedByMonsterRoot != null)
+            {
+                killedByMonsterRoot.SetActive(false);
+            }
+
+
+            if (killedByMonsterImage != null)
+            {
+                killedByMonsterImage.sprite = null;
+                killedByMonsterImage.enabled = false;
+            }
+
+
+            if (killedByMonsterNameText != null)
+            {
+                killedByMonsterNameText.text = "";
+            }
+
+
+            if (killedByMonsterDescriptionText != null)
+            {
+                killedByMonsterDescriptionText.text = "";
+            }
+        }
+
+
+        // =========================================================
+        // Acquired Augments
+        // =========================================================
+
+        private void UpdateAcquiredAugments()
+        {
+            ClearAcquiredAugments();
+
+            currentAugmentPage = 0;
+            currentAugmentEntries = null;
+
+
+            if (acquiredAugmentGridLeft == null)
+            {
+                Debug.LogWarning(
+                    "[LevelResultPanel] Acquired Augment Grid Left가 연결되어 있지 않습니다."
+                );
+
+                UpdateAugmentPageButtons();
+                return;
+            }
+
+
+            if (acquiredAugmentGridRight == null)
+            {
+                Debug.LogWarning(
+                    "[LevelResultPanel] Acquired Augment Grid Right가 연결되어 있지 않습니다."
+                );
+
+                UpdateAugmentPageButtons();
+                return;
+            }
+
+
+            if (AugmentHistoryManager.Instance == null)
+            {
+                Debug.LogWarning(
+                    "[LevelResultPanel] AugmentHistoryManager.Instance를 찾을 수 없습니다."
+                );
+
+                UpdateAugmentPageButtons();
+                return;
+            }
+
+
+            currentAugmentEntries =
+                AugmentHistoryManager.Instance.Entries;
+
+
+            if (currentAugmentEntries == null ||
+                currentAugmentEntries.Count == 0)
+            {
+                Debug.Log(
+                    "[LevelResultPanel] 이번 판에 획득한 증강이 없습니다."
+                );
+
+                UpdateAugmentPageButtons();
+                return;
+            }
+
+
+            RefreshAugmentPage();
+        }
+
+
+        private void RefreshAugmentPage()
+        {
+            ClearAcquiredAugments();
+
+
+            int totalPages =
+                GetTotalAugmentPages();
+
+
+            currentAugmentPage =
+                Mathf.Clamp(
+                    currentAugmentPage,
+                    0,
+                    Mathf.Max(0, totalPages - 1)
+                );
+
+
+            // 획득한 증강이 없어도 Inspector에서 설정한 페이지 이동은 유지합니다.
+            if (currentAugmentEntries == null ||
+                currentAugmentEntries.Count == 0)
+            {
+                UpdateAugmentPageButtons();
+
+                Debug.Log(
+                    $"[LevelResultPanel] 증강 페이지 표시 완료 : " +
+                    $"{currentAugmentPage + 1} / {totalPages} " +
+                    "(획득한 증강 없음)"
+                );
+
+                return;
+            }
+
+
+            currentAugmentPage =
+                Mathf.Clamp(
+                    currentAugmentPage,
+                    0,
+                    Mathf.Max(0, totalPages - 1)
+                );
+
+
+            int startIndex =
+                currentAugmentPage * AugmentsPerPage;
+
+            int endIndex =
+                Mathf.Min(
+                    startIndex + AugmentsPerPage,
+                    currentAugmentEntries.Count
+                );
+
+
+            for (int entryIndex = startIndex;
+                 entryIndex < endIndex;
+                 entryIndex++)
+            {
+                AugmentHistoryManager.AugmentEntry entry =
+                    currentAugmentEntries[entryIndex];
+
+                if (entry == null || entry.icon == null)
+                {
+                    continue;
+                }
+
+
+                int localIndex =
+                    entryIndex - startIndex;
+
+
+                Transform targetGrid =
+                    localIndex < AugmentsPerSide
+                        ? acquiredAugmentGridLeft
+                        : acquiredAugmentGridRight;
+
+
+                GameObject imageObject =
+                    new GameObject(
+                        $"ResultAugmentImage_{entryIndex + 1:00}",
+                        typeof(RectTransform),
+                        typeof(CanvasRenderer),
+                        typeof(Image)
+                    );
+
+
+                imageObject.transform.SetParent(
+                    targetGrid,
+                    false
+                );
+
+
+                Image spawnedImage =
+                    imageObject.GetComponent<Image>();
+
+
+                spawnedImage.sprite =
+                    entry.icon;
+
+                spawnedImage.preserveAspect =
+                    true;
+
+                spawnedImage.raycastTarget =
+                    false;
+
+                spawnedImage.enabled =
+                    true;
+
+
+                spawnedAugmentImages.Add(
+                    spawnedImage
+                );
+            }
+
+
+            UpdateAugmentPageButtons();
+
+
+            Debug.Log(
+                $"[LevelResultPanel] 증강 페이지 표시 완료 : " +
+                $"{currentAugmentPage + 1} / {totalPages} " +
+                $"(표시 {startIndex + 1} ~ {endIndex})"
+            );
+        }
+
+
+        private void PreviousAugmentPage()
+        {
+            if (currentAugmentPage <= 0)
+                return;
+
+
+            currentAugmentPage--;
+
+            RefreshAugmentPage();
+        }
+
+
+        private void NextAugmentPage()
+        {
+            int totalPages =
+                GetTotalAugmentPages();
+
+
+            if (currentAugmentPage >= totalPages - 1)
+                return;
+
+
+            currentAugmentPage++;
+
+            RefreshAugmentPage();
+        }
+
+
+        private void UpdateAugmentPageButtons()
+        {
+            if (previousAugmentPageButton != null)
+            {
+                previousAugmentPageButton.interactable = true;
+            }
+
+            if (nextAugmentPageButton != null)
+            {
+                nextAugmentPageButton.interactable = true;
+            }
+        }
+
+
+        private int GetTotalAugmentPages()
+        {
+            // Inspector의 Max Augment Pages 값을 실제 페이지 수로 사용합니다.
+            // 획득한 증강 개수와 관계없이 이 페이지 수까지 이동할 수 있습니다.
+            return Mathf.Max(
+                1,
+                maxAugmentPages
+            );
+        }
+
+
+        private void ClearAcquiredAugments()
+        {
+            for (int i = spawnedAugmentImages.Count - 1;
+                 i >= 0;
+                 i--)
+            {
+                Image image =
+                    spawnedAugmentImages[i];
+
+                if (image != null)
+                {
+                    image.gameObject.SetActive(false);
+
+                    Destroy(
+                        image.gameObject
+                    );
+                }
+            }
+
+
+            spawnedAugmentImages.Clear();
         }
 
 
@@ -646,6 +998,8 @@ namespace Vampire
 
         public void Close()
         {
+            ClearAcquiredAugments();
+
             if (killedByMonsterRoot != null)
             {
                 killedByMonsterRoot.SetActive(false);
