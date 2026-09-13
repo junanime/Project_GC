@@ -1,4 +1,5 @@
 using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
@@ -67,9 +68,17 @@ namespace Vampire
         [SerializeField] private bool debugLog = true;
 
         private Collider2D triggerCollider;
-        private bool playerInside;
+        private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
+        private bool playerInside => playerColliders.Count > 0;
         private bool selectable;
         private bool revealed;
+        public bool CanInteract => isActiveAndEnabled && playerInside && selectable && !revealed && ownerRoom != null;
+
+        private void OnDisable()
+        {
+            playerColliders.Clear();
+            SetGuideVisible(false);
+        }
 
         public MiniStageMysteryChestOutcome Outcome { get; private set; }
 
@@ -91,6 +100,9 @@ namespace Vampire
 
         private void Update()
         {
+            playerColliders.RemoveWhere(c => c == null || !c.enabled || !c.gameObject.activeInHierarchy);
+            SetGuideVisible(CanInteract);
+            if (!CanInteract || Time.timeScale <= 0f) return;
             if (!selectable || revealed)
             {
                 return;
@@ -124,7 +136,7 @@ namespace Vampire
             Outcome = outcome;
             selectable = true;
             revealed = false;
-            playerInside = false;
+            playerColliders.Clear();
 
             gameObject.SetActive(true);
 
@@ -172,7 +184,7 @@ namespace Vampire
         {
             selectable = false;
             revealed = true;
-            playerInside = false;
+            playerColliders.Clear();
 
             SetGuideVisible(false);
             gameObject.SetActive(false);
@@ -240,7 +252,7 @@ namespace Vampire
                 return;
             }
 
-            playerInside = true;
+            playerColliders.Add(other);
             SetGuideVisible(selectable && !revealed);
         }
 
@@ -253,16 +265,13 @@ namespace Vampire
                 return;
             }
 
-            playerInside = false;
-            SetGuideVisible(false);
+            playerColliders.Remove(other);
+            SetGuideVisible(CanInteract);
         }
 
         private void SetGuideVisible(bool visible)
         {
-            if (interactionGuide != null)
-            {
-                interactionGuide.SetActive(visible);
-            }
+            PixelInteractionPrompt.Show(this, visible && CanInteract, interactionGuide);
         }
 
         private void ResolveReferences()

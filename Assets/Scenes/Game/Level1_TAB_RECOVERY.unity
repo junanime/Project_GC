@@ -1197,9 +1197,6 @@ MonoBehaviour:
   disableObjectAfterInteract: 1
   disableColliderAfterInteract: 1
   promptRoot: {fileID: 0}
-  promptText: {fileID: 0}
-  promptTMPText: {fileID: 0}
-  promptMessage: "[E] \uC0C1\uD638\uC791\uC6A9"
   levelManager: {fileID: 0}
   debugLog: 1
   spawnRelativeToPlayer: 1

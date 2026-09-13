@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
 namespace Vampire
 {
@@ -35,13 +33,8 @@ namespace Vampire
         [Tooltip("플레이어가 가까이 왔을 때 켜질 안내 오브젝트입니다. 비워도 작동합니다.")]
         [SerializeField] private GameObject promptRoot;
 
-        [Tooltip("선택 사항. Legacy UI Text를 연결하면 안내 문구를 자동으로 바꿉니다.")]
-        [SerializeField] private Text promptText;
 
-        [Tooltip("선택 사항. TextMeshProUGUI를 연결하면 안내 문구를 자동으로 바꿉니다.")]
-        [SerializeField] private TextMeshProUGUI promptTMPText;
 
-        [SerializeField] private string promptMessage = "[E] 상호작용";
 
         [Header("References")]
         [SerializeField] protected LevelManager levelManager;
@@ -51,7 +44,8 @@ namespace Vampire
 
         private Collider2D interactionCollider;
         private Character currentPlayer;
-        private bool playerInside;
+        private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
+        private bool playerInside => playerColliders.Count > 0;
         private bool alreadyInteracted;
 
         protected Character CurrentPlayer => currentPlayer;
@@ -85,6 +79,8 @@ namespace Vampire
 
         protected virtual void OnDisable()
         {
+            playerColliders.Clear();
+            currentPlayer = null;
             RemoveCandidate(this);
 
             if (focusedObject == this)
@@ -98,8 +94,11 @@ namespace Vampire
 
         protected virtual void Update()
         {
+            if (Time.timeScale <= 0f) { SetPromptVisible(false); return; }
+            playerColliders.RemoveWhere(c => c == null || !c.enabled || !c.gameObject.activeInHierarchy);
             if (playerInside && currentPlayer != null)
             {
+                AddCandidate(this);
                 RefreshFocus(currentPlayer);
             }
 
@@ -132,7 +131,7 @@ namespace Vampire
             }
 
             currentPlayer = character;
-            playerInside = true;
+            playerColliders.Add(other);
 
             AddCandidate(this);
             RefreshFocus(character);
@@ -147,9 +146,9 @@ namespace Vampire
                 return;
             }
 
+            playerColliders.Remove(other);
+            if (playerInside) { RefreshFocus(character); return; }
             RemoveCandidate(this);
-
-            playerInside = false;
             currentPlayer = null;
             SetPromptVisible(false);
 
@@ -162,6 +161,7 @@ namespace Vampire
 
         public void TryInteract()
         {
+            if (Time.timeScale <= 0f) return;
             if (MiniStageRuntimeState.IsInsideMiniStage)
             {
                 return;
@@ -348,20 +348,7 @@ namespace Vampire
 
         protected void SetPromptVisible(bool visible)
         {
-            if (promptText != null)
-            {
-                promptText.text = promptMessage;
-            }
-
-            if (promptTMPText != null)
-            {
-                promptTMPText.text = promptMessage;
-            }
-
-            if (promptRoot != null)
-            {
-                promptRoot.SetActive(visible);
-            }
+            PixelInteractionPrompt.Show(this, visible && isActiveAndEnabled, promptRoot);
         }
     }
 }
