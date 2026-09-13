@@ -187,6 +187,7 @@ namespace Vampire
             if (runtime.hungerNeedleEnabled)
             {
                 ApplyHungerNeedleHit(sourceCharacter, runtime);
+                SyringeAugmentVfx.PlayHungerHit(damageableComponent, sourceCharacter, runtime.hungerMaxStacks);
             }
 
             if (runtime.gutBacteriaEnabled)

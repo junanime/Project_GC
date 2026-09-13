@@ -1,0 +1,378 @@
+fileFormatVersion: 2
+guid: cb3ae5bbd37aef14d86867a0505e267f
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 600
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: BipolarNeedle_00
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 814
+        width: 400
+        height: 272
+      alignment: 9
+      pivot: {x: 0.2025, y: 0.40808824}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d39eccaf50c4b344bbc186a8a56930b
+      internalID: 556859747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_01
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 814
+        width: 470
+        height: 272
+      alignment: 9
+      pivot: {x: 0.15531915, y: 0.40441176}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bfd080196d7169749b6784b24a407389
+      internalID: -456900264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_02
+      rect:
+        serializedVersion: 2
+        x: 870
+        y: 814
+        width: 578
+        height: 272
+      alignment: 9
+      pivot: {x: 0.098615915, y: 0.40441176}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bf5012f1ffcf7164baf8f5cb1d234911
+      internalID: 334011198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_03
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 543
+        width: 400
+        height: 271
+      alignment: 9
+      pivot: {x: 0.2025, y: 0.43726936}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e1992e2baaa929a439d07b0a907efd17
+      internalID: -172985238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_04
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 543
+        width: 470
+        height: 271
+      alignment: 9
+      pivot: {x: 0.15531915, y: 0.43726936}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: fada348f78aca3f46afa6f20a1776ff7
+      internalID: 587732624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_05
+      rect:
+        serializedVersion: 2
+        x: 870
+        y: 543
+        width: 578
+        height: 271
+      alignment: 9
+      pivot: {x: 0.098615915, y: 0.43726936}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6e5096a9903b01d46bfe744154efd988
+      internalID: 707724332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_06
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 272
+        width: 400
+        height: 271
+      alignment: 9
+      pivot: {x: 0.2025, y: 0.48154983}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6729fcbbca277614a9f36a1bb45c804a
+      internalID: 1912826811
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_07
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 272
+        width: 470
+        height: 271
+      alignment: 9
+      pivot: {x: 0.15531915, y: 0.47416973}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 17e0048bf4c30984584eb09638135c4f
+      internalID: -1615845888
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_08
+      rect:
+        serializedVersion: 2
+        x: 870
+        y: 272
+        width: 578
+        height: 271
+      alignment: 9
+      pivot: {x: 0.098615915, y: 0.47232473}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f2fb5fd8884b19e44a281959a2c0d6e0
+      internalID: -1661691291
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_09
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 400
+        height: 272
+      alignment: 9
+      pivot: {x: 0.2025, y: 0.5275735}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ca4b60d0642e60b43a52ab81f3759c49
+      internalID: -692610206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_10
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 0
+        width: 470
+        height: 272
+      alignment: 9
+      pivot: {x: 0.15531915, y: 0.5183824}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f5ad7dcc7569ea34b9f195e05988712c
+      internalID: -2139053578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BipolarNeedle_11
+      rect:
+        serializedVersion: 2
+        x: 870
+        y: 0
+        width: 578
+        height: 272
+      alignment: 9
+      pivot: {x: 0.098615915, y: 0.5183824}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b3c1f17504167c54c9b0ecd41832fa98
+      internalID: 358031202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 6624bbc51d9b7e84087bfa6b3e983795
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      BipolarNeedle_00: 556859747
+      BipolarNeedle_01: -456900264
+      BipolarNeedle_02: 334011198
+      BipolarNeedle_03: -172985238
+      BipolarNeedle_04: 587732624
+      BipolarNeedle_05: 707724332
+      BipolarNeedle_06: 1912826811
+      BipolarNeedle_07: -1615845888
+      BipolarNeedle_08: -1661691291
+      BipolarNeedle_09: -692610206
+      BipolarNeedle_10: -2139053578
+      BipolarNeedle_11: 358031202
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

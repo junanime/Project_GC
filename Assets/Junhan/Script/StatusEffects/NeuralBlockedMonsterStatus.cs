@@ -9,6 +9,7 @@ namespace Vampire
     /// </summary>
     public class NeuralBlockedMonsterStatus : MonoBehaviour
     {
+        private SyringeAugmentVfx augmentVisual;
         private Monster monster;
         private Rigidbody2D rb;
         private Animator[] animators;
@@ -27,6 +28,9 @@ namespace Vampire
                 CacheReferences();
             }
 
+            if (!SyringeAugmentVfx.IsLiving(this)) return;
+            if (augmentVisual == null)
+                augmentVisual = SyringeAugmentVfx.Play("NeuralBlock", transform.position, SyringeAugmentVfx.FindTarget(monster));
             endTime = Mathf.Max(endTime, Time.time + Mathf.Max(0.05f, duration));
 
             DisableMonsterMovementComponent();
@@ -55,8 +59,9 @@ namespace Vampire
 
         private void Update()
         {
-            if (Time.time >= endTime)
+            if (Time.time >= endTime || !SyringeAugmentVfx.IsLiving(this))
             {
+                SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
                 RestoreMonsterMovementComponent();
                 RestoreAnimatorSpeed();
                 Destroy(this);
@@ -107,6 +112,7 @@ namespace Vampire
             }
 
             monster.enabled = originalMonsterEnabled;
+            capturedMonsterEnabled = false;
         }
 
         private void StopMovement()
@@ -150,8 +156,17 @@ namespace Vampire
             }
         }
 
+        private void OnDisable()
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            RestoreMonsterMovementComponent();
+            RestoreAnimatorSpeed();
+            endTime = -1f;
+        }
+
         private void OnDestroy()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             RestoreMonsterMovementComponent();
             RestoreAnimatorSpeed();
         }

@@ -22,6 +22,9 @@ namespace Vampire
         [SerializeField, Tooltip("World size of an overhead marker.")]
         private float markerSize = 0.55f;
         private Transform destination;
+        private Transform anchor;
+        private Vector3 anchorOffset;
+        private bool followRotation;
         private Vector3 travelStart;
         private SpriteAnimator animator;
         private SpriteRenderer visual;
@@ -69,6 +72,7 @@ namespace Vampire
             instance.elapsed = 0f;
             instance.target = target;
             instance.destination = null;
+            instance.anchor = null;
             instance.gameObject.SetActive(true);
             instance.visual = instance.GetComponent<SpriteRenderer>();
             instance.animator = instance.GetComponent<SpriteAnimator>();
@@ -99,6 +103,11 @@ namespace Vampire
                 Vector3 side = new Vector3(-delta.y, delta.x, 0f).normalized;
                 transform.position = Vector3.Lerp(travelStart, end, t) + side * Mathf.Sin(t * Mathf.PI) * 0.25f;
                 transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg);
+            }
+            if (anchor != null)
+            {
+                transform.position = anchor.position + anchorOffset;
+                if (followRotation) transform.rotation = anchor.rotation;
             }
             FollowTarget();
         }
@@ -147,6 +156,54 @@ namespace Vampire
             visual.sortingLayerID = target.sortingLayerID;
             visual.sortingOrder = target.sortingOrder + 5;
             visual.enabled = target.enabled;
+        }
+
+        // Owners keep and release persistent leases; never automatically recycle a referenced loop.
+        public void SetStrength(float strength)
+        {
+            if (visual != null) visual.color = new Color(1f, 1f, 1f, opacity * Mathf.Clamp01(strength));
+        }
+
+        public void BindTo(Transform owner, bool rotate = false)
+        {
+            anchor = owner;
+            anchorOffset = owner != null ? transform.position - owner.position : Vector3.zero;
+            followRotation = rotate;
+        }
+
+        public void SetGroundRadius(float radius, float artDiameter = 0.9f)
+        {
+            if (visual == null || visual.sprite == null) return;
+            visual.sortingLayerName = "Default";
+            visual.sortingOrder = 760;
+            var size = visual.sprite.bounds.size;
+            transform.localScale = new Vector3(2f * radius / (size.x * artDiameter),
+                2f * radius / (size.y * artDiameter), 1f);
+        }
+
+        public static void PlayTransfer(string effect, Vector3 start, Transform end, SpriteRenderer sortingTarget)
+        {
+            if (end == null) return;
+            var vfx = Play(effect, start, sortingTarget);
+            if (vfx == null) return;
+            vfx.travelStart = start;
+            vfx.destination = end;
+        }
+
+        public static void PlayHungerHit(Component target, Character player, int maxStacks)
+        {
+            if (target == null || player == null) return;
+            var renderer = FindTarget(target);
+            var vfx = Play("HungerNeedle", renderer != null ? renderer.bounds.center : target.transform.position, renderer);
+            if (vfx == null) return;
+            vfx.BindTo(target.transform);
+            vfx.SetStrength(Mathf.Lerp(0.35f, 1f, HungerNeedleRuntime.GetCurrentStacks(player) / (float)Mathf.Max(1, maxStacks)));
+        }
+
+        public static void ReleaseOwned(ref SyringeAugmentVfx effect)
+        {
+            if (effect != null) effect.Release();
+            effect = null;
         }
 
         public void Release()

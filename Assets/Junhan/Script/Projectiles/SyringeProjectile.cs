@@ -16,6 +16,32 @@ namespace Vampire
         }
 
         private SyringeSpecialRuntime specials;
+        private SyringeAugmentVfx bipolarVisual;
+        private bool heavyImpactVisual;
+
+        public void ConfigureFlightVfx(bool bipolar, bool heavy)
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
+            heavyImpactVisual = heavy;
+            if (bipolar)
+            {
+                bipolarVisual = SyringeAugmentVfx.Play("BipolarNeedle", transform.position, projectileSpriteRenderer);
+                if (bipolarVisual != null) bipolarVisual.BindTo(transform);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (bipolarVisual == null) return;
+            if (isDespawning) { SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual); return; }
+            bipolarVisual.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 180f);
+        }
+
+        private void OnDisable()
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
+            heavyImpactVisual = false;
+        }
         [SerializeField, Tooltip("Minimum seconds between homing trail pulses.")]
         private float homingVfxInterval = 0.16f;
         private float nextHomingVfxTime;
@@ -118,6 +144,7 @@ namespace Vampire
         {
             base.Setup(projectileIndex, position, damage, knockback, speed, targetLayer);
 
+            ConfigureFlightVfx(false, false);
             specials = default;
             nextHomingVfxTime = 0f;
             remainingPierces = 0;
@@ -1454,6 +1481,9 @@ namespace Vampire
                 );
             }
 
+            if (heavyImpactVisual)
+                SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", transform.position, direction, SyringeAugmentVfx.FindTarget(damageableComponent));
+
             if (specials.burnChance > 0 &&
                 UnityEngine.Random.value <
                 specials.burnChance)
@@ -1494,6 +1524,7 @@ namespace Vampire
             if (specials.hungerNeedleEnabled)
             {
                 ApplyHungerNeedleHit();
+                SyringeAugmentVfx.PlayHungerHit(damageableComponent, playerCharacter, specials.hungerMaxStacks);
             }
 
             if (specials.gutBacteriaEnabled)

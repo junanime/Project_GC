@@ -30,7 +30,7 @@ namespace Vampire
 
         [Header("Screen Overlay / 화면 표시")]
         [Tooltip("체크하면 신경차단 발동 중 화면에 투명한 분홍색 오버레이를 표시합니다.")]
-        [SerializeField] private bool showScreenOverlay = true;
+        [SerializeField] private bool showScreenOverlay = false;
 
         [Tooltip("신경차단 발동 중 화면에 깔리는 색상입니다.")]
         [SerializeField] private Color overlayColor = new Color(1f, 0.18f, 0.62f, 0.22f);

@@ -908,6 +908,8 @@ float maxHitRadiusBonusFromSpecial)
             }
 
             damageable.TakeDamage(finalDamage, knockbackDirection * knockback, isCritical);
+            if (sourceNeedleAbility.HasHeavySnipeLegendary())
+                SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", cursorNeedleTransform.position, knockbackDirection, SyringeAugmentVfx.FindTarget(damageableComponent));
 
             if (sourceCharacter != null && sourceCharacter.OnDealDamage != null)
             {

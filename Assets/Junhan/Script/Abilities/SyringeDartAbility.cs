@@ -971,6 +971,7 @@ namespace Vampire
                 syringeProjectile.ConfigureSpecials(
                     BuildSpecialRuntime()
                 );
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
             }
             else
             {
@@ -1235,6 +1236,8 @@ namespace Vampire
             baseDirection.Normalize();
 
             int totalProjectileCount = GetNeedleShotgunProjectileCount();
+            if (entityManager != null && totalProjectileCount > 0)
+                SyringeAugmentVfx.PlayDirected("NeedleShotgun", GetProjectileSpawnPosition(baseDirection), baseDirection, SyringeAugmentVfx.FindTarget(playerCharacter));
 
             if (debugNeedleShotgun)
             {
@@ -1323,6 +1326,7 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
             }
             else
             {
@@ -1516,6 +1520,9 @@ namespace Vampire
             return false;
         }
 
+        private SyringeAugmentVfx heavyChargeVisual;
+        private bool heavyVisualFull;
+
         private void FireHeavySnipe(float chargeRatio)
         {
             if (playerCharacter == null || entityManager == null)
@@ -1556,6 +1563,7 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(runtime);
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, true);
             }
 
             projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
@@ -1693,7 +1701,7 @@ namespace Vampire
 
         private void UpdateHeavySnipeChargePreview(float chargeRatio, Vector2 aimDirection)
         {
-            if (!showHeavyChargePreview || playerCharacter == null)
+            if (!showHeavyChargePreview || playerCharacter == null || playerCharacter.CurrentHealth <= 0f)
             {
                 HideHeavySnipeChargePreview();
                 return;
@@ -1716,6 +1724,19 @@ namespace Vampire
             HeavySnipeChargeStats stats = CalculateHeavySnipeChargeStats(chargeRatio);
 
             Vector2 previewPosition = GetHeavySnipeChargePreviewPosition(chargeRatio, aimDirection);
+            bool full = chargeRatio >= 0.999f;
+            if (heavyChargeVisual != null && full != heavyVisualFull) SyringeAugmentVfx.ReleaseOwned(ref heavyChargeVisual);
+            if (heavyChargeVisual == null)
+            {
+                heavyVisualFull = full;
+                heavyChargeVisual = SyringeAugmentVfx.Play(full ? "HeavySnipeFullCharge" : "HeavySnipe", previewPosition, heavyChargePreviewRenderer);
+            }
+            if (heavyChargeVisual != null)
+            {
+                heavyChargeVisual.transform.position = previewPosition;
+                heavyChargeVisual.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg);
+                heavyChargeVisual.SetStrength(Mathf.Lerp(0.4f, 1f, chargeRatio));
+            }
             heavyChargePreviewObject.transform.position = previewPosition;
 
             float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
@@ -1974,6 +1995,7 @@ namespace Vampire
 
         private void HideHeavySnipeChargePreview()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref heavyChargeVisual);
             if (heavyChargePreviewObject != null)
             {
                 heavyChargePreviewObject.SetActive(false);
@@ -1982,6 +2004,7 @@ namespace Vampire
 
         private void DestroyHeavySnipeChargePreview()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref heavyChargeVisual);
             if (heavyChargePreviewObject != null)
             {
                 Destroy(heavyChargePreviewObject);
