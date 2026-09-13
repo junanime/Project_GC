@@ -5,12 +5,13 @@ using UnityEngine;
 namespace Vampire
 {
     /// <summary>
-    /// 몬스터 디버퍼에게 피격되었을 때 플레이어에게 적용되는 공격속도 감소 디버프입니다.
+    /// 몬스터 디버퍼에게 피격되었을 때 플레이어에게 적용되는 이동 방향 반전 디버프입니다.
     ///
     /// 같은 디버프가 다시 들어오면 중첩하지 않고 지속 시간만 갱신합니다.
-    /// 노란색 아래 화살표가 비처럼 내려오는 임시 연출도 함께 처리합니다.
+    /// 양방향 화살표가 비처럼 내려오는 임시 연출도 함께 처리합니다.
     /// </summary>
     [DisallowMultipleComponent]
+    // Keep the original class/file identity for existing prefab and serialized references.
     public class PlayerAttackSpeedDebuffRuntime : MonoBehaviour
     {
         private class ArrowVisual
@@ -23,7 +24,8 @@ namespace Vampire
         private Character character;
         private bool active;
         private float remainingTime;
-        private float appliedReduction;
+        public bool IsActive => active;
+        public float RemainingTime => remainingTime;
 
         private GameObject arrowRoot;
         private readonly List<ArrowVisual> arrows = new List<ArrowVisual>();
@@ -45,7 +47,6 @@ namespace Vampire
         }
 
         public void Apply(
-            float attackSpeedReduction,
             float duration,
             Color arrowColor,
             float arrowYOffset,
@@ -77,15 +78,9 @@ namespace Vampire
             this.arrowSortingOrder = arrowSortingOrder;
             this.debugLog = debugLog;
 
-            float safeReduction = Mathf.Max(0f, attackSpeedReduction);
-
-            if (active)
-            {
-                character.AddAttackSpeed(appliedReduction);
-            }
-
-            appliedReduction = safeReduction;
-            character.AddAttackSpeed(-appliedReduction);
+            // Store the raw input on Character; inversion is resolved when movement is consumed.
+            // Repeated hits refresh the timer and never toggle the direction back accidentally.
+            character.SetMovementControlsReversed(true);
 
             remainingTime = Mathf.Max(0.1f, duration);
             active = true;
@@ -94,7 +89,7 @@ namespace Vampire
 
             if (this.debugLog)
             {
-                Debug.Log($"[몬스터 디버프] 플레이어 공격속도 감소 적용 | -{appliedReduction * 100f:0.#}% | {remainingTime:0.##}초", this);
+                Debug.Log($"[몬스터 디버프] 플레이어 이동 방향 반전 적용 | {remainingTime:0.##}초", this);
             }
         }
 
@@ -114,7 +109,7 @@ namespace Vampire
             }
         }
 
-        private void ClearDebuff()
+        public void ClearDebuff()
         {
             if (!active)
             {
@@ -123,18 +118,17 @@ namespace Vampire
 
             if (character != null)
             {
-                character.AddAttackSpeed(appliedReduction);
+                character.SetMovementControlsReversed(false);
             }
 
             active = false;
             remainingTime = 0f;
-            appliedReduction = 0f;
 
             DestroyArrowVisuals();
 
             if (debugLog)
             {
-                Debug.Log("[몬스터 디버프] 플레이어 공격속도 감소 해제", this);
+                Debug.Log("[몬스터 디버프] 플레이어 이동 방향 반전 해제", this);
             }
         }
 
@@ -142,18 +136,18 @@ namespace Vampire
         {
             if (arrowRoot == null)
             {
-                arrowRoot = new GameObject("Attack Speed Down Arrow Rain");
+                arrowRoot = new GameObject("Reversed Controls Arrows");
                 arrowRoot.transform.SetParent(transform, false);
                 arrowRoot.transform.localPosition = Vector3.zero;
             }
 
             while (arrows.Count < arrowCount)
             {
-                GameObject arrowObject = new GameObject("Yellow Down Arrow");
+                GameObject arrowObject = new GameObject("Control Reversal Arrow");
                 arrowObject.transform.SetParent(arrowRoot.transform, false);
 
                 TextMeshPro text = arrowObject.AddComponent<TextMeshPro>();
-                text.text = "↓";
+                text.text = "↔";
                 text.alignment = TextAlignmentOptions.Center;
                 text.fontSize = arrowFontSize;
                 text.color = arrowColor;

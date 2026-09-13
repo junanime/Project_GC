@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5d10137d6483b640b450df304a4102c, type: 3}
   m_Name: MonsterDebuffer_AttackSpeed_Blueprint
   m_EditorClassIdentifier: 
-  name: "\uACF5\uC18D\uAC10\uC18C\uB514\uBC84\uD37C"
+  name: "\ubc29\ud5a5\ubc18\uc804 \ub514\ubc84\ud37c"
   hp: 50
   atk: 3
   recovery: 0

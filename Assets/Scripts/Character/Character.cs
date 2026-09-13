@@ -149,6 +149,9 @@ namespace Vampire
         protected CoroutineQueue coroutineQueue;
         protected Coroutine hitAnimationCoroutine = null;
         protected Vector2 moveDirection;
+        private bool movementControlsReversed;
+        public Vector2 EffectiveMoveDirection => movementControlsReversed ? -moveDirection : moveDirection;
+        public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
         protected bool isDashing = false;
         protected bool isInvincible = false;
@@ -277,8 +280,15 @@ namespace Vampire
             characterBlueprint = CrossSceneData.CharacterBlueprint;
         }
 
+        private void OnEnable()
+        {
+            EnsureDashRecharge();
+        }
+
         private void OnDisable()
         {
+            StopDashRecharge();
+            movementControlsReversed = false;
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
 
@@ -367,9 +377,10 @@ namespace Vampire
                 return;
             }
 
-            if (moveDirection != Vector2.zero)
+            Vector2 effectiveDirection = EffectiveMoveDirection;
+            if (effectiveDirection != Vector2.zero)
             {
-                lookDirection = moveDirection;
+                lookDirection = effectiveDirection;
             }
             else
             {
@@ -378,12 +389,13 @@ namespace Vampire
 
             if (alive)
             {
-                rb.velocity += moveDirection * characterBlueprint.acceleration * Time.deltaTime;
+                rb.velocity += effectiveDirection * characterBlueprint.acceleration * Time.deltaTime;
             }
         }
 
         private void InitDash()
         {
+            StopDashRecharge();
             maxDashCharges = Mathf.Max(1, maxDashCharges);
             currentDashCharges = maxDashCharges;
             dashInvincibleEndTime = -1f;
@@ -478,10 +490,7 @@ namespace Vampire
             }
             dashCoroutine = StartCoroutine(DashCoroutine(dashDirection));
 
-            if (dashRechargeCoroutine == null)
-            {
-                dashRechargeCoroutine = StartCoroutine(DashRechargeCoroutine());
-            }
+            EnsureDashRecharge();
 
             if (debugDashLog)
             {
@@ -495,7 +504,7 @@ namespace Vampire
         {
             if (moveDirection != Vector2.zero)
             {
-                return moveDirection.normalized;
+                return EffectiveMoveDirection.normalized;
             }
 
             if (lookDirection != Vector2.zero)
@@ -757,6 +766,24 @@ namespace Vampire
             }
         }
 
+        private void StopDashRecharge()
+        {
+            if (dashRechargeCoroutine != null)
+            {
+                StopCoroutine(dashRechargeCoroutine);
+                dashRechargeCoroutine = null;
+            }
+        }
+
+        private void EnsureDashRecharge()
+        {
+            if (alive && isActiveAndEnabled && currentDashCharges < maxDashCharges &&
+                dashRechargeCoroutine == null)
+            {
+                dashRechargeCoroutine = StartCoroutine(DashRechargeCoroutine());
+            }
+        }
+
         private IEnumerator DashRechargeCoroutine()
         {
             while (currentDashCharges < maxDashCharges)
@@ -1015,6 +1042,7 @@ namespace Vampire
         private IEnumerator DeathAnimation()
         {
             alive = false;
+            GetComponent<PlayerAttackSpeedDebuffRuntime>()?.ClearDebuff();
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
@@ -1825,6 +1853,10 @@ namespace Vampire
 
             alive =
                 currentHealth > 0f;
+
+            // Restored spent charges must recharge even when no dash can be started.
+            StopDashRecharge();
+            EnsureDashRecharge();
 
             // --------------------------------------------------------
             // UI Refresh

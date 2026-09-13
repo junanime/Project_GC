@@ -158,7 +158,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1401065725, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cdbbf22bcdb3486cb1538f0bdc0a8259, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -305,6 +305,13 @@ MonoBehaviour:
   castStartDistance: 1
   castCooldown: 4
   castMotionDuration: 0.45
+  castSprites:
+  - {fileID: 21300000, guid: fc36c4318e3a45fa855ad6e13406babb, type: 3}
+  - {fileID: 21300000, guid: ebdbdeaff54c4b41824a0087adcf1bc8, type: 3}
+  - {fileID: 21300000, guid: 473f6d9d26a34ac8aa1c3a2d3732d686, type: 3}
+  - {fileID: 21300000, guid: ef52ee092a394416af520e4210ad3235, type: 3}
+  - {fileID: 21300000, guid: 3fe4e190df0848ce86f2942533e50b2f, type: 3}
+  - {fileID: 21300000, guid: c9cf199b3d4a48778bab4f1578812cb8, type: 3}
   buffRadius: 1
   buffDuration: 5
   moveSpeedBonusRatio: 0.2
@@ -318,7 +325,7 @@ MonoBehaviour:
   iconOrbitSpeed: 4
   iconFontSize: 2.5
   iconSortingOrder: 120
-  showCastRangePulse: 1
+  showCastRangePulse: 0
   castPulseSortingOrder: 110
   debugLog: 0
 --- !u!1001 &1613326256856120527
