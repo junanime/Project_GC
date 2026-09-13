@@ -64,3 +64,17 @@ BossController와 같은 오브젝트에 추가된 BossFiveCoreSkillController�
 Unity 2022.3.62f3 Play Mode에서 4단계 검사 434개(후보 무작위 선택 반복 400회 포함)와 기존 HP·발사지점·사망·보상 회귀 검사 75개를 통과했습니다. 최종 실행에서 컴파일 오류와 런타임 예외는 없었습니다. 기존 미사용 필드 경고는 남아 있습니다. 기존 Transform 43개의 위치·회전·크기를 보존했습니다.
 
 격리된 검증 씬에서 실제 컴포넌트와 패턴 코루틴을 실행했습니다. Level 1에서의 직접 조작과 난이도·화면 연출은 위 테스트 순서로 확인해 주세요.
+
+## Inspector 패턴 목록과 공격 간격 보충
+
+원본 8개는 비활성 상태로 보존하고, 코어 아래에 기존 패턴 클래스를 사용하는 컴포넌트 6개를 배치했습니다. 별도 공격 스크립트 6종을 새로 만든 것은 아닙니다. GreenRadial은 OrangeRadial과 같은 클래스를 쓰는 임시 변형이며 각각 독립 쿨타임입니다. UFO의 실제 후보는 코어별 Skill Pool입니다. BossController의 표시 목록도 이제 이 등록 목록만 수집합니다(현재 6개). 런타임 파괴/쿨타임 조건은 선택 시 추가 검사합니다.
+
+Play를 종료한 상태에서 프리팹의 BossController를 선택합니다.
+- Special Pattern Timing / Pattern Interval Min, Max: 특수 패턴 사이 대기(현재 4~7초). 전체 빈도를 줄이려면 이 값을 먼저 늘립니다.
+- Pattern Gap: 패턴 종료 후 추가 후딜(현재 1.2초).
+- First Pattern Delay: 등장 후 첫 패턴 대기(현재 3초).
+- 각 코어 아래 Skills 패턴 컴포넌트 / Cooldown: 그 스킬의 재사용 대기. 다른 스킬은 사용할 수 있습니다.
+- Basic Attack Cooldown: 기본 연사 묶음 사이 대기(현재 1.6초). Burst Count/Interval은 묶음 안의 발사 수/간격입니다.
+- Phase 3 Settings의 Pattern Interval/Cooldown/Gap Multiplier는 현재 모두 0.5입니다. 3페이즈에서 시간 간격이 절반으로 줄어듭니다. 같은 간격을 원하면 1로 조절합니다.
+
+콜라 설정은 비활성 원본이 아닌 YellowCore/ColaCombination의 BossColaBottleHealPattern에서 조절합니다. Heal Delay After Spawn=20초, Heal Per Second=8, Max Pattern Duration=30초입니다. 빠른 확인용으로는 Heal Delay After Spawn을 2초로 줄이고 살아 있는 코어에 일부 피해를 준 뒤 공격을 멈추고 확인합니다. 파괴된 코어 몫의 HP는 회복하지 않습니다. 예를 들어 총 HP 500에서 코어 두 개가 파괴되고 나머지 세 개가 100/100이면 합계 300이 현재 회복 가능한 상한입니다.

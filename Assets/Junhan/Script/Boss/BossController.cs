@@ -822,6 +822,21 @@ namespace Vampire
 
         private void CollectPatternsIfNeeded()
         {
+            if (IsFiveCoreBoss)
+            {
+                patterns.Clear();
+                foreach (var core in fiveCoreHealthRoot.FiveCores)
+                {
+                    if (core == null || core.SkillPool == null) continue;
+                    foreach (var pattern in core.SkillPool)
+                    {
+                        if (pattern != null && pattern.OwnerPart == core &&
+                            pattern.isActiveAndEnabled && !patterns.Contains(pattern))
+                            patterns.Add(pattern);
+                    }
+                }
+                return;
+            }
             if (!autoCollectPatternsFromChildren &&
                 patterns.Count > 0)
             {
