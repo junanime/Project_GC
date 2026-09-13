@@ -136,6 +136,11 @@ namespace Vampire
         [SerializeField]
         private bool hideRemainingPartsOnBossDeath = true;
 
+        [Tooltip("UFO 최종 사망 시 숨길 외형의 부모입니다. 비워두면 Parts Search Root, 그다음 이 관리자의 부모를 사용합니다. 보스 바깥의 오브젝트는 연결하지 마세요.")]
+        [SerializeField] private Transform bossDeathVisualRoot;
+
+        private bool runtimeInitialized;
+
         [Header("디버그")]
 
         [Tooltip(
@@ -190,7 +195,9 @@ namespace Vampire
 
         private void OnEnable()
         {
+            if (useFiveCoreHealth && runtimeInitialized) return;
             ResetRuntimeState();
+            runtimeInitialized = true;
         }
 
         private void Start()
@@ -409,6 +416,7 @@ namespace Vampire
         public void NotifyPartBroken(
             BossPartDamageTestPart part)
         {
+            if (bossDead || part == null || !part.IsBroken) return;
             if (useFiveCoreHealth && (!HasValidFiveCoreSetup() || !IsFiveCoreMember(part)))
                 return;
             if (part == null)
@@ -626,6 +634,14 @@ namespace Vampire
                         part.SetVisualEnabled(false);
                     }
                 }
+
+                if (useFiveCoreHealth)
+                {
+                    Transform visualRoot = bossDeathVisualRoot != null ? bossDeathVisualRoot : partsSearchRoot;
+                    if (visualRoot == null) visualRoot = transform.parent != null ? transform.parent : transform;
+                    foreach (SpriteRenderer renderer in visualRoot.GetComponentsInChildren<SpriteRenderer>(true))
+                        renderer.enabled = false;
+                }
             }
 
             if (debugLog)
@@ -646,6 +662,11 @@ namespace Vampire
         [ContextMenu("Reset Whole Test Boss")]
         public void ResetWholeTestBoss()
         {
+            if (useFiveCoreHealth && runtimeInitialized)
+            {
+                Debug.LogWarning("[UFO Boss] 보상/패턴 상태까지 초기화하려면 테스트 스포너에서 보스를 새로 생성하세요.", this);
+                return;
+            }
             bossDead = false;
 
             brokenPartIds.Clear();
@@ -695,6 +716,7 @@ namespace Vampire
 
         private void SyncPartsArray()
         {
+            brokenPartCount = brokenPartIds.Count;
             parts =
                 registeredParts.ToArray();
         }

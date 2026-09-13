@@ -151,7 +151,7 @@ namespace Vampire
                 return;
             }
 
-            Vector3 spawnPosition = bossController.BossCenterPosition;
+            Vector3 spawnPosition = bossController.AttackOriginPosition;
 
             for (int i = 0; i < bulletCount; i++)
             {

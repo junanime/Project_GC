@@ -98,6 +98,9 @@ namespace Vampire
         {
             get
             {
+                if (bossController != null && bossController.HasAttackMuzzle)
+                    return bossController.AttackOriginPosition;
+
                 if (useOwnerPartAsPatternOrigin &&
                     ownerPart != null)
                 {

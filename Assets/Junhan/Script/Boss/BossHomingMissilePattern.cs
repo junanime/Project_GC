@@ -334,7 +334,7 @@ namespace Vampire
                 bossController.PlayerCharacter;
 
             Vector3 bossPosition =
-                bossController.BossCenterPosition;
+                bossController.AttackOriginPosition;
 
             Transform playerTarget =
                 player.CenterTransform != null
@@ -378,10 +378,9 @@ namespace Vampire
                         angle);
 
                 Vector3 spawnPosition =
-                    bossPosition +
-                    (Vector3)(
+                    bossController.GetProjectileSpawnPosition((Vector3)(
                         fireDirection.normalized *
-                        muzzleOffsetFromBoss);
+                        muzzleOffsetFromBoss));
 
                 SpawnMissile(
                     spawnPosition,

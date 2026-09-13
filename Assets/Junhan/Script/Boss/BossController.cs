@@ -107,6 +107,9 @@ namespace Vampire
         [Tooltip("UFO 5코어 모드의 HP Root입니다. 연결된 Root가 5코어 모드일 때 본체 TakeDamage 호출을 차단합니다. 기존 보스는 비워 두세요.")]
         [SerializeField] private BossPartDamageTestRootController fiveCoreHealthRoot;
 
+        [Tooltip("기본 탄환과 투사체 패턴의 공통 발사지점입니다. 지정하면 기존 발사 오프셋 대신 이 위치를 사용합니다. 비우면 기존 보스 중심/오프셋 방식을 유지합니다.")]
+        [SerializeField] private Transform attackMuzzle;
+
         [Header("Boss References")]
         [Tooltip(
             "플레이어 캐릭터입니다. " +
@@ -433,6 +436,13 @@ namespace Vampire
         public int CurrentPhase => currentPhase;
         public Character PlayerCharacter => playerCharacter;
         public Vector3 BossCenterPosition => transform.position;
+        public bool HasAttackMuzzle => attackMuzzle != null;
+        public Vector3 AttackOriginPosition => attackMuzzle != null ? attackMuzzle.position : BossCenterPosition;
+
+        public Vector3 GetProjectileSpawnPosition(Vector3 legacyOffset)
+        {
+            return attackMuzzle != null ? attackMuzzle.position : BossCenterPosition + legacyOffset;
+        }
         public Rigidbody2D Rigidbody => rb;
         public BossCoreStateController CoreStateController => coreStateController;
         public BossCoreTrait ActiveCoreTraits =>
@@ -927,6 +937,12 @@ namespace Vampire
             }
 
             isDead = true;
+            // 페이즈 대기 중 마지막 코어가 파괴되어도 이후 패턴 루프가 재시작되지 않게 합니다.
+            if (phaseTransitionCoroutine != null)
+            {
+                StopCoroutine(phaseTransitionCoroutine);
+                phaseTransitionCoroutine = null;
+            }
             isPhaseTransitioning = false;
             isInvincibleByPhase = false;
 
@@ -1237,7 +1253,7 @@ namespace Vampire
         private Vector2 GetBasicAttackDirection()
         {
             Vector2 origin =
-                BossCenterPosition;
+                AttackOriginPosition;
 
             Vector2 aimPosition =
                 GetBasicAttackAimPosition();
@@ -1279,10 +1295,9 @@ namespace Vampire
             }
 
             Vector3 spawnPosition =
-                BossCenterPosition +
-                (Vector3)(
+                GetProjectileSpawnPosition((Vector3)(
                     direction *
-                    basicAttackMuzzleOffset);
+                    basicAttackMuzzleOffset));
 
             GameObject bullet =
                 Instantiate(

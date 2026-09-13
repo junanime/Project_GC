@@ -122,6 +122,13 @@ namespace Vampire
         [SerializeField]
         private bool hideRenderersWhenBroken = true;
 
+        [Header("UFO Core 파괴 표시")]
+        [Tooltip("UFO 5코어 모드에서 파괴된 코어를 숨기는 대신 어둡게 남깁니다. 꺼두면 기존 Hide Renderers When Broken 설정을 사용합니다.")]
+        [SerializeField] private bool keepBrokenFiveCoreVisible = true;
+
+        [Tooltip("파괴된 UFO 코어에 적용할 색입니다. Collider와 피해는 색상 표시 여부와 관계없이 차단됩니다.")]
+        [SerializeField] private Color brokenCoreColor = new Color(0.25f, 0.25f, 0.25f, 0.6f);
+
         [Header("디버그")]
 
         [Tooltip(
@@ -133,6 +140,7 @@ namespace Vampire
         private Color[] originalColors;
         private Coroutine hitFlashCoroutine;
         private bool damageEnabled = true;
+        private bool healthInitialized;
 
         public BossPartDamageTestType PartType => partType;
 
@@ -165,7 +173,23 @@ namespace Vampire
 
         private void OnEnable()
         {
+            ResolveRootController();
+            if (healthInitialized && rootController != null && rootController.UsesFiveCoreHealth)
+            {
+                // 일시 비활성화는 새 보스 생성이 아닙니다. HP와 파괴 상태를 보존합니다.
+                StopHitFlashAndRestore();
+                SetDamageEnabled(!isBroken);
+                if (isBroken) ApplyBrokenVisual();
+                else SetVisualEnabled(!rootController.IsBossDead);
+                return;
+            }
             ResetPart();
+        }
+
+        private void OnDisable()
+        {
+            StopHitFlashAndRestore();
+            if (isBroken) ApplyBrokenVisual();
         }
 
         //// <summary>
@@ -339,6 +363,12 @@ namespace Vampire
             ResolveReferences();
             ResolveRootController();
 
+            if (healthInitialized && rootController != null && rootController.UsesFiveCoreHealth)
+            {
+                Debug.LogWarning("[UFO Core] 전투 중 코어만 초기화할 수 없습니다. 테스트 스포너에서 보스를 새로 생성하세요.", this);
+                return;
+            }
+
             if (originalSharedMaterials == null ||
                 originalColors == null ||
                 originalColors.Length != spriteRenderers.Length)
@@ -354,6 +384,7 @@ namespace Vampire
                 Mathf.Max(0.01f, MaxHealth);
 
             isBroken = false;
+            healthInitialized = true;
 
             SetDamageEnabled(true);
             SetVisualEnabled(true);
@@ -414,24 +445,20 @@ namespace Vampire
 
             ResolveRootController();
 
-            // 먼저 Root에 알립니다.
-            // Core라면 이 시점에 전체 보스 사망 처리가 시작됩니다.
+            // 파괴 상태/Collider/표시를 먼저 확정합니다. 마지막 코어의 최종 사망 처리가
+            // 모든 외형을 숨긴 뒤 이 코어를 다시 표시하지 않도록 알림은 그 다음에 보냅니다.
+            if (disableCollidersWhenBroken ||
+                (rootController != null && rootController.UsesFiveCoreHealth))
+                SetDamageEnabled(false);
+            ApplyBrokenVisual();
+
+            // 기존 모드는 단일 Core, UFO 모드는 다섯 코어 전부 파괴 시 최종 사망합니다.
             if (rootController != null)
             {
                 rootController.RegisterPart(this);
 
                 rootController.NotifyPartBroken(
                     this);
-            }
-
-            if (disableCollidersWhenBroken)
-            {
-                SetDamageEnabled(false);
-            }
-
-            if (hideRenderersWhenBroken)
-            {
-                SetVisualEnabled(false);
             }
 
             if (debugLog)
@@ -462,6 +489,20 @@ namespace Vampire
             rootController = controller;
         }
 
+        private void ApplyBrokenVisual()
+        {
+            if (rootController != null && rootController.UsesFiveCoreHealth && keepBrokenFiveCoreVisible)
+            {
+                SetVisualEnabled(!rootController.IsBossDead);
+                foreach (SpriteRenderer renderer in spriteRenderers)
+                    if (renderer != null) renderer.color = brokenCoreColor;
+            }
+            else if (hideRenderersWhenBroken)
+            {
+                SetVisualEnabled(false);
+            }
+        }
+
         /// <summary>
         /// 피해 Collider를 일괄 활성/비활성화합니다.
         /// </summary>
@@ -469,7 +510,8 @@ namespace Vampire
             bool enabled)
         {
             ResolveReferences();
-            damageEnabled = enabled && (rootController == null || rootController.CanReceivePartDamage(this));
+            damageEnabled = enabled && !isBroken &&
+                (rootController == null || rootController.CanReceivePartDamage(this));
 
             for (int i = 0;
                  i < hitColliders.Length;
@@ -490,6 +532,8 @@ namespace Vampire
             bool enabled)
         {
             ResolveReferences();
+            if (rootController != null && rootController.UsesFiveCoreHealth && rootController.IsBossDead)
+                enabled = false;
 
             for (int i = 0;
                  i < spriteRenderers.Length;

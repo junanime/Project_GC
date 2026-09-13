@@ -426,9 +426,6 @@ namespace Vampire
 
         private Vector3 GetProjectileStartPosition()
         {
-            Vector3 bossCenter =
-                bossController.BossCenterPosition;
-
             Vector3 offset =
                 new Vector3(
                     projectileStartOffsetFromBoss.x,
@@ -436,8 +433,7 @@ namespace Vampire
                     0f);
 
             return
-                bossCenter +
-                offset;
+                bossController.GetProjectileSpawnPosition(offset);
         }
 
         private void PrepareProjectilePhysics(
