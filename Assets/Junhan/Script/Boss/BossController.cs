@@ -106,6 +106,12 @@ namespace Vampire
         [Header("UFO Health Link")]
         [Tooltip("UFO 5코어 모드의 HP Root입니다. 연결된 Root가 5코어 모드일 때 본체 TakeDamage 호출을 차단합니다. 기존 보스는 비워 두세요.")]
         [SerializeField] private BossPartDamageTestRootController fiveCoreHealthRoot;
+        [Tooltip("UFO core skill pools. Leave empty for legacy bosses.")]
+        [SerializeField] private BossFiveCoreSkillController fiveCoreSkills;
+        public BossFiveCoreSkillController FiveCoreSkills => fiveCoreSkills;
+        public BossPartDamageTestRootController FiveCoreHealthRoot => fiveCoreHealthRoot;
+        public bool IsFiveCoreBoss => fiveCoreHealthRoot != null && fiveCoreHealthRoot.UsesFiveCoreHealth;
+        public bool UsesFiveCoreSkills => fiveCoreSkills != null && fiveCoreSkills.IsConfigured;
 
         [Tooltip("기본 탄환과 투사체 패턴의 공통 발사지점입니다. 지정하면 기존 발사 오프셋 대신 이 위치를 사용합니다. 비우면 기존 보스 중심/오프셋 방식을 유지합니다.")]
         [SerializeField] private Transform attackMuzzle;
@@ -1070,6 +1076,7 @@ namespace Vampire
 
         private bool IsBasicAttackAllowedByCore()
         {
+            if (IsFiveCoreBoss) return UsesFiveCoreSkills && fiveCoreSkills.CanBasicAttack;
             if (coreStateController == null)
             {
                 return true;
@@ -1205,7 +1212,7 @@ namespace Vampire
                 if (isDead ||
                     isPhaseTransitioning ||
                     playerCharacter == null ||
-                    basicAttackBulletPrefab == null)
+                    basicAttackBulletPrefab == null || !IsBasicAttackAllowedByCore())
                 {
                     break;
                 }
@@ -1675,6 +1682,7 @@ namespace Vampire
                 yield break;
             }
 
+            if (IsFiveCoreBoss && (!UsesFiveCoreSkills || !fiveCoreSkills.BeginPattern(pattern, currentPhase))) yield break;
             isUsingPattern = true;
             BeginActivePatternLifecycle(pattern);
 
@@ -1688,12 +1696,22 @@ namespace Vampire
                     this);
             }
 
-            activePatternCoroutine =
-                StartCoroutine(
-                    pattern.Execute());
-
-            yield return
-                activePatternCoroutine;
+            if (UsesFiveCoreSkills)
+            {
+                bool completed = false;
+                activePatternCoroutine = StartCoroutine(RunUfoPattern(pattern, () => completed = true));
+                while (!completed && fiveCoreSkills.CanContinue(pattern)) yield return null;
+                if (!completed)
+                {
+                    StopCoroutine(activePatternCoroutine);
+                    pattern.CancelExecution();
+                }
+            }
+            else
+            {
+                activePatternCoroutine = StartCoroutine(pattern.Execute());
+                yield return activePatternCoroutine;
+            }
 
             activePatternCoroutine = null;
             EndActivePatternLifecycle();
@@ -1713,6 +1731,12 @@ namespace Vampire
             }
 
             isUsingPattern = false;
+        }
+
+        private IEnumerator RunUfoPattern(BossPatternBase pattern, Action onComplete)
+        {
+            yield return pattern.Execute();
+            onComplete();
         }
 
         private void BeginActivePatternLifecycle(
@@ -1740,6 +1764,11 @@ namespace Vampire
             BossPatternBase endedPattern =
                 currentPattern;
 
+            if (fiveCoreSkills != null)
+            {
+                if (endedPattern != null) endedPattern.CancelExecution();
+                fiveCoreSkills.EndPattern();
+            }
             patternLifecycleActive = false;
             currentPattern = null;
 
@@ -1823,6 +1852,7 @@ namespace Vampire
         /// </summary>
         private BossPatternBase SelectPattern()
         {
+            if (IsFiveCoreBoss) return UsesFiveCoreSkills ? fiveCoreSkills.SelectPattern(currentPhase) : null;
             List<BossPatternBase> validPatterns =
                 new List<BossPatternBase>();
 

@@ -63,7 +63,8 @@ Transform:
   m_LocalPosition: {x: 0.553, y: -0.424, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8540085493100490359}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &2129110465740694476
@@ -185,6 +186,8 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool:
+  - {fileID: 5820505102720108475}
 --- !u!1 &263277817357249273
 GameObject:
   m_ObjectHideFlags: 0
@@ -438,6 +441,81 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool: []
+--- !u!1 &662018356034300086
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7020443938697450112}
+  - component: {fileID: 1005179381146040194}
+  m_Layer: 0
+  m_Name: ColaCombination
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7020443938697450112
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662018356034300086}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9050054974222421587}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1005179381146040194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 662018356034300086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d67eafb7a322bc4888956f4dcd020b1, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patternName: YellowGreenColaHeal
+  cooldown: 40
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 4885141670365998839}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  combinationCore: {fileID: 7074903920464498731}
+  colaBottlePrefab: {fileID: 8778423848610247580, guid: 73ff580fe533a144aa62e9a2a44bdfe3, type: 3}
+  bottleCount: 4
+  spawnDistance: 4.5
+  spawnAngleOffset: 45
+  bottleHp: 60
+  healDelayAfterSpawn: 20
+  healPerSecond: 8
+  healTickInterval: 0.25
+  maxPatternDuration: 30
+  makeBossInvincibleWhileBottleExists: 0
+  allowOtherPatternsWhileBottleExists: 0
+  bottleSpawnVfxPrefab: {fileID: 0}
+  bottleDestroyVfxPrefab: {fileID: 0}
+  bossHealVfxPrefab: {fileID: 0}
+  healVfxInterval: 1
+  forceBottleSortingOrder: 1
+  bottleSortingOrder: 450
+  patternCastSeconds: 0.2
+  debugLog: 0
 --- !u!1 &980289972833260809
 GameObject:
   m_ObjectHideFlags: 0
@@ -632,6 +710,7 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool: []
 --- !u!1 &1294367680816387405
 GameObject:
   m_ObjectHideFlags: 0
@@ -686,6 +765,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
+  combinationCore: {fileID: 0}
   warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
   warningDuration: 1
   bombProjectilePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
@@ -927,6 +1007,7 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool: []
 --- !u!1 &1970807575188676842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1047,6 +1128,7 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool: []
 --- !u!58 &8648192848702978580
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1297,6 +1379,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
+  combinationCore: {fileID: 0}
   absorbMinionPrefab: {fileID: 6534739195885250090, guid: 61389d7341a774c41812bdddec1c1bf4, type: 3}
   spawnCount: 12
   spawnInterval: 0.08
@@ -1318,6 +1401,101 @@ MonoBehaviour:
   forceMinionSortingOrder: 1
   minionSortingOrder: 430
   debugLog: 0
+--- !u!1 &2449452202155567762
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3986104144375800599}
+  - component: {fileID: 5443519271201448822}
+  m_Layer: 0
+  m_Name: Skills
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3986104144375800599
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2449452202155567762}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 795050451767656494}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5443519271201448822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2449452202155567762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7850e71ecc209584c9aa612b22ff21a8, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patternName: BlueHoming
+  cooldown: 3
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 891109568445951041}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  combinationCore: {fileID: 0}
+  missilePrefab: {fileID: 79574699671740622, guid: e45b96cccb487f34ba156a57101ef984, type: 3}
+  missileCountPhase1: 4
+  missileCountPhase2: 6
+  missileCountPhase3: 8
+  totalSpreadAngle: 90
+  missileSpeed: 4
+  missileDamage: 15
+  missileLifeTime: 30
+  turnSpeed: 3
+  laneOffsetDistance: 1.4
+  laneFadeDistance: 2.2
+  initialSpreadDuration: 0.2
+  enableEmbeddedBehavior: 1
+  trackingDuration: 4
+  fallingDuration: 0.6
+  embeddedLifetime: 18
+  maxEmbeddedMissiles: 4
+  embeddedScaleMultiplier: 0.8
+  fallingSpinDegrees: 180
+  embeddedExplosionRadius: 2.25
+  embeddedBossMaxHpDamagePercent: 0.025
+  embeddedMonsterDamage: 50
+  embeddedLandingEffectPrefab: {fileID: 0}
+  embeddedExplosionEffectPrefab: {fileID: 0}
+  muzzleOffsetFromBoss: 0.9
+  burstCountPhase1: 1
+  burstCountPhase2: 1
+  burstCountPhase3: 2
+  burstInterval: 0.35
+  destroyByPlayerProjectile: 1
+  playerProjectileLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  projectileHitCheckRadius: 0.25
+  rotateToMoveDirection: 1
+  visualForwardAngleOffset: 0
+  destroyEffectPrefab: {fileID: 0}
+  forceMissileSortingOrder: 1
+  missileSortingOrder: 560
+  debugShot: 0
 --- !u!1 &2495929574641497292
 GameObject:
   m_ObjectHideFlags: 0
@@ -1486,6 +1664,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 1
+  combinationCore: {fileID: 0}
   bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 4
   bulletDamage: 10
@@ -1664,6 +1843,7 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool: []
 --- !u!1 &3183629003082810310
 GameObject:
   m_ObjectHideFlags: 0
@@ -1718,6 +1898,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
+  combinationCore: {fileID: 0}
   injectorPrefab: {fileID: 1717462325660897561, guid: 8ec71fd61cbf6d842a5033e3311461ac, type: 3}
   injectorCount: 3
   injectorHp: 10
@@ -1809,6 +1990,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 1
+  combinationCore: {fileID: 0}
   missilePrefab: {fileID: 79574699671740622, guid: e45b96cccb487f34ba156a57101ef984, type: 3}
   missileCountPhase1: 4
   missileCountPhase2: 6
@@ -1911,7 +2093,8 @@ Transform:
   m_LocalPosition: {x: -0.583, y: -0.42, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6459966704605984215}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1512832047151083172
@@ -2033,6 +2216,8 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool:
+  - {fileID: 9184241988985730918}
 --- !u!1 &3303437612744755116
 GameObject:
   m_ObjectHideFlags: 0
@@ -2087,6 +2272,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
+  combinationCore: {fileID: 0}
   bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 6
   bulletDamage: 8
@@ -2104,6 +2290,88 @@ MonoBehaviour:
   forceBulletSortingOrder: 1
   bulletSortingOrder: 550
   debugShot: 0
+--- !u!1 &3368625510677333568
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4128365554187134289}
+  - component: {fileID: 7511844744557738623}
+  m_Layer: 0
+  m_Name: Skills
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4128365554187134289
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3368625510677333568}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9050054974222421587}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7511844744557738623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3368625510677333568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patternName: YellowBomb
+  cooldown: 3
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 4885141670365998839}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  combinationCore: {fileID: 0}
+  warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
+  warningDuration: 1
+  bombProjectilePrefab: {fileID: 7669521032070789568, guid: 92e4859746b3543d3979816ed1293839, type: 3}
+  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
+  arcHeight: 3
+  projectileScaleMultiplier: 1
+  rotateProjectileToMoveDirection: 1
+  projectileVisualAngleOffset: 0
+  spinProjectile: 1
+  projectileSpinSpeed: 360
+  disableProjectileColliders: 1
+  disableProjectileRigidbodySimulation: 1
+  forceProjectileSortingOrder: 1
+  projectileSortingOrder: 800
+  explosionRadius: 2
+  explosionDamage: 20
+  explosionEffectPrefab: {fileID: 0}
+  projectileDestroyDelayAfterImpact: 0
+  enableBossSelfDamage: 1
+  bossSelfMaxHpDamagePercent: 0.497
+  bossSelfDamageRadiusPadding: 0
+  bombCountPhase1: 1
+  bombCountPhase2: 3
+  bombCountPhase3: 4
+  randomOffsetRadius: 1.5
+  intervalBetweenBombs: 0.15
+  debugBomb: 0
 --- !u!1 &3431546263799301420
 GameObject:
   m_ObjectHideFlags: 0
@@ -2194,6 +2462,148 @@ MonoBehaviour:
   lastOverloadFailed: 0
   pressureEventSubscribed: 0
   debugLog: 1
+--- !u!1 &3634767302152870779
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3286357660152499774}
+  - component: {fileID: 8269633066815087445}
+  m_Layer: 0
+  m_Name: Skills
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3286357660152499774
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3634767302152870779}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3906345431295861327}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8269633066815087445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3634767302152870779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 252d5806f61827f4b945816f539e8a05, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patternName: RedFan
+  cooldown: 3
+  coreTraits: 1
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 4346352809294327159}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 1
+  combinationCore: {fileID: 0}
+  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
+  bulletSpeed: 4
+  bulletDamage: 10
+  bulletCountPhase1: 6
+  bulletCountPhase2: 7
+  bulletCountPhase3: 8
+  totalSpreadAngle: 90
+  burstCountPhase1: 1
+  burstCountPhase2: 2
+  burstCountPhase3: 3
+  burstInterval: 0.4
+  muzzleOffsetFromBoss: 0.9
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
+  debugShot: 0
+--- !u!1 &4622091430914486844
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8540085493100490359}
+  - component: {fileID: 5820505102720108475}
+  m_Layer: 0
+  m_Name: Skills
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8540085493100490359
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4622091430914486844}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 712223532637269082}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5820505102720108475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4622091430914486844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patternName: GreenRadial
+  cooldown: 3
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 7074903920464498731}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  combinationCore: {fileID: 0}
+  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
+  bulletSpeed: 6
+  bulletDamage: 8
+  bulletCountPhase1: 8
+  bulletCountPhase2: 12
+  bulletCountPhase3: 16
+  ringCountPhase1: 1
+  ringCountPhase2: 2
+  ringCountPhase3: 2
+  ringInterval: 0.25
+  patternRepeatAngleOffsetStep: 30
+  ringAngleOffsetStep: 8
+  accumulateRepeatAngleOffset: 1
+  resetRepeatIndexOnDisable: 1
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
+  debugShot: 0
 --- !u!1 &4903031752004193839
 GameObject:
   m_ObjectHideFlags: 0
@@ -2247,6 +2657,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3703967020147427319}
   - component: {fileID: 3274473199323281411}
+  - component: {fileID: 3458630634750592417}
   m_Layer: 7
   m_Name: BossController
   m_TagString: Untagged
@@ -2282,6 +2693,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fiveCoreHealthRoot: {fileID: 8798942031376210255}
+  fiveCoreSkills: {fileID: 3458630634750592417}
   attackMuzzle: {fileID: 3050569804816728115}
   playerCharacter: {fileID: 0}
   rb: {fileID: 1903366919834822943}
@@ -2294,7 +2706,7 @@ MonoBehaviour:
   currentHp: 4000
   contactDamage: 0
   contactDamageCooldown: 0.6
-  enableBasicAttack: 0
+  enableBasicAttack: 1
   basicAttackBulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   basicAttackCooldown: 1.6
   basicAttackDamage: 5
@@ -2374,7 +2786,23 @@ MonoBehaviour:
   debugPhase: 1
   debugCore: 0
   debugForcePatternIndex: 0
-  externalActionLock: 1
+  externalActionLock: 0
+--- !u!114 &3458630634750592417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5041699929294152883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 318cbbf73d61721489f99e9557ce1dd7, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  healthRoot: {fileID: 8798942031376210255}
+  basicAttackOwner: {fileID: 4346352809294327159}
+  activePrimary: {fileID: 0}
+  activeSecondary: {fileID: 0}
 --- !u!1 &5089323812370767977
 GameObject:
   m_ObjectHideFlags: 0
@@ -2437,7 +2865,9 @@ Transform:
   m_LocalPosition: {x: -0.015, y: -0.46, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 4128365554187134289}
+  - {fileID: 7020443938697450112}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &7729777068822595769
@@ -2559,6 +2989,81 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool:
+  - {fileID: 7511844744557738623}
+  - {fileID: 1005179381146040194}
+--- !u!1 &5538438574821719249
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6459966704605984215}
+  - component: {fileID: 9184241988985730918}
+  m_Layer: 0
+  m_Name: Skills
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6459966704605984215
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538438574821719249}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5180640164166070425}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9184241988985730918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5538438574821719249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  patternName: OrangeRadial
+  cooldown: 3
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 0
+  ownerPart: {fileID: 6202724119696504209}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
+  combinationCore: {fileID: 0}
+  bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
+  bulletSpeed: 6
+  bulletDamage: 8
+  bulletCountPhase1: 12
+  bulletCountPhase2: 20
+  bulletCountPhase3: 24
+  ringCountPhase1: 1
+  ringCountPhase2: 2
+  ringCountPhase3: 2
+  ringInterval: 0.25
+  patternRepeatAngleOffsetStep: 20
+  ringAngleOffsetStep: 8
+  accumulateRepeatAngleOffset: 1
+  resetRepeatIndexOnDisable: 1
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
+  debugShot: 0
 --- !u!1 &5904360231514699186
 GameObject:
   m_ObjectHideFlags: 0
@@ -2590,7 +3095,8 @@ Transform:
   m_LocalPosition: {x: 1.086, y: -0.302, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3986104144375800599}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &4145483996531824860
@@ -2712,6 +3218,8 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool:
+  - {fileID: 5443519271201448822}
 --- !u!1 &5925274145856348176
 GameObject:
   m_ObjectHideFlags: 0
@@ -3087,6 +3595,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 0
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
+  combinationCore: {fileID: 0}
   warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
   warningTime: 0.9
   warningWidth: 1.5
@@ -3370,6 +3879,7 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool: []
 --- !u!1 &8191717723223359474
 GameObject:
   m_ObjectHideFlags: 0
@@ -3457,6 +3967,7 @@ MonoBehaviour:
   requireAllAdditionalParts: 1
   useOwnerPartAsPatternOrigin: 1
   debugPartBinding: 0
+  combinationCore: {fileID: 0}
   colaBottlePrefab: {fileID: 8778423848610247580, guid: 73ff580fe533a144aa62e9a2a44bdfe3, type: 3}
   bottleCount: 4
   spawnDistance: 4.5
@@ -3507,7 +4018,8 @@ Transform:
   m_LocalPosition: {x: -1.11, y: -0.298, z: 0}
   m_LocalScale: {x: 0.23444976, y: 0.23444976, z: 0.23444976}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 3286357660152499774}
   m_Father: {fileID: 7420338502666811484}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1367593545811312600
@@ -3629,6 +4141,8 @@ MonoBehaviour:
   keepBrokenFiveCoreVisible: 1
   brokenCoreColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.6}
   debugLog: 1
+  skillPool:
+  - {fileID: 8269633066815087445}
 --- !u!1 &8476177023597971301
 GameObject:
   m_ObjectHideFlags: 0

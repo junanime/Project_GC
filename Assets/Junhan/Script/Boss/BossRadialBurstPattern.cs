@@ -139,6 +139,7 @@ namespace Vampire
 
         private void FireRadialBurst(int bulletCount, float angleOffset)
         {
+            if (bossController != null && bossController.UsesFiveCoreSkills && !bossController.FiveCoreSkills.CanContinue(this)) return;
             if (bulletPrefab == null)
             {
                 Debug.LogWarning("[BossRadialBurstPattern] Bullet Prefab이 비어 있습니다.");

@@ -237,7 +237,7 @@ namespace Vampire
 
             while (isPatternActive)
             {
-                if (bossController == null || bossController.IsDead)
+                if (bossController == null || bossController.IsDead || (bossController.UsesFiveCoreSkills && !bossController.FiveCoreSkills.CanContinue(this)))
                 {
                     break;
                 }
@@ -323,6 +323,11 @@ namespace Vampire
 
             isPatternActive = false;
 
+            if (bossController != null && bossController.UsesFiveCoreSkills)
+            {
+                for (int i = activeBottles.Count - 1; i >= 0; i--)
+                    if (activeBottles[i] != null) activeBottles[i].ForceDestroy();
+            }
             CleanupBottleList();
 
             if (invincibilityApplied)
@@ -357,6 +362,12 @@ namespace Vampire
             {
                 renderer.sortingOrder = bottleSortingOrder;
             }
+        }
+
+        public override void CancelExecution()
+        {
+            CleanupOnDisableOrDestroy();
+            base.CancelExecution();
         }
 
         private void OnDisable()

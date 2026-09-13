@@ -144,6 +144,20 @@ namespace Vampire
 
         public BossPartDamageTestType PartType => partType;
 
+        [Tooltip("Skills owned by this UFO core. Each skill's Owner Part must reference this core.")]
+        [SerializeField] private BossPatternBase[] skillPool;
+        public BossPatternBase[] SkillPool => skillPool;
+
+        public float HealFiveCore(float amount)
+        {
+            if (!healthInitialized || isBroken || rootController == null || !rootController.UsesFiveCoreHealth ||
+                !rootController.CanReceivePartDamage(this) || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
+            float before = currentHealth;
+            currentHealth = Mathf.Min(MaxHealth, currentHealth + amount);
+            rootController.NotifyPartHealthChanged(this);
+            return currentHealth - before;
+        }
+
         public float CurrentHealth => currentHealth;
 
         public float MaxHealth => rootController != null

@@ -198,6 +198,16 @@ namespace Vampire
         [SerializeField]
         private bool debugBomb = false;
 
+        private readonly List<GameObject> pendingBombObjects = new List<GameObject>();
+
+        public override void CancelExecution()
+        {
+            base.CancelExecution();
+            foreach (var pending in pendingBombObjects)
+                if (pending != null) Destroy(pending);
+            pendingBombObjects.Clear();
+        }
+
         protected override IEnumerator ExecutePattern()
         {
             if (bossController == null ||
@@ -280,6 +290,9 @@ namespace Vampire
                 CreateBombProjectile(
                     targetPosition);
 
+            pendingBombObjects.Add(warning);
+            pendingBombObjects.Add(projectile);
+
             float flightDuration =
                 Mathf.Max(
                     0.01f,
@@ -317,6 +330,10 @@ namespace Vampire
                     warning);
             }
 
+            if (bossController != null && bossController.UsesFiveCoreSkills &&
+                !bossController.FiveCoreSkills.CanContinue(this)) yield break;
+            pendingBombObjects.Remove(warning);
+            pendingBombObjects.Remove(projectile);
             SpawnExplosionEffect(
                 targetPosition);
 

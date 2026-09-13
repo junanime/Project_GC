@@ -89,7 +89,12 @@ namespace Vampire
         public float BaseCooldown => cooldown;
         public BossCoreTrait CoreTraits => coreTraits;
         public BossPatternCoreMatchMode CoreMatchMode => coreMatchMode;
+        [Tooltip("Optional second UFO core. This skill requires both cores active, starting in phase 2.")]
+        [SerializeField] private BossPartDamageTestPart combinationCore;
+        public BossPartDamageTestPart CombinationCore => combinationCore;
         public BossPartDamageTestPart OwnerPart => ownerPart;
+
+        public virtual void CancelExecution() { StopAllCoroutines(); }
 
         public bool IsOwnerPartAvailable =>
             ownerPart == null || !ownerPart.IsBroken;
@@ -149,6 +154,9 @@ namespace Vampire
         /// </summary>
         public virtual bool CanUse()
         {
+            if (bossController != null && bossController.UsesFiveCoreSkills &&
+                (combinationCore != null && (bossController.CurrentPhase < 2 || combinationCore.IsBroken))) return false;
+
             if (!AreRequiredPartsAvailable())
             {
                 return false;
@@ -173,6 +181,9 @@ namespace Vampire
         /// </summary>
         public IEnumerator Execute()
         {
+            if (bossController != null && bossController.UsesFiveCoreSkills &&
+                !bossController.FiveCoreSkills.CanContinue(this)) yield break;
+
             if (!AreRequiredPartsAvailable())
             {
                 yield break;

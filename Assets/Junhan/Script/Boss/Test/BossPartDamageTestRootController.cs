@@ -38,6 +38,23 @@ namespace Vampire
         [Tooltip("파란 코어의 BossPartDamageTestPart를 연결하세요.")]
         [SerializeField] private BossPartDamageTestPart blueCore;
 
+        public BossPartDamageTestPart[] FiveCores => new[] { redCore, orangeCore, yellowCore, greenCore, blueCore };
+
+        public float HealLivingCores(float amount)
+        {
+            if (!useFiveCoreHealth || bossDead || !HasValidFiveCoreSetup() ||
+                amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
+            float missing = 0f;
+            foreach (var part in FiveCores)
+                if (!part.IsBroken) missing += Mathf.Max(0f, part.MaxHealth - part.CurrentHealth);
+            if (missing <= 0f) return 0f;
+            float fraction = Mathf.Min(1f, amount / missing);
+            float healed = 0f;
+            foreach (var part in FiveCores)
+                if (!part.IsBroken) healed += part.HealFiveCore((part.MaxHealth - part.CurrentHealth) * fraction);
+            return healed;
+        }
+
         public bool UsesFiveCoreHealth => useFiveCoreHealth;
 
         public bool IsFiveCoreMember(BossPartDamageTestPart part)

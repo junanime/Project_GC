@@ -320,6 +320,7 @@ namespace Vampire
         private void FireHomingMissileFan(
             int missileCount)
         {
+            if (bossController != null && bossController.UsesFiveCoreSkills && !bossController.FiveCoreSkills.CanContinue(this)) return;
             if (missilePrefab == null)
             {
                 Debug.LogWarning(

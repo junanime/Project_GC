@@ -102,6 +102,7 @@ namespace Vampire
 
         private void FireFanShot(int bulletCount)
         {
+            if (bossController != null && bossController.UsesFiveCoreSkills && !bossController.FiveCoreSkills.CanContinue(this)) return;
             if (bulletPrefab == null)
             {
                 Debug.LogWarning("[BossFanShotPattern] Bullet Prefab이 비어 있습니다.");
