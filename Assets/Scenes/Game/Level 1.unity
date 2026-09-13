@@ -23558,7 +23558,7 @@ MonoBehaviour:
   coffeeTransfusionEvents:
   - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
     enabled: 1
-    startTime: 200
+    startTime: 10
     duration: 18
     useRandomStartTime: 0
     startTimeRanges: []
