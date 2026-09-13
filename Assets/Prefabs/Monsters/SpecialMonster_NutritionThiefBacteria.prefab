@@ -26,8 +26,8 @@ Transform:
   m_GameObject: {fileID: 2877871657500550848}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.435, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0.02, y: 0.039, z: 0}
+  m_LocalScale: {x: 0.44566062, y: 0.111415155, z: 0.55707574}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1680239685074238797}
@@ -297,6 +297,21 @@ MonoBehaviour:
   dissolveMaterial: {fileID: 2100000, guid: 6e8eea0ed92094605ac676c1b177e375, type: 2}
   deathParticles: {fileID: 6710381995318333818}
   shadow: {fileID: 2877871657500550848}
+  collectableSearchRadius: 5
+  absorbRadius: 0.65
+  retargetInterval: 0.25
+  thiefMoveSpeed: 1.2
+  speedIncreasePerStoredItem: 0.035
+  maxSpeedMultiplier: 2
+  idleWanderSpeedMultiplier: 0.35
+  idleWanderRadius: 1.5
+  scaleIncreasePerStoredItem: 0.3
+  maxScaleMultiplier: 5
+  bonusRewardThreshold: 12
+  bonusCoinValue: 15
+  minimumExpDrop: 2
+  minimumCoinDrop: 1
+  debugLog: 1
   backRunSprites:
   - {fileID: 21300000, guid: f13170ee38d242319251cdb2775fd1a6, type: 3}
   - {fileID: 21300000, guid: a2daed89fec14104b7ffe22a0d013987, type: 3}
@@ -313,21 +328,6 @@ MonoBehaviour:
   - {fileID: 21300000, guid: b0184cedb0134375b865997285f5c90a, type: 3}
   runFrameTime: 0.09
   eatFrameTime: 0.08
-  collectableSearchRadius: 5
-  absorbRadius: 0.65
-  retargetInterval: 0.25
-  thiefMoveSpeed: 1.05
-  speedIncreasePerStoredItem: 0.035
-  maxSpeedMultiplier: 2.2
-  idleWanderSpeedMultiplier: 0.35
-  idleWanderRadius: 1.5
-  scaleIncreasePerStoredItem: 1
-  maxScaleMultiplier: 5
-  bonusRewardThreshold: 12
-  bonusCoinValue: 15
-  minimumExpDrop: 2
-  minimumCoinDrop: 1
-  debugLog: 1
 --- !u!1001 &1613326256856120527
 PrefabInstance:
   m_ObjectHideFlags: 0
