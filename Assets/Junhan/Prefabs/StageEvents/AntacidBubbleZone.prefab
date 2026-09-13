@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: 1843267519
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b7402f05fd224e48bdb8dd6a99802ef8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -168,3 +168,8 @@ MonoBehaviour:
   radius: 1.8
   lifetime: 5
   fadeOutDuration: 0.35
+  bubblePopFrames:
+  - {fileID: 21300000, guid: 01241bf9a2da4ac5855e501c40dc2a3b, type: 3}
+  - {fileID: 21300000, guid: 2fda4aeb96604da99fe5a864a9ea2601, type: 3}
+  - {fileID: 21300000, guid: 2a4602cbf4f447f589a19fe1d8413a4d, type: 3}
+  - {fileID: 21300000, guid: 1295a9a9b5fc4f8ba5646bb381e998a1, type: 3}

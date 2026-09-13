@@ -1012,6 +1012,9 @@ namespace Vampire
                         affectMonsters);
                 }
 
+                if (travelStartSfxId == GameAudioManager.GameSfxId.AcidRefluxWavePass)
+                    waveZone.EnableAcidAnimation(moveLeftToRight);
+
                 // 경고가 끝난 뒤 실제 파도 오브젝트가 생성되고
                 // 이동을 시작하는 순간에만 해당 전용 효과음을 1회 재생합니다.
                 if (travelStartSfxId.HasValue)
