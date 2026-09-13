@@ -56,6 +56,10 @@ namespace Vampire
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
 
+            // Base.Setup resets pooled scale; apply the sugar stage scale afterwards.
+            if (incomingSugarCubeBlueprint != null)
+                transform.localScale = sugarCubeOriginalLocalScale * Mathf.Max(0.05f, incomingSugarCubeBlueprint.visualScaleMultiplier);
+
             sugarCubeBlueprint = incomingSugarCubeBlueprint;
             lastHpBuff = hpBuff;
             splitSpawned = false;
@@ -131,7 +135,7 @@ namespace Vampire
 
             if (monsterSpriteAnimator != null)
             {
-                monsterSpriteAnimator.Init(sprites, frameTime, true);
+                monsterSpriteAnimator.Init(sprites, frameTime, false);
                 monsterSpriteAnimator.StartAnimating(true);
             }
 
@@ -161,8 +165,11 @@ namespace Vampire
             if (monsterHitbox != null && monsterSpriteRenderer != null)
             {
                 monsterHitbox.enabled = true;
-                monsterHitbox.size = monsterSpriteRenderer.bounds.size;
-                monsterHitbox.offset = Vector2.up * monsterHitbox.size.y / 2f;
+                Bounds bounds = monsterSpriteRenderer.bounds;
+                Vector3 min = monsterHitbox.transform.InverseTransformPoint(bounds.min);
+                Vector3 max = monsterHitbox.transform.InverseTransformPoint(bounds.max);
+                monsterHitbox.size = new Vector2(Mathf.Abs(max.x - min.x), Mathf.Abs(max.y - min.y));
+                monsterHitbox.offset = (min + max) * 0.5f;
             }
 
             if (monsterLegsCollider != null && monsterHitbox != null)
@@ -174,7 +181,7 @@ namespace Vampire
             if (centerTransform != null && monsterHitbox != null)
             {
                 centerTransform.position =
-                    transform.position + (Vector3)monsterHitbox.offset;
+                    monsterHitbox.transform.TransformPoint(monsterHitbox.offset);
             }
         }
 

@@ -43,10 +43,10 @@ namespace Vampire
         public bool childIgnoresParentHpBuff = true;
 
         [Header("Sugar Cube Animation / 설탕 큐브 애니메이션")]
-        [Tooltip("체크하면 아래 설탕 큐브 전용 걷기 스프라이트 4장을 사용합니다.")]
+        [Tooltip("설탕 큐브 전용 걷기 배열을 사용합니다. 단일 4장, 일반/엘리트 6장.")]
         public bool useSugarCubeWalkAnimationOverride = true;
 
-        [Tooltip("96x24 이미지를 24x24 크기로 4장 Slice한 뒤 Element 0~3에 순서대로 넣으세요.")]
+        [Tooltip("단계에 맞는 프레임을 순서대로 넣으세요. 모든 칸에 유효한 스프라이트가 필요합니다.")]
         public Sprite[] sugarCubeWalkSpriteSequence = new Sprite[4];
 
         [Tooltip("설탕 큐브 전용 걷기 애니메이션 프레임 간격입니다. 값이 작을수록 빠르게 움직입니다.")]
@@ -94,13 +94,13 @@ namespace Vampire
 
             for (int i = 0; i < sugarCubeWalkSpriteSequence.Length; i++)
             {
-                if (sugarCubeWalkSpriteSequence[i] != null)
+                if (sugarCubeWalkSpriteSequence[i] == null)
                 {
-                    return true;
+                    return false;
                 }
             }
 
-            return false;
+            return true;
         }
     }
 }

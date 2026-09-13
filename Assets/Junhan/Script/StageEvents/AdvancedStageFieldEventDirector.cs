@@ -821,7 +821,7 @@ namespace Vampire
 
             coffeeEvent.monsterScanTimer += Time.deltaTime;
 
-            if (coffeeEvent.monsterScanTimer >= coffeeEvent.monsterScanInterval)
+            if (coffeeEvent.monsterScanTimer >= coffeeEvent.monsterScanInterval && currentTime - coffeeEvent.resolvedStartTime >= 0.9f)
             {
                 coffeeEvent.monsterScanTimer = 0f;
 
@@ -834,22 +834,9 @@ namespace Vampire
 
         private IEnumerator CoffeeWaveRoutine(CoffeeTransfusionEvent coffeeEvent)
         {
-            yield return SpawnMovingWave(
-                eventName: coffeeEvent.eventName,
-                moveLeftToRight: true,
-                warningDuration: coffeeEvent.warningDuration,
-                travelDuration: coffeeEvent.travelDuration,
-                waveHeight: coffeeEvent.waveHeight,
-                screenPadding: coffeeEvent.screenPadding,
-                damage: 0f,
-                damageCooldownPerTarget: 999f,
-                knockbackPower: 0f,
-                affectPlayer: false,
-                affectMonsters: false,
-                waveColor: coffeeEvent.coffeeWaveColor,
-                warningColor: coffeeEvent.warningColor,
-                visualOnly: true,
-                travelStartSfxId: GameAudioManager.GameSfxId.CoffeeTransfusionPour);
+            CoffeeScreenTransition.Play(transform);
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.CoffeeTransfusionPour);
+            yield return WaitForFieldSeconds(CoffeeScreenTransition.Duration);
 
             activeCoffeeWaveRoutine = null;
         }

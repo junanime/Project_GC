@@ -24,8 +24,14 @@ MonoBehaviour:
     lootTable: []
   coinLootTable:
     lootTable: []
-  walkSpriteSequence: []
-  walkFrameTime: 0
+  walkSpriteSequence:
+  - {fileID: 21300000, guid: c9256b3b0f07482c920333071dec55b7, type: 3}
+  - {fileID: 21300000, guid: 0288388da05a4f19abf8c220cdd8a57c, type: 3}
+  - {fileID: 21300000, guid: e11b399640d646e89f7930acbc22ca35, type: 3}
+  - {fileID: 21300000, guid: 8fe5352d3e734bdaaf25c0ec3ac40b55, type: 3}
+  - {fileID: 21300000, guid: e2549f1a52bb4c3287709bc20d1373e8, type: 3}
+  - {fileID: 21300000, guid: 98a867e95b7140ec927fe980b3da2563, type: 3}
+  walkFrameTime: 0.12
   meleeLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -39,10 +45,12 @@ MonoBehaviour:
   childIgnoresParentHpBuff: 1
   useSugarCubeWalkAnimationOverride: 1
   sugarCubeWalkSpriteSequence:
-  - {fileID: 1517186369, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  - {fileID: 1643529210, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  - {fileID: -634353464, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  - {fileID: 855244484, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
+  - {fileID: 21300000, guid: c9256b3b0f07482c920333071dec55b7, type: 3}
+  - {fileID: 21300000, guid: 0288388da05a4f19abf8c220cdd8a57c, type: 3}
+  - {fileID: 21300000, guid: e11b399640d646e89f7930acbc22ca35, type: 3}
+  - {fileID: 21300000, guid: 8fe5352d3e734bdaaf25c0ec3ac40b55, type: 3}
+  - {fileID: 21300000, guid: e2549f1a52bb4c3287709bc20d1373e8, type: 3}
+  - {fileID: 21300000, guid: 98a867e95b7140ec927fe980b3da2563, type: 3}
   sugarCubeWalkFrameTime: 0.12
   dropLootOnDeath: 0
   debugLog: 0

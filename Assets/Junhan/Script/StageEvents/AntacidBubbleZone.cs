@@ -23,6 +23,10 @@ namespace Vampire
         private float age;
         private SpriteRenderer spriteRenderer;
         private CircleCollider2D circleCollider;
+        private PolygonCollider2D groundCollider;
+        // UV footprint excludes floating bubbles in the upper part of the image.
+        [SerializeField] private Vector2 groundCenterUV = new Vector2(.5f, .40f);
+        [SerializeField] private Vector2 groundRadiiUV = new Vector2(.46f, .28f);
         private bool debugLog;
         [Header("Bubble lift and pop")]
         [SerializeField] private Sprite[] bubblePopFrames;
@@ -73,6 +77,7 @@ namespace Vampire
             {
                 spriteRenderer.color = bubbleColor;
             }
+            ConfigureGroundFootprint();
             CreateBubbles();
 
             if (debugLog)
@@ -114,8 +119,30 @@ namespace Vampire
                 return false;
             }
 
-            float effectiveRadius = Mathf.Max(0.1f, radius);
-            return Vector2.Distance(transform.position, point) <= effectiveRadius;
+            if(spriteRenderer==null||spriteRenderer.sprite==null)return false;
+            Bounds b=spriteRenderer.sprite.bounds;
+            Vector3 p=spriteRenderer.transform.InverseTransformPoint(point);
+            Vector2 uv=new Vector2((p.x-b.min.x)/b.size.x,(p.y-b.min.y)/b.size.y);
+            Vector2 d=uv-groundCenterUV;
+            return d.x*d.x/(groundRadiiUV.x*groundRadiiUV.x)+d.y*d.y/(groundRadiiUV.y*groundRadiiUV.y)<=1f;
+        }
+
+        private void ConfigureGroundFootprint()
+        {
+            if(spriteRenderer==null||spriteRenderer.sprite==null)return;
+            if(circleCollider!=null)circleCollider.enabled=false;
+            groundCollider=GetComponent<PolygonCollider2D>();
+            if(groundCollider==null)groundCollider=gameObject.AddComponent<PolygonCollider2D>();
+            groundCollider.isTrigger=true;
+            var points=new Vector2[48];Bounds b=spriteRenderer.sprite.bounds;
+            for(int i=0;i<points.Length;i++)
+            {
+                float a=i*Mathf.PI*2/points.Length;
+                Vector2 uv=groundCenterUV+new Vector2(Mathf.Cos(a)*groundRadiiUV.x,Mathf.Sin(a)*groundRadiiUV.y);
+                Vector3 local=new Vector3(b.min.x+uv.x*b.size.x,b.min.y+uv.y*b.size.y,0);
+                points[i]=transform.InverseTransformPoint(spriteRenderer.transform.TransformPoint(local));
+            }
+            groundCollider.SetPath(0,points);
         }
 
         private void CreateBubbles()
