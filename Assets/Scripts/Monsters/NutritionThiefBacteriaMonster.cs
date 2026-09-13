@@ -69,6 +69,15 @@ namespace Vampire
         [Tooltip("영양 도둑균 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = false;
 
+        [Header("Popcorn Pomeranian Animation")]
+        [SerializeField] private Sprite[] backRunSprites;
+        [SerializeField] private Sprite[] eatSprites;
+        [SerializeField, Min(0.01f)] private float runFrameTime = 0.09f;
+        [SerializeField, Min(0.01f)] private float eatFrameTime = 0.08f;
+        private float eatingRemaining;
+        private float motionElapsed;
+        private int motionState = -1;
+
         private static FieldInfo expGemTypeField;
 
         private ExpGem targetGem;
@@ -111,6 +120,12 @@ namespace Vampire
                 return;
             }
 
+            if (eatingRemaining > 0f)
+            {
+                eatingRemaining = Mathf.Max(0f, eatingRemaining - Time.deltaTime);
+                return;
+            }
+
             if (Time.time >= nextRetargetTime)
             {
                 FindNearestCollectableTarget();
@@ -125,6 +140,12 @@ namespace Vampire
         {
             if (!alive || rb == null || IsFieldRuntimeSuspended)
             {
+                return;
+            }
+
+            if (eatingRemaining > 0f)
+            {
+                rb.velocity = Vector2.zero;
                 return;
             }
 
@@ -179,8 +200,60 @@ namespace Vampire
             storedCoinValue = 0;
             storedItemCount = 0;
 
+            eatingRemaining = 0f;
+            motionElapsed = 0f;
+            motionState = -1;
+            if (HasDirectionalAnimation && monsterSpriteAnimator != null)
+                monsterSpriteAnimator.StopAnimating();
             deathHandled = false;
             runtimeBaseScale = transform.localScale;
+        }
+
+        private bool HasDirectionalAnimation => backRunSprites != null && backRunSprites.Length > 0;
+
+        private void BeginEatingAnimation()
+        {
+            if (eatSprites == null || eatSprites.Length == 0) return;
+            eatingRemaining = eatSprites.Length * Mathf.Max(0.01f, eatFrameTime);
+            motionElapsed = 0f;
+            motionState = 2;
+            if (rb != null) rb.velocity = Vector2.zero;
+        }
+
+        private void LateUpdate()
+        {
+            if (!alive || deathHandled || IsFieldRuntimeSuspended || !HasDirectionalAnimation ||
+                monsterSpriteRenderer == null) return;
+
+            if (monsterSpriteAnimator != null) monsterSpriteAnimator.StopAnimating();
+            // The requested sign convention: Y >= 0 faces front; Y < 0 faces back.
+            int state = eatingRemaining > 0f ? 2 : (rb != null && rb.velocity.y < 0f ? 1 : 0);
+            if (motionState != state)
+            {
+                motionState = state;
+                motionElapsed = 0f;
+            }
+            Sprite[] frames = state == 2 ? eatSprites :
+                state == 1 ? backRunSprites : monsterBlueprint.walkSpriteSequence;
+            if (frames == null || frames.Length == 0) return;
+            float frameTime = Mathf.Max(0.01f, state == 2 ? eatFrameTime : runFrameTime);
+            int index = state == 2
+                ? Mathf.Min(Mathf.FloorToInt(motionElapsed / frameTime), frames.Length - 1)
+                : Mathf.FloorToInt(motionElapsed / frameTime) % frames.Length;
+            monsterSpriteRenderer.flipX = false;
+            monsterSpriteRenderer.sprite = frames[index];
+            motionElapsed += Time.deltaTime;
+        }
+
+        protected override void OnFieldRuntimeSuspended()
+        {
+            if (monsterSpriteAnimator != null) monsterSpriteAnimator.StopAnimating();
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            if (alive && !HasDirectionalAnimation && monsterSpriteAnimator != null)
+                monsterSpriteAnimator.StartAnimating();
         }
 
         private void DropStoredReward()
@@ -293,6 +366,7 @@ namespace Vampire
 
             storedExpValue += expValue;
             storedItemCount++;
+            BeginEatingAnimation();
 
             if (entityManager == null)
             {
@@ -328,6 +402,7 @@ namespace Vampire
 
             storedCoinValue += coinValue;
             storedItemCount++;
+            BeginEatingAnimation();
 
             if (entityManager == null)
             {

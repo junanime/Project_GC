@@ -158,7 +158,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1401065725, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c1dce47be0c7478181c3c76608342bf4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -297,6 +297,22 @@ MonoBehaviour:
   dissolveMaterial: {fileID: 2100000, guid: 6e8eea0ed92094605ac676c1b177e375, type: 2}
   deathParticles: {fileID: 6710381995318333818}
   shadow: {fileID: 2877871657500550848}
+  backRunSprites:
+  - {fileID: 21300000, guid: f13170ee38d242319251cdb2775fd1a6, type: 3}
+  - {fileID: 21300000, guid: a2daed89fec14104b7ffe22a0d013987, type: 3}
+  - {fileID: 21300000, guid: 7419b15fe1d648889d05991a4754a8f7, type: 3}
+  - {fileID: 21300000, guid: 1a1d5140b50641ff9238870a6ff99b2a, type: 3}
+  - {fileID: 21300000, guid: 15a1ec3a43614cbbbdd283ff8d9506d9, type: 3}
+  - {fileID: 21300000, guid: b79aa5acc6874b22bdae876da5122fc6, type: 3}
+  eatSprites:
+  - {fileID: 21300000, guid: 35000348d7494dbd8525009185daef00, type: 3}
+  - {fileID: 21300000, guid: 68e153c875f141e4a397e8e1e25ff0d8, type: 3}
+  - {fileID: 21300000, guid: 915dae2996664563897fb180e36d8c49, type: 3}
+  - {fileID: 21300000, guid: f43b09e1237a4303a4c8276e8c016de4, type: 3}
+  - {fileID: 21300000, guid: bfbcef4dc1cd4771a1c7353f67d43334, type: 3}
+  - {fileID: 21300000, guid: b0184cedb0134375b865997285f5c90a, type: 3}
+  runFrameTime: 0.09
+  eatFrameTime: 0.08
   collectableSearchRadius: 5
   absorbRadius: 0.65
   retargetInterval: 0.25
