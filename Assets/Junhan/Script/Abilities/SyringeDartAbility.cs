@@ -764,6 +764,7 @@ namespace Vampire
 
         protected override void Update()
         {
+            UpdateLifeBurnVisual();
             ApplyInspectorForcedAugmentRuntimeSetup();
 
             // 이기어침이 활성화되면 기본 자동 공격은 멈춘다.
@@ -803,6 +804,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref lifeBurnVisual);
             DestroyHeavySnipeChargePreview();
             DestroyNeedleShotgunAmmoText();
         }
@@ -2707,6 +2709,19 @@ namespace Vampire
         public bool HasMosquitoAugment() => mosquitoEnabled;
         public bool HasReturnNeedleAugment() => returnNeedleEnabled;
         public bool HasAcupunctureFormationAugment() => acupunctureFormationEnabled;
+
+        private SyringeAugmentVfx lifeBurnVisual;
+
+        private void UpdateLifeBurnVisual()
+        {
+            if (!lifeBurnEnabled || playerCharacter == null || playerCharacter.CurrentHealth <= 0f || !playerCharacter.gameObject.activeInHierarchy)
+            {
+                SyringeAugmentVfx.ReleaseOwned(ref lifeBurnVisual);
+                return;
+            }
+            if (lifeBurnVisual == null)
+                lifeBurnVisual = SyringeAugmentVfx.Play("LifeBurn", playerCharacter.transform.position, SyringeAugmentVfx.FindTarget(playerCharacter));
+        }
 
         public void EnableLifeBurnLegendary() => lifeBurnEnabled = true;
         public void EnableHungrySpiritLegendary()

@@ -294,6 +294,8 @@ namespace Vampire
 
             SetCurrentHealth(1f);
             RefreshHealthBar(1f, 1f);
+            var consume = SyringeAugmentVfx.Play("LifeBurnConsume", playerCharacter.CenterTransform.position, SyringeAugmentVfx.FindTarget(playerCharacter));
+            if (consume != null) consume.BindTo(playerCharacter.CenterTransform);
         }
 
         private void ApplyCloneLegendary()

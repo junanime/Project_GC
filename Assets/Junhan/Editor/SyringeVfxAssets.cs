@@ -54,6 +54,55 @@ public static class SyringeVfxAssets
         Debug.Log("SYRINGE_BATCH3_ASSETS_OK: 10 sheets, 13 prefabs, 108 source frames");
     }
 
+    [MenuItem("Tools/Syringe VFX/Build batch 4")]
+    public static void BuildBatch4()
+    {
+        BuildSheet("LifeBurn", 4, 313.5f, 0.08f, 0.38f);
+        BuildVariant("LifeBurn", "LifeBurnConsume", 0, 4, false, 0.06f);
+        BuildVariant("LifeBurn", "LifeBurn", 4, 12, true, 0.08f);
+        ConfigureBatch4Prefab("LifeBurn", false, -2, 0.38f);
+        BuildSheet("CloneCulture", 4, 313.5f, 0.09f, 0.25f);
+        BuildVariant("CloneCulture", "CloneSpawn", 0, 4, false, 0.06f);
+        BuildVariant("CloneCulture", "CloneDisappear", 12, 4, false, 0.06f);
+        BuildVariant("CloneCulture", "CloneCulture", 4, 8, true, 0.09f);
+        ConfigureBatch4Prefab("CloneCulture", false, 2, 0.25f);
+        BuildSheet("HedgehogNeedle", 2, 443.5f, 0.05f, 0.5f);
+        BuildVariant("HedgehogNeedle", "HedgehogBurst", 4, 4, false, 0.05f);
+        BuildVariant("HedgehogNeedle", "HedgehogNeedle", 0, 4, false, 0.05f);
+        BuildSheet("CursorControl", 3, 362f, 0.08f, 0.2f);
+        ConfigureBatch4Prefab("CursorControl", true, -3, 0.2f);
+        BuildVariant("CursorControl", "CursorControlSpawn", 0, 4, false, 0.05f);
+        BuildVariant("CursorControl", "CursorControlGlow", 0, 12, true, 0.06f);
+        BuildVariant("CursorControl", "CursorControlHit", 0, 4, false, 0.045f);
+        ConfigureBatch4Prefab("CursorControlGlow", true, 5, 0.5f);
+        ConfigureBatch4Prefab("CursorControlHit", true, 5, 0.65f);
+        BuildSheet("MucosalFortress", 3, 362f, 0.09f, 0.28f);
+        ConfigureBatch4Prefab("MucosalFortress", true, 3, 0.28f);
+        BuildVariant("MucosalFortress", "MucosalFortressCreate", 0, 4, false, 0.05f);
+        ConfigureBatch4Prefab("MucosalFortressCreate", true, 3, 0.4f);
+        BuildSheet("MucosalFortressBreak", 2, 443.5f, 0.045f, 0.5f);
+        BuildSheet("FiberNeedle", 3, 362f, 0.12f, 0.8f);
+        ConfigureBatch4Prefab("FiberNeedle", true, 5, 0.8f);
+        AssetDatabase.SaveAssets();
+        Debug.Log("SYRINGE_BATCH4_ASSETS_OK: 7 sheets, 15 prefabs, 84 source frames");
+    }
+
+    private static void ConfigureBatch4Prefab(string name, bool worldSpace, int orderOffset, float opacity)
+    {
+        string path = "Assets/Junhan/Resources/SyringeVfx/" + name + ".prefab";
+        var go = PrefabUtility.LoadPrefabContents(path);
+        try
+        {
+            var serialized = new SerializedObject(go.GetComponent<SyringeAugmentVfx>());
+            serialized.FindProperty("worldSpace").boolValue = worldSpace;
+            serialized.FindProperty("sortingOrderOffset").intValue = orderOffset;
+            serialized.FindProperty("opacity").floatValue = opacity;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(go, path);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(go); }
+    }
+
     private static void BuildVariant(string source, string name, int start, int count, bool loop, float frameTime)
     {
         string root = "Assets/Junhan/Resources/SyringeVfx/";
@@ -104,7 +153,8 @@ public static class SyringeVfxAssets
         var existing = provider.GetSpriteRects().ToDictionary(s => s.name, s => s.spriteID);
         var slices = new SpriteRect[rows * columns];
         bool batch3 = new[] { "HungerNeedle", "GutBacteriaNeedle", "BipolarNeedle", "HeavySnipe", "HungrySpirit", "NeedleShotgun", "PoisonContagion", "OrganCompression", "GastricPeristalsisWave", "NeuralBlock" }.Contains(name);
-        bool registerFrames = batch3 || name == "MarkNeedle" || name == "CorrosionNeedle" || name == "Honey" || name == "DigestiveAcidSacNeedle";
+        bool batch4 = new[] { "LifeBurn", "CloneCulture", "HedgehogNeedle", "CursorControl", "MucosalFortress", "MucosalFortressBreak", "FiberNeedle" }.Contains(name);
+        bool registerFrames = batch4 || batch3 || name == "MarkNeedle" || name == "CorrosionNeedle" || name == "Honey" || name == "DigestiveAcidSacNeedle";
         Color32[] pixels = null;
         if (registerFrames)
         {

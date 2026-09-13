@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
@@ -21,8 +22,12 @@ namespace Vampire
         private float lastDamageOrShieldConsumeTime;
         private bool configured;
 
-        private Transform visualRoot;
-        private LineRenderer[] shieldRings;
+        private readonly List<SyringeAugmentVfx> shieldVisuals = new List<SyringeAugmentVfx>();
+        private Character ownerCharacter;
+        [SerializeField, Tooltip("Radius of the innermost shield stack in world units.")]
+        private float shieldRadius = 0.65f;
+        [SerializeField, Tooltip("Spacing between visible shield stack membranes.")]
+        private float stackRadiusStep = 0.12f;
 
         public int CurrentStacks => currentStacks;
         public int MaxStacks => maxStacks;
@@ -42,6 +47,7 @@ namespace Vampire
             this.shieldColor = shieldColor;
             this.debugLog = debugLog;
 
+            ownerCharacter = GetComponent<Character>() ?? GetComponentInParent<Character>();
             configured = true;
             lastDamageOrShieldConsumeTime = Time.time;
 
@@ -59,6 +65,13 @@ namespace Vampire
             if (!configured)
                 return;
 
+            if (ownerCharacter == null || ownerCharacter.CurrentHealth <= 0f || !ownerCharacter.gameObject.activeInHierarchy)
+            {
+                ReleaseVisuals();
+                currentStacks = 0;
+                return;
+            }
+
             if (currentStacks >= maxStacks)
                 return;
 
@@ -67,6 +80,7 @@ namespace Vampire
             if (elapsed >= noDamageSeconds)
             {
                 currentStacks++;
+                PlayShieldPulse("MucosalFortressCreate", currentStacks);
                 lastDamageOrShieldConsumeTime = Time.time;
 
                 UpdateVisual();
@@ -91,6 +105,7 @@ namespace Vampire
             if (currentStacks <= 0)
                 return false;
 
+            PlayShieldPulse("MucosalFortressBreak", currentStacks);
             currentStacks--;
             lastDamageOrShieldConsumeTime = Time.time;
 
@@ -123,67 +138,54 @@ namespace Vampire
 
         private void CreateVisualIfNeeded()
         {
-            if (visualRoot != null)
-                return;
-
-            GameObject rootObject = new GameObject("Mucosal_Fortress_Shield_Visual");
-            rootObject.transform.SetParent(transform);
-            rootObject.transform.localPosition = Vector3.zero;
-
-            visualRoot = rootObject.transform;
-            shieldRings = new LineRenderer[maxStacks];
-
-            for (int i = 0; i < maxStacks; i++)
+            if (ownerCharacter == null || ownerCharacter.CurrentHealth <= 0f) return;
+            while (shieldVisuals.Count < currentStacks)
             {
-                GameObject ringObject = new GameObject($"Shield_Ring_{i + 1}");
-                ringObject.transform.SetParent(visualRoot);
-                ringObject.transform.localPosition = Vector3.zero;
-
-                LineRenderer line = ringObject.AddComponent<LineRenderer>();
-                line.useWorldSpace = false;
-                line.loop = true;
-                line.positionCount = 72;
-                line.startWidth = 0.035f;
-                line.endWidth = 0.035f;
-                line.startColor = shieldColor;
-                line.endColor = shieldColor;
-                line.sortingOrder = 60;
-                line.material = new Material(Shader.Find("Sprites/Default"));
-
-                float radius = 0.65f + i * 0.12f;
-                ApplyRingPositions(line, radius);
-
-                shieldRings[i] = line;
+                var effect = SyringeAugmentVfx.Play("MucosalFortress", ownerCharacter.CenterTransform.position, SyringeAugmentVfx.FindTarget(ownerCharacter));
+                if (effect == null) break;
+                effect.BindTo(ownerCharacter.CenterTransform);
+                shieldVisuals.Add(effect);
             }
         }
 
-        private void ApplyRingPositions(LineRenderer line, float radius)
+        private void PlayShieldPulse(string effectName, int stack)
         {
-            int count = line.positionCount;
-
-            for (int i = 0; i < count; i++)
-            {
-                float angle = ((float)i / count) * Mathf.PI * 2f;
-                Vector3 position = new Vector3(
-                    Mathf.Cos(angle) * radius,
-                    Mathf.Sin(angle) * radius,
-                    0f);
-
-                line.SetPosition(i, position);
-            }
+            if (ownerCharacter == null || ownerCharacter.CurrentHealth <= 0f) return;
+            var effect = SyringeAugmentVfx.Play(effectName, ownerCharacter.CenterTransform.position, SyringeAugmentVfx.FindTarget(ownerCharacter));
+            if (effect == null) return;
+            effect.BindTo(ownerCharacter.CenterTransform);
+            float diameter = 2f * (shieldRadius + Mathf.Max(0, stack - 1) * stackRadiusStep);
+            effect.SetWorldSize(Vector2.one * diameter, Vector2.one * 0.86f);
         }
 
         private void UpdateVisual()
         {
-            CreateVisualIfNeeded();
-
-            for (int i = 0; i < shieldRings.Length; i++)
+            while (shieldVisuals.Count > currentStacks)
             {
-                if (shieldRings[i] != null)
-                {
-                    shieldRings[i].gameObject.SetActive(i < currentStacks);
-                }
+                int last = shieldVisuals.Count - 1;
+                shieldVisuals[last].Release();
+                shieldVisuals.RemoveAt(last);
+            }
+            CreateVisualIfNeeded();
+            for (int i = 0; i < shieldVisuals.Count; i++)
+            {
+                shieldVisuals[i].SetWorldSize(Vector2.one * (2f * (shieldRadius + i * stackRadiusStep)), Vector2.one * 0.86f);
+                shieldVisuals[i].SetStrength(shieldColor.a);
             }
         }
+
+        private void ReleaseVisuals()
+        {
+            foreach (var effect in shieldVisuals) if (effect != null) effect.Release();
+            shieldVisuals.Clear();
+        }
+
+        private void OnDisable()
+        {
+            ReleaseVisuals();
+            currentStacks = 0;
+            lastDamageOrShieldConsumeTime = Time.time;
+        }
+        private void OnDestroy() { ReleaseVisuals(); }
     }
 }

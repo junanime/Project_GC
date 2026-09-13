@@ -18,6 +18,8 @@ namespace Vampire
     /// </summary>
     public class CursorControlledNeedleController : MonoBehaviour
     {
+        private SyringeAugmentVfx orbitVisual;
+        private SyringeAugmentVfx needleGlow;
         private Character sourceCharacter;
         private EntityManager entityManager;
         private SyringeDartAbility sourceNeedleAbility;
@@ -222,6 +224,9 @@ float maxHitRadiusBonusFromSpecial)
 
             CreateCursorNeedleVisual();
             CreateBackDisplayRoot();
+            UpdateAugmentVisuals();
+            var spawn = SyringeAugmentVfx.Play("CursorControlSpawn", GetOrbitCenter(), SyringeAugmentVfx.FindTarget(sourceCharacter));
+            if (spawn != null) { spawn.BindTo(transform); SizeOrbitVisual(spawn); }
 
             if (sourceCharacter != null && sourceCharacter.OnDeath != null)
             {
@@ -242,7 +247,7 @@ float maxHitRadiusBonusFromSpecial)
 
         private void Update()
         {
-            if (sourceCharacter == null || sourceNeedleAbility == null)
+            if (sourceCharacter == null || sourceNeedleAbility == null || sourceCharacter.CurrentHealth <= 0f || !sourceCharacter.gameObject.activeInHierarchy)
             {
                 Destroy(gameObject);
                 return;
@@ -251,6 +256,7 @@ float maxHitRadiusBonusFromSpecial)
             transform.position = GetOrbitCenter();
 
             UpdateOrbitNeedle();
+            UpdateAugmentVisuals();
             UpdateCursorNeedleHeavyVisual();
             UpdateBackDisplay(false);
             DetectAndDamageEnemies();
@@ -908,6 +914,8 @@ float maxHitRadiusBonusFromSpecial)
             }
 
             damageable.TakeDamage(finalDamage, knockbackDirection * knockback, isCritical);
+            var hitVisual = SyringeAugmentVfx.PlayDirected("CursorControlHit", cursorNeedleTransform.position, knockbackDirection, cursorNeedleRenderer);
+            if (hitVisual != null) hitVisual.SetWorldSize(new Vector2(0.45f, 0.2f), new Vector2(0.9f, 0.4f));
             if (sourceNeedleAbility.HasHeavySnipeLegendary())
                 SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", cursorNeedleTransform.position, knockbackDirection, SyringeAugmentVfx.FindTarget(damageableComponent));
 
@@ -1241,8 +1249,42 @@ float maxHitRadiusBonusFromSpecial)
             }
         }
 
+        private void SizeOrbitVisual(SyringeAugmentVfx effect)
+        {
+            float tightness = Mathf.Lerp(0.75f, 1.45f, orbitStraightness);
+            effect.SetWorldSize(new Vector2(2f * orbitHorizontalRadius, 2f * orbitVerticalRadius / Mathf.Sqrt(1f + tightness)), new Vector2(0.9f, 0.4f));
+        }
+
+        private void UpdateAugmentVisuals()
+        {
+            if (orbitVisual == null)
+                orbitVisual = SyringeAugmentVfx.Play("CursorControl", GetOrbitCenter(), SyringeAugmentVfx.FindTarget(sourceCharacter));
+            if (orbitVisual != null)
+            {
+                orbitVisual.transform.position = GetOrbitCenter();
+                SizeOrbitVisual(orbitVisual);
+            }
+            if (needleGlow == null && cursorNeedleTransform != null)
+            {
+                needleGlow = SyringeAugmentVfx.Play("CursorControlGlow", cursorNeedleTransform.position, cursorNeedleRenderer);
+                if (needleGlow != null)
+                {
+                    needleGlow.BindTo(cursorNeedleTransform, true);
+                    needleGlow.SetWorldSize(new Vector2(0.32f, 0.14f), new Vector2(0.9f, 0.4f));
+                }
+            }
+        }
+
+        private void OnDisable()
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref orbitVisual);
+            SyringeAugmentVfx.ReleaseOwned(ref needleGlow);
+        }
+
         private void OnDestroy()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref orbitVisual);
+            SyringeAugmentVfx.ReleaseOwned(ref needleGlow);
             if (sourceCharacter != null && sourceCharacter.OnDeath != null)
             {
                 sourceCharacter.OnDeath.RemoveListener(DestroySelf);

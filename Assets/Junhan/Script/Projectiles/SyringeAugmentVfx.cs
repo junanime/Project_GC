@@ -21,6 +21,8 @@ namespace Vampire
         private bool overhead;
         [SerializeField, Tooltip("World size of an overhead marker.")]
         private float markerSize = 0.55f;
+        [SerializeField, Tooltip("Order relative to the attached character or projectile renderer.")]
+        private int sortingOrderOffset = 5;
         private Transform destination;
         private Transform anchor;
         private Vector3 anchorOffset;
@@ -79,7 +81,7 @@ namespace Vampire
             instance.visual.enabled = true;
             instance.visual.color = new Color(1f, 1f, 1f, instance.opacity);
             instance.visual.sortingLayerID = target != null ? target.sortingLayerID : SortingLayer.NameToID("Monster Full");
-            instance.visual.sortingOrder = target != null ? target.sortingOrder + 5 : 5;
+            instance.visual.sortingOrder = target != null ? target.sortingOrder + instance.sortingOrderOffset : instance.sortingOrderOffset;
             instance.transform.position = position;
             instance.transform.rotation = Quaternion.identity;
             instance.transform.localScale = Vector3.one;
@@ -154,7 +156,7 @@ namespace Vampire
             }
             transform.localScale = desired;
             visual.sortingLayerID = target.sortingLayerID;
-            visual.sortingOrder = target.sortingOrder + 5;
+            visual.sortingOrder = target.sortingOrder + sortingOrderOffset;
             visual.enabled = target.enabled;
         }
 
@@ -169,6 +171,14 @@ namespace Vampire
             anchor = owner;
             anchorOffset = owner != null ? transform.position - owner.position : Vector3.zero;
             followRotation = rotate;
+        }
+
+        public void SetWorldSize(Vector2 size, Vector2 artFraction)
+        {
+            if (visual == null || visual.sprite == null) return;
+            var bounds = visual.sprite.bounds.size;
+            transform.localScale = new Vector3(size.x / Mathf.Max(0.001f, bounds.x * artFraction.x),
+                size.y / Mathf.Max(0.001f, bounds.y * artFraction.y), 1f);
         }
 
         public void SetGroundRadius(float radius, float artDiameter = 0.9f)
@@ -211,6 +221,8 @@ namespace Vampire
             if (!leased) return;
             leased = false;
             target = null;
+            anchor = null;
+            destination = null;
             animator.StopAnimation();
             ownerPool.Release(this);
         }

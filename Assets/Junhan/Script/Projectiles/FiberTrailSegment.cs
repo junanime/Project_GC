@@ -4,11 +4,21 @@ using UnityEngine;
 namespace Vampire
 {
     // 섬유침이 남기는 짧은 선분 피해 오브젝트
-    // LineRenderer로 선을 보여주고, BoxCollider2D Trigger로 선 위의 몬스터에게 지속 피해를 준다.
+    // Pooled pixel-art fibers visualize the unchanged BoxCollider2D damage segment.
     public class FiberTrailSegment : MonoBehaviour
     {
         private readonly Dictionary<int, float> nextDamageTimesByTarget = new Dictionary<int, float>();
 
+        private SyringeAugmentVfx augmentVisual;
+        private float createdAt;
+        private float endsAt;
+        private float visualAlpha = 1f;
+        [SerializeField, Tooltip("Seconds used to reveal the fiber residue; capped by its gameplay lifetime.")]
+        private float fadeInSeconds = 0.1f;
+        [SerializeField, Tooltip("Seconds used to fade the residue before the damage segment expires.")]
+        private float fadeOutSeconds = 0.2f;
+        [SerializeField, Tooltip("Floor order above room backgrounds (-800) and below characters and needle projectiles (50).") ]
+        private int groundSortingOrder = -50;
         private LayerMask targetLayer;
         private float damagePerSecond = 2f;
         private float tickInterval = 0.5f;
@@ -52,26 +62,37 @@ namespace Vampire
             boxCollider.isTrigger = true;
             boxCollider.size = new Vector2(length, width);
 
-            LineRenderer lineRenderer = gameObject.AddComponent<LineRenderer>();
-            lineRenderer.useWorldSpace = false;
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, new Vector3(-length * 0.5f, 0f, 0f));
-            lineRenderer.SetPosition(1, new Vector3(length * 0.5f, 0f, 0f));
-            lineRenderer.widthMultiplier = width;
-            lineRenderer.numCapVertices = 2;
-            lineRenderer.sortingOrder = 20;
-
-            Shader spriteShader = Shader.Find("Sprites/Default");
-            if (spriteShader != null)
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            augmentVisual = SyringeAugmentVfx.Play("FiberNeedle", center);
+            if (augmentVisual != null)
             {
-                lineRenderer.material = new Material(spriteShader);
+                augmentVisual.transform.rotation = transform.rotation;
+                augmentVisual.SetWorldSize(new Vector2(length, width), new Vector2(0.84f, 0.22f));
+                var renderer = augmentVisual.GetComponent<SpriteRenderer>();
+                renderer.sortingLayerName = "Default";
+                renderer.sortingOrder = groundSortingOrder;
             }
-
-            lineRenderer.startColor = lineColor;
-            lineRenderer.endColor = lineColor;
+            createdAt = Time.time;
+            endsAt = Time.time + Mathf.Max(0.05f, lifetime);
+            visualAlpha = Mathf.Clamp01(lineColor.a);
+            UpdateVisual();
 
             Destroy(gameObject, Mathf.Max(0.05f, lifetime));
         }
+
+        private void Update() { UpdateVisual(); }
+
+        private void UpdateVisual()
+        {
+            if (augmentVisual == null) return;
+            float duration = Mathf.Max(0.05f, endsAt - createdAt);
+            float reveal = Mathf.Clamp01((Time.time - createdAt) / Mathf.Max(0.001f, Mathf.Min(fadeInSeconds, duration * 0.25f)));
+            float fade = Mathf.Clamp01((endsAt - Time.time) / Mathf.Max(0.001f, Mathf.Min(fadeOutSeconds, duration * 0.4f)));
+            augmentVisual.SetStrength(visualAlpha * reveal * fade);
+        }
+
+        private void OnDisable() { SyringeAugmentVfx.ReleaseOwned(ref augmentVisual); }
+        private void OnDestroy() { SyringeAugmentVfx.ReleaseOwned(ref augmentVisual); }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
