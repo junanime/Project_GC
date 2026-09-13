@@ -919,10 +919,8 @@ float maxHitRadiusBonusFromSpecial)
             if (sourceNeedleAbility.HasHeavySnipeLegendary())
                 SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", cursorNeedleTransform.position, knockbackDirection, SyringeAugmentVfx.FindTarget(damageableComponent));
 
-            if (sourceCharacter != null && sourceCharacter.OnDealDamage != null)
-            {
-                sourceCharacter.OnDealDamage.Invoke(finalDamage);
-            }
+            // 이기어침 피해를 기존 총 피해량과 증강별 피해량에 동시에 기록
+            ReportCursorNeedleDamage(finalDamage);
 
             SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
                 damageableComponent,
@@ -934,6 +932,33 @@ float maxHitRadiusBonusFromSpecial)
                 consumedNeedleMark
             );
         }
+        // =========================================================
+        // Damage Report
+        // =========================================================
+
+        private void ReportCursorNeedleDamage(float dealtDamage)
+        {
+            if (dealtDamage <= 0f)
+            {
+                return;
+            }
+
+            // 기존 전체 피해량 시스템 유지
+            if (sourceCharacter != null && sourceCharacter.OnDealDamage != null)
+            {
+                sourceCharacter.OnDealDamage.Invoke(dealtDamage);
+            }
+
+            // 증강별 피해량 기록
+            if (AugmentDamageTracker.Instance != null)
+            {
+                AugmentDamageTracker.Instance.RecordDamage(
+                    "이기어침",
+                    dealtDamage
+                );
+            }
+        }
+
         private void ApplySpecialEffectsAfterHit(
     Component damageableComponent,
     SyringeSpecialRuntime runtime,

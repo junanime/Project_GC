@@ -811,9 +811,13 @@ namespace Vampire
                 knockbackDirection *
                 Mathf.Max(0f, explodingBlueprint.explosionKnockback);
 
-            targetCharacter.TakeDamage(
+            // 결과 화면용:
+            // 자폭 피해를 플레이어에게 줄 때
+            // 이 자폭 몬스터의 Blueprint를 함께 전달합니다.
+            targetCharacter.TakeDamageFromMonster(
                 Mathf.Max(0f, explodingBlueprint.explosionDamage),
-                knockback
+                knockback,
+                explodingBlueprint
             );
 
             if (ShouldDebugLog())

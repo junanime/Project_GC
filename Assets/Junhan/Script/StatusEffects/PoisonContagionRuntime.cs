@@ -26,8 +26,10 @@ namespace Vampire
         {
             Enabled = true;
             contagionRadius = Mathf.Max(0.05f, radius);
-            PoisonContagionRuntime.durationMultiplier = Mathf.Max(0.05f, durationMultiplier);
-            PoisonContagionRuntime.damageMultiplier = Mathf.Max(0.05f, damageMultiplier);
+            PoisonContagionRuntime.durationMultiplier =
+                Mathf.Max(0.05f, durationMultiplier);
+            PoisonContagionRuntime.damageMultiplier =
+                Mathf.Max(0.05f, damageMultiplier);
             monsterLayer = layer;
             debugLog = debug;
         }
@@ -37,11 +39,36 @@ namespace Vampire
             Enabled = false;
         }
 
+        /// <summary>
+        /// 기존 호출부 호환용.
+        /// sourceCharacter가 없는 이전 코드도 컴파일되도록 유지한다.
+        /// </summary>
         public static void TrySpreadFrom(
             Monster sourceMonster,
             float sourceDuration,
             float sourceTickInterval,
             float sourceTickDamage)
+        {
+            TrySpreadFrom(
+                sourceMonster,
+                sourceDuration,
+                sourceTickInterval,
+                sourceTickDamage,
+                null
+            );
+        }
+
+        /// <summary>
+        /// 독 전염을 주변 몬스터에게 퍼뜨린다.
+        /// 퍼진 독의 실제 틱 피해는 PoisonStatus가 처리하며,
+        /// 피해 출처는 "독 전염"으로 고정해서 기록한다.
+        /// </summary>
+        public static void TrySpreadFrom(
+            Monster sourceMonster,
+            float sourceDuration,
+            float sourceTickInterval,
+            float sourceTickDamage,
+            Character sourceCharacter)
         {
             if (!Enabled)
             {
@@ -53,14 +80,20 @@ namespace Vampire
                 return;
             }
 
-            Vector2 sourcePosition = sourceMonster.CenterTransform != null
-                ? (Vector2)sourceMonster.CenterTransform.position
-                : (Vector2)sourceMonster.transform.position;
+            Vector2 sourcePosition =
+                sourceMonster.CenterTransform != null
+                    ? (Vector2)sourceMonster.CenterTransform.position
+                    : (Vector2)sourceMonster.transform.position;
 
             int appliedCount = 0;
             var visited = new HashSet<int>();
 
-            Collider2D[] hits = Physics2D.OverlapCircleAll(sourcePosition, contagionRadius, monsterLayer);
+            Collider2D[] hits =
+                Physics2D.OverlapCircleAll(
+                    sourcePosition,
+                    contagionRadius,
+                    monsterLayer
+                );
 
             for (int i = 0; i < hits.Length; i++)
             {
@@ -71,7 +104,8 @@ namespace Vampire
                     continue;
                 }
 
-                Monster targetMonster = hit.GetComponentInParent<Monster>();
+                Monster targetMonster =
+                    hit.GetComponentInParent<Monster>();
 
                 if (targetMonster == null)
                 {
@@ -94,13 +128,16 @@ namespace Vampire
 
                 if (poisonStatus == null)
                 {
-                    poisonStatus = targetMonster.gameObject.AddComponent<PoisonStatus>();
+                    poisonStatus =
+                        targetMonster.gameObject.AddComponent<PoisonStatus>();
                 }
 
                 poisonStatus.Apply(
                     sourceDuration * durationMultiplier,
                     sourceTickInterval,
-                    sourceTickDamage * damageMultiplier
+                    sourceTickDamage * damageMultiplier,
+                    sourceCharacter,
+                    "독 전염"
                 );
 
                 SyringeAugmentVfx.PlayTransfer("PoisonContagion", sourcePosition,
@@ -111,7 +148,9 @@ namespace Vampire
 
             if (debugLog && appliedCount > 0)
             {
-                Debug.Log($"[독 전염] {sourceMonster.name} 기준 주변 {appliedCount}마리에게 독 전염");
+                Debug.Log(
+                    $"[독 전염] {sourceMonster.name} 기준 주변 {appliedCount}마리에게 독 전염"
+                );
             }
         }
     }

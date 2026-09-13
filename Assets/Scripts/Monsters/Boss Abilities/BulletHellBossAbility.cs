@@ -13,13 +13,25 @@ namespace Vampire
         [SerializeField] protected float bulletSpeed;
         [SerializeField] protected float fireRate;
         [SerializeField] protected float bulletCount;
+
         protected float timeSinceLastAttack;
         protected int projectileIndex = -1;
 
-        public override void Init(BossMonster monster, EntityManager entityManager, Character playerCharacter)
+        public override void Init(
+            BossMonster monster,
+            EntityManager entityManager,
+            Character playerCharacter)
         {
-            base.Init(monster, entityManager, playerCharacter);
-            projectileIndex = entityManager.AddPoolForProjectile(bulletPrefab);
+            base.Init(
+                monster,
+                entityManager,
+                playerCharacter
+            );
+
+            projectileIndex =
+                entityManager.AddPoolForProjectile(
+                    bulletPrefab
+                );
         }
 
         // void Update()
@@ -27,9 +39,15 @@ namespace Vampire
         //     if (active)
         //     {
         //         timeSinceLastAttack += Time.deltaTime;
-        //         if (timeSinceLastAttack >= 1/fireRate)
+        //
+        //         if (timeSinceLastAttack >= 1 / fireRate)
         //         {
-        //             timeSinceLastAttack = Mathf.Repeat(timeSinceLastAttack, 1/fireRate);
+        //             timeSinceLastAttack =
+        //                 Mathf.Repeat(
+        //                     timeSinceLastAttack,
+        //                     1 / fireRate
+        //                 );
+        //
         //             LaunchBullets();
         //         }
         //     }
@@ -39,8 +57,16 @@ namespace Vampire
         {
             if (active)
             {
-                Vector2 moveDirection = (playerCharacter.transform.position - monster.transform.position).normalized;
-                monster.Move(moveDirection, Time.fixedDeltaTime);
+                Vector2 moveDirection =
+                    (
+                        playerCharacter.transform.position -
+                        monster.transform.position
+                    ).normalized;
+
+                monster.Move(
+                    moveDirection,
+                    Time.fixedDeltaTime
+                );
             }
         }
 
@@ -48,9 +74,37 @@ namespace Vampire
         {
             for (int i = 0; i < bulletCount; i++)
             {
-                float theta = i * Mathf.PI * 2.0f / bulletCount;
-                Vector2 direction = new Vector2(Mathf.Sin(theta), Mathf.Cos(theta));
-                Projectile projectile = entityManager.SpawnProjectile(projectileIndex, monster.CenterTransform.position, damage, knockback, bulletSpeed, targetLayer);
+                float theta =
+                    i * Mathf.PI * 2.0f /
+                    bulletCount;
+
+                Vector2 direction =
+                    new Vector2(
+                        Mathf.Sin(theta),
+                        Mathf.Cos(theta)
+                    );
+
+                Projectile projectile =
+                    entityManager.SpawnProjectile(
+                        projectileIndex,
+                        monster.CenterTransform.position,
+                        damage,
+                        knockback,
+                        bulletSpeed,
+                        targetLayer
+                    );
+
+                if (projectile == null)
+                {
+                    continue;
+                }
+
+                // 결과 화면용:
+                // 이 탄환을 발사한 보스 몬스터 정보를 Projectile에 전달합니다.
+                projectile.SetSourceMonster(
+                    monster.Blueprint
+                );
+
                 projectile.Launch(direction);
             }
         }
@@ -58,13 +112,19 @@ namespace Vampire
         protected IEnumerator LaunchBulletsRoutine()
         {
             LaunchBullets();
-            yield return new WaitForSeconds(1/fireRate);
+
+            yield return new WaitForSeconds(
+                1 / fireRate
+            );
         }
 
         public override IEnumerator Activate()
         {
             active = true;
-            yield return StartCoroutine(LaunchBulletsRoutine());
+
+            yield return StartCoroutine(
+                LaunchBulletsRoutine()
+            );
         }
 
         public override void Deactivate()

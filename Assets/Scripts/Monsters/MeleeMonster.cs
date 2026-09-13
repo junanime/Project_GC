@@ -106,8 +106,19 @@ namespace Vampire
                 return;
             }
 
-            playerCharacter.TakeDamage(meleeMonsterBlueprint.atk);
-            timeSinceLastAttack = Mathf.Repeat(timeSinceLastAttack, attackDelay);
+            // 결과 화면용:
+            // 이 근접 공격을 한 몬스터의 정보를 Character에게 전달합니다.
+            playerCharacter.TakeDamageFromMonster(
+                meleeMonsterBlueprint.atk,
+                Vector2.zero,
+                meleeMonsterBlueprint
+            );
+
+            timeSinceLastAttack =
+                Mathf.Repeat(
+                    timeSinceLastAttack,
+                    attackDelay
+                );
         }
     }
 }

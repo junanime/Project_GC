@@ -704,6 +704,9 @@ namespace Vampire
                 return;
             }
 
+            // 결과 화면용: 이 탄환을 발사한 몬스터 정보를 Projectile에 전달
+            projectile.SetSourceMonster(sniperBlueprint);
+
             projectile.Launch(
                 direction.normalized
             );

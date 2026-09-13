@@ -23,13 +23,19 @@ namespace Vampire
         protected ZPositioner zPositioner;
         protected int boomerangIndex;
         protected TrailRenderer trailRenderer = null;
+
+        // 결과 화면용:
+        // 이 부메랑을 던진 몬스터의 Blueprint.
+        // 플레이어가 던진 부메랑이라면 null 상태로 유지됩니다.
+        protected MonsterBlueprint sourceMonsterBlueprint;
+
         public UnityEvent<float> OnHitDamageable { get; private set; }
         public float Range => maxDistance;
-        
+
 
         protected virtual void Awake()
         {
-            radius = Mathf.Max(boomerangSpriteRenderer.bounds.size.x, boomerangSpriteRenderer.bounds.size.y)/2;
+            radius = Mathf.Max(boomerangSpriteRenderer.bounds.size.x, boomerangSpriteRenderer.bounds.size.y) / 2;
             initialScale = boomerangSpriteRenderer.transform.localScale;
             zPositioner = gameObject.AddComponent<ZPositioner>();
             TryGetComponent<TrailRenderer>(out trailRenderer);
@@ -41,7 +47,7 @@ namespace Vampire
             this.playerCharacter = playerCharacter;
             zPositioner.Init(playerCharacter.transform);
         }
-        
+
         public virtual void Setup(int boomerangIndex, Vector2 position, float damage, float knockback, float throwDistance, float throwTime, LayerMask targetLayer)
         {
             transform.position = position;
@@ -52,7 +58,20 @@ namespace Vampire
             this.targetLayer = targetLayer;
             this.maxDistance = throwDistance;
             this.throwTime = throwTime;
+
+            // Boomerang은 오브젝트 풀에서 재사용되므로
+            // 이전에 던진 몬스터 정보가 남지 않도록 반드시 초기화합니다.
+            sourceMonsterBlueprint = null;
+
             OnHitDamageable = new UnityEvent<float>();
+        }
+
+        /// <summary>
+        /// 몬스터가 이 부메랑을 던졌을 때 공격 출처를 등록합니다.
+        /// </summary>
+        public void SetSourceMonster(MonsterBlueprint sourceMonster)
+        {
+            sourceMonsterBlueprint = sourceMonster;
         }
 
         public virtual void Throw(Transform returnTransform, Vector2 toPosition)
@@ -70,7 +89,7 @@ namespace Vampire
         //     Vector2 b = (Vector2)transform.position + direction * throwDistance + new Vector2(direction.y, -direction.x) * throwDistance;
         //     Vector2 c = (Vector2)transform.position + direction * throwDistance;
         //     Vector2 d = (Vector2)transform.position + direction * throwDistance - new Vector2(direction.y, -direction.x) * throwDistance;
-            
+
         //     float t = 0;
         //     while (t < 1)
         //     {
@@ -97,7 +116,7 @@ namespace Vampire
         //         t += Time.deltaTime*2;
         //         yield return null;
         //     }
-            
+
         //     t = 0;
         //     while (t < 1)
         //     {
@@ -125,13 +144,13 @@ namespace Vampire
         {
             //FastList<GameObject> hitMonsters = new FastList<GameObject>();
             Dictionary<GameObject, float> hitMonsterTimes = new Dictionary<GameObject, float>();
-            
+
             Vector2 prevPosition = transform.position;
             Vector2 a = transform.position;
-            Vector2 b = (Vector2)transform.position + direction * throwDistance/2 + new Vector2(direction.y, -direction.x) * throwDistance;
+            Vector2 b = (Vector2)transform.position + direction * throwDistance / 2 + new Vector2(direction.y, -direction.x) * throwDistance;
             Vector2 c = (Vector2)transform.position + direction * throwDistance;
-            Vector2 d = (Vector2)transform.position + direction * throwDistance/2 - new Vector2(direction.y, -direction.x) * throwDistance;
-            
+            Vector2 d = (Vector2)transform.position + direction * throwDistance / 2 - new Vector2(direction.y, -direction.x) * throwDistance;
+
             float t = 0;
             while (t < 1)
             {
@@ -143,7 +162,7 @@ namespace Vampire
                 // Adjust y position based on physical equations to simulate bouncing
                 transform.position = Vector2.Lerp(a, c, EasingUtils.EaseOutQuad(t));
 
-                Vector2 circleCastDir = (Vector2)transform.position-prevPosition;
+                Vector2 circleCastDir = (Vector2)transform.position - prevPosition;
                 RaycastHit2D[] raycastHits = Physics2D.CircleCastAll(prevPosition, radius, circleCastDir.normalized, circleCastDir.magnitude, targetLayer);
                 foreach (RaycastHit2D raycastHit in raycastHits)
                 {
@@ -152,17 +171,38 @@ namespace Vampire
                     {
                         hitMonsterTimes[hitGameObject] = 0.0f;
                         IDamageable damageable = hitGameObject.GetComponentInParent<IDamageable>();
-                        damageable.TakeDamage(damage, circleCastDir.normalized*knockback);
-                        OnHitDamageable.Invoke(damage);
+
+                        if (damageable != null)
+                        {
+                            Character targetCharacter = damageable as Character;
+
+                            if (targetCharacter != null && sourceMonsterBlueprint != null)
+                            {
+                                targetCharacter.TakeDamageFromMonster(
+                                    damage,
+                                    circleCastDir.normalized * knockback,
+                                    sourceMonsterBlueprint
+                                );
+                            }
+                            else
+                            {
+                                damageable.TakeDamage(
+                                    damage,
+                                    circleCastDir.normalized * knockback
+                                );
+                            }
+
+                            OnHitDamageable?.Invoke(damage);
+                        }
                     }
                 }
                 prevPosition = transform.position;
 
                 // Rotate
-                boomerangSpriteRenderer.transform.RotateAround(boomerangSpriteRenderer.transform.position, Vector3.back, Time.deltaTime*100*rotationSpeed);
+                boomerangSpriteRenderer.transform.RotateAround(boomerangSpriteRenderer.transform.position, Vector3.back, Time.deltaTime * 100 * rotationSpeed);
 
                 // Scale
-                boomerangSpriteRenderer.transform.localScale = Vector3.Lerp(Vector3.zero, initialScale, t*5);
+                boomerangSpriteRenderer.transform.localScale = Vector3.Lerp(Vector3.zero, initialScale, t * 5);
 
                 GameObject[] keys = hitMonsterTimes.Keys.ToArray();
                 foreach (GameObject key in keys)
@@ -170,10 +210,10 @@ namespace Vampire
                     hitMonsterTimes[key] += Time.deltaTime;
                 }
 
-                t += Time.deltaTime/throwTime;
+                t += Time.deltaTime / throwTime;
                 yield return null;
             }
-            
+
             //hitMonsters = new FastList<GameObject>();
             t = 0;//0.1f;
             while (t < 1)
@@ -186,9 +226,9 @@ namespace Vampire
                 Vector3 cda = Vector2.Lerp(cd, da, EasingUtils.EaseInQuad(t));
 
                 // Adjust y position based on physical equations to simulate bouncing
-                transform.position = Vector2.Lerp(c, a, EasingUtils.EaseInQuad(t));;
+                transform.position = Vector2.Lerp(c, a, EasingUtils.EaseInQuad(t)); ;
 
-                Vector2 circleCastDir = (Vector2)transform.position-prevPosition;
+                Vector2 circleCastDir = (Vector2)transform.position - prevPosition;
                 RaycastHit2D[] raycastHits = Physics2D.CircleCastAll(prevPosition, radius, circleCastDir.normalized, circleCastDir.magnitude, targetLayer);
                 foreach (RaycastHit2D raycastHit in raycastHits)
                 {
@@ -197,17 +237,35 @@ namespace Vampire
                     {
                         hitMonsterTimes[hitGameObject] = 0.0f;
                         IDamageable damageable = hitGameObject.GetComponentInParent<IDamageable>();
-                        damageable.TakeDamage(damage);//-circleCastDir.normalized*knockback);
-                        OnHitDamageable.Invoke(damage);
+
+                        if (damageable != null)
+                        {
+                            Character targetCharacter = damageable as Character;
+
+                            if (targetCharacter != null && sourceMonsterBlueprint != null)
+                            {
+                                targetCharacter.TakeDamageFromMonster(
+                                    damage,
+                                    Vector2.zero,
+                                    sourceMonsterBlueprint
+                                );
+                            }
+                            else
+                            {
+                                damageable.TakeDamage(damage);
+                            }
+
+                            OnHitDamageable?.Invoke(damage);
+                        }
                     }
                 }
                 prevPosition = transform.position;
 
                 // Rotate
-                boomerangSpriteRenderer.transform.RotateAround(boomerangSpriteRenderer.transform.position, Vector3.back, Time.deltaTime*100*rotationSpeed);
+                boomerangSpriteRenderer.transform.RotateAround(boomerangSpriteRenderer.transform.position, Vector3.back, Time.deltaTime * 100 * rotationSpeed);
 
                 // Scale
-                boomerangSpriteRenderer.transform.localScale = Vector3.Lerp(initialScale, Vector3.zero, (t-0.8f)*5);
+                boomerangSpriteRenderer.transform.localScale = Vector3.Lerp(initialScale, Vector3.zero, (t - 0.8f) * 5);
 
                 GameObject[] keys = hitMonsterTimes.Keys.ToArray();
                 foreach (GameObject key in keys)
@@ -215,7 +273,7 @@ namespace Vampire
                     hitMonsterTimes[key] += Time.deltaTime;
                 }
 
-                t += Time.deltaTime/throwTime;
+                t += Time.deltaTime / throwTime;
                 yield return null;
             }
 

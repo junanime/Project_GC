@@ -164,6 +164,14 @@ namespace Vampire
         private readonly List<Collider2D> dashGhostedColliders = new List<Collider2D>();
         private readonly Dictionary<Collider2D, bool> originalTriggerStateByCollider = new Dictionary<Collider2D, bool>();
 
+        // =========================================================
+        // Result Screen - 마지막으로 실제 피해를 준 몬스터 추적
+        // =========================================================
+        private MonsterBlueprint pendingDamageMonsterBlueprint;
+        private MonsterBlueprint lastDamageMonsterBlueprint;
+
+        public MonsterBlueprint LastDamageMonsterBlueprint => lastDamageMonsterBlueprint;
+
         public Vector2 LookDirection
         {
             get { return lookDirection; }
@@ -284,6 +292,10 @@ namespace Vampire
             this.entityManager = entityManager;
             this.abilityManager = abilityManager;
             this.statsManager = statsManager;
+
+            // 새 플레이 시작 시 이전 공격자 정보 초기화
+            pendingDamageMonsterBlueprint = null;
+            lastDamageMonsterBlueprint = null;
 
             OnDealDamage.AddListener(statsManager.IncreaseDamageDealt);
 
@@ -846,6 +858,28 @@ namespace Vampire
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
         }
 
+        /// <summary>
+        /// 몬스터가 플레이어에게 피해를 줄 때 사용하는 함수입니다.
+        /// 기존 TakeDamage 로직은 그대로 사용하면서 공격한 몬스터의 Blueprint를 함께 전달합니다.
+        /// </summary>
+        public void TakeDamageFromMonster(
+            float damage,
+            Vector2 knockback,
+            MonsterBlueprint sourceMonster,
+            bool isCritical = false)
+        {
+            pendingDamageMonsterBlueprint = sourceMonster;
+
+            try
+            {
+                TakeDamage(damage, knockback, isCritical);
+            }
+            finally
+            {
+                pendingDamageMonsterBlueprint = null;
+            }
+        }
+
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
             if (!alive)
@@ -912,6 +946,14 @@ namespace Vampire
             GameAudioManager.PlaySfx(
                 GameAudioManager.GameSfxId.PlayerHit
             );
+
+            // 실제 체력이 감소한 공격만 마지막 공격자로 기록합니다.
+            // 일반 TakeDamage()로 들어온 피해라면 pendingDamageMonsterBlueprint가 null이므로
+            // 환경 피해/기타 피해로 사망했을 때 이전 몬스터가 범인으로 남지 않습니다.
+            if (damage > 0f)
+            {
+                lastDamageMonsterBlueprint = pendingDamageMonsterBlueprint;
+            }
 
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
             statsManager.IncreaseDamageTaken(damage);

@@ -38,6 +38,8 @@ MonoBehaviour:
       coinType: 0
   walkSpriteSequence: []
   walkFrameTime: 0
+  description: "\uC704\uC0B0 \uD3EC\uC790?"
+  resultSprite: {fileID: 0}
   playerLayer:
     serializedVersion: 2
     m_Bits: 0

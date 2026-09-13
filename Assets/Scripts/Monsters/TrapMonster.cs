@@ -439,7 +439,15 @@ namespace Vampire
                     yield break;
                 }
 
-                trappedDamageable.TakeDamage(trapBlueprint.tickDamage, Vector2.zero, false);
+                // 결과 화면용:
+                // 함정의 틱 데미지를 플레이어에게 줄 때
+                // 공격한 함정 몬스터의 Blueprint를 함께 전달합니다.
+                trappedCharacter.TakeDamageFromMonster(
+                    trapBlueprint.tickDamage,
+                    Vector2.zero,
+                    trapBlueprint,
+                    false
+                );
 
                 if (debugLog)
                 {
