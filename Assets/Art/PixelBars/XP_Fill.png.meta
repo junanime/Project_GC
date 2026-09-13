@@ -21,6 +21,7 @@ TextureImporter:
   lightmap: 0
   compressionQuality: 100
   spriteMode: 1
+  spriteBorder: {x: 10, y: 0, z: 10, w: 0}
   spriteExtrude: 0
   spriteMeshType: 0
   alignment: 9
