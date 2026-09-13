@@ -484,8 +484,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d67eafb7a322bc4888956f4dcd020b1, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   patternName: YellowGreenColaHeal
   cooldown: 40
   coreTraits: 2
@@ -1274,7 +1274,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useFiveCoreHealth: 1
-  fiveCoreMaxHealth: 4000
+  fiveCoreMaxHealth: 500
   redCore: {fileID: 4346352809294327159}
   orangeCore: {fileID: 6202724119696504209}
   yellowCore: {fileID: 4885141670365998839}
@@ -1443,8 +1443,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7850e71ecc209584c9aa612b22ff21a8, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   patternName: BlueHoming
   cooldown: 3
   coreTraits: 4
@@ -2332,8 +2332,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 74e44a481e271744c8e4993ee2bae273, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   patternName: YellowBomb
   cooldown: 3
   coreTraits: 2
@@ -2504,8 +2504,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 252d5806f61827f4b945816f539e8a05, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   patternName: RedFan
   cooldown: 3
   coreTraits: 1
@@ -2574,8 +2574,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   patternName: GreenRadial
   cooldown: 3
   coreTraits: 4
@@ -2797,8 +2797,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 318cbbf73d61721489f99e9557ce1dd7, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   healthRoot: {fileID: 8798942031376210255}
   basicAttackOwner: {fileID: 4346352809294327159}
   activePrimary: {fileID: 0}
@@ -3034,8 +3034,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a067d4dfe8da2eb469aca311e949f14d, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   patternName: OrangeRadial
   cooldown: 3
   coreTraits: 4
