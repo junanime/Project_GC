@@ -104,19 +104,19 @@ MonoBehaviour:
   poisonEnabled: 0
   fiberNeedleEnabled: 0
   corrosionNeedleEnabled: 0
-  pressureNeedleEnabled: 0
-  markNeedleEnabled: 0
+  pressureNeedleEnabled: 1
+  markNeedleEnabled: 1
   bipolarNeedleEnabled: 0
   digestiveAcidSacNeedleEnabled: 0
   hungerNeedleEnabled: 0
   gutBacteriaNeedleEnabled: 0
-  explosionEnabled: 1
+  explosionEnabled: 0
   homingEnabled: 0
-  pierceEnabled: 0
-  honeyEnabled: 0
-  mosquitoEnabled: 0
-  returnNeedleEnabled: 0
-  acupunctureFormationEnabled: 0
+  pierceEnabled: 1
+  honeyEnabled: 1
+  mosquitoEnabled: 1
+  returnNeedleEnabled: 1
+  acupunctureFormationEnabled: 1
   lifeBurnEnabled: 0
   hungrySpiritEnabled: 0
   needleShotgunEnabled: 0
