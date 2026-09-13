@@ -110,7 +110,7 @@ MonoBehaviour:
   digestiveAcidSacNeedleEnabled: 0
   hungerNeedleEnabled: 0
   gutBacteriaNeedleEnabled: 0
-  explosionEnabled: 0
+  explosionEnabled: 1
   homingEnabled: 0
   pierceEnabled: 0
   honeyEnabled: 0
