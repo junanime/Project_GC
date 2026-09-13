@@ -375,6 +375,7 @@ namespace Vampire
                 Vector3.one *
                 explosionRadius;
 
+            GroundVisualSorting.ApplyHierarchy(warning, 200);
             return warning;
         }
 

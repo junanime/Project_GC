@@ -183,9 +183,7 @@ namespace Vampire
             if (augmentVisual != null)
             {
                 augmentVisual.transform.localScale = new Vector3(radius * 2f / 0.84f, radius * 2f / 0.70f, 1f);
-                var renderer = augmentVisual.GetComponent<SpriteRenderer>();
-                renderer.sortingLayerName = "Default";
-                renderer.sortingOrder = 760;
+                augmentVisual.SetGroundSorting();
             }
         }
 
@@ -224,7 +222,7 @@ namespace Vampire
 
             lr.numCapVertices = 4;
             lr.numCornerVertices = 4;
-            lr.sortingOrder = sortingOrder;
+            GroundVisualSorting.Apply(lr, sortingOrder);
 
             Shader spriteShader =
                 Shader.Find("Sprites/Default");

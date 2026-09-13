@@ -76,8 +76,6 @@ namespace Vampire
         [Tooltip("빔 색상입니다.")]
         [SerializeField] private Color beamColor = new Color(1f, 0.85f, 0.1f, 1f);
 
-        [Tooltip("빔 LineRenderer의 Sorting Layer 이름입니다.")]
-        [SerializeField] private string beamSortingLayerName = "Default";
 
         [Tooltip("빔 LineRenderer의 Order in Layer입니다. 플레이어/몬스터보다 아래에 두려면 -500 근처를 추천합니다.")]
         [SerializeField] private int beamSortingOrder = -500;
@@ -552,8 +550,7 @@ namespace Vampire
             beamLineRenderer.widthMultiplier = Mathf.Max(0.01f, beamWidth);
             beamLineRenderer.startColor = beamColor;
             beamLineRenderer.endColor = beamColor;
-            beamLineRenderer.sortingLayerName = beamSortingLayerName;
-            beamLineRenderer.sortingOrder = beamSortingOrder;
+            GroundVisualSorting.Apply(beamLineRenderer, beamSortingOrder);
 
             if (beamLineRenderer.sharedMaterial == null)
             {

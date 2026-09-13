@@ -97,7 +97,9 @@ public static class SyringeVfxAssets
             serialized.FindProperty("worldSpace").boolValue = worldSpace;
             serialized.FindProperty("sortingOrderOffset").intValue = orderOffset;
             serialized.FindProperty("opacity").floatValue = opacity;
+            serialized.FindProperty("groundEffect").boolValue = name == "DigestiveAcidSacNeedle" || name == "FiberNeedle" || name == "OrganCompression" || name == "GastricPeristalsisWave";
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            if (serialized.FindProperty("groundEffect").boolValue) GroundVisualSorting.ApplyHierarchy(go);
             PrefabUtility.SaveAsPrefabAsset(go, path);
         }
         finally { PrefabUtility.UnloadPrefabContents(go); }
@@ -120,7 +122,9 @@ public static class SyringeVfxAssets
             serialized.FindProperty("loop").boolValue = loop;
             serialized.FindProperty("frameTime").floatValue = frameTime;
             if (name == "OrganCompressionHit") serialized.FindProperty("opacity").floatValue = 0.38f;
+            serialized.FindProperty("groundEffect").boolValue = name == "DigestiveAcidSacNeedle" || name == "FiberNeedle" || name == "OrganCompression" || name == "GastricPeristalsisWave";
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            if (serialized.FindProperty("groundEffect").boolValue) GroundVisualSorting.ApplyHierarchy(go);
             go.GetComponent<SpriteRenderer>().sprite = selected[0];
             PrefabUtility.SaveAsPrefabAsset(go, root + name + ".prefab");
         }
@@ -216,7 +220,9 @@ public static class SyringeVfxAssets
             serialized.FindProperty("opacity").floatValue = alpha;
             serialized.FindProperty("worldSpace").boolValue = name == "DigestiveAcidSacNeedle" || name == "BipolarNeedle" || name == "HeavySnipe" || name == "OrganCompression" || name == "GastricPeristalsisWave";
             serialized.FindProperty("overhead").boolValue = name == "MarkNeedle";
+            serialized.FindProperty("groundEffect").boolValue = name == "DigestiveAcidSacNeedle" || name == "FiberNeedle" || name == "OrganCompression" || name == "GastricPeristalsisWave";
             serialized.ApplyModifiedPropertiesWithoutUndo();
+            if (serialized.FindProperty("groundEffect").boolValue) GroundVisualSorting.ApplyHierarchy(go);
             PrefabUtility.SaveAsPrefabAsset(go, path + ".prefab");
         }
         finally { UnityEngine.Object.DestroyImmediate(go); }

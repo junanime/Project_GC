@@ -253,7 +253,6 @@ MonoBehaviour:
   bloodTrailColor: {r: 0.45, g: 0.02, b: 0.02, a: 0.65}
   bloodTrailMinSize: 0.18
   bloodTrailMaxSize: 0.38
-  bloodTrailSortingLayerName: Default
   bloodTrailSortingOrder: -5
   silverRewardMin: 8
   silverRewardMax: 15

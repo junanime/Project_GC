@@ -21,6 +21,7 @@ namespace Vampire
         private void Awake()
         {
             meshRenderer = GetComponent<MeshRenderer>();
+            GroundVisualSorting.ApplyBackground(meshRenderer, -1000);
 
             // 화면 크기에 맞춰 배경 크기 설정
             Vector2 bottomLeft =

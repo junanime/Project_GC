@@ -5,7 +5,7 @@ namespace Vampire
     public class MiniStageRoomRenderOrder : MonoBehaviour
     {
         [Header("Sorting Layer")]
-        [Tooltip("미니 스테이지 배경 오브젝트에 적용할 Sorting Layer 이름입니다. 대부분 Default를 사용하면 됩니다.")]
+        [Tooltip("Sorting layer for walls and props only. Room backgrounds always use Background.")]
         [SerializeField] private string sortingLayerName = "Default";
 
         [Header("Scene Background")]
@@ -72,10 +72,12 @@ namespace Vampire
         {
             ResolveInfiniteBackgroundRenderer();
 
-            ApplyRenderer(infiniteBackgroundRenderer, infiniteBackgroundOrder);
-            ApplyRenderer(blackBackgroundRenderer, blackBackgroundOrder);
-            ApplyRenderer(miniStageBackgroundRenderer, miniStageBackgroundOrder);
-            ApplyRenderers(additionalBackgroundRenderers, additionalBackgroundOrder);
+            GroundVisualSorting.ApplyBackground(infiniteBackgroundRenderer, infiniteBackgroundOrder);
+            GroundVisualSorting.ApplyBackground(blackBackgroundRenderer, blackBackgroundOrder);
+            GroundVisualSorting.ApplyBackground(miniStageBackgroundRenderer, miniStageBackgroundOrder);
+            if (additionalBackgroundRenderers != null)
+                foreach (var renderer in additionalBackgroundRenderers)
+                    GroundVisualSorting.ApplyBackground(renderer, additionalBackgroundOrder);
             ApplyRenderers(wallAndPropRenderers, wallAndPropOrder);
 
             if (debugLog)

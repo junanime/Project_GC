@@ -72,9 +72,9 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: -96099825
-  m_SortingLayer: 2
-  m_SortingOrder: 5
+  m_SortingLayerID: 1843267519
+  m_SortingLayer: 0
+  m_SortingOrder: 0
   m_Sprite: {fileID: -1465508429, guid: b457761b5b005594a9db728487b9c82d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -127,5 +127,6 @@ MonoBehaviour:
   loop: 1
   opacity: 0.65
   worldSpace: 1
+  groundEffect: 1
   overhead: 0
   markerSize: 0.55

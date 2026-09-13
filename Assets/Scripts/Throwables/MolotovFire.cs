@@ -10,6 +10,8 @@ namespace Vampire
         
         public IEnumerator Burn(MolotovThrowable molotov, float damage, float knockback, float duration, float fireRadius, float fireDamageRate, LayerMask targetLayer)
         {
+            GroundVisualSorting.ApplyHierarchy(gameObject);
+            if (fireParticles != null) GroundVisualSorting.ApplyHierarchy(fireParticles.gameObject);
             float t = 0;
             while (t < 1.0f)
             {

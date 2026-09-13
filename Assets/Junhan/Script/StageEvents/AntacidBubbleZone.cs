@@ -35,6 +35,7 @@ namespace Vampire
             this.debugLog = debugLog;
 
             age = 0f;
+            GroundVisualSorting.ApplyHierarchy(gameObject);
 
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             circleCollider = GetComponent<CircleCollider2D>();

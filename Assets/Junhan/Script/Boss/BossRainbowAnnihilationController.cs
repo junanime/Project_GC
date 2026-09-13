@@ -553,7 +553,7 @@ namespace Vampire
                 line.endWidth = line.startWidth;
                 line.numCapVertices = 0;
                 line.numCornerVertices = 2;
-                line.sortingOrder = zoneSortingOrder;
+                GroundVisualSorting.Apply(line, zoneSortingOrder);
 
                 Shader shader = Shader.Find("Sprites/Default");
                 if (shader != null)

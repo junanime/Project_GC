@@ -18,7 +18,7 @@ namespace Vampire
         private float fadeInSeconds = 0.1f;
         [SerializeField, Tooltip("Seconds used to fade the residue before the damage segment expires.")]
         private float fadeOutSeconds = 0.2f;
-        [SerializeField, Tooltip("Floor order above room backgrounds (-800) and below characters and needle projectiles (50).") ]
+        [SerializeField, Tooltip("Order within GroundEffects; always above backgrounds and below actors and projectiles.") ]
         private int groundSortingOrder = -50;
         private LayerMask targetLayer;
         private float damagePerSecond = 2f;
@@ -113,9 +113,7 @@ namespace Vampire
             {
                 augmentVisual.transform.rotation = transform.rotation;
                 augmentVisual.SetWorldSize(new Vector2(length, width), new Vector2(0.84f, 0.22f));
-                var renderer = augmentVisual.GetComponent<SpriteRenderer>();
-                renderer.sortingLayerName = "Default";
-                renderer.sortingOrder = groundSortingOrder;
+                augmentVisual.SetGroundSorting(groundSortingOrder);
             }
             createdAt = Time.time;
             endsAt = Time.time + Mathf.Max(0.05f, lifetime);

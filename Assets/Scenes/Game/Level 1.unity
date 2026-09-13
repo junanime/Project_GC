@@ -23564,8 +23564,6 @@ MonoBehaviour:
     resolvedStartTime: 0
     monsterScanTimer: 0
   logPreparedEvents: 1
-  forceEventVisualSorting: 1
-  eventVisualSortingLayerName: Monster Full
   eventVisualSortingOrder: 999
   eventVisualMinimumAlpha: 0.45
   logWaveVisualCreation: 1
@@ -40607,8 +40605,8 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1017377967
+  m_SortingLayer: -1
   m_SortingOrder: -1000
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!210 &1852338041
@@ -40621,7 +40619,7 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: 1017377967
   m_SortingLayer: -1
-  m_SortingOrder: -10
+  m_SortingOrder: -1000
   m_SortAtRoot: 0
 --- !u!114 &1852338042
 MonoBehaviour:

@@ -57,6 +57,7 @@ namespace Vampire
             // Delay and draw line
             float t = 0;
             chargeIndicator.color = defaultColor;
+            GroundVisualSorting.Apply(chargeIndicator);
             chargeIndicator.enabled = true;
             Vector2 direction = playerCharacter.transform.position - monster.transform.position;
             while (t < chargeUpTime)

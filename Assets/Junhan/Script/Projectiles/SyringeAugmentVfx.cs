@@ -17,6 +17,10 @@ namespace Vampire
         private float opacity = 0.75f;
         [SerializeField, Tooltip("Place this loop in world space instead of fitting a target.")]
         private bool worldSpace;
+        [SerializeField, Tooltip("Render below all actors and above backgrounds.")]
+        private bool groundEffect;
+        private bool groundSorting;
+        private int groundOrder;
         [SerializeField, Tooltip("Place a small marker above the target instead of wrapping its body.")]
         private bool overhead;
         [SerializeField, Tooltip("World size of an overhead marker.")]
@@ -73,6 +77,8 @@ namespace Vampire
             instance.leased = true;
             instance.elapsed = 0f;
             instance.target = target;
+            instance.groundSorting = instance.groundEffect;
+            instance.groundOrder = 0;
             instance.destination = null;
             instance.anchor = null;
             instance.gameObject.SetActive(true);
@@ -80,8 +86,7 @@ namespace Vampire
             instance.animator = instance.GetComponent<SpriteAnimator>();
             instance.visual.enabled = true;
             instance.visual.color = new Color(1f, 1f, 1f, instance.opacity);
-            instance.visual.sortingLayerID = target != null ? target.sortingLayerID : SortingLayer.NameToID("Monster Full");
-            instance.visual.sortingOrder = target != null ? target.sortingOrder + instance.sortingOrderOffset : instance.sortingOrderOffset;
+            instance.ApplyVisualSorting();
             instance.transform.position = position;
             instance.transform.rotation = Quaternion.identity;
             instance.transform.localScale = Vector3.one;
@@ -155,8 +160,7 @@ namespace Vampire
                 desired = Vector3.one * (markerSize / visual.sprite.bounds.size.x);
             }
             transform.localScale = desired;
-            visual.sortingLayerID = target.sortingLayerID;
-            visual.sortingOrder = target.sortingOrder + sortingOrderOffset;
+            ApplyVisualSorting();
             visual.enabled = target.enabled;
         }
 
@@ -181,11 +185,24 @@ namespace Vampire
                 size.y / Mathf.Max(0.001f, bounds.y * artFraction.y), 1f);
         }
 
+        private void ApplyVisualSorting()
+        {
+            if (groundSorting) { GroundVisualSorting.Apply(visual, groundOrder); return; }
+            visual.sortingLayerID = target != null ? target.sortingLayerID : SortingLayer.NameToID("Monster Full");
+            visual.sortingOrder = target != null ? target.sortingOrder + sortingOrderOffset : sortingOrderOffset;
+        }
+
+        public void SetGroundSorting(int order = 0)
+        {
+            groundSorting = true;
+            groundOrder = order;
+            if (visual != null) ApplyVisualSorting();
+        }
+
         public void SetGroundRadius(float radius, float artDiameter = 0.9f)
         {
+            SetGroundSorting();
             if (visual == null || visual.sprite == null) return;
-            visual.sortingLayerName = "Default";
-            visual.sortingOrder = 760;
             var size = visual.sprite.bounds.size;
             transform.localScale = new Vector3(2f * radius / (size.x * artDiameter),
                 2f * radius / (size.y * artDiameter), 1f);

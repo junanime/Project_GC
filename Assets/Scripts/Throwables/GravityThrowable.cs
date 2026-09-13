@@ -20,6 +20,8 @@ namespace Vampire
 
         protected IEnumerator Gravity()
         {
+            GroundVisualSorting.ApplyHierarchy(gravityWell);
+            if (wellParticles != null) GroundVisualSorting.ApplyHierarchy(wellParticles.gameObject);
             gravityWell.SetActive(true);
             throwableSpriteRenderer.enabled = false;
             SetWellParticleEmission(true);

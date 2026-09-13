@@ -680,8 +680,7 @@ namespace Vampire
                 sr.color =
                     warningColor;
 
-                sr.sortingOrder =
-                    100;
+                GroundVisualSorting.ApplyHierarchy(warning, 100);
             }
 
             return warning;
