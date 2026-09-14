@@ -12,81 +12,66 @@ namespace Vampire.Tests.Editor
             "Assets/Blueprints/Characters/Main Character Blueprint.asset";
 
         [Test]
-        public void MainBlueprintContainsBothSixteenFrameFaceVariants()
+        public void MainBlueprintUsesEightEyebrowWalkFrames()
         {
             CharacterBlueprint blueprint = LoadBlueprint();
 
-            Assert.That(blueprint.walkSpriteSequence, Has.Length.EqualTo(16));
-            Assert.That(blueprint.eyebrowWalkSpriteSequence, Has.Length.EqualTo(16));
-            Assert.That(blueprint.walkFrameTime, Is.EqualTo(0.04f).Within(0.0001f));
+            Assert.That(blueprint.walkSpriteSequence, Has.Length.EqualTo(8));
+            Assert.That(blueprint.walkFrameTime, Is.EqualTo(0.08f).Within(0.0001f));
             Assert.That(Array.TrueForAll(blueprint.walkSpriteSequence, sprite => sprite != null), Is.True);
-            Assert.That(Array.TrueForAll(blueprint.eyebrowWalkSpriteSequence, sprite => sprite != null), Is.True);
-            Assert.That(blueprint.walkSpriteSequence[0], Is.Not.SameAs(blueprint.eyebrowWalkSpriteSequence[0]));
+            Assert.That(Array.TrueForAll(
+                blueprint.walkSpriteSequence,
+                sprite => sprite.name.Contains("Ashi_Run_Eyebrows")), Is.True);
         }
 
         [Test]
-        public void MainBlueprintContainsAlternatingWingSequences()
+        public void MainBlueprintContainsEightFrameIdleAndDashAnimations()
         {
             CharacterBlueprint blueprint = LoadBlueprint();
 
-            Assert.That(blueprint.syringeRearWingAttackSpriteSequence, Has.Length.EqualTo(4));
-            Assert.That(blueprint.syringeFrontWingAttackSpriteSequence, Has.Length.EqualTo(4));
-            Assert.That(Array.TrueForAll(blueprint.syringeRearWingAttackSpriteSequence, sprite => sprite != null), Is.True);
-            Assert.That(Array.TrueForAll(blueprint.syringeFrontWingAttackSpriteSequence, sprite => sprite != null), Is.True);
-            Assert.That(blueprint.syringeAttackMinDuration, Is.GreaterThan(0f));
-            Assert.That(blueprint.syringeAttackMaxDuration, Is.GreaterThanOrEqualTo(blueprint.syringeAttackMinDuration));
+            AssertSequence(blueprint.idleSpriteSequence, "Ashi_Idle_Eyebrows");
+            AssertSequence(blueprint.dashSpriteSequence, "Ashi_Dash_Eyebrows");
+            Assert.That(blueprint.idleFrameTime, Is.EqualTo(0.125f).Within(0.0001f));
+            Assert.That(blueprint.dashFrameTime, Is.EqualTo(0.0275f).Within(0.0001f));
         }
 
         [Test]
-        public void WingAnimatorDoesNotReplaceTheWalkingBodySprite()
+        public void StateSpritesKeepComparableWorldSize()
         {
             CharacterBlueprint blueprint = LoadBlueprint();
-            GameObject root = new GameObject("AshiAnimationTest");
+            Vector2 walkSize = blueprint.walkSpriteSequence[0].bounds.size;
 
-            try
+            foreach (Sprite sprite in blueprint.idleSpriteSequence)
             {
-                SpriteRenderer bodyRenderer = root.AddComponent<SpriteRenderer>();
-                Sprite expectedBody = blueprint.walkSpriteSequence[5];
-                bodyRenderer.sprite = expectedBody;
-                CharacterSyringeAttackAnimator animator =
-                    root.AddComponent<CharacterSyringeAttackAnimator>();
-
-                animator.Init(null, blueprint, bodyRenderer);
-                animator.PlayShot(0.25f);
-
-                Assert.That(animator.IsPlaying, Is.True);
-                Assert.That(animator.ActiveWingIsFront, Is.True);
-                Assert.That(bodyRenderer.sprite, Is.SameAs(expectedBody),
-                    "Wing attacks must remain an overlay so walking never stops.");
-                Assert.That(root.transform.Find("SyringeAttackWingVisual"), Is.Not.Null);
-
-                // A second successful shot on a later frame uses the opposite wing.
-                typeof(CharacterSyringeAttackAnimator)
-                    .GetField("lastShotFrame", BindingFlags.Instance | BindingFlags.NonPublic)
-                    .SetValue(animator, -1);
-                animator.PlayShot(0.1f);
-                Assert.That(animator.ActiveWingIsFront, Is.False);
-                Assert.That(bodyRenderer.sprite, Is.SameAs(expectedBody));
+                Assert.That(sprite.bounds.size.x, Is.EqualTo(walkSize.x).Within(0.08f));
+                Assert.That(sprite.bounds.size.y, Is.EqualTo(walkSize.y).Within(0.08f));
             }
-            finally
+
+            foreach (Sprite sprite in blueprint.dashSpriteSequence)
             {
-                UnityEngine.Object.DestroyImmediate(root);
+                Assert.That(sprite.bounds.size.x, Is.EqualTo(walkSize.x).Within(0.08f));
+                Assert.That(sprite.bounds.size.y, Is.EqualTo(walkSize.y).Within(0.08f));
             }
         }
 
         [Test]
-        public void CharacterExposesRuntimeFaceComparisonAndShotTrigger()
+        public void CharacterExposesIdleStateAndNoAttackAnimationTrigger()
         {
-            Assert.That(Enum.GetValues(typeof(AshiFaceStyle)), Has.Length.EqualTo(2));
-            Assert.That(typeof(Character).GetMethod("SetAshiFaceStyle"), Is.Not.Null);
-            Assert.That(typeof(Character).GetMethod("TriggerSyringeAttackAnimation"), Is.Not.Null);
+            Assert.That(typeof(Character).GetMethod("StartIdleAnimation"), Is.Not.Null);
+            Assert.That(typeof(Character).GetMethod("TriggerSyringeAttackAnimation"), Is.Null);
 
             MethodInfo shotgunLaunch = typeof(SyringeDartAbility).GetMethod(
                 "LaunchNeedleShotgunProjectile",
                 BindingFlags.Instance | BindingFlags.NonPublic);
             Assert.That(shotgunLaunch, Is.Not.Null);
-            Assert.That(shotgunLaunch.ReturnType, Is.EqualTo(typeof(bool)),
-                "Shotgun animation should only fire after at least one projectile spawned.");
+            Assert.That(shotgunLaunch.ReturnType, Is.EqualTo(typeof(void)));
+        }
+
+        private static void AssertSequence(Sprite[] sequence, string expectedName)
+        {
+            Assert.That(sequence, Has.Length.EqualTo(8));
+            Assert.That(Array.TrueForAll(sequence, sprite => sprite != null), Is.True);
+            Assert.That(Array.TrueForAll(sequence, sprite => sprite.name.Contains(expectedName)), Is.True);
         }
 
         private static CharacterBlueprint LoadBlueprint()
@@ -105,10 +90,10 @@ namespace Vampire.Tests.Editor
             AshiAnimationTests tests = new AshiAnimationTests();
             Action[] cases =
             {
-                tests.MainBlueprintContainsBothSixteenFrameFaceVariants,
-                tests.MainBlueprintContainsAlternatingWingSequences,
-                tests.WingAnimatorDoesNotReplaceTheWalkingBodySprite,
-                tests.CharacterExposesRuntimeFaceComparisonAndShotTrigger
+                tests.MainBlueprintUsesEightEyebrowWalkFrames,
+                tests.MainBlueprintContainsEightFrameIdleAndDashAnimations,
+                tests.StateSpritesKeepComparableWorldSize,
+                tests.CharacterExposesIdleStateAndNoAttackAnimationTrigger
             };
 
             int failed = 0;

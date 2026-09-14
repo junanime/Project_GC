@@ -996,22 +996,8 @@ namespace Vampire
             projectile.OnHitDamageable.AddListener(ReportBaseNeedleDamage);
             projectile.Launch(direction);
 
-            NotifySuccessfulSyringeShot(
-                GetEffectiveProjectileCount() > 1
-                    ? Mathf.Max(0.01f, syringeDelay)
-                    : GetEffectiveCooldown()
-            );
-
             // 여기까지 왔을 때만 실제 발사 성공.
             return true;
-        }
-
-        private void NotifySuccessfulSyringeShot(float effectiveShotInterval)
-        {
-            if (playerCharacter != null)
-            {
-                playerCharacter.TriggerSyringeAttackAnimation(effectiveShotInterval);
-            }
         }
 
         // =========================================================
@@ -1288,16 +1274,10 @@ namespace Vampire
                     this);
             }
 
-            bool launchedAnyProjectile = false;
             for (int i = 0; i < totalProjectileCount; i++)
             {
                 Vector2 shotDirection = GetNeedleShotgunSpreadDirection(baseDirection, i, totalProjectileCount);
-                launchedAnyProjectile |= LaunchNeedleShotgunProjectile(shotDirection);
-            }
-
-            if (launchedAnyProjectile)
-            {
-                NotifySuccessfulSyringeShot(GetEffectiveCooldown());
+                LaunchNeedleShotgunProjectile(shotDirection);
             }
         }
 
@@ -1342,11 +1322,11 @@ namespace Vampire
             return RotateVector(baseDirection, angleOffset);
         }
 
-        private bool LaunchNeedleShotgunProjectile(Vector2 direction)
+        private void LaunchNeedleShotgunProjectile(Vector2 direction)
         {
             if (entityManager == null)
             {
-                return false;
+                return;
             }
 
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
@@ -1362,7 +1342,7 @@ namespace Vampire
 
             if (projectile == null)
             {
-                return false;
+                return;
             }
 
             projectile.transform.localScale = Vector3.one * GetEffectiveProjectileSizeMultiplier();
@@ -1388,7 +1368,6 @@ namespace Vampire
             );
 
             projectile.Launch(direction);
-            return true;
         }
 
         private SyringeSpecialRuntime BuildNeedleShotgunRuntime()
@@ -1617,7 +1596,6 @@ namespace Vampire
                 dealtDamage => ReportDamage("대물침", dealtDamage)
             );
             projectile.Launch(aimDirection);
-            NotifySuccessfulSyringeShot(GetEffectiveCooldown());
 
             if (debugHeavySnipe)
             {

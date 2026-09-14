@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e92c9b330a2131040bd95ae5b1ba2320
+guid: 3fe977126ccacc848a39406c7cfeea3d
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 480
+  spritePixelsToUnits: 675
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -97,7 +97,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ashi_AttackWing_00
+      name: Ashi_Idle_Eyebrows_00
       rect:
         serializedVersion: 2
         x: 0
@@ -109,16 +109,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 9c7a405c6adff8b00800000000000000
-      internalID: 833163348798646217
+      spriteID: 6a91ae9fadbb00441abfea876c39f188
+      internalID: 1086934663
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_01
+      name: Ashi_Idle_Eyebrows_01
       rect:
         serializedVersion: 2
         x: 443
@@ -130,16 +130,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8625a390f75120fc0800000000000000
-      internalID: -3530235522545200536
+      spriteID: 9ab43afb8cf2f2843ae04a884250a01c
+      internalID: 1185346422
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_02
+      name: Ashi_Idle_Eyebrows_02
       rect:
         serializedVersion: 2
         x: 887
@@ -151,16 +151,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 25b088742992c0ce0800000000000000
-      internalID: -1437728472795968686
+      spriteID: 4c1b8829882687b47a8a6492ed0ac25d
+      internalID: -300952911
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_03
+      name: Ashi_Idle_Eyebrows_03
       rect:
         serializedVersion: 2
         x: 1330
@@ -172,16 +172,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 05401a2aa63a868e0800000000000000
-      internalID: -1699929180942039984
+      spriteID: 32fd68d2aafb753499e2a25041bdd663
+      internalID: 418571460
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_04
+      name: Ashi_Idle_Eyebrows_04
       rect:
         serializedVersion: 2
         x: 0
@@ -193,16 +193,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e131aab44a240a290800000000000000
-      internalID: -7881226074486861026
+      spriteID: 0b7167587766459459203fe21a17d2ff
+      internalID: 510613207
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_05
+      name: Ashi_Idle_Eyebrows_05
       rect:
         serializedVersion: 2
         x: 443
@@ -214,16 +214,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 104e516172d6a9950800000000000000
-      internalID: 6456593030430712833
+      spriteID: adf9585d3ab70d94787044fde98d4850
+      internalID: -127447508
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_06
+      name: Ashi_Idle_Eyebrows_06
       rect:
         serializedVersion: 2
         x: 887
@@ -235,16 +235,16 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 9ea822e960d711a60800000000000000
-      internalID: 7643027510000782057
+      spriteID: 4e6a70525d51eaa479a27cc2cbd2fc9f
+      internalID: -1377166802
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Ashi_AttackWing_07
+      name: Ashi_Idle_Eyebrows_07
       rect:
         serializedVersion: 2
         x: 1330
@@ -256,35 +256,35 @@ TextureImporter:
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2e818a7cc5bf19a90800000000000000
-      internalID: -7308784344340358942
+      spriteID: e1f67c9a9a852d3408f2817c9d014676
+      internalID: -1902931106
       vertices: []
-      indices: 
+      indices:
       edges: []
       weights: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 32f6b3afd9a709042ade75529a3c915d
     internalID: 0
     vertices: []
-    indices: 
+    indices:
     edges: []
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Ashi_AttackWing_00: 833163348798646217
-      Ashi_AttackWing_01: -3530235522545200536
-      Ashi_AttackWing_02: -1437728472795968686
-      Ashi_AttackWing_03: -1699929180942039984
-      Ashi_AttackWing_04: -7881226074486861026
-      Ashi_AttackWing_05: 6456593030430712833
-      Ashi_AttackWing_06: 7643027510000782057
-      Ashi_AttackWing_07: -7308784344340358942
-  mipmapLimitGroupName: 
+      Ashi_Idle_Eyebrows_00: 1086934663
+      Ashi_Idle_Eyebrows_01: 1185346422
+      Ashi_Idle_Eyebrows_02: -300952911
+      Ashi_Idle_Eyebrows_03: 418571460
+      Ashi_Idle_Eyebrows_04: 510613207
+      Ashi_Idle_Eyebrows_05: -127447508
+      Ashi_Idle_Eyebrows_06: -1377166802
+      Ashi_Idle_Eyebrows_07: -1902931106
+  mipmapLimitGroupName:
   pSDRemoveMatte: 0
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:

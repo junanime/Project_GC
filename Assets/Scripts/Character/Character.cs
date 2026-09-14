@@ -7,14 +7,16 @@ using UnityEngine.InputSystem;
 
 namespace Vampire
 {
-    public enum AshiFaceStyle
-    {
-        NoEyebrows = 0,
-        Eyebrows = 1
-    }
-
     public class Character : IDamageable, ISpatialHashGridClient
     {
+        private enum CharacterVisualState
+        {
+            None,
+            Idle,
+            Walk,
+            Dash
+        }
+
         [Header("Dependencies")]
         [SerializeField] protected Transform centerTransform;
         [SerializeField] protected Transform lookIndicator;
@@ -32,10 +34,6 @@ namespace Vampire
 
         [Header("Character Data")]
         [SerializeField] protected CharacterBlueprint characterBlueprint;
-
-        [Header("Ashi Visual Comparison")]
-        [Tooltip("플레이 중 F7로 눈썹 없음/있음 버전을 즉시 전환할 수 있습니다.")]
-        [SerializeField] private AshiFaceStyle ashiFaceStyle = AshiFaceStyle.NoEyebrows;
 
         [Header("Runtime Stats")]
         [SerializeField] protected bool alive = true;
@@ -150,8 +148,7 @@ namespace Vampire
 
         protected SpriteRenderer spriteRenderer;
         protected SpriteAnimator spriteAnimator;
-        private CharacterSyringeAttackAnimator syringeAttackAnimator;
-        private AshiFaceStyle appliedAshiFaceStyle = (AshiFaceStyle)(-1);
+        private CharacterVisualState visualState = CharacterVisualState.None;
         protected AbilityManager abilityManager;
         protected EntityManager entityManager;
         protected StatsManager statsManager;
@@ -173,7 +170,6 @@ namespace Vampire
 
         private float dashInvincibleEndTime = -1f;
 
-        private Sprite cachedSpriteBeforeDash;
         private bool dashSpriteApplied = false;
 
         private readonly List<Collider2D> dashGhostedColliders = new List<Collider2D>();
@@ -289,7 +285,10 @@ namespace Vampire
                 spriteRenderer = spriteAnimator.GetComponent<SpriteRenderer>();
             }
 
-            characterBlueprint = CrossSceneData.CharacterBlueprint;
+            if (CrossSceneData.CharacterBlueprint != null)
+            {
+                characterBlueprint = CrossSceneData.CharacterBlueprint;
+            }
         }
 
         private void OnEnable()
@@ -307,10 +306,6 @@ namespace Vampire
             isDashing = false;
             dashCoroutine = null;
             dashInvincibleEndTime = -1f;
-            if (syringeAttackAnimator != null)
-            {
-                syringeAttackAnimator.Hide();
-            }
         }
 
         public virtual void Init(EntityManager entityManager, AbilityManager abilityManager, StatsManager statsManager)
@@ -343,8 +338,7 @@ namespace Vampire
             currentLevel = 1;
             UpdateLevelDisplay();
 
-            ApplyAshiFaceStyle(true);
-            EnsureSyringeAttackAnimator();
+            StartIdleAnimation();
 
             movementSpeed = new UpgradeableMovementSpeed();
             movementSpeed.Value = characterBlueprint.movespeed;
@@ -364,7 +358,6 @@ namespace Vampire
         protected virtual void Update()
         {
             UpdateDashInput();
-            UpdateAshiVisualComparison();
             HandleHealOnIdle();
             HandleThermometerMovementAndDecay();
 
@@ -378,122 +371,6 @@ namespace Vampire
                 spriteRenderer.flipX = lookDirection.x < 0;
             }
         }
-
-        private void UpdateAshiVisualComparison()
-        {
-            if (characterBlueprint == null)
-            {
-                return;
-            }
-
-            if (Keyboard.current != null &&
-                Keyboard.current.f7Key.wasPressedThisFrame &&
-                HasEyebrowWalkSequence())
-            {
-                ashiFaceStyle = ashiFaceStyle == AshiFaceStyle.NoEyebrows
-                    ? AshiFaceStyle.Eyebrows
-                    : AshiFaceStyle.NoEyebrows;
-            }
-
-            if (appliedAshiFaceStyle != ashiFaceStyle)
-            {
-                ApplyAshiFaceStyle(false);
-            }
-        }
-
-        private bool HasEyebrowWalkSequence()
-        {
-            return characterBlueprint.eyebrowWalkSpriteSequence != null &&
-                   characterBlueprint.eyebrowWalkSpriteSequence.Length > 0;
-        }
-
-        private Sprite[] GetSelectedWalkSpriteSequence()
-        {
-            if (ashiFaceStyle == AshiFaceStyle.Eyebrows && HasEyebrowWalkSequence())
-            {
-                return characterBlueprint.eyebrowWalkSpriteSequence;
-            }
-
-            return characterBlueprint.walkSpriteSequence;
-        }
-
-        private void ApplyAshiFaceStyle(bool force)
-        {
-            if (!force && appliedAshiFaceStyle == ashiFaceStyle)
-            {
-                return;
-            }
-
-            appliedAshiFaceStyle = ashiFaceStyle;
-            if (spriteAnimator == null || characterBlueprint == null)
-            {
-                return;
-            }
-
-            Sprite[] sequence = GetSelectedWalkSpriteSequence();
-            if (sequence == null || sequence.Length == 0)
-            {
-                return;
-            }
-
-            spriteAnimator.Init(sequence, characterBlueprint.walkFrameTime, false);
-
-            if (moveDirection != Vector2.zero && !isDashing)
-            {
-                spriteAnimator.StartAnimating();
-            }
-            else
-            {
-                spriteAnimator.StopAnimating();
-            }
-        }
-
-        private void EnsureSyringeAttackAnimator()
-        {
-            if (characterBlueprint == null || spriteRenderer == null)
-            {
-                return;
-            }
-
-            bool hasRearFrames = characterBlueprint.syringeRearWingAttackSpriteSequence != null &&
-                                 characterBlueprint.syringeRearWingAttackSpriteSequence.Length > 0;
-            bool hasFrontFrames = characterBlueprint.syringeFrontWingAttackSpriteSequence != null &&
-                                  characterBlueprint.syringeFrontWingAttackSpriteSequence.Length > 0;
-
-            if (!hasRearFrames && !hasFrontFrames)
-            {
-                return;
-            }
-
-            syringeAttackAnimator = GetComponent<CharacterSyringeAttackAnimator>();
-            if (syringeAttackAnimator == null)
-            {
-                syringeAttackAnimator = gameObject.AddComponent<CharacterSyringeAttackAnimator>();
-            }
-
-            syringeAttackAnimator.Init(this, characterBlueprint, spriteRenderer);
-        }
-
-        public void TriggerSyringeAttackAnimation(float effectiveShotInterval)
-        {
-            if (syringeAttackAnimator == null)
-            {
-                EnsureSyringeAttackAnimator();
-            }
-
-            if (syringeAttackAnimator != null)
-            {
-                syringeAttackAnimator.PlayShot(effectiveShotInterval);
-            }
-        }
-
-        public void SetAshiFaceStyle(AshiFaceStyle faceStyle)
-        {
-            ashiFaceStyle = faceStyle;
-            ApplyAshiFaceStyle(false);
-        }
-
-        public AshiFaceStyle CurrentAshiFaceStyle => ashiFaceStyle;
 
         private void HandleHealOnIdle()
         {
@@ -515,10 +392,11 @@ namespace Vampire
             if (effectiveDirection != Vector2.zero)
             {
                 lookDirection = effectiveDirection;
+                StartWalkAnimation();
             }
             else
             {
-                StopWalkAnimation();
+                StartIdleAnimation();
             }
 
             if (alive)
@@ -766,27 +644,21 @@ namespace Vampire
 
         private void ApplyDashSpriteVisual(Vector2 dashDirection)
         {
-            if (!useDashSprite)
+            if (!useDashSprite || spriteRenderer == null)
             {
                 return;
             }
 
-            if (dashSprite == null)
+            bool hasDashAnimation = characterBlueprint != null &&
+                                    characterBlueprint.dashSpriteSequence != null &&
+                                    characterBlueprint.dashSpriteSequence.Length > 0;
+
+            if (!hasDashAnimation && dashSprite == null)
             {
                 return;
             }
 
-            if (spriteRenderer == null)
-            {
-                return;
-            }
-
-            cachedSpriteBeforeDash = spriteRenderer.sprite;
             dashSpriteApplied = true;
-
-            StopWalkAnimation();
-
-            spriteRenderer.sprite = dashSprite;
 
             if (dashDirection.x != 0f)
             {
@@ -799,6 +671,19 @@ namespace Vampire
                     spriteRenderer.flipX = dashDirection.x > 0f;
                 }
             }
+
+            if (hasDashAnimation)
+            {
+                PlayVisualState(
+                    CharacterVisualState.Dash,
+                    characterBlueprint.dashSpriteSequence,
+                    characterBlueprint.dashFrameTime);
+            }
+            else
+            {
+                StopWalkAnimation();
+                spriteRenderer.sprite = dashSprite;
+            }
         }
 
         private void RestoreDashSpriteVisual()
@@ -810,21 +695,15 @@ namespace Vampire
 
             dashSpriteApplied = false;
 
-            if (restartWalkAnimationAfterDash && moveDirection != Vector2.zero)
+            if (restartWalkAnimationAfterDash && EffectiveMoveDirection != Vector2.zero)
             {
                 StartWalkAnimation();
             }
             else
             {
-                StopWalkAnimation();
-
-                if (spriteRenderer != null && cachedSpriteBeforeDash != null)
-                {
-                    spriteRenderer.sprite = cachedSpriteBeforeDash;
-                }
+                StartIdleAnimation();
             }
 
-            cachedSpriteBeforeDash = null;
         }
 
         private void ApplyDashCollisionGhost()
@@ -1313,14 +1192,57 @@ namespace Vampire
 
         public void StartWalkAnimation()
         {
-            if (alive && spriteAnimator != null)
+            if (!alive || characterBlueprint == null)
+                return;
+
+            PlayVisualState(
+                CharacterVisualState.Walk,
+                characterBlueprint.walkSpriteSequence,
+                characterBlueprint.walkFrameTime);
+        }
+
+        public void StartIdleAnimation()
+        {
+            if (!alive || characterBlueprint == null)
+                return;
+
+            Sprite[] sequence = characterBlueprint.idleSpriteSequence;
+            if (sequence == null || sequence.Length == 0)
             {
-                spriteAnimator.StartAnimating();
+                if (visualState != CharacterVisualState.Idle &&
+                    spriteAnimator != null &&
+                    characterBlueprint.walkSpriteSequence != null &&
+                    characterBlueprint.walkSpriteSequence.Length > 0)
+                {
+                    visualState = CharacterVisualState.Idle;
+                    spriteAnimator.Init(
+                        characterBlueprint.walkSpriteSequence,
+                        Mathf.Max(0.01f, characterBlueprint.walkFrameTime),
+                        true);
+                    spriteAnimator.StopAnimating(true);
+                }
+                return;
             }
+
+            PlayVisualState(CharacterVisualState.Idle, sequence, characterBlueprint.idleFrameTime);
+        }
+
+        private void PlayVisualState(CharacterVisualState state, Sprite[] sequence, float frameTime)
+        {
+            if (spriteAnimator == null || sequence == null || sequence.Length == 0)
+                return;
+
+            if (visualState == state)
+                return;
+
+            visualState = state;
+            spriteAnimator.Init(sequence, Mathf.Max(0.01f, frameTime), true);
+            spriteAnimator.StartAnimating();
         }
 
         public void StopWalkAnimation()
         {
+            visualState = CharacterVisualState.None;
             if (spriteAnimator != null)
             {
                 spriteAnimator.StopAnimating(true);
