@@ -300,7 +300,6 @@ MonoBehaviour:
   - {fileID: 184200659567386273}
   - {fileID: 9079768062456963784}
   beamLineRenderer: {fileID: 0}
-  rewardDropPoint: {fileID: 7585028743432934790}
   beamHitLayerMask:
     serializedVersion: 2
     m_Bits: 14336

@@ -4,11 +4,13 @@ namespace Vampire
 {
     public abstract class MiniStageRoomBase : MonoBehaviour
     {
+        public const float RewardChestRightOffset = 1.5f;
+
         [Header("Common Room Points")]
         [Tooltip("플레이어가 이 방에 입장했을 때 이동할 시작 위치입니다.")]
         [SerializeField] private Transform playerStartPoint;
 
-        [Tooltip("방 클리어 후 보상 상자를 생성할 기본 위치입니다. 비워두면 방 오브젝트 위치를 사용합니다.")]
+        [Tooltip("귀환 포탈을 찾지 못했을 때만 사용하는 이전 버전 호환용 보상 위치입니다.")]
         [SerializeField] private Transform rewardSpawnPoint;
 
         [Tooltip("보상 획득 후 E키로 원래 필드로 돌아가기 위한 귀환 상호작용 오브젝트입니다.")]
@@ -56,6 +58,7 @@ namespace Vampire
         }
 
         public MiniStageReturnInteractable ReturnInteractable => returnInteractable;
+        public Vector3 RewardChestSpawnPosition => ResolveRewardChestSpawnPosition();
         public bool RoomCleared => roomCleared;
         public bool RewardChestOpened => rewardChestOpened;
         public bool OptionalReturnUnlocked => optionalReturnUnlocked;
@@ -119,7 +122,7 @@ namespace Vampire
             OnBeginRoom();
         }
 
-        protected void CompleteRoom(Vector3? rewardPosition = null)
+        protected void CompleteRoom()
         {
             if (roomCleared)
             {
@@ -134,7 +137,7 @@ namespace Vampire
             }
 
             OnRoomCleared();
-            SpawnRewardChest(rewardPosition);
+            SpawnRewardChest();
         }
 
         protected void CompleteRoomWithoutReward()
@@ -191,7 +194,7 @@ namespace Vampire
             OnOptionalReturnUnlocked();
         }
 
-        private void SpawnRewardChest(Vector3? rewardPosition = null)
+        private void SpawnRewardChest()
         {
             if (entityManager == null)
             {
@@ -216,13 +219,7 @@ namespace Vampire
                 return;
             }
 
-            Vector3 spawnPosition =
-                rewardPosition ??
-                (
-                    rewardSpawnPoint != null
-                        ? rewardSpawnPoint.position
-                        : transform.position
-                );
+            Vector3 spawnPosition = ResolveRewardChestSpawnPosition();
 
             activeRewardChest =
                 entityManager.SpawnChest(
@@ -250,6 +247,30 @@ namespace Vampire
             {
                 UnlockReturnInteractable();
             }
+        }
+
+        private Vector3 ResolveRewardChestSpawnPosition()
+        {
+            // 모든 현재/향후 미니 스테이지가 동일한 규칙을 사용한다.
+            // 개별 기믹 위치나 마지막 처치 위치는 보상 위치에 영향을 주지 않는다.
+            Transform portalTransform = returnInteractable != null
+                ? returnInteractable.transform
+                : null;
+
+            if (portalTransform != null)
+            {
+                return portalTransform.position + Vector3.right * RewardChestRightOffset;
+            }
+
+            Transform legacyFallback = rewardSpawnPoint != null
+                ? rewardSpawnPoint
+                : transform;
+
+            Debug.LogWarning(
+                "[MiniStageRoomBase] ReturnInteractable을 찾지 못해 이전 보상 위치를 기준으로 오른쪽에 생성합니다.",
+                this);
+
+            return legacyFallback.position + Vector3.right * RewardChestRightOffset;
         }
 
         private void OnAnyChestOpened(Chest openedChest)

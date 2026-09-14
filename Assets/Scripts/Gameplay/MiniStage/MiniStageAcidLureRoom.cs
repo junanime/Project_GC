@@ -79,8 +79,6 @@ namespace Vampire
         private bool roomRunning;
         private bool roomEnded;
 
-        private Vector3 lastCompletedFieldPosition;
-
         protected override void OnInitRoom()
         {
             ResolveAcidFields();
@@ -106,8 +104,6 @@ namespace Vampire
 
             spawnedMonsters.Clear();
             acidKilledMonsters.Clear();
-
-            lastCompletedFieldPosition = transform.position;
 
             for (int i = 0; i < acidFields.Length; i++)
             {
@@ -261,8 +257,6 @@ namespace Vampire
                 return;
             }
 
-            lastCompletedFieldPosition = field.transform.position;
-
             if (debugLog)
             {
                 Debug.Log($"[MiniStageAcidLureRoom] 위산 필드 완료: {field.name}");
@@ -296,12 +290,11 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[MiniStageAcidLureRoom] 모든 위산 필드 완료. " +
-                    $"마지막 필드 위치에 보상 상자를 생성합니다. position={lastCompletedFieldPosition}"
+                    "[MiniStageAcidLureRoom] 모든 위산 필드 완료."
                 );
             }
 
-            CompleteRoom(lastCompletedFieldPosition);
+            CompleteRoom();
         }
 
         private void StopRunningCoroutines()
