@@ -711,6 +711,11 @@ namespace Vampire
 
         private void ApplyInspectorForcedAugmentRuntimeSetup()
         {
+            if (lifeBurnEnabled)
+            {
+                EnableLifeBurnLegendary();
+            }
+
             if (acupunctureFormationEnabled)
             {
                 EnableAcupunctureFormationAugment();
@@ -2120,6 +2125,15 @@ namespace Vampire
                 finalExplosionChance = Mathf.Max(finalExplosionChance, antibioticBombChance);
             }
 
+            PlayerGeneralStatRuntime generalStatRuntime =
+                PlayerGeneralStatRuntime.GetOrCreate(playerCharacter);
+            float statusDurationMultiplier = generalStatRuntime != null
+                ? generalStatRuntime.StatusDurationMultiplier
+                : 1f;
+            float statusDamageMultiplier = generalStatRuntime != null
+                ? generalStatRuntime.StatusDamageMultiplier
+                : 1f;
+
             SyringeSpecialRuntime runtime = new SyringeSpecialRuntime
             {
                 slowChance = playerCharacter != null ? playerCharacter.SlowChance : 0f,
@@ -2128,9 +2142,9 @@ namespace Vampire
                 reflectCount = playerCharacter != null ? playerCharacter.MouthwashCount : 0,
 
                 poisonEnabled = poisonEnabled,
-                poisonDuration = poisonDuration,
+                poisonDuration = poisonDuration * statusDurationMultiplier,
                 poisonTickInterval = poisonTickInterval,
-                poisonTickDamage = poisonTickDamage,
+                poisonTickDamage = poisonTickDamage * statusDamageMultiplier,
 
                 explosionEnabled = finalExplosionChance > 0f,
                 explosionRadius = explosionRadius,
@@ -2147,7 +2161,7 @@ namespace Vampire
                 pierceCount = totalPierceCount,
 
                 honeyEnabled = honeyEnabled,
-                honeyDuration = honeyDuration,
+                honeyDuration = honeyDuration * statusDurationMultiplier,
                 honeySlowMultiplier = honeySlowMultiplier,
 
                 mosquitoEnabled = mosquitoEnabled,
@@ -2162,15 +2176,15 @@ namespace Vampire
                 returnNeedleArriveDistance = returnNeedleArriveDistance,
                 returnNeedleMaxDuration = returnNeedleMaxDuration,
                 fiberEnabled = fiberNeedleEnabled,
-                fiberTrailLifetime = fiberTrailLifetime,
-                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond,
+                fiberTrailLifetime = fiberTrailLifetime * statusDurationMultiplier,
+                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond * statusDamageMultiplier,
                 fiberTrailTickInterval = fiberTrailTickInterval,
                 fiberTrailWidth = fiberTrailWidth,
                 fiberTrailMinSegmentDistance = fiberTrailMinSegmentDistance,
                 fiberTrailColor = fiberTrailColor,
 
                 corrosionEnabled = corrosionNeedleEnabled,
-                corrosionDuration = corrosionDuration,
+                corrosionDuration = corrosionDuration * statusDurationMultiplier,
                 corrosionDamageTakenBonusPerStack = corrosionDamageTakenBonusPerStack,
                 corrosionBossDamageTakenBonusPerStack = corrosionBossDamageTakenBonusPerStack,
                 corrosionMaxStacks = corrosionMaxStacks,
@@ -2180,12 +2194,12 @@ namespace Vampire
                 pressureMaxDamageBonus = pressureMaxDamageBonus,
 
                 markEnabled = markNeedleEnabled,
-                markDuration = markDuration,
+                markDuration = markDuration * statusDurationMultiplier,
                 markBonusDamageMultiplier = markBonusDamageMultiplier,
                 digestiveAcidSacEnabled = digestiveAcidSacNeedleEnabled,
-                digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime,
+                digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime * statusDurationMultiplier,
                 digestiveAcidPuddleRadius = digestiveAcidPuddleRadius,
-                digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond,
+                digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond * statusDamageMultiplier,
                 digestiveAcidPuddleTickInterval = digestiveAcidPuddleTickInterval,
                 digestiveAcidPuddleColor = digestiveAcidPuddleColor,
 
@@ -2744,7 +2758,14 @@ namespace Vampire
                 lifeBurnVisual = SyringeAugmentVfx.Play("LifeBurn", playerCharacter.transform.position, SyringeAugmentVfx.FindTarget(playerCharacter));
         }
 
-        public void EnableLifeBurnLegendary() => lifeBurnEnabled = true;
+        public void EnableLifeBurnLegendary()
+        {
+            lifeBurnEnabled = true;
+
+            LegendaryConditionalSpecialRuntime runtime =
+                LegendaryConditionalSpecialRuntime.GetOrCreate(playerCharacter);
+            runtime?.SetLifeBurnActive();
+        }
         public void EnableHungrySpiritLegendary()
         {
             hungrySpiritEnabled = true;

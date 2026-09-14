@@ -22959,7 +22959,6 @@ MonoBehaviour:
   rerollButtonImage: {fileID: 0}
   rerollButtonText: {fileID: 0}
   rerollButtonLabel: "\uC0C8\uB85C\uACE0\uCE68"
-  rerollRetryCount: 10
   rerollAvailableImageColor: {r: 1, g: 1, b: 1, a: 1}
   rerollUsedImageColor: {r: 0, g: 0, b: 0, a: 0.74509805}
   rerollAvailableTextColor: {r: 1, g: 1, b: 1, a: 1}

@@ -442,6 +442,16 @@ namespace Vampire
                 int baseCoinValue = (int)coin.CoinType;
                 int finalCoinValue = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(baseCoinValue);
 
+                PlayerGeneralStatRuntime statRuntime =
+                    playerCharacter != null
+                        ? playerCharacter.GetComponent<PlayerGeneralStatRuntime>()
+                        : null;
+
+                if (statRuntime != null)
+                {
+                    finalCoinValue = statRuntime.ApplyGoldGainMultiplier(finalCoinValue);
+                }
+
                 statsManager.IncreaseCoinsGained(finalCoinValue);
 
                 if (StageEventRuntimeModifiers.DebugGoldRush)

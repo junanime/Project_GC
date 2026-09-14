@@ -934,6 +934,15 @@ namespace Vampire
                 return;
             }
 
+            PlayerGeneralStatRuntime generalStatRuntime =
+                GetComponent<PlayerGeneralStatRuntime>();
+
+            if (generalStatRuntime != null &&
+                UnityEngine.Random.value < generalStatRuntime.EvasionBonus)
+            {
+                return;
+            }
+
             // 전설증강: 점막 요새
             // 실드 스택이 있으면 1개 소모하고 이번 피격 피해를 완전히 막는다.
             // 대쉬 무적/일반 무적보다 뒤, 기존 hasShield보다 앞에서 처리한다.
@@ -956,6 +965,11 @@ namespace Vampire
             else
             {
                 damage -= armor.Value;
+            }
+
+            if (generalStatRuntime != null)
+            {
+                damage *= 1f - Mathf.Clamp01(generalStatRuntime.DamageReductionBonus);
             }
 
             // 여기까지 왔다는 것은 실제 체력 피해가 발생한다는 뜻이다.
@@ -1118,6 +1132,15 @@ namespace Vampire
 
         public void GainHealth(float health)
         {
+            LegendaryConditionalSpecialRuntime conditionalRuntime =
+                GetComponent<LegendaryConditionalSpecialRuntime>();
+
+            if (conditionalRuntime != null &&
+                conditionalRuntime.BlockHealingAndRegisterAttempt())
+            {
+                return;
+            }
+
             float maxHealth = GetMaxHealth();
 
             healthBar.AddPoints(health);

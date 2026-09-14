@@ -19,6 +19,8 @@ namespace Vampire
     {
         private readonly HashSet<string> acquiredIds = new HashSet<string>();
 
+        public bool LifeBurnActive { get; private set; }
+
         [Header("LifeBurn / 생명연소")]
         [Tooltip("절박한 침끝: 플레이어 가까이에 있는 적에게 침 피해가 증가합니다.")]
         public bool lifeBurnDesperateNeedleTip;
@@ -171,6 +173,27 @@ namespace Vampire
             }
 
             acquiredIds.Add(id);
+            return true;
+        }
+
+        public List<string> CaptureAcquiredIds()
+        {
+            return new List<string>(acquiredIds);
+        }
+
+        public void SetLifeBurnActive()
+        {
+            LifeBurnActive = true;
+        }
+
+        public bool BlockHealingAndRegisterAttempt()
+        {
+            if (!LifeBurnActive)
+            {
+                return false;
+            }
+
+            AddBloodFlowAttackSpeedStack();
             return true;
         }
 

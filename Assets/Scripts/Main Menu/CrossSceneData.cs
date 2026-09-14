@@ -119,6 +119,11 @@ namespace Vampire
         public string AbilityObjectName;
 
         public int Level;
+
+        // 랜덤 컨테이너 Ability는 Level만 재생하면 다른 효과가 뽑힐 수 있다.
+        // 실제로 획득한 정의 ID를 순서대로 저장해 같은 효과만 복원한다.
+        public List<string> ConditionalAugmentIds =
+            new List<string>();
     }
 
     public static class CrossSceneData

@@ -13,7 +13,9 @@ namespace Vampire
     // RollMode.ConditionalRandomOne:
     // - 현재 보유한 특수/전설 증강을 기준으로 조건부 일반 증강 1개를 미리 뽑아 Description에 표시.
     // - 유저가 선택하면 표시된 1개가 그대로 적용된다.
-    public class SyringeGeneralRandomAugmentAbility : Ability
+    public class SyringeGeneralRandomAugmentAbility :
+        Ability,
+        IRunSceneConditionalAugmentState
     {
         public enum RollMode
         {
@@ -78,6 +80,12 @@ namespace Vampire
 
         private readonly Dictionary<GeneralAugmentType, int> stackCounts =
             new Dictionary<GeneralAugmentType, int>();
+
+        // 한 번의 카드 선택에서 함께 뽑힌 결과를 한 묶음으로 보존한다.
+        // 일반 랜덤 카드는 선택 1회당 효과가 2개일 수 있으므로 단순 level 복원만으로는
+        // 원래 효과를 재현할 수 없다.
+        private readonly List<List<GeneralAugmentType>> acquisitionBatches =
+            new List<List<GeneralAugmentType>>();
 
         // 이번 선택지에 표시될 미리보기 결과.
         // Description에서 미리 뽑고, Select 시점에 이 목록을 그대로 적용한다.
@@ -213,7 +221,109 @@ namespace Vampire
                 }
             }
 
+            acquisitionBatches.Add(new List<GeneralAugmentType>(previewAugments));
+
             ClearPreview();
+        }
+
+        public List<string> CaptureRunSceneConditionalAugmentIds()
+        {
+            List<string> result = new List<string>();
+
+            for (int i = 0; i < acquisitionBatches.Count; i++)
+            {
+                List<GeneralAugmentType> batch = acquisitionBatches[i];
+                List<string> names = batch.ConvertAll(x => x.ToString());
+                result.Add(string.Join("|", names));
+            }
+
+            return result;
+        }
+
+        public bool RestoreRunSceneConditionalAugments(
+            IReadOnlyList<string> augmentIds)
+        {
+            if (augmentIds == null || augmentIds.Count == 0 ||
+                syringeDartAbility == null || playerCharacter == null)
+            {
+                return false;
+            }
+
+            if (statRuntime == null)
+            {
+                statRuntime = PlayerGeneralStatRuntime.GetOrCreate(playerCharacter);
+            }
+
+            for (int selectionIndex = 0; selectionIndex < augmentIds.Count; selectionIndex++)
+            {
+                if (level >= maxSelections || string.IsNullOrWhiteSpace(augmentIds[selectionIndex]))
+                {
+                    return false;
+                }
+
+                string[] names = augmentIds[selectionIndex].Split('|');
+                List<GeneralAugmentType> batch = new List<GeneralAugmentType>();
+
+                for (int i = 0; i < names.Length; i++)
+                {
+                    GeneralAugmentType augmentType;
+
+                    if (!System.Enum.TryParse(names[i], out augmentType) ||
+                        !IsAllowedForCurrentMode(augmentType) ||
+                        IsMaxed(augmentType))
+                    {
+                        Debug.LogWarning(
+                            $"[일반 증강] 복원 실패 | ID={names[i]}",
+                            this);
+                        return false;
+                    }
+
+                    ApplyAugment(augmentType);
+                    AddStack(augmentType);
+                    batch.Add(augmentType);
+                }
+
+                if (batch.Count == 0)
+                {
+                    return false;
+                }
+
+                acquisitionBatches.Add(batch);
+                level++;
+            }
+
+            owned = true;
+            ClearPreview();
+            return true;
+        }
+
+        private bool IsAllowedForCurrentMode(GeneralAugmentType augmentType)
+        {
+            if (rollMode == RollMode.AlwaysGeneralRandomTwo)
+            {
+                return augmentType >= GeneralAugmentType.AcupunctureMastery &&
+                       augmentType <= GeneralAugmentType.LuckyMeridian &&
+                       augmentType != GeneralAugmentType.NeedleTipPolishing &&
+                       augmentType != GeneralAugmentType.MoneySense;
+            }
+
+            switch (augmentType)
+            {
+                case GeneralAugmentType.ExplosionRadiusControl:
+                case GeneralAugmentType.FragmentDiffusion:
+                    return syringeDartAbility.HasExplosionAugment();
+
+                case GeneralAugmentType.ReturnMastery:
+                    return syringeDartAbility.HasReturnNeedleAugment();
+
+                case GeneralAugmentType.CloneMastery:
+                case GeneralAugmentType.CloneSynchronization:
+                case GeneralAugmentType.ExtraClone:
+                    return syringeDartAbility.HasCloneLegendary();
+
+                default:
+                    return false;
+            }
         }
 
         private string BuildPreviewDescription()
@@ -276,7 +386,6 @@ namespace Vampire
                 GeneralAugmentType.ContinuousTreatment,
                 GeneralAugmentType.NeedleAcceleration,
                 GeneralAugmentType.NeedleWeightControl,
-                GeneralAugmentType.NeedleTipPolishing,
                 GeneralAugmentType.LongNeedleCrafting,
                 GeneralAugmentType.NeedleExpansion,
                 GeneralAugmentType.MultiNeedling,
@@ -294,7 +403,6 @@ namespace Vampire
                 GeneralAugmentType.ExpAbsorption,
                 GeneralAugmentType.GoldAbsorption,
                 GeneralAugmentType.CellActivation,
-                GeneralAugmentType.MoneySense,
                 GeneralAugmentType.BossDamageTraining,
 
                 // 행운 증가 일반 증강
@@ -445,13 +553,10 @@ namespace Vampire
 
                 case GeneralAugmentType.SterileTreatment:
                     statRuntime.AddStatusDurationMultiplier(0.08f);
-                    MultiplyPrivateFloat(syringeDartAbility, "poisonDuration", 1.08f);
-                    MultiplyPrivateFloat(syringeDartAbility, "honeyDuration", 1.08f);
                     break;
 
                 case GeneralAugmentType.ConcentratedMedicine:
                     statRuntime.AddStatusDamageMultiplier(0.10f);
-                    MultiplyPrivateFloat(syringeDartAbility, "poisonTickDamage", 1.10f);
                     break;
 
                 case GeneralAugmentType.ExpAbsorption:

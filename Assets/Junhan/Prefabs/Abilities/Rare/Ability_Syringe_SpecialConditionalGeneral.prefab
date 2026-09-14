@@ -67,7 +67,7 @@ MonoBehaviour:
   augmentTier: 0
   canAppearAsOwnedUpgrade: 1
   maxSelections: 999
-  conditionalGeneralDebugLog: 1
+  conditionalGeneralDebugLog: 0
   sourceIconEntries:
   - specialType: 0
     sourceAbility: {fileID: 7324135873989685867, guid: 9757fae3764f6e1488b23a8ff2e6c349, type: 3}
@@ -94,7 +94,7 @@ MonoBehaviour:
     sourceAbility: {fileID: -8949006315427880089, guid: a0daf2ec26e3f4a45a029d24d08235ef, type: 3}
     fallbackSprite: {fileID: 0}
   - specialType: 8
-    sourceAbility: {fileID: -8949006315427880089, guid: 00d9752a58640f246b2a6370a5c2348b, type: 3}
+    sourceAbility: {fileID: -8949006315427880089, guid: 7938b6ef36ea9f84e8a0a207091e19a5, type: 3}
     fallbackSprite: {fileID: 0}
   - specialType: 9
     sourceAbility: {fileID: -8949006315427880089, guid: d5986906355e10e4ebf34486ef96bb16, type: 3}
