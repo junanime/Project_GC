@@ -1,9 +1,10 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Vampire
 {
     /// <summary>
-    /// 상호작용 시 LevelBlueprint의 Final Boss를 즉시 소환하는 오브젝트.
+    /// 상호작용 시 LevelBlueprint의 Final Boss를 송신과 하강 연출 후 소환하는 오브젝트.
     /// 소환 시점에 따라 보스 HP / 데미지 / 패턴 데미지를 강화한다.
     /// </summary>
     public class FinalBossSummonInteractable : InteractableEventObject
@@ -59,21 +60,33 @@ namespace Vampire
         [Tooltip("true면 상호작용으로 보스를 소환한 뒤 기존 BossLevelSpawner를 비활성화합니다.")]
         [SerializeField] private bool disableBossLevelSpawnersAfterSpawn = true;
 
-        private static bool bossSummonedByInteraction = false;
+        private static FinalBossSummonInteractable pendingSummon;
+        public static bool IsSummoning => pendingSummon != null;
+        private BossSummonPresentation presentation;
+        private bool summoning;
+        protected override bool KeepVisibleAfterInteraction => true;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetStaticStateOnPlayStart()
         {
-            bossSummonedByInteraction = false;
+            pendingSummon = null;
         }
 
         protected override void Awake()
         {
-            // 다시하기로 씬이 재로드될 때 static 값이 남아서
-            // 실제 보스가 없는데도 "이미 보스가 존재"한다고 판단하는 문제 방지.
-            bossSummonedByInteraction = false;
-
             base.Awake();
+            presentation = gameObject.AddComponent<BossSummonPresentation>();
+            presentation.Initialize(GetComponent<SpriteRenderer>());
+        }
+
+        protected override void OnDisable()
+        {
+            StopAllCoroutines();
+            if (presentation != null) presentation.ResetStandby();
+            if (pendingSummon == this) pendingSummon = null;
+            if (summoning) ResetInteractionAvailability();
+            summoning = false;
+            base.OnDisable();
         }
 
         protected override bool ExecuteInteraction(Character player)
@@ -106,7 +119,7 @@ namespace Vampire
                 return false;
             }
 
-            if (preventDuplicateBoss && IsBossAlreadyPresent())
+            if (summoning || IsSummoning || (preventDuplicateBoss && IsBossAlreadyPresent()))
             {
                 if (debugLog)
                 {
@@ -116,6 +129,39 @@ namespace Vampire
                 return false;
             }
 
+            pendingSummon = this;
+            summoning = true;
+            StartCoroutine(SummonSequence(player, levelBlueprint));
+            return true;
+        }
+
+        private IEnumerator SummonSequence(Character player, LevelBlueprint blueprint)
+        {
+            bool success = false;
+            try
+            {
+                yield return presentation.Transmit();
+                if (levelManager == null || levelManager.CurrentLevelBlueprint != blueprint) yield break;
+                Vector3 landing = GetSpawnPosition(player);
+                yield return presentation.Descend(blueprint.finalBoss.bossPrefab, landing);
+                if (levelManager == null || levelManager.CurrentLevelBlueprint != blueprint) yield break;
+                success = SpawnConfiguredBoss(blueprint, landing);
+                presentation.FinishArrival();
+            }
+            finally
+            {
+                if (pendingSummon == this) pendingSummon = null;
+                summoning = false;
+                if (!success)
+                {
+                    presentation.ResetStandby();
+                    ResetInteractionAvailability();
+                }
+            }
+        }
+
+        private bool SpawnConfiguredBoss(LevelBlueprint levelBlueprint, Vector3 spawnPosition)
+        {
             float currentMinute = GetCurrentLevelMinute();
             float hpMultiplier = 1f;
             float damageMultiplier = 1f;
@@ -140,7 +186,6 @@ namespace Vampire
                 : 0f;
 
             int bossPoolIndex = levelBlueprint.monsters.Length;
-            Vector3 spawnPosition = GetSpawnPosition(player);
 
             Monster spawnedBoss = levelManager.EntityManager.SpawnMonster(
                 bossPoolIndex,
@@ -156,6 +201,7 @@ namespace Vampire
             }
 
             spawnedBoss.OnKilled.AddListener(levelManager.LevelPassed);
+            levelManager.NotifyExternalFinalBossSpawned();
 
             BossController bossController = spawnedBoss.GetComponent<BossController>();
 
@@ -179,7 +225,7 @@ namespace Vampire
                 );
             }
 
-            bossSummonedByInteraction = true;
+            GameAudioManager.StartBossAudio();
 
             if (disableBossLevelSpawnersAfterSpawn)
             {
@@ -252,7 +298,7 @@ namespace Vampire
 
         private bool IsBossAlreadyPresent()
         {
-            if (bossSummonedByInteraction)
+            if (IsSummoning)
             {
                 return true;
             }

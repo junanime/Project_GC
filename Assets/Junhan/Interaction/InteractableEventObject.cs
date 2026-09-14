@@ -49,6 +49,13 @@ namespace Vampire
         private bool alreadyInteracted;
 
         protected Character CurrentPlayer => currentPlayer;
+        protected virtual bool KeepVisibleAfterInteraction => false;
+
+        protected void ResetInteractionAvailability()
+        {
+            alreadyInteracted = false;
+            if (interactionCollider != null) interactionCollider.enabled = true;
+        }
 
         protected virtual void Reset()
         {
@@ -205,7 +212,7 @@ namespace Vampire
                 interactionCollider.enabled = false;
             }
 
-            if (disableObjectAfterInteract)
+            if (disableObjectAfterInteract && !KeepVisibleAfterInteraction)
             {
                 gameObject.SetActive(false);
             }

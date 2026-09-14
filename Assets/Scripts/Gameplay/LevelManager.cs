@@ -30,6 +30,8 @@ namespace Vampire
         private float timeSinceLastChestSpawned;
         private bool miniBossSpawned = false;
         private bool finalBossSpawned = false;
+
+        public void NotifyExternalFinalBossSpawned() { finalBossSpawned = true; }
         private bool levelEnded = false;
         private bool runFlowPaused = false;
 
@@ -218,7 +220,7 @@ namespace Vampire
                 GameAudioManager.PlayBossAppearOnly();
             }
 
-            if (!finalBossSpawned && levelTime > levelBlueprint.levelTime)
+            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && levelTime > levelBlueprint.levelTime && FindObjectOfType<BossMonster>() == null)
             {
                 finalBossSpawned = true;
 

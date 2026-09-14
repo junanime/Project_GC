@@ -1399,15 +1399,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactionKey: 101
   interactOnce: 1
-  disableObjectAfterInteract: 1
+  disableObjectAfterInteract: 0
   disableColliderAfterInteract: 1
   promptRoot: {fileID: 0}
   levelManager: {fileID: 0}
   debugLog: 1
   spawnRelativeToPlayer: 1
-  useRandomDirectionAroundPlayer: 1
+  useRandomDirectionAroundPlayer: 0
   spawnDistanceFromPlayer: 6
-  spawnOffsetFromPlayer: {x: 0, y: 6}
+  spawnOffsetFromPlayer: {x: 0, y: 3}
   useFixedSpawnPoint: 0
   fixedSpawnPoint: {fileID: 0}
   applyTimeBasedScaling: 1
@@ -1594,7 +1594,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: bbe7ff00795685745b04143d55501f0a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dd5d2817bfa1430f9a8e1a72fb28e047, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

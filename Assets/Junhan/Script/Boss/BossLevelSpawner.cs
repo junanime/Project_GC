@@ -96,8 +96,11 @@ namespace Vampire
             }
         }
 
+        private void OnDisable() { StopAllCoroutines(); }
+
         private void SpawnBoss()
         {
+            if (FinalBossSummonInteractable.IsSummoning || FindObjectOfType<BossMonster>() != null) return;
             ResolveReferences();
 
             if (spawnOnlyOnce && hasSpawned)
