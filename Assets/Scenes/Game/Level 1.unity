@@ -1988,8 +1988,8 @@ MonoBehaviour:
   warningEdgeCanvasGroup: {fileID: 0}
   eventName: "\uC81C\uC0B0 \uAC70\uD488 \uD3ED\uC8FC"
   eventEnabled: 1
-  startTime: 50
-  duration: 20
+  startTime: 60
+  duration: 25
   warningDuration: 2
   bubbleSpawnInterval: 1
   bubblesPerWave: 2
@@ -7392,8 +7392,8 @@ MonoBehaviour:
   - {fileID: 1578500437859175202, guid: 3cb586375638109428dfd38a23c19d5c, type: 3}
   - {fileID: 810219229424612871, guid: 71bb58afb7834d54990c94f678d42889, type: 3}
   - {fileID: 4592952354709790171, guid: 2f48fe7ca4706bd4694c4bd382cb30a8, type: 3}
-  useForcedRoomIndex: 1
-  forcedRoomIndex: 2
+  useForcedRoomIndex: 0
+  forcedRoomIndex: 0
   destroyRoomAfterReturn: 1
   enterDelay: 0.25
   returnDelay: 0.5
@@ -23427,8 +23427,8 @@ MonoBehaviour:
   monsterSurgeEvents:
   - eventName: "\uAC10\uC5FC \uC99D\uC2DD"
     enabled: 1
-    startTime: 999
-    duration: 40
+    startTime: 500
+    duration: 30
     useRandomStartTime: 1
     startTimeRanges:
     - minStartMinute: 4
@@ -23444,8 +23444,8 @@ MonoBehaviour:
   goldRushEvents:
   - eventName: "\uACE8\uB4DC \uB7EC\uC2DC"
     enabled: 1
-    startTime: 999
-    duration: 30
+    startTime: 300
+    duration: 20
     useRandomStartTime: 1
     startTimeRanges:
     - minStartMinute: 4
@@ -23462,8 +23462,8 @@ MonoBehaviour:
   acidSecretionEvents:
   - eventName: "\uC704\uC0B0\uBD84\uBE44"
     enabled: 1
-    startTime: 10
-    duration: 25
+    startTime: 20
+    duration: 20
     useRandomStartTime: 1
     startTimeRanges:
     - minStartMinute: 5
@@ -23519,7 +23519,7 @@ MonoBehaviour:
   acidRefluxWaveEvents:
   - eventName: "\uC0B0\uC131\uC5ED\uB958\uD30C\uB3C4"
     enabled: 1
-    startTime: 20
+    startTime: 50
     useRandomStartTime: 0
     startTimeRanges: []
     waveCount: 4
@@ -23558,8 +23558,8 @@ MonoBehaviour:
   coffeeTransfusionEvents:
   - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
     enabled: 1
-    startTime: 10
-    duration: 18
+    startTime: 150
+    duration: 15
     useRandomStartTime: 0
     startTimeRanges: []
     warningDuration: 0.6

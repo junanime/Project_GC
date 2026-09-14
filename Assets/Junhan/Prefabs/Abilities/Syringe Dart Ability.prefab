@@ -102,29 +102,29 @@ MonoBehaviour:
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
   poisonEnabled: 1
-  fiberNeedleEnabled: 0
+  fiberNeedleEnabled: 1
   corrosionNeedleEnabled: 1
   pressureNeedleEnabled: 1
   markNeedleEnabled: 1
   bipolarNeedleEnabled: 1
-  digestiveAcidSacNeedleEnabled: 0
-  hungerNeedleEnabled: 0
+  digestiveAcidSacNeedleEnabled: 1
+  hungerNeedleEnabled: 1
   gutBacteriaNeedleEnabled: 1
   explosionEnabled: 1
-  homingEnabled: 0
+  homingEnabled: 1
   pierceEnabled: 1
-  honeyEnabled: 0
+  honeyEnabled: 1
   mosquitoEnabled: 1
   returnNeedleEnabled: 1
-  acupunctureFormationEnabled: 0
+  acupunctureFormationEnabled: 1
   lifeBurnEnabled: 0
   hungrySpiritEnabled: 0
   needleShotgunEnabled: 0
   cloneLegendaryTaken: 0
-  neuralBlockEnabled: 1
-  poisonContagionEnabled: 1
-  gastricPeristalsisWaveEnabled: 1
-  mucosalFortressEnabled: 1
+  neuralBlockEnabled: 0
+  poisonContagionEnabled: 0
+  gastricPeristalsisWaveEnabled: 0
+  mucosalFortressEnabled: 0
   organCompressionEnabled: 0
   hedgehogNeedleEnabled: 0
   heavySnipeEnabled: 0
