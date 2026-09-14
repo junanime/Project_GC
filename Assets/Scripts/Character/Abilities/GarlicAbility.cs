@@ -119,6 +119,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (AttacksBlocked) return;
             float safeDamageRate =
                 Mathf.Max(
                     0.01f,
@@ -181,7 +182,7 @@ namespace Vampire
             IDamageable damageable
         )
         {
-            if (damageable == null)
+            if (AttacksBlocked || damageable == null)
             {
                 return;
             }
@@ -198,7 +199,7 @@ namespace Vampire
                 damage.Value;
 
 
-            // ½ÇÁ¦ ÇÇÇØ
+            // ì‹¤ì œ í”¼í•´
             damageable.TakeDamage(
                 dealtDamage,
                 knockback.Value *
@@ -207,23 +208,23 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ·® ±â·Ï
+            // í”¼í•´ëŸ‰ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // playerCharacter.OnDealDamage.Invoke(
             //     damage.Value
             // );
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
             // ReportDamage()
             //
-            // 1. StatsManager ÃÑ ÇÇÇØ·®
-            // 2. AugmentDamageTracker Áõ°­º° ÇÇÇØ·®
+            // 1. StatsManager ì´ í”¼í•´ëŸ‰
+            // 2. AugmentDamageTracker ì¦ê°•ë³„ í”¼í•´ëŸ‰
             //
-            // À» µ¿½Ã¿¡ ±â·Ï
+            // ì„ ë™ì‹œì— ê¸°ë¡
             // =====================================================
 
             ReportDamage(
@@ -311,7 +312,7 @@ namespace Vampire
             );
 
 
-            // ¹üÀ§¿¡ Ã³À½ µé¾î¿Â ¼ø°£ 1È¸ ÇÇÇØ
+            // ë²”ìœ„ì— ì²˜ìŒ ë“¤ì–´ì˜¨ ìˆœê°„ 1íšŒ í”¼í•´
             Damage(
                 monster
             );

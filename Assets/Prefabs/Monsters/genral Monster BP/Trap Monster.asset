@@ -41,6 +41,8 @@ MonoBehaviour:
       coinType: 0
   walkSpriteSequence: []
   walkFrameTime: 0
+  description:
+  resultSprite: {fileID: 21300000, guid: 869eeeddb094515478a56c1d0ef735bf, type: 3}
   activeHealth: 25
   tickDamage: 3
   tickInterval: 0.5
@@ -58,10 +60,28 @@ MonoBehaviour:
   spawnMinDistanceFromPlayer: 4
   spawnMaxDistanceFromPlayer: 8
   dormantSprites:
-  - {fileID: 21300000, guid: c5164ffb826f3469db584349ea8fb550, type: 3}
+  - {fileID: 21300000, guid: 869eeeddb094515478a56c1d0ef735bf, type: 3}
   activeSprites:
   - {fileID: -771059453, guid: 43783415a44e2453c88887bb8e4b70fb, type: 3}
+  captureRearSprites:
+  - {fileID: 21300000, guid: 869eeeddb094515478a56c1d0ef735bf, type: 3}
+  - {fileID: 21300000, guid: 8b4ee8708b6d8eb478e51c7791503682, type: 3}
+  - {fileID: 21300000, guid: 157081b8fb8078648b63f5a32c6f1d11, type: 3}
+  - {fileID: 21300000, guid: 2585b8bbc73db324581b8f010393e033, type: 3}
+  - {fileID: 21300000, guid: e2d30d0019ff98d4fbade9c4af13b0cb, type: 3}
+  - {fileID: 21300000, guid: 767aa1f48fcb4934ba6eb0ccdfb53da0, type: 3}
+  - {fileID: 21300000, guid: d8f1632733ee70a45b67bd7de38e6f26, type: 3}
+  - {fileID: 21300000, guid: b02729d1010f4eb438543744a3d13cc5, type: 3}
+  captureFrontSprites:
+  - {fileID: 21300000, guid: 068c04f230bbd9d4895e6d02be17f481, type: 3}
+  - {fileID: 21300000, guid: 8d3bec528e2a51a4e842416fda94fe3f, type: 3}
+  - {fileID: 21300000, guid: f5c21c24287064842b85ad3ed3dc8e74, type: 3}
+  - {fileID: 21300000, guid: 18f156ffd971ecc44b91ab535956eff9, type: 3}
+  - {fileID: 21300000, guid: 574832ee483c8014eb7e30ccaf2ba69d, type: 3}
+  - {fileID: 21300000, guid: 4a534be8a7e283346b18e9006f9f3f3d, type: 3}
+  - {fileID: 21300000, guid: 7e5a90297aca96640b3487129f235a47, type: 3}
+  - {fileID: 21300000, guid: 972ffd70adb45784fb17898f1e545e3f, type: 3}
   deathSprites:
   - {fileID: 588948436, guid: 02288e18bb6844bd09c390d973e71969, type: 3}
-  animationFrameTime: 0.15
+  animationFrameTime: 0.11
   deathDespawnDelay: 0.15

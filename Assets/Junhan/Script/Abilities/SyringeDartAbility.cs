@@ -769,6 +769,12 @@ namespace Vampire
 
         protected override void Update()
         {
+            if (AttacksBlocked)
+            {
+                isHeavyCharging = false;
+                HideHeavySnipeChargePreview();
+                return;
+            }
             UpdateLifeBurnVisual();
             ApplyInspectorForcedAugmentRuntimeSetup();
 
@@ -945,9 +951,10 @@ namespace Vampire
         }
         private bool LaunchSyringeProjectile(Vector2 direction)
         {
+            if (AttacksBlocked) return false;
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
 
-            Projectile projectile = entityManager.SpawnProjectile(
+            Projectile projectile = SpawnPlayerProjectile(
                 projectileIndex,
                 spawnPosition,
                 GetEffectiveDamage(),
@@ -1324,6 +1331,7 @@ namespace Vampire
 
         private void LaunchNeedleShotgunProjectile(Vector2 direction)
         {
+            if (AttacksBlocked) return;
             if (entityManager == null)
             {
                 return;
@@ -1331,7 +1339,7 @@ namespace Vampire
 
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
 
-            Projectile projectile = entityManager.SpawnProjectile(
+            Projectile projectile = SpawnPlayerProjectile(
                 projectileIndex,
                 spawnPosition,
                 GetEffectiveDamage() * Mathf.Max(0f, needleShotgunDamageMultiplier),
@@ -1551,6 +1559,7 @@ namespace Vampire
 
         private void FireHeavySnipe(float chargeRatio)
         {
+            if (AttacksBlocked) return;
             if (playerCharacter == null || entityManager == null)
             {
                 return;
@@ -1563,7 +1572,7 @@ namespace Vampire
 
             Vector2 spawnPosition = GetHeavySnipeChargePreviewPosition(chargeRatio, aimDirection);
 
-            Projectile projectile = entityManager.SpawnProjectile(
+            Projectile projectile = SpawnPlayerProjectile(
                 projectileIndex,
                 spawnPosition,
                 GetEffectiveDamage() * stats.damageMultiplier,

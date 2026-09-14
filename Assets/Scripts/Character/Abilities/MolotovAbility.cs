@@ -17,6 +17,7 @@ namespace Vampire
 
         protected override void LaunchThrowable()
         {
+            if (AttacksBlocked) return;
             if (playerCharacter == null)
             {
                 return;
@@ -24,7 +25,7 @@ namespace Vampire
 
 
             // =====================================================
-            // È­¿°º´ »ı¼º
+            // í™”ì—¼ë³‘ ìƒì„±
             // =====================================================
 
             MolotovThrowable throwable =
@@ -41,7 +42,7 @@ namespace Vampire
             if (throwable == null)
             {
                 Debug.LogWarning(
-                    "[MolotovAbility] MolotovThrowable »ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù."
+                    "[MolotovAbility] MolotovThrowable ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤."
                 );
 
                 return;
@@ -49,7 +50,7 @@ namespace Vampire
 
 
             // =====================================================
-            // È­¿° ¼³Á¤
+            // í™”ì—¼ ì„¤ì •
             // =====================================================
 
             throwable.SetupFire(
@@ -60,7 +61,7 @@ namespace Vampire
 
 
             // =====================================================
-            // ÅõÃ´ À§Ä¡ °áÁ¤
+            // íˆ¬ì²™ ìœ„ì¹˜ ê²°ì •
             // =====================================================
 
             List<ISpatialHashGridClient> nearbyEnemies =
@@ -94,7 +95,7 @@ namespace Vampire
 
 
             // =====================================================
-            // È­¿°º´ ÅõÃ´
+            // í™”ì—¼ë³‘ íˆ¬ì²™
             // =====================================================
 
             throwable.Throw(
@@ -103,21 +104,21 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ·® ±â·Ï
+            // í”¼í•´ëŸ‰ ê¸°ë¡
             // =====================================================
             //
-            // MolotovThrowable ³»ºÎÀÇ Áö¼Ó È­¿° ÇÇÇØ°¡
+            // MolotovThrowable ë‚´ë¶€ì˜ ì§€ì† í™”ì—¼ í”¼í•´ê°€
             //
             // OnHitDamageable
             //
-            // ÀÌº¥Æ®·Î Àü´ŞµË´Ï´Ù.
+            // ì´ë²¤íŠ¸ë¡œ ì „ë‹¬ë©ë‹ˆë‹¤.
             //
-            // ¿©±â¼­ ReportDamage()·Î ¿¬°áÇÏ¸é:
+            // ì—¬ê¸°ì„œ ReportDamage()ë¡œ ì—°ê²°í•˜ë©´:
             //
-            // 1. ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·®
-            // 2. AugmentDamageTracker È­¿°º´ ´©Àû ÇÇÇØ·®
+            // 1. ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰
+            // 2. AugmentDamageTracker í™”ì—¼ë³‘ ëˆ„ì  í”¼í•´ëŸ‰
             //
-            // À» µ¿½Ã¿¡ ±â·ÏÇÕ´Ï´Ù.
+            // ì„ ë™ì‹œì— ê¸°ë¡í•©ë‹ˆë‹¤.
             // =====================================================
 
             throwable.OnHitDamageable.AddListener(

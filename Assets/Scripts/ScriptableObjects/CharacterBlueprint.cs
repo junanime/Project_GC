@@ -39,6 +39,10 @@ namespace Vampire
         public Sprite[] dashSpriteSequence;
         public float dashFrameTime = 0.0275f;
 
+        [Tooltip("포획 직후 부리가 열리는 표정. 마지막 프레임을 구속 해제까지 유지합니다.")]
+        public Sprite[] capturedSpriteSequence;
+        public float capturedFrameTime = 0.09f;
+
         [Header("Result Animation")]
         public Sprite[] resultIdleSpriteSequence;
         public float resultIdleFrameTime = 0.2f;

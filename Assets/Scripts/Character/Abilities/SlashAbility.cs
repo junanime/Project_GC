@@ -72,11 +72,12 @@ namespace Vampire
 
 
             // =====================================================
-            // º£±â ÁøÇà
+            // ë² ê¸° ì§„í–‰
             // =====================================================
 
             while (t < slashTime)
             {
+                if (AttacksBlocked) break;
                 float scaleMultiplier =
                     GetScaleMultiplier(t);
 
@@ -144,7 +145,7 @@ namespace Vampire
 
 
                 // =================================================
-                // ¹«±â ºñÁÖ¾ó
+                // ë¬´ê¸° ë¹„ì£¼ì–¼
                 // =================================================
 
                 weaponSpriteRenderer.transform.position =
@@ -169,7 +170,7 @@ namespace Vampire
 
 
                 // =================================================
-                // ¸ó½ºÅÍ Å¸°Ý
+                // ëª¬ìŠ¤í„° íƒ€ê²©
                 // =================================================
 
                 foreach (
@@ -197,7 +198,7 @@ namespace Vampire
                     }
 
 
-                    // ÀÌ¹Ì ¸ÂÀº ¸ó½ºÅÍ µî·Ï
+                    // ì´ë¯¸ ë§žì€ ëª¬ìŠ¤í„° ë“±ë¡
                     hitMonsters.Add(
                         collider.gameObject
                     );
@@ -207,7 +208,7 @@ namespace Vampire
                         damage.Value;
 
 
-                    // ½ÇÁ¦ ÇÇÇØ
+                    // ì‹¤ì œ í”¼í•´
                     monster.TakeDamage(
                         dealtDamage,
                         dir * knockback.Value
@@ -215,23 +216,23 @@ namespace Vampire
 
 
                     // =============================================
-                    // ÇÇÇØ ±â·Ï
+                    // í”¼í•´ ê¸°ë¡
                     // =============================================
                     //
-                    // ±âÁ¸:
+                    // ê¸°ì¡´:
                     //
                     // playerCharacter.OnDealDamage.Invoke(
                     //     damage.Value
                     // );
                     //
-                    // º¯°æ:
+                    // ë³€ê²½:
                     //
                     // ReportDamage()
                     //
-                    // 1. ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·®
-                    // 2. AugmentDamageTracker Áõ°­º° ÇÇÇØ·®
+                    // 1. ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰
+                    // 2. AugmentDamageTracker ì¦ê°•ë³„ í”¼í•´ëŸ‰
                     //
-                    // µ¿½Ã¿¡ ±â·Ï
+                    // ë™ì‹œì— ê¸°ë¡
                     // =============================================
 
                     ReportDamage(
@@ -282,8 +283,8 @@ namespace Vampire
             float t
         )
         {
-            // scaleInTimeÀÌ 0ÀÌ¸é
-            // 0À¸·Î ³ª´©´Â ¹®Á¦ ¹æÁö
+            // scaleInTimeì´ 0ì´ë©´
+            // 0ìœ¼ë¡œ ë‚˜ëˆ„ëŠ” ë¬¸ì œ ë°©ì§€
             if (scaleInTime <= 0f)
             {
                 return 1f;

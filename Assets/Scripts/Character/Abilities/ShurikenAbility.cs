@@ -74,7 +74,7 @@ namespace Vampire
 
 
             Projectile projectile =
-                entityManager.SpawnProjectile(
+                SpawnPlayerProjectile(
                     projectileIndex,
                     playerCharacter.CenterTransform.position,
                     damage.Value,
@@ -87,7 +87,7 @@ namespace Vampire
             if (projectile == null)
             {
                 Debug.LogWarning(
-                    "[ShurikenAbility] Projectile »ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù."
+                    "[ShurikenAbility] Projectile ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤."
                 );
 
                 return;
@@ -95,24 +95,24 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ·® ±â·Ï
+            // í”¼í•´ëŸ‰ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // projectile.OnHitDamageable.AddListener(
             //     playerCharacter.OnDealDamage.Invoke
             // );
             //
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
             // ReportDamage()
             //
-            // 1. ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·®
-            // 2. AugmentDamageTracker Ç¥Ã¢ ´©Àû ÇÇÇØ·®
+            // 1. ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰
+            // 2. AugmentDamageTracker í‘œì°½ ëˆ„ì  í”¼í•´ëŸ‰
             //
-            // À» µ¿½Ã¿¡ Ã³¸®
+            // ì„ ë™ì‹œì— ì²˜ë¦¬
             // =====================================================
 
             projectile.OnHitDamageable.AddListener(

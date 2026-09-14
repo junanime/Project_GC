@@ -66,6 +66,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (ownerCharacter != null && ownerCharacter.IsTrapBound) return;
             if (!configured || sourceAbility == null || ownerCharacter == null)
                 return;
 

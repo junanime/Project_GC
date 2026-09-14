@@ -21,6 +21,8 @@ namespace Vampire
         private int projectileIndex = -1;
         private LineRenderer laserRenderer;
         private Coroutine attackCoroutine;
+        private SniperRecoilVisual recoilVisual;
+        private bool aimFacingLocked, lockedFacingLeft;
 
         protected override void Awake()
         {
@@ -78,6 +80,9 @@ namespace Vampire
             }
 
             SetupVisualAndHitbox();
+            recoilVisual = GetComponent<SniperRecoilVisual>();
+            if (recoilVisual == null) recoilVisual = gameObject.AddComponent<SniperRecoilVisual>();
+            recoilVisual.Configure(monsterSpriteRenderer, sniperBlueprint);
 
             if (rb != null)
             {
@@ -239,6 +244,8 @@ namespace Vampire
             }
 
             base.Update();
+            if (aimFacingLocked && monsterSpriteRenderer != null)
+                monsterSpriteRenderer.flipX = lockedFacingLeft;
 
             if (!alive)
             {
@@ -374,6 +381,7 @@ namespace Vampire
 
         private void StopSniperLoop()
         {
+            if (recoilVisual != null) recoilVisual.ResetVisual();
             if (attackCoroutine == null)
             {
                 return;
@@ -563,6 +571,8 @@ namespace Vampire
             );
 
             float lockTimer = 0f;
+            aimFacingLocked = true;
+            lockedFacingLeft = monsterSpriteRenderer != null && monsterSpriteRenderer.flipX;
 
             float lockDuration =
                 Mathf.Max(
@@ -626,6 +636,12 @@ namespace Vampire
 
         private Vector2 GetProjectileSpawnWorldPosition()
         {
+            if (sniperBlueprint != null && sniperBlueprint.fireSprites != null &&
+                sniperBlueprint.fireSprites.Length > 0 && monsterSpriteRenderer != null)
+            {
+                Sprite idle = sniperBlueprint.fireSprites[0];
+                return CalculateMuzzlePosition(monsterSpriteRenderer, idle);
+            }
             if (projectileSpawnPosition != null)
             {
                 return projectileSpawnPosition.position;
@@ -637,6 +653,15 @@ namespace Vampire
             }
 
             return transform.position;
+        }
+
+        public static Vector2 CalculateMuzzlePosition(SpriteRenderer renderer, Sprite sprite)
+        {
+            // Registered 443 px sprites: the outer rim is x=388, y=300 (top origin).
+            Vector2 local = (new Vector2(388f / 443f * sprite.rect.width,
+                143f / 443f * sprite.rect.height) - sprite.pivot) / sprite.pixelsPerUnit;
+            if (renderer.flipX) local.x = -local.x;
+            return renderer.transform.TransformPoint(local);
         }
 
         private void FireSniperProjectile(
@@ -710,6 +735,7 @@ namespace Vampire
             projectile.Launch(
                 direction.normalized
             );
+            if (recoilVisual != null) recoilVisual.Fire(direction);
 
             GameAudioManager.PlaySfx(
                 GameAudioManager.GameSfxId.SniperFire
@@ -798,6 +824,7 @@ namespace Vampire
 
         private void HideLaser()
         {
+            aimFacingLocked = false;
             if (laserRenderer == null)
             {
                 return;

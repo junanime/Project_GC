@@ -166,6 +166,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             if (sourceCharacter == null ||
                 entityManager == null ||
                 sourceNeedleAbility == null)
@@ -242,7 +243,7 @@ namespace Vampire
 
 
                 Projectile projectile =
-                    entityManager.SpawnProjectile(
+                    sourceNeedleAbility.SpawnPlayerProjectile(
                         projectilePoolIndex,
                         origin,
                         sourceNeedleAbility

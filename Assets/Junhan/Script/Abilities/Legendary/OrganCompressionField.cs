@@ -80,6 +80,7 @@ SyringeDartAbility sourceNeedleAbility)
 
         private void ApplyCompression()
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             List<CompressionTarget> targets = GetDamageableTargetsInRadius();
 
             for (int i = 0; i < targets.Count; i++)
@@ -351,6 +352,7 @@ SyringeDartAbility sourceNeedleAbility)
 
         private void TryDamageTarget(CompressionTarget target)
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             if (target.damageable == null || target.component == null)
             {
                 return;

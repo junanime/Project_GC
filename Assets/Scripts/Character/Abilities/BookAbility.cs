@@ -102,7 +102,7 @@ namespace Vampire
             IDamageable damageable
         )
         {
-            if (damageable == null)
+            if (AttacksBlocked || damageable == null)
             {
                 return;
             }
@@ -119,7 +119,7 @@ namespace Vampire
                 damage.Value;
 
 
-            // ½ÇÁ¦ ¸ó½ºÅÍ ÇÇÇØ
+            // ì‹¤ì œ ëª¬ìŠ¤í„° í”¼í•´
             damageable.TakeDamage(
                 dealtDamage,
                 knockback.Value *
@@ -128,23 +128,23 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ·® ±â·Ï
+            // í”¼í•´ëŸ‰ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // playerCharacter.OnDealDamage.Invoke(
             //     damage.Value
             // );
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
             // ReportDamage()
             //
-            // 1. StatsManager ÀüÃ¼ ÇÇÇØ·®
-            // 2. AugmentDamageTrackerÀÇ ÀÌ Ability ÇÇÇØ·®
+            // 1. StatsManager ì „ì²´ í”¼í•´ëŸ‰
+            // 2. AugmentDamageTrackerì˜ ì´ Ability í”¼í•´ëŸ‰
             //
-            // À» µ¿½Ã¿¡ ±â·Ï
+            // ì„ ë™ì‹œì— ê¸°ë¡
             // =====================================================
 
             ReportDamage(
@@ -209,7 +209,7 @@ namespace Vampire
             if (book == null)
             {
                 Debug.LogWarning(
-                    "[BookAbility] »ı¼ºµÈ Book Prefab¿¡ Book ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù."
+                    "[BookAbility] ìƒì„±ëœ Book Prefabì— Book ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤."
                 );
 
                 Destroy(bookObject);

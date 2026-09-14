@@ -6,65 +6,65 @@ namespace Vampire
     public class ProjectileAbility : Ability
     {
         [Header("Projectile Stats")]
-        [Tooltip("¹ß»çÇÒ Åõ»çÃ¼ ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+        [Tooltip("ë°œì‚¬í•  íˆ¬ì‚¬ì²´ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
         [SerializeField] protected GameObject projectilePrefab;
 
-        [Tooltip("Åõ»çÃ¼°¡ ¸ÂÃâ ¸ó½ºÅÍ ·¹ÀÌ¾îÀÔ´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ê°€ ë§ì¶œ ëª¬ìŠ¤í„° ë ˆì´ì–´ì…ë‹ˆë‹¤.")]
         [SerializeField] protected LayerMask monsterLayer;
 
-        [Tooltip("Åõ»çÃ¼ ±âº» ÇÇÇØ·®ÀÔ´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ ê¸°ë³¸ í”¼í•´ëŸ‰ì…ë‹ˆë‹¤.")]
         [SerializeField] protected UpgradeableDamage damage;
 
-        [Tooltip("Åõ»çÃ¼ ÀÌµ¿ ¼ÓµµÀÔ´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ ì´ë™ ì†ë„ì…ë‹ˆë‹¤.")]
         [SerializeField] protected UpgradeableProjectileSpeed speed;
 
-        [Tooltip("Åõ»çÃ¼ ³Ë¹é ¼öÄ¡ÀÔ´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ ë„‰ë°± ìˆ˜ì¹˜ì…ë‹ˆë‹¤.")]
         [SerializeField] protected UpgradeableKnockback knockback;
 
-        [Tooltip("Åõ»çÃ¼ ¹ß»ç ÄğÅ¸ÀÓÀÔ´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ ë°œì‚¬ ì¿¨íƒ€ì„ì…ë‹ˆë‹¤.")]
         [SerializeField] protected UpgradeableWeaponCooldown cooldown;
 
 
-        [Header("Projectile Spawn Position / Åõ»çÃ¼ »ı¼º À§Ä¡")]
+        [Header("Projectile Spawn Position / íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜")]
         [Tooltip(
-            "Ã¼Å©ÇÏ¸é Ä³¸¯ÅÍ Áß½ÉÀÌ ¾Æ´Ï¶ó " +
-            "Ä³¸¯ÅÍ ¾ÕÂÊ/¾Æ·¡ÂÊÀ¸·Î º¸Á¤µÈ À§Ä¡¿¡¼­ Åõ»çÃ¼°¡ »ı¼ºµË´Ï´Ù."
+            "ì²´í¬í•˜ë©´ ìºë¦­í„° ì¤‘ì‹¬ì´ ì•„ë‹ˆë¼ " +
+            "ìºë¦­í„° ì•ìª½/ì•„ë˜ìª½ìœ¼ë¡œ ë³´ì •ëœ ìœ„ì¹˜ì—ì„œ íˆ¬ì‚¬ì²´ê°€ ìƒì„±ë©ë‹ˆë‹¤."
         )]
         [SerializeField] protected bool useProjectileSpawnOffset = true;
 
         [Tooltip(
-            "Ä³¸¯ÅÍ°¡ ¹Ù¶óº¸´Â ¹æÇâÀ¸·Î Åõ»çÃ¼ »ı¼º À§Ä¡¸¦ ¾ó¸¶³ª ¾Õ´ç±æÁö Á¤ÇÕ´Ï´Ù. " +
-            "¼Õ ÂÊ¿¡¼­ ³ª°¡°Ô ÇÏ·Á¸é 0.2~0.45 »çÀÌ·Î Á¶ÀıÇÏ¼¼¿ä."
+            "ìºë¦­í„°ê°€ ë°”ë¼ë³´ëŠ” ë°©í–¥ìœ¼ë¡œ íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜ë¥¼ ì–¼ë§ˆë‚˜ ì•ë‹¹ê¸¸ì§€ ì •í•©ë‹ˆë‹¤. " +
+            "ì† ìª½ì—ì„œ ë‚˜ê°€ê²Œ í•˜ë ¤ë©´ 0.2~0.45 ì‚¬ì´ë¡œ ì¡°ì ˆí•˜ì„¸ìš”."
         )]
         [SerializeField] protected float projectileSpawnForwardOffset = 0.28f;
 
         [Tooltip(
-            "Åõ»çÃ¼ »ı¼º À§Ä¡¸¦ Ä³¸¯ÅÍ Áß½É¿¡¼­ ¾Æ·¡·Î ¾ó¸¶³ª ³»¸±Áö Á¤ÇÕ´Ï´Ù. " +
-            "¸Ó¸®¿¡¼­ ³ª°¡¸é ÀÌ °ªÀ» ¿Ã¸®¼¼¿ä."
+            "íˆ¬ì‚¬ì²´ ìƒì„± ìœ„ì¹˜ë¥¼ ìºë¦­í„° ì¤‘ì‹¬ì—ì„œ ì•„ë˜ë¡œ ì–¼ë§ˆë‚˜ ë‚´ë¦´ì§€ ì •í•©ë‹ˆë‹¤. " +
+            "ë¨¸ë¦¬ì—ì„œ ë‚˜ê°€ë©´ ì´ ê°’ì„ ì˜¬ë¦¬ì„¸ìš”."
         )]
         [SerializeField] protected float projectileSpawnDownOffset = 0.18f;
 
         [Tooltip(
-            "Á÷Á¢ ÁöÁ¤ÇÑ ¹ß»ç À§Ä¡ TransformÀÔ´Ï´Ù. " +
-            "ºñ¿öµÎ¸é CharacterÀÇ CenterTransformÀ» ±âÁØÀ¸·Î À§ º¸Á¤°ªÀ» Àû¿ëÇÕ´Ï´Ù."
+            "ì§ì ‘ ì§€ì •í•œ ë°œì‚¬ ìœ„ì¹˜ Transformì…ë‹ˆë‹¤. " +
+            "ë¹„ì›Œë‘ë©´ Characterì˜ CenterTransformì„ ê¸°ì¤€ìœ¼ë¡œ ìœ„ ë³´ì •ê°’ì„ ì ìš©í•©ë‹ˆë‹¤."
         )]
         [SerializeField] protected Transform projectileSpawnPoint;
 
         [Tooltip(
-            "Ã¼Å©ÇÏ¸é ºÎÃ¤²Ã ¹ß»ç ½Ã °¢ Åõ»çÃ¼ÀÇ ¹ú¾îÁø ¹æÇâÀ» ±âÁØÀ¸·Î " +
-            "»ı¼º À§Ä¡¸¦ Á¶±İ¾¿ ´Ù¸£°Ô Àâ½À´Ï´Ù. " +
-            "²¨µÎ¸é ¸ğµç Åõ»çÃ¼°¡ °°Àº ¼Õ À§Ä¡¿¡¼­ ³ª°©´Ï´Ù."
+            "ì²´í¬í•˜ë©´ ë¶€ì±„ê¼´ ë°œì‚¬ ì‹œ ê° íˆ¬ì‚¬ì²´ì˜ ë²Œì–´ì§„ ë°©í–¥ì„ ê¸°ì¤€ìœ¼ë¡œ " +
+            "ìƒì„± ìœ„ì¹˜ë¥¼ ì¡°ê¸ˆì”© ë‹¤ë¥´ê²Œ ì¡ìŠµë‹ˆë‹¤. " +
+            "êº¼ë‘ë©´ ëª¨ë“  íˆ¬ì‚¬ì²´ê°€ ê°™ì€ ì† ìœ„ì¹˜ì—ì„œ ë‚˜ê°‘ë‹ˆë‹¤."
         )]
         [SerializeField] protected bool useSpreadDirectionForSpawnOffset = false;
 
 
-        [Header("Spread Settings / ºÎÃ¤²Ã ¹ß»ç")]
-        [Tooltip("Ãß°¡ Åõ»çÃ¼°¡ ÀÖÀ» ¶§ °¢ Åõ»çÃ¼ »çÀÌÀÇ °¢µµÀÔ´Ï´Ù.")]
+        [Header("Spread Settings / ë¶€ì±„ê¼´ ë°œì‚¬")]
+        [Tooltip("ì¶”ê°€ íˆ¬ì‚¬ì²´ê°€ ìˆì„ ë•Œ ê° íˆ¬ì‚¬ì²´ ì‚¬ì´ì˜ ê°ë„ì…ë‹ˆë‹¤.")]
         [SerializeField] protected float spreadAngle = 30f;
 
 
         [Header("Debug")]
-        [Tooltip("Ã¼Å©ÇÏ¸é Åõ»çÃ¼ ¹ß»ç ·Î±×¸¦ Console¿¡ Ãâ·ÂÇÕ´Ï´Ù.")]
+        [Tooltip("ì²´í¬í•˜ë©´ íˆ¬ì‚¬ì²´ ë°œì‚¬ ë¡œê·¸ë¥¼ Consoleì— ì¶œë ¥í•©ë‹ˆë‹¤.")]
         [SerializeField] protected bool debugProjectileLog = false;
 
 
@@ -95,6 +95,7 @@ namespace Vampire
 
         protected virtual void Update()
         {
+            if (AttacksBlocked) return;
             timeSinceLastAttack += Time.deltaTime;
 
 
@@ -148,8 +149,8 @@ namespace Vampire
             if (debugProjectileLog)
             {
                 Debug.Log(
-                    $"<color=orange>[LaunchProjectile È£Ãâ]</color> " +
-                    $"ÃÑ {total}¹ß ºÎÃ¤²Ã ¹ß»ç ½Ãµµ"
+                    $"<color=orange>[LaunchProjectile í˜¸ì¶œ]</color> " +
+                    $"ì´ {total}ë°œ ë¶€ì±„ê¼´ ë°œì‚¬ ì‹œë„"
                 );
             }
 
@@ -205,7 +206,7 @@ namespace Vampire
 
 
                 Projectile projectile =
-                    entityManager.SpawnProjectile(
+                SpawnPlayerProjectile(
                         projectileIndex,
                         spawnPosition,
                         totalDamage,
@@ -224,39 +225,39 @@ namespace Vampire
                 if (debugProjectileLog)
                 {
                     Debug.Log(
-                        $"<color=cyan>[»ı¼º ¿Ï·á]</color> " +
-                        $"{i + 1}¹øÂ° ¹ß»çÃ¼ " +
+                        $"<color=cyan>[ìƒì„± ì™„ë£Œ]</color> " +
+                        $"{i + 1}ë²ˆì§¸ ë°œì‚¬ì²´ " +
                         $"ID: {projectile.gameObject.GetInstanceID()} | " +
-                        $"°¢µµ: {offsetAngle} | " +
-                        $"»ı¼º À§Ä¡: {spawnPosition}"
+                        $"ê°ë„: {offsetAngle} | " +
+                        $"ìƒì„± ìœ„ì¹˜: {spawnPosition}"
                     );
                 }
 
 
                 // =================================================
-                // ÇÇÇØ ±â·Ï
+                // í”¼í•´ ê¸°ë¡
                 // =================================================
                 //
-                // ±âÁ¸:
+                // ê¸°ì¡´:
                 //
                 // projectile.OnHitDamageable.AddListener(
                 //     playerCharacter.OnDealDamage.Invoke
                 // );
                 //
-                // º¯°æ:
+                // ë³€ê²½:
                 //
-                // ½ÇÁ¦·Î Àû¿¡°Ô ÁØ ÇÇÇØ°¡ ¹ß»ıÇÏ¸é
-                // Ability.ReportDamage()¸¦ È£ÃâÇÕ´Ï´Ù.
+                // ì‹¤ì œë¡œ ì ì—ê²Œ ì¤€ í”¼í•´ê°€ ë°œìƒí•˜ë©´
+                // Ability.ReportDamage()ë¥¼ í˜¸ì¶œí•©ë‹ˆë‹¤.
                 //
-                // ReportDamage¿¡¼­´Â:
+                // ReportDamageì—ì„œëŠ”:
                 //
                 // 1. Character.OnDealDamage
-                //    ¡æ ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·® ±â·Ï
+                //    â†’ ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰ ê¸°ë¡
                 //
                 // 2. AugmentDamageTracker
-                //    ¡æ ÀÌ AbilityÀÇ ´©Àû ÇÇÇØ·® ±â·Ï
+                //    â†’ ì´ Abilityì˜ ëˆ„ì  í”¼í•´ëŸ‰ ê¸°ë¡
                 //
-                // µÎ ÀÛ¾÷À» µ¿½Ã¿¡ Ã³¸®ÇÕ´Ï´Ù.
+                // ë‘ ì‘ì—…ì„ ë™ì‹œì— ì²˜ë¦¬í•©ë‹ˆë‹¤.
                 // =================================================
 
                 projectile.OnHitDamageable.AddListener(

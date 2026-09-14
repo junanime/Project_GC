@@ -91,6 +91,14 @@ namespace Vampire
         public int Level => level;
 
         public bool Owned => owned;
+        public bool AttacksBlocked => playerCharacter != null && playerCharacter.IsTrapBound;
+
+        // Gate new emissions only, leaving already launched projectiles untouched.
+        public Projectile SpawnPlayerProjectile(int index, Vector2 position, float damageValue, float knockbackValue, float speedValue, LayerMask targets)
+        {
+            if (AttacksBlocked) return null;
+            return entityManager.SpawnProjectile(index, position, damageValue, knockbackValue, speedValue, targets);
+        }
 
         public virtual Sprite Image => image;
 

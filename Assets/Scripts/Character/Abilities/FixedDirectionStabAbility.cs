@@ -23,11 +23,12 @@ namespace Vampire
 
 
             // =====================================================
-            // Âî¸£±â ÁøÇà
+            // ì°Œë¥´ê¸° ì§„í–‰
             // =====================================================
 
             while (t < stabTime)
             {
+                if (AttacksBlocked) break;
                 Vector2 attackBoxPosition =
                     (Vector2)playerCharacter.CenterTransform.position
                     +
@@ -57,12 +58,12 @@ namespace Vampire
                     );
 
 
-                // ¹«±â À§Ä¡
+                // ë¬´ê¸° ìœ„ì¹˜
                 weaponSpriteRenderer.transform.position =
                     attackBoxPosition;
 
 
-                // ¹«±â ¹æÇâ
+                // ë¬´ê¸° ë°©í–¥
                 weaponSpriteRenderer.transform.localRotation =
                     Quaternion.Euler(
                         0f,
@@ -72,7 +73,7 @@ namespace Vampire
 
 
                 // =================================================
-                // ¸ó½ºÅÍ Å¸°Ý
+                // ëª¬ìŠ¤í„° íƒ€ê²©
                 // =================================================
 
                 foreach (Collider2D collider in hitColliders)
@@ -107,7 +108,7 @@ namespace Vampire
                         damage.Value;
 
 
-                    // ½ÇÁ¦ ÇÇÇØ
+                    // ì‹¤ì œ í”¼í•´
                     DamageMonster(
                         monster,
                         dealtDamage,
@@ -115,12 +116,12 @@ namespace Vampire
                     );
 
 
-                    // ÇÇÇØ·® ±â·Ï
+                    // í”¼í•´ëŸ‰ ê¸°ë¡
                     //
-                    // 1. ±âÁ¸ ÀüÃ¼ ÇÇÇØ·®
-                    // 2. AugmentDamageTracker Áõ°­º° ÇÇÇØ·®
+                    // 1. ê¸°ì¡´ ì „ì²´ í”¼í•´ëŸ‰
+                    // 2. AugmentDamageTracker ì¦ê°•ë³„ í”¼í•´ëŸ‰
                     //
-                    // À» µ¿½Ã¿¡ Ã³¸®
+                    // ì„ ë™ì‹œì— ì²˜ë¦¬
                     ReportDamage(
                         dealtDamage
                     );
@@ -134,7 +135,7 @@ namespace Vampire
 
 
             // =====================================================
-            // Âî¸£±â Á¾·á ¾Ö´Ï¸ÞÀÌ¼Ç
+            // ì°Œë¥´ê¸° ì¢…ë£Œ ì• ë‹ˆë©”ì´ì…˜
             // =====================================================
 
             Vector2 initialScale =

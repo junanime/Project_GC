@@ -21,8 +21,9 @@ namespace Vampire
             Vector2 knockback
         )
         {
-            // Á÷Á¢ Å¸°İ ÇÇÇØ
-            // StabAbility¿¡¼­ Ã³¸®
+            if (AttacksBlocked) return;
+            // ì§ì ‘ íƒ€ê²© í”¼í•´
+            // StabAbilityì—ì„œ ì²˜ë¦¬
             base.DamageMonster(
                 monster,
                 damage,
@@ -30,14 +31,14 @@ namespace Vampire
             );
 
 
-            // ÃâÇ÷ ½ÃÀÛ
+            // ì¶œí˜ˆ ì‹œì‘
             Coroutine monsterBleed =
                 StartCoroutine(
                     BleedMonster(monster)
                 );
 
 
-            // ¸ó½ºÅÍ°¡ Á×À¸¸é ÃâÇ÷ Coroutine ÁßÁö
+            // ëª¬ìŠ¤í„°ê°€ ì£½ìœ¼ë©´ ì¶œí˜ˆ Coroutine ì¤‘ì§€
             monster.OnKilled.AddListener(
                 delegate
                 {
@@ -55,7 +56,7 @@ namespace Vampire
             Monster monster
         )
         {
-            // 0À¸·Î ³ª´©´Â ¹®Á¦ ¹æÁö
+            // 0ìœ¼ë¡œ ë‚˜ëˆ„ëŠ” ë¬¸ì œ ë°©ì§€
             float safeBleedRate =
                 Mathf.Max(0.01f, bleedRate.Value);
 
@@ -78,7 +79,7 @@ namespace Vampire
                 );
 
 
-                // ÀÌ¹Ì Á×¾ú°Å³ª »ç¶óÁø °æ¿ì Á¾·á
+                // ì´ë¯¸ ì£½ì—ˆê±°ë‚˜ ì‚¬ë¼ì§„ ê²½ìš° ì¢…ë£Œ
                 if (monster == null || monster.HP <= 0)
                 {
                     break;
@@ -88,31 +89,33 @@ namespace Vampire
                 float finalBleedDamage =
                     bleedDamage.Value;
 
+                if (AttacksBlocked) continue;
 
-                // ½ÇÁ¦ ÃâÇ÷ ÇÇÇØ
+
+                // ì‹¤ì œ ì¶œí˜ˆ í”¼í•´
                 monster.TakeDamage(
                     finalBleedDamage
                 );
 
 
                 // =============================================
-                // ÇÇÇØ ±â·Ï
+                // í”¼í•´ ê¸°ë¡
                 // =============================================
                 //
-                // ±âÁ¸:
+                // ê¸°ì¡´:
                 //
                 // playerCharacter.OnDealDamage.Invoke(
                 //     bleedDamage.Value
                 // );
                 //
-                // º¯°æ:
+                // ë³€ê²½:
                 //
-                // ReportDamage()¸¦ ÅëÇØ
+                // ReportDamage()ë¥¼ í†µí•´
                 //
-                // 1. StatsManager ÃÑ ÇÇÇØ·®
-                // 2. AugmentDamageTrackerÀÇ ´Ü°Ë ´©Àû ÇÇÇØ·®
+                // 1. StatsManager ì´ í”¼í•´ëŸ‰
+                // 2. AugmentDamageTrackerì˜ ë‹¨ê²€ ëˆ„ì  í”¼í•´ëŸ‰
                 //
-                // À» µ¿½Ã¿¡ ±â·Ï
+                // ì„ ë™ì‹œì— ê¸°ë¡
                 // =============================================
 
                 ReportDamage(

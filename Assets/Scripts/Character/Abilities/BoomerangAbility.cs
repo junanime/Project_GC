@@ -47,6 +47,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (AttacksBlocked) return;
             timeSinceLastAttack += Time.deltaTime;
 
             if (timeSinceLastAttack >= cooldown.Value)
@@ -92,6 +93,7 @@ namespace Vampire
 
         protected virtual void ThrowBoomerang()
         {
+            if (AttacksBlocked) return;
             Boomerang boomerang =
                 entityManager.SpawnBoomerang(
                     boomerangIndex,
@@ -113,7 +115,7 @@ namespace Vampire
             Vector2 throwPosition;
 
 
-            // ÁÖº¯ Àû Áß ÇÏ³ª¿¡°Ô ·£´ı ÅõÃ´
+            // ì£¼ë³€ ì  ì¤‘ í•˜ë‚˜ì—ê²Œ ëœë¤ íˆ¬ì²™
             List<ISpatialHashGridClient> nearbyEnemies =
                 entityManager.Grid.FindNearbyInRadius(
                     playerCharacter.transform.position,
@@ -147,23 +149,23 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ ±â·Ï
+            // í”¼í•´ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // boomerang.OnHitDamageable.AddListener(
             //     playerCharacter.OnDealDamage.Invoke
             // );
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
-            // ReportDamage()°¡
+            // ReportDamage()ê°€
             //
-            // 1. ±âÁ¸ ÀüÃ¼ ÇÇÇØ·® ±â·Ï
-            // 2. AugmentDamageTracker Áõ°­º° ÇÇÇØ·® ±â·Ï
+            // 1. ê¸°ì¡´ ì „ì²´ í”¼í•´ëŸ‰ ê¸°ë¡
+            // 2. AugmentDamageTracker ì¦ê°•ë³„ í”¼í•´ëŸ‰ ê¸°ë¡
             //
-            // À» µ¿½Ã¿¡ Ã³¸®ÇÕ´Ï´Ù.
+            // ì„ ë™ì‹œì— ì²˜ë¦¬í•©ë‹ˆë‹¤.
             // =====================================================
 
             boomerang.OnHitDamageable.AddListener(

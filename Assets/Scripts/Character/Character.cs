@@ -159,7 +159,9 @@ namespace Vampire
         protected Coroutine hitAnimationCoroutine = null;
         protected Vector2 moveDirection;
         private bool movementControlsReversed;
-        public Vector2 EffectiveMoveDirection => movementControlsReversed ? -moveDirection : moveDirection;
+        public bool IsTrapBound => TryGetComponent<PlayerTrapBindRuntime>(out var bind) && bind.IsBound;
+        public Vector2 EffectiveMoveDirection => IsTrapBound ? Vector2.zero :
+            (movementControlsReversed ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
         protected bool isDashing = false;
@@ -366,7 +368,7 @@ namespace Vampire
                 lookIndicator.transform.localPosition = lookDirection * lookIndicatorRadius;
             }
 
-            if (spriteRenderer != null && !dashSpriteApplied)
+            if (spriteRenderer != null && !dashSpriteApplied && !IsTrapBound)
             {
                 spriteRenderer.flipX = lookDirection.x < 0;
             }
@@ -457,6 +459,7 @@ namespace Vampire
 
         public bool TryDash()
         {
+            if (IsTrapBound) return false;
             if (!enableDash)
             {
                 return false;
@@ -562,6 +565,11 @@ namespace Vampire
 
             while (elapsed < safeDuration)
             {
+                if (IsTrapBound)
+                {
+                    targetPosition = rb != null ? rb.position : (Vector2)transform.position;
+                    break; // Finish collision/visual cleanup without completing the dash displacement.
+                }
                 float normalizedTime = Mathf.Clamp01(elapsed / safeDuration);
                 float moveT = normalizedTime;
 
