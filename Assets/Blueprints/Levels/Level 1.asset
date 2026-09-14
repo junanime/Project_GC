@@ -114,7 +114,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: b21f9c2ffcbf467a93ad170c697885e9, type: 2}
   miniBosses: []
   finalBoss:
-    bossPrefab: {fileID: 8960830493049914446, guid: 867d2b957fe0d1f479d2db0105efa53c, type: 3}
+    bossPrefab: {fileID: 6401697086027491985, guid: 8d14738648254c54f825d53da40d90ae, type: 3}
     bossBlueprint: {fileID: 11400000, guid: 63ef837a5625edf45be889fdd41d1ff1, type: 2}
   monsterSpawnTable:
     spawnRateKeyframes:

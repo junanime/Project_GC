@@ -187,12 +187,8 @@ namespace Vampire
 
             int bossPoolIndex = levelBlueprint.monsters.Length;
 
-            Monster spawnedBoss = levelManager.EntityManager.SpawnMonster(
-                bossPoolIndex,
-                spawnPosition,
-                levelBlueprint.finalBoss.bossBlueprint,
-                bossHpBuff
-            );
+            GameObject spawnedBoss = levelManager.EntityManager.SpawnFinalBoss(
+                levelBlueprint, spawnPosition, bossHpBuff);
 
             if (spawnedBoss == null)
             {
@@ -200,7 +196,8 @@ namespace Vampire
                 return false;
             }
 
-            spawnedBoss.OnKilled.AddListener(levelManager.LevelPassed);
+            Monster legacyBoss = spawnedBoss.GetComponent<Monster>();
+            if (legacyBoss != null) legacyBoss.OnKilled.AddListener(levelManager.LevelPassed);
             levelManager.NotifyExternalFinalBossSpawned();
 
             BossController bossController = spawnedBoss.GetComponent<BossController>();
@@ -218,7 +215,7 @@ namespace Vampire
             if (applyTimeBasedScaling)
             {
                 BossTimeScalingUtility.ApplyToSpawnedBoss(
-                    spawnedBoss.gameObject,
+                    spawnedBoss,
                     hpMultiplier,
                     damageMultiplier,
                     debugBossScaling

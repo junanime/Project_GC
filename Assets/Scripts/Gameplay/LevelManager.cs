@@ -220,20 +220,19 @@ namespace Vampire
                 GameAudioManager.PlayBossAppearOnly();
             }
 
-            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && levelTime > levelBlueprint.levelTime && FindObjectOfType<BossMonster>() == null)
+            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && levelTime > levelBlueprint.levelTime && FindObjectOfType<BossController>() == null)
             {
                 finalBossSpawned = true;
 
-                Monster finalBoss = entityManager.SpawnMonsterRandomPosition(
-                    levelBlueprint.monsters.Length,
-                    levelBlueprint.finalBoss.bossBlueprint
-                );
+                GameObject finalBoss = entityManager.SpawnFinalBoss(levelBlueprint,
+                    (Vector2)playerCharacter.transform.position + Vector2.up * 6f);
 
                 if (finalBoss != null)
                 {
 
                     GameAudioManager.StartBossAudio();
-                    finalBoss.OnKilled.AddListener(LevelPassed);
+                    Monster legacyBoss = finalBoss.GetComponent<Monster>();
+                    if (legacyBoss != null) legacyBoss.OnKilled.AddListener(LevelPassed);
                 }
             }
         }
