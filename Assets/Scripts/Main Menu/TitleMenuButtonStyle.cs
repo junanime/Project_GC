@@ -40,7 +40,7 @@ namespace Vampire
                 rect.localScale = Vector3.one;
                 rect.localRotation = Quaternion.identity;
                 rect.pivot = new Vector2(.5f, .5f);
-                var surface = new GameObject("Button surface", typeof(RectTransform)).AddComponent<TitleMenuSurface>();
+                var surface = new GameObject("Button surface", typeof(RectTransform), typeof(CanvasRenderer)).AddComponent<TitleMenuSurface>();
                 surface.transform.SetParent(rect, false);
                 surface.rectTransform.anchorMin = Vector2.zero; surface.rectTransform.anchorMax = Vector2.one;
                 surface.rectTransform.offsetMin = surface.rectTransform.offsetMax = Vector2.zero;
@@ -87,6 +87,7 @@ namespace Vampire
         public void OnSelect(BaseEventData data) { owner.Select(index); }
     }
 
+    [RequireComponent(typeof(CanvasRenderer))]
     public class TitleMenuSurface : MaskableGraphic
     {
         public TitleMenuButtonStyle owner;
@@ -101,6 +102,11 @@ namespace Vampire
             "0111110/0100010/0101010/0100010/0100010/0100010/0111110" };
 
         public void SetActiveStyle(bool value) { Selected = value; Layout(); SetVerticesDirty(); }
+        protected override void OnRectTransformDimensionsChange()
+        {
+            base.OnRectTransformDimensionsChange();
+            if (label != null) label.fontSize = rectTransform.rect.height * .55f;
+        }
         private void Update()
         {
             if (owner == null) return;
