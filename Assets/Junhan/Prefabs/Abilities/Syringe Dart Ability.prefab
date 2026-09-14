@@ -101,30 +101,30 @@ MonoBehaviour:
   baseSyringeMaxDistance: 5
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
-  poisonEnabled: 0
+  poisonEnabled: 1
   fiberNeedleEnabled: 0
-  corrosionNeedleEnabled: 0
-  pressureNeedleEnabled: 0
-  markNeedleEnabled: 0
-  bipolarNeedleEnabled: 0
+  corrosionNeedleEnabled: 1
+  pressureNeedleEnabled: 1
+  markNeedleEnabled: 1
+  bipolarNeedleEnabled: 1
   digestiveAcidSacNeedleEnabled: 0
   hungerNeedleEnabled: 0
-  gutBacteriaNeedleEnabled: 0
-  explosionEnabled: 0
+  gutBacteriaNeedleEnabled: 1
+  explosionEnabled: 1
   homingEnabled: 0
-  pierceEnabled: 0
+  pierceEnabled: 1
   honeyEnabled: 0
-  mosquitoEnabled: 0
-  returnNeedleEnabled: 0
+  mosquitoEnabled: 1
+  returnNeedleEnabled: 1
   acupunctureFormationEnabled: 0
   lifeBurnEnabled: 0
   hungrySpiritEnabled: 0
   needleShotgunEnabled: 0
   cloneLegendaryTaken: 0
-  neuralBlockEnabled: 0
-  poisonContagionEnabled: 0
-  gastricPeristalsisWaveEnabled: 0
-  mucosalFortressEnabled: 0
+  neuralBlockEnabled: 1
+  poisonContagionEnabled: 1
+  gastricPeristalsisWaveEnabled: 1
+  mucosalFortressEnabled: 1
   organCompressionEnabled: 0
   hedgehogNeedleEnabled: 0
   heavySnipeEnabled: 0
