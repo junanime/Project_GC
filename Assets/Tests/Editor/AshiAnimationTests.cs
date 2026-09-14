@@ -31,7 +31,7 @@ namespace Vampire.Tests.Editor
 
             AssertSequence(blueprint.idleSpriteSequence, "Ashi_Idle_Eyebrows");
             AssertSequence(blueprint.dashSpriteSequence, "Ashi_Dash_Eyebrows");
-            Assert.That(blueprint.idleFrameTime, Is.EqualTo(0.125f).Within(0.0001f));
+            Assert.That(blueprint.idleFrameTime, Is.EqualTo(0.18f).Within(0.0001f));
             Assert.That(blueprint.dashFrameTime, Is.EqualTo(0.0275f).Within(0.0001f));
         }
 

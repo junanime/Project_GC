@@ -41,7 +41,7 @@ MonoBehaviour:
   - {fileID: -127447508, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
   - {fileID: -1377166802, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
   - {fileID: -1902931106, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
-  idleFrameTime: 0.125
+  idleFrameTime: 0.18
   dashSpriteSequence:
   - {fileID: 1146949652, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
   - {fileID: -985366374, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
