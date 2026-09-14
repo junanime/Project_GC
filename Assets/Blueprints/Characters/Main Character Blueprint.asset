@@ -23,10 +23,54 @@ MonoBehaviour:
   luck: 1
   acceleration: 50
   walkSpriteSequence:
-  - {fileID: 2146826669, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  - {fileID: -1510151377, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  - {fileID: -1892329942, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  - {fileID: 937173959, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  walkFrameTime: 0.1
+  - {fileID: -6343271645356655737, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: -8280912529146050914, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 8715591560174078541, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 3251996025891101306, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 3092265847983650257, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: -2872965512896954238, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: -2326624389942259556, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: -5983235191572387299, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 6961704203310293841, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 8593560941675219786, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: -4042161895197927472, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 2268693186417696193, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 1817754013366616558, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: -4082104153580717700, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 2094397550782343503, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  - {fileID: 3544577894341538839, guid: 34509b88eb892bb44b6282a2d58683df, type: 3}
+  walkFrameTime: 0.04
+  eyebrowWalkSpriteSequence:
+  - {fileID: 285921205330502734, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -1941530619403481634, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -1269997718954621036, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: 8420592217401968952, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -4974597120963102074, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -5477511440389905252, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: 6340469404783244511, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: 8905540354402696572, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -8217419570288095555, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -7681675312528003308, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -614673205704578149, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -3360964064263846931, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -6569111210000585085, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: 205710013945157174, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -2382498744641677387, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -5478567867528550588, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  syringeRearWingAttackSpriteSequence:
+  - {fileID: 833163348798646217, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  - {fileID: -3530235522545200536, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  - {fileID: -1437728472795968686, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  - {fileID: -1699929180942039984, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  syringeFrontWingAttackSpriteSequence:
+  - {fileID: -7881226074486861026, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  - {fileID: 6456593030430712833, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  - {fileID: 7643027510000782057, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  - {fileID: -7308784344340358942, guid: e92c9b330a2131040bd95ae5b1ba2320, type: 3}
+  syringeAttackDurationRatio: 0.55
+  syringeAttackMinDuration: 0.04
+  syringeAttackMaxDuration: 0.18
+  syringeAttackWingAnchorDistance: 0.14
+  syringeAttackWingVerticalOffset: 0.015
   startingAbilities:
   - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}
