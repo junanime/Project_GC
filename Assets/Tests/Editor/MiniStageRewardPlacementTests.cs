@@ -17,9 +17,8 @@ namespace Vampire.Tests.Editor
             typeof(MiniStageBonusChestRoom),
             typeof(MiniStageDigestiveWaveReflectRoom),
             typeof(MiniStageExplodingRushRoom),
-            typeof(MiniStageExpTimeAttackRoom),
+            typeof(MiniStageCollectionRoom),
             typeof(MiniStageFallingFoodRoom),
-            typeof(MiniStageGoldTimeAttackRoom),
             typeof(MiniStageSniperRoom)
         };
 

@@ -308,13 +308,13 @@ namespace Vampire
 
         private void DisableBossLevelSpawners()
         {
-            BossLevelSpawner[] bossSpawners = FindObjectsOfType<BossLevelSpawner>();
+            TimedSpecialMonsterSpawner[] bossSpawners = FindObjectsOfType<TimedSpecialMonsterSpawner>();
 
             for (int i = 0; i < bossSpawners.Length; i++)
             {
                 if (bossSpawners[i] != null)
                 {
-                    bossSpawners[i].enabled = false;
+                    bossSpawners[i].DisableScheduledFinalBosses();
                 }
             }
 

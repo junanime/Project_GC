@@ -48,9 +48,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 704856458144186150}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5099d0cdc074c3f48ac0b628f11882e4, type: 3}
+  m_Script: {fileID: 11500000, guid: 56584cfc72f3b9aa3858166bb8d59c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rewardKind: 1
   playerStartPoint: {fileID: 1379852900156597793}
   rewardSpawnPoint: {fileID: 7585028743432934790}
   returnInteractable: {fileID: 1296356536300066962}
@@ -59,7 +60,7 @@ MonoBehaviour:
   unlockReturnIfRewardChestMissing: 1
   debugLog: 1
   timeLimit: 15
-  removeUncollectedGemsWhenTimeUp: 1
+  removeUncollectedWhenTimeUp: 1
   clearDelayAfterTimeUp: 0.1
   dropAcrossEntireStage: 1
   stageAreaCollider: {fileID: 0}
@@ -88,8 +89,8 @@ MonoBehaviour:
   - gemType: 50
     weight: 1
   fallbackExpGemPrefab: {fileID: 0}
-  useGemSpawnAnimation: 1
-  spawnedGemParent: {fileID: 0}
+  useSpawnAnimation: 1
+  spawnedPickupParent: {fileID: 0}
   timerRoot: {fileID: 0}
   timerText: {fileID: 0}
   timerPrefix: 'EXP TIME '

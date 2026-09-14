@@ -21,6 +21,8 @@ namespace Vampire
         protected ZPositioner zPositioner;
         protected Collider2D col;
         protected bool beingCollected = false;
+        public bool IsBeingCollected => beingCollected;
+        public uint SpawnGeneration { get; private set; }
 
         protected virtual void Awake()
         {
@@ -37,9 +39,10 @@ namespace Vampire
 
         public virtual void Setup(bool spawnAnimation = true, bool collectableDuringSpawn = true)
         {
+            unchecked { SpawnGeneration++; }
             col.enabled = !spawnAnimation || collectableDuringSpawn;
             beingCollected = false;
-            enabled = true; //  [Ãß°¡] ¿ÀºêÁ§Æ® Àç»ç¿ëÀ» À§ÇØ °íÀ¯ Update ·çÇÁ¸¦ ´Ù½Ã ÄÕ´Ï´Ù.
+            enabled = true; //  [ì¶”ê°€] ì˜¤ë¸Œì íŠ¸ ì¬ì‚¬ìš©ì„ ìœ„í•´ ê³ ìœ  Update ë£¨í”„ë¥¼ ë‹¤ì‹œ ì¼­ë‹ˆë‹¤.
 
             if (magnetic)
                 entityManager.MagneticCollectables.Add(this);
@@ -47,7 +50,7 @@ namespace Vampire
                 StartCoroutine(SpawnAnimation());
             gameObject.SetActive(true);
 
-            //  [Ãß°¡] ¸¸¾à º¸¼®ÀÌ ½ºÆùµÇ´Â ½ÃÁ¡¿¡ ÀÌ¹Ì MRI ÀÚ¼®À» º¸À¯ ÁßÀÌ¶ó¸é Áï½Ã Èí¼ö!
+            //  [ì¶”ê°€] ë§Œì•½ ë³´ì„ì´ ìŠ¤í°ë˜ëŠ” ì‹œì ì— ì´ë¯¸ MRI ìì„ì„ ë³´ìœ  ì¤‘ì´ë¼ë©´ ì¦‰ì‹œ í¡ìˆ˜!
             if (playerCharacter != null && playerCharacter.AutoCollectItems)
             {
                 Collect();
@@ -180,11 +183,11 @@ namespace Vampire
 
         protected virtual void Update()
         {
-            // ÇÃ·¹ÀÌ¾î°¡ MRI ÀÚ¼®À» º¸À¯ÇÏ°í ÀÖ°í, ¾ÆÁ÷ ¼öÁıÀÌ ½ÃÀÛµÇÁö ¾ÊÀº º¸¼®ÀÌ¶ó¸é
+            // í”Œë ˆì´ì–´ê°€ MRI ìì„ì„ ë³´ìœ í•˜ê³  ìˆê³ , ì•„ì§ ìˆ˜ì§‘ì´ ì‹œì‘ë˜ì§€ ì•Šì€ ë³´ì„ì´ë¼ë©´
             if (playerCharacter != null && playerCharacter.AutoCollectItems && !beingCollected)
             {
                 Collect();
-                enabled = false; //  [Å¬¸°ÄÚµå ÃÖÀûÈ­] ¼öÁıÀÌ ½ÃÀÛµÇ¾úÀ¸¹Ç·Î ÀÌ º¸¼®ÀÇ Update ¿¬»êÀ» Áï½Ã Áß´ÜÇÕ´Ï´Ù.
+                enabled = false; //  [í´ë¦°ì½”ë“œ ìµœì í™”] ìˆ˜ì§‘ì´ ì‹œì‘ë˜ì—ˆìœ¼ë¯€ë¡œ ì´ ë³´ì„ì˜ Update ì—°ì‚°ì„ ì¦‰ì‹œ ì¤‘ë‹¨í•©ë‹ˆë‹¤.
             }
         }
 

@@ -28,10 +28,8 @@ namespace Vampire
         private float levelTime = 0f;
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
-        private bool miniBossSpawned = false;
-        private bool finalBossSpawned = false;
-
-        public void NotifyExternalFinalBossSpawned() { finalBossSpawned = true; }
+        private TimedSpecialMonsterSpawner fieldSpawns;
+        public void NotifyExternalFinalBossSpawned() { if (fieldSpawns != null) fieldSpawns.NotifyFinalBossSpawned(); }
         private bool levelEnded = false;
         private bool runFlowPaused = false;
 
@@ -41,6 +39,7 @@ namespace Vampire
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
         public bool IsRunFlowPaused => runFlowPaused;
+        public bool IsLevelEnded => levelEnded;
 
         public void Init(LevelBlueprint levelBlueprint)
         {
@@ -49,8 +48,9 @@ namespace Vampire
             levelTime = 0f;
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
-            miniBossSpawned = false;
-            finalBossSpawned = false;
+            fieldSpawns = FindObjectOfType<TimedSpecialMonsterSpawner>();
+            if (fieldSpawns == null) fieldSpawns = gameObject.AddComponent<TimedSpecialMonsterSpawner>();
+            fieldSpawns.InitializeLevel(this);
             levelEnded = false;
             runFlowPaused = false;
 
@@ -119,7 +119,6 @@ namespace Vampire
             }
 
             HandleNormalMonsterSpawn();
-            HandleBossSpawn();
             HandleChestSpawn();
         }
 
@@ -197,44 +196,6 @@ namespace Vampire
         public void SpawnMonsterFromCurrentSpawnTable()
         {
             SpawnMonsterFromSpawnTable();
-        }
-
-        private void HandleBossSpawn()
-        {
-            if (levelBlueprint == null)
-            {
-                return;
-            }
-
-            if (!miniBossSpawned &&
-                levelBlueprint.miniBosses != null &&
-                levelBlueprint.miniBosses.Length > 0 &&
-                levelTime > levelBlueprint.miniBosses[0].spawnTime)
-            {
-                miniBossSpawned = true;
-
-                entityManager.SpawnMonsterRandomPosition(
-                    levelBlueprint.monsters.Length,
-                    levelBlueprint.miniBosses[0].bossBlueprint
-                );
-                GameAudioManager.PlayBossAppearOnly();
-            }
-
-            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && levelTime > levelBlueprint.levelTime && FindObjectOfType<BossController>() == null)
-            {
-                finalBossSpawned = true;
-
-                GameObject finalBoss = entityManager.SpawnFinalBoss(levelBlueprint,
-                    (Vector2)playerCharacter.transform.position + Vector2.up * 6f);
-
-                if (finalBoss != null)
-                {
-
-                    GameAudioManager.StartBossAudio();
-                    Monster legacyBoss = finalBoss.GetComponent<Monster>();
-                    if (legacyBoss != null) legacyBoss.OnKilled.AddListener(LevelPassed);
-                }
-            }
         }
 
         private void HandleChestSpawn()

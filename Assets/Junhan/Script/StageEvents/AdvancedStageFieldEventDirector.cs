@@ -1,3 +1,4 @@
+using static UnityEngine.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,19 +6,16 @@ using UnityEngine;
 namespace Vampire
 {
     /// <summary>
-    /// 기존 StageEventDirector를 건드리지 않고,
-    /// 추가 필드 이벤트 3종을 따로 관리하는 보조 디렉터입니다.
-    ///
-    /// 담당 이벤트:
-    /// 1. 산성 역류 파도
-    /// 2. 연동운동 기류
-    /// 3. 커피수혈 타임
-    ///
-    /// 기존 StageEventDirector가 이미 몬스터 증가 / 골드 / 위산분비를 관리하므로,
-    /// 이 스크립트는 같은 오브젝트에 추가해서 확장용으로 사용합니다.
+    /// StageEventDirector가 소유하는 산성 역류·연동운동·커피수혈 설정과 실행 모듈.
+    /// 씬에 별도 컴포넌트로 부착하지 않습니다.
     /// </summary>
-    public class AdvancedStageFieldEventDirector : MonoBehaviour
+    [System.Serializable]
+    public class AdvancedStageFieldEventDirector : RuntimeModule
     {
+        protected override void OnSuspended()
+        {
+            if (mainCamera != null && hasOriginalCameraRotation) mainCamera.transform.rotation = originalCameraRotation;
+        }
         [System.Serializable]
         public class EventStartTimeRange
         {
@@ -274,7 +272,7 @@ namespace Vampire
         private Coroutine activeAcidRefluxRoutine;
         private Coroutine activeCoffeeWaveRoutine;
 
-        private void Start()
+        protected override System.Collections.IEnumerator OnStart()
         {
             if (levelManager == null)
             {
@@ -300,11 +298,13 @@ namespace Vampire
             }
 
             PrepareAllEvents();
+
+            yield break;
         }
 
-        private void Update()
+        protected override void OnTick()
         {
-            if (MiniStageRuntimeState.IsInsideMiniStage)
+            if (MiniStageRuntimeState.IsInsideMiniStage || (levelManager != null && (levelManager.IsRunFlowPaused || levelManager.IsLevelEnded)))
             {
                 // 필드 기류가 MiniStage 카메라에 남지 않도록 기본 회전을 사용합니다.
                 if (!miniStageCameraRestored && mainCamera != null && hasOriginalCameraRotation)
@@ -343,9 +343,9 @@ namespace Vampire
             RestoreCameraTiltIfNoActiveDrift();
         }
 
-        private void FixedUpdate()
+        protected override void OnFixedTick()
         {
-            if (MiniStageRuntimeState.IsInsideMiniStage)
+            if (MiniStageRuntimeState.IsInsideMiniStage || (levelManager != null && (levelManager.IsRunFlowPaused || levelManager.IsLevelEnded)))
             {
                 return;
             }

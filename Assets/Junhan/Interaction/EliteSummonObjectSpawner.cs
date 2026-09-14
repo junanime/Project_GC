@@ -1,3 +1,4 @@
+using static UnityEngine.Object;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +13,8 @@ namespace Vampire
     /// - 플레이어 주변 일정 거리 밖에 생성
     /// - 보스 소환 오브젝트는 여기서 스폰하지 않는다.
     /// </summary>
-    public class EliteSummonObjectSpawner : MonoBehaviour
+    [System.Serializable]
+    public class EliteSummonObjectSpawner : RuntimeModule
     {
         [Header("References")]
         [SerializeField] private LevelManager levelManager;
@@ -56,7 +58,7 @@ namespace Vampire
         private float timer;
         private bool firstSpawnDone;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             if (levelManager == null)
             {
@@ -67,7 +69,7 @@ namespace Vampire
             firstSpawnDone = false;
         }
 
-        private void Update()
+        protected override void OnTick()
         {
             if (levelManager == null)
             {
@@ -128,7 +130,7 @@ namespace Vampire
             {
                 if (debugLog)
                 {
-                    Debug.Log("[EliteSummonObjectSpawner] 최대 활성 수에 도달해서 스폰하지 않습니다.", this);
+                    Debug.Log("[EliteSummonObjectSpawner] 최대 활성 수에 도달해서 스폰하지 않습니다.", Host);
                 }
 
                 return;
@@ -145,7 +147,7 @@ namespace Vampire
                 {
                     if (debugLog)
                     {
-                        Debug.LogWarning("[EliteSummonObjectSpawner] 스폰 위치를 찾지 못했습니다.", this);
+                        Debug.LogWarning("[EliteSummonObjectSpawner] 스폰 위치를 찾지 못했습니다.", Host);
                     }
 
                     continue;

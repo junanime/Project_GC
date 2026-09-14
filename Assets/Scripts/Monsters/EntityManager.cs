@@ -412,6 +412,7 @@ namespace Vampire
 
         public void DespawnGem(ExpGem gem)
         {
+            if (MagneticCollectables.Contains(gem)) MagneticCollectables.Remove(gem);
             expGemPool.Release(gem);
         }
 
@@ -430,13 +431,19 @@ namespace Vampire
         ////////////////////////////////////////////////////////////////////////////////
         public Coin SpawnCoin(Vector2 position, CoinType coinType = CoinType.Bronze1, bool spawnAnimation = true)
         {
+            return SpawnCoin(position, coinType, spawnAnimation, true);
+        }
+
+        public Coin SpawnCoin(Vector2 position, CoinType coinType, bool spawnAnimation, bool collectableDuringSpawn)
+        {
             Coin newCoin = coinPool.Get();
-            newCoin.Setup(position, coinType, spawnAnimation);
+            newCoin.Setup(position, coinType, spawnAnimation, collectableDuringSpawn);
             return newCoin;
         }
 
         public void DespawnCoin(Coin coin, bool pickedUpByPlayer = true)
         {
+            if (MagneticCollectables.Contains(coin)) MagneticCollectables.Remove(coin);
             if (pickedUpByPlayer)
             {
                 int baseCoinValue = (int)coin.CoinType;

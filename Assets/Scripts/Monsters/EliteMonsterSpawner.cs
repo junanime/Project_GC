@@ -1,20 +1,22 @@
+using static UnityEngine.Object;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
 {
-    // ¿¤¸®Æ® ¸ó½ºÅÍ Àü¿ë ½ºÆ÷³Ê
+    // ì—˜ë¦¬íŠ¸ ëª¬ìŠ¤í„° ì „ìš© ìŠ¤í¬ë„ˆ
     //
-    // ÇÙ½É ±¸Á¶:
-    // 1. ManualFlatIndexPool ¸ğµå
-    // - ±âÁ¸ ¹æ½ÄÃ³·³ Elite Monster Flat Indices¿¡¼­ ·£´ıÀ¸·Î ¿¤¸®Æ® ¼±ÅÃ
+    // í•µì‹¬ êµ¬ì¡°:
+    // 1. ManualFlatIndexPool ëª¨ë“œ
+    // - ê¸°ì¡´ ë°©ì‹ì²˜ëŸ¼ Elite Monster Flat Indicesì—ì„œ ëœë¤ìœ¼ë¡œ ì—˜ë¦¬íŠ¸ ì„ íƒ
     //
-    // 2. FollowNormalSpawnTable ¸ğµå
-    // - ÇöÀç Level 1ÀÇ ÀÏ¹İ ¸ó½ºÅÍ ½ºÆù Å×ÀÌºí¿¡¼­ ¸ÕÀú ÀÏ¹İ ¸ó½ºÅÍ flat index¸¦ »ÌÀ½
-    // - Normal To Elite Mappings¿¡ µî·ÏµÈ ´ëÀÀ °ü°è¸¦ º¸°í ¿¤¸®Æ® flat index·Î º¯È¯
-    // - °á°úÀûÀ¸·Î "ÇöÀç ½Ã°£´ë¿¡ ¸¹ÀÌ ³ª¿À´Â ÀÏ¹İ ¸ó½ºÅÍÀÇ ¿¤¸®Æ®"°¡ ´õ ÀÚÁÖ µîÀåÇÔ
-    public class EliteMonsterSpawner : MonoBehaviour
+    // 2. FollowNormalSpawnTable ëª¨ë“œ
+    // - í˜„ì¬ Level 1ì˜ ì¼ë°˜ ëª¬ìŠ¤í„° ìŠ¤í° í…Œì´ë¸”ì—ì„œ ë¨¼ì € ì¼ë°˜ ëª¬ìŠ¤í„° flat indexë¥¼ ë½‘ìŒ
+    // - Normal To Elite Mappingsì— ë“±ë¡ëœ ëŒ€ì‘ ê´€ê³„ë¥¼ ë³´ê³  ì—˜ë¦¬íŠ¸ flat indexë¡œ ë³€í™˜
+    // - ê²°ê³¼ì ìœ¼ë¡œ "í˜„ì¬ ì‹œê°„ëŒ€ì— ë§ì´ ë‚˜ì˜¤ëŠ” ì¼ë°˜ ëª¬ìŠ¤í„°ì˜ ì—˜ë¦¬íŠ¸"ê°€ ë” ìì£¼ ë“±ì¥í•¨
+    [System.Serializable]
+    public class EliteMonsterSpawner : RuntimeModule
     {
         public enum EliteSelectionMode
         {
@@ -25,13 +27,13 @@ namespace Vampire
         [System.Serializable]
         public class NormalToEliteMapping
         {
-            [Tooltip("ÀÏ¹İ ¸ó½ºÅÍ flat indexÀÔ´Ï´Ù. ¿¹: ôøĞäá³Ü² = 0")]
+            [Tooltip("ì¼ë°˜ ëª¬ìŠ¤í„° flat indexì…ë‹ˆë‹¤. ì˜ˆ: åˆç´šå°å…µ = 0")]
             public int normalMonsterFlatIndex;
 
-            [Tooltip("À§ ÀÏ¹İ ¸ó½ºÅÍ¿¡ ´ëÀÀÇÏ´Â ¿¤¸®Æ® ¸ó½ºÅÍ flat indexÀÔ´Ï´Ù. ¿¹: Elite ôøĞäá³Ü² = 8")]
+            [Tooltip("ìœ„ ì¼ë°˜ ëª¬ìŠ¤í„°ì— ëŒ€ì‘í•˜ëŠ” ì—˜ë¦¬íŠ¸ ëª¬ìŠ¤í„° flat indexì…ë‹ˆë‹¤. ì˜ˆ: Elite åˆç´šå°å…µ = 8")]
             public int eliteMonsterFlatIndex;
 
-            [Tooltip("Ã¼Å© ÇØÁ¦ÇÏ¸é ÀÌ ¸ÅÇÎÀº ¹«½ÃµË´Ï´Ù.")]
+            [Tooltip("ì²´í¬ í•´ì œí•˜ë©´ ì´ ë§¤í•‘ì€ ë¬´ì‹œë©ë‹ˆë‹¤.")]
             public bool enabled = true;
         }
 
@@ -39,55 +41,55 @@ namespace Vampire
         public class EliteSpawnPhase
         {
             [Header("Phase Info")]
-            [Tooltip("ÀÎ½ºÆåÅÍ¿¡¼­ ±¸ºĞÇÏ±â À§ÇÑ ÀÌ¸§ÀÔ´Ï´Ù. ¿¹: 2ºĞ´ë ¿¤¸®Æ®")]
+            [Tooltip("ì¸ìŠ¤í™í„°ì—ì„œ êµ¬ë¶„í•˜ê¸° ìœ„í•œ ì´ë¦„ì…ë‹ˆë‹¤. ì˜ˆ: 2ë¶„ëŒ€ ì—˜ë¦¬íŠ¸")]
             public string phaseName = "Elite Phase";
 
-            [Tooltip("ÀÌ ½Ã°£ºÎÅÍ ¿¤¸®Æ® ½ºÆùÀ» ½ÃÀÛÇÕ´Ï´Ù. ÃÊ ´ÜÀ§ÀÔ´Ï´Ù.")]
+            [Tooltip("ì´ ì‹œê°„ë¶€í„° ì—˜ë¦¬íŠ¸ ìŠ¤í°ì„ ì‹œì‘í•©ë‹ˆë‹¤. ì´ˆ ë‹¨ìœ„ì…ë‹ˆë‹¤.")]
             public float startTime = 120f;
 
-            [Tooltip("ÀÌ ½Ã°£ ÀÌÈÄ¿¡´Â ÀÌ Phase°¡ ÀÛµ¿ÇÏÁö ¾Ê½À´Ï´Ù. 0 ÀÌÇÏ·Î µÎ¸é Á¾·á ½Ã°£ ¾øÀÌ °è¼Ó ÀÛµ¿ÇÕ´Ï´Ù.")]
+            [Tooltip("ì´ ì‹œê°„ ì´í›„ì—ëŠ” ì´ Phaseê°€ ì‘ë™í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤. 0 ì´í•˜ë¡œ ë‘ë©´ ì¢…ë£Œ ì‹œê°„ ì—†ì´ ê³„ì† ì‘ë™í•©ë‹ˆë‹¤.")]
             public float endTime = 210f;
 
             [Header("Selection Mode")]
-            [Tooltip("¿¤¸®Æ® ¼±ÅÃ ¹æ½ÄÀÔ´Ï´Ù. FollowNormalSpawnTableÀ» ÃßÃµÇÕ´Ï´Ù.")]
+            [Tooltip("ì—˜ë¦¬íŠ¸ ì„ íƒ ë°©ì‹ì…ë‹ˆë‹¤. FollowNormalSpawnTableì„ ì¶”ì²œí•©ë‹ˆë‹¤.")]
             public EliteSelectionMode selectionMode = EliteSelectionMode.FollowNormalSpawnTable;
 
             [Header("Spawn Timing")]
-            [Tooltip("¸î ÃÊ¸¶´Ù ¿¤¸®Æ®¸¦ ½ºÆùÇÒÁö ¼³Á¤ÇÕ´Ï´Ù.")]
+            [Tooltip("ëª‡ ì´ˆë§ˆë‹¤ ì—˜ë¦¬íŠ¸ë¥¼ ìŠ¤í°í• ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
             public float spawnInterval = 30f;
 
-            [Tooltip("Phase°¡ Ã³À½ ½ÃÀÛµÇ´Â ¼ø°£ ¹Ù·Î ÇÑ ¹ø ½ºÆùÇÒÁö ¿©ºÎÀÔ´Ï´Ù.")]
+            [Tooltip("Phaseê°€ ì²˜ìŒ ì‹œì‘ë˜ëŠ” ìˆœê°„ ë°”ë¡œ í•œ ë²ˆ ìŠ¤í°í• ì§€ ì—¬ë¶€ì…ë‹ˆë‹¤.")]
             public bool spawnImmediatelyOnPhaseStart = true;
 
             [Header("Spawn Count")]
-            [Tooltip("ÇÑ ¹ø ½ºÆùµÉ ¶§ ÃÖ¼Ò ¸î ¸¶¸® ½ºÆùÇÒÁö ¼³Á¤ÇÕ´Ï´Ù.")]
+            [Tooltip("í•œ ë²ˆ ìŠ¤í°ë  ë•Œ ìµœì†Œ ëª‡ ë§ˆë¦¬ ìŠ¤í°í• ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
             public int minSpawnCount = 1;
 
-            [Tooltip("ÇÑ ¹ø ½ºÆùµÉ ¶§ ÃÖ´ë ¸î ¸¶¸® ½ºÆùÇÒÁö ¼³Á¤ÇÕ´Ï´Ù.")]
+            [Tooltip("í•œ ë²ˆ ìŠ¤í°ë  ë•Œ ìµœëŒ€ ëª‡ ë§ˆë¦¬ ìŠ¤í°í• ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
             public int maxSpawnCount = 1;
 
-            [Tooltip("ÀÌ Phase µ¿¾È ÇÊµå¿¡ µ¿½Ã¿¡ Á¸ÀçÇÒ ¼ö ÀÖ´Â ¿¤¸®Æ® ÃÖ´ë ¼öÀÔ´Ï´Ù.")]
+            [Tooltip("ì´ Phase ë™ì•ˆ í•„ë“œì— ë™ì‹œì— ì¡´ì¬í•  ìˆ˜ ìˆëŠ” ì—˜ë¦¬íŠ¸ ìµœëŒ€ ìˆ˜ì…ë‹ˆë‹¤.")]
             public int maxAliveInPhase = 1;
 
             [Header("Follow Normal Spawn Table Mode")]
-            [Tooltip("ÀÏ¹İ ¸ó½ºÅÍ flat index -> ¿¤¸®Æ® ¸ó½ºÅÍ flat index ´ëÀÀÇ¥ÀÔ´Ï´Ù.")]
+            [Tooltip("ì¼ë°˜ ëª¬ìŠ¤í„° flat index -> ì—˜ë¦¬íŠ¸ ëª¬ìŠ¤í„° flat index ëŒ€ì‘í‘œì…ë‹ˆë‹¤.")]
             public NormalToEliteMapping[] normalToEliteMappings;
 
-            [Tooltip("ÀÏ¹İ ½ºÆù Å×ÀÌºí¿¡¼­ ¸ÅÇÎ °¡´ÉÇÑ ¸ó½ºÅÍ°¡ ³ª¿Ã ¶§±îÁö ¸î ¹ø±îÁö ´Ù½Ã »ÌÀ»Áö ¼³Á¤ÇÕ´Ï´Ù.")]
+            [Tooltip("ì¼ë°˜ ìŠ¤í° í…Œì´ë¸”ì—ì„œ ë§¤í•‘ ê°€ëŠ¥í•œ ëª¬ìŠ¤í„°ê°€ ë‚˜ì˜¬ ë•Œê¹Œì§€ ëª‡ ë²ˆê¹Œì§€ ë‹¤ì‹œ ë½‘ì„ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
             public int maxNormalTableSampleAttempts = 30;
 
-            [Tooltip("ÇÑ ¿şÀÌºê ¾È¿¡¼­ °°Àº ¿¤¸®Æ®°¡ Áßº¹ ¼±ÅÃµÇÁö ¾Êµµ·Ï ½ÃµµÇÕ´Ï´Ù.")]
+            [Tooltip("í•œ ì›¨ì´ë¸Œ ì•ˆì—ì„œ ê°™ì€ ì—˜ë¦¬íŠ¸ê°€ ì¤‘ë³µ ì„ íƒë˜ì§€ ì•Šë„ë¡ ì‹œë„í•©ë‹ˆë‹¤.")]
             public bool avoidDuplicateEliteInOneWave = true;
 
-            [Tooltip("ÇöÀç ½Ã°£´ë ½ºÆù Å×ÀÌºí¿¡¼­ ¸ÅÇÎ °¡´ÉÇÑ ¸ó½ºÅÍ¸¦ ¸ø Ã£¾ÒÀ» ¶§, Manual PoolÀ» ¿¹ºñ ÈÄº¸·Î »ç¿ëÇÒÁö ¿©ºÎÀÔ´Ï´Ù.")]
+            [Tooltip("í˜„ì¬ ì‹œê°„ëŒ€ ìŠ¤í° í…Œì´ë¸”ì—ì„œ ë§¤í•‘ ê°€ëŠ¥í•œ ëª¬ìŠ¤í„°ë¥¼ ëª» ì°¾ì•˜ì„ ë•Œ, Manual Poolì„ ì˜ˆë¹„ í›„ë³´ë¡œ ì‚¬ìš©í• ì§€ ì—¬ë¶€ì…ë‹ˆë‹¤.")]
             public bool fallbackToManualPoolIfNoMappedElite = false;
 
             [Header("Manual Pool Mode / Fallback Pool")]
-            [Tooltip("ManualFlatIndexPool ¸ğµå¿¡¼­ »ç¿ëÇÒ ¿¤¸®Æ® flat index ¸ñ·ÏÀÔ´Ï´Ù. Follow ¸ğµå¿¡¼­´Â fallback ¿ëµµ·Îµµ ¾µ ¼ö ÀÖ½À´Ï´Ù.")]
+            [Tooltip("ManualFlatIndexPool ëª¨ë“œì—ì„œ ì‚¬ìš©í•  ì—˜ë¦¬íŠ¸ flat index ëª©ë¡ì…ë‹ˆë‹¤. Follow ëª¨ë“œì—ì„œëŠ” fallback ìš©ë„ë¡œë„ ì“¸ ìˆ˜ ìˆìŠµë‹ˆë‹¤.")]
             public int[] eliteMonsterFlatIndices;
 
             [Header("Extra HP Buff")]
-            [Tooltip("Ãß°¡ HP º¸Á¤ÀÔ´Ï´Ù. º¸Åë 0À¸·Î µÎ¸é µË´Ï´Ù. ¿¤¸®Æ® Ã¼·Â 2¹è´Â EliteMonsterBlueprintÀÇ HP Multiplier¿¡¼­ Ã³¸®ÇÕ´Ï´Ù.")]
+            [Tooltip("ì¶”ê°€ HP ë³´ì •ì…ë‹ˆë‹¤. ë³´í†µ 0ìœ¼ë¡œ ë‘ë©´ ë©ë‹ˆë‹¤. ì—˜ë¦¬íŠ¸ ì²´ë ¥ 2ë°°ëŠ” EliteMonsterBlueprintì˜ HP Multiplierì—ì„œ ì²˜ë¦¬í•©ë‹ˆë‹¤.")]
             public float additionalHpBuff = 0f;
         }
 
@@ -101,26 +103,26 @@ namespace Vampire
         }
 
         [Header("References")]
-        [Tooltip("¾ÀÀÇ LevelManagerÀÔ´Ï´Ù. ºñ¿öµÎ¸é ÀÚµ¿À¸·Î Ã£½À´Ï´Ù.")]
+        [Tooltip("ì”¬ì˜ LevelManagerì…ë‹ˆë‹¤. ë¹„ì›Œë‘ë©´ ìë™ìœ¼ë¡œ ì°¾ìŠµë‹ˆë‹¤.")]
         [SerializeField] private LevelManager levelManager;
 
         [Header("Global Settings")]
         [SerializeField] private bool spawnEnabled = true;
 
-        [Tooltip("ÀüÃ¼ Phase¸¦ ÅëÆ²¾î ÇÊµå¿¡ µ¿½Ã¿¡ Á¸ÀçÇÒ ¼ö ÀÖ´Â ¿¤¸®Æ® ÃÖ´ë ¼öÀÔ´Ï´Ù.")]
+        [Tooltip("ì „ì²´ Phaseë¥¼ í†µí‹€ì–´ í•„ë“œì— ë™ì‹œì— ì¡´ì¬í•  ìˆ˜ ìˆëŠ” ì—˜ë¦¬íŠ¸ ìµœëŒ€ ìˆ˜ì…ë‹ˆë‹¤.")]
         [SerializeField] private int globalMaxAliveElites = 8;
 
-        [Tooltip("Ã¼Å©ÇÏ¸é EliteMonsterBlueprint°¡ ¾Æ´Ñ ¸ó½ºÅÍ ÀÎµ¦½º´Â ½ºÆùÇÏÁö ¾Ê°í °æ°í¸¦ Ãâ·ÂÇÕ´Ï´Ù.")]
+        [Tooltip("ì²´í¬í•˜ë©´ EliteMonsterBlueprintê°€ ì•„ë‹Œ ëª¬ìŠ¤í„° ì¸ë±ìŠ¤ëŠ” ìŠ¤í°í•˜ì§€ ì•Šê³  ê²½ê³ ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool requireEliteMonsterBlueprint = true;
 
-        [Tooltip("½ºÆùµÈ ¿¤¸®Æ®°¡ Á×°Å³ª ºñÈ°¼ºÈ­µÇ¾ú´ÂÁö ¸Å ÇÁ·¹ÀÓ Á¤¸®ÇÕ´Ï´Ù.")]
+        [Tooltip("ìŠ¤í°ëœ ì—˜ë¦¬íŠ¸ê°€ ì£½ê±°ë‚˜ ë¹„í™œì„±í™”ë˜ì—ˆëŠ”ì§€ ë§¤ í”„ë ˆì„ ì •ë¦¬í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool cleanupInactiveElitesEveryFrame = true;
 
         [Header("Mini Stage Guard")]
-        [Tooltip("¹Ì´Ï ½ºÅ×ÀÌÁö ÁøÇà Áß¿¡´Â ÇÊµå ¿¤¸®Æ® ¸ó½ºÅÍ ½ºÆùÀ» ¸ØÃä´Ï´Ù.")]
+        [Tooltip("ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ì§„í–‰ ì¤‘ì—ëŠ” í•„ë“œ ì—˜ë¦¬íŠ¸ ëª¬ìŠ¤í„° ìŠ¤í°ì„ ë©ˆì¶¥ë‹ˆë‹¤.")]
         [SerializeField] private bool blockWhileRunFlowPaused = true;
 
-        [Tooltip("¹Ì´Ï ½ºÅ×ÀÌÁö ¶§¹®¿¡ ¿¤¸®Æ® ½ºÆùÀÌ Â÷´ÜµÉ ¶§ ·Î±×¸¦ Ãâ·ÂÇÕ´Ï´Ù.")]
+        [Tooltip("ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ë•Œë¬¸ì— ì—˜ë¦¬íŠ¸ ìŠ¤í°ì´ ì°¨ë‹¨ë  ë•Œ ë¡œê·¸ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool logMiniStageBlock = false;
 
         [Header("Spawn Phases")]
@@ -129,10 +131,10 @@ namespace Vampire
         [Header("Debug")]
         [SerializeField] private bool debugLog = true;
 
-        [Tooltip("°ÔÀÓ ½ÃÀÛ ½Ã Level 1 BlueprintÀÇ ¸ó½ºÅÍ flat index ¸ñ·ÏÀ» Console¿¡ Ãâ·ÂÇÕ´Ï´Ù.")]
+        [Tooltip("ê²Œì„ ì‹œì‘ ì‹œ Level 1 Blueprintì˜ ëª¬ìŠ¤í„° flat index ëª©ë¡ì„ Consoleì— ì¶œë ¥í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool logMonsterIndexTableOnStart = true;
 
-        [Tooltip("FollowNormalSpawnTable¿¡¼­ ¾î¶² ÀÏ¹İ ¸ó½ºÅÍ°¡ ¾î¶² ¿¤¸®Æ®·Î º¯È¯µÆ´ÂÁö ·Î±×¸¦ Ãâ·ÂÇÕ´Ï´Ù.")]
+        [Tooltip("FollowNormalSpawnTableì—ì„œ ì–´ë–¤ ì¼ë°˜ ëª¬ìŠ¤í„°ê°€ ì–´ë–¤ ì—˜ë¦¬íŠ¸ë¡œ ë³€í™˜ëëŠ”ì§€ ë¡œê·¸ë¥¼ ì¶œë ¥í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool debugFollowSelection = true;
 
         private readonly List<Monster> activeElites = new List<Monster>();
@@ -141,21 +143,21 @@ namespace Vampire
         private bool[] phaseStarted;
         private bool ready = false;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             EnsureRuntimeArrays();
 
             if (debugLog)
             {
-                Debug.Log("[EliteMonsterSpawner] Awake È£ÃâµÊ - ÄÄÆ÷³ÍÆ® È°¼º »óÅÂ È®ÀÎ ¿Ï·á", this);
+                Debug.Log("[EliteMonsterSpawner] Awake í˜¸ì¶œë¨ - ì»´í¬ë„ŒíŠ¸ í™œì„± ìƒíƒœ í™•ì¸ ì™„ë£Œ", Host);
             }
         }
 
-        private IEnumerator Start()
+        protected override System.Collections.IEnumerator OnStart()
         {
             ResolveReferences();
 
-            // LevelManager.Start()¿¡¼­ EntityManager.Init()ÀÌ ³¡³¯ ½Ã°£À» ÁØ´Ù.
+            // LevelManager.Start()ì—ì„œ EntityManager.Init()ì´ ëë‚  ì‹œê°„ì„ ì¤€ë‹¤.
             yield return null;
             yield return null;
 
@@ -174,18 +176,17 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[EliteMonsterSpawner] Start ÁØºñ ¿Ï·á | " +
+                    $"[EliteMonsterSpawner] Start ì¤€ë¹„ ì™„ë£Œ | " +
                     $"Ready: {ready} | " +
                     $"LevelManager: {levelManager != null} | " +
                     $"EntityManager: {(levelManager != null && levelManager.EntityManager != null)} | " +
                     $"LevelBlueprint: {(levelManager != null && levelManager.CurrentLevelBlueprint != null)} | " +
-                    $"Phase Count: {(spawnPhases != null ? spawnPhases.Length : 0)}",
-                    this
+                    $"Phase Count: {(spawnPhases != null ? spawnPhases.Length : 0)}", Host
                 );
             }
         }
 
-        private void Update()
+        protected override void OnTick()
         {
             if (!spawnEnabled)
             {
@@ -214,7 +215,7 @@ namespace Vampire
             {
                 if (logMiniStageBlock)
                 {
-                    Debug.Log("[EliteMonsterSpawner] ¹Ì´Ï ½ºÅ×ÀÌÁö ÁøÇà ÁßÀÌ¶ó ¿¤¸®Æ® ½ºÆù Å¸ÀÌ¸Ó¸¦ ¸ØÃä´Ï´Ù.", this);
+                    Debug.Log("[EliteMonsterSpawner] ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ì§„í–‰ ì¤‘ì´ë¼ ì—˜ë¦¬íŠ¸ ìŠ¤í° íƒ€ì´ë¨¸ë¥¼ ë©ˆì¶¥ë‹ˆë‹¤.", Host);
                 }
 
                 return;
@@ -249,9 +250,8 @@ namespace Vampire
                     if (debugLog)
                     {
                         Debug.Log(
-                            $"[EliteMonsterSpawner] Phase ½ÃÀÛ | " +
-                            $"Phase: {phase.phaseName} | Time: {currentTime:0.##} | Mode: {phase.selectionMode}",
-                            this
+                            $"[EliteMonsterSpawner] Phase ì‹œì‘ | " +
+                            $"Phase: {phase.phaseName} | Time: {currentTime:0.##} | Mode: {phase.selectionMode}", Host
                         );
                     }
 
@@ -317,7 +317,7 @@ namespace Vampire
             {
                 if (logMiniStageBlock)
                 {
-                    Debug.Log("[EliteMonsterSpawner] ¹Ì´Ï ½ºÅ×ÀÌÁö ÁøÇà ÁßÀÌ¶ó ¿¤¸®Æ® Áï½Ã ½ºÆùÀ» ¸·¾Ò½À´Ï´Ù.", this);
+                    Debug.Log("[EliteMonsterSpawner] ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ì§„í–‰ ì¤‘ì´ë¼ ì—˜ë¦¬íŠ¸ ì¦‰ì‹œ ìŠ¤í°ì„ ë§‰ì•˜ìŠµë‹ˆë‹¤.", Host);
                 }
 
                 return;
@@ -327,7 +327,7 @@ namespace Vampire
             {
                 if (debugLog)
                 {
-                    Debug.LogWarning("[EliteMonsterSpawner] ¾ÆÁ÷ ÁØºñµÇÁö ¾Ê¾Æ ¿¤¸®Æ®¸¦ ½ºÆùÇÏÁö ¾Ê½À´Ï´Ù.", this);
+                    Debug.LogWarning("[EliteMonsterSpawner] ì•„ì§ ì¤€ë¹„ë˜ì§€ ì•Šì•„ ì—˜ë¦¬íŠ¸ë¥¼ ìŠ¤í°í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", Host);
                 }
 
                 return;
@@ -345,9 +345,8 @@ namespace Vampire
                 if (debugLog)
                 {
                     Debug.Log(
-                        $"[EliteMonsterSpawner] ½ºÆù »ı·« | Phase: {phase.phaseName} | " +
-                        $"GlobalCapacity: {globalCapacity} | PhaseCapacity: {phaseCapacity} | Active: {currentAlive}",
-                        this
+                        $"[EliteMonsterSpawner] ìŠ¤í° ìƒëµ | Phase: {phase.phaseName} | " +
+                        $"GlobalCapacity: {globalCapacity} | PhaseCapacity: {phaseCapacity} | Active: {currentAlive}", Host
                     );
                 }
 
@@ -376,8 +375,7 @@ namespace Vampire
                     if (debugLog)
                     {
                         Debug.LogWarning(
-                            $"[EliteMonsterSpawner] ¿¤¸®Æ® ÈÄº¸ ¼±ÅÃ ½ÇÆĞ | Phase: {phase.phaseName}",
-                            this
+                            $"[EliteMonsterSpawner] ì—˜ë¦¬íŠ¸ í›„ë³´ ì„ íƒ ì‹¤íŒ¨ | Phase: {phase.phaseName}", Host
                         );
                     }
 
@@ -400,9 +398,8 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[EliteMonsterSpawner] ¿¤¸®Æ® ¿şÀÌºê ½ºÆù °á°ú | " +
-                    $"Phase: {phase.phaseName} | Spawned: {spawnedCount}/{spawnCount} | Active: {activeElites.Count}",
-                    this
+                    $"[EliteMonsterSpawner] ì—˜ë¦¬íŠ¸ ì›¨ì´ë¸Œ ìŠ¤í° ê²°ê³¼ | " +
+                    $"Phase: {phase.phaseName} | Spawned: {spawnedCount}/{spawnCount} | Active: {activeElites.Count}", Host
                 );
             }
         }
@@ -466,8 +463,7 @@ namespace Vampire
                 if (debugLog)
                 {
                     Debug.LogWarning(
-                        $"[EliteMonsterSpawner] {phase.phaseName}: Normal To Elite Mappings°¡ ºñ¾î ÀÖ½À´Ï´Ù.",
-                        this
+                        $"[EliteMonsterSpawner] {phase.phaseName}: Normal To Elite Mappingsê°€ ë¹„ì–´ ìˆìŠµë‹ˆë‹¤.", Host
                     );
                 }
 
@@ -506,10 +502,9 @@ namespace Vampire
                 if (debugFollowSelection)
                 {
                     Debug.Log(
-                        $"[EliteMonsterSpawner] ÀÏ¹İ ½ºÆù Å×ÀÌºí ÃßÁ¾ ¼±ÅÃ | " +
+                        $"[EliteMonsterSpawner] ì¼ë°˜ ìŠ¤í° í…Œì´ë¸” ì¶”ì¢… ì„ íƒ | " +
                         $"normalFlatIndex={normalFlatIndex} -> eliteFlatIndex={eliteFlatIndex} | " +
-                        $"normalizedTime={normalizedTime:0.###}",
-                        this
+                        $"normalizedTime={normalizedTime:0.###}", Host
                     );
                 }
 
@@ -519,9 +514,8 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.LogWarning(
-                    $"[EliteMonsterSpawner] ÇöÀç ÀÏ¹İ ½ºÆù Å×ÀÌºí¿¡¼­ ¸ÅÇÎ °¡´ÉÇÑ ¿¤¸®Æ®¸¦ Ã£Áö ¸øÇß½À´Ï´Ù. " +
-                    $"Phase={phase.phaseName} | Attempts={attempts}",
-                    this
+                    $"[EliteMonsterSpawner] í˜„ì¬ ì¼ë°˜ ìŠ¤í° í…Œì´ë¸”ì—ì„œ ë§¤í•‘ ê°€ëŠ¥í•œ ì—˜ë¦¬íŠ¸ë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. " +
+                    $"Phase={phase.phaseName} | Attempts={attempts}", Host
                 );
             }
 
@@ -620,22 +614,21 @@ namespace Vampire
 
             if (!TryGetFlatMonsterEntry(flatIndex, out entry))
             {
-                Debug.LogWarning($"[EliteMonsterSpawner] Àß¸øµÈ flat indexÀÔ´Ï´Ù: {flatIndex}", this);
+                Debug.LogWarning($"[EliteMonsterSpawner] ì˜ëª»ëœ flat indexì…ë‹ˆë‹¤: {flatIndex}", Host);
                 return null;
             }
 
             if (entry.blueprint == null)
             {
-                Debug.LogWarning($"[EliteMonsterSpawner] MonsterBlueprint°¡ ºñ¾î ÀÖ½À´Ï´Ù. flatIndex={flatIndex}", this);
+                Debug.LogWarning($"[EliteMonsterSpawner] MonsterBlueprintê°€ ë¹„ì–´ ìˆìŠµë‹ˆë‹¤. flatIndex={flatIndex}", Host);
                 return null;
             }
 
             if (requireEliteMonsterBlueprint && !(entry.blueprint is EliteMonsterBlueprint))
             {
                 Debug.LogWarning(
-                    $"[EliteMonsterSpawner] flatIndex={flatIndex}´Â EliteMonsterBlueprint°¡ ¾Æ´Õ´Ï´Ù. " +
-                    $"name={entry.blueprint.name}, type={entry.blueprint.GetType().Name}. ½ºÆùÇÏÁö ¾Ê½À´Ï´Ù.",
-                    this
+                    $"[EliteMonsterSpawner] flatIndex={flatIndex}ëŠ” EliteMonsterBlueprintê°€ ì•„ë‹™ë‹ˆë‹¤. " +
+                    $"name={entry.blueprint.name}, type={entry.blueprint.GetType().Name}. ìŠ¤í°í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", Host
                 );
 
                 return null;
@@ -654,7 +647,7 @@ namespace Vampire
 
             if (spawnedMonster == null)
             {
-                Debug.LogWarning($"[EliteMonsterSpawner] ¿¤¸®Æ® ½ºÆù ½ÇÆĞ. flatIndex={flatIndex}", this);
+                Debug.LogWarning($"[EliteMonsterSpawner] ì—˜ë¦¬íŠ¸ ìŠ¤í° ì‹¤íŒ¨. flatIndex={flatIndex}", Host);
                 return null;
             }
 
@@ -664,10 +657,9 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[EliteMonsterSpawner] ¿¤¸®Æ® ½ºÆù ¿Ï·á | " +
+                    $"[EliteMonsterSpawner] ì—˜ë¦¬íŠ¸ ìŠ¤í° ì™„ë£Œ | " +
                     $"flatIndex={flatIndex} | poolIndex={entry.poolIndex} | blueprintIndex={entry.blueprintIndex} | " +
-                    $"name={entry.blueprint.name} | active={activeElites.Count}",
-                    this
+                    $"name={entry.blueprint.name} | active={activeElites.Count}", Host
                 );
             }
 
@@ -679,8 +671,7 @@ namespace Vampire
             if (entry.prefab == null)
             {
                 Debug.LogWarning(
-                    $"[EliteMonsterSpawner] flatIndex={entry.flatIndex}ÀÇ Monsters PrefabÀÌ ºñ¾î ÀÖ½À´Ï´Ù.",
-                    this
+                    $"[EliteMonsterSpawner] flatIndex={entry.flatIndex}ì˜ Monsters Prefabì´ ë¹„ì–´ ìˆìŠµë‹ˆë‹¤.", Host
                 );
 
                 return false;
@@ -691,9 +682,8 @@ namespace Vampire
             if (prefabMonster == null)
             {
                 Debug.LogWarning(
-                    $"[EliteMonsterSpawner] flatIndex={entry.flatIndex}ÀÇ ÇÁ¸®ÆÕ¿¡ Monster ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù. " +
-                    $"Prefab={entry.prefab.name}",
-                    this
+                    $"[EliteMonsterSpawner] flatIndex={entry.flatIndex}ì˜ í”„ë¦¬íŒ¹ì— Monster ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤. " +
+                    $"Prefab={entry.prefab.name}", Host
                 );
 
                 return false;
@@ -702,11 +692,10 @@ namespace Vampire
             if (entry.blueprint is MeleeMonsterBlueprint && !(prefabMonster is MeleeMonster))
             {
                 Debug.LogWarning(
-                    $"[EliteMonsterSpawner] ÇÁ¸®ÆÕ/ºí·çÇÁ¸°Æ® Å¸ÀÔÀÌ ¸ÂÁö ¾Ê½À´Ï´Ù. " +
+                    $"[EliteMonsterSpawner] í”„ë¦¬íŒ¹/ë¸”ë£¨í”„ë¦°íŠ¸ íƒ€ì…ì´ ë§ì§€ ì•ŠìŠµë‹ˆë‹¤. " +
                     $"flatIndex={entry.flatIndex} | Prefab={entry.prefab.name}({prefabMonster.GetType().Name}) | " +
                     $"Blueprint={entry.blueprint.name}({entry.blueprint.GetType().Name}) | " +
-                    $"MeleeMonsterBlueprint °è¿­Àº MeleeMonster ÇÁ¸®ÆÕ¿¡ ³Ö¾î¾ß ÇÕ´Ï´Ù.",
-                    this
+                    $"MeleeMonsterBlueprint ê³„ì—´ì€ MeleeMonster í”„ë¦¬íŒ¹ì— ë„£ì–´ì•¼ í•©ë‹ˆë‹¤.", Host
                 );
 
                 return false;
@@ -715,9 +704,8 @@ namespace Vampire
             if (prefabMonster is BossMonster)
             {
                 Debug.LogWarning(
-                    $"[EliteMonsterSpawner] º¸½º ÇÁ¸®ÆÕÀº ¿¤¸®Æ® ¸ó½ºÅÍ Ç®·Î »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù. " +
-                    $"flatIndex={entry.flatIndex} | Prefab={entry.prefab.name}",
-                    this
+                    $"[EliteMonsterSpawner] ë³´ìŠ¤ í”„ë¦¬íŒ¹ì€ ì—˜ë¦¬íŠ¸ ëª¬ìŠ¤í„° í’€ë¡œ ì‚¬ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. " +
+                    $"flatIndex={entry.flatIndex} | Prefab={entry.prefab.name}", Host
                 );
 
                 return false;
@@ -810,8 +798,7 @@ namespace Vampire
             if (debugLog)
             {
                 Debug.Log(
-                    $"[EliteMonsterSpawner] ¿¤¸®Æ® »ç¸Á °¨Áö | Active: {activeElites.Count}",
-                    this
+                    $"[EliteMonsterSpawner] ì—˜ë¦¬íŠ¸ ì‚¬ë§ ê°ì§€ | Active: {activeElites.Count}", Host
                 );
             }
         }
@@ -839,8 +826,7 @@ namespace Vampire
             if (levelManager == null || levelManager.CurrentLevelBlueprint == null)
             {
                 Debug.LogWarning(
-                    "[EliteMonsterSpawner] Monster Index Table Ãâ·Â ½ÇÆĞ: LevelManager ¶Ç´Â LevelBlueprint°¡ ¾ø½À´Ï´Ù.",
-                    this
+                    "[EliteMonsterSpawner] Monster Index Table ì¶œë ¥ ì‹¤íŒ¨: LevelManager ë˜ëŠ” LevelBlueprintê°€ ì—†ìŠµë‹ˆë‹¤.", Host
                 );
 
                 return;
@@ -850,11 +836,11 @@ namespace Vampire
 
             if (levelBlueprint.monsters == null)
             {
-                Debug.LogWarning("[EliteMonsterSpawner] LevelBlueprint.monsters°¡ ºñ¾î ÀÖ½À´Ï´Ù.", this);
+                Debug.LogWarning("[EliteMonsterSpawner] LevelBlueprint.monstersê°€ ë¹„ì–´ ìˆìŠµë‹ˆë‹¤.", Host);
                 return;
             }
 
-            Debug.Log("[EliteMonsterSpawner] ===== Monster Flat Index Table Start =====", this);
+            Debug.Log("[EliteMonsterSpawner] ===== Monster Flat Index Table Start =====", Host);
 
             int flatIndex = 0;
 
@@ -882,18 +868,17 @@ namespace Vampire
                     Debug.Log(
                         $"[EliteIndex] flatIndex={flatIndex} | poolIndex={poolIndex} | " +
                         $"blueprintIndex={blueprintIndex} | prefab={prefabName} | " +
-                        $"name={blueprintName} | type={blueprintType} | elite={isElite}",
-                        this
+                        $"name={blueprintName} | type={blueprintType} | elite={isElite}", Host
                     );
 
                     flatIndex++;
                 }
             }
 
-            Debug.Log("[EliteMonsterSpawner] ===== Monster Flat Index Table End =====", this);
+            Debug.Log("[EliteMonsterSpawner] ===== Monster Flat Index Table End =====", Host);
         }
 
-        private void OnDisable()
+        protected override void OnModuleDisable()
         {
             for (int i = activeElites.Count - 1; i >= 0; i--)
             {
