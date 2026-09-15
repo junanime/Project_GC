@@ -32,15 +32,13 @@ namespace Vampire
                 entity.SpawnMonsterRandomPosition(data.monsters.Length, data.miniBosses[0].bossBlueprint);
                 GameAudioManager.PlayBossAppearOnly();
             }
-            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && time > data.levelTime &&
+            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && time >= data.levelTime &&
                 FindObjectOfType<BossController>() == null && FindObjectOfType<BossMonster>() == null)
             {
-                GameObject boss = entity.SpawnFinalBoss(data, (Vector2)player.transform.position + Vector2.up * 6f);
-                if (boss == null) return;
-                finalBossSpawned = true;
-                GameAudioManager.StartBossAudio();
-                Monster legacy = boss.GetComponent<Monster>();
-                if (legacy != null) legacy.OnKilled.AddListener(levelManager.LevelPassed);
+                // Automatic expiry must go through the terminal's transmission and descent.
+                var terminal = FindObjectOfType<FinalBossSummonInteractable>();
+                if (terminal != null) terminal.TryAutomaticSummon();
+                // Completion is acknowledged by NotifyFinalBossSpawned, so cancellation can retry.
             }
         }
     }

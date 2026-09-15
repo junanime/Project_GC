@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SugarCube_Normal_Body
   m_EditorClassIdentifier: 
   name: "\uC77C\uBC18 \uC124\uD0D5\uD050"
-  hp: 100
-  atk: 3
+  hp: 80
+  atk: 6
   recovery: 0
   armor: 0
   atkspeed: 1

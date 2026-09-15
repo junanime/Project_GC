@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SugarCube_Normal_Split1
   m_EditorClassIdentifier: 
   name: "\uC77C\uBC18 \uC124\uD0D5\uD050\uBE0C \uBD84\uC5F4"
-  hp: 40
+  hp: 25
   atk: 3
   recovery: 0
   armor: 0

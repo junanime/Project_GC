@@ -5,7 +5,7 @@ namespace Vampire
 {
     /// <summary>
     /// 상호작용 시 LevelBlueprint의 Final Boss를 송신과 하강 연출 후 소환하는 오브젝트.
-    /// 소환 시점에 따라 보스 HP / 데미지 / 패턴 데미지를 강화한다.
+    /// 수동/자동 호출 모두 같은 연출과 고정 전투 수치를 사용한다.
     /// </summary>
     public class FinalBossSummonInteractable : InteractableEventObject
     {
@@ -19,39 +19,6 @@ namespace Vampire
         [SerializeField] private bool useFixedSpawnPoint = false;
 
         [SerializeField] private Transform fixedSpawnPoint;
-
-        [Header("Time Based Boss Scaling")]
-        [Tooltip("체크하면 현재 플레이 시간에 따라 보스 HP와 데미지가 변경됩니다.")]
-        [SerializeField] private bool applyTimeBasedScaling = true;
-
-        [Tooltip("true면 LevelManager의 LevelDuration을 기준으로 분 단위를 계산합니다.")]
-        [SerializeField] private bool useLevelDurationAsMaxMinute = true;
-
-        [Tooltip("useLevelDurationAsMaxMinute이 꺼져 있을 때 사용할 최대 기준 분입니다.")]
-        [SerializeField] private float manualMaxScaleMinute = 20f;
-
-        [Tooltip("현재 플레이 시간 기준 HP 배율입니다. X축은 분, Y축은 배율입니다.")]
-        [SerializeField]
-        private AnimationCurve hpMultiplierByMinute = new AnimationCurve(
-            new Keyframe(0f, 0.70f),
-            new Keyframe(5f, 0.85f),
-            new Keyframe(10f, 1.00f),
-            new Keyframe(15f, 1.30f),
-            new Keyframe(20f, 1.70f)
-        );
-
-        [Tooltip("현재 플레이 시간 기준 데미지 배율입니다. 기본 공격, 접촉 피해, 패턴 피해에 적용됩니다.")]
-        [SerializeField]
-        private AnimationCurve damageMultiplierByMinute = new AnimationCurve(
-            new Keyframe(0f, 0.70f),
-            new Keyframe(5f, 0.85f),
-            new Keyframe(10f, 1.00f),
-            new Keyframe(15f, 1.20f),
-            new Keyframe(20f, 1.45f)
-        );
-
-        [Tooltip("체크하면 보스 스케일링 로그를 출력합니다.")]
-        [SerializeField] private bool debugBossScaling = true;
 
         [Header("Duplicate Prevention")]
         [Tooltip("true면 이미 보스가 존재할 때 추가 소환하지 않습니다.")]
@@ -87,6 +54,29 @@ namespace Vampire
             if (summoning) ResetInteractionAvailability();
             summoning = false;
             base.OnDisable();
+        }
+
+        public bool TryAutomaticSummon()
+        {
+            if (!isActiveAndEnabled || HasInteracted || Time.timeScale <= 0f ||
+                MiniStageRuntimeState.IsInsideMiniStage) return false;
+            if (levelManager == null) levelManager = FindObjectOfType<LevelManager>();
+            if (levelManager == null || levelManager.IsRunFlowPaused || levelManager.IsLevelEnded) return false;
+            if (!ExecuteInteraction(levelManager.PlayerCharacter)) return false;
+            // A player can leave the terminal far behind. Keep automatic transmission visible.
+            Camera camera = Camera.main;
+            if (camera != null)
+            {
+                Vector3 viewport = camera.WorldToViewportPoint(transform.position);
+                if (viewport.z <= 0f || viewport.x < .15f || viewport.x > .85f || viewport.y < .15f || viewport.y > .85f)
+                {
+                    float depth = camera.WorldToViewportPoint(levelManager.PlayerCharacter.transform.position).z;
+                    Vector3 visible = camera.ViewportToWorldPoint(new Vector3(.5f, .6f, depth));
+                    transform.position = new Vector3(visible.x, visible.y, transform.position.z);
+                }
+            }
+            CompleteInteraction();
+            return true;
         }
 
         protected override bool ExecuteInteraction(Character player)
@@ -162,33 +152,8 @@ namespace Vampire
 
         private bool SpawnConfiguredBoss(LevelBlueprint levelBlueprint, Vector3 spawnPosition)
         {
-            float currentMinute = GetCurrentLevelMinute();
-            float hpMultiplier = 1f;
-            float damageMultiplier = 1f;
-
-            if (applyTimeBasedScaling)
-            {
-                hpMultiplier = BossTimeScalingUtility.EvaluateMultiplier(
-                    hpMultiplierByMinute,
-                    currentMinute,
-                    1f
-                );
-
-                damageMultiplier = BossTimeScalingUtility.EvaluateMultiplier(
-                    damageMultiplierByMinute,
-                    currentMinute,
-                    1f
-                );
-            }
-
-            float bossHpBuff = applyTimeBasedScaling
-                ? BossTimeScalingUtility.CalculateMonsterHpBuff(levelBlueprint.finalBoss.bossBlueprint, hpMultiplier)
-                : 0f;
-
-            int bossPoolIndex = levelBlueprint.monsters.Length;
-
             GameObject spawnedBoss = levelManager.EntityManager.SpawnFinalBoss(
-                levelBlueprint, spawnPosition, bossHpBuff);
+                levelBlueprint, spawnPosition);
 
             if (spawnedBoss == null)
             {
@@ -212,15 +177,6 @@ namespace Vampire
                 bossController.SetPlayerCharacter(levelManager.PlayerCharacter);
             }
 
-            if (applyTimeBasedScaling)
-            {
-                BossTimeScalingUtility.ApplyToSpawnedBoss(
-                    spawnedBoss,
-                    hpMultiplier,
-                    damageMultiplier,
-                    debugBossScaling
-                );
-            }
 
             GameAudioManager.StartBossAudio();
 
@@ -233,8 +189,7 @@ namespace Vampire
             {
                 Debug.Log(
                     $"[FinalBossSummonInteractable] 최종보스 소환 완료 | " +
-                    $"Minute={currentMinute:0.##} | HP x{hpMultiplier:0.##} | Damage x{damageMultiplier:0.##} | " +
-                    $"HpBuff={bossHpBuff:0.##} | PoolIndex={bossPoolIndex} | Position={spawnPosition} | Boss={spawnedBoss.name}",
+                    $"Position={spawnPosition} | Boss={spawnedBoss.name}",
                     this
                 );
             }
@@ -242,26 +197,6 @@ namespace Vampire
             return true;
         }
 
-        private float GetCurrentLevelMinute()
-        {
-            if (levelManager == null)
-            {
-                return 0f;
-            }
-
-            float currentMinute = levelManager.CurrentLevelTime / 60f;
-
-            float maxMinute = manualMaxScaleMinute;
-
-            if (useLevelDurationAsMaxMinute && levelManager.LevelDuration > 0f)
-            {
-                maxMinute = levelManager.LevelDuration / 60f;
-            }
-
-            maxMinute = Mathf.Max(0.1f, maxMinute);
-
-            return Mathf.Clamp(currentMinute, 0f, maxMinute);
-        }
 
         private Vector3 GetSpawnPosition(Character player)
         {

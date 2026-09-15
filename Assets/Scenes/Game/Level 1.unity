@@ -1395,8 +1395,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e82088884d77c564bb0c85b74243bcd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name: null
+  m_EditorClassIdentifier: null
   interactionKey: 101
   interactOnce: 1
   disableObjectAfterInteract: 0
@@ -1410,112 +1410,6 @@ MonoBehaviour:
   spawnOffsetFromPlayer: {x: 0, y: 3}
   useFixedSpawnPoint: 0
   fixedSpawnPoint: {fileID: 0}
-  applyTimeBasedScaling: 1
-  useLevelDurationAsMaxMinute: 1
-  manualMaxScaleMinute: 20
-  hpMultiplierByMinute:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.7
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 5
-      value: 0.85
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 10
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 15
-      value: 1.3
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 20
-      value: 1.7
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  damageMultiplierByMinute:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.7
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 5
-      value: 0.85
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 10
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 15
-      value: 1.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 20
-      value: 1.45
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  debugBossScaling: 1
   preventDuplicateBoss: 1
   disableBossLevelSpawnersAfterSpawn: 1
 --- !u!58 &271402290
@@ -23206,34 +23100,34 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b88bb03159edb5d459136b7be9a476ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name: null
+  m_EditorClassIdentifier: null
   basicEvents:
   - moduleEnabled: 1
     origin: {fileID: 1347853661}
     levelManager: {fileID: 0}
     eventToastUI: {fileID: 0}
     acidRainScreenVFX: {fileID: 908990516}
-    eventStartMessageFormat: "{0} \uC774\uBCA4\uD2B8\uAC00 \uC2DC\uC791\uB410\uC2B5\uB2C8\uB2E4!"
+    eventStartMessageFormat: '{0} 이벤트가 시작됐습니다!'
     monsterSurgeEvents:
-    - eventName: "\uAC10\uC5FC \uC99D\uC2DD"
+    - eventName: 감염 증식
       enabled: 1
       startTime: 500
-      duration: 30
+      duration: 15
       useRandomStartTime: 1
       startTimeRanges:
       - minStartMinute: 4
         maxStartMinute: 5
       - minStartMinute: 11
         maxStartMinute: 13
-      spawnMultiplier: 2.5
+      spawnMultiplier: 1.5
       minimumReferenceSpawnRate: 1.5
       started: 0
       finished: 0
       resolvedStartTime: 0
       spawnAccumulator: 0
     goldRushEvents:
-    - eventName: "\uACE8\uB4DC \uB7EC\uC2DC"
+    - eventName: 골드 러시
       enabled: 1
       startTime: 300
       duration: 20
@@ -23251,7 +23145,7 @@ MonoBehaviour:
       finished: 0
       resolvedStartTime: 0
     acidSecretionEvents:
-    - eventName: "\uC704\uC0B0\uBD84\uBE44"
+    - eventName: 위산분비
       enabled: 1
       startTime: 20
       duration: 20
@@ -23273,7 +23167,7 @@ MonoBehaviour:
       puddleScale: 1.5
       puddleWarningDuration: 0.2
       damageImmediatelyOnEnter: 1
-      acidSlimeMonsterIndices: 00000000
+      acidSlimeMonsterIndices: 0
       acidSlimeExtraSpawnMultiplier: 3
       acidSlimeMinimumReferenceSpawnRate: 2
       acidSlimeHpMultiplier: 1.5
@@ -23297,9 +23191,9 @@ MonoBehaviour:
     levelManager: {fileID: 0}
     eventToastUI: {fileID: 0}
     runtimeVisualRoot: {fileID: 0}
-    eventStartMessageFormat: "{0} \uC774\uBCA4\uD2B8\uAC00 \uC2DC\uC791\uB410\uC2B5\uB2C8\uB2E4!"
+    eventStartMessageFormat: '{0} 이벤트가 시작됐습니다!'
     acidRefluxWaveEvents:
-    - eventName: "\uC0B0\uC131\uC5ED\uB958\uD30C\uB3C4"
+    - eventName: 산성역류파도
       enabled: 1
       startTime: 50
       useRandomStartTime: 0
@@ -23319,7 +23213,7 @@ MonoBehaviour:
       finished: 0
       resolvedStartTime: 0
     peristalsisDriftEvents:
-    - eventName: "\uC5F0\uB3D9\uC6B4\uB3D9\uAE30\uB958"
+    - eventName: 연동운동기류
       enabled: 1
       startTime: 100
       duration: 14
@@ -23338,7 +23232,7 @@ MonoBehaviour:
       elapsed: 0
       tiltSfxPlayed: 0
     coffeeTransfusionEvents:
-    - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
+    - eventName: 커담타임
       enabled: 1
       startTime: 150
       duration: 15
@@ -23358,11 +23252,11 @@ MonoBehaviour:
       finished: 0
       resolvedStartTime: 0
       monsterScanTimer: 0
-    logPreparedEvents: 1
+    logPreparedEvents: 0
     eventVisualSortingOrder: 999
     eventVisualMinimumAlpha: 0.45
-    logWaveVisualCreation: 1
-    logEventState: 1
+    logWaveVisualCreation: 0
+    logEventState: 0
     logDriftDetail: 0
   antacidEvents:
   - moduleEnabled: 1
@@ -23371,7 +23265,7 @@ MonoBehaviour:
     eventToastUI: {fileID: 0}
     bubblePrefab: {fileID: 4965823543100547824, guid: 5f2ebd00d87e34348bde92116d7e2235, type: 3}
     warningEdgeCanvasGroup: {fileID: 0}
-    eventName: "\uC81C\uC0B0 \uAC70\uD488 \uD3ED\uC8FC"
+    eventName: 제산 거품 폭주
     eventEnabled: 1
     startTime: 60
     duration: 25
@@ -23389,7 +23283,15 @@ MonoBehaviour:
     outsideDamageTickInterval: 0.5
     outsideDamagePerTick: 2
     damageImmediatelyWhenOutside: 0
-    debugLog: 1
+    debugLog: 0
+  useWindowSchedule: 1
+  primaryTrack:
+    enabled: 1
+    windowSeconds: 120
+  secondaryTrack:
+    enabled: 1
+    windowSeconds: 360
+  fallbackDurationSeconds: 900
 --- !u!1 &1348383117
 GameObject:
   m_ObjectHideFlags: 0
@@ -42667,8 +42569,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073ab35634eed7b419217fb494162e0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name: null
+  m_EditorClassIdentifier: null
   levelBossSchedule:
     moduleEnabled: 1
     origin: {fileID: 0}
@@ -42680,17 +42582,17 @@ MonoBehaviour:
     levelManager: {fileID: 1764401684}
     spawnEntries:
     - specialSpawnMode: 0
-      memo: snippp
+      memo: 초반 저격수
       autoResolvePoolIndex: 1
       monsterPoolIndex: 8
       monsterBlueprint: {fileID: 11400000, guid: 4b65cea1eeb064941bb483af69f4057f, type: 2}
       hpBuff: 0
-      spawnTimeMode: 0
+      spawnTimeMode: 1
       spawnTimeSeconds: 120
-      randomStartTimeSeconds: 300
-      randomEndTimeSeconds: 360
-      randomEventCount: 2
-      spawnCountMode: 1
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 0
       spawnCount: 1
       randomMinSpawnCount: 1
       randomMaxSpawnCount: 1
@@ -42705,32 +42607,407 @@ MonoBehaviour:
       minDistanceBetweenTraps: 4
       spawnPositionTryCount: 20
     - specialSpawnMode: 0
-      memo: snippp
+      memo: 초중반 영양도둑개
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 150
+      randomEndTimeSeconds: 270
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 중반 저격수
       autoResolvePoolIndex: 1
       monsterPoolIndex: 8
       monsterBlueprint: {fileID: 11400000, guid: 4b65cea1eeb064941bb483af69f4057f, type: 2}
-      hpBuff: 50
+      hpBuff: 0
       spawnTimeMode: 1
-      spawnTimeSeconds: 1
-      randomStartTimeSeconds: 480
-      randomEndTimeSeconds: 540
-      randomEventCount: 1
-      spawnCountMode: 1
-      spawnCount: 2
-      randomMinSpawnCount: 2
-      randomMaxSpawnCount: 3
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 240
+      randomEndTimeSeconds: 330
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
       trapActivateTimeSeconds: 0
-      spawnInitialTrapsOnActivate: 1
+      spawnInitialTrapsOnActivate: 0
       maxActiveTraps: 4
       respawnDelay: 60
-      minDistanceFromPlayer: 2
-      maxDistanceFromPlayer: 5
-      minDistanceBetweenTraps: 1.5
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 회복 구간 도둑개
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 360
+      randomEndTimeSeconds: 470
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 분열 설탕 트리오
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: e116b97a1a21fec48a3af32b4706b909, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 240
+      randomEndTimeSeconds: 340
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 중후반 분열 트리오
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: e116b97a1a21fec48a3af32b4706b909, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 480
+      randomEndTimeSeconds: 640
+      randomEventCount: 3
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 돌진 포자
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: fd859e63b1c5df740b6b559bcaa17031, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 300
+      randomEndTimeSeconds: 360
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 후반 돌진 포자
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: fd859e63b1c5df740b6b559bcaa17031, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 500
+      randomEndTimeSeconds: 800
+      randomEventCount: 4
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 중후반 이속 버퍼
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: f8cba314cb117eb47944ded45b0172cc, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 480
+      randomEndTimeSeconds: 650
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 후반 방어 버퍼
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 4d4bb73af58bf574bb3d08787b3578f4, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 600
+      randomEndTimeSeconds: 780
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 방향반전 롤리팝
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: eb3cd73e12f550e488cae70af2b41ce2, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 510
+      randomEndTimeSeconds: 680
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 후반 롤리팝
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: eb3cd73e12f550e488cae70af2b41ce2, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 720
+      randomEndTimeSeconds: 890
+      randomEventCount: 3
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 후반 이속 버퍼
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: f8cba314cb117eb47944ded45b0172cc, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 750
+      randomEndTimeSeconds: 890
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 종반 방어 버퍼
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 4d4bb73af58bf574bb3d08787b3578f4, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 800
+      randomEndTimeSeconds: 890
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 회복 보물 주자
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 360
+      randomEndTimeSeconds: 450
+      randomEventCount: 1
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 후반 보물 주자
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 650
+      randomEndTimeSeconds: 800
+      randomEventCount: 1
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+    - specialSpawnMode: 0
+      memo: 엘리트 분열 설탕
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 155bf50c0d2204642a6ca159080c74dc, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 1
+      spawnTimeSeconds: 120
+      randomStartTimeSeconds: 720
+      randomEndTimeSeconds: 880
+      randomEventCount: 2
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 1
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
       spawnPositionTryCount: 20
     - specialSpawnMode: 1
-      memo: trapmonster
+      memo: 중후반 함정 유지
       autoResolvePoolIndex: 1
       monsterPoolIndex: 10
       monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
@@ -42745,213 +43022,13 @@ MonoBehaviour:
       randomMinSpawnCount: 1
       randomMaxSpawnCount: 2
       intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 480
       spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 6
-      respawnDelay: 60
+      maxActiveTraps: 2
+      respawnDelay: 100
       minDistanceFromPlayer: 2
       maxDistanceFromPlayer: 5
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 1
-      memo: trapmonster
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 0
-      spawnTimeSeconds: 1
-      randomStartTimeSeconds: 240
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 2
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 2
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 0
-      spawnInitialTrapsOnActivate: 0
-      maxActiveTraps: 10
-      respawnDelay: 45
-      minDistanceFromPlayer: 2
-      maxDistanceFromPlayer: 5
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 1
-      memo: "\uC704\uC0B0\uAC70\uBA38\uB9AC"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 1
-      randomStartTimeSeconds: 540
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 2
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 0
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 0
-      memo: "\uC704\uC0B0\uAC70\uBA38\uB9AC"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 1
-      randomStartTimeSeconds: 540
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 2
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 0
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 0
-      memo: "\uC774\uB3D9\uC18D\uB3C4 \uBC84\uD37C"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: f8cba314cb117eb47944ded45b0172cc, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 10
-      randomStartTimeSeconds: 500
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 2
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 0
-      memo: "\uD53C\uD574\uAC10\uC18C \uBC84\uD37C"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 15
-      monsterBlueprint: {fileID: 11400000, guid: 4d4bb73af58bf574bb3d08787b3578f4, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 15
-      randomStartTimeSeconds: 500
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 2
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 0
-      memo: "\uACF5\uACA9\uC18D\uB3C4 \uB514\uBC84\uD37C"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: eb3cd73e12f550e488cae70af2b41ce2, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 20
-      randomStartTimeSeconds: 500
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 2
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 0
-      memo: "\uB3C4\uB451\uB188"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 10
-      randomStartTimeSeconds: 240
-      randomEndTimeSeconds: 900
-      randomEventCount: 8
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 1
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
-      minDistanceBetweenTraps: 1.5
-      spawnPositionTryCount: 20
-    - specialSpawnMode: 0
-      memo: "\uD669\uACE0"
-      autoResolvePoolIndex: 1
-      monsterPoolIndex: 10
-      monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
-      hpBuff: 0
-      spawnTimeMode: 1
-      spawnTimeSeconds: 30
-      randomStartTimeSeconds: 500
-      randomEndTimeSeconds: 1000
-      randomEventCount: 2
-      spawnCountMode: 1
-      spawnCount: 1
-      randomMinSpawnCount: 1
-      randomMaxSpawnCount: 1
-      intervalBetweenSpawns: 2
-      trapSpawnOnStart: 1
-      trapActivateTimeSeconds: 60
-      spawnInitialTrapsOnActivate: 1
-      maxActiveTraps: 2
-      respawnDelay: 80
-      minDistanceFromPlayer: 4
-      maxDistanceFromPlayer: 6
       minDistanceBetweenTraps: 1.5
       spawnPositionTryCount: 20
     blockWhileRunFlowPaused: 1
@@ -42995,9 +43072,9 @@ MonoBehaviour:
     digestiveEnzymePrefab: {fileID: 761807975845522662, guid: e520f9ae38470ae43ab567412afecba3, type: 3}
     levelManager: {fileID: 0}
     playerCharacter: {fileID: 0}
-    firstSpawnTime: 55
-    spawnInterval: 40
-    maxAliveCount: 3
+    firstSpawnTime: 100
+    spawnInterval: 100
+    maxAliveCount: 2
     spawnDistanceFromPlayer: 9
     spawnDistanceJitter: 1.5
     randomDirectionSpawn: 1
@@ -43010,121 +43087,37 @@ MonoBehaviour:
     blockInsideMiniStage: 1
     resetTimerWhileBlocked: 0
     debugLog: 1
-    enableForceSpawnKey: 1
+    enableForceSpawnKey: 0
     forceSpawnKey: 290
   eliteSpawns:
   - moduleEnabled: 1
     origin: {fileID: 1207597746}
     levelManager: {fileID: 0}
     spawnEnabled: 1
-    globalMaxAliveElites: 8
+    globalMaxAliveElites: 4
     requireEliteMonsterBlueprint: 0
     cleanupInactiveElitesEveryFrame: 1
     blockWhileRunFlowPaused: 1
     logMiniStageBlock: 0
     spawnPhases:
-    - phaseName: "Phase 1: 2\uBD84~5\uBD84"
-      startTime: 90
-      endTime: 225
+    - phaseName: 2-5분
+      startTime: 150
+      endTime: 300
       selectionMode: 0
-      spawnInterval: 30
-      spawnImmediatelyOnPhaseStart: 1
+      spawnInterval: 55
+      spawnImmediatelyOnPhaseStart: 0
       minSpawnCount: 1
       maxSpawnCount: 1
-      maxAliveInPhase: 3
-      normalToEliteMappings:
+      maxAliveInPhase: 1
+      normalToEliteMappings: &id001
       - normalMonsterFlatIndex: 0
-        eliteMonsterFlatIndex: 8
-        enabled: 1
-      - normalMonsterFlatIndex: 1
-        eliteMonsterFlatIndex: 9
-        enabled: 1
-      - normalMonsterFlatIndex: 0
-        eliteMonsterFlatIndex: 26
-        enabled: 1
-      maxNormalTableSampleAttempts: 30
-      avoidDuplicateEliteInOneWave: 1
-      fallbackToManualPoolIfNoMappedElite: 0
-      eliteMonsterFlatIndices: 08000000090000001a000000
-      additionalHpBuff: 0
-    - phaseName: "Phase 2: 5\uBD84~8\uBD84"
-      startTime: 225
-      endTime: 360
-      selectionMode: 0
-      spawnInterval: 28
-      spawnImmediatelyOnPhaseStart: 1
-      minSpawnCount: 1
-      maxSpawnCount: 2
-      maxAliveInPhase: 6
-      normalToEliteMappings:
-      - normalMonsterFlatIndex: 2
-        eliteMonsterFlatIndex: 3
-        enabled: 1
-      - normalMonsterFlatIndex: 0
-        eliteMonsterFlatIndex: 8
-        enabled: 1
-      - normalMonsterFlatIndex: 1
-        eliteMonsterFlatIndex: 9
-        enabled: 1
-      - normalMonsterFlatIndex: 4
         eliteMonsterFlatIndex: 10
         enabled: 1
-      - normalMonsterFlatIndex: 2
-        eliteMonsterFlatIndex: 26
-        enabled: 1
-      maxNormalTableSampleAttempts: 30
-      avoidDuplicateEliteInOneWave: 1
-      fallbackToManualPoolIfNoMappedElite: 0
-      eliteMonsterFlatIndices: 0300000008000000090000000a0000001a000000
-      additionalHpBuff: 0
-    - phaseName: "Phase 3: 8\uBD84~14\uBD84"
-      startTime: 360
-      endTime: 630
-      selectionMode: 0
-      spawnInterval: 25
-      spawnImmediatelyOnPhaseStart: 1
-      minSpawnCount: 2
-      maxSpawnCount: 4
-      maxAliveInPhase: 12
-      normalToEliteMappings:
-      - normalMonsterFlatIndex: 2
-        eliteMonsterFlatIndex: 3
-        enabled: 1
-      - normalMonsterFlatIndex: 0
+      - normalMonsterFlatIndex: 1
         eliteMonsterFlatIndex: 8
         enabled: 1
-      - normalMonsterFlatIndex: 1
+      - normalMonsterFlatIndex: 4
         eliteMonsterFlatIndex: 9
-        enabled: 1
-      - normalMonsterFlatIndex: 4
-        eliteMonsterFlatIndex: 10
-        enabled: 1
-      - normalMonsterFlatIndex: 5
-        eliteMonsterFlatIndex: 11
-        enabled: 1
-      - normalMonsterFlatIndex: 2
-        eliteMonsterFlatIndex: 26
-        enabled: 1
-      maxNormalTableSampleAttempts: 30
-      avoidDuplicateEliteInOneWave: 1
-      fallbackToManualPoolIfNoMappedElite: 0
-      eliteMonsterFlatIndices: 0300000008000000090000000a0000000b0000001a000000
-      additionalHpBuff: 0
-    - phaseName: "Phase 3: 14\uBD84~20"
-      startTime: 630
-      endTime: 0
-      selectionMode: 0
-      spawnInterval: 20
-      spawnImmediatelyOnPhaseStart: 1
-      minSpawnCount: 2
-      maxSpawnCount: 4
-      maxAliveInPhase: 24
-      normalToEliteMappings:
-      - normalMonsterFlatIndex: 2
-        eliteMonsterFlatIndex: 3
-        enabled: 1
-      - normalMonsterFlatIndex: 4
-        eliteMonsterFlatIndex: 10
         enabled: 1
       - normalMonsterFlatIndex: 5
         eliteMonsterFlatIndex: 11
@@ -43135,13 +43128,100 @@ MonoBehaviour:
       - normalMonsterFlatIndex: 7
         eliteMonsterFlatIndex: 13
         enabled: 1
-      - normalMonsterFlatIndex: 2
-        eliteMonsterFlatIndex: 26
-        enabled: 1
       maxNormalTableSampleAttempts: 30
       avoidDuplicateEliteInOneWave: 1
       fallbackToManualPoolIfNoMappedElite: 0
-      eliteMonsterFlatIndices: 030000000a0000000b0000000c0000000d0000001a000000
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 5-6분
+      startTime: 300
+      endTime: 360
+      selectionMode: 0
+      spawnInterval: 40
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 2
+      normalToEliteMappings: *id001
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 6-8분
+      startTime: 360
+      endTime: 480
+      selectionMode: 0
+      spawnInterval: 100
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 1
+      normalToEliteMappings: *id001
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 8-11분
+      startTime: 480
+      endTime: 660
+      selectionMode: 0
+      spawnInterval: 45
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 2
+      normalToEliteMappings: *id001
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 11-13분
+      startTime: 660
+      endTime: 780
+      selectionMode: 0
+      spawnInterval: 35
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 3
+      normalToEliteMappings: *id001
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 13-15분
+      startTime: 780
+      endTime: 900
+      selectionMode: 0
+      spawnInterval: 25
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 4
+      normalToEliteMappings: *id001
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 15-0분
+      startTime: 900
+      endTime: 0
+      selectionMode: 0
+      spawnInterval: 35
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 4
+      normalToEliteMappings: *id001
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
       additionalHpBuff: 0
     debugLog: 0
     logMonsterIndexTableOnStart: 0
@@ -43155,30 +43235,30 @@ MonoBehaviour:
     bloodClotMonsterPoolIndex: 12
     bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
     bloodClotHpBuff: 0
-    firstSpawnDelay: 3
-    spawnInterval: 80
+    firstSpawnDelay: 90
+    spawnInterval: 180
     pauseTimerWhileRunFlowPaused: 1
     spawnDistanceFromPlayer: 0.2
     spawnDistanceRandomOffset: 0
     useRandomDirection: 0
-    maxActiveBloodClots: 3
+    maxActiveBloodClots: 1
     skipSpawnWhenMaxActiveReached: 1
     debugLog: 1
-    enableForceSpawnKey: 1
+    enableForceSpawnKey: 0
     forceSpawnKey: 288
   summonObjectSpawns:
   - moduleEnabled: 1
     origin: {fileID: 1609493736}
     levelManager: {fileID: 0}
     eliteSummonObjectPrefab: {fileID: 8883575360997113124, guid: ef128a96719c28240a9fb1cb6510c853, type: 3}
-    firstSpawnDelay: 30
-    spawnInterval: 60
-    spawnCountPerWave: 2
+    firstSpawnDelay: 180
+    spawnInterval: 150
+    spawnCountPerWave: 1
     minSpawnDistanceFromPlayer: 8
     maxSpawnDistanceFromPlayer: 14
     minDistanceBetweenSpawnedObjects: 5
     maxPositionAttempts: 30
-    maxActiveObjects: 6
+    maxActiveObjects: 2
     destroyInactiveSpawnedObjects: 1
     debugLog: 0
   miniBossSpawns:
@@ -43186,7 +43266,7 @@ MonoBehaviour:
     origin: {fileID: 1967562481}
     levelManager: {fileID: 0}
     spawnEntries:
-    - spawnTimeSeconds: 360
+    - spawnTimeSeconds: 480
       miniBossBlueprint: {fileID: 11400000, guid: e57788280332e7f4fb68bda5863fa457, type: 2}
       autoResolvePoolIndex: 1
       monsterPoolIndex: -1
@@ -43194,8 +43274,8 @@ MonoBehaviour:
       spawnDistanceFromPlayer: 8
       fixedSpawnPoint: {fileID: 0}
       hpBuff: 0
-      memo: "8\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
-    - spawnTimeSeconds: 720
+      memo: 8분 미니보스
+    - spawnTimeSeconds: 750
       miniBossBlueprint: {fileID: 11400000, guid: 2ed5971bb65f2514ca8e48159e03db80, type: 2}
       autoResolvePoolIndex: 1
       monsterPoolIndex: -1
@@ -43203,17 +43283,17 @@ MonoBehaviour:
       spawnDistanceFromPlayer: 8
       fixedSpawnPoint: {fileID: 0}
       hpBuff: 0
-      memo: "15\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
+      memo: 12분30초 미니보스
     spawnEachEntryOnlyOnce: 1
     debugLog: 0
   bossSpawns:
-  - moduleEnabled: 1
+  - moduleEnabled: 0
     origin: {fileID: 2076536165}
     levelManager: {fileID: 0}
     playerCharacter: {fileID: 0}
     spawnAfterSeconds: 900
     spawnOnlyOnce: 1
-    useRealtimeForDebug: 1
+    useRealtimeForDebug: 0
     spawnRelativeToPlayer: 1
     useRandomDirectionAroundPlayer: 1
     spawnDistanceFromPlayer: 5

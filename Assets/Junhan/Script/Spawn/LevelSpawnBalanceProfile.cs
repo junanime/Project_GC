@@ -31,19 +31,20 @@ namespace Vampire
 
             [Header("Spawn Weight By Minute")]
             [Tooltip("분 단위 스폰 가중치입니다. 값은 자동 정규화됩니다.")]
-            public AnimationCurve spawnWeightByMinute = AnimationCurve.Constant(0f, 20f, 0f);
+            public AnimationCurve spawnWeightByMinute = AnimationCurve.Constant(0f, 15f, 0f);
 
-            [Header("HP Extra Multiplier By Minute")]
-            [Tooltip("추가 HP 배율입니다. 0이면 기본 HP, 1이면 기본 HP만큼 추가되어 총 2배가 됩니다.")]
-            public AnimationCurve extraHpMultiplierByMinute = AnimationCurve.Constant(0f, 20f, 0f);
         }
 
         [Header("Level Time")]
         [Tooltip("체크하면 이 프로필 적용 시 LevelBlueprint의 Level Time을 아래 분 단위 값으로 변경합니다.")]
         public bool overrideLevelTime = true;
 
-        [Tooltip("스테이지 전체 플레이 시간입니다. 20이면 20분입니다.")]
-        public float levelDurationMinutes = 20f;
+        [Tooltip("스테이지 전체 플레이 시간입니다. 15이면 15분입니다.")]
+        public float levelDurationMinutes = 15f;
+
+        [Header("Difficulty Design Reference")]
+        [Tooltip("기획 난이도(1~10)입니다. 실제 출현량은 Spawn Rate, 구성 비율, 고정 HP 및 증강 성장으로 조정합니다.")]
+        public AnimationCurve difficultyTargetByMinute = AnimationCurve.Linear(0f, 1f, 15f, 10f);
 
         [Header("Spawn Rate")]
         [Tooltip("전체 일반 몬스터 물량 증가 곡선입니다.")]
@@ -55,26 +56,21 @@ namespace Vampire
             new SpawnRatePoint { minute = 5f,  spawnRate = 3.0f },
             new SpawnRatePoint { minute = 8f,  spawnRate = 4.0f },
             new SpawnRatePoint { minute = 12f, spawnRate = 5.0f },
-            new SpawnRatePoint { minute = 16f, spawnRate = 6.2f },
-            new SpawnRatePoint { minute = 20f, spawnRate = 7.2f }
+            new SpawnRatePoint { minute = 13f, spawnRate = 6.2f },
+            new SpawnRatePoint { minute = 15f, spawnRate = 7.2f }
         };
 
         [Header("Normal Monster Entries")]
-        [Tooltip("일반 몬스터 7종을 여기에 넣습니다. 여기에 없는 몬스터는 일반 스폰 테이블에서 나오지 않습니다.")]
+        [Tooltip("일반 몬스터을 여기에 넣습니다. 여기에 없는 몬스터는 일반 스폰 테이블에서 나오지 않습니다.")]
         public List<MonsterSpawnEntry> normalMonsterEntries = new List<MonsterSpawnEntry>();
 
         [Header("Sampling Minutes")]
         [Tooltip("Spawn Chance Keyframes로 변환할 분 단위 샘플 시점입니다.")]
         public float[] chanceSampleMinutes =
         {
-            0f, 1f, 2f, 3f, 4f, 5f, 6f, 8f, 10f, 12f, 15f, 18f, 20f
+            0f, 1f, 2f, 3f, 4f, 5f, 6f, 8f, 10f, 12f, 15f, 18f, 15f
         };
 
-        [Tooltip("HP Multiplier Keyframes로 변환할 분 단위 샘플 시점입니다.")]
-        public float[] hpSampleMinutes =
-        {
-            0f, 10f, 20f
-        };
 
         [Header("Options")]
         [Tooltip("스폰 가중치 합계를 자동으로 1로 맞춥니다. 켜두는 것을 추천합니다.")]
@@ -116,8 +112,7 @@ namespace Vampire
             MonsterSpawnTable table = new MonsterSpawnTable
             {
                 spawnRateKeyframes = BuildSpawnRateKeyframes(),
-                spawnChanceKeyframes = BuildSpawnChanceKeyframes(levelBlueprint, flatMonsterCount),
-                hpMultiplierKeyframes = BuildHpMultiplierKeyframes(levelBlueprint, flatMonsterCount)
+                spawnChanceKeyframes = BuildSpawnChanceKeyframes(levelBlueprint, flatMonsterCount)
             };
 
             return table;
@@ -230,56 +225,6 @@ namespace Vampire
             return keyframes;
         }
 
-        private MonsterSpawnTable.HPMultiplierKeyframe[] BuildHpMultiplierKeyframes(
-            LevelBlueprint levelBlueprint,
-            int flatMonsterCount)
-        {
-            float[] minutes = GetSafeSampleMinutes(hpSampleMinutes);
-
-            if (minutes.Length < 2)
-            {
-                minutes = new[] { 0f, levelDurationMinutes };
-            }
-
-            MonsterSpawnTable.HPMultiplierKeyframe[] keyframes =
-                new MonsterSpawnTable.HPMultiplierKeyframe[minutes.Length];
-
-            for (int i = 0; i < minutes.Length; i++)
-            {
-                float minute = minutes[i];
-                float[] hpBuffs = new float[flatMonsterCount];
-
-                if (normalMonsterEntries != null)
-                {
-                    for (int entryIndex = 0; entryIndex < normalMonsterEntries.Count; entryIndex++)
-                    {
-                        MonsterSpawnEntry entry = normalMonsterEntries[entryIndex];
-
-                        if (entry == null || entry.monsterBlueprint == null)
-                        {
-                            continue;
-                        }
-
-                        if (!TryFindFlatIndex(levelBlueprint, entry.monsterBlueprint, out int flatIndex))
-                        {
-                            continue;
-                        }
-
-                        hpBuffs[flatIndex] =
-                            Mathf.Max(0f, entry.extraHpMultiplierByMinute.Evaluate(minute));
-                    }
-                }
-
-                keyframes[i] = new MonsterSpawnTable.HPMultiplierKeyframe
-                {
-                    t = MinuteToNormalizedTime(minute),
-                    healthBuffs = hpBuffs
-                };
-            }
-
-            return keyframes;
-        }
-
         private float[] GetSafeSampleMinutes(float[] source)
         {
             if (source == null || source.Length == 0)
@@ -306,6 +251,9 @@ namespace Vampire
                 minutes[i] = Mathf.Clamp(minutes[i], 0f, levelDurationMinutes);
             }
 
+            // Clamping out-of-range keys used to create duplicate end timestamps.
+            for (int i = minutes.Count - 1; i > 0; i--)
+                if (Mathf.Approximately(minutes[i], minutes[i - 1])) minutes.RemoveAt(i);
             return minutes.ToArray();
         }
 
@@ -443,129 +391,5 @@ namespace Vampire
             }
         }
 
-        [ContextMenu("Preset/Prepare 7 Normal Monster Entries")]
-        private void PrepareSevenNormalMonsterEntries()
-        {
-            string[] names =
-            {
-                "레벨1 위산 슬라임",
-                "레벨1 세균",
-                "레벨2 설탕 큐브",
-                "레벨2 통닭",
-                "레벨3 칼슘",
-                "레벨3 불닭소스 질뻑이",
-                "레벨4 영양제덩어리"
-            };
-
-            while (normalMonsterEntries.Count < names.Length)
-            {
-                normalMonsterEntries.Add(new MonsterSpawnEntry());
-            }
-
-            for (int i = 0; i < names.Length; i++)
-            {
-                normalMonsterEntries[i].memo = names[i];
-            }
-
-            ApplyDefaultLevel1CurvesByEntryOrder();
-        }
-
-        [ContextMenu("Preset/Apply Default Level1 20min Curves By Entry Order")]
-        private void ApplyDefaultLevel1CurvesByEntryOrder()
-        {
-            while (normalMonsterEntries.Count < 7)
-            {
-                normalMonsterEntries.Add(new MonsterSpawnEntry());
-            }
-
-            levelDurationMinutes = 20f;
-            overrideLevelTime = true;
-
-            normalMonsterEntries[0].memo = "레벨1 위산 슬라임";
-            normalMonsterEntries[1].memo = "레벨1 세균";
-            normalMonsterEntries[2].memo = "레벨2 설탕 큐브";
-            normalMonsterEntries[3].memo = "레벨2 통닭";
-            normalMonsterEntries[4].memo = "레벨3 칼슘";
-            normalMonsterEntries[5].memo = "레벨3 불닭소스 질뻑이";
-            normalMonsterEntries[6].memo = "레벨4 영양제덩어리";
-
-            normalMonsterEntries[0].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 1f, 0.65f, 0.35f, 0.20f, 0.12f, 0.08f, 0.05f, 0.05f, 0.05f, 0.05f });
-
-            normalMonsterEntries[1].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 0f, 0.35f, 0.35f, 0.25f, 0.18f, 0.12f, 0.10f, 0.05f, 0.05f, 0.05f });
-
-            normalMonsterEntries[2].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 0f, 0f, 0.20f, 0.25f, 0.25f, 0.25f, 0.20f, 0.15f, 0.10f, 0.10f });
-
-            normalMonsterEntries[3].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 0f, 0f, 0.10f, 0.20f, 0.25f, 0.20f, 0.20f, 0.15f, 0.10f, 0.10f });
-
-            normalMonsterEntries[4].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 0f, 0f, 0f, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.30f, 0.30f });
-
-            normalMonsterEntries[5].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 0f, 0f, 0f, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.30f, 0.30f });
-
-            normalMonsterEntries[6].spawnWeightByMinute = Curve(
-                new[] { 0f, 2f, 4f, 6f, 8f, 10f, 12f, 15f, 18f, 20f },
-                new[] { 0f, 0f, 0f, 0f, 0f, 0.05f, 0.05f, 0.10f, 0.10f, 0.10f });
-
-            for (int i = 0; i < normalMonsterEntries.Count; i++)
-            {
-                normalMonsterEntries[i].extraHpMultiplierByMinute =
-                    AnimationCurve.Constant(0f, 20f, 0f);
-            }
-
-            spawnRatePoints = new[]
-            {
-                new SpawnRatePoint { minute = 0f,  spawnRate = 1.0f },
-                new SpawnRatePoint { minute = 1f,  spawnRate = 1.4f },
-                new SpawnRatePoint { minute = 3f,  spawnRate = 2.2f },
-                new SpawnRatePoint { minute = 5f,  spawnRate = 3.0f },
-                new SpawnRatePoint { minute = 8f,  spawnRate = 4.0f },
-                new SpawnRatePoint { minute = 12f, spawnRate = 5.0f },
-                new SpawnRatePoint { minute = 16f, spawnRate = 6.2f },
-                new SpawnRatePoint { minute = 20f, spawnRate = 7.2f }
-            };
-
-            chanceSampleMinutes = new[]
-            {
-                0f, 1f, 2f, 3f, 4f, 5f, 6f, 8f, 10f, 12f, 15f, 18f, 20f
-            };
-
-            hpSampleMinutes = new[]
-            {
-                0f, 10f, 20f
-            };
-
-            Debug.Log("[LevelSpawnBalanceProfile] 기본 20분 스폰 곡선을 적용했습니다. 이제 각 Entry에 MonsterBlueprint를 연결하세요.", this);
-        }
-
-        private AnimationCurve Curve(float[] minutes, float[] values)
-        {
-            int count = Mathf.Min(minutes.Length, values.Length);
-            Keyframe[] keys = new Keyframe[count];
-
-            for (int i = 0; i < count; i++)
-            {
-                keys[i] = new Keyframe(minutes[i], values[i]);
-            }
-
-            AnimationCurve curve = new AnimationCurve(keys);
-
-            for (int i = 0; i < curve.length; i++)
-            {
-                curve.SmoothTangents(i, 0f);
-            }
-
-            return curve;
-        }
     }
 }

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: "\ub0a0\uc544\ub2e4\ub2c8\ub294 \ub3c4\ub11b"
   hp: 120
-  atk: 10
+  atk: 9
   recovery: 0
   armor: 0
   atkspeed: 2
@@ -23,10 +23,10 @@ MonoBehaviour:
   gemLootTable:
     lootTable:
     - item: 2
-      dropChance: 0.9
+      dropChance: 0.25
       coinType: 1
     - item: 10
-      dropChance: 0.1
+      dropChance: 0.75
       coinType: 1
   coinLootTable:
     lootTable:

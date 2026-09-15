@@ -1,0 +1,37 @@
+Unity 2022.3.62f3; isolated Level 1 project; 2026-09-15
+Functional checks use invulnerability and accelerated time; this is not a survival playtest.
+
+AUTOMATIC SUMMON / FINAL ASSET VALUES
+[Balance15] PASS SpawnWeightsHandleBoundariesAndUnnormalizedInspectorValues
+[Balance15] PASS RepeatedKeysNeverDivideByZeroOrSelectZeroWeight
+[Balance15] PASS HighestNormalTierHasExactLateGameMixAndNoEarlyLeak
+[Balance15] PASS ProfileAndBakedAssetAgreeAtEverySecond
+[Balance15] PASS TwoIndependentWindowTracksDoNotDriftAndAllowOverlap
+[Balance15] PASS FixedDamageAugmentsAndSugarChildrenUseTheNewScale
+[Balance15] PASS InitialCombatAndSummonBindingsAreValid
+[Balance15] ALL PASS 7
+[Balance15Smoke] PASS Real Level 1 initialized
+[Balance15Smoke] PASS Slime HP stays 25 at 0
+[Balance15Smoke] PASS Slime HP stays 25 at 420
+[Balance15Smoke] PASS Slime HP stays 25 at 899
+[Balance15Smoke] PASS Both window tracks materialize all 11 events with real scene templates
+[Balance15Smoke] PASS Run-flow pause freezes level clock and automatic summon deadline
+[Balance15Smoke] PASS 15:00 automatic summon used transmission/descent coroutine
+[Balance15Smoke] PASS Exactly one UFO boss after deadline
+[Balance15Smoke] PASS Five active cores aggregate exactly 9000 HP
+[Balance15Smoke] PASS Consumed terminal cannot summon twice
+[Balance15Smoke] PASS Pending summon flag cleared after descent
+[Balance15Smoke] PASS Offscreen terminal is made visible for automatic transmission
+[Balance15Smoke] FINISHED failed=False
+
+MANUAL SUMMON / CANCELLATION
+[Balance15Smoke] PASS Real Level 1 initialized
+[Balance15Smoke] PASS Slime HP stays 25 at 0
+[Balance15Smoke] PASS Slime HP stays 25 at 420
+[Balance15Smoke] PASS Slime HP stays 25 at 899
+[Balance15Smoke] PASS Both window tracks materialize all 11 events with real scene templates
+[Balance15Smoke] PASS Can start transmission
+[Balance15Smoke] PASS Cancellation clears pending summon
+[Balance15Smoke] PASS Manual interaction restarts canceled transmission
+[Balance15Smoke] PASS Manual transmission finishes with one UFO
+[Balance15Smoke] FINISHED failed=False

@@ -190,8 +190,7 @@ namespace Vampire
 
             for (int i = 0; i < attempts; i++)
             {
-                (int normalFlatIndex, float _) =
-                    levelBlueprint.monsterSpawnTable.SelectMonsterWithHPMultiplier(normalizedTime);
+                int normalFlatIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
 
                 if (normalFlatIndex < 0)
                 {

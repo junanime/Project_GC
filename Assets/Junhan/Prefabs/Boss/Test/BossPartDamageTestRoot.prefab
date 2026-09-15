@@ -505,7 +505,7 @@ MonoBehaviour:
   spawnAngleOffset: 45
   bottleHp: 10
   healDelayAfterSpawn: 5
-  healPerSecond: 8
+  healPerSecond: 90
   healTickInterval: 0.25
   maxPatternDuration: 30
   makeBossInvincibleWhileBottleExists: 1
@@ -787,7 +787,7 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   projectileDestroyDelayAfterImpact: 0
   enableBossSelfDamage: 1
-  bossSelfMaxHpDamagePercent: 0.497
+  bossSelfMaxHpDamagePercent: 0.03
   bossSelfDamageRadiusPadding: 0
   bombCountPhase1: 1
   bombCountPhase2: 3
@@ -1276,7 +1276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useFiveCoreHealth: 1
-  fiveCoreMaxHealth: 500
+  fiveCoreMaxHealth: 9000
   redCore: {fileID: 4346352809294327159}
   orangeCore: {fileID: 6202724119696504209}
   yellowCore: {fileID: 4885141670365998839}
@@ -1390,7 +1390,7 @@ MonoBehaviour:
   spawnAngleJitter: 20
   minionHp: 15
   minionMoveSpeed: 2.4
-  healAmountPerMinion: 10
+  healAmountPerMinion: 90
   absorbDistance: 1.1
   maxPatternDuration: 18
   playDeathVfxOnTimeout: 0
@@ -2365,7 +2365,7 @@ MonoBehaviour:
   explosionEffectPrefab: {fileID: 0}
   projectileDestroyDelayAfterImpact: 0
   enableBossSelfDamage: 1
-  bossSelfMaxHpDamagePercent: 0.497
+  bossSelfMaxHpDamagePercent: 0.03
   bossSelfDamageRadiusPadding: 0
   bombCountPhase1: 1
   bombCountPhase2: 3
@@ -2731,7 +2731,7 @@ MonoBehaviour:
   enableBasicAttack: 1
   basicAttackBulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   basicAttackCooldown: 1.6
-  basicAttackDamage: 5
+  basicAttackDamage: 10
   basicAttackBulletSpeed: 3.7
   basicAttackMuzzleOffset: 1.2
   basicAttackWhileUsingPattern: 1
@@ -4202,7 +4202,7 @@ MonoBehaviour:
   spawnAngleOffset: 45
   bottleHp: 60
   healDelayAfterSpawn: 20
-  healPerSecond: 8
+  healPerSecond: 90
   healTickInterval: 0.25
   maxPatternDuration: 0
   makeBossInvincibleWhileBottleExists: 1

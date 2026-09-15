@@ -272,6 +272,52 @@ namespace Vampire
         private Coroutine activeAcidRefluxRoutine;
         private Coroutine activeCoffeeWaveRoutine;
 
+        public void CollectWindowTemplates(List<StageEventTemplate> templates)
+        {
+            var acidRefluxWaveEventsSources = acidRefluxWaveEvents.ToArray();
+            acidRefluxWaveEvents.Clear();
+            foreach (var s in acidRefluxWaveEventsSources)
+            {
+                if (s == null || !s.enabled) continue;
+                var source = s;
+                templates.Add(new StageEventTemplate { kind = "Wave", duration = s.waveCount * (s.warningDuration + s.travelDuration + s.intervalBetweenWaves) + 2f, schedule = time =>
+                {
+                    var copy = StageEventTemplate.Copy(source);
+                    copy.useRandomStartTime = false;
+                    copy.startTime = time;
+                    acidRefluxWaveEvents.Add(copy);
+                } });
+            }
+            var peristalsisDriftEventsSources = peristalsisDriftEvents.ToArray();
+            peristalsisDriftEvents.Clear();
+            foreach (var s in peristalsisDriftEventsSources)
+            {
+                if (s == null || !s.enabled) continue;
+                var source = s;
+                templates.Add(new StageEventTemplate { kind = "Drift", duration = s.duration + 2f, schedule = time =>
+                {
+                    var copy = StageEventTemplate.Copy(source);
+                    copy.useRandomStartTime = false;
+                    copy.startTime = time;
+                    peristalsisDriftEvents.Add(copy);
+                } });
+            }
+            var coffeeTransfusionEventsSources = coffeeTransfusionEvents.ToArray();
+            coffeeTransfusionEvents.Clear();
+            foreach (var s in coffeeTransfusionEventsSources)
+            {
+                if (s == null || !s.enabled) continue;
+                var source = s;
+                templates.Add(new StageEventTemplate { kind = "Coffee", duration = s.duration + 5f, schedule = time =>
+                {
+                    var copy = StageEventTemplate.Copy(source);
+                    copy.useRandomStartTime = false;
+                    copy.startTime = time;
+                    coffeeTransfusionEvents.Add(copy);
+                } });
+            }
+        }
+
         protected override System.Collections.IEnumerator OnStart()
         {
             if (levelManager == null)

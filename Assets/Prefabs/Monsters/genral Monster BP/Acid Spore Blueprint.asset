@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Acid Spore Blueprint
   m_EditorClassIdentifier: 
   name: "\uC704\uC0B0 \uD3EC\uC790"
-  hp: 20
+  hp: 25
   atk: 0
   recovery: 0
   armor: 0

@@ -150,11 +150,6 @@ namespace Vampire
                 return;
             }
 
-            if (levelTime >= levelBlueprint.levelTime)
-            {
-                return;
-            }
-
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
@@ -167,14 +162,11 @@ namespace Vampire
                 ? 1.0f / spawnRate
                 : float.PositiveInfinity;
 
-            if (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
+            while (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
             {
                 SpawnMonsterFromSpawnTable();
 
-                timeSinceLastMonsterSpawned = Mathf.Repeat(
-                    timeSinceLastMonsterSpawned,
-                    monsterSpawnDelay
-                );
+                timeSinceLastMonsterSpawned -= monsterSpawnDelay;
             }
         }
 
@@ -187,10 +179,8 @@ namespace Vampire
 
             float normalizedTime = GetNormalizedLevelTime();
 
-            (int monsterIndex, float hpMultiplier) =
-                levelBlueprint.monsterSpawnTable.SelectMonsterWithHPMultiplier(normalizedTime);
-
-            SpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
+            int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
+            SpawnMonsterByFlatIndex(monsterIndex);
         }
 
         public void SpawnMonsterFromCurrentSpawnTable()
@@ -245,6 +235,8 @@ namespace Vampire
 
         public void SpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier = 1f)
         {
+            if (levelBlueprint != null && entityManager != null &&
+                entityManager.LivingMonsters.Count >= Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit)) return;
             if (levelBlueprint == null || entityManager == null)
             {
                 Debug.LogWarning(
@@ -287,14 +279,14 @@ namespace Vampire
 
             // 소화효소 처치 난이도 상승 연결:
             // 선택된 난이도가 MonsterHealth이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
-            float finalHp = monsterBlueprint.hp *
-                            hpMultiplier *
-                            DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
+            // Spawn APIs take EXTRA HP, not total HP. Only explicit event buffs apply.
+            float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
+            float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
             entityManager.SpawnMonsterRandomPosition(
                 poolIndex,
                 monsterBlueprint,
-                finalHp
+                extraHp
             );
         }
 

@@ -105,6 +105,14 @@ namespace Vampire
         private float bubbleSpawnTimer;
         private float outsideDamageTimer;
 
+        public bool EventEnabled => eventEnabled;
+        public float WindowDuration => duration + warningDuration;
+        public void ScheduleAt(float time)
+        {
+            // Slot begins with the warning; damage begins after its normal warning lead-in.
+            startTime = time + warningDuration;
+        }
+
         protected override System.Collections.IEnumerator OnStart()
         {
             if (levelManager == null)

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: MiniBoss_15min
   m_EditorClassIdentifier: 
   name: "15\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
-  hp: 1500
-  atk: 30
+  hp: 900
+  atk: 20
   recovery: 10
   armor: 0
   atkspeed: 5

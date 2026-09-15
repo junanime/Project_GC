@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: AcidLeechMonster_Blueprint
   m_EditorClassIdentifier: 
   name: "\uC704\uC0B0\uAC70\uBA38"
-  hp: 100
+  hp: 65
   atk: 0
   recovery: 0
   armor: 0

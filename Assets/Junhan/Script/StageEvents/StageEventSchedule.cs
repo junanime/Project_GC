@@ -254,6 +254,52 @@ namespace Vampire
 
         private int activeAcidRainEventCount;
 
+        public void CollectWindowTemplates(List<StageEventTemplate> templates)
+        {
+            var monsterSurgeEventsSources = monsterSurgeEvents.ToArray();
+            monsterSurgeEvents.Clear();
+            foreach (var s in monsterSurgeEventsSources)
+            {
+                if (s == null || !s.enabled) continue;
+                var source = s;
+                templates.Add(new StageEventTemplate { kind = "Surge", duration = s.duration, schedule = time =>
+                {
+                    var copy = StageEventTemplate.Copy(source);
+                    copy.useRandomStartTime = false;
+                    copy.startTime = time;
+                    monsterSurgeEvents.Add(copy);
+                } });
+            }
+            var goldRushEventsSources = goldRushEvents.ToArray();
+            goldRushEvents.Clear();
+            foreach (var s in goldRushEventsSources)
+            {
+                if (s == null || !s.enabled) continue;
+                var source = s;
+                templates.Add(new StageEventTemplate { kind = "Gold", duration = s.duration, schedule = time =>
+                {
+                    var copy = StageEventTemplate.Copy(source);
+                    copy.useRandomStartTime = false;
+                    copy.startTime = time;
+                    goldRushEvents.Add(copy);
+                } });
+            }
+            var acidSecretionEventsSources = acidSecretionEvents.ToArray();
+            acidSecretionEvents.Clear();
+            foreach (var s in acidSecretionEventsSources)
+            {
+                if (s == null || !s.enabled) continue;
+                var source = s;
+                templates.Add(new StageEventTemplate { kind = "AcidRain", duration = s.duration, schedule = time =>
+                {
+                    var copy = StageEventTemplate.Copy(source);
+                    copy.useRandomStartTime = false;
+                    copy.startTime = time;
+                    acidSecretionEvents.Add(copy);
+                } });
+            }
+        }
+
         protected override System.Collections.IEnumerator OnStart()
         {
             if (levelManager == null)

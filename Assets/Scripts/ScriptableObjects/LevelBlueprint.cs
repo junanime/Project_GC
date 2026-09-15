@@ -8,6 +8,8 @@ namespace Vampire
     {
         [Header("Time")]
         public float levelTime = 600;
+        [Min(1), Tooltip("필드 개체가 이 수에 도달하면 일반 스폰만 잠시 멈춥니다. 특수/엘리트 시간표는 독립적으로 진행됩니다.")]
+        public int normalSpawnPopulationLimit = 160;
         [Header("Background")]
         public Texture2D backgroundTexture;
         [Header("Abilities")]

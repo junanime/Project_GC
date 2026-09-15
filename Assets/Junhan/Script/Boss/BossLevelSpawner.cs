@@ -104,87 +104,10 @@ namespace Vampire
 
         private void SpawnBoss()
         {
-            if (SpawnBlocked() || FinalBossSummonInteractable.IsSummoning || FindObjectOfType<BossController>() != null || FindObjectOfType<BossMonster>() != null) return;
             ResolveReferences();
-
-            if (spawnOnlyOnce && hasSpawned)
-            {
-                Debug.Log("[BossLevelSpawner] Spawn skipped because boss already spawned.");
-                return;
-            }
-
-            if (levelManager == null)
-            {
-                Debug.LogError("[BossLevelSpawner] LevelManager is NULL.");
-                return;
-            }
-
-            if (levelManager.EntityManager == null)
-            {
-                Debug.LogError("[BossLevelSpawner] EntityManager is NULL.");
-                return;
-            }
-
-            if (levelManager.CurrentLevelBlueprint == null)
-            {
-                Debug.LogError("[BossLevelSpawner] CurrentLevelBlueprint is NULL.");
-                return;
-            }
-
-            if (levelManager.CurrentLevelBlueprint.finalBoss == null)
-            {
-                Debug.LogError("[BossLevelSpawner] Final Boss setting is NULL in LevelBlueprint.");
-                return;
-            }
-
-            if (levelManager.CurrentLevelBlueprint.finalBoss.bossBlueprint == null)
-            {
-                Debug.LogError("[BossLevelSpawner] Final Boss BossBlueprint is NULL.");
-                return;
-            }
-
-            int bossPoolIndex = levelManager.CurrentLevelBlueprint.monsters.Length;
-            Vector3 spawnPosition = GetSpawnPosition();
-
-            if (logOnSpawn)
-            {
-                Debug.Log(
-                    $"[BossLevelSpawner] Spawning boss through EntityManager | " +
-                    $"PoolIndex={bossPoolIndex} | Position={spawnPosition}"
-                );
-            }
-
-            GameObject spawnedBoss = levelManager.EntityManager.SpawnFinalBoss(
-                levelManager.CurrentLevelBlueprint, spawnPosition);
-            if (spawnedBoss == null)
-            {
-                Debug.LogError("[BossLevelSpawner] Final boss spawn failed.");
-                return;
-            }
-            spawnedBossMonster = spawnedBoss.GetComponent<Monster>();
-            levelManager.NotifyExternalFinalBossSpawned();
-            BossController bossController = spawnedBoss.GetComponentInChildren<BossController>(true);
-
-            if (bossController != null)
-            {
-                if (playerCharacter == null)
-                {
-                    playerCharacter = FindObjectOfType<Character>();
-                }
-
-                bossController.SetPlayerCharacter(playerCharacter);
-            }
-            else
-            {
-                Debug.LogWarning("[BossLevelSpawner] Spawned boss has no BossController. Patterns will not run.");
-            }
-
-            hasSpawned = true;
-
-            if (logOnSpawn)
-            {
-                Debug.Log($"[BossLevelSpawner] Boss spawned successfully: {spawnedBoss.name}");
-            }
+            if (SpawnBlocked() || (spawnOnlyOnce && hasSpawned)) return;
+            var terminal = FindObjectOfType<FinalBossSummonInteractable>();
+            if (terminal != null && terminal.TryAutomaticSummon()) hasSpawned = true;
         }
 
         private Vector3 GetSpawnPosition()
