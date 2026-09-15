@@ -16,37 +16,37 @@ MonoBehaviour:
   levelDurationMinutes: 15
   spawnRatePoints:
   - minute: 0
-    spawnRate: 0.5
-  - minute: 1
-    spawnRate: 0.55
-  - minute: 2
-    spawnRate: 0.65
-  - minute: 3
-    spawnRate: 0.85
-  - minute: 4
-    spawnRate: 1.0
-  - minute: 5
-    spawnRate: 1.25
-  - minute: 6
     spawnRate: 0.7
+  - minute: 1
+    spawnRate: 0.77
+  - minute: 2
+    spawnRate: 0.91
+  - minute: 3
+    spawnRate: 1.19
+  - minute: 4
+    spawnRate: 1.4
+  - minute: 5
+    spawnRate: 1.75
+  - minute: 6
+    spawnRate: 0.98
   - minute: 7
-    spawnRate: 0.45
+    spawnRate: 0.63
   - minute: 8
-    spawnRate: 1.25
+    spawnRate: 1.75
   - minute: 9
-    spawnRate: 1.35
+    spawnRate: 1.89
   - minute: 10
-    spawnRate: 1.45
+    spawnRate: 2.03
   - minute: 11
-    spawnRate: 1.6
+    spawnRate: 2.24
   - minute: 12
-    spawnRate: 1.8
+    spawnRate: 2.52
   - minute: 13
-    spawnRate: 2.1
+    spawnRate: 2.94
   - minute: 14
-    spawnRate: 2.4
+    spawnRate: 3.36
   - minute: 15
-    spawnRate: 2.6
+    spawnRate: 3.64
   normalMonsterEntries:
   - memo: '0: 위산 슬라임'
     monsterBlueprint: {fileID: 11400000, guid: 23cbbabfbfc14e4498b09675b4940a0c, type: 2}

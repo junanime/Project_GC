@@ -387,7 +387,7 @@ namespace Vampire
                 return;
             }
 
-            playerCharacter.TakeDamage(damage, Vector2.zero, false);
+            playerCharacter.TakePeriodicDamage(damage, Vector2.zero, false);
 
             if (debugLog)
             {

@@ -1389,7 +1389,7 @@ MonoBehaviour:
   spawnDistanceMax: 8
   spawnAngleJitter: 20
   minionHp: 15
-  minionMoveSpeed: 2.4
+  minionMoveSpeed: 1.2
   healAmountPerMinion: 90
   absorbDistance: 1.1
   maxPatternDuration: 18

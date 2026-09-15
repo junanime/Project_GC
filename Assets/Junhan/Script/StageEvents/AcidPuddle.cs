@@ -146,7 +146,7 @@ namespace Vampire
 
             if (tickTimer <= 0f)
             {
-                targetCharacter.TakeDamage(damagePerTick);
+                targetCharacter.TakePeriodicDamage(damagePerTick);
                 tickTimer = tickInterval;
             }
         }

@@ -98,6 +98,8 @@ namespace Vampire
                         abilityManager
                             .CaptureRunSceneAbilities(),
 
+                    MerchantItems = Object.FindObjectOfType<SynergyManager>()?.CaptureOwnership(),
+
                     CoinsGained =
                         statsManager.CoinsGained
                 };
@@ -178,6 +180,10 @@ namespace Vampire
             // 정확한 최종 Character 값은 그 다음에 덮어씁니다.
             player.RestoreRunSceneState(
                 snapshot.CharacterState);
+
+            var synergy = Object.FindObjectOfType<SynergyManager>();
+            if (synergy == null && snapshot.MerchantItems != null) synergy = player.gameObject.AddComponent<SynergyManager>();
+            synergy?.RestoreOwnership(snapshot.MerchantItems);
 
             // 새 StatsManager는 0부터 시작하므로
             // 이전 Run Coins를 그대로 더해 줍니다.

@@ -1221,6 +1221,18 @@ namespace Vampire
             }
         }
 
+        private SyringeDartAbility returnWeapon;
+        private Vector2 ReturnCatchPosition
+        {
+            get
+            {
+                if (returnWeapon == null) returnWeapon = SyringeAbilityResolver.FindOwnedOrFirst(FindObjectOfType<AbilityManager>());
+                var weapon = returnWeapon;
+                Vector2 facing = returnForwardDirection;
+                return weapon != null ? weapon.GetReturnCatchPosition(facing) : (Vector2)playerCharacter.CenterTransform.position + facing.normalized * .28f + Vector2.down * .18f;
+            }
+        }
+
         private void BeginReturnCurveToPlayer()
         {
             if (playerCharacter == null || playerCharacter.CenterTransform == null)
@@ -1230,7 +1242,7 @@ namespace Vampire
             }
 
             Vector2 start = transform.position;
-            Vector2 playerPosition = playerCharacter.CenterTransform.position;
+            Vector2 playerPosition = ReturnCatchPosition;
             Vector2 toPlayer = playerPosition - start;
 
             if (toPlayer.sqrMagnitude <= 0.0001f) toPlayer = -returnForwardDirection;
@@ -1276,6 +1288,7 @@ namespace Vampire
             float easedT = Mathf.SmoothStep(0f, 1f, t);
 
             Vector2 previousPosition = transform.position;
+            returnCurveEnd = ReturnCatchPosition;
             Vector2 nextPosition = CubicBezier(returnCurveStart, returnCurveControl1, returnCurveControl2, returnCurveEnd, easedT);
 
             transform.position = nextPosition;
@@ -1319,7 +1332,7 @@ namespace Vampire
             }
 
             Vector2 currentPosition = transform.position;
-            Vector2 targetPosition = playerCharacter.CenterTransform.position;
+            Vector2 targetPosition = ReturnCatchPosition;
             Vector2 toPlayer = targetPosition - currentPosition;
 
             if (toPlayer.magnitude <= Mathf.Max(0.05f, specials.returnNeedleArriveDistance))
@@ -1330,7 +1343,7 @@ namespace Vampire
 
             direction = toPlayer.normalized;
             float returnStep = speed * Mathf.Max(0.01f, specials.returnNeedleSpeedMultiplier) * Time.deltaTime;
-            transform.position += returnStep * (Vector3)direction;
+            transform.position = Vector2.MoveTowards(currentPosition, targetPosition, returnStep);
             ApplyVisualRotationToDirection(direction);
 
             return true;

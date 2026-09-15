@@ -28,6 +28,7 @@ namespace Vampire
         private float levelTime = 0f;
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
+        public int NormalMonstersSpawned { get; private set; }
         private TimedSpecialMonsterSpawner fieldSpawns;
         public void NotifyExternalFinalBossSpawned() { if (fieldSpawns != null) fieldSpawns.NotifyFinalBossSpawned(); }
         private bool levelEnded = false;
@@ -283,11 +284,8 @@ namespace Vampire
             float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
             float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
-            entityManager.SpawnMonsterRandomPosition(
-                poolIndex,
-                monsterBlueprint,
-                extraHp
-            );
+            Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
+            if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
         }
 
         public void SpawnRandomMonsterFromFlatIndexList(List<int> monsterIndices, float hpMultiplier = 1f)

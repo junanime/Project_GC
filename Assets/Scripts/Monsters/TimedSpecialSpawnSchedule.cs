@@ -55,6 +55,15 @@ namespace Vampire
             [Tooltip("추가 HP 보정값입니다. 보통 0으로 둡니다.")]
             public float hpBuff = 0f;
 
+            [Header("Recurring encounter")]
+            public bool repeatAtRandomInterval;
+            [Min(1)] public float minRepeatInterval = 40f;
+            [Min(1)] public float maxRepeatInterval = 80f;
+            public float repeatUntilSeconds = 900f;
+            [Range(0, 1)] public float lateExtraCountChance = .85f;
+            [Tooltip("Single wave chooses one type; multi wave alternates these two types.")]
+            public MonsterBlueprint companionBlueprint;
+
             [Header("Timed Spawn - Time")]
             [Tooltip("Exact Time: 지정한 시간에 스폰합니다. Random Time Window: 시작 시간과 종료 시간 사이의 랜덤한 시간에 스폰합니다.")]
             public SpawnTimeMode spawnTimeMode = SpawnTimeMode.ExactTime;
@@ -319,6 +328,18 @@ namespace Vampire
 
         private void BuildTimedSpawnRuntimeEvents(TimedSpawnEntry entry, int entryIndex)
         {
+            if (entry.repeatAtRandomInterval)
+            {
+                float start = Mathf.Max(0f, entry.spawnTimeSeconds);
+                for (float time = start; time < entry.repeatUntilSeconds; time += UnityEngine.Random.Range(Mathf.Max(1f, entry.minRepeatInterval), Mathf.Max(Mathf.Max(1f, entry.minRepeatInterval), entry.maxRepeatInterval)))
+                {
+                    int count = SelectRampedCount(entry.randomMinSpawnCount, entry.randomMaxSpawnCount,
+                        Mathf.InverseLerp(start, entry.repeatUntilSeconds, time), entry.lateExtraCountChance, () => UnityEngine.Random.value);
+                    runtimeTimedSpawnEvents.Add(new RuntimeTimedSpawnEvent { entry = entry, scheduledTime = time,
+                        spawnCount = count, runtimeMemo = entry.memo });
+                }
+                return;
+            }
             int eventCount = GetTimedEventCount(entry);
 
             for (int eventIndex = 0; eventIndex < eventCount; eventIndex++)
@@ -334,6 +355,14 @@ namespace Vampire
 
                 runtimeTimedSpawnEvents.Add(runtimeEvent);
             }
+        }
+
+        public static int SelectRampedCount(int min, int max, float progress, float lateChance, System.Func<float> random)
+        {
+            int count = Mathf.Max(1, min);
+            float chance = Mathf.Clamp01(progress) * Mathf.Clamp01(lateChance);
+            for (int i = count; i < Mathf.Max(count, max); i++) if (random() < chance) count++;
+            return count;
         }
 
         private void UpdateTimedSpawnEvents()
@@ -469,13 +498,16 @@ namespace Vampire
                 );
             }
 
+            int firstType = UnityEngine.Random.Range(0, 2);
             for (int i = 0; i < count; i++)
             {
                 yield return WaitUntilMiniStageUnblocked();
+                MonsterBlueprint waveBlueprint = entry.companionBlueprint != null && (firstType + i) % 2 == 1 ? entry.companionBlueprint : entry.monsterBlueprint;
+                if (!TryFindPoolIndexByBlueprint(waveBlueprint, out resolvedPoolIndex)) continue;
 
                 Monster monster = entityManager.SpawnMonsterRandomPosition(
                     resolvedPoolIndex,
-                    entry.monsterBlueprint,
+                    waveBlueprint,
                     entry.hpBuff
                 );
 

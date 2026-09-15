@@ -1059,12 +1059,15 @@ namespace Vampire
         {
             isInvincible = true;
 
-            if (spriteRenderer != null)
+            if (spriteRenderer != null && !SuppressHitFlash)
             {
                 spriteRenderer.sharedMaterial = hitMaterial;
             }
 
-            yield return new WaitForSeconds(0.15f + invincibilityTimeBonus);
+            yield return new WaitForSeconds(0.08f);
+
+            if (spriteRenderer != null) spriteRenderer.sharedMaterial = defaultMaterial;
+            yield return new WaitForSeconds(Mathf.Max(0f, 0.5f + invincibilityTimeBonus - 0.08f));
 
             if (spriteRenderer != null)
             {

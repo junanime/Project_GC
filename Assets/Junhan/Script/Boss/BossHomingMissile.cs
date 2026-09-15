@@ -313,6 +313,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage) { Destroy(gameObject); return; }
             if (!initialized ||
                 isDestroying)
             {

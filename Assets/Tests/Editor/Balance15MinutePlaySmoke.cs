@@ -18,7 +18,7 @@ namespace Vampire.Tests.Editor
         private static double deadline, next, pauseUntil;
         private static LevelManager level;
         private static bool initialized, paused, pauseChecked, sawSignal;
-        private static float pauseTime;
+        private static float pauseTime, signalStartedAt = -1f;
         private static int lastMinute = -1;
         static Balance15MinutePlaySmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
         public static void Run()
@@ -151,13 +151,24 @@ namespace Vampire.Tests.Editor
                 }
                 if (level.CurrentLevelTime < 899)
                     CheckNoEarlyBoss();
-                if (FinalBossSummonInteractable.IsSummoning) sawSignal = true;
+                if (FinalBossSummonInteractable.IsSummoning && !sawSignal)
+                {
+                    sawSignal = true;
+                    signalStartedAt = level.CurrentLevelTime;
+                    Debug.Log("[Balance15Smoke] transmission started at=" + signalStartedAt);
+                }
                 if (level.CurrentLevelTime >= 898 && level.CurrentLevelTime < 899)
                     UnityEngine.Object.FindObjectOfType<FinalBossSummonInteractable>().transform.position = new Vector3(1000, 1000, 0);
-                Time.timeScale = level.CurrentLevelTime >= 899 ? 1 : 20;
-                if (level.CurrentLevelTime >= 907)
+                // Slow down before the deadline: a loaded 20x simulation can cross several
+                // game seconds between editor updates while presentation coroutines need frames.
+                Time.timeScale = level.CurrentLevelTime >= 880 ? 1 : 20;
+                if (level.CurrentLevelTime >= 920)
+                    throw new Exception("Automatic arrival timed out; pending=" + FinalBossSummonInteractable.IsSummoning +
+                        ", boss count=" + UnityEngine.Object.FindObjectsOfType<BossController>().Length);
+                if (level.CurrentLevelTime >= 907 && !FinalBossSummonInteractable.IsSummoning)
                 {
                     Check(sawSignal, "15:00 automatic summon used transmission/descent coroutine");
+                    Check(signalStartedAt >= 900 && signalStartedAt < 902, "Automatic transmission starts at the 15-minute deadline");
                     var bosses = UnityEngine.Object.FindObjectsOfType<BossController>();
                     Check(bosses.Length == 1, "Exactly one UFO boss after deadline");
                     Check(Mathf.Approximately(UnityEngine.Object.FindObjectOfType<BossPartDamageTestRootController>().TotalMaxHealth, 9000),

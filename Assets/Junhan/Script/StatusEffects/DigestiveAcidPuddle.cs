@@ -148,7 +148,7 @@ namespace Vampire
 
                 if (finalDamage > 0f)
                 {
-                    monster.TakeDamage(
+                    monster.TakePeriodicDamage(
                         finalDamage
                     );
 

@@ -328,7 +328,7 @@ namespace Vampire
             {
                 projectile.transform.rotation = Quaternion.identity;
                 BossPatternArt.Replace(projectile, "BombBreak", .9f, 15, false);
-                yield return new WaitForSeconds(.2f);
+                // Glass breaking and explosion begin together at ground contact.
             }
             if (warning != null) Destroy(warning);
 
@@ -348,7 +348,7 @@ namespace Vampire
             ApplyExplosionDamage(
                 targetPosition);
 
-            if (projectile != null) Destroy(projectile, BossPatternArt.Frames("BombExplosion").Length > 0 ? 0 : projectileDestroyDelayAfterImpact);
+            if (projectile != null) Destroy(projectile, Mathf.Max(.2f, projectileDestroyDelayAfterImpact));
         }
 
         private GameObject CreateWarningCircle(

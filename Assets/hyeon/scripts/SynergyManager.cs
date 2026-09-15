@@ -3,6 +3,15 @@ using UnityEngine;
 
 namespace Vampire
 {
+    [System.Serializable]
+    public sealed class MerchantOwnershipSnapshot
+    {
+        public List<MerchantItemBlueprint> items = new List<MerchantItemBlueprint>();
+        public List<ItemTag> activated = new List<ItemTag>();
+        public List<ItemTag> tags = new List<ItemTag>();
+        public List<string> names = new List<string>();
+    }
+
     public class SynergyManager : MonoBehaviour
     {
         public static SynergyManager Instance;
@@ -79,6 +88,24 @@ namespace Vampire
         // =========================================================
         // Add Item
         // =========================================================
+
+        public MerchantOwnershipSnapshot CaptureOwnership() => new MerchantOwnershipSnapshot
+        {
+            items = new List<MerchantItemBlueprint>(ownedItems),
+            activated = new List<ItemTag>(activatedSynergies),
+            tags = new List<ItemTag>(activeSynergyTags),
+            names = new List<string>(activeSynergyNames)
+        };
+
+        public void RestoreOwnership(MerchantOwnershipSnapshot snapshot)
+        {
+            if (snapshot == null) return;
+            ownedItems = new List<MerchantItemBlueprint>(snapshot.items);
+            activatedSynergies = new HashSet<ItemTag>(snapshot.activated);
+            activeSynergyTags = new List<ItemTag>(snapshot.tags);
+            activeSynergyNames = new List<string>(snapshot.names);
+            ItemsChanged?.Invoke();
+        }
 
         public void AddItem(MerchantItemBlueprint item)
         {

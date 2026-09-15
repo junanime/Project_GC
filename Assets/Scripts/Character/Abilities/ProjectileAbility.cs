@@ -302,6 +302,8 @@ namespace Vampire
         // Projectile Spawn Position
         // =========================================================
 
+        public Vector2 GetReturnCatchPosition(Vector2 direction) => GetProjectileSpawnPosition(direction);
+
         protected virtual Vector2 GetProjectileSpawnPosition(
             Vector2 fireDirection
         )

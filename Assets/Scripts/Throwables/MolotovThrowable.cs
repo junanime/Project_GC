@@ -139,7 +139,7 @@ namespace Vampire
 
 
             // 실제 몬스터 피해
-            damageable.TakeDamage(
+            damageable.TakePeriodicDamage(
                 damage,
                 knockback * knockbackDirection
             );

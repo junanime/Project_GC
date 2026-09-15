@@ -36,6 +36,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage) { Destroy(gameObject); return; }
             if (!initialized)
             {
                 return;
@@ -51,6 +52,7 @@ namespace Vampire
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage) return;
             if (!initialized)
             {
                 return;

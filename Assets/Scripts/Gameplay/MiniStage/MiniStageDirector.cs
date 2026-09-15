@@ -349,6 +349,7 @@ namespace Vampire
             }
 
             currentRoom.CleanupRoom();
+            entityManager?.ClearMiniStagePickups();
 
             if (destroyRoomAfterReturn)
             {
@@ -397,6 +398,8 @@ namespace Vampire
                 levelManager.SetRunFlowPaused(false);
             }
 
+            CleanupCurrentRoom();
+            entityManager?.ClearMiniStagePickups();
             MiniStageRuntimeState.ExitMiniStage(this);
 
             isInsideMiniStage = false;

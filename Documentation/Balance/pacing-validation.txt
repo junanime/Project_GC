@@ -1,0 +1,83 @@
+Pacing patch validation — 2026-09-15
+Unity 2022.3.62f3; isolated copy of actual Level 1 scene.
+12 edit-mode checks plus functional play-mode checks and accelerated 15-minute run.
+Functional checks use invulnerability and forced encounters; not a player survival-rate benchmark.
+Runtime compilation: no errors; four pre-existing CS0414 unused-field warnings.
+
+EDIT MODE AND FUNCTIONAL PLAY MODE
+[Balance15] PASS SpawnWeightsHandleBoundariesAndUnnormalizedInspectorValues
+[Balance15] PASS RepeatedKeysNeverDivideByZeroOrSelectZeroWeight
+[Balance15] PASS HighestNormalTierHasExactLateGameMixAndNoEarlyLeak
+[Balance15] PASS ProfileAndBakedAssetAgreeAtEverySecond
+[Balance15] PASS TwoIndependentWindowTracksDoNotDriftAndAllowOverlap
+[Balance15] PASS FixedDamageAugmentsAndSugarChildrenUseTheNewScale
+[Balance15] PASS InitialCombatAndSummonBindingsAreValid
+[Balance15] ALL PASS 7
+[PacingPatch] PASS SpawnDensityAndChestSupplyMatchRequestedMultipliers
+[PacingPatch] PASS EncounterCountRampsWithoutExceedingOneToThree
+[PacingPatch] PASS ActualScenesScheduleRecurringSporeAndPairedBuffers
+[PacingPatch] PASS DashBlocksWeaponEmissionAndRestoresItAfterward
+[PacingPatch] PASS OwnershipRestoreKeepsDuplicatesAndDoesNotReapplyStats
+[PacingSmoke] PASS Dash blocks actual owned syringe
+[PacingSmoke] PASS 50 successful normal spawn requests are counted
+[PacingSmoke] PASS Normal spawn quota creates an elite before timed phases
+[PacingSmoke] PASS Periodic damage keeps monster material
+[PacingSmoke] PASS Direct hit flash ends even when hits are rapid
+[PacingSmoke] PASS Continuous direct hits do not leave monster white
+[PacingSmoke] PASS Player test hit reduces health
+[PacingSmoke] PASS Second hit inside 0.5 seconds is ignored
+[PacingSmoke] PASS Hit after 0.5 seconds deals damage
+[PacingSmoke] PASS Background uses runtime material clone
+[PacingSmoke] PASS Scrolling does not mutate material asset
+[PacingSmoke] PASS Real mini-stage entry suspends UFO boss
+[PacingSmoke] PASS UFO cannot follow player into mini-stage
+[PacingSmoke] PASS Boss emits no bullets while inside mini-stage
+[PacingSmoke] PASS In-flight bomb and warning are canceled on entry
+[PacingSmoke] PASS One-shot kill on acid counts immediately before death animation
+[PacingSmoke] PASS Uncollected mini-stage XP and gold return to pool on exit
+[PacingSmoke] PASS Boss resumes after returning to main field
+[PacingSmoke] PASS Boss pattern scheduler restarts after return
+[PacingSmoke] PASS Bomb damages at landing, without the former 0.2-second ground delay
+[PacingSmoke] PASS Scene transfer accepted with item ownership snapshot
+[PacingSmoke] PASS Scene transfer snapshot consumed by restore hook
+[PacingSmoke] PASS Purchased duplicate items survive a real scene reload
+[PacingSmoke] PASS Item-related character stats survive without double application
+[PacingSmoke] ALL CHECKS COMPLETE
+[PacingSmoke] FINISHED failed=False
+
+FULL RUN (20x pacing, normal speed before automatic arrival)
+[Balance15Smoke] PASS Real Level 1 initialized
+[Balance15Smoke] PASS Slime HP stays 25 at 0
+[Balance15Smoke] PASS Slime HP stays 25 at 420
+[Balance15Smoke] PASS Slime HP stays 25 at 899
+[Balance15Smoke] PASS Both window tracks materialize all 11 events with real scene templates
+[Balance15Smoke] minute=0 population=4
+[Balance15Smoke] minute=1 population=27
+[Balance15Smoke] minute=2 population=36
+[Balance15Smoke] minute=3 population=82
+[Balance15Smoke] minute=4 population=169
+[Balance15Smoke] minute=5 population=229
+[Balance15Smoke] PASS Run-flow pause freezes level clock and automatic summon deadline
+[Balance15Smoke] minute=6 population=233
+[Balance15Smoke] minute=7 population=237
+[Balance15Smoke] minute=8 population=241
+[Balance15Smoke] minute=9 population=245
+[Balance15Smoke] minute=10 population=251
+[Balance15Smoke] minute=11 population=262
+[Balance15Smoke] minute=12 population=267
+[Balance15Smoke] minute=13 population=276
+[Balance15Smoke] minute=14 population=286
+[Balance15Smoke] minute=15 population=273
+[Balance15Smoke] transmission started at=900.2143
+[Balance15Smoke] PASS 15:00 automatic summon used transmission/descent coroutine
+[Balance15Smoke] PASS Automatic transmission starts at the 15-minute deadline
+[Balance15Smoke] PASS Exactly one UFO boss after deadline
+[Balance15Smoke] PASS Five active cores aggregate exactly 9000 HP
+[Balance15Smoke] PASS Consumed terminal cannot summon twice
+[Balance15Smoke] PASS Pending summon flag cleared after descent
+[Balance15Smoke] PASS Offscreen terminal is made visible for automatic transmission
+[Balance15Smoke] FINISHED failed=False
+
+The first full-run harness failed its hard-coded 15:07 boss-presence assertion.
+The harness now slows down before 14:40 and waits for arrival completion with a 15:20 deadline.
+The final run detected transmission at 900.2143 seconds, one UFO, and cleared pending state.

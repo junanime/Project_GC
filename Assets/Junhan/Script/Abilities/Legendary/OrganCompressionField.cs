@@ -383,7 +383,7 @@ SyringeDartAbility sourceNeedleAbility)
                 finalDamage *= statusDamageMultiplier;
             }
 
-            target.damageable.TakeDamage(finalDamage, Vector2.zero, false);
+            target.damageable.TakePeriodicDamage(finalDamage, Vector2.zero, false);
             var reaction = SyringeAugmentVfx.Play("OrganCompressionHit", GetTargetWorldPosition(target), SyringeAugmentVfx.FindTarget(target.component));
             if (reaction != null) reaction.BindTo(target.component.transform);
 

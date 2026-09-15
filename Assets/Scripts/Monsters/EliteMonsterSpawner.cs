@@ -139,6 +139,8 @@ namespace Vampire
 
         private readonly List<Monster> activeElites = new List<Monster>();
 
+        [Min(1), SerializeField] private int normalSpawnsPerElite = 50;
+        private int rewardedNormalSpawnMilestones;
         private float[] phaseTimers;
         private bool[] phaseStarted;
         private bool ready = false;
@@ -222,6 +224,14 @@ namespace Vampire
             }
 
             float currentTime = levelManager.CurrentLevelTime;
+            int earned = levelManager.NormalMonstersSpawned / Mathf.Max(1, normalSpawnsPerElite);
+            if (earned > rewardedNormalSpawnMilestones && activeElites.Count < globalMaxAliveElites && spawnPhases != null && spawnPhases.Length > 0)
+            {
+                var source = spawnPhases[0];
+                foreach (var phase in spawnPhases) if (phase != null && IsPhaseActive(phase, currentTime)) { source = phase; break; }
+                if (source != null && TrySelectEliteFlatIndex(source, new HashSet<int>(), out int index) && TrySpawnEliteByFlatIndex(index, 0f) != null)
+                    rewardedNormalSpawnMilestones++;
+            }
 
             if (spawnPhases == null || spawnPhases.Length == 0)
             {

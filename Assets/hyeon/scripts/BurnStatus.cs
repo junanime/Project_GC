@@ -41,7 +41,7 @@ namespace Vampire
                 if (monster != null && monster.HP > 0)
                 {
                     //  데미지 텍스트와 물리 넉백 계산을 위해 Monster.cs에 구현된 TakeDamage를 호출합니다.
-                    monster.TakeDamage(damagePerTick, Vector2.zero);
+                    monster.TakePeriodicDamage(damagePerTick, Vector2.zero);
                 }
                 else
                 {

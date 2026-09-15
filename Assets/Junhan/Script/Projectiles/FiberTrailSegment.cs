@@ -201,7 +201,7 @@ namespace Vampire
                 return;
             }
 
-            monster.TakeDamage(finalDamage);
+            monster.TakePeriodicDamage(finalDamage);
 
             // 기존 전체 피해량 시스템에도 포함
             if (sourceCharacter != null &&
