@@ -85,22 +85,22 @@ MonoBehaviour:
     fallbackSprite: {fileID: 0}
   - legendaryType: 5
     sourceAbility: {fileID: -3629666374954996886, guid: 815cbaf089418254db0f6bf31736024c, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: e7a2907fb7b6b8c41aadebd821efc318, type: 3}
   - legendaryType: 7
     sourceAbility: {fileID: -3629666374954996886, guid: a805b7866d315e04cb53d5837ff1410b, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: f785239a6f83b544ea26eae592361a89, type: 3}
   - legendaryType: 8
     sourceAbility: {fileID: 3020181257210482451, guid: b336b244bd7fe1241b70b8cd7bddbcb1, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 774af7b190fd69947ab3627bbdd7eae6, type: 3}
   - legendaryType: 9
     sourceAbility: {fileID: 3020181257210482451, guid: 0f58f76faaa588040b6f8d4c5f4b0438, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 583d0a021f62b0a4ca8ed349020419e3, type: 3}
   - legendaryType: 10
     sourceAbility: {fileID: 3020181257210482451, guid: 8eb4577e53f90e8459233d8e2a71cec7, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 5d2f421823189194c80e0e9b4f6c6167, type: 3}
   - legendaryType: 11
     sourceAbility: {fileID: 3020181257210482451, guid: 72d1d2b468d800b45a221401c953df9d, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: b8f3b4ef0db5ef645ad7441d39d0e879, type: 3}
   references:
     version: 2
     RefIds: []

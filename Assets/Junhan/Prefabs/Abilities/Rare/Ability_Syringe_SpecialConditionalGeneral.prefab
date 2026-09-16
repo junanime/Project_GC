@@ -71,52 +71,52 @@ MonoBehaviour:
   sourceIconEntries:
   - specialType: 0
     sourceAbility: {fileID: 7324135873989685867, guid: 9757fae3764f6e1488b23a8ff2e6c349, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: cb5d60a22b00cb840924d36bb1a2fda1, type: 3}
   - specialType: 1
     sourceAbility: {fileID: -8949006315427880089, guid: 9a6cb5bbd9c72f14c9567c769a71c7ef, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 9da138cb3e9bc0942bb068c7b03fd6b8, type: 3}
   - specialType: 2
     sourceAbility: {fileID: 7570284130232410782, guid: f6bf6f8839f614f419426722e5cf0cbd, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: c22daf6a631889a4f980ccc16ae4889f, type: 3}
   - specialType: 3
     sourceAbility: {fileID: 1482531450223228072, guid: babdca8bf85115c4cba6d13e2ea6c093, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 71799decdd076bd40be5048cfc481865, type: 3}
   - specialType: 4
     sourceAbility: {fileID: -8949006315427880089, guid: 5f8098d6f1cc0ab4aa0a441c904e27e4, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 946e5ec4b6c995c4a8137affa490f8e2, type: 3}
   - specialType: 5
     sourceAbility: {fileID: -8949006315427880089, guid: 71464678c402c4242ae253ea26f49921, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: f6a43b10731f92d49b9e939a34a1220f, type: 3}
   - specialType: 6
     sourceAbility: {fileID: -8949006315427880089, guid: 079b3b7ffe8e24b4a98135dc2f88acf7, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 92f6d0a5b152025478f7eabcf3f7e7a5, type: 3}
   - specialType: 7
     sourceAbility: {fileID: -8949006315427880089, guid: a0daf2ec26e3f4a45a029d24d08235ef, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: ce95dcaf73882344d826a5f162b884bc, type: 3}
   - specialType: 8
     sourceAbility: {fileID: -8949006315427880089, guid: 7938b6ef36ea9f84e8a0a207091e19a5, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 409121a127a6d29428fa82df250b82df, type: 3}
   - specialType: 9
     sourceAbility: {fileID: -8949006315427880089, guid: d5986906355e10e4ebf34486ef96bb16, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 77433ee2d3cfb824ca70d78925dac779, type: 3}
   - specialType: 10
     sourceAbility: {fileID: -8949006315427880089, guid: f9146782af368d04295acbc21fb09b20, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 811eb1e9d49c0494dbab900b473d3ae8, type: 3}
   - specialType: 11
     sourceAbility: {fileID: -8949006315427880089, guid: 5ed5f7379a0c3b44b917495e3e1d0a19, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 6c05412c464ed044b8d8b64564d3bec5, type: 3}
   - specialType: 12
     sourceAbility: {fileID: -8949006315427880089, guid: 00d9752a58640f246b2a6370a5c2348b, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 944a0f0246de2c14fb8ce8dc65bf8a82, type: 3}
   - specialType: 13
     sourceAbility: {fileID: 7324135873989685867, guid: e0e13f745a6cb394493fd33850450ab7, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: cfa4d15f10d621143a01b8a9545ea8df, type: 3}
   - specialType: 14
     sourceAbility: {fileID: 7324135873989685867, guid: 664298924ebb4c246b6494f7f752e941, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 0241e4eefe3655745bb1993b452d05a8, type: 3}
   - specialType: 15
     sourceAbility: {fileID: 7324135873989685867, guid: 92db1ad1b6be7b14fbc19aae06c9cc47, type: 3}
-    fallbackSprite: {fileID: 0}
+    fallbackSprite: {fileID: 21300000, guid: 8cf645917bfc8494988de9e4a19b5f6f, type: 3}
   references:
     version: 2
     RefIds: []

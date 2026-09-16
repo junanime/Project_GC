@@ -1,0 +1,860 @@
+[
+  {
+    "id": "Poison",
+    "name": "독침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/Poison.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.9976868032140055,
+        "rotation_degrees": 39.805571092265204,
+        "translation": [
+          1022.2078169685415,
+          11.325071496663469
+        ],
+        "matrix": [
+          [
+            0.7664442326024785,
+            -0.6387035271687324
+          ],
+          [
+            0.6387035271687324,
+            0.7664442326024785
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "Explosion",
+    "name": "폭발침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/Explosion.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.0076267617128607,
+        "rotation_degrees": -40.39551284301847,
+        "translation": [
+          69.580552907531,
+          146.32507149666347
+        ],
+        "matrix": [
+          [
+            0.767397521448999,
+            0.6530028598665394
+          ],
+          [
+            -0.6530028598665394,
+            0.767397521448999
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "Homing",
+    "name": "유도침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/Homing.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.9879678830371953,
+        "rotation_degrees": -38.41805534482199,
+        "translation": [
+          132.56339370829363,
+          165.35653002859868
+        ],
+        "matrix": [
+          [
+            0.7740705433746425,
+            0.6139180171591992
+          ],
+          [
+            -0.6139180171591992,
+            0.7740705433746425
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "Pierce",
+    "name": "관통침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/Pierce.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.087794055684614,
+        "rotation_degrees": -41.09145570554054,
+        "translation": [
+          59.43279313632033,
+          133.88274547187797
+        ],
+        "matrix": [
+          [
+            0.8198284080076264,
+            0.7149666348903716
+          ],
+          [
+            -0.7149666348903716,
+            0.8198284080076264
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "Honey",
+    "name": "꿀침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/Honey.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.118046892182117,
+        "rotation_degrees": 35.316196547944955,
+        "translation": [
+          1015.3584366062917,
+          9.396568160152555
+        ],
+        "matrix": [
+          [
+            0.9122974261201143,
+            -0.6463298379408959
+          ],
+          [
+            0.6463298379408959,
+            0.9122974261201143
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "Mosquito",
+    "name": "모기침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/Mosquito.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.0272884944967675,
+        "rotation_degrees": -42.9317800120084,
+        "translation": [
+          76.64156339370831,
+          120.73021925643468
+        ],
+        "matrix": [
+          [
+            0.7521448999046711,
+            0.6997140133460437
+          ],
+          [
+            -0.6997140133460437,
+            0.7521448999046711
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "ReturnNeedle",
+    "name": "침귀환",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/ReturnNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.1282869212853481,
+        "rotation_degrees": -129.8241655678715,
+        "translation": [
+          178.28789323164915,
+          1106.278360343184
+        ],
+        "matrix": [
+          [
+            -0.7225929456625357,
+            0.8665395614871308
+          ],
+          [
+            -0.8665395614871308,
+            -0.7225929456625357
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "AcupunctureFormation",
+    "name": "침술진",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/AcupunctureFormation.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.8955787227157639,
+        "rotation_degrees": 36.21121427556972,
+        "translation": [
+          1021.0028598665396,
+          30.74356530028598
+        ],
+        "matrix": [
+          [
+            0.7225929456625357,
+            -0.5290753098188752
+          ],
+          [
+            0.5290753098188752,
+            0.7225929456625357
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "FiberNeedle",
+    "name": "섬유침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/FiberNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.0328769174559467,
+        "rotation_degrees": -36.14012194051731,
+        "translation": [
+          190.83222116301238,
+          119.48141086749284
+        ],
+        "matrix": [
+          [
+            0.8341277407054339,
+            0.6091515729265968
+          ],
+          [
+            -0.6091515729265968,
+            0.8341277407054339
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "CorrosionNeedle",
+    "name": "부식침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/CorrosionNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.8999066907928411,
+        "rotation_degrees": 36.99128682759479,
+        "translation": [
+          1047.4585319351763,
+          24.024785510009522
+        ],
+        "matrix": [
+          [
+            0.7187797902764538,
+            -0.5414680648236416
+          ],
+          [
+            0.5414680648236416,
+            0.7187797902764538
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "PressureNeedle",
+    "name": "압력침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/PressureNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.1003323864444432,
+        "rotation_degrees": -37.39607871399097,
+        "translation": [
+          88.01048617731172,
+          117.9208770257388
+        ],
+        "matrix": [
+          [
+            0.8741658722592945,
+            0.6682554814108674
+          ],
+          [
+            -0.6682554814108674,
+            0.8741658722592945
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "MarkNeedle",
+    "name": "표식침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/MarkNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.8429149031140308,
+        "rotation_degrees": -37.232770384258316,
+        "translation": [
+          137.87321258341277,
+          160.78932316491895
+        ],
+        "matrix": [
+          [
+            0.6711153479504292,
+            0.5100095328884652
+          ],
+          [
+            -0.5100095328884652,
+            0.6711153479504292
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "BipolarNeedle",
+    "name": "양극침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/BipolarNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.5224022878932316,
+        "rotation_degrees": 90.0,
+        "translation": [
+          615.5386081982841,
+          575.0734032411821
+        ],
+        "matrix": [
+          [
+            3.1987914486785013e-17,
+            -0.5224022878932316
+          ],
+          [
+            0.5224022878932316,
+            3.1987914486785013e-17
+          ]
+        ]
+      },
+      {
+        "scale": 0.5204957102001907,
+        "rotation_degrees": -90.0,
+        "translation": [
+          636.6348903717826,
+          664.7626310772164
+        ],
+        "matrix": [
+          [
+            3.187117027332959e-17,
+            0.5204957102001907
+          ],
+          [
+            -0.5204957102001907,
+            3.187117027332959e-17
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "DigestiveAcidSacNeedle",
+    "name": "소화액낭침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/DigestiveAcidSacNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.0279941786249454,
+        "rotation_degrees": 44.58672613475919,
+        "translation": [
+          1092.7063870352717,
+          28.315538608198295
+        ],
+        "matrix": [
+          [
+            0.7321258341277407,
+            -0.7216396568160152
+          ],
+          [
+            0.7216396568160152,
+            0.7321258341277407
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "HungerNeedle",
+    "name": "공복침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/HungerNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.0650809216609514,
+        "rotation_degrees": -38.53166582415985,
+        "translation": [
+          121.96949475691136,
+          135.2411820781697
+        ],
+        "matrix": [
+          [
+            0.8331744518589133,
+            0.6634890371782649
+          ],
+          [
+            -0.6634890371782649,
+            0.8331744518589133
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "GutBacteriaNeedle",
+    "name": "장내균침",
+    "category": "Special",
+    "path": "Assets/Junhan/Art/AugmentIcons/Special/GutBacteriaNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.9503606122736981,
+        "rotation_degrees": 32.04802758687486,
+        "translation": [
+          950.6148713060057,
+          34.327931363203035
+        ],
+        "matrix": [
+          [
+            0.8055290753098188,
+            -0.5042897998093424
+          ],
+          [
+            0.5042897998093424,
+            0.8055290753098188
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "WoodNeedle",
+    "name": "목침",
+    "category": "Planned",
+    "path": "Assets/Junhan/Art/AugmentIcons/Planned/WoodNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.998093422306959,
+        "rotation_degrees": 0.0,
+        "translation": [
+          539.1639656816016,
+          47.17349857006674
+        ],
+        "matrix": [
+          [
+            0.998093422306959,
+            -0.0
+          ],
+          [
+            0.0,
+            0.998093422306959
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "FireNeedle",
+    "name": "화염침",
+    "category": "Planned",
+    "path": "Assets/Junhan/Art/AugmentIcons/Planned/FireNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.2551321125665622,
+        "rotation_degrees": -35.79061531319649,
+        "translation": [
+          130.64537654909438,
+          112.47855100095329
+        ],
+        "matrix": [
+          [
+            1.0181124880838894,
+            0.7340324118207816
+          ],
+          [
+            -0.7340324118207816,
+            1.0181124880838894
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "IceNeedle",
+    "name": "빙결침",
+    "category": "Planned",
+    "path": "Assets/Junhan/Art/AugmentIcons/Planned/IceNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.9215389584549059,
+        "rotation_degrees": 32.75303215739214,
+        "translation": [
+          993.71782650143,
+          35.59580552907531
+        ],
+        "matrix": [
+          [
+            0.7750238322211629,
+            -0.4985700667302194
+          ],
+          [
+            0.4985700667302194,
+            0.7750238322211629
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "WindNeedle",
+    "name": "질풍침",
+    "category": "Planned",
+    "path": "Assets/Junhan/Art/AugmentIcons/Planned/WindNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 1.2456512679647345,
+        "rotation_degrees": 40.40629855549227,
+        "translation": [
+          1041.9037178265014,
+          17.244995233555784
+        ],
+        "matrix": [
+          [
+            0.9485224022878934,
+            -0.8074356530028597
+          ],
+          [
+            0.8074356530028597,
+            0.9485224022878934
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "VibrationNeedle",
+    "name": "진동침",
+    "category": "Planned",
+    "path": "Assets/Junhan/Art/AugmentIcons/Planned/VibrationNeedle.png",
+    "source_sha256": "278e93ff7a8d616c6dc96fdc3aa7e809830d049ae2a6d5ad9080ae0179722cb0",
+    "master_crop": [
+      540,
+      55,
+      714,
+      1205
+    ],
+    "transforms": [
+      {
+        "scale": 0.8398474737845567,
+        "rotation_degrees": 0.0,
+        "translation": [
+          552.7731172545281,
+          55.573879885605336
+        ],
+        "matrix": [
+          [
+            0.8398474737845567,
+            -0.0
+          ],
+          [
+            0.0,
+            0.8398474737845567
+          ]
+        ]
+      }
+    ],
+    "final_uniform_scale": 0.8995215311004785,
+    "final_offset": [
+      63,
+      63
+    ]
+  },
+  {
+    "id": "MucosalFortress",
+    "name": "점막 요새",
+    "category": "Legendary",
+    "path": "Assets/Junhan/Art/AugmentIcons/Legendary/MucosalFortress.png",
+    "source_sha256": "e1aefd80bab0cfe8e0ff46d5e1b23ea9d4e006be377bc1dc6df692483161c639"
+  },
+  {
+    "id": "NeedleShotgun",
+    "name": "샷건침",
+    "category": "Legendary",
+    "path": "Assets/Junhan/Art/AugmentIcons/Legendary/NeedleShotgun.png",
+    "source_sha256": "cb6ff4525b9ff8a69943eb421e281faf9741c36c1f5e828ae8e67281724d8ae4"
+  },
+  {
+    "id": "OrganCompression",
+    "name": "장기압착",
+    "category": "Legendary",
+    "path": "Assets/Junhan/Art/AugmentIcons/Legendary/OrganCompression.png",
+    "source_sha256": "50a5116f061bdd43eaaf929ea2b479dd9674ab0afad8fbdf49089dd526694b1a"
+  },
+  {
+    "id": "HungrySpirit",
+    "name": "헝그리정신",
+    "category": "Legendary",
+    "path": "Assets/Junhan/Art/AugmentIcons/Legendary/HungrySpirit.png",
+    "source_sha256": "fc5a144aae46ff86aa4ec8f1ff3179261d34a41f744278d59be89594c1842f8b"
+  },
+  {
+    "id": "NeuralBlock",
+    "name": "신경차단",
+    "category": "Legendary",
+    "path": "Assets/Junhan/Art/AugmentIcons/Legendary/NeuralBlock.png",
+    "source_sha256": "6b45331940afbd7dc7b22b5031a8e01c30cf55f98c6c464071931c480530276d"
+  },
+  {
+    "id": "GastricPeristalsisWave",
+    "name": "위산 연동파",
+    "category": "Legendary",
+    "path": "Assets/Junhan/Art/AugmentIcons/Legendary/GastricPeristalsisWave.png",
+    "source_sha256": "720a36c76e1a0667eb167d2d20d5078a4141d273df8ff44c0adb7c716021dd14"
+  }
+]
