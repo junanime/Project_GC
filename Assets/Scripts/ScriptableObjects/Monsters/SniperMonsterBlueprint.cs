@@ -15,6 +15,10 @@ namespace Vampire
         [Tooltip("저격 탄환 속도입니다. 높을수록 피하기 어렵습니다.")]
         public float projectileSpeed = 18f;
 
+        [Header("Takoyaki Recoil Visual")]
+        public Sprite[] fireSprites;
+        public float fireFrameTime = 0.09f;
+
         [Header("Sniper Monster - Attack Timing")]
         [Tooltip("레이저가 플레이어를 따라다니며 조준하는 시간입니다.")]
         public float aimDuration = 1.4f;

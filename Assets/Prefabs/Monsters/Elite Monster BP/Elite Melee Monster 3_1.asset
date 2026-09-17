@@ -37,7 +37,7 @@ MonoBehaviour:
   useSourceCombatStats: 1
   useSourceLootTables: 1
   scaleMultiplier: 2
-  hpMultiplier: 4
+  hpMultiplier: 2.5
   silverRewardCalls: 2
   guaranteedExtraCoinCount: 2
   guaranteedExtraCoinType: 5

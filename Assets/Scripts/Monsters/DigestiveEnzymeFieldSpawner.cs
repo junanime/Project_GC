@@ -1,3 +1,4 @@
+using static UnityEngine.Object;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +12,8 @@ namespace Vampire
     /// 미니 스테이지 진행 중에는 필드 소화효소가 생성되지 않게 막습니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public class DigestiveEnzymeFieldSpawner : MonoBehaviour
+    [System.Serializable]
+    public class DigestiveEnzymeFieldSpawner : RuntimeModule
     {
         [Header("References")]
         [Tooltip("필드에 생성할 소화효소 몬스터 프리팹입니다.")]
@@ -77,19 +79,19 @@ namespace Vampire
         private float timer;
         private bool firstSpawnDone;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             ResolveReferences();
         }
 
-        private void OnEnable()
+        protected override void OnModuleEnable()
         {
             timer = 0f;
             firstSpawnDone = false;
             CleanupAliveList();
         }
 
-        private void Update()
+        protected override void OnTick()
         {
             CleanupAliveList();
 
@@ -100,8 +102,7 @@ namespace Vampire
                     if (debugLog)
                     {
                         Debug.Log(
-                            "[DigestiveEnzymeFieldSpawner] MiniStage 또는 RunFlow 정지 중이라 강제 스폰을 차단했습니다.",
-                            this
+                            "[DigestiveEnzymeFieldSpawner] MiniStage 또는 RunFlow 정지 중이라 강제 스폰을 차단했습니다.", Host
                         );
                     }
 
@@ -328,7 +329,7 @@ namespace Vampire
             }
         }
 
-        private void OnDrawGizmosSelected()
+        protected override void OnModuleGizmos()
         {
             if (playerCharacter == null)
             {

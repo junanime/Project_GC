@@ -1,9 +1,11 @@
+using static UnityEngine.Object;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
 {
-    public class BloodClotFieldSpawner : MonoBehaviour
+    [System.Serializable]
+    public class BloodClotFieldSpawner : RuntimeModule
     {
         [Header("References")]
         [Tooltip("현재 스테이지의 LevelManager입니다. 플레이어 위치와 런 흐름 상태를 확인하기 위해 사용합니다.")]
@@ -67,7 +69,7 @@ namespace Vampire
         private float timer;
         private float nextSpawnTime;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             if (levelManager == null)
             {
@@ -88,7 +90,7 @@ namespace Vampire
             nextSpawnTime = Mathf.Max(0f, firstSpawnDelay);
         }
 
-        private void Update()
+        protected override void OnTick()
         {
             if (enableForceSpawnKey && Input.GetKeyDown(forceSpawnKey))
             {
@@ -271,7 +273,7 @@ namespace Vampire
             }
         }
 
-        private void OnDisable()
+        protected override void OnModuleDisable()
         {
             for (int i = activeBloodClots.Count - 1; i >= 0; i--)
             {

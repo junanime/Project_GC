@@ -52,5 +52,15 @@ MonoBehaviour:
   - {fileID: -1273950323, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
   - {fileID: 1234594692, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
   dashFrameTime: 0.0275
+  capturedSpriteSequence:
+  - {fileID: 21300000, guid: 84f9e55fba9a23349827be2dd946cef2, type: 3}
+  - {fileID: 21300000, guid: 449b35d4f299a0d4cae20c7f98c40fad, type: 3}
+  - {fileID: 21300000, guid: 838b12338c665854589431ae72c2c0de, type: 3}
+  capturedFrameTime: 0.09
+  resultIdleSpriteSequence: []
+  resultIdleFrameTime: 0.2
+  resultActionASpriteSequence: []
+  resultActionBSpriteSequence: []
+  resultActionFrameTime: 0.12
   startingAbilities:
   - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}

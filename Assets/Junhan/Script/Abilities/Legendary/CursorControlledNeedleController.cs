@@ -247,6 +247,7 @@ float maxHitRadiusBonusFromSpecial)
 
         private void Update()
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             if (sourceCharacter == null || sourceNeedleAbility == null || sourceCharacter.CurrentHealth <= 0f || !sourceCharacter.gameObject.activeInHierarchy)
             {
                 Destroy(gameObject);

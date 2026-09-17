@@ -79,6 +79,7 @@ SyringeDartAbility sourceNeedleAbility)
 
         private void Update()
         {
+            if (sourceNeedleAbility != null && sourceNeedleAbility.AttacksBlocked) return;
             if (mainCamera == null)
             {
                 mainCamera = Camera.main;

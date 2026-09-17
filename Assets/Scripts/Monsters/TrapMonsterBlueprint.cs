@@ -63,6 +63,10 @@ namespace Vampire
         [Tooltip("활성화 상태 스프라이트들입니다.")]
         public Sprite[] activeSprites;
 
+        [Tooltip("앞/뒤 미역을 같은 프레임 번호로 재생하고 마지막 포획 자세를 유지합니다.")]
+        public Sprite[] captureRearSprites;
+        public Sprite[] captureFrontSprites;
+
         [Tooltip("사망 상태 스프라이트들입니다.")]
         public Sprite[] deathSprites;
 

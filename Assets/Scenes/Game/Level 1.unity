@@ -1395,8 +1395,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e82088884d77c564bb0c85b74243bcd4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name: null
+  m_EditorClassIdentifier: null
   interactionKey: 101
   interactOnce: 1
   disableObjectAfterInteract: 0
@@ -1410,112 +1410,6 @@ MonoBehaviour:
   spawnOffsetFromPlayer: {x: 0, y: 3}
   useFixedSpawnPoint: 0
   fixedSpawnPoint: {fileID: 0}
-  applyTimeBasedScaling: 1
-  useLevelDurationAsMaxMinute: 1
-  manualMaxScaleMinute: 20
-  hpMultiplierByMinute:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.7
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 5
-      value: 0.85
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 10
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 15
-      value: 1.3
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 20
-      value: 1.7
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  damageMultiplierByMinute:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.7
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 5
-      value: 0.85
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 10
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 15
-      value: 1.2
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 20
-      value: 1.45
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  debugBossScaling: 1
   preventDuplicateBoss: 1
   disableBossLevelSpawnersAfterSpawn: 1
 --- !u!58 &271402290
@@ -1962,49 +1856,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 323477458}
-  - component: {fileID: 323477457}
   m_Layer: 0
-  m_Name: AntacidBubbleSurgeEventController
+  m_Name: '[Placement] AntacidBubbleSurgeEventController'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &323477457
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 323477456}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82b0d0b7aa76c5c46a3a00093bb1ecc3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  eventToastUI: {fileID: 0}
-  bubblePrefab: {fileID: 4965823543100547824, guid: 5f2ebd00d87e34348bde92116d7e2235, type: 3}
-  warningEdgeCanvasGroup: {fileID: 0}
-  eventName: "\uC81C\uC0B0 \uAC70\uD488 \uD3ED\uC8FC"
-  eventEnabled: 1
-  startTime: 60
-  duration: 25
-  warningDuration: 2
-  bubbleSpawnInterval: 1
-  bubblesPerWave: 2
-  maxActiveBubbles: 8
-  bubbleLifetime: 5
-  bubbleFadeOutDuration: 0.35
-  bubbleRadius: 1.8
-  minSpawnDistanceFromPlayer: 1.2
-  maxSpawnDistanceFromPlayer: 6
-  minDistanceBetweenBubbles: 2.5
-  bubbleColor: {r: 1, g: 1, b: 1, a: 0.65}
-  outsideDamageTickInterval: 0.5
-  outsideDamagePerTick: 2
-  damageImmediatelyWhenOutside: 0
-  debugLog: 1
 --- !u!4 &323477458
 Transform:
   m_ObjectHideFlags: 0
@@ -2013,12 +1871,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 323477456}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 1000.7165, y: 999.35406, z: -0.36630136}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1347853661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &326263320
 GameObject:
@@ -22271,9 +22129,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1207597746}
-  - component: {fileID: 1207597747}
   m_Layer: 0
-  m_Name: Elite Monster Spawner
+  m_Name: '[Placement] Elite Monster Spawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22287,156 +22144,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1207597745}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -544.3334, y: -295.66666, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1207597747
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1207597745}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d56e0545018766b4cba9009f035bcea4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  spawnEnabled: 1
-  globalMaxAliveElites: 8
-  requireEliteMonsterBlueprint: 0
-  cleanupInactiveElitesEveryFrame: 1
-  blockWhileRunFlowPaused: 1
-  logMiniStageBlock: 0
-  spawnPhases:
-  - phaseName: "Phase 1: 2\uBD84~5\uBD84"
-    startTime: 90
-    endTime: 225
-    selectionMode: 0
-    spawnInterval: 30
-    spawnImmediatelyOnPhaseStart: 1
-    minSpawnCount: 1
-    maxSpawnCount: 1
-    maxAliveInPhase: 3
-    normalToEliteMappings:
-    - normalMonsterFlatIndex: 0
-      eliteMonsterFlatIndex: 8
-      enabled: 1
-    - normalMonsterFlatIndex: 1
-      eliteMonsterFlatIndex: 9
-      enabled: 1
-    - normalMonsterFlatIndex: 0
-      eliteMonsterFlatIndex: 26
-      enabled: 1
-    maxNormalTableSampleAttempts: 30
-    avoidDuplicateEliteInOneWave: 1
-    fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 08000000090000001a000000
-    additionalHpBuff: 0
-  - phaseName: "Phase 2: 5\uBD84~8\uBD84"
-    startTime: 225
-    endTime: 360
-    selectionMode: 0
-    spawnInterval: 28
-    spawnImmediatelyOnPhaseStart: 1
-    minSpawnCount: 1
-    maxSpawnCount: 2
-    maxAliveInPhase: 6
-    normalToEliteMappings:
-    - normalMonsterFlatIndex: 2
-      eliteMonsterFlatIndex: 3
-      enabled: 1
-    - normalMonsterFlatIndex: 0
-      eliteMonsterFlatIndex: 8
-      enabled: 1
-    - normalMonsterFlatIndex: 1
-      eliteMonsterFlatIndex: 9
-      enabled: 1
-    - normalMonsterFlatIndex: 4
-      eliteMonsterFlatIndex: 10
-      enabled: 1
-    - normalMonsterFlatIndex: 2
-      eliteMonsterFlatIndex: 26
-      enabled: 1
-    maxNormalTableSampleAttempts: 30
-    avoidDuplicateEliteInOneWave: 1
-    fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 0300000008000000090000000a0000001a000000
-    additionalHpBuff: 0
-  - phaseName: "Phase 3: 8\uBD84~14\uBD84"
-    startTime: 360
-    endTime: 630
-    selectionMode: 0
-    spawnInterval: 25
-    spawnImmediatelyOnPhaseStart: 1
-    minSpawnCount: 2
-    maxSpawnCount: 4
-    maxAliveInPhase: 12
-    normalToEliteMappings:
-    - normalMonsterFlatIndex: 2
-      eliteMonsterFlatIndex: 3
-      enabled: 1
-    - normalMonsterFlatIndex: 0
-      eliteMonsterFlatIndex: 8
-      enabled: 1
-    - normalMonsterFlatIndex: 1
-      eliteMonsterFlatIndex: 9
-      enabled: 1
-    - normalMonsterFlatIndex: 4
-      eliteMonsterFlatIndex: 10
-      enabled: 1
-    - normalMonsterFlatIndex: 5
-      eliteMonsterFlatIndex: 11
-      enabled: 1
-    - normalMonsterFlatIndex: 2
-      eliteMonsterFlatIndex: 26
-      enabled: 1
-    maxNormalTableSampleAttempts: 30
-    avoidDuplicateEliteInOneWave: 1
-    fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 0300000008000000090000000a0000000b0000001a000000
-    additionalHpBuff: 0
-  - phaseName: "Phase 3: 14\uBD84~20"
-    startTime: 630
-    endTime: 0
-    selectionMode: 0
-    spawnInterval: 20
-    spawnImmediatelyOnPhaseStart: 1
-    minSpawnCount: 2
-    maxSpawnCount: 4
-    maxAliveInPhase: 24
-    normalToEliteMappings:
-    - normalMonsterFlatIndex: 2
-      eliteMonsterFlatIndex: 3
-      enabled: 1
-    - normalMonsterFlatIndex: 4
-      eliteMonsterFlatIndex: 10
-      enabled: 1
-    - normalMonsterFlatIndex: 5
-      eliteMonsterFlatIndex: 11
-      enabled: 1
-    - normalMonsterFlatIndex: 6
-      eliteMonsterFlatIndex: 12
-      enabled: 1
-    - normalMonsterFlatIndex: 7
-      eliteMonsterFlatIndex: 13
-      enabled: 1
-    - normalMonsterFlatIndex: 2
-      eliteMonsterFlatIndex: 26
-      enabled: 1
-    maxNormalTableSampleAttempts: 30
-    avoidDuplicateEliteInOneWave: 1
-    fallbackToManualPoolIfNoMappedElite: 0
-    eliteMonsterFlatIndices: 030000000a0000000b0000000c0000000d0000001a000000
-    additionalHpBuff: 0
-  debugLog: 0
-  logMonsterIndexTableOnStart: 0
-  debugFollowSelection: 0
 --- !u!1 &1207884297
 GameObject:
   m_ObjectHideFlags: 0
@@ -22469,23 +22183,16 @@ Transform:
   - {fileID: 856782954}
   - {fileID: 1764401683}
   - {fileID: 1727210730}
-  - {fileID: 2076536165}
   - {fileID: 1347853661}
   - {fileID: 64523754}
   - {fileID: 2027675424}
   - {fileID: 1323090797}
   - {fileID: 2093063619}
-  - {fileID: 1228875797}
-  - {fileID: 1207597746}
   - {fileID: 2055230364}
   - {fileID: 271402292}
-  - {fileID: 1609493736}
-  - {fileID: 1967562481}
   - {fileID: 377995996}
-  - {fileID: 1485676086}
   - {fileID: 958006997}
   - {fileID: 2101930415}
-  - {fileID: 2106351311}
   - {fileID: 1438233073}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -22630,37 +22337,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1228875797}
-  - component: {fileID: 1228875796}
   m_Layer: 0
-  m_Name: Trap Monster Field Spawner
+  m_Name: '[Placement] Trap Monster Field Spawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1228875796
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1228875795}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c89f4cd352e2fb4394e93f45eaf1851, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  trapMonsterPoolIndex: 10
-  trapMonsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
-  maxActiveTraps: 4
-  respawnDelay: 60
-  spawnOnStart: 0
-  minDistanceFromPlayer: 4
-  maxDistanceFromPlayer: 8
-  minDistanceBetweenTraps: 12
-  spawnPositionTryCount: 20
-  debugLog: 0
 --- !u!4 &1228875797
 Transform:
   m_ObjectHideFlags: 0
@@ -22670,11 +22353,11 @@ Transform:
   m_GameObject: {fileID: 1228875795}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 544.3334, y: 295.66666, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1255801474
 GameObject:
@@ -23384,7 +23067,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1347853661}
   - component: {fileID: 1347853662}
-  - component: {fileID: 1347853663}
   m_Layer: 0
   m_Name: StageEventDirector
   m_TagString: Untagged
@@ -23404,7 +23086,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 323477458}
   m_Father: {fileID: 1207884298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1347853662
@@ -23417,170 +23100,198 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b88bb03159edb5d459136b7be9a476ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  eventToastUI: {fileID: 0}
-  acidRainScreenVFX: {fileID: 908990516}
-  eventStartMessageFormat: "{0} \uC774\uBCA4\uD2B8\uAC00 \uC2DC\uC791\uB410\uC2B5\uB2C8\uB2E4!"
-  monsterSurgeEvents:
-  - eventName: "\uAC10\uC5FC \uC99D\uC2DD"
-    enabled: 1
-    startTime: 500
-    duration: 30
-    useRandomStartTime: 1
-    startTimeRanges:
-    - minStartMinute: 4
-      maxStartMinute: 5
-    - minStartMinute: 11
-      maxStartMinute: 13
-    spawnMultiplier: 2.5
-    minimumReferenceSpawnRate: 1.5
-    started: 0
-    finished: 0
-    resolvedStartTime: 0
-    spawnAccumulator: 0
-  goldRushEvents:
-  - eventName: "\uACE8\uB4DC \uB7EC\uC2DC"
-    enabled: 1
-    startTime: 300
-    duration: 20
-    useRandomStartTime: 1
-    startTimeRanges:
-    - minStartMinute: 4
-      maxStartMinute: 6
-    - minStartMinute: 11
-      maxStartMinute: 12
-    guaranteedCoinType: 5
-    guaranteedCoinCount: 1
-    applyOnlyToNormalMonsters: 1
-    suppressOriginalCoinDrops: 1
-    started: 0
-    finished: 0
-    resolvedStartTime: 0
-  acidSecretionEvents:
-  - eventName: "\uC704\uC0B0\uBD84\uBE44"
-    enabled: 1
-    startTime: 20
-    duration: 20
-    useRandomStartTime: 1
-    startTimeRanges:
-    - minStartMinute: 5
-      maxStartMinute: 6
-    - minStartMinute: 12
-      maxStartMinute: 14
-    acidPuddlePrefab: {fileID: 8611868660744885873, guid: 648095bcd3c3cff4c8c964c298ab9200, type: 3}
-    puddleSpawnInterval: 2
-    puddlesPerWave: 3
-    maxActivePuddles: 12
-    minSpawnDistanceFromPlayer: 1.5
+  m_Name: null
+  m_EditorClassIdentifier: null
+  basicEvents:
+  - moduleEnabled: 1
+    origin: {fileID: 1347853661}
+    levelManager: {fileID: 0}
+    eventToastUI: {fileID: 0}
+    acidRainScreenVFX: {fileID: 908990516}
+    eventStartMessageFormat: '{0} 이벤트가 시작됐습니다!'
+    monsterSurgeEvents:
+    - eventName: 감염 증식
+      enabled: 1
+      startTime: 500
+      duration: 15
+      useRandomStartTime: 1
+      startTimeRanges:
+      - minStartMinute: 4
+        maxStartMinute: 5
+      - minStartMinute: 11
+        maxStartMinute: 13
+      spawnMultiplier: 1.5
+      minimumReferenceSpawnRate: 1.5
+      started: 0
+      finished: 0
+      resolvedStartTime: 0
+      spawnAccumulator: 0
+    goldRushEvents:
+    - eventName: 골드 러시
+      enabled: 1
+      startTime: 300
+      duration: 20
+      useRandomStartTime: 1
+      startTimeRanges:
+      - minStartMinute: 4
+        maxStartMinute: 6
+      - minStartMinute: 11
+        maxStartMinute: 12
+      guaranteedCoinType: 5
+      guaranteedCoinCount: 1
+      applyOnlyToNormalMonsters: 1
+      suppressOriginalCoinDrops: 1
+      started: 0
+      finished: 0
+      resolvedStartTime: 0
+    acidSecretionEvents:
+    - eventName: 위산분비
+      enabled: 1
+      startTime: 20
+      duration: 20
+      useRandomStartTime: 1
+      startTimeRanges:
+      - minStartMinute: 5
+        maxStartMinute: 6
+      - minStartMinute: 12
+        maxStartMinute: 14
+      acidPuddlePrefab: {fileID: 8611868660744885873, guid: 648095bcd3c3cff4c8c964c298ab9200, type: 3}
+      puddleSpawnInterval: 2
+      puddlesPerWave: 3
+      maxActivePuddles: 12
+      minSpawnDistanceFromPlayer: 1.5
+      maxSpawnDistanceFromPlayer: 6
+      puddleLifeTime: 5
+      puddleDamagePerTick: 3
+      puddleTickInterval: 0.5
+      puddleScale: 1.5
+      puddleWarningDuration: 0.2
+      damageImmediatelyOnEnter: 1
+      acidSlimeMonsterIndices: 0
+      acidSlimeExtraSpawnMultiplier: 3
+      acidSlimeMinimumReferenceSpawnRate: 2
+      acidSlimeHpMultiplier: 1.5
+      rewardOnEnd: 1
+      spawnChestAsTemporaryItemReward: 1
+      started: 0
+      finished: 0
+      rewarded: 0
+      resolvedStartTime: 0
+      puddleSpawnTimer: 0
+      acidSlimeAccumulator: 0
+      activePuddles: []
+    logEventState: 0
+    logMonsterIndexTableOnStart: 0
+    logExtraSpawn: 0
+    logGoldRushModifier: 0
+    logAcidEvent: 0
+  advancedEvents:
+  - moduleEnabled: 1
+    origin: {fileID: 1347853661}
+    levelManager: {fileID: 0}
+    eventToastUI: {fileID: 0}
+    runtimeVisualRoot: {fileID: 0}
+    eventStartMessageFormat: '{0} 이벤트가 시작됐습니다!'
+    acidRefluxWaveEvents:
+    - eventName: 산성역류파도
+      enabled: 1
+      startTime: 50
+      useRandomStartTime: 0
+      startTimeRanges: []
+      waveCount: 4
+      intervalBetweenWaves: 1.2
+      warningDuration: 1
+      travelDuration: 1.4
+      waveHeight: 2
+      screenPadding: 2
+      damage: 8
+      damageCooldownPerTarget: 0.6
+      knockbackPower: 3.5
+      waveColor: {r: 1, g: 1, b: 1, a: 0}
+      warningColor: {r: 1, g: 1, b: 1, a: 0}
+      started: 0
+      finished: 0
+      resolvedStartTime: 0
+    peristalsisDriftEvents:
+    - eventName: 연동운동기류
+      enabled: 1
+      startTime: 100
+      duration: 14
+      useRandomStartTime: 0
+      startTimeRanges: []
+      directionSwitchInterval: 4
+      playerDriftForce: 15
+      monsterDriftForce: 10
+      maxAddedVelocity: 6
+      enableCameraTilt: 1
+      cameraTiltAngle: 7
+      cameraTiltLerpSpeed: 5
+      started: 0
+      finished: 0
+      resolvedStartTime: 0
+      elapsed: 0
+      tiltSfxPlayed: 0
+    coffeeTransfusionEvents:
+    - eventName: 커담타임
+      enabled: 1
+      startTime: 150
+      duration: 15
+      useRandomStartTime: 0
+      startTimeRanges: []
+      warningDuration: 0.6
+      travelDuration: 1.6
+      waveHeight: 7
+      screenPadding: 2
+      monsterExtraMoveForce: 2.5
+      monsterMaxAddedVelocity: 2
+      coffeeOverlayColor: {r: 0.31132078, g: 0.14468461, b: 0.1013261, a: 0}
+      monsterScanInterval: 0.5
+      coffeeWaveColor: {r: 0.3962264, g: 0.117746525, b: 0.117746525, a: 0}
+      warningColor: {r: 0.7075472, g: 0.103462085, b: 0.103462085, a: 0}
+      started: 0
+      finished: 0
+      resolvedStartTime: 0
+      monsterScanTimer: 0
+    logPreparedEvents: 0
+    eventVisualSortingOrder: 999
+    eventVisualMinimumAlpha: 0.45
+    logWaveVisualCreation: 0
+    logEventState: 0
+    logDriftDetail: 0
+  antacidEvents:
+  - moduleEnabled: 1
+    origin: {fileID: 323477458}
+    levelManager: {fileID: 0}
+    eventToastUI: {fileID: 0}
+    bubblePrefab: {fileID: 4965823543100547824, guid: 5f2ebd00d87e34348bde92116d7e2235, type: 3}
+    warningEdgeCanvasGroup: {fileID: 0}
+    eventName: 제산 거품 폭주
+    eventEnabled: 1
+    startTime: 60
+    duration: 25
+    warningDuration: 2
+    bubbleSpawnInterval: 1
+    bubblesPerWave: 2
+    maxActiveBubbles: 8
+    bubbleLifetime: 5
+    bubbleFadeOutDuration: 0.35
+    bubbleRadius: 1.8
+    minSpawnDistanceFromPlayer: 1.2
     maxSpawnDistanceFromPlayer: 6
-    puddleLifeTime: 5
-    puddleDamagePerTick: 3
-    puddleTickInterval: 0.5
-    puddleScale: 1.5
-    puddleWarningDuration: 0.2
-    damageImmediatelyOnEnter: 1
-    acidSlimeMonsterIndices: 00000000
-    acidSlimeExtraSpawnMultiplier: 3
-    acidSlimeMinimumReferenceSpawnRate: 2
-    acidSlimeHpMultiplier: 1.5
-    rewardOnEnd: 1
-    spawnChestAsTemporaryItemReward: 1
-    started: 0
-    finished: 0
-    rewarded: 0
-    resolvedStartTime: 0
-    puddleSpawnTimer: 0
-    acidSlimeAccumulator: 0
-    activePuddles: []
-  logEventState: 0
-  logMonsterIndexTableOnStart: 0
-  logExtraSpawn: 0
-  logGoldRushModifier: 0
-  logAcidEvent: 0
---- !u!114 &1347853663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1347853660}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4021ed2a372d0b6439c57e2a19f4cb75, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  eventToastUI: {fileID: 0}
-  runtimeVisualRoot: {fileID: 0}
-  eventStartMessageFormat: "{0} \uC774\uBCA4\uD2B8\uAC00 \uC2DC\uC791\uB410\uC2B5\uB2C8\uB2E4!"
-  acidRefluxWaveEvents:
-  - eventName: "\uC0B0\uC131\uC5ED\uB958\uD30C\uB3C4"
+    minDistanceBetweenBubbles: 2.5
+    bubbleColor: {r: 1, g: 1, b: 1, a: 0.65}
+    outsideDamageTickInterval: 0.5
+    outsideDamagePerTick: 2
+    damageImmediatelyWhenOutside: 0
+    debugLog: 0
+  useWindowSchedule: 1
+  primaryTrack:
     enabled: 1
-    startTime: 50
-    useRandomStartTime: 0
-    startTimeRanges: []
-    waveCount: 4
-    intervalBetweenWaves: 1.2
-    warningDuration: 1
-    travelDuration: 1.4
-    waveHeight: 2
-    screenPadding: 2
-    damage: 8
-    damageCooldownPerTarget: 0.6
-    knockbackPower: 3.5
-    waveColor: {r: 1, g: 1, b: 1, a: 0}
-    warningColor: {r: 1, g: 1, b: 1, a: 0}
-    started: 0
-    finished: 0
-    resolvedStartTime: 0
-  peristalsisDriftEvents:
-  - eventName: "\uC5F0\uB3D9\uC6B4\uB3D9\uAE30\uB958"
+    windowSeconds: 120
+  secondaryTrack:
     enabled: 1
-    startTime: 100
-    duration: 14
-    useRandomStartTime: 0
-    startTimeRanges: []
-    directionSwitchInterval: 4
-    playerDriftForce: 15
-    monsterDriftForce: 10
-    maxAddedVelocity: 6
-    enableCameraTilt: 1
-    cameraTiltAngle: 7
-    cameraTiltLerpSpeed: 5
-    started: 0
-    finished: 0
-    resolvedStartTime: 0
-    elapsed: 0
-    tiltSfxPlayed: 0
-  coffeeTransfusionEvents:
-  - eventName: "\uCEE4\uB2F4\uD0C0\uC784"
-    enabled: 1
-    startTime: 150
-    duration: 15
-    useRandomStartTime: 0
-    startTimeRanges: []
-    warningDuration: 0.6
-    travelDuration: 1.6
-    waveHeight: 7
-    screenPadding: 2
-    monsterExtraMoveForce: 2.5
-    monsterMaxAddedVelocity: 2
-    coffeeOverlayColor: {r: 0.31132078, g: 0.14468461, b: 0.1013261, a: 0}
-    monsterScanInterval: 0.5
-    coffeeWaveColor: {r: 0.3962264, g: 0.117746525, b: 0.117746525, a: 0}
-    warningColor: {r: 0.7075472, g: 0.103462085, b: 0.103462085, a: 0}
-    started: 0
-    finished: 0
-    resolvedStartTime: 0
-    monsterScanTimer: 0
-  logPreparedEvents: 1
-  eventVisualSortingOrder: 999
-  eventVisualMinimumAlpha: 0.45
-  logWaveVisualCreation: 1
-  logEventState: 1
-  logDriftDetail: 0
+    windowSeconds: 360
+  fallbackDurationSeconds: 900
 --- !u!1 &1348383117
 GameObject:
   m_ObjectHideFlags: 0
@@ -29202,43 +28913,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1485676086}
-  - component: {fileID: 1485676085}
   m_Layer: 0
-  m_Name: BloodClotFieldSpawner
+  m_Name: '[Placement] BloodClotFieldSpawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1485676085
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1485676084}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3a5492874699e94ba089d0b226087d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 1764401684}
-  entityManager: {fileID: 1547352219}
-  miniStageDirector: {fileID: 377995997}
-  bloodClotMonsterPoolIndex: 12
-  bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
-  bloodClotHpBuff: 0
-  firstSpawnDelay: 3
-  spawnInterval: 80
-  pauseTimerWhileRunFlowPaused: 1
-  spawnDistanceFromPlayer: 0.2
-  spawnDistanceRandomOffset: 0
-  useRandomDirection: 0
-  maxActiveBloodClots: 3
-  skipSpawnWhenMaxActiveReached: 1
-  debugLog: 1
-  enableForceSpawnKey: 1
-  forceSpawnKey: 288
 --- !u!4 &1485676086
 Transform:
   m_ObjectHideFlags: 0
@@ -29248,11 +28929,11 @@ Transform:
   m_GameObject: {fileID: 1485676084}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1003.4933, y: 1005.0884, z: -0.781888}
+  m_LocalPosition: {x: 459.1599, y: 709.42175, z: -0.781888}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1506517661
 GameObject:
@@ -29801,9 +29482,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1609493736}
-  - component: {fileID: 1609493737}
   m_Layer: 0
-  m_Name: Elite Summon Object Spawner
+  m_Name: '[Placement] Elite Summon Object Spawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29818,36 +29498,12 @@ Transform:
   m_GameObject: {fileID: 1609493735}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.646013, y: -7.0348697, z: -0.0024334788}
+  m_LocalPosition: {x: -542.6874, y: -302.70154, z: -0.0024334788}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1609493737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1609493735}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fc5ee57d84574f844a3fae93582738ab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  eliteSummonObjectPrefab: {fileID: 8883575360997113124, guid: ef128a96719c28240a9fb1cb6510c853, type: 3}
-  firstSpawnDelay: 30
-  spawnInterval: 60
-  spawnCountPerWave: 2
-  minSpawnDistanceFromPlayer: 8
-  maxSpawnDistanceFromPlayer: 14
-  minDistanceBetweenSpawnedObjects: 5
-  maxPositionAttempts: 30
-  maxActiveObjects: 6
-  destroyInactiveSpawnedObjects: 1
-  debugLog: 0
 --- !u!1 &1610054908
 GameObject:
   m_ObjectHideFlags: 0
@@ -41573,9 +41229,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1967562481}
-  - component: {fileID: 1967562482}
   m_Layer: 0
-  m_Name: Mini Boss Spawner
+  m_Name: '[Placement] Mini Boss Spawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41589,47 +41244,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1967562480}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -544.3334, y: -295.66666, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1967562482
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1967562480}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c670b79a2c9afd043aa56e8f93ba3630, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  spawnEntries:
-  - spawnTimeSeconds: 360
-    miniBossBlueprint: {fileID: 11400000, guid: e57788280332e7f4fb68bda5863fa457, type: 2}
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: -1
-    spawnAroundPlayer: 1
-    spawnDistanceFromPlayer: 8
-    fixedSpawnPoint: {fileID: 0}
-    hpBuff: 0
-    memo: "8\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
-  - spawnTimeSeconds: 720
-    miniBossBlueprint: {fileID: 11400000, guid: 2ed5971bb65f2514ca8e48159e03db80, type: 2}
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: -1
-    spawnAroundPlayer: 1
-    spawnDistanceFromPlayer: 8
-    fixedSpawnPoint: {fileID: 0}
-    hpBuff: 0
-    memo: "15\uBD84 \uBBF8\uB2C8\uBCF4\uC2A4"
-  spawnEachEntryOnlyOnce: 1
-  debugLog: 0
 --- !u!1 &1970397404
 GameObject:
   m_ObjectHideFlags: 0
@@ -42762,9 +42383,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2076536165}
-  - component: {fileID: 2076536166}
   m_Layer: 0
-  m_Name: BossLevelSpawner
+  m_Name: '[Placement] BossLevelSpawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42779,37 +42399,12 @@ Transform:
   m_GameObject: {fileID: 2076536164}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -544.3334, y: -295.66666, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2076536166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2076536164}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54556bae77bd67a4d8de7a7bc8e02049, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  playerCharacter: {fileID: 0}
-  spawnAfterSeconds: 900
-  spawnOnlyOnce: 1
-  useRealtimeForDebug: 1
-  spawnRelativeToPlayer: 1
-  useRandomDirectionAroundPlayer: 1
-  spawnDistanceFromPlayer: 5
-  spawnOffsetFromPlayer: {x: 1.5, y: 1.5}
-  useFixedSpawnPoint: 0
-  fixedSpawnPoint: {fileID: 0}
-  logOnSpawn: 0
-  debugSpawnKey: 289
 --- !u!1 &2078098896
 GameObject:
   m_ObjectHideFlags: 0
@@ -42974,288 +42569,671 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 073ab35634eed7b419217fb494162e0a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelManager: {fileID: 1764401684}
-  spawnEntries:
-  - specialSpawnMode: 0
-    memo: snippp
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 8
-    monsterBlueprint: {fileID: 11400000, guid: 4b65cea1eeb064941bb483af69f4057f, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 0
-    spawnTimeSeconds: 120
-    randomStartTimeSeconds: 300
-    randomEndTimeSeconds: 360
-    randomEventCount: 2
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 1
-    intervalBetweenSpawns: 0.15
-    trapSpawnOnStart: 0
-    trapActivateTimeSeconds: 0
-    spawnInitialTrapsOnActivate: 0
-    maxActiveTraps: 4
-    respawnDelay: 60
-    minDistanceFromPlayer: 5
-    maxDistanceFromPlayer: 8
-    minDistanceBetweenTraps: 4
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: snippp
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 8
-    monsterBlueprint: {fileID: 11400000, guid: 4b65cea1eeb064941bb483af69f4057f, type: 2}
-    hpBuff: 50
-    spawnTimeMode: 1
-    spawnTimeSeconds: 1
-    randomStartTimeSeconds: 480
-    randomEndTimeSeconds: 540
-    randomEventCount: 1
-    spawnCountMode: 1
-    spawnCount: 2
-    randomMinSpawnCount: 2
-    randomMaxSpawnCount: 3
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 0
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 4
-    respawnDelay: 60
-    minDistanceFromPlayer: 2
-    maxDistanceFromPlayer: 5
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 1
-    memo: trapmonster
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 0
-    spawnTimeSeconds: 1
-    randomStartTimeSeconds: 180
-    randomEndTimeSeconds: 480
-    randomEventCount: 5
-    spawnCountMode: 1
-    spawnCount: 2
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 0
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 6
-    respawnDelay: 60
-    minDistanceFromPlayer: 2
-    maxDistanceFromPlayer: 5
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 1
-    memo: trapmonster
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 0
-    spawnTimeSeconds: 1
-    randomStartTimeSeconds: 240
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 2
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 0
-    spawnInitialTrapsOnActivate: 0
-    maxActiveTraps: 10
-    respawnDelay: 45
-    minDistanceFromPlayer: 2
-    maxDistanceFromPlayer: 5
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 1
-    memo: "\uC704\uC0B0\uAC70\uBA38\uB9AC"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 1
-    randomStartTimeSeconds: 540
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 0
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: "\uC704\uC0B0\uAC70\uBA38\uB9AC"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: 2ad1a3d8b66403e49a8ce41e4abdbfbe, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 1
-    randomStartTimeSeconds: 540
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 0
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: "\uC774\uB3D9\uC18D\uB3C4 \uBC84\uD37C"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: f8cba314cb117eb47944ded45b0172cc, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 10
-    randomStartTimeSeconds: 500
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: "\uD53C\uD574\uAC10\uC18C \uBC84\uD37C"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 15
-    monsterBlueprint: {fileID: 11400000, guid: 4d4bb73af58bf574bb3d08787b3578f4, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 15
-    randomStartTimeSeconds: 500
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: "\uACF5\uACA9\uC18D\uB3C4 \uB514\uBC84\uD37C"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: eb3cd73e12f550e488cae70af2b41ce2, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 20
-    randomStartTimeSeconds: 500
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 2
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: "\uB3C4\uB451\uB188"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 10
-    randomStartTimeSeconds: 240
-    randomEndTimeSeconds: 900
-    randomEventCount: 8
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 1
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  - specialSpawnMode: 0
-    memo: "\uD669\uACE0"
-    autoResolvePoolIndex: 1
-    monsterPoolIndex: 10
-    monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
-    hpBuff: 0
-    spawnTimeMode: 1
-    spawnTimeSeconds: 30
-    randomStartTimeSeconds: 500
-    randomEndTimeSeconds: 1000
-    randomEventCount: 2
-    spawnCountMode: 1
-    spawnCount: 1
-    randomMinSpawnCount: 1
-    randomMaxSpawnCount: 1
-    intervalBetweenSpawns: 2
-    trapSpawnOnStart: 1
-    trapActivateTimeSeconds: 60
-    spawnInitialTrapsOnActivate: 1
-    maxActiveTraps: 2
-    respawnDelay: 80
-    minDistanceFromPlayer: 4
-    maxDistanceFromPlayer: 6
-    minDistanceBetweenTraps: 1.5
-    spawnPositionTryCount: 20
-  blockWhileRunFlowPaused: 1
-  logMiniStageBlock: 1
-  debugLog: 0
+  m_Name: null
+  m_EditorClassIdentifier: null
+  levelBossSchedule:
+    moduleEnabled: 1
+    origin: {fileID: 0}
+    useLevelBlueprintSchedule: 1
+    levelManager: {fileID: 0}
+  timedSpawns:
+  - moduleEnabled: 1
+    origin: {fileID: 2093063619}
+    levelManager: {fileID: 1764401684}
+    spawnEntries:
+    - specialSpawnMode: 0
+      memo: 'Recurring 14: 80s / 65-95s / 1-2'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 4b65cea1eeb064941bb483af69f4057f, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 80
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 2
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 65
+      maxRepeatInterval: 95
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 0
+      memo: 'Recurring 25: 150s / 70-100s / 1-2'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 783ee4e2d503e2a46bef5929f6348035, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 150
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 2
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 70
+      maxRepeatInterval: 100
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 0
+      memo: 'Recurring 15: 180s / 40-80s / 1-3'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: fd859e63b1c5df740b6b559bcaa17031, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 180
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 3
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 40
+      maxRepeatInterval: 80
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 0
+      memo: 'Recurring 2: 240s / 65-95s / 1-3'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: e116b97a1a21fec48a3af32b4706b909, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 240
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 3
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 65
+      maxRepeatInterval: 95
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 0
+      memo: 'Recurring 21: 420s / 40-70s / 1-2'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: f8cba314cb117eb47944ded45b0172cc, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 420
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 2
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 40
+      maxRepeatInterval: 70
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 11400000, guid: 4d4bb73af58bf574bb3d08787b3578f4, type: 2}
+    - specialSpawnMode: 0
+      memo: 'Recurring 23: 450s / 55-85s / 1-3'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: eb3cd73e12f550e488cae70af2b41ce2, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 450
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 3
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 55
+      maxRepeatInterval: 85
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 0
+      memo: 'Recurring 24: 300s / 100-140s / 1-2'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 8f6eee2e949f81e4fa988932b5aa3b61, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 300
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 2
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 100
+      maxRepeatInterval: 140
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.5
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 0
+      memo: 'Recurring 3: 660s / 80-110s / 1-2'
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 8
+      monsterBlueprint: {fileID: 11400000, guid: 155bf50c0d2204642a6ca159080c74dc, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 660
+      randomStartTimeSeconds: 80
+      randomEndTimeSeconds: 160
+      randomEventCount: 1
+      spawnCountMode: 1
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 2
+      intervalBetweenSpawns: 0
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 5
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 4
+      spawnPositionTryCount: 20
+      repeatAtRandomInterval: 1
+      minRepeatInterval: 80
+      maxRepeatInterval: 110
+      repeatUntilSeconds: 900
+      lateExtraCountChance: 0.85
+      companionBlueprint: {fileID: 0}
+    - specialSpawnMode: 1
+      memo: 중후반 함정 유지
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: 10
+      monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 1
+      randomStartTimeSeconds: 180
+      randomEndTimeSeconds: 480
+      randomEventCount: 5
+      spawnCountMode: 1
+      spawnCount: 2
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 2
+      intervalBetweenSpawns: 2
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 360
+      spawnInitialTrapsOnActivate: 1
+      maxActiveTraps: 3
+      respawnDelay: 70
+      minDistanceFromPlayer: 2
+      maxDistanceFromPlayer: 5
+      minDistanceBetweenTraps: 1.5
+      spawnPositionTryCount: 20
+    blockWhileRunFlowPaused: 1
+    logMiniStageBlock: 1
+    debugLog: 0
+  - moduleEnabled: 0
+    origin: {fileID: 1228875797}
+    levelManager: {fileID: 0}
+    spawnEntries:
+    - specialSpawnMode: 1
+      memo: Migrated trap field
+      autoResolvePoolIndex: 0
+      monsterPoolIndex: 10
+      monsterBlueprint: {fileID: 11400000, guid: f5484c90eb7bae64ab5daa68b3d0e47d, type: 2}
+      hpBuff: 0
+      spawnTimeMode: 0
+      spawnTimeSeconds: 150
+      randomStartTimeSeconds: 120
+      randomEndTimeSeconds: 180
+      randomEventCount: 1
+      spawnCountMode: 0
+      spawnCount: 1
+      randomMinSpawnCount: 1
+      randomMaxSpawnCount: 3
+      intervalBetweenSpawns: 0.15
+      trapSpawnOnStart: 0
+      trapActivateTimeSeconds: 0
+      spawnInitialTrapsOnActivate: 0
+      maxActiveTraps: 4
+      respawnDelay: 60
+      minDistanceFromPlayer: 4
+      maxDistanceFromPlayer: 8
+      minDistanceBetweenTraps: 12
+      spawnPositionTryCount: 20
+    blockWhileRunFlowPaused: 1
+    logMiniStageBlock: 0
+    debugLog: 0
+  enzymeSpawns:
+  - moduleEnabled: 1
+    origin: {fileID: 2106351311}
+    digestiveEnzymePrefab: {fileID: 761807975845522662, guid: e520f9ae38470ae43ab567412afecba3, type: 3}
+    levelManager: {fileID: 0}
+    playerCharacter: {fileID: 0}
+    firstSpawnTime: 100
+    spawnInterval: 100
+    maxAliveCount: 2
+    spawnDistanceFromPlayer: 9
+    spawnDistanceJitter: 1.5
+    randomDirectionSpawn: 1
+    fixedSpawnDirection: {x: 1, y: 0}
+    avoidSpawnRadius: 0.6
+    avoidSpawnLayer:
+      serializedVersion: 2
+      m_Bits: 0
+    blockWhileRunFlowPaused: 1
+    blockInsideMiniStage: 1
+    resetTimerWhileBlocked: 0
+    debugLog: 1
+    enableForceSpawnKey: 0
+    forceSpawnKey: 290
+  eliteSpawns:
+  - moduleEnabled: 1
+    origin: {fileID: 1207597746}
+    levelManager: {fileID: 0}
+    spawnEnabled: 1
+    globalMaxAliveElites: 12
+    requireEliteMonsterBlueprint: 0
+    cleanupInactiveElitesEveryFrame: 1
+    blockWhileRunFlowPaused: 1
+    logMiniStageBlock: 0
+    spawnPhases:
+    - phaseName: 2-5분
+      startTime: 150
+      endTime: 300
+      selectionMode: 0
+      spawnInterval: 41.25
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 3
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 5-6분
+      startTime: 300
+      endTime: 360
+      selectionMode: 0
+      spawnInterval: 30.0
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 4
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 6-8분
+      startTime: 360
+      endTime: 480
+      selectionMode: 0
+      spawnInterval: 75.0
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 3
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 8-11분
+      startTime: 480
+      endTime: 660
+      selectionMode: 0
+      spawnInterval: 33.75
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 4
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 11-13분
+      startTime: 660
+      endTime: 780
+      selectionMode: 0
+      spawnInterval: 26.25
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 5
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 13-15분
+      startTime: 780
+      endTime: 900
+      selectionMode: 0
+      spawnInterval: 18.75
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 6
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    - phaseName: 15-0분
+      startTime: 900
+      endTime: 0
+      selectionMode: 0
+      spawnInterval: 26.25
+      spawnImmediatelyOnPhaseStart: 0
+      minSpawnCount: 1
+      maxSpawnCount: 1
+      maxAliveInPhase: 6
+      normalToEliteMappings:
+      - normalMonsterFlatIndex: 0
+        eliteMonsterFlatIndex: 10
+        enabled: 1
+      - normalMonsterFlatIndex: 1
+        eliteMonsterFlatIndex: 8
+        enabled: 1
+      - normalMonsterFlatIndex: 4
+        eliteMonsterFlatIndex: 9
+        enabled: 1
+      - normalMonsterFlatIndex: 5
+        eliteMonsterFlatIndex: 11
+        enabled: 1
+      - normalMonsterFlatIndex: 6
+        eliteMonsterFlatIndex: 12
+        enabled: 1
+      - normalMonsterFlatIndex: 7
+        eliteMonsterFlatIndex: 13
+        enabled: 1
+      maxNormalTableSampleAttempts: 30
+      avoidDuplicateEliteInOneWave: 1
+      fallbackToManualPoolIfNoMappedElite: 0
+      eliteMonsterFlatIndices: 08000000090000001a000000
+      additionalHpBuff: 0
+    debugLog: 0
+    logMonsterIndexTableOnStart: 0
+    debugFollowSelection: 0
+    normalSpawnsPerElite: 50
+  bloodClotSpawns:
+  - moduleEnabled: 1
+    origin: {fileID: 1485676086}
+    levelManager: {fileID: 1764401684}
+    entityManager: {fileID: 1547352219}
+    miniStageDirector: {fileID: 377995997}
+    bloodClotMonsterPoolIndex: 12
+    bloodClotBlueprint: {fileID: 11400000, guid: cc3bb7c175e5ed343a56a99fd10b7f04, type: 2}
+    bloodClotHpBuff: 0
+    firstSpawnDelay: 90
+    spawnInterval: 180
+    pauseTimerWhileRunFlowPaused: 1
+    spawnDistanceFromPlayer: 0.2
+    spawnDistanceRandomOffset: 0
+    useRandomDirection: 0
+    maxActiveBloodClots: 1
+    skipSpawnWhenMaxActiveReached: 1
+    debugLog: 1
+    enableForceSpawnKey: 0
+    forceSpawnKey: 288
+  summonObjectSpawns:
+  - moduleEnabled: 1
+    origin: {fileID: 1609493736}
+    levelManager: {fileID: 0}
+    eliteSummonObjectPrefab: {fileID: 8883575360997113124, guid: ef128a96719c28240a9fb1cb6510c853, type: 3}
+    firstSpawnDelay: 120
+    spawnInterval: 90
+    spawnCountPerWave: 1
+    minSpawnDistanceFromPlayer: 8
+    maxSpawnDistanceFromPlayer: 14
+    minDistanceBetweenSpawnedObjects: 5
+    maxPositionAttempts: 30
+    maxActiveObjects: 4
+    destroyInactiveSpawnedObjects: 1
+    debugLog: 0
+  miniBossSpawns:
+  - moduleEnabled: 1
+    origin: {fileID: 1967562481}
+    levelManager: {fileID: 0}
+    spawnEntries:
+    - spawnTimeSeconds: 480
+      miniBossBlueprint: {fileID: 11400000, guid: e57788280332e7f4fb68bda5863fa457, type: 2}
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: -1
+      spawnAroundPlayer: 1
+      spawnDistanceFromPlayer: 8
+      fixedSpawnPoint: {fileID: 0}
+      hpBuff: 0
+      memo: 8분 미니보스
+    - spawnTimeSeconds: 750
+      miniBossBlueprint: {fileID: 11400000, guid: 2ed5971bb65f2514ca8e48159e03db80, type: 2}
+      autoResolvePoolIndex: 1
+      monsterPoolIndex: -1
+      spawnAroundPlayer: 1
+      spawnDistanceFromPlayer: 8
+      fixedSpawnPoint: {fileID: 0}
+      hpBuff: 0
+      memo: 12분30초 미니보스
+    spawnEachEntryOnlyOnce: 1
+    debugLog: 0
+  bossSpawns:
+  - moduleEnabled: 0
+    origin: {fileID: 2076536165}
+    levelManager: {fileID: 0}
+    playerCharacter: {fileID: 0}
+    spawnAfterSeconds: 900
+    spawnOnlyOnce: 1
+    useRealtimeForDebug: 0
+    spawnRelativeToPlayer: 1
+    useRandomDirectionAroundPlayer: 1
+    spawnDistanceFromPlayer: 5
+    spawnOffsetFromPlayer: {x: 1.5, y: 1.5}
+    useFixedSpawnPoint: 0
+    fixedSpawnPoint: {fileID: 0}
+    logOnSpawn: 0
+    debugSpawnKey: 289
 --- !u!4 &2093063619
 Transform:
   m_ObjectHideFlags: 0
@@ -43268,7 +43246,14 @@ Transform:
   m_LocalPosition: {x: 544.3334, y: 295.66666, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1228875797}
+  - {fileID: 2106351311}
+  - {fileID: 1207597746}
+  - {fileID: 1485676086}
+  - {fileID: 1609493736}
+  - {fileID: 1967562481}
+  - {fileID: 2076536165}
   m_Father: {fileID: 1207884298}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2096653585
@@ -43631,46 +43616,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2106351311}
-  - component: {fileID: 2106351310}
   m_Layer: 0
-  m_Name: DigestiveEnzymeFieldSpawner
+  m_Name: '[Placement] DigestiveEnzymeFieldSpawner'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &2106351310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2106351309}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c21dd700e34f02f46bb255dfaeb14c02, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  digestiveEnzymePrefab: {fileID: 761807975845522662, guid: e520f9ae38470ae43ab567412afecba3, type: 3}
-  levelManager: {fileID: 0}
-  playerCharacter: {fileID: 0}
-  firstSpawnTime: 55
-  spawnInterval: 40
-  maxAliveCount: 3
-  spawnDistanceFromPlayer: 9
-  spawnDistanceJitter: 1.5
-  randomDirectionSpawn: 1
-  fixedSpawnDirection: {x: 1, y: 0}
-  avoidSpawnRadius: 0.6
-  avoidSpawnLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  blockWhileRunFlowPaused: 1
-  blockInsideMiniStage: 1
-  resetTimerWhileBlocked: 0
-  debugLog: 1
-  enableForceSpawnKey: 1
-  forceSpawnKey: 290
 --- !u!4 &2106351311
 Transform:
   m_ObjectHideFlags: 0
@@ -43680,11 +43632,11 @@ Transform:
   m_GameObject: {fileID: 2106351309}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 553.9942, y: 290.47504, z: -2.5513744}
+  m_LocalPosition: {x: 9.660828, y: -5.19162, z: -2.5513744}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1207884298}
+  m_Father: {fileID: 2093063619}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2124109317
 GameObject:
@@ -44756,7 +44708,6 @@ SceneRoots:
   - {fileID: 1421529453}
   - {fileID: 1207884298}
   - {fileID: 752185789}
-  - {fileID: 323477458}
   - {fileID: 248952241}
   - {fileID: 1970397406}
   - {fileID: 1738951459}

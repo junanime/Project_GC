@@ -562,8 +562,11 @@ namespace Vampire
             }
         }
 
+        private float nextVisibleHitTime;
         private void PlayHitFlash()
         {
+            if (SuppressHitFlash || Time.time < nextVisibleHitTime) return;
+            nextVisibleHitTime = Time.time + .22f;
             if (spriteRenderer == null || whiteMaterial == null || defaultMaterial == null)
             {
                 return;

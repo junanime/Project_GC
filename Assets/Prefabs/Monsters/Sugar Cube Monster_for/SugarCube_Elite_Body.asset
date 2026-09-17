@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: SugarCube_Elite_Body
   m_EditorClassIdentifier: 
   name: "\uC5D8\uB9AC\uD2B8 \uC124\uD0D5 \uD050\uBE0C"
-  hp: 400
-  atk: 20
+  hp: 200
+  atk: 12
   recovery: 0
   armor: 0
   atkspeed: 1

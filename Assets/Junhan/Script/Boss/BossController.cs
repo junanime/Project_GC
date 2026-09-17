@@ -723,8 +723,37 @@ namespace Vampire
             }
         }
 
+        public bool FieldRuntimeSuspended { get; private set; }
+        private readonly List<Behaviour> suspendedAuxiliaryControllers = new List<Behaviour>();
+        public void SetFieldRuntimeSuspended(bool suspended)
+        {
+            if (FieldRuntimeSuspended == suspended) return;
+            FieldRuntimeSuspended = suspended;
+            if (suspended)
+            {
+                StopPatternLoop();
+                StopBasicAttackBurst();
+                foreach (var pattern in GetComponentsInChildren<BossPatternBase>(true)) pattern.CancelExecution();
+                // These controllers own additional coroutines outside the main pattern loop.
+                foreach (var behaviour in transform.root.GetComponentsInChildren<Behaviour>())
+                    if (behaviour.enabled && (behaviour is BossPressureOverloadController || behaviour is BossRainbowAnnihilationController))
+                    { suspendedAuxiliaryControllers.Add(behaviour); behaviour.enabled = false; }
+                if (rb != null) { rb.velocity = Vector2.zero; rb.angularVelocity = 0f; }
+            }
+            else if (!isDead && isActiveAndEnabled)
+            {
+                foreach (var behaviour in suspendedAuxiliaryControllers) if (behaviour != null) behaviour.enabled = true;
+                suspendedAuxiliaryControllers.Clear();
+                lastPlayerPosition = playerCharacter != null ? playerCharacter.transform.position : transform.position;
+                basicAttackTimer = 0f;
+                ScheduleNextPattern(1f);
+                StartPatternLoop();
+            }
+        }
+
         private void Update()
         {
+            if (FieldRuntimeSuspended || MiniStageRuntimeState.IsInsideMiniStage) return;
             UpdatePlayerVelocityEstimate();
             UpdateSpriteFlip();
             UpdateBasicAttack();
@@ -732,6 +761,7 @@ namespace Vampire
 
         private void FixedUpdate()
         {
+            if (FieldRuntimeSuspended || MiniStageRuntimeState.IsInsideMiniStage) { if (rb != null) rb.velocity = Vector2.zero; return; }
             UpdateMovement();
         }
 
@@ -1667,7 +1697,7 @@ namespace Vampire
         {
             while (!isDead)
             {
-                if (!isPhaseTransitioning &&
+                if (!FieldRuntimeSuspended && !MiniStageRuntimeState.IsInsideMiniStage && !isPhaseTransitioning &&
      !externalActionLock &&
      !isUsingPattern &&
      !isBasicAttackBursting &&
@@ -1956,6 +1986,7 @@ namespace Vampire
             float damage,
             BossDamageSourceType sourceType)
         {
+            if (FieldRuntimeSuspended || MiniStageRuntimeState.IsInsideMiniStage) return;
             // 5코어 모드에서는 본체 직접 피해가 합산 HP/사망 조건을 우회할 수 없습니다.
             if (fiveCoreHealthRoot != null && fiveCoreHealthRoot.UsesFiveCoreHealth)
                 return;
@@ -2178,6 +2209,7 @@ namespace Vampire
         private void TryDealContactDamage(
             Collider2D other)
         {
+            if (FieldRuntimeSuspended || MiniStageRuntimeState.IsInsideMiniStage) return;
             if (isDead ||
                 playerCharacter == null)
             {

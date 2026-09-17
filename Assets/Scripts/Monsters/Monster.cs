@@ -179,6 +179,8 @@ namespace Vampire
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
             miniStageOwned = isMiniStageOwned;
+            nextHitFlashTime = 0f;
+            deathStarted = false;
 
             fieldRuntimeSuspended = false;
             hasCachedRigidbodySimulated = false;
@@ -471,6 +473,10 @@ namespace Vampire
             rb.velocity += knockback * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag));
         }
 
+        public static event System.Action<Monster> Died;
+        private float nextHitFlashTime;
+        private bool deathStarted;
+
         public override void TakeDamage(
     float damage,
     Vector2 knockback = default(Vector2),
@@ -511,11 +517,6 @@ namespace Vampire
             }
 
 
-            if (hitAnimationCoroutine != null)
-            {
-                StopCoroutine(hitAnimationCoroutine);
-            }
-
             if (knockback != default(Vector2) && rb != null)
             {
                 rb.velocity += knockback * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag));
@@ -524,7 +525,12 @@ namespace Vampire
 
             if (currentHealth > 0)
             {
-                hitAnimationCoroutine = StartCoroutine(HitAnimation());
+                // Do not restart a white flash on every rapid hit. Leave a visible rest between flashes.
+                if (!SuppressHitFlash && damage > 0f && Time.time >= nextHitFlashTime)
+                {
+                    nextHitFlashTime = Time.time + .22f;
+                    hitAnimationCoroutine = StartCoroutine(HitAnimation());
+                }
             }
             else
             {
@@ -539,7 +545,7 @@ namespace Vampire
                 monsterSpriteRenderer.sharedMaterial = whiteMaterial;
             }
 
-            yield return new WaitForSeconds(0.15f);
+            yield return new WaitForSeconds(0.06f);
 
             if (monsterSpriteRenderer != null && defaultMaterial != null)
             {
@@ -547,11 +553,15 @@ namespace Vampire
             }
 
             knockedBack = false;
+            hitAnimationCoroutine = null;
         }
 
         public virtual IEnumerator Killed(bool killedByPlayer = true)
         {
+            if (deathStarted) yield break;
+            deathStarted = true;
             alive = false;
+            Died?.Invoke(this);
 
             if (monsterHitbox != null)
             {
@@ -579,7 +589,8 @@ namespace Vampire
                 deathParticles.Play();
             }
 
-            yield return HitAnimation();
+            if (!SuppressHitFlash) yield return HitAnimation();
+            else yield return null;
 
             if (deathParticles != null)
             {

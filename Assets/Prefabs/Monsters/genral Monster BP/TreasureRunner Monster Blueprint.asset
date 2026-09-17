@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TreasureRunner Monster Blueprint
   m_EditorClassIdentifier: 
   name: "\uD1B5\uB2ED"
-  hp: 60
-  atk: 8
+  hp: 55
+  atk: 5
   recovery: 0
   armor: 0
   atkspeed: 2

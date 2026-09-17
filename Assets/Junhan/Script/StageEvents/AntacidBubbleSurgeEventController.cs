@@ -1,19 +1,25 @@
+using static UnityEngine.Object;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
 {
     /// <summary>
-    /// 필드 이벤트 '제산 거품 폭주' 전용 보조 디렉터입니다.
-    ///
-    /// StageEventDirector.cs를 크게 교체하지 않고,
-    /// 씬에 별도 오브젝트로 붙여 테스트할 수 있게 만들었습니다.
+    /// StageEventDirector가 소유하는 제산 반응 설정과 실행 모듈입니다.
+    /// 씬에 별도 오브젝트나 컴포넌트를 추가하지 않습니다.
     ///
     /// 이벤트 중에는 맵 주변에 안전 거품이 계속 생성되고,
     /// 플레이어가 어떤 거품 안에도 들어가 있지 않으면 지속 피해를 받습니다.
     /// </summary>
-    public class AntacidBubbleSurgeEventController : MonoBehaviour
+    [System.Serializable]
+    public class AntacidBubbleSurgeEventController : RuntimeModule
     {
+        protected override void OnSuspended() { SetWarningEdgeAlpha(0f); }
+        protected override void OnModuleDestroy()
+        {
+            foreach (var bubble in activeBubbles) if (bubble != null) Destroy(bubble.gameObject);
+            activeBubbles.Clear();
+        }
         [Header("References")]
         [Tooltip("현재 레벨 진행 시간과 플레이어 참조를 가져올 LevelManager입니다. 비워두면 씬에서 자동 탐색합니다.")]
         [SerializeField] private LevelManager levelManager;
@@ -99,7 +105,15 @@ namespace Vampire
         private float bubbleSpawnTimer;
         private float outsideDamageTimer;
 
-        private void Start()
+        public bool EventEnabled => eventEnabled;
+        public float WindowDuration => duration + warningDuration;
+        public void ScheduleAt(float time)
+        {
+            // Slot begins with the warning; damage begins after its normal warning lead-in.
+            startTime = time + warningDuration;
+        }
+
+        protected override System.Collections.IEnumerator OnStart()
         {
             if (levelManager == null)
             {
@@ -112,11 +126,13 @@ namespace Vampire
             }
 
             SetWarningEdgeAlpha(0f);
+
+            yield break;
         }
 
-        private void Update()
+        protected override void OnTick()
         {
-            if (MiniStageRuntimeState.IsInsideMiniStage || !eventEnabled || finished || levelManager == null)
+            if (MiniStageRuntimeState.IsInsideMiniStage || !eventEnabled || finished || levelManager == null || levelManager.IsRunFlowPaused || levelManager.IsLevelEnded)
             {
                 return;
             }
@@ -131,7 +147,7 @@ namespace Vampire
 
                 if (debugLog)
                 {
-                    Debug.Log($"[제산 거품 폭주] 경고 시작 | time={currentTime:F1}s", this);
+                    Debug.Log($"[제산 거품 폭주] 경고 시작 | time={currentTime:F1}s", Host);
                 }
             }
 
@@ -175,8 +191,7 @@ namespace Vampire
             {
                 Debug.Log(
                     $"[제산 거품 폭주] 시작 | time={currentTime:F1}s | " +
-                    $"duration={duration:F1}s | end={eventEndTime:F1}s",
-                    this);
+                    $"duration={duration:F1}s | end={eventEndTime:F1}s", Host);
             }
         }
 
@@ -197,7 +212,7 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log($"[제산 거품 폭주] 종료 | time={currentTime:F1}s", this);
+                Debug.Log($"[제산 거품 폭주] 종료 | time={currentTime:F1}s", Host);
             }
         }
 
@@ -266,7 +281,7 @@ namespace Vampire
             {
                 if (debugLog)
                 {
-                    Debug.LogWarning("[제산 거품 폭주] 다른 거품과의 최소 거리 조건을 만족하는 위치를 찾지 못했습니다.", this);
+                    Debug.LogWarning("[제산 거품 폭주] 다른 거품과의 최소 거리 조건을 만족하는 위치를 찾지 못했습니다.", Host);
                 }
 
                 return;
@@ -372,7 +387,7 @@ namespace Vampire
                 return;
             }
 
-            playerCharacter.TakeDamage(damage, Vector2.zero, false);
+            playerCharacter.TakePeriodicDamage(damage, Vector2.zero, false);
 
             if (debugLog)
             {
@@ -426,7 +441,7 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log($"[제산 거품 폭주 UI] {message}", this);
+                Debug.Log($"[제산 거품 폭주 UI] {message}", Host);
             }
         }
 

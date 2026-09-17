@@ -314,6 +314,12 @@ namespace Vampire
         /// </summary>
         public void SetFieldMonsterRuntimeSuspended(bool suspended)
         {
+            foreach (var boss in FindObjectsOfType<BossController>()) boss.SetFieldRuntimeSuspended(suspended);
+            if (suspended)
+            {
+                foreach (var bullet in FindObjectsOfType<BossSimpleBullet>()) Destroy(bullet.gameObject);
+                foreach (var missile in FindObjectsOfType<BossHomingMissile>()) Destroy(missile.gameObject);
+            }
             if (livingMonsters == null)
             {
                 return;
@@ -403,15 +409,30 @@ namespace Vampire
         ////////////////////////////////////////////////////////////////////////////////
         /// Exp Gem Spawning
         ////////////////////////////////////////////////////////////////////////////////
+        private readonly HashSet<ExpGem> miniStageGems = new HashSet<ExpGem>();
+        private readonly HashSet<Coin> miniStageCoins = new HashSet<Coin>();
+        public void ClearMiniStagePickups()
+        {
+            foreach (var gem in new List<ExpGem>(miniStageGems))
+                if (gem != null && gem.gameObject.activeSelf) DespawnGem(gem);
+            foreach (var coin in new List<Coin>(miniStageCoins))
+                if (coin != null && coin.gameObject.activeSelf) DespawnCoin(coin, false);
+            miniStageGems.Clear();
+            miniStageCoins.Clear();
+        }
+
         public ExpGem SpawnExpGem(Vector2 position, GemType gemType = GemType.White1, bool spawnAnimation = true)
         {
             ExpGem newGem = expGemPool.Get();
             newGem.Setup(position, gemType, spawnAnimation);
+            if (MiniStageRuntimeState.IsInsideMiniStage) miniStageGems.Add(newGem);
             return newGem;
         }
 
         public void DespawnGem(ExpGem gem)
         {
+            miniStageGems.Remove(gem);
+            if (MagneticCollectables.Contains(gem)) MagneticCollectables.Remove(gem);
             expGemPool.Release(gem);
         }
 
@@ -430,13 +451,21 @@ namespace Vampire
         ////////////////////////////////////////////////////////////////////////////////
         public Coin SpawnCoin(Vector2 position, CoinType coinType = CoinType.Bronze1, bool spawnAnimation = true)
         {
+            return SpawnCoin(position, coinType, spawnAnimation, true);
+        }
+
+        public Coin SpawnCoin(Vector2 position, CoinType coinType, bool spawnAnimation, bool collectableDuringSpawn)
+        {
             Coin newCoin = coinPool.Get();
-            newCoin.Setup(position, coinType, spawnAnimation);
+            newCoin.Setup(position, coinType, spawnAnimation, collectableDuringSpawn);
+            if (MiniStageRuntimeState.IsInsideMiniStage) miniStageCoins.Add(newCoin);
             return newCoin;
         }
 
         public void DespawnCoin(Coin coin, bool pickedUpByPlayer = true)
         {
+            miniStageCoins.Remove(coin);
+            if (MagneticCollectables.Contains(coin)) MagneticCollectables.Remove(coin);
             if (pickedUpByPlayer)
             {
                 int baseCoinValue = (int)coin.CoinType;

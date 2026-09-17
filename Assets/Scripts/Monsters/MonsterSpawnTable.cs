@@ -7,104 +7,80 @@ namespace Vampire
     {
         public SpawnRateKeyframe[] spawnRateKeyframes;
         public SpawnChanceKeyframe[] spawnChanceKeyframes;
-        public HPMultiplierKeyframe[] hpMultiplierKeyframes;
 
         public float GetSpawnRate(float t)
         {
-            if (t == 0)
-                return spawnRateKeyframes[0].spawnRate;
-            for (int i = 1; i < spawnRateKeyframes.Length; i++)
+            if (spawnRateKeyframes == null || spawnRateKeyframes.Length == 0) return 0f;
+            var previous = spawnRateKeyframes[0];
+            foreach (var next in spawnRateKeyframes)
             {
-                if (spawnRateKeyframes[i].t >= t)
-                    return Mathf.Lerp(spawnRateKeyframes[i-1].spawnRate, spawnRateKeyframes[i].spawnRate, Remap01(spawnRateKeyframes[i-1].t, spawnRateKeyframes[i].t, t));
+                if (next.t > t)
+                    return Mathf.Max(0f, Mathf.Lerp(previous.spawnRate, next.spawnRate,
+                        Mathf.InverseLerp(previous.t, next.t, t)));
+                previous = next;
             }
-            return 0;
+            return Mathf.Max(0f, previous.spawnRate);
         }
 
-        public (int, float) SelectMonsterWithHPMultiplier (float t)
+        // Normalize Inspector weights; clamp endpoints and tolerate repeated timestamps.
+        public int SelectMonster(float t) => SelectMonster(t, Random.value);
+        public int SelectMonster(float t, float sample)
         {
-            if (t == 0)
+            GetBracket(t, out var a, out var b, out float blend);
+            if (a == null || b == null) return -1;
+            int count = Mathf.Max(a.Length, b.Length);
+            float total = 0f;
+            for (int i = 0; i < count; i++) total += Weight(a, b, i, blend);
+            if (total <= 0f) return -1;
+            float remaining = Mathf.Clamp01(sample) * total;
+            int last = -1;
+            for (int i = 0; i < count; i++)
             {
-                int monsterIdx = SelectMonster(1, t);
-                float hpBuff = hpMultiplierKeyframes.Length > 0 ? hpMultiplierKeyframes[0].healthBuffs[monsterIdx] : 0;
-                return (monsterIdx, hpBuff); 
+                float weight = Weight(a, b, i, blend);
+                if (weight <= 0f) continue;
+                last = i;
+                remaining -= weight;
+                if (remaining < 0f) return i;
             }
-            for (int i = 0; i < spawnChanceKeyframes.Length; i++)
+            return last;
+        }
+
+        public float GetProbability(float t, int index)
+        {
+            GetBracket(t, out var a, out var b, out float blend);
+            if (a == null || b == null || index < 0) return 0f;
+            float total = 0f;
+            for (int i = 0; i < Mathf.Max(a.Length, b.Length); i++) total += Weight(a, b, i, blend);
+            return total > 0f ? Weight(a, b, index, blend) / total : 0f;
+        }
+
+        private void GetBracket(float t, out float[] a, out float[] b, out float blend)
+        {
+            a = b = null;
+            blend = 0f;
+            if (spawnChanceKeyframes == null || spawnChanceKeyframes.Length == 0) return;
+            var previous = spawnChanceKeyframes[0];
+            foreach (var next in spawnChanceKeyframes)
             {
-                if (spawnChanceKeyframes[i].t >= t)
+                if (next.t > t)
                 {
-                    int monsterIdx = SelectMonster(i, t);
-                    for (i = 0; i < hpMultiplierKeyframes.Length; i++)
-                    {
-                        if (hpMultiplierKeyframes[i].t >= t)
-                        {
-                            return (monsterIdx, GetHPBuff(i, monsterIdx, t));
-                        }
-                    }
-                    return (-1, 0);
+                    a = previous.spawnChances;
+                    b = next.spawnChances;
+                    blend = Mathf.InverseLerp(previous.t, next.t, t);
+                    return;
                 }
+                previous = next;
             }
-            return (-1, 0);
+            a = b = previous.spawnChances;
         }
 
-        public int SelectMonster (float t)
-        {
-            if (t == 0)
-                return SelectMonster(1, t);
-            for (int i = 0; i < spawnChanceKeyframes.Length; i++)
-            {
-                if (spawnChanceKeyframes[i].t >= t)
-                {
-                    return SelectMonster(i, t);
-                }
-            }
-            return -1;
-        }
-
-        private int SelectMonster(int i, float t)
-        {
-            float rand = Random.Range(0f, 1.0f);
-            float cumulative = 0;
-            float tLerp = Remap01(spawnChanceKeyframes[i-1].t, spawnChanceKeyframes[i].t, t);
-            for (int j = 0; j < spawnChanceKeyframes[i-1].spawnChances.Length; j++)
-            {
-                cumulative += Mathf.Lerp(spawnChanceKeyframes[i-1].spawnChances[j], spawnChanceKeyframes[i].spawnChances[j], tLerp);
-                if (rand < cumulative)
-                    return j;
-            }
-            return -1;
-        }
-
-        private float GetHPBuff(int i, int j, float t)
-        {
-            float tLerp = Remap01(hpMultiplierKeyframes[i-1].t, hpMultiplierKeyframes[i].t, t);
-            return Mathf.Lerp(hpMultiplierKeyframes[i-1].healthBuffs[j], hpMultiplierKeyframes[i].healthBuffs[j], tLerp);
-        }
-
-        private float Remap01(float min, float max, float t)
-        {
-            return (t - min) / (max - min);
-        }
+        private static float Weight(float[] a, float[] b, int i, float blend) =>
+            Mathf.Lerp(i < a.Length ? Mathf.Max(0f, a[i]) : 0f,
+                       i < b.Length ? Mathf.Max(0f, b[i]) : 0f, blend);
 
         [System.Serializable]
-        public class SpawnRateKeyframe
-        {
-            public float t;
-            public float spawnRate;
-        }
-
+        public class SpawnRateKeyframe { public float t; public float spawnRate; }
         [System.Serializable]
-        public class SpawnChanceKeyframe
-        {
-            public float t;
-            public float[] spawnChances;
-        }
-
-        [System.Serializable]
-        public class HPMultiplierKeyframe
-        {
-            public float t;
-            public float[] healthBuffs;
-        }
+        public class SpawnChanceKeyframe { public float t; public float[] spawnChances; }
     }
 }

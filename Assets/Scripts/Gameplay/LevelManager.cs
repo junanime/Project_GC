@@ -28,10 +28,9 @@ namespace Vampire
         private float levelTime = 0f;
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
-        private bool miniBossSpawned = false;
-        private bool finalBossSpawned = false;
-
-        public void NotifyExternalFinalBossSpawned() { finalBossSpawned = true; }
+        public int NormalMonstersSpawned { get; private set; }
+        private TimedSpecialMonsterSpawner fieldSpawns;
+        public void NotifyExternalFinalBossSpawned() { if (fieldSpawns != null) fieldSpawns.NotifyFinalBossSpawned(); }
         private bool levelEnded = false;
         private bool runFlowPaused = false;
 
@@ -41,6 +40,7 @@ namespace Vampire
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
         public bool IsRunFlowPaused => runFlowPaused;
+        public bool IsLevelEnded => levelEnded;
 
         public void Init(LevelBlueprint levelBlueprint)
         {
@@ -49,8 +49,9 @@ namespace Vampire
             levelTime = 0f;
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
-            miniBossSpawned = false;
-            finalBossSpawned = false;
+            fieldSpawns = FindObjectOfType<TimedSpecialMonsterSpawner>();
+            if (fieldSpawns == null) fieldSpawns = gameObject.AddComponent<TimedSpecialMonsterSpawner>();
+            fieldSpawns.InitializeLevel(this);
             levelEnded = false;
             runFlowPaused = false;
 
@@ -119,7 +120,6 @@ namespace Vampire
             }
 
             HandleNormalMonsterSpawn();
-            HandleBossSpawn();
             HandleChestSpawn();
         }
 
@@ -151,11 +151,6 @@ namespace Vampire
                 return;
             }
 
-            if (levelTime >= levelBlueprint.levelTime)
-            {
-                return;
-            }
-
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
@@ -168,14 +163,11 @@ namespace Vampire
                 ? 1.0f / spawnRate
                 : float.PositiveInfinity;
 
-            if (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
+            while (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
             {
                 SpawnMonsterFromSpawnTable();
 
-                timeSinceLastMonsterSpawned = Mathf.Repeat(
-                    timeSinceLastMonsterSpawned,
-                    monsterSpawnDelay
-                );
+                timeSinceLastMonsterSpawned -= monsterSpawnDelay;
             }
         }
 
@@ -188,53 +180,13 @@ namespace Vampire
 
             float normalizedTime = GetNormalizedLevelTime();
 
-            (int monsterIndex, float hpMultiplier) =
-                levelBlueprint.monsterSpawnTable.SelectMonsterWithHPMultiplier(normalizedTime);
-
-            SpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
+            int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
+            SpawnMonsterByFlatIndex(monsterIndex);
         }
 
         public void SpawnMonsterFromCurrentSpawnTable()
         {
             SpawnMonsterFromSpawnTable();
-        }
-
-        private void HandleBossSpawn()
-        {
-            if (levelBlueprint == null)
-            {
-                return;
-            }
-
-            if (!miniBossSpawned &&
-                levelBlueprint.miniBosses != null &&
-                levelBlueprint.miniBosses.Length > 0 &&
-                levelTime > levelBlueprint.miniBosses[0].spawnTime)
-            {
-                miniBossSpawned = true;
-
-                entityManager.SpawnMonsterRandomPosition(
-                    levelBlueprint.monsters.Length,
-                    levelBlueprint.miniBosses[0].bossBlueprint
-                );
-                GameAudioManager.PlayBossAppearOnly();
-            }
-
-            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && levelTime > levelBlueprint.levelTime && FindObjectOfType<BossController>() == null)
-            {
-                finalBossSpawned = true;
-
-                GameObject finalBoss = entityManager.SpawnFinalBoss(levelBlueprint,
-                    (Vector2)playerCharacter.transform.position + Vector2.up * 6f);
-
-                if (finalBoss != null)
-                {
-
-                    GameAudioManager.StartBossAudio();
-                    Monster legacyBoss = finalBoss.GetComponent<Monster>();
-                    if (legacyBoss != null) legacyBoss.OnKilled.AddListener(LevelPassed);
-                }
-            }
         }
 
         private void HandleChestSpawn()
@@ -284,6 +236,8 @@ namespace Vampire
 
         public void SpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier = 1f)
         {
+            if (levelBlueprint != null && entityManager != null &&
+                entityManager.LivingMonsters.Count >= Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit)) return;
             if (levelBlueprint == null || entityManager == null)
             {
                 Debug.LogWarning(
@@ -326,15 +280,12 @@ namespace Vampire
 
             // 소화효소 처치 난이도 상승 연결:
             // 선택된 난이도가 MonsterHealth이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
-            float finalHp = monsterBlueprint.hp *
-                            hpMultiplier *
-                            DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
+            // Spawn APIs take EXTRA HP, not total HP. Only explicit event buffs apply.
+            float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
+            float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
-            entityManager.SpawnMonsterRandomPosition(
-                poolIndex,
-                monsterBlueprint,
-                finalHp
-            );
+            Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
+            if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
         }
 
         public void SpawnRandomMonsterFromFlatIndexList(List<int> monsterIndices, float hpMultiplier = 1f)

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MonsterDebuffer_AttackSpeed_Blueprint
   m_EditorClassIdentifier: 
   name: "\ubc29\ud5a5\ubc18\uc804 \ub514\ubc84\ud37c"
-  hp: 50
+  hp: 55
   atk: 3
   recovery: 0
   armor: 0

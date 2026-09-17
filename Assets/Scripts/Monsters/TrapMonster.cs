@@ -38,6 +38,7 @@ namespace Vampire
         private Character trappedCharacter;
         private IDamageable trappedDamageable;
         private PlayerTrapBindRuntime trappedBindRuntime;
+        private SeaweedTrapVisual seaweedVisual;
 
         private Coroutine stateAnimationCoroutine;
         private Coroutine tickDamageCoroutine;
@@ -185,6 +186,9 @@ namespace Vampire
             ReleaseTrappedPlayer();
 
             // Pool에서 다시 나온 뒤 Dormant 애니메이션도 반드시 다시 시작.
+            seaweedVisual = GetComponent<SeaweedTrapVisual>();
+            if (seaweedVisual == null) seaweedVisual = gameObject.AddComponent<SeaweedTrapVisual>();
+            if (!seaweedVisual.Configure(trapBlueprint, trapSpriteRenderer)) seaweedVisual = null;
             ChangeState(TrapState.Dormant);
 
             if (debugLog)
@@ -442,7 +446,7 @@ namespace Vampire
                 // 결과 화면용:
                 // 함정의 틱 데미지를 플레이어에게 줄 때
                 // 공격한 함정 몬스터의 Blueprint를 함께 전달합니다.
-                trappedCharacter.TakeDamageFromMonster(
+                if (trapBlueprint.tickDamage > 0f) trappedCharacter.TakeDamageFromMonster(
                     trapBlueprint.tickDamage,
                     Vector2.zero,
                     trapBlueprint,
@@ -784,6 +788,15 @@ namespace Vampire
 
             if (trapBlueprint == null)
             {
+                return;
+            }
+
+            if (seaweedVisual != null)
+            {
+                if (nextState == TrapState.Dormant) seaweedVisual.ResetDormant();
+                else if (nextState == TrapState.Active)
+                    seaweedVisual.Capture(trappedBindRuntime != null ? trappedBindRuntime.VisualRenderer : null);
+                else seaweedVisual.Hide();
                 return;
             }
 

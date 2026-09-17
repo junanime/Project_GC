@@ -240,7 +240,7 @@ namespace Vampire
             bool isCritical,
             BossDamageSourceType damageSource)
         {
-            if (isBroken || !damageEnabled || !isActiveAndEnabled)
+            if (MiniStageRuntimeState.IsInsideMiniStage || isBroken || !damageEnabled || !isActiveAndEnabled)
             {
                 return 0f;
             }
@@ -713,8 +713,11 @@ namespace Vampire
             }
         }
 
+        private float nextVisibleHitTime;
         private void PlayHitFlash()
         {
+            if (SuppressHitFlash || Time.time < nextVisibleHitTime) return;
+            nextVisibleHitTime = Time.time + .22f;
             if (!isActiveAndEnabled ||
                 hitFlashDuration <= 0f)
             {

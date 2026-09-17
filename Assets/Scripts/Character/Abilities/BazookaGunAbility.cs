@@ -27,7 +27,7 @@ namespace Vampire
             base.Update();
 
 
-            // ÀçÀåÀü Áß È¸Àü°ª
+            // ìž¬ìž¥ì „ ì¤‘ íšŒì „ê°’
             float reloadRotation = 0f;
 
             float t =
@@ -139,7 +139,7 @@ namespace Vampire
 
 
             // =====================================================
-            // Ã¹ ¹øÂ° Á¶ÁØ
+            // ì²« ë²ˆì§¸ ì¡°ì¤€
             // =====================================================
 
             while (t < tMax)
@@ -196,7 +196,7 @@ namespace Vampire
 
 
             // =====================================================
-            // ¹ß»ç Á÷Àü ÃßÀû
+            // ë°œì‚¬ ì§ì „ ì¶”ì 
             // =====================================================
 
             if (targetEntity != null)
@@ -262,11 +262,11 @@ namespace Vampire
 
 
             // =====================================================
-            // ¹ÙÁÖÄ« Åõ»çÃ¼ »ý¼º
+            // ë°”ì£¼ì¹´ íˆ¬ì‚¬ì²´ ìƒì„±
             // =====================================================
 
             ExplosiveProjectile projectile =
-                entityManager.SpawnProjectile(
+                SpawnPlayerProjectile(
                     projectileIndex,
                     launchTransform.position,
                     damage.Value,
@@ -279,14 +279,14 @@ namespace Vampire
             if (projectile == null)
             {
                 Debug.LogWarning(
-                    "[BazookaGunAbility] ExplosiveProjectile »ý¼º¿¡ ½ÇÆÐÇß½À´Ï´Ù."
+                    "[BazookaGunAbility] ExplosiveProjectile ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤."
                 );
 
                 yield break;
             }
 
 
-            // Æø¹ß ¼³Á¤
+            // í­ë°œ ì„¤ì •
             projectile.SetupExplosion(
                 damage.Value,
                 explosionAOE.Value,
@@ -295,24 +295,24 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ·® ±â·Ï
+            // í”¼í•´ëŸ‰ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // projectile.OnHitDamageable.AddListener(
             //     playerCharacter.OnDealDamage.Invoke
             // );
             //
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
             // ReportDamage()
             //
-            // ¡æ ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·®
-            // ¡æ AugmentDamageTracker ¹ÙÁÖÄ« ´©Àû ÇÇÇØ·®
+            // â†’ ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰
+            // â†’ AugmentDamageTracker ë°”ì£¼ì¹´ ëˆ„ì  í”¼í•´ëŸ‰
             //
-            // µÑ ´Ù Ã³¸®
+            // ë‘˜ ë‹¤ ì²˜ë¦¬
             // =====================================================
 
             projectile.OnHitDamageable.AddListener(

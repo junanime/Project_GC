@@ -29,7 +29,7 @@ namespace Vampire
             }
 
 
-            // ÀçÀåÀü Áß È¸Àü
+            // ì¬ì¥ì „ ì¤‘ íšŒì „
             float reloadRotation = 0f;
 
 
@@ -52,7 +52,7 @@ namespace Vampire
             }
 
 
-            // ±â°üÃÑ È¸Àü ¹æÇâ
+            // ê¸°ê´€ì´ íšŒì „ ë°©í–¥
             float theta =
                 Time.time *
                 rotationSpeed.Value;
@@ -66,7 +66,7 @@ namespace Vampire
                 );
 
 
-            // ±â°üÃÑ À§Ä¡
+            // ê¸°ê´€ì´ ìœ„ì¹˜
             machineGun.transform.position =
                 playerCharacter.CenterTransform.position
                 +
@@ -74,7 +74,7 @@ namespace Vampire
                 gunRadius;
 
 
-            // ±â°üÃÑ È¸Àü
+            // ê¸°ê´€ì´ íšŒì „
             machineGun.transform.rotation =
                 Quaternion.Euler(
                     0f,
@@ -94,7 +94,7 @@ namespace Vampire
             if (launchTransform == null)
             {
                 Debug.LogWarning(
-                    "[MachineGunAbility] launchTransformÀÌ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù."
+                    "[MachineGunAbility] launchTransformì´ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤."
                 );
 
                 return;
@@ -102,7 +102,7 @@ namespace Vampire
 
 
             Projectile projectile =
-                entityManager.SpawnProjectile(
+                SpawnPlayerProjectile(
                     projectileIndex,
                     launchTransform.position,
                     damage.Value,
@@ -115,7 +115,7 @@ namespace Vampire
             if (projectile == null)
             {
                 Debug.LogWarning(
-                    "[MachineGunAbility] Projectile »ı¼º¿¡ ½ÇÆĞÇß½À´Ï´Ù."
+                    "[MachineGunAbility] Projectile ìƒì„±ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤."
                 );
 
                 return;
@@ -123,23 +123,23 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ·® ±â·Ï
+            // í”¼í•´ëŸ‰ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // projectile.OnHitDamageable.AddListener(
             //     playerCharacter.OnDealDamage.Invoke
             // );
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
             // ReportDamage()
             //
-            // 1. ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·®
-            // 2. AugmentDamageTracker ±â°üÃÑ ´©Àû ÇÇÇØ·®
+            // 1. ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰
+            // 2. AugmentDamageTracker ê¸°ê´€ì´ ëˆ„ì  í”¼í•´ëŸ‰
             //
-            // À» µ¿½Ã¿¡ Ã³¸®
+            // ì„ ë™ì‹œì— ì²˜ë¦¬
             // =====================================================
 
             projectile.OnHitDamageable.AddListener(
@@ -147,7 +147,7 @@ namespace Vampire
             );
 
 
-            // ¹ß»ç
+            // ë°œì‚¬
             projectile.Launch(
                 gunDirection
             );

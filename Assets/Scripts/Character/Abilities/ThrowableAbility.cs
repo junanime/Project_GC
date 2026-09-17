@@ -45,6 +45,7 @@ namespace Vampire
 
         private void Update()
         {
+            if (AttacksBlocked) return;
             timeSinceLastAttack += Time.deltaTime;
 
             if (timeSinceLastAttack >= cooldown.Value)
@@ -90,6 +91,7 @@ namespace Vampire
 
         protected virtual void LaunchThrowable()
         {
+            if (AttacksBlocked) return;
             Throwable throwable =
                 entityManager.SpawnThrowable(
                     throwableIndex,
@@ -118,26 +120,26 @@ namespace Vampire
 
 
             // =====================================================
-            // ÇÇÇØ ±â·Ï
+            // í”¼í•´ ê¸°ë¡
             // =====================================================
             //
-            // ±âÁ¸:
+            // ê¸°ì¡´:
             //
             // throwable.OnHitDamageable.AddListener(
             //     playerCharacter.OnDealDamage.Invoke
             // );
             //
-            // º¯°æ:
+            // ë³€ê²½:
             //
-            // ReportDamage()°¡
+            // ReportDamage()ê°€
             //
             // 1. Character.OnDealDamage
-            //    ¡æ ±âÁ¸ StatsManager ÃÑ ÇÇÇØ·® ±â·Ï
+            //    â†’ ê¸°ì¡´ StatsManager ì´ í”¼í•´ëŸ‰ ê¸°ë¡
             //
             // 2. AugmentDamageTracker
-            //    ¡æ ÇØ´ç AbilityÀÇ ´©Àû ÇÇÇØ·® ±â·Ï
+            //    â†’ í•´ë‹¹ Abilityì˜ ëˆ„ì  í”¼í•´ëŸ‰ ê¸°ë¡
             //
-            // À» µ¿½Ã¿¡ Ã³¸®ÇÕ´Ï´Ù.
+            // ì„ ë™ì‹œì— ì²˜ë¦¬í•©ë‹ˆë‹¤.
             // =====================================================
 
             throwable.OnHitDamageable.AddListener(

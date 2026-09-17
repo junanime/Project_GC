@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 3_1
   m_EditorClassIdentifier: 
   name: "\uC601\uC591\uC81C"
-  hp: 150
+  hp: 125
   atk: 10
   recovery: 0
   armor: 0
@@ -22,11 +22,11 @@ MonoBehaviour:
   acceleration: 5
   gemLootTable:
     lootTable:
-    - item: 2
-      dropChance: 0.9
-      coinType: 1
     - item: 10
-      dropChance: 0.1
+      dropChance: 0.6
+      coinType: 1
+    - item: 50
+      dropChance: 0.4
       coinType: 1
   coinLootTable:
     lootTable:

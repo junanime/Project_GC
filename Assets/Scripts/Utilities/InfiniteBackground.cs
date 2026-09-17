@@ -10,6 +10,7 @@ namespace Vampire
         [SerializeField] private Material backgroundMaterial;
 
         private MeshRenderer meshRenderer;
+        private Material runtimeMaterial;
 
         private Vector2 previousResetPosition = Vector2.zero;
         private Vector2 resetOffset = Vector2.zero;
@@ -56,11 +57,17 @@ namespace Vampire
             if (meshRenderer != null &&
                 backgroundMaterial != null)
             {
-                meshRenderer.sharedMaterial =
-                    backgroundMaterial;
+                runtimeMaterial = new Material(backgroundMaterial) { name = backgroundMaterial.name + " (Runtime)", hideFlags = HideFlags.DontSave };
+                backgroundMaterial = runtimeMaterial;
+                meshRenderer.sharedMaterial = runtimeMaterial;
             }
         }
 
+
+        private void OnDestroy()
+        {
+            if (runtimeMaterial != null) Destroy(runtimeMaterial);
+        }
 
         public void Init(
             Texture2D backgroundTexture,

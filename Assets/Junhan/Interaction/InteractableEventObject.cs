@@ -196,6 +196,14 @@ namespace Vampire
                 return;
             }
 
+            CompleteInteraction();
+        }
+
+        protected bool HasInteracted => alreadyInteracted;
+
+        // Shared by player interaction and automatic event activation.
+        protected void CompleteInteraction()
+        {
             alreadyInteracted = true;
 
             RemoveCandidate(this);

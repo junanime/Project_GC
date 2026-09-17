@@ -1,3 +1,4 @@
+using static UnityEngine.Object;
 using System.Collections;
 using UnityEngine;
 
@@ -7,7 +8,8 @@ namespace Vampire
     /// 지정된 시간에 미니보스를 스폰하는 스포너.
     /// 현재는 8분, 15분 스폰용으로 사용한다.
     /// </summary>
-    public class MiniBossSpawner : MonoBehaviour
+    [System.Serializable]
+    public class MiniBossSpawner : RuntimeModule
     {
         [System.Serializable]
         public class MiniBossSpawnEntry
@@ -74,7 +76,7 @@ namespace Vampire
         private EntityManager entityManager;
         private LevelBlueprint levelBlueprint;
 
-        private void Awake()
+        protected override void OnAwake()
         {
             if (spawnEntries == null)
             {
@@ -84,12 +86,14 @@ namespace Vampire
             spawnedFlags = new bool[spawnEntries.Length];
         }
 
-        private void Start()
+        protected override System.Collections.IEnumerator OnStart()
         {
             ResolveReferences();
+
+            yield break;
         }
 
-        private void Update()
+        protected override void OnTick()
         {
             if (entityManager == null || levelBlueprint == null)
             {
@@ -152,14 +156,14 @@ namespace Vampire
 
                 if (entityManager == null || levelBlueprint == null)
                 {
-                    Debug.LogError("[MiniBossSpawner] EntityManager 또는 LevelBlueprint를 찾지 못했습니다.", this);
+                    Debug.LogError("[MiniBossSpawner] EntityManager 또는 LevelBlueprint를 찾지 못했습니다.", Host);
                     yield break;
                 }
             }
 
             if (entry.miniBossBlueprint == null)
             {
-                Debug.LogError($"[MiniBossSpawner] MiniBossBlueprint가 비어 있습니다. Memo={entry.memo}", this);
+                Debug.LogError($"[MiniBossSpawner] MiniBossBlueprint가 비어 있습니다. Memo={entry.memo}", Host);
                 yield break;
             }
 
@@ -172,8 +176,7 @@ namespace Vampire
                     Debug.LogError(
                         $"[MiniBossSpawner] 미니보스 poolIndex 자동 탐색 실패 | " +
                         $"Blueprint={entry.miniBossBlueprint.name} | Memo={entry.memo}\n" +
-                        "Level 1 Blueprint의 Monster Settings에 해당 미니보스 블루프린트가 등록되어 있는지 확인하세요.",
-                        this
+                        "Level 1 Blueprint의 Monster Settings에 해당 미니보스 블루프린트가 등록되어 있는지 확인하세요.", Host
                     );
 
                     yield break;
@@ -184,8 +187,7 @@ namespace Vampire
             {
                 Debug.LogError(
                     $"[MiniBossSpawner] 잘못된 poolIndex입니다. " +
-                    $"PoolIndex={resolvedPoolIndex} | Blueprint={entry.miniBossBlueprint.name} | Memo={entry.memo}",
-                    this
+                    $"PoolIndex={resolvedPoolIndex} | Blueprint={entry.miniBossBlueprint.name} | Memo={entry.memo}", Host
                 );
 
                 yield break;
@@ -211,8 +213,7 @@ namespace Vampire
                     $"Time={FormatTime(levelManager.CurrentLevelTime)} | " +
                     $"Memo={entry.memo} | PoolIndex={resolvedPoolIndex} | " +
                     $"Prefab={prefabName} | Blueprint={entry.miniBossBlueprint.name} | " +
-                    $"Position={spawnPosition} | Monster={(spawnedMiniBoss != null ? spawnedMiniBoss.name : "NULL")}",
-                    this
+                    $"Position={spawnPosition} | Monster={(spawnedMiniBoss != null ? spawnedMiniBoss.name : "NULL")}", Host
                 );
             }
 

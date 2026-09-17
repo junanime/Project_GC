@@ -190,6 +190,8 @@ MonoBehaviour:
   onFull:
     m_PersistentCalls:
       m_Calls: []
+  filledImage: {fileID: 0}
+  tileFillPixels: 0
 --- !u!1 &27198614
 GameObject:
   m_ObjectHideFlags: 0
@@ -2944,6 +2946,7 @@ MonoBehaviour:
   hitMaterial: {fileID: 2100000, guid: 82ebeb73078cc4145aa889870d58ae0a, type: 2}
   deathMaterial: {fileID: 2100000, guid: a3417b1068f7c4e129b88a8aa9254c5b, type: 2}
   deathParticles: {fileID: 869581549}
+  thermometerText: {fileID: 0}
   characterBlueprint: {fileID: 0}
   alive: 1
   currentLevel: 1
@@ -2957,6 +2960,7 @@ MonoBehaviour:
   armor:
     value: 0
     upgrades: 
+  rangeMultiplier: 1
   attackSpeedMultiplier: 1
   damageMultiplier: 1
   maxHealthBonus: 0
@@ -2965,10 +2969,64 @@ MonoBehaviour:
   expMultiplier: 1
   critChance: 0.05
   luckMultiplier: 1
+  lifeSteal: 0
+  healOnKill: 0
+  projectileSizeMultiplier: 1
   additionalProjectiles: 0
   hasShield: 0
   reviveCount: 0
   invincibilityTimeBonus: 0
+  hasAntibioticBomb: 0
+  enableDash: 1
+  dashDistance: 3.5
+  dashDuration: 0.22
+  dashRechargeTime: 1.2
+  maxDashCharges: 1
+  invincibleDuringDash: 1
+  dashEndInvincibleGraceTime: 0.12
+  stopVelocityAfterDash: 1
+  dashMovementCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  useDashMovementCurve: 1
+  useDashSprite: 1
+  dashSprite: {fileID: 0}
+  dashSpriteFacesRight: 1
+  restartWalkAnimationAfterDash: 1
+  passThroughCollidersDuringDash: 1
+  includeTriggerCollidersInDashGhost: 0
+  debugDashLog: 0
+  healOnIdlePerSecond: 0
+  autoCollectItems: 0
+  slowChance: 0
+  additionalPierce: 0
+  burnChance: 0
+  hasGinsengStick: 0
+  antibioticBombChance: 0
+  hasThermometer: 0
+  mouthwashCount: 0
+  reflexHammerCount: 0
 --- !u!1 &869581548
 GameObject:
   m_ObjectHideFlags: 0
@@ -7999,6 +8057,8 @@ MonoBehaviour:
   onFull:
     m_PersistentCalls:
       m_Calls: []
+  filledImage: {fileID: 0}
+  tileFillPixels: 0
 --- !u!1 &928073264
 GameObject:
   m_ObjectHideFlags: 0
@@ -8765,7 +8825,22 @@ MonoBehaviour:
   pauseMenu: {fileID: 499037435}
   particles: {fileID: 1348383117}
   failsafeChestBlueprint: {fileID: 11400000, guid: 46af59dce019b4b5cb49f8515ccd9f54, type: 2}
+  minimapObject: {fileID: 0}
+  autoFindMinimapIfEmpty: 1
+  addCanvasToMinimapIfMissing: 1
+  minimapModalSortingOrder: -100
   cardPopupDelay: 0.1
+  enableReroll: 1
+  rerollButton: {fileID: 0}
+  rerollButtonImage: {fileID: 0}
+  rerollButtonText: {fileID: 0}
+  rerollButtonLabel: "\uC0C8\uB85C\uACE0\uCE68"
+  rerollAvailableImageColor: {r: 1, g: 1, b: 1, a: 1}
+  rerollUsedImageColor: {r: 0, g: 0, b: 0, a: 0.55}
+  rerollAvailableTextColor: {r: 1, g: 1, b: 1, a: 1}
+  rerollUsedTextColor: {r: 1, g: 1, b: 1, a: 0.45}
+  applyDisabledColorToButtonTransition: 1
+  debugRerollLog: 0
 --- !u!1 &1321567718
 GameObject:
   m_ObjectHideFlags: 0
@@ -8938,77 +9013,82 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b88bb03159edb5d459136b7be9a476ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelManager: {fileID: 0}
-  monsterSurgeEvents:
-  - eventName: "\uAC10\uC5FC \uC99D\uC2DD"
-    enabled: 1
-    startTime: 10
-    duration: 10
-    minimumReferenceSpawnRate: 1
-    lowTierMonsterIndices: 00000000
-    lowTierSpawnMultiplier: 4
-    lowTierBaseShare: 1
-    lowTierHpMultiplier: 1
-    midTierMonsterIndices: 00000000
-    midTierSpawnMultiplier: 1.5
-    midTierBaseShare: 0.5
-    midTierHpMultiplier: 1
-    highTierMonsterIndices: 
-    highTierSpawnMultiplier: 1
-    highTierBaseShare: 0.2
-    highTierHpMultiplier: 1
-    started: 0
-    finished: 0
-    lowAccumulator: 0
-    midAccumulator: 0
-    highAccumulator: 0
-  goldRushEvents:
-  - eventName: "\uACE8\uB4DC \uB7EC\uC2DC"
-    enabled: 1
-    startTime: 5
-    duration: 20
-    coinDropAttemptMultiplier: 5
-    coinValueMultiplier: 5
-    maxCoinDropAttempts: 5
-    additionalCoinDropChance: 1
-    additionalCoinDropCount: 2
-    additionalCoinType: 1
-    started: 0
-    finished: 0
-  acidSecretionEvents:
-  - eventName: "\uC704\uC0B0\uBD84\uBE44"
-    enabled: 1
-    startTime: 10
-    duration: 10
-    acidPuddlePrefab: {fileID: 8611868660744885873, guid: 648095bcd3c3cff4c8c964c298ab9200, type: 3}
-    puddleSpawnInterval: 1
-    puddlesPerWave: 3
-    maxActivePuddles: 12
-    minSpawnDistanceFromPlayer: 1
-    maxSpawnDistanceFromPlayer: 6
-    puddleLifeTime: 6
-    puddleDamagePerTick: 3
-    puddleTickInterval: 0.5
-    puddleScale: 1.5
-    puddleWarningDuration: 0.5
-    damageImmediatelyOnEnter: 0
-    acidSlimeMonsterIndices: 
-    acidSlimeExtraSpawnMultiplier: 3
-    acidSlimeMinimumReferenceSpawnRate: 1
-    acidSlimeHpMultiplier: 1
-    rewardOnEnd: 1
-    spawnChestAsTemporaryItemReward: 1
-    started: 0
-    finished: 0
-    rewarded: 0
-    puddleSpawnTimer: 0
-    acidSlimeAccumulator: 0
-    activePuddles: []
-  logEventState: 0
-  logMonsterIndexTableOnStart: 0
-  logExtraSpawn: 0
-  logGoldRushModifier: 0
-  logAcidEvent: 0
+  basicEvents:
+  - moduleEnabled: 0
+    origin: {fileID: 1347853661}
+    levelManager: {fileID: 0}
+    monsterSurgeEvents:
+    - eventName: "\uAC10\uC5FC \uC99D\uC2DD"
+      enabled: 1
+      startTime: 10
+      duration: 10
+      minimumReferenceSpawnRate: 1
+      lowTierMonsterIndices: 00000000
+      lowTierSpawnMultiplier: 4
+      lowTierBaseShare: 1
+      lowTierHpMultiplier: 1
+      midTierMonsterIndices: 00000000
+      midTierSpawnMultiplier: 1.5
+      midTierBaseShare: 0.5
+      midTierHpMultiplier: 1
+      highTierMonsterIndices: 
+      highTierSpawnMultiplier: 1
+      highTierBaseShare: 0.2
+      highTierHpMultiplier: 1
+      started: 0
+      finished: 0
+      lowAccumulator: 0
+      midAccumulator: 0
+      highAccumulator: 0
+    goldRushEvents:
+    - eventName: "\uACE8\uB4DC \uB7EC\uC2DC"
+      enabled: 1
+      startTime: 5
+      duration: 20
+      coinDropAttemptMultiplier: 5
+      coinValueMultiplier: 5
+      maxCoinDropAttempts: 5
+      additionalCoinDropChance: 1
+      additionalCoinDropCount: 2
+      additionalCoinType: 1
+      started: 0
+      finished: 0
+    acidSecretionEvents:
+    - eventName: "\uC704\uC0B0\uBD84\uBE44"
+      enabled: 1
+      startTime: 10
+      duration: 10
+      acidPuddlePrefab: {fileID: 8611868660744885873, guid: 648095bcd3c3cff4c8c964c298ab9200, type: 3}
+      puddleSpawnInterval: 1
+      puddlesPerWave: 3
+      maxActivePuddles: 12
+      minSpawnDistanceFromPlayer: 1
+      maxSpawnDistanceFromPlayer: 6
+      puddleLifeTime: 6
+      puddleDamagePerTick: 3
+      puddleTickInterval: 0.5
+      puddleScale: 1.5
+      puddleWarningDuration: 0.5
+      damageImmediatelyOnEnter: 0
+      acidSlimeMonsterIndices: 
+      acidSlimeExtraSpawnMultiplier: 3
+      acidSlimeMinimumReferenceSpawnRate: 1
+      acidSlimeHpMultiplier: 1
+      rewardOnEnd: 1
+      spawnChestAsTemporaryItemReward: 1
+      started: 0
+      finished: 0
+      rewarded: 0
+      puddleSpawnTimer: 0
+      acidSlimeAccumulator: 0
+      activePuddles: []
+    logEventState: 0
+    logMonsterIndexTableOnStart: 0
+    logExtraSpawn: 0
+    logGoldRushModifier: 0
+    logAcidEvent: 0
+  advancedEvents: []
+  antacidEvents: []
 --- !u!1 &1348383117
 GameObject:
   m_ObjectHideFlags: 0
@@ -19708,6 +19788,8 @@ MonoBehaviour:
   statsManager: {fileID: 1845134363}
   gameOverDialog: {fileID: 1042722128}
   gameTimer: {fileID: 2096653587}
+  levelResultPanel: {fileID: 0}
+  logRunFlowPause: 1
 --- !u!224 &1832510035 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4379362936154790579, guid: cb898dd879eac436cabcd5ae25a3a4bd, type: 3}
@@ -19845,7 +19927,7 @@ MeshRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 1017377967
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!210 &1852338041
@@ -19857,7 +19939,7 @@ SortingGroup:
   m_GameObject: {fileID: 1852338036}
   m_Enabled: 1
   m_SortingLayerID: 1017377967
-  m_SortingLayer: -1
+  m_SortingLayer: -2
   m_SortingOrder: -1000
   m_SortAtRoot: 0
 --- !u!114 &1852338042
@@ -20629,22 +20711,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 2076536164}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 54556bae77bd67a4d8de7a7bc8e02049, type: 3}
+  m_Script: {fileID: 11500000, guid: 073ab35634eed7b419217fb494162e0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCharacter: {fileID: 0}
-  bossPrefab: {fileID: 592601914724115230, guid: 94a504447975fed4b97efe7a06227d26, type: 3}
-  spawnAfterSeconds: 10
-  spawnOnlyOnce: 1
-  useRealtimeForDebug: 1
-  spawnRelativeToPlayer: 1
-  useRandomDirectionAroundPlayer: 1
-  spawnDistanceFromPlayer: 1
-  spawnOffsetFromPlayer: {x: 1.5, y: 1.5}
-  useFixedSpawnPoint: 0
-  fixedSpawnPoint: {fileID: 0}
-  logOnSpawn: 1
-  debugSpawnKey: 289
+  levelBossSchedule:
+    moduleEnabled: 1
+    origin: {fileID: 0}
+    useLevelBlueprintSchedule: 1
+    levelManager: {fileID: 0}
+  timedSpawns: []
+  enzymeSpawns: []
+  eliteSpawns: []
+  bloodClotSpawns: []
+  summonObjectSpawns: []
+  miniBossSpawns: []
+  bossSpawns:
+  - moduleEnabled: 0
+    origin: {fileID: 2076536165}
+    playerCharacter: {fileID: 0}
+    bossPrefab: {fileID: 592601914724115230, guid: 94a504447975fed4b97efe7a06227d26, type: 3}
+    spawnAfterSeconds: 10
+    spawnOnlyOnce: 1
+    useRealtimeForDebug: 1
+    spawnRelativeToPlayer: 1
+    useRandomDirectionAroundPlayer: 1
+    spawnDistanceFromPlayer: 1
+    spawnOffsetFromPlayer: {x: 1.5, y: 1.5}
+    useFixedSpawnPoint: 0
+    fixedSpawnPoint: {fileID: 0}
+    logOnSpawn: 1
+    debugSpawnKey: 289
 --- !u!224 &2082455969 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4379362936154790579, guid: cb898dd879eac436cabcd5ae25a3a4bd, type: 3}

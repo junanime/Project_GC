@@ -48,9 +48,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 704856458144186150}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0edd253e7bbf03540a33ae08f64352dd, type: 3}
+  m_Script: {fileID: 11500000, guid: 56584cfc72f3b9aa3858166bb8d59c1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rewardKind: 0
   playerStartPoint: {fileID: 1379852900156597793}
   rewardSpawnPoint: {fileID: 7585028743432934790}
   returnInteractable: {fileID: 1296356536300066962}
@@ -59,7 +60,7 @@ MonoBehaviour:
   unlockReturnIfRewardChestMissing: 1
   debugLog: 1
   timeLimit: 15
-  removeUncollectedCoinsWhenTimeUp: 1
+  removeUncollectedWhenTimeUp: 1
   clearDelayAfterTimeUp: 0.1
   dropAcrossEntireStage: 1
   stageAreaCollider: {fileID: 0}
@@ -90,9 +91,9 @@ MonoBehaviour:
   - coinType: 50
     weight: 0
   fallbackCoinPrefab: {fileID: 0}
-  useCoinSpawnAnimation: 0
+  useSpawnAnimation: 0
   collectableDuringSpawn: 1
-  spawnedCoinParent: {fileID: 0}
+  spawnedPickupParent: {fileID: 0}
   timerRoot: {fileID: 0}
   timerText: {fileID: 0}
   timerPrefix: 'GOLD TIME '

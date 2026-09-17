@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Sniper Monster
   m_EditorClassIdentifier: 
   name: Sniper Monster Blueprint
-  hp: 50
-  atk: 15
+  hp: 40
+  atk: 10
   recovery: 0
   armor: 0
   atkspeed: 0
@@ -39,13 +39,26 @@ MonoBehaviour:
     - item: 5
       dropChance: 0.3
       coinType: 0
-  walkSpriteSequence: []
-  walkFrameTime: 0
+  walkSpriteSequence:
+  - {fileID: 21300000, guid: fe16b99e9677b484c95b424eb88ab21c, type: 3}
+  walkFrameTime: 0.2
+  description:
+  resultSprite: {fileID: 21300000, guid: fe16b99e9677b484c95b424eb88ab21c, type: 3}
   projectilePrefab: {fileID: 1717462325660897561, guid: 8ec71fd61cbf6d842a5033e3311461ac, type: 3}
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
   projectileSpeed: 18
+  fireSprites:
+  - {fileID: 21300000, guid: fe16b99e9677b484c95b424eb88ab21c, type: 3}
+  - {fileID: 21300000, guid: c5cea469f146eda4eadbb07538b45f3d, type: 3}
+  - {fileID: 21300000, guid: fb4670500d1b81946ad18837f51f9eab, type: 3}
+  - {fileID: 21300000, guid: 35e9fc5a22da9794b8655a21883e7831, type: 3}
+  - {fileID: 21300000, guid: f7b0caaf866b7d94bb219036a5aa5331, type: 3}
+  - {fileID: 21300000, guid: 33917a88131bcf342b3fef0a335926b5, type: 3}
+  - {fileID: 21300000, guid: 4d6261c4b1024034186d13d013df4066, type: 3}
+  - {fileID: 21300000, guid: 8808f145f750ded48a6d5d84412b119f, type: 3}
+  fireFrameTime: 0.09
   aimDuration: 1.5
   lockDuration: 0.4
   attackCooldown: 5

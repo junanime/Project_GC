@@ -71,7 +71,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1088
   damage:
-    value: 5
+    value: 10
     upgrades:
     - 1
     - 1
@@ -131,21 +131,21 @@ MonoBehaviour:
   cursorControlEnabled: 0
   poisonDuration: 3
   poisonTickInterval: 0.5
-  poisonTickDamage: 2
+  poisonTickDamage: 4
   explosionRadius: 1
-  explosionDamage: 2
+  explosionDamage: 4
   specialExplosionChance: 1
   homingRange: 5
   homingLerpSpeed: 8
   fiberTrailLifetime: 2
-  fiberTrailDamagePerSecond: 2
+  fiberTrailDamagePerSecond: 4
   fiberTrailTickInterval: 0.5
   fiberTrailWidth: 0.12
   fiberTrailMinSegmentDistance: 0.25
   fiberTrailColor: {r: 0.75, g: 1, b: 0.95, a: 0.75}
   digestiveAcidPuddleLifetime: 3
   digestiveAcidPuddleRadius: 1
-  digestiveAcidPuddleDamagePerSecond: 2
+  digestiveAcidPuddleDamagePerSecond: 4
   digestiveAcidPuddleTickInterval: 0.5
   digestiveAcidPuddleColor: {r: 0.6, g: 1, b: 0.15, a: 0.75}
   hungerStackDuration: 3
@@ -282,7 +282,7 @@ MonoBehaviour:
   organCompressionFieldRadius: 1
   organCompressionFieldDuration: 3
   organCompressionDamageTickInterval: 0.5
-  organCompressionDamagePerTick: 2
+  organCompressionDamagePerTick: 4
   organCompressionPullSpeed: 2.5
   organCompressionScreenPadding: 0.08
   debugOrganCompression: 0

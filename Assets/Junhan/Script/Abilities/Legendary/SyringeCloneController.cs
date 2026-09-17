@@ -57,8 +57,8 @@ namespace Vampire
                 sourceSyringeAbility == null)
             {
                 Debug.LogWarning(
-                    "[ºĞ½Å] »ı¼º ½ÇÆĞ: " +
-                    "sourceCharacter/entityManager/sourceSyringeAbility Áß ÇÏ³ª°¡ ¾ø½À´Ï´Ù."
+                    "[ë¶„ì‹ ] ìƒì„± ì‹¤íŒ¨: " +
+                    "sourceCharacter/entityManager/sourceSyringeAbility ì¤‘ í•˜ë‚˜ê°€ ì—†ìŠµë‹ˆë‹¤."
                 );
 
                 return null;
@@ -420,6 +420,7 @@ namespace Vampire
 
         private void UpdateAttack()
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             float cloneAttackSpeedMultiplier =
                 statRuntime != null
                     ? statRuntime.CloneAttackSpeedMultiplier
@@ -538,7 +539,7 @@ namespace Vampire
 
 
                 Projectile projectile =
-                    entityManager.SpawnProjectile(
+                    sourceSyringeAbility.SpawnPlayerProjectile(
                         projectilePoolIndex,
                         transform.position,
                         damage,
@@ -558,9 +559,9 @@ namespace Vampire
                 // Projectile Size
                 // =================================================
                 //
-                // Ç®¸µµÈ Åõ»çÃ¼°¡ ÀÌÀü Å©±â¸¦
-                // µé°í ³ª¿ÀÁö ¾Êµµ·Ï
-                // ºĞ½Åµµ ¸Å¹ø Å©±â¸¦ ¸í½ÃÀûÀ¸·Î ¼³Á¤
+                // í’€ë§ëœ íˆ¬ì‚¬ì²´ê°€ ì´ì „ í¬ê¸°ë¥¼
+                // ë“¤ê³  ë‚˜ì˜¤ì§€ ì•Šë„ë¡
+                // ë¶„ì‹ ë„ ë§¤ë²ˆ í¬ê¸°ë¥¼ ëª…ì‹œì ìœ¼ë¡œ ì„¤ì •
                 // =================================================
 
                 projectile.transform.localScale =
@@ -589,10 +590,10 @@ namespace Vampire
                 else
                 {
                     Debug.LogWarning(
-                        $"[ºĞ½Å] Spawned projectile is " +
+                        $"[ë¶„ì‹ ] Spawned projectile is " +
                         $"'{projectile.GetType().Name}', " +
                         $"not 'SyringeProjectile'. " +
-                        "Projectile Prefab ¿¬°áÀ» ´Ù½Ã È®ÀÎÇÏ¼¼¿ä."
+                        "Projectile Prefab ì—°ê²°ì„ ë‹¤ì‹œ í™•ì¸í•˜ì„¸ìš”."
                     );
                 }
 
@@ -601,8 +602,8 @@ namespace Vampire
                 // Damage Report
                 // =================================================
                 //
-                // ºĞ½ÅÀÌ ½ÇÁ¦·Î Àû¿¡°Ô ÀûÁßÇßÀ» ¶§
-                // ÃÖÁ¾ ÇÇÇØ·®À» ReportCloneDamage()·Î Àü´Ş
+                // ë¶„ì‹ ì´ ì‹¤ì œë¡œ ì ì—ê²Œ ì ì¤‘í–ˆì„ ë•Œ
+                // ìµœì¢… í”¼í•´ëŸ‰ì„ ReportCloneDamage()ë¡œ ì „ë‹¬
                 // =================================================
 
                 projectile.OnHitDamageable.AddListener(
@@ -639,7 +640,7 @@ namespace Vampire
 
 
             // =====================================================
-            // ±âÁ¸ ÀüÃ¼ ÇÇÇØ·® ½Ã½ºÅÛ À¯Áö
+            // ê¸°ì¡´ ì „ì²´ í”¼í•´ëŸ‰ ì‹œìŠ¤í…œ ìœ ì§€
             // =====================================================
 
             if (sourceCharacter != null &&
@@ -654,14 +655,14 @@ namespace Vampire
 
 
             // =====================================================
-            // Áõ°­º° ÇÇÇØ·®
+            // ì¦ê°•ë³„ í”¼í•´ëŸ‰
             // =====================================================
 
             if (AugmentDamageTracker.Instance != null)
             {
                 AugmentDamageTracker.Instance
                     .RecordDamage(
-                        "ºĞ½Å¹è¾ç",
+                        "ë¶„ì‹ ë°°ì–‘",
                         dealtDamage
                     );
             }
@@ -676,8 +677,8 @@ namespace Vampire
             Collider2D other
         )
         {
-            // ºĞ½ÅÀº ¸ó½ºÅÍ Á¢ÃËÀ¸·Î »ç¶óÁöÁö ¾Ê´Â´Ù.
-            // ÇÃ·¹ÀÌ¾î »ç¸Á ½Ã¿¡¸¸ Á¦°ÅµÈ´Ù.
+            // ë¶„ì‹ ì€ ëª¬ìŠ¤í„° ì ‘ì´‰ìœ¼ë¡œ ì‚¬ë¼ì§€ì§€ ì•ŠëŠ”ë‹¤.
+            // í”Œë ˆì´ì–´ ì‚¬ë§ ì‹œì—ë§Œ ì œê±°ëœë‹¤.
         }
 
 

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 1_1
   m_EditorClassIdentifier: 
   name: "\uC138\uADE0"
-  hp: 25
-  atk: 5
+  hp: 35
+  atk: 6
   recovery: 0
   armor: 0
   atkspeed: 2
@@ -22,7 +22,7 @@ MonoBehaviour:
   acceleration: 5
   gemLootTable:
     lootTable:
-    - item: 1
+    - item: 2
       dropChance: 1
       coinType: 1
   coinLootTable:

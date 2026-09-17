@@ -80,6 +80,7 @@ SyringeDartAbility sourceNeedleAbility)
 
         private void ApplyCompression()
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             List<CompressionTarget> targets = GetDamageableTargetsInRadius();
 
             for (int i = 0; i < targets.Count; i++)
@@ -351,6 +352,7 @@ SyringeDartAbility sourceNeedleAbility)
 
         private void TryDamageTarget(CompressionTarget target)
         {
+            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
             if (target.damageable == null || target.component == null)
             {
                 return;
@@ -381,7 +383,7 @@ SyringeDartAbility sourceNeedleAbility)
                 finalDamage *= statusDamageMultiplier;
             }
 
-            target.damageable.TakeDamage(finalDamage, Vector2.zero, false);
+            target.damageable.TakePeriodicDamage(finalDamage, Vector2.zero, false);
             var reaction = SyringeAugmentVfx.Play("OrganCompressionHit", GetTargetWorldPosition(target), SyringeAugmentVfx.FindTarget(target.component));
             if (reaction != null) reaction.BindTo(target.component.transform);
 

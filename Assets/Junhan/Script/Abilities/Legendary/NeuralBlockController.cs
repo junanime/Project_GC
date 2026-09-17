@@ -90,6 +90,8 @@ namespace Vampire
 
         private void Update()
         {
+            var source = GetComponent<SyringeDartAbility>();
+            if (source != null && source.AttacksBlocked) return;
             if (mainCamera == null)
             {
                 mainCamera = Camera.main;

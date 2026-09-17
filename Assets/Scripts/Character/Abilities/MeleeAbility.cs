@@ -21,9 +21,10 @@ namespace Vampire
 
         void Update()
         {
+            if (AttacksBlocked) return;
             timeSinceLastAttack += Time.deltaTime;
 
-            //  Àû¿ë: ½ÇÁ¦ ÄðÅ¸ÀÓ = ±âº» ÄðÅ¸ÀÓ / °ø°Ý ¼Óµµ ¹èÀ²
+            //  ì ìš©: ì‹¤ì œ ì¿¨íƒ€ìž„ = ê¸°ë³¸ ì¿¨íƒ€ìž„ / ê³µê²© ì†ë„ ë°°ìœ¨
             float effectiveCooldown = cooldown.Value / playerCharacter.AttackSpeedMultiplier;
 
             if (timeSinceLastAttack >= effectiveCooldown)

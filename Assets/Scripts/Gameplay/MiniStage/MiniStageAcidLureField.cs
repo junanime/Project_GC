@@ -139,6 +139,17 @@ namespace Vampire
         public int RequiredKillCount => requiredKillCount;
         public bool IsCompleted => isCompleted;
 
+        private void OnEnable() { Monster.Died += OnMonsterDiedOnField; }
+        private void OnDisable() { Monster.Died -= OnMonsterDiedOnField; }
+
+        private void OnMonsterDiedOnField(Monster monster)
+        {
+            if (isCompleted || monster == null || !monster.IsMiniStageOwned || triggerCollider == null) return;
+            // Check at death, before the hitbox is disabled and before the corpse animation finishes.
+            if (triggerCollider.OverlapPoint(monster.transform.position))
+                TryCountMonsterForField(monster, false, false);
+        }
+
         private void Reset()
         {
             triggerCollider = GetComponent<Collider2D>();
@@ -599,7 +610,7 @@ namespace Vampire
                 }
                 else
                 {
-                    monster.TakeDamage(damageThisTick, Vector2.zero, false);
+                    monster.TakePeriodicDamage(damageThisTick, Vector2.zero, false);
                 }
             }
         }
@@ -734,10 +745,10 @@ namespace Vampire
 
             Debug.LogWarning(
                 "[MiniStageAcidLureField] Monster.currentHealth 필드를 찾지 못했습니다. " +
-                "임시로 Monster.TakeDamage() 막타 처리를 사용합니다."
+                "임시로 Monster.TakePeriodicDamage() 막타 처리를 사용합니다."
             );
 
-            monster.TakeDamage(monster.HP, Vector2.zero, false);
+            monster.TakePeriodicDamage(monster.HP, Vector2.zero, false);
         }
 
         private void CompleteField()

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MonsterBuffer_MoveSpeed_Blueprint
   m_EditorClassIdentifier: 
   name: "\uC774\uC18D\uBC84\uD37C"
-  hp: 100
+  hp: 85
   atk: 0
   recovery: 0
   armor: 0
