@@ -12,6 +12,7 @@ namespace Vampire
     {
         private readonly List<float> stackExpireTimes = new List<float>();
 
+        private SyringeAugmentVfx augmentVisual;
         private Monster ownerMonster;
         private EntityManager entityManager;
 
@@ -67,6 +68,10 @@ namespace Vampire
                 stackExpireTimes.RemoveAt(0);
             }
 
+            if (augmentVisual == null && SyringeAugmentVfx.IsLiving(this))
+                augmentVisual = SyringeAugmentVfx.Play("GutBacteriaNeedle", transform.position, SyringeAugmentVfx.FindTarget(ownerMonster));
+            if (augmentVisual != null) augmentVisual.SetStrength(Mathf.Lerp(0.4f, 1f, stackExpireTimes.Count / (float)this.maxStacks));
+
             if (this.debugLog)
             {
                 Debug.Log(
@@ -96,14 +101,19 @@ namespace Vampire
         {
             RemoveExpiredStacks();
 
+            if (!SyringeAugmentVfx.IsLiving(this))
+                SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+
             if (stackExpireTimes.Count <= 0)
             {
+                SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
                 Destroy(this);
             }
         }
 
         private void OnOwnerKilled(Monster killedMonster)
         {
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             if (rewardGiven)
             {
                 return;
@@ -161,8 +171,18 @@ namespace Vampire
             }
         }
 
+        private void OnDisable()
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            stackExpireTimes.Clear();
+            rewardGiven = false;
+            if (ownerMonster != null) ownerMonster.OnKilled.RemoveListener(OnOwnerKilled);
+            initialized = false;
+        }
+
         private void OnDestroy()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             if (ownerMonster != null)
             {
                 ownerMonster.OnKilled.RemoveListener(OnOwnerKilled);

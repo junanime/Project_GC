@@ -195,6 +195,7 @@ namespace Vampire
             if (runtime.hungerNeedleEnabled)
             {
                 ApplyHungerNeedleHit(sourceCharacter, runtime);
+                SyringeAugmentVfx.PlayHungerHit(damageableComponent, sourceCharacter, runtime.hungerMaxStacks);
             }
 
             if (runtime.gutBacteriaEnabled)
@@ -492,10 +493,10 @@ namespace Vampire
                 healAmount *= runtime.mosquitoBossHealMultiplier;
             }
 
-            TryHealPlayer(sourceCharacter, healAmount);
+            TryHealPlayer(sourceCharacter, healAmount, damageableComponent);
         }
 
-        private static void TryHealPlayer(Character sourceCharacter, float healAmount)
+        private static void TryHealPlayer(Character sourceCharacter, float healAmount, Component impactSource)
         {
             if (sourceCharacter == null || healAmount <= 0f)
             {
@@ -544,6 +545,7 @@ namespace Vampire
             }
 
             healMethod.Invoke(sourceCharacter, new object[] { healAmount });
+            SyringeAugmentVfx.PlayAbsorption(impactSource, sourceCharacter);
         }
 
         private static void ApplyExplosion(
@@ -553,6 +555,8 @@ namespace Vampire
             LayerMask damageableLayer,
             GameObject originalTarget)
         {
+            SyringeAugmentVfx.Play("Explosion", hitPosition,
+                originalTarget != null ? SyringeAugmentVfx.FindTarget(originalTarget.transform) : null);
             Collider2D[] hits = Physics2D.OverlapCircleAll(
                 hitPosition,
                 runtime.explosionRadius,

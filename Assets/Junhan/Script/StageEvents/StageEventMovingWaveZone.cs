@@ -22,6 +22,47 @@ namespace Vampire
         private Vector2 knockback;
         private bool affectPlayer;
         private bool affectMonsters;
+        private static Sprite[] acidFrames;
+        private SpriteRenderer acidVisual;
+        private Vector3 acidVisualScale;
+        private const float AcidFrameTime = 0.11f;
+
+        // Only the acid event calls this. Coffee and the warning retain their own visuals.
+        public void EnableAcidAnimation(bool moveLeftToRight)
+        {
+            if (acidFrames == null)
+            {
+                acidFrames = new Sprite[6];
+                for (int i = 0; i < acidFrames.Length; i++)
+                    acidFrames[i] = Resources.Load<Sprite>("FieldEventAnimations/AcidWave/AcidWave_" + (i + 1).ToString("00"));
+            }
+            foreach (var frame in acidFrames) if (frame == null) return;
+            if (acidVisual == null)
+            {
+                var visualObject = new GameObject("Rolling acid crest");
+                visualObject.transform.SetParent(transform, false);
+                acidVisual = visualObject.AddComponent<SpriteRenderer>();
+            }
+            var source = GetComponent<SpriteRenderer>();
+            if (source != null)
+            {
+                acidVisual.sharedMaterial = source.sharedMaterial;
+                source.enabled = false;
+            }
+            acidVisual.sprite = acidFrames[0];
+            acidVisual.color = Color.white;
+            acidVisual.flipX = !moveLeftToRight;
+            GroundVisualSorting.Apply(acidVisual);
+            // Preserve the artwork's proportions; the leading edge follows the original damage box.
+            Vector3 scale = transform.lossyScale;
+            float height = Mathf.Abs(scale.y);
+            float width = height * acidFrames[0].bounds.size.x / acidFrames[0].bounds.size.y;
+            acidVisualScale = new Vector3(width / Mathf.Abs(scale.x) / acidFrames[0].bounds.size.x,
+                height / Mathf.Abs(scale.y) / acidFrames[0].bounds.size.y, 1f);
+            acidVisual.transform.localScale = acidVisualScale;
+            acidVisual.transform.localPosition = new Vector3((moveLeftToRight ? -1f : 1f)
+                * (width / Mathf.Abs(scale.x) - 1f) * 0.5f, 0f, 0f);
+        }
 
         private readonly Dictionary<MonoBehaviour, float> lastDamageTimeByTarget =
             new Dictionary<MonoBehaviour, float>();
@@ -84,6 +125,8 @@ namespace Vampire
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / travelDuration);
             transform.position = Vector3.Lerp(startPosition, endPosition, t);
+            if (acidVisual != null)
+                acidVisual.sprite = acidFrames[Mathf.FloorToInt(elapsed / AcidFrameTime) % acidFrames.Length];
         }
 
         private void OnTriggerStay2D(Collider2D other)

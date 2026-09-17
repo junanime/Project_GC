@@ -28,6 +28,7 @@ namespace Vampire
         private float timer;
         private bool configured;
         private bool isEmitting;
+        private SyringeAugmentVfx augmentVisual;
 
         /// <summary>
         /// SyringeDartAbility에서 호출한다.
@@ -68,6 +69,9 @@ namespace Vampire
             if (!configured || sourceAbility == null || ownerCharacter == null)
                 return;
 
+            if (ownerCharacter.CurrentHealth <= 0f || !ownerCharacter.gameObject.activeInHierarchy)
+                return;
+
             if (isEmitting)
                 return;
 
@@ -89,7 +93,6 @@ namespace Vampire
             isEmitting = true;
 
             GameObject visualObject = CreateWaveVisualObject();
-            LineRenderer lineRenderer = visualObject.GetComponent<LineRenderer>();
 
             HashSet<MonoBehaviour> hitTargets = new HashSet<MonoBehaviour>();
 
@@ -102,7 +105,7 @@ namespace Vampire
 
             while (elapsed < waveDuration)
             {
-                if (ownerCharacter == null)
+                if (ownerCharacter == null || !ownerCharacter.gameObject.activeInHierarchy || ownerCharacter.CurrentHealth <= 0f)
                     break;
 
                 elapsed += Time.deltaTime;
@@ -112,55 +115,37 @@ namespace Vampire
 
                 Vector3 center = ownerCharacter.transform.position;
 
-                visualObject.transform.position = center;
-                UpdateRingVisual(lineRenderer, currentRadius);
+                if (visualObject != null) visualObject.transform.position = center;
+                UpdateRingVisual(currentRadius);
                 DamageTargetsOnRing(center, currentRadius, hitTargets);
 
                 yield return null;
             }
 
-            Destroy(visualObject);
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             isEmitting = false;
         }
 
-        /// <summary>
-        /// 별도 프리팹 없이 테스트 가능한 원형 LineRenderer를 만든다.
-        /// </summary>
         private GameObject CreateWaveVisualObject()
         {
-            GameObject obj = new GameObject("Gastric_Peristalsis_Wave_Visual");
-            LineRenderer line = obj.AddComponent<LineRenderer>();
-
-            line.useWorldSpace = false;
-            line.loop = true;
-            line.positionCount = 72;
-            line.startWidth = waveThickness;
-            line.endWidth = waveThickness;
-            line.startColor = waveColor;
-            line.endColor = waveColor;
-            line.sortingOrder = 50;
-            line.material = new Material(Shader.Find("Sprites/Default"));
-
-            return obj;
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            augmentVisual = SyringeAugmentVfx.Play("GastricPeristalsisWave", ownerCharacter.transform.position);
+            if (augmentVisual == null) return null;
+            augmentVisual.SetStrength(waveColor.a);
+            augmentVisual.SetGroundRadius(0.15f, 0.82f);
+            return augmentVisual.gameObject;
         }
 
-        private void UpdateRingVisual(LineRenderer line, float radius)
+        private void UpdateRingVisual(float radius)
         {
-            if (line == null)
-                return;
+            if (augmentVisual != null) augmentVisual.SetGroundRadius(radius, 0.82f);
+        }
 
-            int count = line.positionCount;
-
-            for (int i = 0; i < count; i++)
-            {
-                float angle = ((float)i / count) * Mathf.PI * 2f;
-                Vector3 position = new Vector3(
-                    Mathf.Cos(angle) * radius,
-                    Mathf.Sin(angle) * radius,
-                    0f);
-
-                line.SetPosition(i, position);
-            }
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            isEmitting = false;
         }
 
         /// <summary>

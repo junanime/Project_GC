@@ -26,8 +26,8 @@ Transform:
   m_GameObject: {fileID: 2877871657500550848}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.435, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.2, z: 1}
+  m_LocalPosition: {x: 0.02, y: 0.039, z: 0}
+  m_LocalScale: {x: 0.44566062, y: 0.111415155, z: 0.55707574}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1680239685074238797}
@@ -158,7 +158,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1401065725, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c1dce47be0c7478181c3c76608342bf4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -300,18 +300,34 @@ MonoBehaviour:
   collectableSearchRadius: 5
   absorbRadius: 0.65
   retargetInterval: 0.25
-  thiefMoveSpeed: 1.05
+  thiefMoveSpeed: 1.2
   speedIncreasePerStoredItem: 0.035
-  maxSpeedMultiplier: 2.2
+  maxSpeedMultiplier: 2
   idleWanderSpeedMultiplier: 0.35
   idleWanderRadius: 1.5
-  scaleIncreasePerStoredItem: 1
+  scaleIncreasePerStoredItem: 0.3
   maxScaleMultiplier: 5
   bonusRewardThreshold: 12
   bonusCoinValue: 15
   minimumExpDrop: 2
   minimumCoinDrop: 1
   debugLog: 1
+  backRunSprites:
+  - {fileID: 21300000, guid: f13170ee38d242319251cdb2775fd1a6, type: 3}
+  - {fileID: 21300000, guid: a2daed89fec14104b7ffe22a0d013987, type: 3}
+  - {fileID: 21300000, guid: 7419b15fe1d648889d05991a4754a8f7, type: 3}
+  - {fileID: 21300000, guid: 1a1d5140b50641ff9238870a6ff99b2a, type: 3}
+  - {fileID: 21300000, guid: 15a1ec3a43614cbbbdd283ff8d9506d9, type: 3}
+  - {fileID: 21300000, guid: b79aa5acc6874b22bdae876da5122fc6, type: 3}
+  eatSprites:
+  - {fileID: 21300000, guid: 35000348d7494dbd8525009185daef00, type: 3}
+  - {fileID: 21300000, guid: 68e153c875f141e4a397e8e1e25ff0d8, type: 3}
+  - {fileID: 21300000, guid: 915dae2996664563897fb180e36d8c49, type: 3}
+  - {fileID: 21300000, guid: f43b09e1237a4303a4c8276e8c016de4, type: 3}
+  - {fileID: 21300000, guid: bfbcef4dc1cd4771a1c7353f67d43334, type: 3}
+  - {fileID: 21300000, guid: b0184cedb0134375b865997285f5c90a, type: 3}
+  runFrameTime: 0.09
+  eatFrameTime: 0.08
 --- !u!1001 &1613326256856120527
 PrefabInstance:
   m_ObjectHideFlags: 0

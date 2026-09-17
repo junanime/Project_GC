@@ -82,8 +82,6 @@ namespace Vampire
         [Tooltip("피 흔적의 최대 크기입니다.")]
         [SerializeField] private float bloodTrailMaxSize = 0.38f;
 
-        [Tooltip("피 흔적의 Sorting Layer 이름입니다. 바닥 위에 보이되 몬스터보다 뒤에 두는 값을 추천합니다.")]
-        [SerializeField] private string bloodTrailSortingLayerName = "Default";
 
         [Tooltip("피 흔적의 Order in Layer입니다. 값이 높을수록 앞에 보입니다.")]
         [SerializeField] private int bloodTrailSortingOrder = -5;
@@ -484,8 +482,7 @@ namespace Vampire
             SpriteRenderer sr = trailObject.AddComponent<SpriteRenderer>();
             sr.sprite = sprite;
             sr.color = bloodTrailColor;
-            sr.sortingLayerName = bloodTrailSortingLayerName;
-            sr.sortingOrder = bloodTrailSortingOrder;
+            GroundVisualSorting.Apply(sr, bloodTrailSortingOrder);
 
             StartCoroutine(FadeAndDestroyBloodTrail(sr, trailObject, bloodTrailLifetime));
         }

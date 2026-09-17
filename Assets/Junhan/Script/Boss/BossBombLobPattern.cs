@@ -324,14 +324,22 @@ namespace Vampire
                         flightDuration);
             }
 
-            if (warning != null)
+            if (projectile != null)
             {
-                Destroy(
-                    warning);
+                projectile.transform.rotation = Quaternion.identity;
+                BossPatternArt.Replace(projectile, "BombBreak", .9f, 15, false);
+                yield return new WaitForSeconds(.2f);
             }
+            if (warning != null) Destroy(warning);
 
-            if (bossController != null && bossController.UsesFiveCoreSkills &&
-                !bossController.FiveCoreSkills.CanContinue(this)) yield break;
+            if (bossController == null || bossController.IsDead || bossController.IsPhaseTransitioning ||
+                (bossController.UsesFiveCoreSkills && !bossController.FiveCoreSkills.CanContinue(this)))
+            {
+                if (projectile != null) Destroy(projectile);
+                pendingBombObjects.Remove(warning);
+                pendingBombObjects.Remove(projectile);
+                yield break;
+            }
             pendingBombObjects.Remove(warning);
             pendingBombObjects.Remove(projectile);
             SpawnExplosionEffect(
@@ -340,21 +348,7 @@ namespace Vampire
             ApplyExplosionDamage(
                 targetPosition);
 
-            if (projectile != null)
-            {
-                if (projectileDestroyDelayAfterImpact >
-                    0f)
-                {
-                    Destroy(
-                        projectile,
-                        projectileDestroyDelayAfterImpact);
-                }
-                else
-                {
-                    Destroy(
-                        projectile);
-                }
-            }
+            if (projectile != null) Destroy(projectile, BossPatternArt.Frames("BombExplosion").Length > 0 ? 0 : projectileDestroyDelayAfterImpact);
         }
 
         private GameObject CreateWarningCircle(
@@ -375,6 +369,8 @@ namespace Vampire
                 Vector3.one *
                 explosionRadius;
 
+            BossPatternArt.Replace(warning, "BombWarning", explosionRadius * 2f, 4f / Mathf.Max(.01f, warningDuration), false);
+            GroundVisualSorting.ApplyHierarchy(warning, 200);
             return warning;
         }
 
@@ -438,6 +434,7 @@ namespace Vampire
                 );
             }
 
+            BossPatternArt.Replace(projectile, "BombIdle", .9f, 10);
             return projectile;
         }
 
@@ -697,6 +694,7 @@ namespace Vampire
         private void SpawnExplosionEffect(
             Vector2 targetPosition)
         {
+            if (BossPatternArt.Effect("BombExplosion", targetPosition, explosionRadius * 2f, 12) != null) return;
             if (explosionEffectPrefab == null)
             {
                 return;

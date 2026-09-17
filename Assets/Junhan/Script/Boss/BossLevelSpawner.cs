@@ -96,8 +96,11 @@ namespace Vampire
             }
         }
 
+        private void OnDisable() { StopAllCoroutines(); }
+
         private void SpawnBoss()
         {
+            if (FinalBossSummonInteractable.IsSummoning || FindObjectOfType<BossController>() != null) return;
             ResolveReferences();
 
             if (spawnOnlyOnce && hasSpawned)
@@ -147,21 +150,16 @@ namespace Vampire
                 );
             }
 
-            spawnedBossMonster = levelManager.EntityManager.SpawnMonster(
-                bossPoolIndex,
-                spawnPosition,
-                levelManager.CurrentLevelBlueprint.finalBoss.bossBlueprint,
-                0f
-            );
-
-            if (spawnedBossMonster == null)
+            GameObject spawnedBoss = levelManager.EntityManager.SpawnFinalBoss(
+                levelManager.CurrentLevelBlueprint, spawnPosition);
+            if (spawnedBoss == null)
             {
-                Debug.LogError("[BossLevelSpawner] EntityManager.SpawnMonster returned NULL.");
+                Debug.LogError("[BossLevelSpawner] Final boss spawn failed.");
                 return;
             }
-
-            BossController bossController =
-    spawnedBossMonster.GetComponentInChildren<BossController>(true);
+            spawnedBossMonster = spawnedBoss.GetComponent<Monster>();
+            levelManager.NotifyExternalFinalBossSpawned();
+            BossController bossController = spawnedBoss.GetComponentInChildren<BossController>(true);
 
             if (bossController != null)
             {
@@ -181,7 +179,7 @@ namespace Vampire
 
             if (logOnSpawn)
             {
-                Debug.Log($"[BossLevelSpawner] Boss spawned successfully: {spawnedBossMonster.name}");
+                Debug.Log($"[BossLevelSpawner] Boss spawned successfully: {spawnedBoss.name}");
             }
         }
 

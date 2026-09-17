@@ -696,7 +696,7 @@ namespace Vampire
 
         private CursorControlledNeedleController cursorControlledNeedleController;
 
-    
+
         public GameObject ProjectilePrefab => projectilePrefab;
         public LayerMask MonsterLayer => monsterLayer;
 
@@ -711,6 +711,11 @@ namespace Vampire
 
         private void ApplyInspectorForcedAugmentRuntimeSetup()
         {
+            if (lifeBurnEnabled)
+            {
+                EnableLifeBurnLegendary();
+            }
+
             if (acupunctureFormationEnabled)
             {
                 EnableAcupunctureFormationAugment();
@@ -764,6 +769,7 @@ namespace Vampire
 
         protected override void Update()
         {
+            UpdateLifeBurnVisual();
             ApplyInspectorForcedAugmentRuntimeSetup();
 
             // 이기어침이 활성화되면 기본 자동 공격은 멈춘다.
@@ -803,6 +809,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref lifeBurnVisual);
             DestroyHeavySnipeChargePreview();
             DestroyNeedleShotgunAmmoText();
         }
@@ -971,6 +978,7 @@ namespace Vampire
                 syringeProjectile.ConfigureSpecials(
                     BuildSpecialRuntime()
                 );
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
             }
             else
             {
@@ -981,14 +989,34 @@ namespace Vampire
                 );
             }
 
-            projectile.OnHitDamageable.AddListener(
-                playerCharacter.OnDealDamage.Invoke
-            );
-
+            // 기본침 피해는 기존 전체 피해량에는 포함하지만
+            // AugmentDamageTracker의 증강별 피해 경쟁에서는 제외합니다.
+            // ReportBaseNeedleDamage 내부에서 기존 OnDealDamage도 그대로 호출하므로
+            // 기존 전체 피해량 집계 기능도 유지됩니다.
+            projectile.OnHitDamageable.AddListener(ReportBaseNeedleDamage);
             projectile.Launch(direction);
 
             // 여기까지 왔을 때만 실제 발사 성공.
             return true;
+        }
+
+        // =========================================================
+        // Base Needle Damage Report
+        // =========================================================
+
+        private void ReportBaseNeedleDamage(float dealtDamage)
+        {
+            if (dealtDamage <= 0f)
+            {
+                return;
+            }
+
+            // 기본침 피해는 기존 전체 피해량 시스템에만 전달합니다.
+            // 증강별 피해 추적에는 기록하지 않습니다.
+            if (playerCharacter != null)
+            {
+                playerCharacter.OnDealDamage.Invoke(dealtDamage);
+            }
         }
 
         private void HandleCursorControlModeUpdate()
@@ -1235,6 +1263,8 @@ namespace Vampire
             baseDirection.Normalize();
 
             int totalProjectileCount = GetNeedleShotgunProjectileCount();
+            if (entityManager != null && totalProjectileCount > 0)
+                SyringeAugmentVfx.PlayDirected("NeedleShotgun", GetProjectileSpawnPosition(baseDirection), baseDirection, SyringeAugmentVfx.FindTarget(playerCharacter));
 
             if (debugNeedleShotgun)
             {
@@ -1323,6 +1353,7 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
             }
             else
             {
@@ -1332,10 +1363,9 @@ namespace Vampire
                     this);
             }
 
-            if (playerCharacter != null)
-            {
-                projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
-            }
+            projectile.OnHitDamageable.AddListener(
+                dealtDamage => ReportDamage("침샷건", dealtDamage)
+            );
 
             projectile.Launch(direction);
         }
@@ -1516,6 +1546,9 @@ namespace Vampire
             return false;
         }
 
+        private SyringeAugmentVfx heavyChargeVisual;
+        private bool heavyVisualFull;
+
         private void FireHeavySnipe(float chargeRatio)
         {
             if (playerCharacter == null || entityManager == null)
@@ -1556,9 +1589,12 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(runtime);
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, true);
             }
 
-            projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            projectile.OnHitDamageable.AddListener(
+                dealtDamage => ReportDamage("대물침", dealtDamage)
+            );
             projectile.Launch(aimDirection);
 
             if (debugHeavySnipe)
@@ -1693,7 +1729,7 @@ namespace Vampire
 
         private void UpdateHeavySnipeChargePreview(float chargeRatio, Vector2 aimDirection)
         {
-            if (!showHeavyChargePreview || playerCharacter == null)
+            if (!showHeavyChargePreview || playerCharacter == null || playerCharacter.CurrentHealth <= 0f)
             {
                 HideHeavySnipeChargePreview();
                 return;
@@ -1716,6 +1752,19 @@ namespace Vampire
             HeavySnipeChargeStats stats = CalculateHeavySnipeChargeStats(chargeRatio);
 
             Vector2 previewPosition = GetHeavySnipeChargePreviewPosition(chargeRatio, aimDirection);
+            bool full = chargeRatio >= 0.999f;
+            if (heavyChargeVisual != null && full != heavyVisualFull) SyringeAugmentVfx.ReleaseOwned(ref heavyChargeVisual);
+            if (heavyChargeVisual == null)
+            {
+                heavyVisualFull = full;
+                heavyChargeVisual = SyringeAugmentVfx.Play(full ? "HeavySnipeFullCharge" : "HeavySnipe", previewPosition, heavyChargePreviewRenderer);
+            }
+            if (heavyChargeVisual != null)
+            {
+                heavyChargeVisual.transform.position = previewPosition;
+                heavyChargeVisual.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg);
+                heavyChargeVisual.SetStrength(Mathf.Lerp(0.4f, 1f, chargeRatio));
+            }
             heavyChargePreviewObject.transform.position = previewPosition;
 
             float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
@@ -1974,6 +2023,7 @@ namespace Vampire
 
         private void HideHeavySnipeChargePreview()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref heavyChargeVisual);
             if (heavyChargePreviewObject != null)
             {
                 heavyChargePreviewObject.SetActive(false);
@@ -1982,6 +2032,7 @@ namespace Vampire
 
         private void DestroyHeavySnipeChargePreview()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref heavyChargeVisual);
             if (heavyChargePreviewObject != null)
             {
                 Destroy(heavyChargePreviewObject);
@@ -2074,6 +2125,15 @@ namespace Vampire
                 finalExplosionChance = Mathf.Max(finalExplosionChance, antibioticBombChance);
             }
 
+            PlayerGeneralStatRuntime generalStatRuntime =
+                PlayerGeneralStatRuntime.GetOrCreate(playerCharacter);
+            float statusDurationMultiplier = generalStatRuntime != null
+                ? generalStatRuntime.StatusDurationMultiplier
+                : 1f;
+            float statusDamageMultiplier = generalStatRuntime != null
+                ? generalStatRuntime.StatusDamageMultiplier
+                : 1f;
+
             SyringeSpecialRuntime runtime = new SyringeSpecialRuntime
             {
                 slowChance = playerCharacter != null ? playerCharacter.SlowChance : 0f,
@@ -2082,9 +2142,9 @@ namespace Vampire
                 reflectCount = playerCharacter != null ? playerCharacter.MouthwashCount : 0,
 
                 poisonEnabled = poisonEnabled,
-                poisonDuration = poisonDuration,
+                poisonDuration = poisonDuration * statusDurationMultiplier,
                 poisonTickInterval = poisonTickInterval,
-                poisonTickDamage = poisonTickDamage,
+                poisonTickDamage = poisonTickDamage * statusDamageMultiplier,
 
                 explosionEnabled = finalExplosionChance > 0f,
                 explosionRadius = explosionRadius,
@@ -2101,7 +2161,7 @@ namespace Vampire
                 pierceCount = totalPierceCount,
 
                 honeyEnabled = honeyEnabled,
-                honeyDuration = honeyDuration,
+                honeyDuration = honeyDuration * statusDurationMultiplier,
                 honeySlowMultiplier = honeySlowMultiplier,
 
                 mosquitoEnabled = mosquitoEnabled,
@@ -2116,15 +2176,15 @@ namespace Vampire
                 returnNeedleArriveDistance = returnNeedleArriveDistance,
                 returnNeedleMaxDuration = returnNeedleMaxDuration,
                 fiberEnabled = fiberNeedleEnabled,
-                fiberTrailLifetime = fiberTrailLifetime,
-                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond,
+                fiberTrailLifetime = fiberTrailLifetime * statusDurationMultiplier,
+                fiberTrailDamagePerSecond = fiberTrailDamagePerSecond * statusDamageMultiplier,
                 fiberTrailTickInterval = fiberTrailTickInterval,
                 fiberTrailWidth = fiberTrailWidth,
                 fiberTrailMinSegmentDistance = fiberTrailMinSegmentDistance,
                 fiberTrailColor = fiberTrailColor,
 
                 corrosionEnabled = corrosionNeedleEnabled,
-                corrosionDuration = corrosionDuration,
+                corrosionDuration = corrosionDuration * statusDurationMultiplier,
                 corrosionDamageTakenBonusPerStack = corrosionDamageTakenBonusPerStack,
                 corrosionBossDamageTakenBonusPerStack = corrosionBossDamageTakenBonusPerStack,
                 corrosionMaxStacks = corrosionMaxStacks,
@@ -2134,12 +2194,12 @@ namespace Vampire
                 pressureMaxDamageBonus = pressureMaxDamageBonus,
 
                 markEnabled = markNeedleEnabled,
-                markDuration = markDuration,
+                markDuration = markDuration * statusDurationMultiplier,
                 markBonusDamageMultiplier = markBonusDamageMultiplier,
                 digestiveAcidSacEnabled = digestiveAcidSacNeedleEnabled,
-                digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime,
+                digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime * statusDurationMultiplier,
                 digestiveAcidPuddleRadius = digestiveAcidPuddleRadius,
-                digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond,
+                digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond * statusDamageMultiplier,
                 digestiveAcidPuddleTickInterval = digestiveAcidPuddleTickInterval,
                 digestiveAcidPuddleColor = digestiveAcidPuddleColor,
 
@@ -2618,7 +2678,7 @@ namespace Vampire
         public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
 
         public bool HasMarkNeedleAugment() => markNeedleEnabled;
-       
+
         public void EnablePierceAugment()
         {
             pierceEnabled = true;
@@ -2685,7 +2745,27 @@ namespace Vampire
         public bool HasReturnNeedleAugment() => returnNeedleEnabled;
         public bool HasAcupunctureFormationAugment() => acupunctureFormationEnabled;
 
-        public void EnableLifeBurnLegendary() => lifeBurnEnabled = true;
+        private SyringeAugmentVfx lifeBurnVisual;
+
+        private void UpdateLifeBurnVisual()
+        {
+            if (!lifeBurnEnabled || playerCharacter == null || playerCharacter.CurrentHealth <= 0f || !playerCharacter.gameObject.activeInHierarchy)
+            {
+                SyringeAugmentVfx.ReleaseOwned(ref lifeBurnVisual);
+                return;
+            }
+            if (lifeBurnVisual == null)
+                lifeBurnVisual = SyringeAugmentVfx.Play("LifeBurn", playerCharacter.transform.position, SyringeAugmentVfx.FindTarget(playerCharacter));
+        }
+
+        public void EnableLifeBurnLegendary()
+        {
+            lifeBurnEnabled = true;
+
+            LegendaryConditionalSpecialRuntime runtime =
+                LegendaryConditionalSpecialRuntime.GetOrCreate(playerCharacter);
+            runtime?.SetLifeBurnActive();
+        }
         public void EnableHungrySpiritLegendary()
         {
             hungrySpiritEnabled = true;

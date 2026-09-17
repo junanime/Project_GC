@@ -10,8 +10,7 @@ namespace Vampire
     /// 현재 필드에서 몬스터가 가장 많이 밀집된 구역으로 이동한 뒤
     /// 주변 몬스터에게 이동속도 증가 또는 받는 피해 감소 버프를 부여합니다.
     ///
-    /// 이미지가 아직 없으므로 버프 모션은 원형 LineRenderer 펄스로 표시합니다.
-    /// 나중에 별도 버프 모션 이미지가 들어오면 이 펄스 연출은 꺼도 됩니다.
+    /// 시전 스프라이트를 순서대로 재생하고, 완료 후 걷기 모션으로 돌아갑니다.
     /// </summary>
     public class MonsterSupportCaster : Monster
     {
@@ -41,6 +40,7 @@ namespace Vampire
 
         [Tooltip("버프 모션이 재생되는 시간입니다. 이 시간 동안 버퍼는 잠시 멈춥니다.")]
         [SerializeField] private float castMotionDuration = 0.45f;
+        [SerializeField] private Sprite[] castSprites;
 
         [Tooltip("버프 적용 반경입니다. 사용자가 말한 원지름 2 기준이면 반경 1로 설정하세요.")]
         [SerializeField] private float buffRadius = 1f;
@@ -285,7 +285,32 @@ namespace Vampire
                 );
             }
 
-            yield return new WaitForSeconds(Mathf.Max(0.05f, castMotionDuration));
+            float duration = Mathf.Max(0.05f, castMotionDuration);
+            int frameCount = castSprites != null ? castSprites.Length : 0;
+            if (frameCount > 0 && monsterSpriteRenderer != null)
+            {
+                for (int i = 0; i < frameCount; i++)
+                {
+                    if (!alive || IsFieldRuntimeSuspended)
+                    {
+                        isCasting = false;
+                        yield break;
+                    }
+                    if (castSprites[i] != null)
+                        monsterSpriteRenderer.sprite = castSprites[i];
+                    yield return new WaitForSeconds(duration / frameCount);
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(duration);
+            }
+
+            if (!alive || IsFieldRuntimeSuspended)
+            {
+                isCasting = false;
+                yield break;
+            }
 
             ApplyBuffToNearbyMonsters();
 

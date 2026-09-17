@@ -40,6 +40,7 @@ namespace Vampire
         private BoxCollider2D pickupBoxCollider;
         private float baseCircleRadius;
         private Vector2 baseBoxSize;
+        private float goldGainRemainder;
         private bool pickupColliderCached = false;
 
         public float PickupRangeMultiplier => pickupRangeMultiplier;
@@ -96,6 +97,19 @@ namespace Vampire
         {
             goldGainMultiplier += amount;
             goldGainMultiplier = Mathf.Max(0f, goldGainMultiplier);
+        }
+
+        public int ApplyGoldGainMultiplier(int baseAmount)
+        {
+            if (baseAmount <= 0)
+            {
+                return 0;
+            }
+
+            float scaledAmount = baseAmount * goldGainMultiplier + goldGainRemainder;
+            int wholeAmount = Mathf.FloorToInt(scaledAmount + 0.0001f);
+            goldGainRemainder = Mathf.Max(0f, scaledAmount - wholeAmount);
+            return wholeAmount;
         }
 
         public void AddGoldDropChance(float amount)

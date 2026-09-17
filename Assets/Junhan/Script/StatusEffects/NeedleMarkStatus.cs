@@ -9,6 +9,22 @@ namespace Vampire
     /// </summary>
     public class NeedleMarkStatus : MonoBehaviour
     {
+        private SyringeAugmentVfx augmentVisual;
+        private void EnsureAugmentVisual()
+        {
+            if (augmentVisual != null || !SyringeAugmentVfx.IsLiving(this)) return;
+            var renderer = SyringeAugmentVfx.FindTarget(this);
+            if (renderer != null) augmentVisual = SyringeAugmentVfx.Play("MarkNeedle", renderer.bounds.center, renderer);
+        }
+        private void ReleaseAugmentVisual()
+        {
+            if (augmentVisual != null) augmentVisual.Release();
+            augmentVisual = null;
+        }
+        private void LateUpdate()
+        {
+            if (!SyringeAugmentVfx.IsLiving(this)) ReleaseAugmentVisual();
+        }
         private bool marked = false;
         private float expireTime = 0f;
 
@@ -24,6 +40,7 @@ namespace Vampire
             if (Time.time > expireTime)
             {
                 marked = false;
+                CleanupIconImmediately();
                 return false;
             }
 
@@ -35,7 +52,7 @@ namespace Vampire
             marked = true;
             expireTime = Time.time + Mathf.Max(0.1f, duration);
 
-            EnsureIconExists();
+            EnsureAugmentVisual();
         }
 
         public bool TryConsume()
@@ -46,6 +63,8 @@ namespace Vampire
             }
 
             marked = false;
+            ReleaseAugmentVisual();
+            EnsureIconExists();
 
             if (iconInstance != null)
             {
@@ -53,7 +72,7 @@ namespace Vampire
                 iconInstance = null;
             }
 
-            Destroy(this);
+            // Keep this component available for another hit in the same frame.
             return true;
         }
 
@@ -99,6 +118,7 @@ namespace Vampire
 
         private void CleanupIconImmediately()
         {
+            ReleaseAugmentVisual();
             if (iconInstance != null)
             {
                 Destroy(iconInstance.gameObject);
@@ -106,8 +126,15 @@ namespace Vampire
             }
         }
 
+        private void OnDisable()
+        {
+            marked = false;
+            CleanupIconImmediately();
+        }
+
         private void OnDestroy()
         {
+            ReleaseAugmentVisual();
             // 표식 소모 연출 중에는 iconInstance를 null로 바꾼 뒤 아이콘 오브젝트가 자체적으로 사라지게 둔다.
             // 만료/몬스터 사망/오브젝트 제거처럼 즉시 정리해야 하는 경우만 여기서 정리한다.
             if (iconInstance != null)

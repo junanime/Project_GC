@@ -176,6 +176,7 @@ namespace Vampire
             float finalSpeed = bossController.GetModifiedProjectileSpeed(bulletSpeed);
             float finalDamage = bossController.GetModifiedDamage(bulletDamage);
 
+            BossPatternArt.Bullet(bullet, bossController.CurrentPhase);
             simpleBullet.Init(direction, finalSpeed, finalDamage);
         }
 

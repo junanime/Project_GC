@@ -15,7 +15,9 @@ namespace Vampire
     /// - 각 조건부 특수증강은 1회만 획득할 수 있습니다.
     /// - 카드 이미지는 조건이 되는 원본 전설증강 스프라이트를 공유합니다.
     /// </summary>
-    public class SyringeLegendaryConditionalSpecialAugmentAbility : Ability
+    public class SyringeLegendaryConditionalSpecialAugmentAbility :
+        Ability,
+        IRunSceneConditionalAugmentState
     {
         [Serializable]
         private class LegendarySourceIconEntry
@@ -55,7 +57,7 @@ namespace Vampire
 
         [Header("Legendary Conditional Special Augment")]
         [Tooltip("선택된 조건부 특수증강 적용 결과를 Console에 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+        [SerializeField] private bool debugLog = false;
 
         [Header("Source Sprite Sharing")]
         [Tooltip("조건이 되는 원본 전설증강의 Ability 프리팹을 연결합니다.")]
@@ -65,6 +67,12 @@ namespace Vampire
 
         private SyringeDartAbility syringeDartAbility;
         private LegendaryConditionalSpecialRuntime runtime;
+
+        // 이 목록에 넣는 조건부 증강만 실제 선택 후보가 된다.
+        // 현재 정의 35개는 획득 플래그만 존재하고 해당 플래그를 읽는 전투 로직이 없으므로,
+        // 효과가 구현되기 전까지 설명만 있는 무효 카드를 플레이어에게 노출하지 않는다.
+        private static readonly HashSet<string> OperationalDefinitionIds =
+            new HashSet<string>();
 
         private Definition previewDefinition;
         private bool previewPrepared;
@@ -308,6 +316,11 @@ namespace Vampire
             {
                 Definition definition = allDefinitions[i];
 
+                if (!OperationalDefinitionIds.Contains(definition.id))
+                {
+                    continue;
+                }
+
                 if (!HasRequiredLegendary(definition.requiredLegendary))
                 {
                     continue;
@@ -451,6 +464,63 @@ namespace Vampire
         {
             previewDefinition = null;
             previewPrepared = false;
+        }
+
+        public List<string> CaptureRunSceneConditionalAugmentIds()
+        {
+            if (runtime == null)
+            {
+                runtime = LegendaryConditionalSpecialRuntime.GetOrCreate(playerCharacter);
+            }
+
+            return runtime != null
+                ? runtime.CaptureAcquiredIds()
+                : new List<string>();
+        }
+
+        public bool RestoreRunSceneConditionalAugments(
+            IReadOnlyList<string> augmentIds)
+        {
+            RefreshSyringeDartAbilityReference();
+
+            if (augmentIds == null || augmentIds.Count == 0 ||
+                syringeDartAbility == null || playerCharacter == null)
+            {
+                return false;
+            }
+
+            runtime = LegendaryConditionalSpecialRuntime.GetOrCreate(playerCharacter);
+
+            if (runtime == null)
+            {
+                return false;
+            }
+
+            List<Definition> definitions = GetAllDefinitions();
+
+            for (int i = 0; i < augmentIds.Count; i++)
+            {
+                string id = augmentIds[i];
+                Definition definition = definitions.Find(x => x.id == id);
+
+                if (definition == null ||
+                    !OperationalDefinitionIds.Contains(id) ||
+                    !HasRequiredLegendary(definition.requiredLegendary) ||
+                    !runtime.TryAcquire(id))
+                {
+                    Debug.LogWarning(
+                        $"[전설 조건부 특수증강] 복원 실패 | ID={id}",
+                        this);
+                    return false;
+                }
+
+                definition.apply?.Invoke(runtime);
+            }
+
+            owned = true;
+            level = augmentIds.Count;
+            ClearPreview();
+            return true;
         }
 
         private static List<Definition> cachedDefinitions;

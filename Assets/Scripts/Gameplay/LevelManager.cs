@@ -30,6 +30,8 @@ namespace Vampire
         private float timeSinceLastChestSpawned;
         private bool miniBossSpawned = false;
         private bool finalBossSpawned = false;
+
+        public void NotifyExternalFinalBossSpawned() { finalBossSpawned = true; }
         private bool levelEnded = false;
         private bool runFlowPaused = false;
 
@@ -218,20 +220,19 @@ namespace Vampire
                 GameAudioManager.PlayBossAppearOnly();
             }
 
-            if (!finalBossSpawned && levelTime > levelBlueprint.levelTime)
+            if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && levelTime > levelBlueprint.levelTime && FindObjectOfType<BossController>() == null)
             {
                 finalBossSpawned = true;
 
-                Monster finalBoss = entityManager.SpawnMonsterRandomPosition(
-                    levelBlueprint.monsters.Length,
-                    levelBlueprint.finalBoss.bossBlueprint
-                );
+                GameObject finalBoss = entityManager.SpawnFinalBoss(levelBlueprint,
+                    (Vector2)playerCharacter.transform.position + Vector2.up * 6f);
 
                 if (finalBoss != null)
                 {
 
                     GameAudioManager.StartBossAudio();
-                    finalBoss.OnKilled.AddListener(LevelPassed);
+                    Monster legacyBoss = finalBoss.GetComponent<Monster>();
+                    if (legacyBoss != null) legacyBoss.OnKilled.AddListener(LevelPassed);
                 }
             }
         }

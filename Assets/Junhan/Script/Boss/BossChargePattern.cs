@@ -235,11 +235,21 @@ namespace Vampire
 
         private void OnDisable()
         {
+            ClearChargeVisual();
             CleanupActiveWarning();
+        }
+
+        private BossChargeVisual chargeVisual;
+
+        private void ClearChargeVisual()
+        {
+            if (chargeVisual != null) { chargeVisual.Restore(); Destroy(chargeVisual.gameObject); }
+            chargeVisual = null;
         }
 
         public override void CancelExecution()
         {
+            ClearChargeVisual();
             base.CancelExecution();
             CleanupActiveWarning();
             SetPlayerCollisionIgnore(false);
@@ -256,6 +266,7 @@ namespace Vampire
 
         private void OnDestroy()
         {
+            ClearChargeVisual();
             CleanupActiveWarning();
         }
 
@@ -347,6 +358,8 @@ namespace Vampire
                             direction,
                             chargeDistance);
 
+                    ClearChargeVisual();
+                    chargeVisual = BossChargeVisual.Begin(bossController.Rigidbody != null ? bossController.Rigidbody.transform : bossController.transform, direction);
                     if (telegraphTime > 0f)
                     {
                         float endTime =
@@ -386,6 +399,7 @@ namespace Vampire
                             true);
                     }
 
+                    chargeVisual.StartThrust();
                     yield return
                         StartCoroutine(
                             ChargeForward(
@@ -394,6 +408,7 @@ namespace Vampire
                                 chargeSpeed,
                                 chargeDamage,
                                 hitTargets));
+                    if (chargeVisual != null) chargeVisual.Finish();
 
                     if (ignorePlayerPhysicsCollisionDuringCharge)
                     {
@@ -454,6 +469,7 @@ namespace Vampire
             }
             finally
             {
+                ClearChargeVisual();
                 // 가장 먼저 Telegraph부터 제거합니다.
                 CleanupActiveWarning();
 
@@ -680,8 +696,7 @@ namespace Vampire
                 sr.color =
                     warningColor;
 
-                sr.sortingOrder =
-                    100;
+                GroundVisualSorting.ApplyHierarchy(warning, 100);
             }
 
             return warning;

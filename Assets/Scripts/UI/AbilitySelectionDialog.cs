@@ -8,76 +8,73 @@ namespace Vampire
     public class AbilitySelectionDialog : DialogBox
     {
         [Header("Ability Card References")]
-        [Tooltip("Áõ°­ Ä«µåµéÀÌ »ı¼ºµÉ ºÎ¸ğ TransformÀÔ´Ï´Ù.")]
+        [Tooltip("ì¦ê°• ì¹´ë“œë“¤ì´ ìƒì„±ë  ë¶€ëª¨ Transformì…ë‹ˆë‹¤.")]
         [SerializeField] private Transform abilityCardsParent;
 
-        [Tooltip("Áõ°­ Ä«µå ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+        [Tooltip("ì¦ê°• ì¹´ë“œ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
         [SerializeField] private GameObject abilityCardPrefab;
 
         [Header("System References")]
-        [Tooltip("°ÔÀÓ ÀÏ½ÃÁ¤Áö »óÅÂ¸¦ °ü¸®ÇÏ´Â PauseMenuÀÔ´Ï´Ù.")]
+        [Tooltip("ê²Œì„ ì¼ì‹œì •ì§€ ìƒíƒœë¥¼ ê´€ë¦¬í•˜ëŠ” PauseMenuì…ë‹ˆë‹¤.")]
         [SerializeField] private PauseMenu pauseMenu;
 
-        [Tooltip("±âÁ¸ Áõ°­ ¼±ÅÃÃ¢¿¡¼­ µÚ¿¡ Èğ³¯¸®´ø ÆÄÆ¼Å¬ ¿ÀºêÁ§Æ®ÀÔ´Ï´Ù. ´ÙÀÌ¾Æ¸óµå ºñ¸¦ ¾ø¾Ö·Á¸é ÀÌ °ªÀ» ºñ¿öµÎ°Å³ª ºñÈ°¼ºÈ­ÇÏ¸é µË´Ï´Ù.")]
+        [Tooltip("ê¸°ì¡´ ì¦ê°• ì„ íƒì°½ì—ì„œ ë’¤ì— í©ë‚ ë¦¬ë˜ íŒŒí‹°í´ ì˜¤ë¸Œì íŠ¸ì…ë‹ˆë‹¤. ë‹¤ì´ì•„ëª¬ë“œ ë¹„ë¥¼ ì—†ì• ë ¤ë©´ ì´ ê°’ì„ ë¹„ì›Œë‘ê±°ë‚˜ ë¹„í™œì„±í™”í•˜ë©´ ë©ë‹ˆë‹¤.")]
         [SerializeField] private GameObject particles;
 
-        [Tooltip("¼±ÅÃ °¡´ÉÇÑ Áõ°­ÀÌ ¾øÀ» ¶§ ´ëÃ¼·Î »ı¼ºÇÒ »óÀÚ ºí·çÇÁ¸°Æ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì„ íƒ ê°€ëŠ¥í•œ ì¦ê°•ì´ ì—†ì„ ë•Œ ëŒ€ì²´ë¡œ ìƒì„±í•  ìƒì ë¸”ë£¨í”„ë¦°íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private ChestBlueprint failsafeChestBlueprint;
 
         [Header("Mini Map Layer Fix")]
-        [Tooltip("Áõ°­ ¼±ÅÃÃ¢ÀÌ ¿­·ÈÀ» ¶§ ÆĞ³Î µÚ·Î º¸³¾ ¹Ì´Ï¸Ê ·çÆ® ¿ÀºêÁ§Æ®ÀÔ´Ï´Ù. ¹Ì´Ï¸Ê ¹è°æ, ¸¶Ä¿, Å×µÎ¸®¸¦ Æ÷ÇÔÇÑ ÃÖ»óÀ§ ¿ÀºêÁ§Æ®¸¦ ³Ö´Â °ÍÀ» ÃßÃµÇÕ´Ï´Ù.")]
+        [Tooltip("ì¦ê°• ì„ íƒì°½ì´ ì—´ë ¸ì„ ë•Œ íŒ¨ë„ ë’¤ë¡œ ë³´ë‚¼ ë¯¸ë‹ˆë§µ ë£¨íŠ¸ ì˜¤ë¸Œì íŠ¸ì…ë‹ˆë‹¤. ë¯¸ë‹ˆë§µ ë°°ê²½, ë§ˆì»¤, í…Œë‘ë¦¬ë¥¼ í¬í•¨í•œ ìµœìƒìœ„ ì˜¤ë¸Œì íŠ¸ë¥¼ ë„£ëŠ” ê²ƒì„ ì¶”ì²œí•©ë‹ˆë‹¤.")]
         [SerializeField] private GameObject minimapObject;
 
-        [Tooltip("Minimap Object°¡ ºñ¾î ÀÖÀ» ¶§ ÀÌ¸§¿¡ Minimap, MiniMap, Mini Map, Mini_MapÀÌ µé¾î°£ UI ¿ÀºêÁ§Æ®¸¦ ÀÚµ¿À¸·Î Ã£¾Æº¾´Ï´Ù.")]
+        [Tooltip("Minimap Objectê°€ ë¹„ì–´ ìˆì„ ë•Œ ì´ë¦„ì— Minimap, MiniMap, Mini Map, Mini_Mapì´ ë“¤ì–´ê°„ UI ì˜¤ë¸Œì íŠ¸ë¥¼ ìë™ìœ¼ë¡œ ì°¾ì•„ë´…ë‹ˆë‹¤.")]
         [SerializeField] private bool autoFindMinimapIfEmpty = true;
 
-        [Tooltip("¹Ì´Ï¸Ê ¿ÀºêÁ§Æ®¿¡ Canvas°¡ ¾øÀ¸¸é ·±Å¸ÀÓ¿¡ Canvas¸¦ Ãß°¡ÇØ¼­ ·¹ÀÌ¾î ¼ø¼­¸¦ °­Á¦·Î Á¦¾îÇÕ´Ï´Ù.")]
+        [Tooltip("ë¯¸ë‹ˆë§µ ì˜¤ë¸Œì íŠ¸ì— Canvasê°€ ì—†ìœ¼ë©´ ëŸ°íƒ€ì„ì— Canvasë¥¼ ì¶”ê°€í•´ì„œ ë ˆì´ì–´ ìˆœì„œë¥¼ ê°•ì œë¡œ ì œì–´í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool addCanvasToMinimapIfMissing = true;
 
-        [Tooltip("Áõ°­ ¼±ÅÃÃ¢ÀÌ ¿­·ÈÀ» ¶§ ¹Ì´Ï¸Ê¿¡ Àû¿ëÇÒ Sorting OrderÀÔ´Ï´Ù. ³·À»¼ö·Ï µÚ·Î °©´Ï´Ù.")]
+        [Tooltip("ì¦ê°• ì„ íƒì°½ì´ ì—´ë ¸ì„ ë•Œ ë¯¸ë‹ˆë§µì— ì ìš©í•  Sorting Orderì…ë‹ˆë‹¤. ë‚®ì„ìˆ˜ë¡ ë’¤ë¡œ ê°‘ë‹ˆë‹¤.")]
         [SerializeField] private int minimapModalSortingOrder = -100;
 
         [Header("Card Animation")]
-        [Tooltip("Ä«µå°¡ ÇÏ³ª¾¿ µîÀåÇÒ ¶§ÀÇ Áö¿¬ ½Ã°£ÀÔ´Ï´Ù.")]
+        [Tooltip("ì¹´ë“œê°€ í•˜ë‚˜ì”© ë“±ì¥í•  ë•Œì˜ ì§€ì—° ì‹œê°„ì…ë‹ˆë‹¤.")]
         [SerializeField] private float cardPopupDelay = 0.1f;
 
         [Header("Reroll Settings")]
-        [Tooltip("Ã¼Å©ÇÏ¸é Áõ°­ ¼±ÅÃÃ¢¿¡¼­ 1È¸ »õ·Î°íÄ§ ¹öÆ°À» »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.")]
+        [Tooltip("ì²´í¬í•˜ë©´ ì¦ê°• ì„ íƒì°½ì—ì„œ 1íšŒ ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì„ ì‚¬ìš©í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.")]
         [SerializeField] private bool enableReroll = true;
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°ÀÔ´Ï´Ù. UI¿¡ ¸¸µç Button ¿ÀºêÁ§Æ®¸¦ ¿¬°áÇÏ¼¼¿ä.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì…ë‹ˆë‹¤. UIì— ë§Œë“  Button ì˜¤ë¸Œì íŠ¸ë¥¼ ì—°ê²°í•˜ì„¸ìš”.")]
         [SerializeField] private Button rerollButton;
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°ÀÇ Image ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù. ¹öÆ° ½ºÇÁ¶óÀÌÆ® »ö»ó/¾ËÆÄ¸¦ ¹Ù²Ù´Â µ¥ »ç¿ëÇÕ´Ï´Ù.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì˜ Image ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤. ë²„íŠ¼ ìŠ¤í”„ë¼ì´íŠ¸ ìƒ‰ìƒ/ì•ŒíŒŒë¥¼ ë°”ê¾¸ëŠ” ë° ì‚¬ìš©í•©ë‹ˆë‹¤.")]
         [SerializeField] private Image rerollButtonImage;
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ° ¾ÈÀÇ TMP ÅØ½ºÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ ì•ˆì˜ TMP í…ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private TextMeshProUGUI rerollButtonText;
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°¿¡ Ç¥½ÃÇÒ ¹®±¸ÀÔ´Ï´Ù. »ç¿ë ÈÄ¿¡µµ ÀÌ ¹®±¸¸¦ À¯ÁöÇÕ´Ï´Ù.")]
-        [SerializeField] private string rerollButtonLabel = "»õ·Î°íÄ§";
-
-        [Tooltip("»õ·Î°íÄ§ ½Ã ÀÌÀü Áõ°­°ú ¿ÏÀüÈ÷ ´Ù¸¥ Á¶ÇÕÀÌ ³ª¿Àµµ·Ï ¸î ¹ø±îÁö ´Ù½Ã »Ì¾Æº¼Áö Á¤ÇÕ´Ï´Ù. ÈÄº¸°¡ ÀûÀ¸¸é °°Àº Áõ°­ÀÌ ´Ù½Ã ³ª¿Ã ¼ö ÀÖ½À´Ï´Ù.")]
-        [SerializeField] private int rerollRetryCount = 10;
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì— í‘œì‹œí•  ë¬¸êµ¬ì…ë‹ˆë‹¤. ì‚¬ìš© í›„ì—ë„ ì´ ë¬¸êµ¬ë¥¼ ìœ ì§€í•©ë‹ˆë‹¤.")]
+        [SerializeField] private string rerollButtonLabel = "ìƒˆë¡œê³ ì¹¨";
 
         [Header("Reroll Button Visual")]
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°ÀÌ »ç¿ë °¡´ÉÇÒ ¶§ÀÇ ÀÌ¹ÌÁö »ö»óÀÔ´Ï´Ù. º¸Åë Èò»öÀ¸·Î µÎ¸é ¿øº» ½ºÇÁ¶óÀÌÆ® »ö»óÀÌ ±×´ë·Î º¸ÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì´ ì‚¬ìš© ê°€ëŠ¥í•  ë•Œì˜ ì´ë¯¸ì§€ ìƒ‰ìƒì…ë‹ˆë‹¤. ë³´í†µ í°ìƒ‰ìœ¼ë¡œ ë‘ë©´ ì›ë³¸ ìŠ¤í”„ë¼ì´íŠ¸ ìƒ‰ìƒì´ ê·¸ëŒ€ë¡œ ë³´ì…ë‹ˆë‹¤.")]
         [SerializeField] private Color rerollAvailableImageColor = Color.white;
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°À» ÀÌ¹Ì »ç¿ëÇßÀ» ¶§ÀÇ ÀÌ¹ÌÁö »ö»óÀÔ´Ï´Ù. °ËÁ¤ ¹İÅõ¸íÀ¸·Î µÎ¸é ºñÈ°¼ºÈ­ ´À³¦ÀÌ ³³´Ï´Ù.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì„ ì´ë¯¸ ì‚¬ìš©í–ˆì„ ë•Œì˜ ì´ë¯¸ì§€ ìƒ‰ìƒì…ë‹ˆë‹¤. ê²€ì • ë°˜íˆ¬ëª…ìœ¼ë¡œ ë‘ë©´ ë¹„í™œì„±í™” ëŠë‚Œì´ ë‚©ë‹ˆë‹¤.")]
         [SerializeField] private Color rerollUsedImageColor = new Color(0f, 0f, 0f, 0.55f);
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°ÀÌ »ç¿ë °¡´ÉÇÒ ¶§ÀÇ ÅØ½ºÆ® »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì´ ì‚¬ìš© ê°€ëŠ¥í•  ë•Œì˜ í…ìŠ¤íŠ¸ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color rerollAvailableTextColor = Color.white;
 
-        [Tooltip("»õ·Î°íÄ§ ¹öÆ°À» ÀÌ¹Ì »ç¿ëÇßÀ» ¶§ÀÇ ÅØ½ºÆ® »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒˆë¡œê³ ì¹¨ ë²„íŠ¼ì„ ì´ë¯¸ ì‚¬ìš©í–ˆì„ ë•Œì˜ í…ìŠ¤íŠ¸ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color rerollUsedTextColor = new Color(1f, 1f, 1f, 0.45f);
 
-        [Tooltip("Ã¼Å©ÇÏ¸é Button ÄÄÆ÷³ÍÆ®ÀÇ Disabled Colorµµ °ËÁ¤ ¹İÅõ¸í »ö»óÀ¸·Î ÀÚµ¿ ¼³Á¤ÇÕ´Ï´Ù.")]
+        [Tooltip("ì²´í¬í•˜ë©´ Button ì»´í¬ë„ŒíŠ¸ì˜ Disabled Colorë„ ê²€ì • ë°˜íˆ¬ëª… ìƒ‰ìƒìœ¼ë¡œ ìë™ ì„¤ì •í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool applyDisabledColorToButtonTransition = true;
 
         [Header("Debug")]
-        [Tooltip("Ã¼Å©ÇÏ¸é Áõ°­ »õ·Î°íÄ§ °ü·Ã ·Î±×¸¦ Console¿¡ Ãâ·ÂÇÕ´Ï´Ù.")]
+        [Tooltip("ì²´í¬í•˜ë©´ ì¦ê°• ìƒˆë¡œê³ ì¹¨ ê´€ë ¨ ë¡œê·¸ë¥¼ Consoleì— ì¶œë ¥í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool debugRerollLog = false;
 
         private AbilityManager abilityManager;
@@ -194,8 +191,8 @@ namespace Vampire
 
             if (displayedAbilities.Count > 0)
             {
-                // ½ÇÁ¦ ¼±ÅÃ °¡´ÉÇÑ Áõ°­ Ä«µå°¡ Á¸ÀçÇÏ´Â °æ¿ì¿¡¸¸
-                // ÇöÀç BGMÀ» PauseÇÏ°í Áõ°­ ¼±ÅÃ Àü¿ë BGMÀ» ½ÃÀÛÇÕ´Ï´Ù.
+                // ì‹¤ì œ ì„ íƒ ê°€ëŠ¥í•œ ì¦ê°• ì¹´ë“œê°€ ì¡´ì¬í•˜ëŠ” ê²½ìš°ì—ë§Œ
+                // í˜„ì¬ BGMì„ Pauseí•˜ê³  ì¦ê°• ì„ íƒ ì „ìš© BGMì„ ì‹œì‘í•©ë‹ˆë‹¤.
                 GameAudioManager.EnterAugmentSelectionAudio();
                 Populate(displayedAbilities);
             }
@@ -272,7 +269,9 @@ namespace Vampire
             abilityManager.ReturnAbilities(displayedAbilities);
             displayedAbilities = null;
 
-            List<Ability> newAbilities = SelectRerolledAbilities(previousAbilities);
+            // ìµœì´ˆ í‘œì‹œì™€ ê°™ì€ ìŠ¬ë¡¯ë³„ ë…ë¦½ ë“±ê¸‰ ì¶”ì²¨ì„ ì‚¬ìš©í•œë‹¤.
+            // ë‹¨, ë‹¤ë¥¸ í›„ë³´ê°€ ì¶©ë¶„í•˜ë©´ ì§ì „ ì¹´ë“œê°€ ê·¸ëŒ€ë¡œ ë‹¤ì‹œ ë‚˜ì˜¤ì§€ ì•Šê²Œ ì œì™¸í•œë‹¤.
+            List<Ability> newAbilities = abilityManager.SelectAbilities(previousAbilities);
 
             if (newAbilities == null || newAbilities.Count <= 0)
             {
@@ -282,7 +281,7 @@ namespace Vampire
                 {
                     if (debugRerollLog)
                     {
-                        Debug.LogWarning("[AbilitySelectionDialog] »õ·Î°íÄ§ÇÒ ¼ö ÀÖ´Â Áõ°­ÀÌ ¾ø½À´Ï´Ù.");
+                        Debug.LogWarning("[AbilitySelectionDialog] ìƒˆë¡œê³ ì¹¨í•  ìˆ˜ ìˆëŠ” ì¦ê°•ì´ ì—†ìŠµë‹ˆë‹¤.");
                     }
 
                     displayedAbilities = previousAbilities;
@@ -305,75 +304,8 @@ namespace Vampire
 
             if (debugRerollLog)
             {
-                Debug.Log("[AbilitySelectionDialog] Áõ°­ »õ·Î°íÄ§ ¿Ï·á");
+                Debug.Log("[AbilitySelectionDialog] ì¦ê°• ìƒˆë¡œê³ ì¹¨ ì™„ë£Œ");
             }
-        }
-
-        private List<Ability> SelectRerolledAbilities(List<Ability> previousAbilities)
-        {
-            int retryCount = Mathf.Max(1, rerollRetryCount);
-
-            List<Ability> bestSelection = null;
-            int bestDifferentCount = -1;
-
-            for (int i = 0; i < retryCount; i++)
-            {
-                List<Ability> candidate = abilityManager.SelectAbilities();
-
-                if (candidate == null || candidate.Count <= 0)
-                {
-                    continue;
-                }
-
-                int differentCount = CountDifferentAbilities(candidate, previousAbilities);
-
-                if (differentCount > bestDifferentCount)
-                {
-                    if (bestSelection != null)
-                    {
-                        abilityManager.ReturnAbilities(bestSelection);
-                    }
-
-                    bestSelection = candidate;
-                    bestDifferentCount = differentCount;
-                }
-                else
-                {
-                    abilityManager.ReturnAbilities(candidate);
-                }
-
-                if (differentCount >= candidate.Count)
-                {
-                    break;
-                }
-            }
-
-            return bestSelection;
-        }
-
-        private int CountDifferentAbilities(List<Ability> newAbilities, List<Ability> previousAbilities)
-        {
-            if (newAbilities == null)
-            {
-                return 0;
-            }
-
-            if (previousAbilities == null || previousAbilities.Count <= 0)
-            {
-                return newAbilities.Count;
-            }
-
-            int differentCount = 0;
-
-            for (int i = 0; i < newAbilities.Count; i++)
-            {
-                if (!previousAbilities.Contains(newAbilities[i]))
-                {
-                    differentCount++;
-                }
-            }
-
-            return differentCount;
         }
 
         private void UpdateRerollButtonState()
@@ -414,8 +346,8 @@ namespace Vampire
 
         public override void Close()
         {
-            // Áõ°­ ¼±ÅÃ BGMÀÌ Àç»ı ÁßÀÌ¾ú´Ù¸é Á¾·áÇÏ°í,
-            // Áõ°­Ã¢ÀÌ ¿­¸®±â Á÷Àü¿¡ Àç»ı ÁßÀÌ´ø BGMÀ» ÀÌ¾î¼­ Àç»ıÇÕ´Ï´Ù.
+            // ì¦ê°• ì„ íƒ BGMì´ ì¬ìƒ ì¤‘ì´ì—ˆë‹¤ë©´ ì¢…ë£Œí•˜ê³ ,
+            // ì¦ê°•ì°½ì´ ì—´ë¦¬ê¸° ì§ì „ì— ì¬ìƒ ì¤‘ì´ë˜ BGMì„ ì´ì–´ì„œ ì¬ìƒí•©ë‹ˆë‹¤.
             GameAudioManager.ExitAugmentSelectionAudio();
 
             if (displayedAbilities != null)

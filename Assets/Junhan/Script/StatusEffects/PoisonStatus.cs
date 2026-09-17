@@ -7,6 +7,21 @@ namespace Vampire
     {
         private Monster targetMonster;
         private Coroutine poisonCoroutine;
+        private SyringeAugmentVfx poisonVisual;
+
+        private void ReleaseVisual()
+        {
+            if (poisonVisual != null) poisonVisual.Release();
+            poisonVisual = null;
+            if (targetMonster != null) targetMonster.OnKilled.RemoveListener(OnTargetKilled);
+        }
+
+        private void OnTargetKilled(Monster monster) { ReleaseVisual(); }
+
+        private void LateUpdate()
+        {
+            if (poisonVisual != null && (targetMonster == null || targetMonster.HP <= 0f)) ReleaseVisual();
+        }
 
         private bool poisonActive = false;
         private bool contagionAlreadyTriggered = false;
@@ -76,6 +91,15 @@ namespace Vampire
             poisonActive = true;
             contagionAlreadyTriggered = false;
 
+            if (poisonVisual == null && targetMonster.HP > 0f && targetMonster.gameObject.activeInHierarchy)
+            {
+                var renderer = SyringeAugmentVfx.FindTarget(targetMonster);
+                if (renderer != null)
+                    poisonVisual = SyringeAugmentVfx.Play("Poison", renderer.bounds.center, renderer);
+                targetMonster.OnKilled.RemoveListener(OnTargetKilled);
+                targetMonster.OnKilled.AddListener(OnTargetKilled);
+            }
+
             if (poisonCoroutine != null)
             {
                 StopCoroutine(poisonCoroutine);
@@ -111,6 +135,7 @@ namespace Vampire
                 if (targetMonster == null ||
                     !targetMonster.gameObject.activeInHierarchy)
                 {
+                    ReleaseVisual();
                     yield break;
                 }
 
@@ -120,6 +145,7 @@ namespace Vampire
 
             poisonActive = false;
             poisonCoroutine = null;
+            ReleaseVisual();
         }
 
         /// <summary>
@@ -186,6 +212,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            ReleaseVisual();
             TryTriggerContagion();
 
             if (poisonCoroutine != null)
@@ -199,6 +226,7 @@ namespace Vampire
 
         private void OnDestroy()
         {
+            ReleaseVisual();
             TryTriggerContagion();
         }
     }

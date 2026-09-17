@@ -326,8 +326,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1017377967
+  m_SortingLayer: -1
   m_SortingOrder: -800
   m_Sprite: {fileID: 21300000, guid: cadab12bcae731f4d9515e2763b8b422, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -413,7 +413,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1843267519
   m_SortingLayer: 0
   m_SortingOrder: -700
   m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
@@ -493,10 +493,7 @@ MonoBehaviour:
   completedColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.15}
   hideFieldOnComplete: 1
   disableAllRenderersOnComplete: 1
-  forceRenderOrder: 1
-  acidSortingLayerName: Default
   acidSortingOrder: -700
-  markerSortingLayerName: Default
   markerSortingOrder: -690
   progressMarkerRoot: {fileID: 0}
   progressMarkerPrefab: {fileID: 9121706888412710758}
@@ -516,6 +513,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 8000233252319135257}
   - component: {fileID: 1379852900156597793}
   - component: {fileID: 3756882121478963283}
   - component: {fileID: 6559183369386627754}
@@ -751,8 +749,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1017377967
+  m_SortingLayer: -1
   m_SortingOrder: -900
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
@@ -1103,7 +1101,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1843267519
   m_SortingLayer: 0
   m_SortingOrder: -700
   m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
@@ -1183,10 +1181,7 @@ MonoBehaviour:
   completedColor: {r: 0.54901963, g: 0.3529412, b: 0.8352942, a: 1}
   hideFieldOnComplete: 1
   disableAllRenderersOnComplete: 1
-  forceRenderOrder: 1
-  acidSortingLayerName: Default
   acidSortingOrder: -700
-  markerSortingLayerName: Default
   markerSortingOrder: -690
   progressMarkerRoot: {fileID: 0}
   progressMarkerPrefab: {fileID: 1891518635353113358}
@@ -1382,7 +1377,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1843267519
   m_SortingLayer: 0
   m_SortingOrder: -700
   m_Sprite: {fileID: 21300000, guid: a2d7043ab9dd99c4181b40475dee3104, type: 3}
@@ -1462,10 +1457,7 @@ MonoBehaviour:
   completedColor: {r: 0.25, g: 0.25, b: 0.25, a: 0.15}
   hideFieldOnComplete: 1
   disableAllRenderersOnComplete: 1
-  forceRenderOrder: 1
-  acidSortingLayerName: Default
   acidSortingOrder: -700
-  markerSortingLayerName: Default
   markerSortingOrder: -690
   progressMarkerRoot: {fileID: 0}
   progressMarkerPrefab: {fileID: 7335359744327546668}
@@ -1826,3 +1818,15 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3456258336679041986, guid: 8c3ff6a3036976647bb97d6313ac6238, type: 3}
   m_PrefabInstance: {fileID: 5864188861553204388}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8000233252319135257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2241096404602867000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d830552c9f5f458c9f082bfaaf9335cb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:

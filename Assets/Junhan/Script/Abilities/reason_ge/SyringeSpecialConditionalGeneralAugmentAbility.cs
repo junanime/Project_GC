@@ -15,7 +15,9 @@ namespace Vampire
     /// - 조건이 되는 원본 특수증강 카드의 스프라이트를 공유합니다.
     /// - 예: 독성 농축, 느린 부식독, 빠른 침투독은 모두 독침 스프라이트를 사용합니다.
     /// </summary>
-    public class SyringeSpecialConditionalGeneralAugmentAbility : Ability
+    public class SyringeSpecialConditionalGeneralAugmentAbility :
+        Ability,
+        IRunSceneConditionalAugmentState
     {
         [Serializable]
         private class SpecialSourceIconEntry
@@ -229,7 +231,7 @@ namespace Vampire
         [SerializeField] private int maxSelections = 999;
 
         [Tooltip("선택된 조건부 일반증강 적용 결과를 Console에 출력합니다.")]
-        [SerializeField] private bool conditionalGeneralDebugLog = true;
+        [SerializeField] private bool conditionalGeneralDebugLog = false;
 
         [Header("Source Sprite Sharing")]
         [Tooltip("조건이 되는 원본 특수증강의 Ability 프리팹을 연결합니다.")]
@@ -239,6 +241,7 @@ namespace Vampire
         private PlayerGeneralStatRuntime statRuntime;
 
         private readonly Dictionary<string, int> stackCounts = new Dictionary<string, int>();
+        private readonly List<string> acquisitionHistory = new List<string>();
 
         private Definition previewDefinition;
         private bool previewPrepared;
@@ -396,6 +399,7 @@ namespace Vampire
             previewDefinition.apply?.Invoke(context);
 
             AddStack(previewDefinition.id);
+            acquisitionHistory.Add(previewDefinition.id);
 
             if (conditionalGeneralDebugLog)
             {
@@ -522,6 +526,59 @@ namespace Vampire
                 : 0;
 
             return currentStack >= definition.maxStack;
+        }
+
+        public List<string> CaptureRunSceneConditionalAugmentIds()
+        {
+            return new List<string>(acquisitionHistory);
+        }
+
+        public bool RestoreRunSceneConditionalAugments(
+            IReadOnlyList<string> augmentIds)
+        {
+            if (augmentIds == null || augmentIds.Count == 0 ||
+                syringeDartAbility == null || playerCharacter == null)
+            {
+                return false;
+            }
+
+            if (statRuntime == null)
+            {
+                statRuntime = PlayerGeneralStatRuntime.GetOrCreate(playerCharacter);
+            }
+
+            List<Definition> definitions = GetAllDefinitions();
+            ApplyContext context = new ApplyContext(
+                playerCharacter,
+                syringeDartAbility,
+                statRuntime,
+                this,
+                conditionalGeneralDebugLog);
+
+            for (int i = 0; i < augmentIds.Count; i++)
+            {
+                string id = augmentIds[i];
+                Definition definition = definitions.Find(x => x.id == id);
+
+                if (definition == null ||
+                    !HasRequiredSpecial(definition.requiredSpecial) ||
+                    IsMaxed(definition))
+                {
+                    Debug.LogWarning(
+                        $"[특수 조건부 일반증강] 복원 실패 | ID={id}",
+                        this);
+                    return false;
+                }
+
+                definition.apply?.Invoke(context);
+                AddStack(id);
+                acquisitionHistory.Add(id);
+            }
+
+            owned = true;
+            level = acquisitionHistory.Count;
+            ClearPreview();
+            return true;
         }
 
         private void ClearPreview()
@@ -990,20 +1047,6 @@ namespace Vampire
                 c => c.AddSyringeInt("pierceCount", 1, 0, 999)));
 
             definitions.Add(new Definition(
-                "Pierce_02_PierceStability",
-                SpecialType.Pierce,
-                "관통 안정성",
-                "방어 관통이 5% 증가합니다.",
-                8,
-                c =>
-                {
-                    if (c.statRuntime != null)
-                    {
-                        c.statRuntime.AddDefensePierce(0.05f);
-                    }
-                }));
-
-            definitions.Add(new Definition(
                 "Pierce_03_ThinNeedleTip",
                 SpecialType.Pierce,
                 "얇은 침끝",
@@ -1027,17 +1070,9 @@ namespace Vampire
                 "Pierce_05_PiercePathMemory",
                 SpecialType.Pierce,
                 "관통 경로 기억",
-                "관통 횟수가 1 증가하고, 방어 관통이 2% 증가합니다.",
+                "관통 횟수가 1 증가합니다.",
                 4,
-                c =>
-                {
-                    c.AddSyringeInt("pierceCount", 1, 0, 999);
-
-                    if (c.statRuntime != null)
-                    {
-                        c.statRuntime.AddDefensePierce(0.02f);
-                    }
-                }));
+                c => c.AddSyringeInt("pierceCount", 1, 0, 999)));
 
             definitions.Add(new Definition(
                 "Pierce_06_InnerWallScratch",
@@ -1075,14 +1110,13 @@ namespace Vampire
                 "Pierce_09_MucosalCutSurface",
                 SpecialType.Pierce,
                 "점막 절단면",
-                "치명타 피해가 8% 증가하고, 방어 관통이 3% 증가합니다.",
+                "치명타 피해가 8% 증가합니다.",
                 8,
                 c =>
                 {
                     if (c.statRuntime != null)
                     {
                         c.statRuntime.AddCritDamageMultiplier(0.08f);
-                        c.statRuntime.AddDefensePierce(0.03f);
                     }
                 }));
 
@@ -1213,17 +1247,9 @@ namespace Vampire
                 "Honey_10_AgedHoneyNeedle",
                 SpecialType.Honey,
                 "꿀침 숙성",
-                "골드 드롭 확률이 3% 증가하고, 감속 지속시간이 4% 증가합니다.",
+                "감속 지속시간이 4% 증가합니다.",
                 8,
-                c =>
-                {
-                    if (c.statRuntime != null)
-                    {
-                        c.statRuntime.AddGoldDropChance(0.03f);
-                    }
-
-                    c.MultiplySyringeFloat("honeyDuration", 1.04f);
-                }));
+                c => c.MultiplySyringeFloat("honeyDuration", 1.04f)));
 
             // ------------------------------------------------------------
             // Mosquito / 모기침 조건부 일반증강 10개
@@ -1332,17 +1358,9 @@ namespace Vampire
                 "Mosquito_09_BloodRecovery",
                 SpecialType.Mosquito,
                 "혈액 회수",
-                "흡혈량이 8% 증가하고, 골드 드롭 확률이 2% 증가합니다.",
+                "흡혈량이 8% 증가합니다.",
                 8,
-                c =>
-                {
-                    c.MultiplySyringeFloat("mosquitoHealPerHit", 1.08f);
-
-                    if (c.statRuntime != null)
-                    {
-                        c.statRuntime.AddGoldDropChance(0.02f);
-                    }
-                }));
+                c => c.MultiplySyringeFloat("mosquitoHealPerHit", 1.08f)));
 
             definitions.Add(new Definition(
                 "Mosquito_10_OverdrainSuppression",

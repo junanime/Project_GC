@@ -4,19 +4,16 @@ namespace Vampire
 {
     /// <summary>
     /// 몬스터 디버퍼가 발사하는 전용 투사체입니다.
-    /// 플레이어에게 맞으면 공격속도 감소 디버프를 적용합니다.
+    /// 플레이어에게 맞으면 이동 방향 반전 디버프를 적용합니다.
     /// </summary>
     public class AttackSpeedDownProjectile : Projectile
     {
-        [Header("Attack Speed Debuff")]
-        [Tooltip("플레이어 공격속도 감소량입니다. 0.2 = 공격속도 20% 감소입니다.")]
-        [SerializeField] private float attackSpeedReduction = 0.2f;
-
-        [Tooltip("공격속도 감소 디버프 지속 시간입니다.")]
+        [Header("Reversed Movement Debuff")]
+        [Tooltip("이동 방향 반전 디버프 지속 시간입니다.")]
         [SerializeField] private float debuffDuration = 4f;
 
         [Header("Arrow Rain Visual")]
-        [Tooltip("공격속도 감소 중 표시할 아래 화살표 색상입니다.")]
+        [Tooltip("이동 방향 반전 중 표시할 양방향 화살표 색상입니다.")]
         [SerializeField] private Color arrowColor = Color.yellow;
 
         [Tooltip("화살표 비 연출이 플레이어 중심에서 위로 얼마나 올라갈지 설정합니다.")]
@@ -59,7 +56,6 @@ namespace Vampire
                 }
 
                 runtime.Apply(
-                    attackSpeedReduction,
                     debuffDuration,
                     arrowColor,
                     arrowYOffset,

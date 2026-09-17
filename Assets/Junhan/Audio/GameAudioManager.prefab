@@ -52,7 +52,7 @@ MonoBehaviour:
   ingameBgm: {fileID: 8300000, guid: b6f6ddcc8df738349b9cb181d4945caa, type: 3}
   miniStageBgm: {fileID: 8300000, guid: 027d47a62c656394eb90ab73a2c289f2, type: 3}
   bossBgm: {fileID: 8300000, guid: aa36705986baaf4499e1a68286b7ef2f, type: 3}
-  augmentSelectionBgm: {fileID: 8300000, guid: cb010637df86c6f4a9011519d9dd9016, type: 3}
+  augmentSelectionBgm: {fileID: 8300000, guid: aa36705986baaf4499e1a68286b7ef2f, type: 3}
   bossAppearSfx: {fileID: 8300000, guid: 94355323f69e0f3488c78237c26c49c5, type: 3}
   dangerWaveSfx: {fileID: 8300000, guid: 40567d44b4a99264891ca715ea156c84, type: 3}
   eliteSpawnSfx: {fileID: 8300000, guid: c8a4ed75919fd1f47a631e6af680966f, type: 3}
@@ -69,25 +69,25 @@ MonoBehaviour:
   miniStagePortalSpawnSfx: {fileID: 8300000, guid: 3db60b6536afd054281e9d3b67c2d10f, type: 3}
   chestOpenSfx: {fileID: 8300000, guid: 93fcce78b85b1e54d8a2325dfcbe845f, type: 3}
   miniStageClearSfx: {fileID: 8300000, guid: d79ccf8d89f817d46bf42467666a6a87, type: 3}
-  expPickupSfx: {fileID: 0}
-  goldPickupSfx: {fileID: 0}
-  silverPickupSfx: {fileID: 0}
-  coinPouchPickupSfx: {fileID: 0}
-  magnetPickupSfx: {fileID: 0}
-  bombPickupSfx: {fileID: 0}
-  healPickupSfx: {fileID: 0}
-  redPotionPickupSfx: {fileID: 0}
-  specialItemPickupSfx: {fileID: 0}
-  rareItemPickupSfx: {fileID: 0}
+  expPickupSfx: {fileID: 8300000, guid: e0e02657bd425094a9da79798f7829c8, type: 3}
+  goldPickupSfx: {fileID: 8300000, guid: 35f74e6a303ded54fa2321b4cc6e2852, type: 3}
+  silverPickupSfx: {fileID: 8300000, guid: 7787371255a2cf649b11e5cef7e9b1a2, type: 3}
+  coinPouchPickupSfx: {fileID: 8300000, guid: 98a626a4b4009df41981970860c0c498, type: 3}
+  magnetPickupSfx: {fileID: 8300000, guid: 7be2c3db7459d36419cdb2dc77f6df39, type: 3}
+  bombPickupSfx: {fileID: 8300000, guid: 051f164c21024ad498734beda97879b9, type: 3}
+  healPickupSfx: {fileID: 8300000, guid: 469e0a662cc967a4f8b991e2dcac35f5, type: 3}
+  redPotionPickupSfx: {fileID: 8300000, guid: 7ad7409e71c79e94e865e28654ffb277, type: 3}
+  specialItemPickupSfx: {fileID: 8300000, guid: e0abf690293a7b444a3993f14cf60671, type: 3}
+  rareItemPickupSfx: {fileID: 8300000, guid: b137c3de92c7f1645bbdf6d768799940, type: 3}
   acidRefluxWavePassSfx: {fileID: 0}
-  peristalsisTiltSfx: {fileID: 0}
+  peristalsisTiltSfx: {fileID: 8300000, guid: dab7651e62054304595227a7774b5a61, type: 3}
   coffeeTransfusionPourSfx: {fileID: 0}
   antacidBubbleSpawnSfx: {fileID: 0}
   acidPuddleSpawnSfx: {fileID: 0}
-  augmentSelectSfx: {fileID: 0}
+  augmentSelectSfx: {fileID: 8300000, guid: f22d5906a4bd39d4d8fa1067d9c746e9, type: 3}
   uiClickSfx: {fileID: 8300000, guid: 7eb57c91d35126f488d155fa059b2097, type: 3}
-  sniperFireSfx: {fileID: 0}
-  trapActivateSfx: {fileID: 0}
+  sniperFireSfx: {fileID: 8300000, guid: dffc78e69fb4508458835b95e2f34a10, type: 3}
+  trapActivateSfx: {fileID: 8300000, guid: f87982998aaec9b458ed5a25cf853e4a, type: 3}
   digestiveEnzymeAttackSfx: {fileID: 0}
   acidLeechWallAttachSfx: {fileID: 0}
   speedBufferCastSfx: {fileID: 0}

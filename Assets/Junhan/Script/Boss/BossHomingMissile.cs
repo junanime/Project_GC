@@ -109,6 +109,8 @@ namespace Vampire
             activeEmbeddedMissiles =
                 new List<BossHomingMissile>();
 
+        public float VisualFallingDuration => fallingDuration;
+
         public BossHomingMissileState CurrentState =>
             currentState;
 
@@ -200,6 +202,7 @@ namespace Vampire
             SetMissileCollidersEnabled(true);
             StopRigidbodyMotion();
             ApplyVisualRotation(moveDirection);
+            if (GetComponent<BossDroneVisual>() == null) gameObject.AddComponent<BossDroneVisual>();
         }
 
         /// <summary>
@@ -954,7 +957,7 @@ namespace Vampire
                     ? embeddedExplosionEffectPrefab
                     : destroyEffectPrefab;
 
-            if (explosionEffect != null)
+            if (BossPatternArt.Effect("DroneExplosion", transform.position, embeddedExplosionRadius * 2f) == null && explosionEffect != null)
             {
                 Instantiate(
                     explosionEffect,
@@ -1426,7 +1429,7 @@ namespace Vampire
             activeEmbeddedMissiles.Remove(
                 this);
 
-            if (spawnEffect &&
+            if (spawnEffect && BossPatternArt.Effect("DroneExplosion", transform.position, 2f) == null &&
                 destroyEffectPrefab != null)
             {
                 Instantiate(

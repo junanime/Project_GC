@@ -32,9 +32,6 @@ namespace Vampire
         [Tooltip("소화 파동을 그릴 LineRenderer입니다. 비워두면 자동으로 생성합니다.")]
         [SerializeField] private LineRenderer beamLineRenderer;
 
-        [Tooltip("보상 상자를 생성할 위치입니다. 비워두면 목표 코어 위치에 생성합니다. 목표 코어도 없으면 MiniStageRoomBase의 기본 Reward Spawn Point를 사용합니다.")]
-        [SerializeField] private Transform rewardDropPoint;
-
         [Header("Wave Beam Rule")]
         [Tooltip("소화 파동이 충돌 판정에 사용할 기본 레이어입니다. 거울, 목표 코어, 벽 레이어를 포함하세요.")]
         [SerializeField] private LayerMask beamHitLayerMask;
@@ -76,8 +73,6 @@ namespace Vampire
         [Tooltip("빔 색상입니다.")]
         [SerializeField] private Color beamColor = new Color(1f, 0.85f, 0.1f, 1f);
 
-        [Tooltip("빔 LineRenderer의 Sorting Layer 이름입니다.")]
-        [SerializeField] private string beamSortingLayerName = "Default";
 
         [Tooltip("빔 LineRenderer의 Order in Layer입니다. 플레이어/몬스터보다 아래에 두려면 -500 근처를 추천합니다.")]
         [SerializeField] private int beamSortingOrder = -500;
@@ -552,8 +547,7 @@ namespace Vampire
             beamLineRenderer.widthMultiplier = Mathf.Max(0.01f, beamWidth);
             beamLineRenderer.startColor = beamColor;
             beamLineRenderer.endColor = beamColor;
-            beamLineRenderer.sortingLayerName = beamSortingLayerName;
-            beamLineRenderer.sortingOrder = beamSortingOrder;
+            GroundVisualSorting.Apply(beamLineRenderer, beamSortingOrder);
 
             if (beamLineRenderer.sharedMaterial == null)
             {
@@ -628,23 +622,12 @@ namespace Vampire
                 waveReceiver.SetSolved(true);
             }
 
-            Vector3? rewardPosition = null;
-
-            if (rewardDropPoint != null)
-            {
-                rewardPosition = rewardDropPoint.position;
-            }
-            else if (waveReceiver != null)
-            {
-                rewardPosition = waveReceiver.transform.position;
-            }
-
             if (debugLog)
             {
                 Debug.Log("[MiniStageDigestiveWaveReflectRoom] 목표 코어에 소화 파동 연결 완료. 보상 상자를 생성합니다.");
             }
 
-            CompleteRoom(rewardPosition);
+            CompleteRoom();
         }
 
         private void SpawnOneMonster()

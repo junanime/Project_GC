@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1ae058c390b426495056b39e15d543, type: 3}
   m_Name: 3
   m_EditorClassIdentifier: 
-  name: "\uBD88\uB2ED"
+  name: "\ub0a0\uc544\ub2e4\ub2c8\ub294 \ub3c4\ub11b"
   hp: 120
   atk: 10
   recovery: 0
@@ -40,13 +40,15 @@ MonoBehaviour:
       dropChance: 0.5
       coinType: 1
   walkSpriteSequence:
-  - {fileID: 1373663924, guid: b1f4f5abd91b61f4385ece53883ee436, type: 3}
-  - {fileID: 893327442, guid: b1f4f5abd91b61f4385ece53883ee436, type: 3}
-  - {fileID: 358636293, guid: b1f4f5abd91b61f4385ece53883ee436, type: 3}
-  - {fileID: 489165985, guid: b1f4f5abd91b61f4385ece53883ee436, type: 3}
-  walkFrameTime: 0.2
-  description: "\uBE68\uAC04 \uB2ED"
-  resultSprite: {fileID: 0}
+  - {fileID: 21300000, guid: a5d01750c29847ecb4583c6941695cbb, type: 3}
+  - {fileID: 21300000, guid: d6d4ff434856403f8d5a523cbba0e0b9, type: 3}
+  - {fileID: 21300000, guid: 5fe6363219984124baf257b58e11bcf3, type: 3}
+  - {fileID: 21300000, guid: c80ccb3e3ff24a67a7913e8b49e30755, type: 3}
+  - {fileID: 21300000, guid: 32ef559e2970414f91c599b9a5f0b5e5, type: 3}
+  - {fileID: 21300000, guid: 29c4b7ae852a49df81f2fabf07e71ee6, type: 3}
+  walkFrameTime: 0.1
+  description: "\ub0a0\uac2f\uc9d3\ud558\uba70 \uc811\uadfc\ud558\ub294 \ub3c4\ub11b \ubaac\uc2a4\ud130"
+  resultSprite: {fileID: 21300000, guid: a5d01750c29847ecb4583c6941695cbb, type: 3}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 512

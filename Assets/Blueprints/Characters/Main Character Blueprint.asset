@@ -23,10 +23,34 @@ MonoBehaviour:
   luck: 1
   acceleration: 50
   walkSpriteSequence:
-  - {fileID: 2146826669, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  - {fileID: -1510151377, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  - {fileID: -1892329942, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  - {fileID: 937173959, guid: 9218f7514c0e89a40894287a7155f236, type: 3}
-  walkFrameTime: 0.1
+  - {fileID: 285921205330502734, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -1269997718954621036, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -4974597120963102074, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: 6340469404783244511, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -8217419570288095555, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -614673205704578149, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -6569111210000585085, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  - {fileID: -2382498744641677387, guid: 8fab72a16ab28ea4d9a22310836aabc3, type: 3}
+  walkFrameTime: 0.08
+  idleSpriteSequence:
+  - {fileID: 1086934663, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: 1185346422, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: -300952911, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: 418571460, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: 510613207, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: -127447508, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: -1377166802, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  - {fileID: -1902931106, guid: 3fe977126ccacc848a39406c7cfeea3d, type: 3}
+  idleFrameTime: 0.18
+  dashSpriteSequence:
+  - {fileID: 1146949652, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: -985366374, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: 1063211416, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: -847737043, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: 2011080621, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: 1919011861, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: -1273950323, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  - {fileID: 1234594692, guid: f6e972aa0c7cadc4f8671e4d22d856a5, type: 3}
+  dashFrameTime: 0.0275
   startingAbilities:
   - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}

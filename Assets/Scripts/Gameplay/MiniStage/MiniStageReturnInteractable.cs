@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
@@ -25,7 +26,8 @@ namespace Vampire
         [SerializeField] private bool debugLog = true;
 
         private bool unlocked;
-        private bool playerInside;
+        private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
+        private bool playerInside => playerColliders.Count > 0;
 
         [Header("Portal Visual")]
         [SerializeField] private SpriteRenderer portalRenderer;
@@ -33,9 +35,18 @@ namespace Vampire
         [SerializeField] private Sprite unlockedSprite;
 
         public bool IsUnlocked => unlocked;
+        public bool CanInteract => isActiveAndEnabled && unlocked && playerInside &&
+            miniStageDirector != null && miniStageDirector.CanReturnFromInteractable(this);
+
+        private void OnDisable()
+        {
+            playerColliders.Clear();
+            SetGuideVisible(false);
+        }
 
         private void Awake()
         {
+            BloodClotObstacle.Ensure(gameObject);
             if (miniStageDirector == null)
             {
                 miniStageDirector = FindObjectOfType<MiniStageDirector>();
@@ -47,6 +58,9 @@ namespace Vampire
 
         private void Update()
         {
+            playerColliders.RemoveWhere(c => c == null || !c.enabled || !c.gameObject.activeInHierarchy);
+            SetGuideVisible(CanInteract);
+            if (!CanInteract || Time.timeScale <= 0f) return;
             if (!playerInside)
             {
                 return;
@@ -102,7 +116,7 @@ namespace Vampire
                 return;
             }
 
-            playerInside = true;
+            playerColliders.Add(other);
             SetGuideVisible(true);
 
             if (debugLog)
@@ -127,21 +141,14 @@ namespace Vampire
                 return;
             }
 
-            playerInside = false;
-            SetGuideVisible(false);
+            playerColliders.Remove(other);
+            SetGuideVisible(CanInteract);
         }
 
         private void SetGuideVisible(bool visible)
         {
-            if (unlockedGuide != null)
-            {
-                unlockedGuide.SetActive(visible && unlocked);
-            }
-
-            if (lockedGuide != null)
-            {
-                lockedGuide.SetActive(visible && !unlocked);
-            }
+            if (lockedGuide != null && lockedGuide != gameObject) lockedGuide.SetActive(false);
+            PixelInteractionPrompt.Show(this, visible && CanInteract, unlockedGuide);
         }
     }
 }

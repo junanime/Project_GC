@@ -123,6 +123,7 @@ namespace Vampire
         {
             if (warningCircleRenderer != null)
             {
+                GroundVisualSorting.Apply(warningCircleRenderer);
                 warningCircleRenderer.enabled = true;
                 warningCircleRenderer.color = warningColor;
 

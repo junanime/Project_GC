@@ -19,7 +19,7 @@ TagManager:
   - MiniStageReflector
   - MiniStageWaveTarget
   - MiniStageWaveBlocker
-  - 
+  - BloodClot Solid
   - 
   - 
   - 
@@ -40,6 +40,9 @@ TagManager:
   m_SortingLayers:
   - name: Background
     uniqueID: 1017377967
+    locked: 0
+  - name: GroundEffects
+    uniqueID: 1843267519
     locked: 0
   - name: Default
     uniqueID: 0

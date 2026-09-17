@@ -55,9 +55,9 @@ namespace Vampire
         private bool debugLog =
             true;
 
-        private readonly HashSet<int>
+        private readonly HashSet<Collider2D>
             playerColliderIds =
-                new HashSet<int>();
+                new HashSet<Collider2D>();
 
         private bool transitionStarted;
 
@@ -87,6 +87,9 @@ namespace Vampire
 
         private void Update()
         {
+            playerColliderIds.RemoveWhere(c => c == null || !c.enabled || !c.gameObject.activeInHierarchy);
+            SetGuideVisible(IsPlayerInside);
+            if (Time.timeScale <= 0f) return;
             if (transitionStarted ||
                 !interactionEnabled ||
                 !IsPlayerInside)
@@ -186,9 +189,7 @@ namespace Vampire
         private void OnTriggerEnter2D(
             Collider2D other)
         {
-            if (!interactionEnabled ||
-                transitionStarted ||
-                other == null)
+            if (other == null)
             {
                 return;
             }
@@ -205,7 +206,7 @@ namespace Vampire
                 playerColliderIds.Count == 0;
 
             playerColliderIds.Add(
-                other.GetInstanceID());
+                other);
 
             if (!wasOutside ||
                 playerColliderIds.Count == 0)
@@ -242,7 +243,7 @@ namespace Vampire
             }
 
             playerColliderIds.Remove(
-                other.GetInstanceID());
+                other);
 
             if (playerColliderIds.Count > 0)
             {
@@ -260,18 +261,10 @@ namespace Vampire
             }
         }
 
-        private void SetGuideVisible(
-            bool visible)
+        private void SetGuideVisible(bool visible)
         {
-            if (interactionGuide == null)
-            {
-                return;
-            }
-
-            interactionGuide.SetActive(
-                visible &&
-                interactionEnabled &&
-                !transitionStarted);
+            PixelInteractionPrompt.Show(this, visible && isActiveAndEnabled &&
+                interactionEnabled && !transitionStarted && IsPlayerInside, interactionGuide);
         }
 
         private void ValidateTriggerSetup()

@@ -143,7 +143,6 @@ MonoBehaviour:
   keepVisualAlignedWhileMoving: 0
   destructionParticleSystem: {fileID: 0}
   criticalDamageMultiplier: 2
-  attackSpeedReduction: 0.2
   debuffDuration: 10
   arrowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   arrowYOffset: 0.3

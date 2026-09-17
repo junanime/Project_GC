@@ -13,6 +13,7 @@ namespace Vampire
     [DisallowMultipleComponent]
     public class HungrySpiritController : MonoBehaviour
     {
+        private SyringeAugmentVfx augmentVisual;
         private Character playerCharacter;
 
         private float stackInterval;
@@ -74,6 +75,12 @@ namespace Vampire
                 return;
             }
 
+            if (!playerCharacter.gameObject.activeInHierarchy || playerCharacter.CurrentHealth <= 0f)
+            {
+                RemoveAllAppliedBonuses();
+                return;
+            }
+
             if (currentStacks >= maxStacks)
             {
                 return;
@@ -117,6 +124,13 @@ namespace Vampire
             currentStacks = newStackCount;
 
             ApplyStackDelta(deltaStacks);
+            if (currentStacks == 0) SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            else
+            {
+                if (augmentVisual == null && playerCharacter != null)
+                    augmentVisual = SyringeAugmentVfx.Play("HungrySpirit", playerCharacter.transform.position, SyringeAugmentVfx.FindTarget(playerCharacter));
+                if (augmentVisual != null) augmentVisual.SetStrength(Mathf.Lerp(0.25f, 1f, currentStacks / (float)maxStacks));
+            }
 
             if (debugLog)
             {
@@ -151,6 +165,7 @@ namespace Vampire
 
         private void RemoveAllAppliedBonuses()
         {
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             if (playerCharacter == null)
             {
                 appliedDamageBonus = 0f;

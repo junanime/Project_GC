@@ -485,8 +485,7 @@ namespace Vampire
             lineRenderer.numCornerVertices =
                 2;
 
-            lineRenderer.sortingOrder =
-                ringSortingOrder;
+            GroundVisualSorting.Apply(lineRenderer, ringSortingOrder);
 
             Shader shader =
                 Shader.Find(

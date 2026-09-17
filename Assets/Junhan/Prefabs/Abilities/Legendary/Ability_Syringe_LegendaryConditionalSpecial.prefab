@@ -66,7 +66,7 @@ MonoBehaviour:
   rarity: 15
   augmentTier: 1
   canAppearAsOwnedUpgrade: 1
-  debugLog: 1
+  debugLog: 0
   sourceIconEntries:
   - legendaryType: 0
     sourceAbility: {fileID: -3629666374954996886, guid: b8ae7f34be6ce7e4ba50ea2d283dac2e, type: 3}

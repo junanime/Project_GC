@@ -47,7 +47,6 @@ namespace Vampire
 
         private readonly List<Monster> spawnedSnipers = new List<Monster>();
         private int remainingSniperCount;
-        private Vector3 lastSniperKilledPosition;
 
         protected override void OnBeginRoom()
         {
@@ -59,20 +58,19 @@ namespace Vampire
             if (entityManager == null)
             {
                 Debug.LogWarning("[MiniStageSniperRoom] EntityManager가 없어 스나이퍼를 생성할 수 없습니다.");
-                CompleteRoom(transform.position);
+                CompleteRoom();
                 return;
             }
 
             if (sniperBlueprint == null)
             {
                 Debug.LogWarning("[MiniStageSniperRoom] Sniper Blueprint가 비어 있습니다.");
-                CompleteRoom(transform.position);
+                CompleteRoom();
                 return;
             }
 
             spawnedSnipers.Clear();
             remainingSniperCount = 0;
-            lastSniperKilledPosition = transform.position;
 
             int spawnCount = GetSpawnCount();
 
@@ -114,7 +112,7 @@ namespace Vampire
             if (remainingSniperCount <= 0)
             {
                 Debug.LogWarning("[MiniStageSniperRoom] 생성된 스나이퍼가 없습니다. 방을 즉시 클리어 처리합니다.");
-                CompleteRoom(transform.position);
+                CompleteRoom();
             }
         }
 
@@ -232,7 +230,6 @@ namespace Vampire
             if (killedMonster != null)
             {
                 killedMonster.OnKilled.RemoveListener(OnSniperKilled);
-                lastSniperKilledPosition = killedMonster.transform.position;
             }
 
             remainingSniperCount = Mathf.Max(0, remainingSniperCount - 1);
@@ -244,7 +241,7 @@ namespace Vampire
 
             if (remainingSniperCount <= 0)
             {
-                CompleteRoom(lastSniperKilledPosition);
+                CompleteRoom();
             }
         }
 

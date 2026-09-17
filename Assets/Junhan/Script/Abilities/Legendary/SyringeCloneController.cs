@@ -5,6 +5,8 @@ namespace Vampire
 {
     public class SyringeCloneController : MonoBehaviour
     {
+        private SyringeAugmentVfx augmentVisual;
+        private float visualReadyAt;
         private Character sourceCharacter;
         private EntityManager entityManager;
         private SyringeDartAbility sourceSyringeAbility;
@@ -220,6 +222,9 @@ namespace Vampire
             spawnInvincibleTimer =
                 spawnInvincibleDuration;
 
+            visualReadyAt = Time.time + 0.24f;
+            var spawn = SyringeAugmentVfx.Play("CloneSpawn", transform.position, spriteRenderer);
+            if (spawn != null) spawn.BindTo(transform);
 
             if (sourceCharacter.OnDeath != null)
             {
@@ -245,6 +250,13 @@ namespace Vampire
                 return;
             }
 
+            if (sourceCharacter.CurrentHealth <= 0f || !sourceCharacter.gameObject.activeInHierarchy)
+            {
+                DestroySelf();
+                return;
+            }
+            if (augmentVisual == null && Time.time >= visualReadyAt)
+                augmentVisual = SyringeAugmentVfx.Play("CloneCulture", transform.position, spriteRenderer);
 
             if (statRuntime == null)
             {
@@ -675,6 +687,9 @@ namespace Vampire
 
         private void DestroySelf()
         {
+            if (isActiveAndEnabled && augmentVisual != null)
+                SyringeAugmentVfx.Play("CloneDisappear", transform.position, spriteRenderer);
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             if (gameObject != null)
             {
                 Destroy(
@@ -683,11 +698,12 @@ namespace Vampire
             }
         }
 
+        private void OnDisable() { SyringeAugmentVfx.ReleaseOwned(ref augmentVisual); }
 
         private void OnDestroy()
         {
-            if (sourceCharacter != null &&
-                sourceCharacter.OnDeath != null)
+            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            if (sourceCharacter != null && sourceCharacter.OnDeath != null)
             {
                 sourceCharacter.OnDeath.RemoveListener(
                     DestroySelf

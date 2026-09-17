@@ -6,6 +6,14 @@ using UnityEngine.Localization;
 
 namespace Vampire
 {
+    public interface IRunSceneConditionalAugmentState
+    {
+        List<string> CaptureRunSceneConditionalAugmentIds();
+
+        bool RestoreRunSceneConditionalAugments(
+            IReadOnlyList<string> augmentIds);
+    }
+
     public abstract class Ability : MonoBehaviour
     {
         public enum Rarity

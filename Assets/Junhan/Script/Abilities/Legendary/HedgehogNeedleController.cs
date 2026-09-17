@@ -38,7 +38,9 @@ namespace Vampire
             }
         }
 
-
+        [SerializeField, Tooltip("Minimum interval between radial contact bursts when multiple orbit needles hit together.")]
+        private float burstVfxInterval = 0.16f;
+        private float nextBurstVfxAt;
         private Character sourceCharacter;
         private EntityManager entityManager;
         private SyringeDartAbility sourceNeedleAbility;
@@ -302,7 +304,9 @@ namespace Vampire
         {
             if (sourceCharacter == null ||
                 entityManager == null ||
-                sourceNeedleAbility == null)
+                sourceNeedleAbility == null ||
+                sourceCharacter.CurrentHealth <= 0f ||
+                !sourceCharacter.gameObject.activeInHierarchy)
             {
                 Destroy(gameObject);
 
@@ -539,6 +543,7 @@ namespace Vampire
             int needleCount
         )
         {
+            PlayRadialVfx("HedgehogNeedle");
             if (visualRoot != null)
             {
                 Destroy(
@@ -1034,6 +1039,12 @@ namespace Vampire
             // 피해량 기록
             // =====================================================
 
+            if (Time.time >= nextBurstVfxAt)
+            {
+                PlayRadialVfx("HedgehogBurst");
+                nextBurstVfxAt = Time.time + Mathf.Max(0.02f, burstVfxInterval);
+            }
+
             ReportHedgehogDamage(
                 finalDamage
             );
@@ -1190,10 +1201,14 @@ namespace Vampire
             ).normalized;
         }
 
-
-        // =========================================================
-        // Destroy
-        // =========================================================
+        private void PlayRadialVfx(string name)
+        {
+            if (sourceCharacter == null) return;
+            var effect = SyringeAugmentVfx.Play(name, GetSourceCenterPosition(), SyringeAugmentVfx.FindTarget(sourceCharacter));
+            if (effect == null) return;
+            effect.BindTo(sourceCharacter.CenterTransform);
+            effect.SetWorldSize(Vector2.one * (2f * orbitRadius), Vector2.one * 0.8f);
+        }
 
         private void DestroySelf()
         {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
@@ -85,6 +86,7 @@ namespace Vampire
                     : (Vector2)sourceMonster.transform.position;
 
             int appliedCount = 0;
+            var visited = new HashSet<int>();
 
             Collider2D[] hits =
                 Physics2D.OverlapCircleAll(
@@ -120,13 +122,9 @@ namespace Vampire
                     continue;
                 }
 
-                if (targetMonster.HP <= 0f)
-                {
-                    continue;
-                }
+                if (targetMonster.HP <= 0f || !visited.Add(targetMonster.GetInstanceID())) continue;
 
-                PoisonStatus poisonStatus =
-                    targetMonster.GetComponent<PoisonStatus>();
+                PoisonStatus poisonStatus = targetMonster.GetComponent<PoisonStatus>();
 
                 if (poisonStatus == null)
                 {
@@ -142,6 +140,9 @@ namespace Vampire
                     "독 전염"
                 );
 
+                SyringeAugmentVfx.PlayTransfer("PoisonContagion", sourcePosition,
+                    targetMonster.CenterTransform != null ? targetMonster.CenterTransform : targetMonster.transform,
+                    SyringeAugmentVfx.FindTarget(targetMonster));
                 appliedCount++;
             }
 

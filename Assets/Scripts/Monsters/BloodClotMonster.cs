@@ -48,6 +48,7 @@ namespace Vampire
         public override void Setup(int monsterIndex, Vector2 position, MonsterBlueprint monsterBlueprint, float hpBuff = 0)
         {
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
+            BloodClotObstacle.Ensure(gameObject);
 
             if (!configuredBySpawner)
             {
@@ -94,6 +95,8 @@ namespace Vampire
         public override IEnumerator Killed(bool killedByPlayer = true)
         {
             alive = false;
+            var obstacle = GetComponent<BloodClotObstacle>();
+            if (obstacle != null) obstacle.SetBlocking(false);
 
             if (monsterHitbox != null)
             {

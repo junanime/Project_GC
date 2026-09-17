@@ -423,6 +423,7 @@ namespace Vampire
                 bossController.BossCenterPosition,
                 Quaternion.identity);
 
+            GroundVisualSorting.ApplyHierarchy(activeTelegraph);
             activeTelegraph.name = "Boss_PressureOverload_Telegraph";
             activeTelegraph.transform.localScale = Vector3.one * Mathf.Max(0.1f, telegraphScale);
         }

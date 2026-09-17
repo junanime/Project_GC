@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5920310429829167804}
+  - component: {fileID: 8000225544839411982}
   - component: {fileID: 5923718352548348500}
   - component: {fileID: 4791492890728012684}
   - component: {fileID: 3988468440541368247}
@@ -35,6 +36,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8000225544839411982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7108466163909903309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d830552c9f5f458c9f082bfaaf9335cb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &5923718352548348500
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -121,7 +134,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 1.5
+  m_Radius: 0.4
 --- !u!114 &3988468440541368247
 MonoBehaviour:
   m_ObjectHideFlags: 0

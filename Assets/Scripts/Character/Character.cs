@@ -9,6 +9,14 @@ namespace Vampire
 {
     public class Character : IDamageable, ISpatialHashGridClient
     {
+        private enum CharacterVisualState
+        {
+            None,
+            Idle,
+            Walk,
+            Dash
+        }
+
         [Header("Dependencies")]
         [SerializeField] protected Transform centerTransform;
         [SerializeField] protected Transform lookIndicator;
@@ -140,6 +148,7 @@ namespace Vampire
 
         protected SpriteRenderer spriteRenderer;
         protected SpriteAnimator spriteAnimator;
+        private CharacterVisualState visualState = CharacterVisualState.None;
         protected AbilityManager abilityManager;
         protected EntityManager entityManager;
         protected StatsManager statsManager;
@@ -149,6 +158,9 @@ namespace Vampire
         protected CoroutineQueue coroutineQueue;
         protected Coroutine hitAnimationCoroutine = null;
         protected Vector2 moveDirection;
+        private bool movementControlsReversed;
+        public Vector2 EffectiveMoveDirection => movementControlsReversed ? -moveDirection : moveDirection;
+        public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
         protected bool isDashing = false;
         protected bool isInvincible = false;
@@ -158,11 +170,18 @@ namespace Vampire
 
         private float dashInvincibleEndTime = -1f;
 
-        private Sprite cachedSpriteBeforeDash;
         private bool dashSpriteApplied = false;
 
         private readonly List<Collider2D> dashGhostedColliders = new List<Collider2D>();
         private readonly Dictionary<Collider2D, bool> originalTriggerStateByCollider = new Dictionary<Collider2D, bool>();
+
+        // =========================================================
+        // Result Screen - 마지막으로 실제 피해를 준 몬스터 추적
+        // =========================================================
+        private MonsterBlueprint pendingDamageMonsterBlueprint;
+        private MonsterBlueprint lastDamageMonsterBlueprint;
+
+        public MonsterBlueprint LastDamageMonsterBlueprint => lastDamageMonsterBlueprint;
 
         public Vector2 LookDirection
         {
@@ -266,11 +285,21 @@ namespace Vampire
                 spriteRenderer = spriteAnimator.GetComponent<SpriteRenderer>();
             }
 
-            characterBlueprint = CrossSceneData.CharacterBlueprint;
+            if (CrossSceneData.CharacterBlueprint != null)
+            {
+                characterBlueprint = CrossSceneData.CharacterBlueprint;
+            }
+        }
+
+        private void OnEnable()
+        {
+            EnsureDashRecharge();
         }
 
         private void OnDisable()
         {
+            StopDashRecharge();
+            movementControlsReversed = false;
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
 
@@ -284,6 +313,10 @@ namespace Vampire
             this.entityManager = entityManager;
             this.abilityManager = abilityManager;
             this.statsManager = statsManager;
+
+            // 새 플레이 시작 시 이전 공격자 정보 초기화
+            pendingDamageMonsterBlueprint = null;
+            lastDamageMonsterBlueprint = null;
 
             OnDealDamage.AddListener(statsManager.IncreaseDamageDealt);
 
@@ -305,7 +338,7 @@ namespace Vampire
             currentLevel = 1;
             UpdateLevelDisplay();
 
-            spriteAnimator.Init(characterBlueprint.walkSpriteSequence, characterBlueprint.walkFrameTime, false);
+            StartIdleAnimation();
 
             movementSpeed = new UpgradeableMovementSpeed();
             movementSpeed.Value = characterBlueprint.movespeed;
@@ -355,23 +388,26 @@ namespace Vampire
                 return;
             }
 
-            if (moveDirection != Vector2.zero)
+            Vector2 effectiveDirection = EffectiveMoveDirection;
+            if (effectiveDirection != Vector2.zero)
             {
-                lookDirection = moveDirection;
+                lookDirection = effectiveDirection;
+                StartWalkAnimation();
             }
             else
             {
-                StopWalkAnimation();
+                StartIdleAnimation();
             }
 
             if (alive)
             {
-                rb.velocity += moveDirection * characterBlueprint.acceleration * Time.deltaTime;
+                rb.velocity += effectiveDirection * characterBlueprint.acceleration * Time.deltaTime;
             }
         }
 
         private void InitDash()
         {
+            StopDashRecharge();
             maxDashCharges = Mathf.Max(1, maxDashCharges);
             currentDashCharges = maxDashCharges;
             dashInvincibleEndTime = -1f;
@@ -466,10 +502,7 @@ namespace Vampire
             }
             dashCoroutine = StartCoroutine(DashCoroutine(dashDirection));
 
-            if (dashRechargeCoroutine == null)
-            {
-                dashRechargeCoroutine = StartCoroutine(DashRechargeCoroutine());
-            }
+            EnsureDashRecharge();
 
             if (debugDashLog)
             {
@@ -483,7 +516,7 @@ namespace Vampire
         {
             if (moveDirection != Vector2.zero)
             {
-                return moveDirection.normalized;
+                return EffectiveMoveDirection.normalized;
             }
 
             if (lookDirection != Vector2.zero)
@@ -541,7 +574,7 @@ namespace Vampire
 
                 if (rb != null)
                 {
-                    rb.MovePosition(nextPosition);
+                    rb.MovePosition(BloodClotObstacle.ClampDash(rb, nextPosition));
                 }
                 else
                 {
@@ -554,7 +587,7 @@ namespace Vampire
 
             if (rb != null)
             {
-                rb.MovePosition(targetPosition);
+                rb.MovePosition(BloodClotObstacle.ClampDash(rb, targetPosition));
 
                 if (stopVelocityAfterDash)
                 {
@@ -611,27 +644,21 @@ namespace Vampire
 
         private void ApplyDashSpriteVisual(Vector2 dashDirection)
         {
-            if (!useDashSprite)
+            if (!useDashSprite || spriteRenderer == null)
             {
                 return;
             }
 
-            if (dashSprite == null)
+            bool hasDashAnimation = characterBlueprint != null &&
+                                    characterBlueprint.dashSpriteSequence != null &&
+                                    characterBlueprint.dashSpriteSequence.Length > 0;
+
+            if (!hasDashAnimation && dashSprite == null)
             {
                 return;
             }
 
-            if (spriteRenderer == null)
-            {
-                return;
-            }
-
-            cachedSpriteBeforeDash = spriteRenderer.sprite;
             dashSpriteApplied = true;
-
-            StopWalkAnimation();
-
-            spriteRenderer.sprite = dashSprite;
 
             if (dashDirection.x != 0f)
             {
@@ -644,6 +671,19 @@ namespace Vampire
                     spriteRenderer.flipX = dashDirection.x > 0f;
                 }
             }
+
+            if (hasDashAnimation)
+            {
+                PlayVisualState(
+                    CharacterVisualState.Dash,
+                    characterBlueprint.dashSpriteSequence,
+                    characterBlueprint.dashFrameTime);
+            }
+            else
+            {
+                StopWalkAnimation();
+                spriteRenderer.sprite = dashSprite;
+            }
         }
 
         private void RestoreDashSpriteVisual()
@@ -655,21 +695,15 @@ namespace Vampire
 
             dashSpriteApplied = false;
 
-            if (restartWalkAnimationAfterDash && moveDirection != Vector2.zero)
+            if (restartWalkAnimationAfterDash && EffectiveMoveDirection != Vector2.zero)
             {
                 StartWalkAnimation();
             }
             else
             {
-                StopWalkAnimation();
-
-                if (spriteRenderer != null && cachedSpriteBeforeDash != null)
-                {
-                    spriteRenderer.sprite = cachedSpriteBeforeDash;
-                }
+                StartIdleAnimation();
             }
 
-            cachedSpriteBeforeDash = null;
         }
 
         private void ApplyDashCollisionGhost()
@@ -742,6 +776,24 @@ namespace Vampire
             if (debugDashLog)
             {
                 Debug.Log("[Dash] 충돌 관통 해제");
+            }
+        }
+
+        private void StopDashRecharge()
+        {
+            if (dashRechargeCoroutine != null)
+            {
+                StopCoroutine(dashRechargeCoroutine);
+                dashRechargeCoroutine = null;
+            }
+        }
+
+        private void EnsureDashRecharge()
+        {
+            if (alive && isActiveAndEnabled && currentDashCharges < maxDashCharges &&
+                dashRechargeCoroutine == null)
+            {
+                dashRechargeCoroutine = StartCoroutine(DashRechargeCoroutine());
             }
         }
 
@@ -846,6 +898,28 @@ namespace Vampire
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
         }
 
+        /// <summary>
+        /// 몬스터가 플레이어에게 피해를 줄 때 사용하는 함수입니다.
+        /// 기존 TakeDamage 로직은 그대로 사용하면서 공격한 몬스터의 Blueprint를 함께 전달합니다.
+        /// </summary>
+        public void TakeDamageFromMonster(
+            float damage,
+            Vector2 knockback,
+            MonsterBlueprint sourceMonster,
+            bool isCritical = false)
+        {
+            pendingDamageMonsterBlueprint = sourceMonster;
+
+            try
+            {
+                TakeDamage(damage, knockback, isCritical);
+            }
+            finally
+            {
+                pendingDamageMonsterBlueprint = null;
+            }
+        }
+
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
             if (!alive)
@@ -869,6 +943,15 @@ namespace Vampire
             }
 
             if (isInvincible)
+            {
+                return;
+            }
+
+            PlayerGeneralStatRuntime generalStatRuntime =
+                GetComponent<PlayerGeneralStatRuntime>();
+
+            if (generalStatRuntime != null &&
+                UnityEngine.Random.value < generalStatRuntime.EvasionBonus)
             {
                 return;
             }
@@ -897,6 +980,11 @@ namespace Vampire
                 damage -= armor.Value;
             }
 
+            if (generalStatRuntime != null)
+            {
+                damage *= 1f - Mathf.Clamp01(generalStatRuntime.DamageReductionBonus);
+            }
+
             // 여기까지 왔다는 것은 실제 체력 피해가 발생한다는 뜻이다.
             // 점막 요새는 "피해를 받지 않은 시간"을 기준으로 실드를 충전하므로,
             // 실제 피해가 들어가기 직전에 타이머를 초기화한다.
@@ -912,6 +1000,14 @@ namespace Vampire
             GameAudioManager.PlaySfx(
                 GameAudioManager.GameSfxId.PlayerHit
             );
+
+            // 실제 체력이 감소한 공격만 마지막 공격자로 기록합니다.
+            // 일반 TakeDamage()로 들어온 피해라면 pendingDamageMonsterBlueprint가 null이므로
+            // 환경 피해/기타 피해로 사망했을 때 이전 몬스터가 범인으로 남지 않습니다.
+            if (damage > 0f)
+            {
+                lastDamageMonsterBlueprint = pendingDamageMonsterBlueprint;
+            }
 
             rb.velocity += knockback * Mathf.Sqrt(rb.drag);
             statsManager.IncreaseDamageTaken(damage);
@@ -973,6 +1069,7 @@ namespace Vampire
         private IEnumerator DeathAnimation()
         {
             alive = false;
+            GetComponent<PlayerAttackSpeedDebuffRuntime>()?.ClearDebuff();
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
@@ -1048,6 +1145,15 @@ namespace Vampire
 
         public void GainHealth(float health)
         {
+            LegendaryConditionalSpecialRuntime conditionalRuntime =
+                GetComponent<LegendaryConditionalSpecialRuntime>();
+
+            if (conditionalRuntime != null &&
+                conditionalRuntime.BlockHealingAndRegisterAttempt())
+            {
+                return;
+            }
+
             float maxHealth = GetMaxHealth();
 
             healthBar.AddPoints(health);
@@ -1086,14 +1192,57 @@ namespace Vampire
 
         public void StartWalkAnimation()
         {
-            if (alive && spriteAnimator != null)
+            if (!alive || characterBlueprint == null)
+                return;
+
+            PlayVisualState(
+                CharacterVisualState.Walk,
+                characterBlueprint.walkSpriteSequence,
+                characterBlueprint.walkFrameTime);
+        }
+
+        public void StartIdleAnimation()
+        {
+            if (!alive || characterBlueprint == null)
+                return;
+
+            Sprite[] sequence = characterBlueprint.idleSpriteSequence;
+            if (sequence == null || sequence.Length == 0)
             {
-                spriteAnimator.StartAnimating();
+                if (visualState != CharacterVisualState.Idle &&
+                    spriteAnimator != null &&
+                    characterBlueprint.walkSpriteSequence != null &&
+                    characterBlueprint.walkSpriteSequence.Length > 0)
+                {
+                    visualState = CharacterVisualState.Idle;
+                    spriteAnimator.Init(
+                        characterBlueprint.walkSpriteSequence,
+                        Mathf.Max(0.01f, characterBlueprint.walkFrameTime),
+                        true);
+                    spriteAnimator.StopAnimating(true);
+                }
+                return;
             }
+
+            PlayVisualState(CharacterVisualState.Idle, sequence, characterBlueprint.idleFrameTime);
+        }
+
+        private void PlayVisualState(CharacterVisualState state, Sprite[] sequence, float frameTime)
+        {
+            if (spriteAnimator == null || sequence == null || sequence.Length == 0)
+                return;
+
+            if (visualState == state)
+                return;
+
+            visualState = state;
+            spriteAnimator.Init(sequence, Mathf.Max(0.01f, frameTime), true);
+            spriteAnimator.StartAnimating();
         }
 
         public void StopWalkAnimation()
         {
+            visualState = CharacterVisualState.None;
             if (spriteAnimator != null)
             {
                 spriteAnimator.StopAnimating(true);
@@ -1783,6 +1932,10 @@ namespace Vampire
 
             alive =
                 currentHealth > 0f;
+
+            // Restored spent charges must recharge even when no dash can be started.
+            StopDashRecharge();
+            EnsureDashRecharge();
 
             // --------------------------------------------------------
             // UI Refresh

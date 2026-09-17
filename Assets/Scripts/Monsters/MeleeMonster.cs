@@ -72,7 +72,7 @@ namespace Vampire
             }
         }
 
-        private void OnCollisionStay2D(Collision2D col)
+        protected virtual void OnCollisionStay2D(Collision2D col)
         {
             if (!alive || meleeMonsterBlueprint == null)
             {

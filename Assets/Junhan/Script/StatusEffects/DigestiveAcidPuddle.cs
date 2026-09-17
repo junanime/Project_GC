@@ -18,6 +18,7 @@ namespace Vampire
         private float tickInterval;
         private Color puddleColor;
 
+        private SyringeAugmentVfx augmentVisual;
         private float endTime;
         private LineRenderer outerLine;
         private LineRenderer innerLine;
@@ -177,24 +178,13 @@ namespace Vampire
 
         private void CreateVisual()
         {
-            outerLine = CreateCircleLine(
-                "Digestive Acid Puddle Outer",
-                radius,
-                0.06f,
-                puddleColor,
-                760
-            );
-
-            Color innerColor = puddleColor;
-            innerColor.a *= 0.65f;
-
-            innerLine = CreateCircleLine(
-                "Digestive Acid Puddle Inner",
-                radius * 0.55f,
-                0.035f,
-                innerColor,
-                761
-            );
+            ReleaseAugmentVisual();
+            augmentVisual = SyringeAugmentVfx.Play("DigestiveAcidSacNeedle", transform.position);
+            if (augmentVisual != null)
+            {
+                augmentVisual.transform.localScale = new Vector3(radius * 2f / 0.84f, radius * 2f / 0.70f, 1f);
+                augmentVisual.SetGroundSorting();
+            }
         }
 
         private LineRenderer CreateCircleLine(
@@ -232,7 +222,7 @@ namespace Vampire
 
             lr.numCapVertices = 4;
             lr.numCornerVertices = 4;
-            lr.sortingOrder = sortingOrder;
+            GroundVisualSorting.Apply(lr, sortingOrder);
 
             Shader spriteShader =
                 Shader.Find("Sprites/Default");
@@ -254,50 +244,16 @@ namespace Vampire
             return lr;
         }
 
+        private void ReleaseAugmentVisual()
+        {
+            if (augmentVisual != null) augmentVisual.Release();
+            augmentVisual = null;
+        }
+        private void OnDisable() { ReleaseAugmentVisual(); }
+        private void OnDestroy() { ReleaseAugmentVisual(); }
+
         private void UpdateVisual()
         {
-            float remainingRatio =
-                Mathf.Clamp01(
-                    (endTime - Time.time) /
-                    lifetime
-                );
-
-            float pulse =
-                1f +
-                Mathf.Sin(Time.time * 8f) *
-                0.05f;
-
-            RebuildCircle(
-                outerLine,
-                radius * pulse
-            );
-
-            RebuildCircle(
-                innerLine,
-                radius *
-                0.55f *
-                Mathf.Lerp(
-                    0.85f,
-                    1.15f,
-                    Mathf.PingPong(
-                        Time.time * 1.8f,
-                        1f
-                    )
-                )
-            );
-
-            SetAlpha(
-                outerLine,
-                puddleColor.a *
-                remainingRatio
-            );
-
-            SetAlpha(
-                innerLine,
-                puddleColor.a *
-                0.65f *
-                remainingRatio
-            );
         }
 
         private void RebuildCircle(

@@ -29,7 +29,15 @@ namespace Vampire
 
         [Header("Sprites")]
         public Sprite[] walkSpriteSequence;
-        public float walkFrameTime = 0.15f;
+        public float walkFrameTime = 0.08f;
+
+        [Tooltip("움직이지 않을 때 재생할 호흡 애니메이션입니다.")]
+        public Sprite[] idleSpriteSequence;
+        public float idleFrameTime = 0.125f;
+
+        [Tooltip("대쉬 중 재생할 다리 회전 애니메이션입니다.")]
+        public Sprite[] dashSpriteSequence;
+        public float dashFrameTime = 0.0275f;
 
         [Header("Result Animation")]
         public Sprite[] resultIdleSpriteSequence;

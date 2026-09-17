@@ -23,7 +23,21 @@ namespace Vampire
         private float age;
         private SpriteRenderer spriteRenderer;
         private CircleCollider2D circleCollider;
+        private PolygonCollider2D groundCollider;
+        // UV footprint excludes floating bubbles in the upper part of the image.
+        [SerializeField] private Vector2 groundCenterUV = new Vector2(.5f, .40f);
+        [SerializeField] private Vector2 groundRadiiUV = new Vector2(.46f, .28f);
         private bool debugLog;
+        [Header("Bubble lift and pop")]
+        [SerializeField] private Sprite[] bubblePopFrames;
+        private Color baseColor;
+        private BubbleVisual[] bubbles;
+        private sealed class BubbleVisual
+        {
+            public SpriteRenderer renderer;
+            public Vector3 origin;
+            public float launch, duration, size, sway;
+        }
 
         public float Radius => radius;
 
@@ -35,6 +49,8 @@ namespace Vampire
             this.debugLog = debugLog;
 
             age = 0f;
+            baseColor = bubbleColor;
+            GroundVisualSorting.ApplyHierarchy(gameObject);
 
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
             circleCollider = GetComponent<CircleCollider2D>();
@@ -61,6 +77,8 @@ namespace Vampire
             {
                 spriteRenderer.color = bubbleColor;
             }
+            ConfigureGroundFootprint();
+            CreateBubbles();
 
             if (debugLog)
             {
@@ -80,14 +98,13 @@ namespace Vampire
             if (spriteRenderer != null)
             {
                 float remaining = lifetime - age;
-
-                if (remaining <= fadeOutDuration)
-                {
-                    Color color = spriteRenderer.color;
-                    color.a = Mathf.Clamp01(remaining / fadeOutDuration);
-                    spriteRenderer.color = color;
-                }
+                // Depletion starts with the first lift; keep the safe area readable until expiry.
+                Color color = baseColor;
+                color.a *= Mathf.Lerp(1f, 0.3f, Mathf.Clamp01(age / lifetime))
+                    * Mathf.Clamp01(remaining / Mathf.Min(fadeOutDuration, lifetime));
+                spriteRenderer.color = color;
             }
+            AnimateBubbles();
 
             if (age >= lifetime)
             {
@@ -97,13 +114,89 @@ namespace Vampire
 
         public bool ContainsPoint(Vector2 point)
         {
-            if (MiniStageRuntimeState.IsInsideMiniStage)
+            if (MiniStageRuntimeState.IsInsideMiniStage || age >= lifetime)
             {
                 return false;
             }
 
-            float effectiveRadius = Mathf.Max(0.1f, radius);
-            return Vector2.Distance(transform.position, point) <= effectiveRadius;
+            if(spriteRenderer==null||spriteRenderer.sprite==null)return false;
+            Bounds b=spriteRenderer.sprite.bounds;
+            Vector3 p=spriteRenderer.transform.InverseTransformPoint(point);
+            Vector2 uv=new Vector2((p.x-b.min.x)/b.size.x,(p.y-b.min.y)/b.size.y);
+            Vector2 d=uv-groundCenterUV;
+            return d.x*d.x/(groundRadiiUV.x*groundRadiiUV.x)+d.y*d.y/(groundRadiiUV.y*groundRadiiUV.y)<=1f;
+        }
+
+        private void ConfigureGroundFootprint()
+        {
+            if(spriteRenderer==null||spriteRenderer.sprite==null)return;
+            if(circleCollider!=null)circleCollider.enabled=false;
+            groundCollider=GetComponent<PolygonCollider2D>();
+            if(groundCollider==null)groundCollider=gameObject.AddComponent<PolygonCollider2D>();
+            groundCollider.isTrigger=true;
+            var points=new Vector2[48];Bounds b=spriteRenderer.sprite.bounds;
+            for(int i=0;i<points.Length;i++)
+            {
+                float a=i*Mathf.PI*2/points.Length;
+                Vector2 uv=groundCenterUV+new Vector2(Mathf.Cos(a)*groundRadiiUV.x,Mathf.Sin(a)*groundRadiiUV.y);
+                Vector3 local=new Vector3(b.min.x+uv.x*b.size.x,b.min.y+uv.y*b.size.y,0);
+                points[i]=transform.InverseTransformPoint(spriteRenderer.transform.TransformPoint(local));
+            }
+            groundCollider.SetPath(0,points);
+        }
+
+        private void CreateBubbles()
+        {
+            if (bubbles != null)
+                foreach (var bubble in bubbles)
+                    if (bubble.renderer != null) Destroy(bubble.renderer.gameObject);
+            bubbles = null;
+            if (spriteRenderer == null || bubblePopFrames == null || bubblePopFrames.Length == 0) return;
+            bubbles = new BubbleVisual[14];
+            for (int i = 0; i < bubbles.Length; i++)
+            {
+                var obj = new GameObject("Rising soap bubble " + i);
+                obj.transform.SetParent(transform, false);
+                var sr = obj.AddComponent<SpriteRenderer>();
+                sr.sprite = bubblePopFrames[0];
+                sr.sharedMaterial = spriteRenderer.sharedMaterial;
+                GroundVisualSorting.Apply(sr, 1);
+                float angle = i * 2.399963f;
+                float distance = Mathf.Sqrt((i + 0.5f) / bubbles.Length) * radius * 0.72f;
+                // Store offsets in world units so the fallback root scale cannot enlarge the bubbles.
+                Vector3 origin = new Vector3(Mathf.Cos(angle) * distance, Mathf.Sin(angle) * distance * 0.65f, 0f);
+                float duration = Mathf.Min(1.2f, lifetime * 0.28f);
+                bubbles[i] = new BubbleVisual { renderer = sr, origin = origin,
+                    launch = i / (float)(bubbles.Length - 1) * (lifetime - duration),
+                    duration = duration, size = radius * (0.22f + (i % 3) * 0.055f), sway = angle };
+            }
+            AnimateBubbles();
+        }
+
+        private void AnimateBubbles()
+        {
+            if (bubbles == null) return;
+            foreach (var bubble in bubbles)
+            {
+                float t = Mathf.Clamp01((age - bubble.launch) / bubble.duration);
+                bubble.renderer.enabled = t < 1f;
+                if (t >= 1f) continue;
+                bool launched = age >= bubble.launch;
+                float lift = Mathf.Min(t / 0.78f, 1f);
+                bubble.renderer.transform.position = transform.position + bubble.origin +
+                    new Vector3(launched ? Mathf.Sin(t * 5f + bubble.sway) * radius * 0.08f * lift : 0f,
+                        lift * radius * 0.75f, 0f);
+                int frame = t < 0.78f ? 0 : Mathf.Min(bubblePopFrames.Length - 1,
+                    1 + Mathf.FloorToInt((t - 0.78f) / 0.22f * (bubblePopFrames.Length - 1)));
+                bubble.renderer.sprite = bubblePopFrames[frame];
+                float size = bubble.size * (1f + lift * 0.18f);
+                Vector3 parentScale = transform.lossyScale;
+                bubble.renderer.transform.localScale = new Vector3(size / Mathf.Max(0.001f, Mathf.Abs(parentScale.x)),
+                    size / Mathf.Max(0.001f, Mathf.Abs(parentScale.y)), 1f);
+                Color color = Color.white;
+                color.a = baseColor.a * (t < 0.85f ? 1f : Mathf.Clamp01((1f - t) / 0.15f));
+                bubble.renderer.color = color;
+            }
         }
     }
 }

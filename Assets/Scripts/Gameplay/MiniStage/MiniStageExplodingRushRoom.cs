@@ -92,8 +92,6 @@ namespace Vampire
         private bool allMonstersSpawned;
         private bool roomCompleted;
 
-        private Vector3 lastKilledPosition;
-
         protected override void OnBeginRoom()
         {
             StartExplodingRush();
@@ -104,14 +102,14 @@ namespace Vampire
             if (entityManager == null)
             {
                 Debug.LogWarning("[MiniStageExplodingRushRoom] EntityManager가 없어 자폭 몬스터를 생성할 수 없습니다.");
-                CompleteRoom(transform.position);
+                CompleteRoom();
                 return;
             }
 
             if (explodingMonsterBlueprint == null)
             {
                 Debug.LogWarning("[MiniStageExplodingRushRoom] Exploding Monster Blueprint가 비어 있습니다.");
-                CompleteRoom(transform.position);
+                CompleteRoom();
                 return;
             }
 
@@ -126,7 +124,6 @@ namespace Vampire
             remainingAliveCount = 0;
             allMonstersSpawned = false;
             roomCompleted = false;
-            lastKilledPosition = transform.position;
 
             if (debugLog)
             {
@@ -303,7 +300,6 @@ namespace Vampire
             if (killedMonster != null)
             {
                 killedMonster.OnKilled.RemoveListener(OnExplodingMonsterKilled);
-                lastKilledPosition = killedMonster.transform.position;
             }
 
             remainingAliveCount = Mathf.Max(0, remainingAliveCount - 1);
@@ -337,10 +333,10 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log($"[MiniStageExplodingRushRoom] 자폭 러시 방 클리어. 보상 위치={lastKilledPosition}");
+                Debug.Log("[MiniStageExplodingRushRoom] 자폭 러시 방 클리어.");
             }
 
-            CompleteRoom(lastKilledPosition);
+            CompleteRoom();
         }
 
         protected override void OnCleanupRoom()

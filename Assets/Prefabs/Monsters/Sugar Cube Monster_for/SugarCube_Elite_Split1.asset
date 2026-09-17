@@ -24,8 +24,32 @@ MonoBehaviour:
     lootTable: []
   coinLootTable:
     lootTable: []
-  walkSpriteSequence: []
-  walkFrameTime: 0
+  walkSpriteSequence:
+  - {fileID: 21300000, guid: c9256b3b0f07482c920333071dec55b7, type: 3}
+  - {fileID: 21300000, guid: 0288388da05a4f19abf8c220cdd8a57c, type: 3}
+  - {fileID: 21300000, guid: e11b399640d646e89f7930acbc22ca35, type: 3}
+  - {fileID: 21300000, guid: 8fe5352d3e734bdaaf25c0ec3ac40b55, type: 3}
+  - {fileID: 21300000, guid: e2549f1a52bb4c3287709bc20d1373e8, type: 3}
+  - {fileID: 21300000, guid: 98a867e95b7140ec927fe980b3da2563, type: 3}
+  - {fileID: 21300000, guid: 489c0abcd68a47ff84baa07610bd911a, type: 3}
+  - {fileID: 21300000, guid: 204e53a0845046c1bfedb6a2f2d4bfcd, type: 3}
+  - {fileID: 21300000, guid: dfd41bb6695948eab1e5b3a30705b861, type: 3}
+  - {fileID: 21300000, guid: bb71342e34e649178eac214a6237afae, type: 3}
+  - {fileID: 21300000, guid: efed2572fc0f4dcc97e118eced59de67, type: 3}
+  - {fileID: 21300000, guid: 4c89266fc23141e3aaccf869cbde1e65, type: 3}
+  - {fileID: 21300000, guid: 95d2de60c8604826b24974bf20e2d2b2, type: 3}
+  - {fileID: 21300000, guid: 3d799b83c5874b47a8632844732fe1da, type: 3}
+  - {fileID: 21300000, guid: f0f351f593fb4616aa91fb0dddf0aa37, type: 3}
+  - {fileID: 21300000, guid: 07daa9998f3e4578ab3027f744a97b31, type: 3}
+  - {fileID: 21300000, guid: e7f3499398c64078ae930b0a6b65a4df, type: 3}
+  - {fileID: 21300000, guid: 55d1b92da47d4fdc9ec94c4656d0c585, type: 3}
+  - {fileID: 21300000, guid: ece47f6192bf4920b2faaf6735f62d37, type: 3}
+  - {fileID: 21300000, guid: 44f19b6cc0d54d66bbcccdb4b00e31c5, type: 3}
+  - {fileID: 21300000, guid: 62ea6d4791c143298eb31c84ef9450d3, type: 3}
+  - {fileID: 21300000, guid: 313d47fb577a441ca5e0826d10f187ef, type: 3}
+  - {fileID: 21300000, guid: f9f854341cdc4e6fbe5b980f588913df, type: 3}
+  - {fileID: 21300000, guid: 23bf6c3132fd4a1c8c074a3c2fd84108, type: 3}
+  walkFrameTime: 0.04
   meleeLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -33,16 +57,38 @@ MonoBehaviour:
   splitChildBlueprint: {fileID: 11400000, guid: c0fb1c6263b6740488ad92700105824f, type: 2}
   splitChildCount: 2
   visualScaleMultiplier: 1.5
+  shadowGroundCenterUV: {x: 0.548828125, y: 0.0390625}
+  shadowGroundWidthUV: 0.83203125
   splitSpawnRadius: 0.35
   splitScatterKnockback: 1.5
   splitOnlyWhenKilledByPlayer: 1
   childIgnoresParentHpBuff: 1
   useSugarCubeWalkAnimationOverride: 1
   sugarCubeWalkSpriteSequence:
-  - {fileID: 1517186369, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  - {fileID: 1643529210, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  - {fileID: -634353464, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  - {fileID: 855244484, guid: fd57655cf7a00af4a82eaa9bf8aa4bbe, type: 3}
-  sugarCubeWalkFrameTime: 0.12
+  - {fileID: 21300000, guid: c9256b3b0f07482c920333071dec55b7, type: 3}
+  - {fileID: 21300000, guid: 0288388da05a4f19abf8c220cdd8a57c, type: 3}
+  - {fileID: 21300000, guid: e11b399640d646e89f7930acbc22ca35, type: 3}
+  - {fileID: 21300000, guid: 8fe5352d3e734bdaaf25c0ec3ac40b55, type: 3}
+  - {fileID: 21300000, guid: e2549f1a52bb4c3287709bc20d1373e8, type: 3}
+  - {fileID: 21300000, guid: 98a867e95b7140ec927fe980b3da2563, type: 3}
+  - {fileID: 21300000, guid: 489c0abcd68a47ff84baa07610bd911a, type: 3}
+  - {fileID: 21300000, guid: 204e53a0845046c1bfedb6a2f2d4bfcd, type: 3}
+  - {fileID: 21300000, guid: dfd41bb6695948eab1e5b3a30705b861, type: 3}
+  - {fileID: 21300000, guid: bb71342e34e649178eac214a6237afae, type: 3}
+  - {fileID: 21300000, guid: efed2572fc0f4dcc97e118eced59de67, type: 3}
+  - {fileID: 21300000, guid: 4c89266fc23141e3aaccf869cbde1e65, type: 3}
+  - {fileID: 21300000, guid: 95d2de60c8604826b24974bf20e2d2b2, type: 3}
+  - {fileID: 21300000, guid: 3d799b83c5874b47a8632844732fe1da, type: 3}
+  - {fileID: 21300000, guid: f0f351f593fb4616aa91fb0dddf0aa37, type: 3}
+  - {fileID: 21300000, guid: 07daa9998f3e4578ab3027f744a97b31, type: 3}
+  - {fileID: 21300000, guid: e7f3499398c64078ae930b0a6b65a4df, type: 3}
+  - {fileID: 21300000, guid: 55d1b92da47d4fdc9ec94c4656d0c585, type: 3}
+  - {fileID: 21300000, guid: ece47f6192bf4920b2faaf6735f62d37, type: 3}
+  - {fileID: 21300000, guid: 44f19b6cc0d54d66bbcccdb4b00e31c5, type: 3}
+  - {fileID: 21300000, guid: 62ea6d4791c143298eb31c84ef9450d3, type: 3}
+  - {fileID: 21300000, guid: 313d47fb577a441ca5e0826d10f187ef, type: 3}
+  - {fileID: 21300000, guid: f9f854341cdc4e6fbe5b980f588913df, type: 3}
+  - {fileID: 21300000, guid: 23bf6c3132fd4a1c8c074a3c2fd84108, type: 3}
+  sugarCubeWalkFrameTime: 0.04
   dropLootOnDeath: 0
   debugLog: 0

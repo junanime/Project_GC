@@ -16,6 +16,35 @@ namespace Vampire
         }
 
         private SyringeSpecialRuntime specials;
+        private SyringeAugmentVfx bipolarVisual;
+        private bool heavyImpactVisual;
+
+        public void ConfigureFlightVfx(bool bipolar, bool heavy)
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
+            heavyImpactVisual = heavy;
+            if (bipolar)
+            {
+                bipolarVisual = SyringeAugmentVfx.Play("BipolarNeedle", transform.position, projectileSpriteRenderer);
+                if (bipolarVisual != null) bipolarVisual.BindTo(transform);
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (bipolarVisual == null) return;
+            if (isDespawning) { SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual); return; }
+            bipolarVisual.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + 180f);
+        }
+
+        private void OnDisable()
+        {
+            SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
+            heavyImpactVisual = false;
+        }
+        [SerializeField, Tooltip("Minimum seconds between homing trail pulses.")]
+        private float homingVfxInterval = 0.16f;
+        private float nextHomingVfxTime;
         private int remainingPierces;
         // 일반 몬스터용 기존 Pierce.
 
@@ -115,7 +144,9 @@ namespace Vampire
         {
             base.Setup(projectileIndex, position, damage, knockback, speed, targetLayer);
 
+            ConfigureFlightVfx(false, false);
             specials = default;
+            nextHomingVfxTime = 0f;
             remainingPierces = 0;
             remainingBossPierces = 0;
 
@@ -334,6 +365,7 @@ namespace Vampire
                 return;
             }
 
+            Vector2 previousDirection = direction;
             Vector2 desiredDirection =
                 ((Vector2)target.position - (Vector2)transform.position).normalized;
 
@@ -342,6 +374,11 @@ namespace Vampire
                 desiredDirection,
                 specials.homingLerpSpeed * Time.deltaTime
             ).normalized;
+            if (Time.deltaTime > 0f && Vector2.Angle(previousDirection, desiredDirection) > 1f && Time.time >= nextHomingVfxTime)
+            {
+                SyringeAugmentVfx.PlayDirected("Homing", transform.position, direction, projectileSpriteRenderer);
+                nextHomingVfxTime = Time.time + Mathf.Max(0.08f, homingVfxInterval);
+            }
         }
 
         private void ApplyVisualRotationToDirection(Vector2 moveDirection)
@@ -692,7 +729,7 @@ namespace Vampire
                 healAmount *= specials.mosquitoBossHealMultiplier;
             }
 
-            TryHealPlayer(healAmount);
+            TryHealPlayer(healAmount, damageableComponent);
         }
 
         private bool IsBossLikeTarget(Component damageableComponent)
@@ -713,7 +750,7 @@ namespace Vampire
             return objectName.Contains("Boss") || objectName.Contains("보스");
         }
 
-        private void TryHealPlayer(float healAmount)
+        private void TryHealPlayer(float healAmount, Component impactSource)
         {
             if (playerCharacter == null || healAmount <= 0f) return;
 
@@ -744,6 +781,7 @@ namespace Vampire
             }
 
             healMethod.Invoke(playerCharacter, new object[] { healAmount });
+            SyringeAugmentVfx.PlayAbsorption(impactSource, playerCharacter);
         }
 
         // =====================================================================
@@ -1059,6 +1097,7 @@ namespace Vampire
             if (canPierce)
             {
                 remainingPierces--;
+                SyringeAugmentVfx.PlayDirected("Pierce", transform.position, direction, projectileSpriteRenderer);
 
                 if (col != null)
                 {
@@ -1206,6 +1245,7 @@ namespace Vampire
 
             returnCurveTimer = 0f;
             flightState = NeedleFlightState.ReturnCurveToPlayer;
+            SyringeAugmentVfx.PlayDirected("ReturnNeedle", transform.position, returnForwardDirection, projectileSpriteRenderer);
         }
 
         private void MoveReturnCurveToPlayer()
@@ -1302,12 +1342,16 @@ namespace Vampire
 
             bool isCritical = false;
 
+            float damageBeforePressure = rawDamage;
             // 압력침:
             // 이동 거리에 따라 기본 피해 증가.
             rawDamage =
                 ApplyPressureDamageIfNeeded(
                     rawDamage
                 );
+
+            if (specials.pressureEnabled && rawDamage > damageBeforePressure)
+                SyringeAugmentVfx.Play("PressureNeedle", transform.position, SyringeAugmentVfx.FindTarget(damageableComponent));
 
             float finalDamage =
                 rawDamage;
@@ -1410,6 +1454,16 @@ namespace Vampire
                 actualReportedDamage
             );
 
+            // 침귀환 상태의 적중 피해는 기존 OnHitDamageable을 통해
+            // 전체 피해량에는 이미 1회 기록되므로 Tracker에만 별도 기록합니다.
+            if (IsReturnMode)
+            {
+                RecordAugmentDamageOnly(
+                    "침귀환",
+                    actualReportedDamage
+                );
+            }
+
             if (isCritical)
             {
                 Debug.Log(
@@ -1436,6 +1490,9 @@ namespace Vampire
                     damageableComponent
                 );
             }
+
+            if (heavyImpactVisual)
+                SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", transform.position, direction, SyringeAugmentVfx.FindTarget(damageableComponent));
 
             if (specials.burnChance > 0 &&
                 UnityEngine.Random.value <
@@ -1477,6 +1534,7 @@ namespace Vampire
             if (specials.hungerNeedleEnabled)
             {
                 ApplyHungerNeedleHit();
+                SyringeAugmentVfx.PlayHungerHit(damageableComponent, playerCharacter, specials.hungerMaxStacks);
             }
 
             if (specials.gutBacteriaEnabled)
@@ -1561,6 +1619,10 @@ namespace Vampire
             if (explosionEffectPrefab != null)
             {
                 Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+            }
+            else
+            {
+                SyringeAugmentVfx.Play("Explosion", transform.position, SyringeAugmentVfx.FindTarget(originalTarget.transform));
             }
 
             Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");

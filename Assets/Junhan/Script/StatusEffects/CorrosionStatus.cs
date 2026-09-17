@@ -10,6 +10,22 @@ namespace Vampire
     /// </summary>
     public class CorrosionStatus : MonoBehaviour
     {
+        private SyringeAugmentVfx augmentVisual;
+        private void EnsureAugmentVisual()
+        {
+            if (augmentVisual != null || !SyringeAugmentVfx.IsLiving(this)) return;
+            var renderer = SyringeAugmentVfx.FindTarget(this);
+            if (renderer != null) augmentVisual = SyringeAugmentVfx.Play("CorrosionNeedle", renderer.bounds.center, renderer);
+        }
+        private void ReleaseAugmentVisual()
+        {
+            if (augmentVisual != null) augmentVisual.Release();
+            augmentVisual = null;
+        }
+        private void LateUpdate()
+        {
+            if (!SyringeAugmentVfx.IsLiving(this)) ReleaseAugmentVisual();
+        }
         private readonly List<float> stackExpireTimes = new List<float>();
 
         private float normalBonusPerStack = 0.15f;
@@ -50,7 +66,7 @@ namespace Vampire
                 stackExpireTimes.RemoveAt(0);
             }
 
-            EnsureIconExists();
+            EnsureAugmentVisual();
         }
 
         public float GetDamageTakenMultiplier()
@@ -124,11 +140,18 @@ namespace Vampire
 
         private void CleanupIcon()
         {
+            ReleaseAugmentVisual();
             if (iconInstance != null)
             {
                 Destroy(iconInstance.gameObject);
                 iconInstance = null;
             }
+        }
+
+        private void OnDisable()
+        {
+            stackExpireTimes.Clear();
+            CleanupIcon();
         }
 
         private void OnDestroy()

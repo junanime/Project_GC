@@ -1386,6 +1386,7 @@ namespace Vampire
                 GetModifiedDamage(
                     basicAttackDamage);
 
+            BossPatternArt.Bullet(bullet, CurrentPhase);
             simpleBullet.Init(
                 direction,
                 finalSpeed,

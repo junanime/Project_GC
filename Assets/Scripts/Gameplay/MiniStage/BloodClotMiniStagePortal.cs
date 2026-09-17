@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Vampire
@@ -21,17 +22,28 @@ namespace Vampire
         [Tooltip("포탈 상호작용 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = true;
 
-        private bool playerInside = false;
+        private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
+        private bool playerInside => playerColliders.Count > 0;
         private bool consumed = false;
+        public bool CanInteract => isActiveAndEnabled && !consumed && playerInside &&
+            miniStageDirector != null && miniStageDirector.CanEnterFromPortal;
+
+        private void RefreshGuide()
+        {
+            PixelInteractionPrompt.Show(this, CanInteract, interactionGuide);
+        }
+
+        private void OnDisable()
+        {
+            playerColliders.Clear();
+            PixelInteractionPrompt.Show(this, false, interactionGuide);
+        }
 
         public void Setup(MiniStageDirector director)
         {
             miniStageDirector = director;
-
-            if (interactionGuide != null)
-            {
-                interactionGuide.SetActive(false);
-            }
+            consumed = false;
+            RefreshGuide();
 
             if (debugLog)
             {
@@ -41,14 +53,15 @@ namespace Vampire
 
         private void Awake()
         {
-            if (interactionGuide != null)
-            {
-                interactionGuide.SetActive(false);
-            }
+            BloodClotObstacle.Ensure(gameObject);
+            RefreshGuide();
         }
 
         private void Update()
         {
+            playerColliders.RemoveWhere(c => c == null || !c.enabled || !c.gameObject.activeInHierarchy);
+            RefreshGuide();
+            if (!CanInteract || Time.timeScale <= 0f) return;
             if (consumed)
             {
                 return;
@@ -79,12 +92,9 @@ namespace Vampire
                 return;
             }
 
-            playerInside = true;
+            playerColliders.Add(other);
 
-            if (interactionGuide != null)
-            {
-                interactionGuide.SetActive(true);
-            }
+            RefreshGuide();
 
             if (debugLog)
             {
@@ -101,12 +111,9 @@ namespace Vampire
                 return;
             }
 
-            playerInside = false;
+            playerColliders.Remove(other);
 
-            if (interactionGuide != null)
-            {
-                interactionGuide.SetActive(false);
-            }
+            RefreshGuide();
 
             if (debugLog)
             {
@@ -116,6 +123,7 @@ namespace Vampire
 
         private void TryEnterMiniStage()
         {
+            if (!CanInteract || Time.timeScale <= 0f) return;
             if (miniStageDirector == null)
             {
                 Debug.LogWarning("[BloodClotMiniStagePortal] MiniStageDirector가 없어 미니 스테이지에 입장할 수 없습니다.");
@@ -133,12 +141,9 @@ namespace Vampire
         public void Consume()
         {
             consumed = true;
-            playerInside = false;
+            playerColliders.Clear();
 
-            if (interactionGuide != null)
-            {
-                interactionGuide.SetActive(false);
-            }
+            RefreshGuide();
 
             if (destroyOnEnter)
             {

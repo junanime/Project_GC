@@ -250,11 +250,7 @@ namespace Vampire
         [Tooltip("플레이 시작 시 고급 필드 이벤트들의 등록 개수와 실제 시작 시간을 로그로 출력합니다.")]
         [SerializeField] private bool logPreparedEvents = true;
         [Header("Visual Sorting")]
-        [Tooltip("체크하면 산성 파도/커피 파도 시각 오브젝트의 Sorting Layer와 Order in Layer를 코드에서 강제로 적용합니다.")]
-        [SerializeField] private bool forceEventVisualSorting = true;
 
-        [Tooltip("산성 파도/커피 파도에 적용할 Sorting Layer 이름입니다. 먼저 Default로 테스트하고, 안 보이면 Monster Full로 바꿔보세요.")]
-        [SerializeField] private string eventVisualSortingLayerName = "Default";
 
         [Tooltip("산성 파도/커피 파도의 Order in Layer입니다. 값이 클수록 앞에 보입니다.")]
         [SerializeField] private int eventVisualSortingOrder = 5000;
@@ -825,7 +821,7 @@ namespace Vampire
 
             coffeeEvent.monsterScanTimer += Time.deltaTime;
 
-            if (coffeeEvent.monsterScanTimer >= coffeeEvent.monsterScanInterval)
+            if (coffeeEvent.monsterScanTimer >= coffeeEvent.monsterScanInterval && currentTime - coffeeEvent.resolvedStartTime >= 0.9f)
             {
                 coffeeEvent.monsterScanTimer = 0f;
 
@@ -838,22 +834,9 @@ namespace Vampire
 
         private IEnumerator CoffeeWaveRoutine(CoffeeTransfusionEvent coffeeEvent)
         {
-            yield return SpawnMovingWave(
-                eventName: coffeeEvent.eventName,
-                moveLeftToRight: true,
-                warningDuration: coffeeEvent.warningDuration,
-                travelDuration: coffeeEvent.travelDuration,
-                waveHeight: coffeeEvent.waveHeight,
-                screenPadding: coffeeEvent.screenPadding,
-                damage: 0f,
-                damageCooldownPerTarget: 999f,
-                knockbackPower: 0f,
-                affectPlayer: false,
-                affectMonsters: false,
-                waveColor: coffeeEvent.coffeeWaveColor,
-                warningColor: coffeeEvent.warningColor,
-                visualOnly: true,
-                travelStartSfxId: GameAudioManager.GameSfxId.CoffeeTransfusionPour);
+            CoffeeScreenTransition.Play(transform);
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.CoffeeTransfusionPour);
+            yield return WaitForFieldSeconds(CoffeeScreenTransition.Duration);
 
             activeCoffeeWaveRoutine = null;
         }
@@ -1016,6 +999,9 @@ namespace Vampire
                         affectMonsters);
                 }
 
+                if (travelStartSfxId == GameAudioManager.GameSfxId.AcidRefluxWavePass)
+                    waveZone.EnableAcidAnimation(moveLeftToRight);
+
                 // 경고가 끝난 뒤 실제 파도 오브젝트가 생성되고
                 // 이동을 시작하는 순간에만 해당 전용 효과음을 1회 재생합니다.
                 if (travelStartSfxId.HasValue)
@@ -1086,15 +1072,7 @@ namespace Vampire
 
             spriteRenderer.color = visibleColor;
 
-            if (forceEventVisualSorting)
-            {
-                spriteRenderer.sortingLayerName = eventVisualSortingLayerName;
-                spriteRenderer.sortingOrder = eventVisualSortingOrder;
-            }
-            else
-            {
-                spriteRenderer.sortingOrder = eventVisualSortingOrder;
-            }
+            GroundVisualSorting.Apply(spriteRenderer, eventVisualSortingOrder);
 
             // URP/2D 환경에서 기본 SpriteRenderer가 확실히 보이도록 명시적으로 Sprites/Default 재질을 넣는다.
             Shader spriteShader = Shader.Find("Sprites/Default");

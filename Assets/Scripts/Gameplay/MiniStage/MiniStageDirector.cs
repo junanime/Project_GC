@@ -64,6 +64,12 @@ namespace Vampire
         private MiniStageRoomBase currentRoom;
 
         public bool IsInsideMiniStage => isInsideMiniStage;
+        public bool CanEnterFromPortal => !isInsideMiniStage && !isTransitioning;
+        public bool CanReturnFromInteractable(MiniStageReturnInteractable interactable)
+        {
+            return isInsideMiniStage && !isTransitioning && currentRoom != null &&
+                currentRoom.CanReturnFrom(interactable);
+        }
         public MiniStageRoomBase CurrentRoom => currentRoom;
 
         private void Awake()
@@ -164,7 +170,7 @@ namespace Vampire
 
         public void EnterMiniStageFromPortal(BloodClotMiniStagePortal portal)
         {
-            if (isInsideMiniStage || isTransitioning)
+            if (!CanEnterFromPortal)
             {
                 return;
             }

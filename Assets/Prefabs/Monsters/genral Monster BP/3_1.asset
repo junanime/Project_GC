@@ -40,11 +40,11 @@ MonoBehaviour:
       dropChance: 0.5
       coinType: 1
   walkSpriteSequence:
-  - {fileID: -2922201, guid: 07cbd5fa1cf8a8e4fa08b25c3558d926, type: 3}
-  - {fileID: 1745515091, guid: 07cbd5fa1cf8a8e4fa08b25c3558d926, type: 3}
-  - {fileID: -248303118, guid: 07cbd5fa1cf8a8e4fa08b25c3558d926, type: 3}
-  - {fileID: -1456532820, guid: 07cbd5fa1cf8a8e4fa08b25c3558d926, type: 3}
-  walkFrameTime: 0.2
+  - {fileID: 21300000, guid: 938795c03b6e4dc2845b242c39c60f10, type: 3}
+  - {fileID: 21300000, guid: 796537fc17f8473d9975d317a60c85fe, type: 3}
+  - {fileID: 21300000, guid: 8570104ce0a1428ba9d594c319d56f3d, type: 3}
+  - {fileID: 21300000, guid: d70e8831a3c642349046c441ad5a7fbf, type: 3}
+  walkFrameTime: 0.15
   description: "\uC601\uC591\uC81C?"
   resultSprite: {fileID: 0}
   meleeLayer:

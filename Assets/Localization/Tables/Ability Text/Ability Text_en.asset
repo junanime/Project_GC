@@ -105,8 +105,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 276408451193950208
-    m_Localized: Creates a rotating needle barrier around the player. Enemies that
-      touch it trigger counter needles.
+    m_Localized: Creates a rotating needle barrier around the player. Enemies take
+      damage when they touch a barrier needle.
     m_Metadata:
       m_Items: []
   - m_Id: 276408415978573824
@@ -175,12 +175,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 287476819426594816
-    m_Localized: 'The needle deals more damage based on the distance it travels.
-
-      Damage
-      increases for each unit of distance traveled, up to a maximum of 50%.
-
-'
+    m_Localized: The needle deals 8% more damage per unit traveled, up to 50%.
     m_Metadata:
       m_Items: []
   - m_Id: 287476836514189312
@@ -215,8 +210,8 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 287508470684147712
-    m_Localized: Enemies that spawn while Neural Block is active are also frozen
-      for the remaining duration.
+    m_Localized: Every 12 seconds, freezes all on-screen enemies for 1 second. Enemies
+      spawned during the freeze are frozen for the remaining duration.
     m_Metadata:
       m_Items: []
   - m_Id: 287508486823829504
