@@ -87,10 +87,7 @@ namespace Vampire
         [Tooltip("결과 메시지가 자동으로 사라지기까지의 시간입니다. 0 이하이면 자동으로 숨기지 않습니다.")]
         [SerializeField] private float resultMessageDuration = 2f;
 
-        [Header("Debug")]
-        [Tooltip("개편 개꿀방 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
-
+        
         private readonly List<MiniStageMysteryChestOutcome> roleBuffer = new List<MiniStageMysteryChestOutcome>();
 
         private Coroutine resultMessageRoutine;

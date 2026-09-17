@@ -5217,6 +5217,8 @@ MonoBehaviour:
   playerCharacter: {fileID: 0}
   rb: {fileID: 0}
   spriteRenderer: {fileID: -7992988690108218509}
+  coreStateController: {fileID: 0}
+  autoCreateCoreStateController: 1
   patterns:
   - {fileID: 0}
   - {fileID: 0}
@@ -5234,6 +5236,8 @@ MonoBehaviour:
   basicAttackBulletSpeed: 1.9
   basicAttackMuzzleOffset: 1.2
   basicAttackWhileUsingPattern: 0
+  basicAttackCoreTraits: 1
+  basicAttackCoreMatchMode: 0
   basicAttackBurstCountPhase1: 3
   basicAttackBurstCountPhase2: 4
   basicAttackBurstCountPhase3: 5
@@ -5257,8 +5261,6 @@ MonoBehaviour:
   patternIntervalMax: 20
   thinkInterval: 0.3
   patternGap: 1
-  nearDistanceThreshold: 4
-  midDistanceThreshold: 8
   phase1Settings:
     phaseName: Phase 1
     enterHpRatio: 1
@@ -5269,7 +5271,6 @@ MonoBehaviour:
     patternCooldownMultiplier: 1
     patternIntervalMultiplier: 1
     patternGapMultiplier: 1
-    ignoreDistanceAndUseRandomPattern: 0
     transitionPauseSeconds: 0
     invincibleDuringTransition: 0
     phaseSprite: {fileID: 0}
@@ -5284,7 +5285,6 @@ MonoBehaviour:
     patternCooldownMultiplier: 0.7
     patternIntervalMultiplier: 0.7
     patternGapMultiplier: 0.7
-    ignoreDistanceAndUseRandomPattern: 0
     transitionPauseSeconds: 2
     invincibleDuringTransition: 1
     phaseSprite: {fileID: 0}
@@ -5299,17 +5299,15 @@ MonoBehaviour:
     patternCooldownMultiplier: 0.4
     patternIntervalMultiplier: 0.4
     patternGapMultiplier: 0.4
-    ignoreDistanceAndUseRandomPattern: 1
     transitionPauseSeconds: 2
     invincibleDuringTransition: 1
     phaseSprite: {fileID: 0}
     phaseTransitionEffectPrefab: {fileID: 0}
-  reduceIncomingDamageInPhase3: 1
-  phase3IncomingDamageMultiplier: 0.7
   debugMovement: 0
   debugPattern: 1
   debugBasicAttack: 0
   debugPhase: 1
+  debugCore: 0
 --- !u!114 &5015667122555973235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5324,15 +5322,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uD3ED\uD0C4\uD22C\uD558"
   cooldown: 3
-  nearWeightPhase1: 5
-  midWeightPhase1: 10
-  farWeightPhase1: 6
-  nearWeightPhase2: 5
-  midWeightPhase2: 10
-  farWeightPhase2: 6
-  nearWeightPhase3: 5
-  midWeightPhase3: 10
-  farWeightPhase3: 6
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
   warningDuration: 1.5
   bombProjectilePrefab: {fileID: 8245624705231244960, guid: 1f765432043d93443880bc493ff2defb, type: 3}
@@ -5371,15 +5368,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uB3CC\uC9C4\uD328\uD134"
   cooldown: 3
-  nearWeightPhase1: 10
-  midWeightPhase1: 6
-  farWeightPhase1: 1
-  nearWeightPhase2: 10
-  midWeightPhase2: 6
-  farWeightPhase2: 1
-  nearWeightPhase3: 10
-  midWeightPhase3: 6
-  farWeightPhase3: 1
+  coreTraits: 1
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
   warningTime: 0.5
   warningWidth: 1.5
@@ -5425,15 +5421,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uBD80\uCC44\uAF34\uBC1C\uC0AC"
   cooldown: 3
-  nearWeightPhase1: 2
-  midWeightPhase1: 6
-  farWeightPhase1: 8
-  nearWeightPhase2: 2
-  midWeightPhase2: 6
-  farWeightPhase2: 8
-  nearWeightPhase3: 2
-  midWeightPhase3: 6
-  farWeightPhase3: 8
+  coreTraits: 1
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 4
   bulletDamage: 10
@@ -5463,15 +5458,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "360\uB3C4 \uBC1C\uC0AC"
   cooldown: 3
-  nearWeightPhase1: 4
-  midWeightPhase1: 8
-  farWeightPhase1: 6
-  nearWeightPhase2: 4
-  midWeightPhase2: 8
-  farWeightPhase2: 6
-  nearWeightPhase3: 4
-  midWeightPhase3: 8
-  farWeightPhase3: 6
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 3
   bulletDamage: 10
@@ -5503,15 +5497,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uC720\uB3C4\uD0C4"
   cooldown: 3
-  nearWeightPhase1: 0
-  midWeightPhase1: 6
-  farWeightPhase1: 10
-  nearWeightPhase2: 0
-  midWeightPhase2: 6
-  farWeightPhase2: 10
-  nearWeightPhase3: 0
-  midWeightPhase3: 6
-  farWeightPhase3: 10
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   missilePrefab: {fileID: 79574699671740622, guid: e45b96cccb487f34ba156a57101ef984, type: 3}
   missileCountPhase1: 4
   missileCountPhase2: 6
@@ -5554,15 +5547,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uCF5C\uB77C\uBCD1\uD68C\uBCF5\uD328\uD134"
   cooldown: 40
-  nearWeightPhase1: 0
-  midWeightPhase1: 4
-  farWeightPhase1: 10
-  nearWeightPhase2: 0
-  midWeightPhase2: 4
-  farWeightPhase2: 10
-  nearWeightPhase3: 0
-  midWeightPhase3: 4
-  farWeightPhase3: 10
+  coreTraits: 2
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   colaBottlePrefab: {fileID: 8778423848610247580, guid: 73ff580fe533a144aa62e9a2a44bdfe3, type: 3}
   bottleCount: 4
   spawnDistance: 5
@@ -5596,15 +5588,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: Absorb Minion Heal
   cooldown: 45
-  nearWeightPhase1: 8
-  midWeightPhase1: 4
-  farWeightPhase1: 0
-  nearWeightPhase2: 8
-  midWeightPhase2: 4
-  farWeightPhase2: 1
-  nearWeightPhase3: 8
-  midWeightPhase3: 4
-  farWeightPhase3: 1
+  coreTraits: 4
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   absorbMinionPrefab: {fileID: 6534739195885250090, guid: 61389d7341a774c41812bdddec1c1bf4, type: 3}
   spawnCount: 30
   spawnInterval: 0.05

@@ -261,7 +261,9 @@ namespace Vampire
 
         private void Update()
         {
-            if (levelManager == null)
+            // 이벤트 시간표와 별도 생성 타이머를 함께 보존합니다.
+            // 골드 러시 값은 유지하고, MiniStage 중 사용 여부는 소비 지점에서 차단합니다.
+            if (MiniStageRuntimeState.IsInsideMiniStage || levelManager == null)
             {
                 return;
             }
@@ -427,6 +429,8 @@ namespace Vampire
 
                 ShowEventStartedUI(surgeEvent.eventName);
 
+                
+
                 if (logEventState)
                 {
                     Debug.Log(
@@ -498,6 +502,7 @@ namespace Vampire
 
                 ShowEventStartedUI(goldRushEvent.eventName);
 
+                
                 if (logEventState)
                 {
                     Debug.Log(
@@ -549,6 +554,8 @@ namespace Vampire
                 PlayAcidRainVFX();
 
                 ShowEventStartedUI(acidEvent.eventName);
+
+               
 
                 if (logEventState)
                 {
@@ -643,6 +650,14 @@ namespace Vampire
                 );
             }
 
+            // 위산 웅덩이 GameObject가 실제 생성된 순간
+            // 웅덩이 하나당 1회 재생합니다.
+            if (puddleObject != null)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.AcidPuddleSpawn
+                );
+            }
             if (logAcidEvent)
             {
                 Debug.Log($"[StageEvent] Acid puddle spawned at {spawnPosition}");
@@ -750,8 +765,21 @@ namespace Vampire
 
         private void ShowEventStartedUI(string eventName)
         {
-            string safeEventName = string.IsNullOrEmpty(eventName) ? "스테이지" : eventName;
-            string message = string.Format(eventStartMessageFormat, safeEventName);
+            string safeEventName =
+                string.IsNullOrEmpty(eventName)
+                    ? "스테이지"
+                    : eventName;
+
+            string message =
+                string.Format(
+                    eventStartMessageFormat,
+                    safeEventName
+                );
+
+            // 기존 필드 이벤트도 모두 동일한 시작 효과음을 사용합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.FieldEventStart
+            );
 
             if (eventToastUI != null)
             {
@@ -760,7 +788,9 @@ namespace Vampire
 
             if (logEventState)
             {
-                Debug.Log($"[StageEvent UI] {message}");
+                Debug.Log(
+                    $"[StageEvent UI] {message}"
+                );
             }
         }
 

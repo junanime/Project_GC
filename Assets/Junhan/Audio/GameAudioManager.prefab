@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7631884578750469968
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5396072568873023266}
+  - component: {fileID: 5700556427394900474}
+  m_Layer: 0
+  m_Name: GameAudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5396072568873023266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7631884578750469968}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5700556427394900474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7631884578750469968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8df49a0e47865cf4aa20d3eab07a8b0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseBgmSource: {fileID: 0}
+  overrideBgmSource: {fileID: 0}
+  modalBgmSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  lobbyBgm: {fileID: 8300000, guid: c7b0837a84cf94146b1d1ecccd8d85f8, type: 3}
+  ingameBgm: {fileID: 8300000, guid: b6f6ddcc8df738349b9cb181d4945caa, type: 3}
+  miniStageBgm: {fileID: 8300000, guid: 027d47a62c656394eb90ab73a2c289f2, type: 3}
+  bossBgm: {fileID: 8300000, guid: aa36705986baaf4499e1a68286b7ef2f, type: 3}
+  augmentSelectionBgm: {fileID: 8300000, guid: cb010637df86c6f4a9011519d9dd9016, type: 3}
+  bossAppearSfx: {fileID: 8300000, guid: 94355323f69e0f3488c78237c26c49c5, type: 3}
+  dangerWaveSfx: {fileID: 8300000, guid: 40567d44b4a99264891ca715ea156c84, type: 3}
+  eliteSpawnSfx: {fileID: 8300000, guid: c8a4ed75919fd1f47a631e6af680966f, type: 3}
+  fieldEventStartSfx: {fileID: 8300000, guid: eeeccc8e5965a9f43afbc3d158f80061, type: 3}
+  miniStageEnterSfx: {fileID: 8300000, guid: 547a445410b11464aa6ce2773806a8fa, type: 3}
+  monsterHitSfx: {fileID: 8300000, guid: 8f1334b852d31354299391b394458356, type: 3}
+  needleAttackSfx: {fileID: 8300000, guid: a4668c5feb0cac3489b741fcf1babcf0, type: 3}
+  playerDeathSfx: {fileID: 8300000, guid: fa1d51722f97c8941bcbb1b8a88b7e55, type: 3}
+  playerHitSfx: {fileID: 8300000, guid: 285a60c7b7bf32a4ea41e5d6ca325e11, type: 3}
+  rewardEventSfx: {fileID: 8300000, guid: 127b240b61af9474595b8030395e23d4, type: 3}
+  playerDashSfx: {fileID: 8300000, guid: 54377f33223b0cb4c9939d752f6919f7, type: 3}
+  playerLevelUpSfx: {fileID: 8300000, guid: a8701b5352afb7c47800488aafe3941b, type: 3}
+  criticalHitSfx: {fileID: 8300000, guid: 7b8dc733e5b20a9418297b4240a37d95, type: 3}
+  miniStagePortalSpawnSfx: {fileID: 8300000, guid: 3db60b6536afd054281e9d3b67c2d10f, type: 3}
+  chestOpenSfx: {fileID: 8300000, guid: 93fcce78b85b1e54d8a2325dfcbe845f, type: 3}
+  miniStageClearSfx: {fileID: 8300000, guid: d79ccf8d89f817d46bf42467666a6a87, type: 3}
+  expPickupSfx: {fileID: 0}
+  goldPickupSfx: {fileID: 0}
+  silverPickupSfx: {fileID: 0}
+  coinPouchPickupSfx: {fileID: 0}
+  magnetPickupSfx: {fileID: 0}
+  bombPickupSfx: {fileID: 0}
+  healPickupSfx: {fileID: 0}
+  redPotionPickupSfx: {fileID: 0}
+  specialItemPickupSfx: {fileID: 0}
+  rareItemPickupSfx: {fileID: 0}
+  acidRefluxWavePassSfx: {fileID: 0}
+  peristalsisTiltSfx: {fileID: 0}
+  coffeeTransfusionPourSfx: {fileID: 0}
+  antacidBubbleSpawnSfx: {fileID: 0}
+  acidPuddleSpawnSfx: {fileID: 0}
+  augmentSelectSfx: {fileID: 0}
+  uiClickSfx: {fileID: 8300000, guid: 7eb57c91d35126f488d155fa059b2097, type: 3}
+  sniperFireSfx: {fileID: 0}
+  trapActivateSfx: {fileID: 0}
+  digestiveEnzymeAttackSfx: {fileID: 0}
+  acidLeechWallAttachSfx: {fileID: 0}
+  speedBufferCastSfx: {fileID: 0}
+  defenseBufferCastSfx: {fileID: 0}
+  attackSpeedDebuffCastSfx: {fileID: 0}
+  nutritionThiefStealSfx: {fileID: 0}
+  treasureRunnerSpawnSfx: {fileID: 0}
+  masterVolume: 1
+  bgmVolume: 0.55
+  sfxVolume: 0.8
+  needleAttackMinInterval: 0
+  monsterHitMinInterval: 0.04
+  eliteSpawnMinInterval: 0.1
+  fieldEventStartMinInterval: 0.1
+  autoRouteSceneBgm: 1
+  lobbySceneBuildIndex: 0
+  gameplaySceneName: Level 1
+  dontDestroyOnLoad: 1
+  debugLog: 1

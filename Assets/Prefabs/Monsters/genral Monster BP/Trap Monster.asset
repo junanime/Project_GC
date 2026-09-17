@@ -44,11 +44,19 @@ MonoBehaviour:
   activeHealth: 25
   tickDamage: 3
   tickInterval: 0.5
-  bindDuration: 4
+  bindDuration: 0
   bindPlayerOnActivate: 1
-  spawnNearPlayerForTest: 0
-  spawnMinDistanceFromPlayer: 6
-  spawnMaxDistanceFromPlayer: 15
+  useArrowEscapeMiniGame: 1
+  arrowMiniGameSequenceLength: 4
+  arrowMiniGameUiYOffset: 1.35
+  arrowMiniGameUiScale: 0.01
+  arrowMiniGameSortingOrder: 6000
+  resetArrowProgressOnWrongInput: 1
+  wrongArrowInputPenaltyDamage: 0
+  wrongArrowFlashDuration: 0.15
+  spawnNearPlayerForTest: 1
+  spawnMinDistanceFromPlayer: 4
+  spawnMaxDistanceFromPlayer: 8
   dormantSprites:
   - {fileID: 21300000, guid: c5164ffb826f3469db584349ea8fb550, type: 3}
   activeSprites:

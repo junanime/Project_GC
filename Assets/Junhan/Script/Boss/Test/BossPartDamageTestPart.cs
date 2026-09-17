@@ -1,0 +1,842 @@
+using System.Collections;
+using UnityEngine;
+
+namespace Vampire
+{
+    /// <summary>
+    /// 테스트 단계에서 사용하는 보스 파츠 종류입니다.
+    /// </summary>
+    public enum BossPartDamageTestType
+    {
+        Head = 0,
+        Torso = 1,
+        LeftArm = 2,
+        RightArm = 3,
+        LeftLeg = 4,
+        RightLeg = 5,
+        Custom = 6
+    }
+
+    /// <summary>
+    /// 파츠별 독립 HP와 파괴를 테스트하기 위한 컴포넌트입니다.
+    ///
+    /// 핵심 규칙:
+    /// - 각 파츠는 독립 HP를 가집니다.
+    /// - 모든 파츠 HP의 합이 보스 표시 HP가 됩니다.
+    /// - 일반 파츠 HP가 0이면 해당 파츠만 파괴됩니다.
+    /// - 기존 모드는 Core 하나, UFO 모드는 지정된 5코어 모두 파괴 시 보스가 사망합니다.
+    /// - Monster를 상속하지 않으므로 일반 몬스터 처치 보상은 발생하지 않습니다.
+    /// </summary>
+    public sealed class BossPartDamageTestPart : IDamageable
+    {
+        [Header("파츠 정보")]
+
+        [Tooltip("이 파츠의 종류입니다.")]
+        [SerializeField]
+        private BossPartDamageTestType partType =
+            BossPartDamageTestType.Custom;
+
+        [Tooltip(
+            "Console과 Inspector에서 사용할 표시 이름입니다. " +
+            "비워 두면 GameObject 이름을 사용합니다.")]
+        [SerializeField]
+        private string displayName;
+
+        [Header("Core 설정")]
+
+        [Tooltip(
+            "체크하면 이 파츠가 보스의 핵심 Core가 됩니다. " +
+            "기존 모드에서 Core의 HP가 0이면 즉시 보스가 사망합니다. UFO 모드에서는 Root의 5코어 지정이 우선합니다.")]
+        [SerializeField]
+        private bool isCore = false;
+
+        [Tooltip(
+            "체크하면 Torso 타입을 자동으로 Core로 취급합니다. " +
+            "현재 테스트 보스에서는 켜두는 것을 권장합니다.")]
+        [SerializeField]
+        private bool autoTreatTorsoAsCore = true;
+
+        [Header("체력")]
+
+        [Tooltip(
+            "이 파츠의 최대 체력입니다. " +
+            "기존 모드는 파츠별로 입력하며 UFO 모드에서는 시작 시 Root 최대 HP의 20%로 설정됩니다.")]
+        [SerializeField, Min(0.01f)]
+        private float maxHealth = 30f;
+
+        [Tooltip(
+            "현재 파츠 체력입니다. " +
+            "모든 파츠 Current Health의 합이 보스 현재 체력이 됩니다.")]
+        [SerializeField]
+        private float currentHealth;
+
+        [Tooltip("현재 파츠가 파괴되었는지 표시합니다.")]
+        [SerializeField]
+        private bool isBroken;
+
+        [Header("루트 연결")]
+
+        [Tooltip(
+            "전체 파츠 HP를 집계하는 RootController입니다. " +
+            "비워 두면 부모 계층에서 자동 탐색합니다.")]
+        [SerializeField]
+        private BossPartDamageTestRootController rootController;
+
+        [Header("피격 판정")]
+
+        [Tooltip(
+            "이 파츠가 피해 판정에 사용할 Collider2D입니다. " +
+            "비워 두면 같은 GameObject에서 자동 탐색합니다.")]
+        [SerializeField]
+        private Collider2D[] hitColliders;
+
+        [Tooltip("파츠 파괴 시 Collider를 비활성화합니다.")]
+        [SerializeField]
+        private bool disableCollidersWhenBroken = true;
+
+        [Header("시각 처리")]
+
+        [Tooltip(
+            "이 파츠를 구성하는 SpriteRenderer입니다. " +
+            "비워 두면 현재 GameObject와 자식에서 자동 탐색합니다.")]
+        [SerializeField]
+        private SpriteRenderer[] spriteRenderers;
+
+        [Tooltip(
+            "피격 순간 사용할 Material입니다. " +
+            "비워 두면 Fallback Hit Color를 사용합니다.")]
+        [SerializeField]
+        private Material hitFlashMaterial;
+
+        [Tooltip("Hit Flash 지속 시간입니다.")]
+        [SerializeField, Min(0f)]
+        private float hitFlashDuration = 0.08f;
+
+        [Tooltip(
+            "Hit Flash Material이 없을 때 사용할 피격 색상입니다.")]
+        [SerializeField]
+        private Color fallbackHitColor =
+            new Color(1f, 0.35f, 0.35f, 1f);
+
+        [Tooltip("파츠 파괴 시 SpriteRenderer를 숨깁니다.")]
+        [SerializeField]
+        private bool hideRenderersWhenBroken = true;
+
+        [Header("UFO Core 파괴 표시")]
+        [Tooltip("UFO 5코어 모드에서 파괴된 코어를 숨기는 대신 어둡게 남깁니다. 꺼두면 기존 Hide Renderers When Broken 설정을 사용합니다.")]
+        [SerializeField] private bool keepBrokenFiveCoreVisible = true;
+
+        [Tooltip("파괴된 UFO 코어에 적용할 색입니다. Collider와 피해는 색상 표시 여부와 관계없이 차단됩니다.")]
+        [SerializeField] private Color brokenCoreColor = new Color(0.25f, 0.25f, 0.25f, 0.6f);
+
+        [Header("디버그")]
+
+        [Tooltip(
+            "초기화, 피해, 파괴 및 Core 관련 로그를 출력합니다.")]
+        [SerializeField]
+        private bool debugLog = true;
+
+        private Material[][] originalSharedMaterials;
+        private Color[] originalColors;
+        private Coroutine hitFlashCoroutine;
+        private bool damageEnabled = true;
+        private bool healthInitialized;
+
+        public BossPartDamageTestType PartType => partType;
+
+        [Tooltip("Skills owned by this UFO core. Each skill's Owner Part must reference this core.")]
+        [SerializeField] private BossPatternBase[] skillPool;
+        public BossPatternBase[] SkillPool => skillPool;
+
+        public float HealFiveCore(float amount)
+        {
+            if (!healthInitialized || isBroken || rootController == null || !rootController.UsesFiveCoreHealth ||
+                !rootController.CanReceivePartDamage(this) || amount <= 0f || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
+            float before = currentHealth;
+            currentHealth = Mathf.Min(MaxHealth, currentHealth + amount);
+            rootController.NotifyPartHealthChanged(this);
+            return currentHealth - before;
+        }
+
+        public float CurrentHealth => currentHealth;
+
+        public float MaxHealth => rootController != null
+            ? rootController.GetPartMaxHealth(this, maxHealth) : maxHealth;
+
+        public bool IsBroken => isBroken;
+
+        /// <summary>
+        /// 명시적으로 Core이거나,
+        /// Auto Treat Torso As Core가 켜진 Torso이면 Core입니다.
+        /// </summary>
+        public bool IsCore =>
+            rootController != null && rootController.UsesFiveCoreHealth
+            ? rootController.IsFiveCoreMember(this)
+            : isCore ||
+            (
+                autoTreatTorsoAsCore &&
+                partType == BossPartDamageTestType.Torso
+            );
+
+        private void Awake()
+        {
+            ResolveReferences();
+            CacheOriginalVisualState();
+            ResolveRootController();
+        }
+
+        private void OnEnable()
+        {
+            ResolveRootController();
+            if (healthInitialized && rootController != null && rootController.UsesFiveCoreHealth)
+            {
+                // 일시 비활성화는 새 보스 생성이 아닙니다. HP와 파괴 상태를 보존합니다.
+                StopHitFlashAndRestore();
+                SetDamageEnabled(!isBroken);
+                if (isBroken) ApplyBrokenVisual();
+                else SetVisualEnabled(!rootController.IsBossDead);
+                return;
+            }
+            ResetPart();
+        }
+
+        private void OnDisable()
+        {
+            StopHitFlashAndRestore();
+            if (isBroken) ApplyBrokenVisual();
+        }
+
+        //// <summary>
+        /// 기존 IDamageable 피해 진입점입니다.
+        ///
+        /// 피해 출처를 알 수 없는 기존 시스템과의 호환성을 위해
+        /// Unknown으로 전달합니다.
+        /// </summary>
+        public override void TakeDamage(
+            float damage,
+            Vector2 knockback = default(Vector2),
+            bool isCritical = false)
+        {
+            TakeDamageFromSource(
+                damage,
+                knockback,
+                isCritical,
+                BossDamageSourceType.Unknown
+            );
+        }
+
+        /// <summary>
+        /// 보스 전용 피해 출처를 포함하여 피해를 적용합니다.
+        ///
+        /// SyringeProjectile은 PlayerProjectile,
+        /// 향후 돌진 자해는 BossSelf,
+        /// 지형 기믹은 Environment를 전달합니다.
+        ///
+        /// 반환값은 실제 HP에서 감소한 피해량입니다.
+        /// </summary>
+        public float TakeDamageFromSource(
+            float damage,
+            Vector2 knockback,
+            bool isCritical,
+            BossDamageSourceType damageSource)
+        {
+            if (isBroken || !damageEnabled || !isActiveAndEnabled)
+            {
+                return 0f;
+            }
+
+            ResolveRootController();
+
+            if (rootController != null && !rootController.CanReceivePartDamage(this))
+                return 0f;
+
+            if (float.IsNaN(damage) || float.IsInfinity(damage))
+                return 0f;
+
+            // Core가 이미 파괴되어 전체 보스가 죽었다면
+            // 추가 피해를 받지 않습니다.
+            if (rootController != null &&
+                rootController.IsBossDead)
+            {
+                return 0f;
+            }
+
+            float rawDamage =
+                Mathf.Max(0f, damage);
+
+            if (rawDamage <= 0f)
+            {
+                return 0f;
+            }
+
+            BossPartDamageRules damageRules =
+    ResolveDamageRules();
+
+            float appliedDamage =
+                damageRules != null
+                    ? damageRules.CalculateAppliedDamage(
+                        this,
+                        damageSource,
+                        rawDamage
+                    )
+                    : rawDamage;
+
+            if (appliedDamage <= 0f)
+            {
+                return 0f;
+            }
+
+            float healthBeforeDamage =
+                currentHealth;
+
+            currentHealth =
+                Mathf.Max(
+                    0f,
+                    currentHealth - appliedDamage
+                );
+
+            float actualDamage =
+                Mathf.Max(
+                    0f,
+                    healthBeforeDamage - currentHealth
+                );
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[BossPartTest] {GetPartLabel()} 피격 | " +
+                    $"Source={damageSource}, " +
+                    $"RawDamage={rawDamage:0.##}, " +
+                    $"AppliedDamage={appliedDamage:0.##}, " +
+                    $"ActualDamage={actualDamage:0.##}, " +
+                    $"Critical={isCritical}, " +
+                    $"HP={currentHealth:0.##}/{MaxHealth:0.##}, " +
+                    $"Core={IsCore}",
+                    this
+                );
+            }
+
+            // 기존 Root HP 집계 구조는 그대로 유지합니다.
+            if (rootController != null)
+            {
+                rootController.RegisterPart(this);
+
+                rootController.NotifyPartHealthChanged(
+                    this
+                );
+            }
+            else if (debugLog)
+            {
+                Debug.LogWarning(
+                    $"[BossPartTest] {GetPartLabel()} | " +
+                    "BossPartDamageTestRootController를 찾지 못했습니다.",
+                    this
+                );
+            }
+
+            // 향후 Pressure Gauge 등이 여기서
+            // 플레이어 피해만 골라 집계할 수 있습니다.
+            if (damageRules != null)
+            {
+                damageRules.NotifyDamageApplied(
+                    this,
+                    damageSource,
+                    rawDamage,
+                    appliedDamage,
+                    actualDamage,
+                    isCritical
+                );
+            }
+
+            if (currentHealth <= 0f)
+            {
+                BreakPart();
+                return actualDamage;
+            }
+
+            PlayHitFlash();
+
+            return actualDamage;
+        }
+
+        /// <summary>
+        /// 파츠 자체에는 개별 Knockback을 적용하지 않습니다.
+        /// 이동은 보스 루트가 담당합니다.
+        /// </summary>
+        public override void Knockback(
+            Vector2 knockback)
+        {
+        }
+
+        /// <summary>
+        /// 파츠를 최초 상태로 복구합니다.
+        /// </summary>
+        [ContextMenu("Reset Test Part")]
+        public void ResetPart()
+        {
+            ResolveReferences();
+            ResolveRootController();
+
+            if (healthInitialized && rootController != null && rootController.UsesFiveCoreHealth)
+            {
+                Debug.LogWarning("[UFO Core] 전투 중 코어만 초기화할 수 없습니다. 테스트 스포너에서 보스를 새로 생성하세요.", this);
+                return;
+            }
+
+            if (originalSharedMaterials == null ||
+                originalColors == null ||
+                originalColors.Length != spriteRenderers.Length)
+            {
+                CacheOriginalVisualState();
+            }
+
+            StopHitFlashAndRestore();
+
+            // Inspector에도 Root가 배정한 코어 최대 HP를 표시합니다.
+            maxHealth = MaxHealth;
+            currentHealth =
+                Mathf.Max(0.01f, MaxHealth);
+
+            isBroken = false;
+            healthInitialized = true;
+
+            SetDamageEnabled(true);
+            SetVisualEnabled(true);
+
+            RestoreOriginalVisualState();
+
+            if (rootController != null)
+            {
+                rootController.RegisterPart(this);
+                rootController.NotifyPartHealthChanged(this);
+            }
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[BossPartTest] {GetPartLabel()} 초기화 | " +
+                    $"HP={currentHealth:0.##}/{MaxHealth:0.##}, " +
+                    $"Core={IsCore}",
+                    this);
+            }
+        }
+
+        [ContextMenu("Apply 10 Test Damage")]
+        private void ApplyTenTestDamage()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning(
+                    "[BossPartTest] Play Mode에서 실행하세요.",
+                    this);
+
+                return;
+            }
+
+            TakeDamage(10f);
+        }
+
+        /// <summary>
+        /// 파츠 HP가 0이 되었을 때 호출됩니다.
+        ///
+        /// 일반 파츠:
+        /// - 해당 파츠만 파괴
+        ///
+        /// Core:
+        /// - RootController가 전체 보스를 사망 상태로 전환
+        /// </summary>
+        private void BreakPart()
+        {
+            if (isBroken)
+            {
+                return;
+            }
+
+            isBroken = true;
+            currentHealth = 0f;
+
+            StopHitFlashAndRestore();
+
+            ResolveRootController();
+
+            // 파괴 상태/Collider/표시를 먼저 확정합니다. 마지막 코어의 최종 사망 처리가
+            // 모든 외형을 숨긴 뒤 이 코어를 다시 표시하지 않도록 알림은 그 다음에 보냅니다.
+            if (disableCollidersWhenBroken ||
+                (rootController != null && rootController.UsesFiveCoreHealth))
+                SetDamageEnabled(false);
+            ApplyBrokenVisual();
+
+            // 기존 모드는 단일 Core, UFO 모드는 다섯 코어 전부 파괴 시 최종 사망합니다.
+            if (rootController != null)
+            {
+                rootController.RegisterPart(this);
+
+                rootController.NotifyPartBroken(
+                    this);
+            }
+
+            if (debugLog)
+            {
+                if (IsCore)
+                {
+                    Debug.Log(
+                        $"[BossPartTest] ★ CORE 파괴 ★ | " +
+                        $"{GetPartLabel()} 파괴 → Root의 사망 조건 확인",
+                        this);
+                }
+                else
+                {
+                    Debug.Log(
+                        $"[BossPartTest] {GetPartLabel()} 파괴 완료 | " +
+                        "해당 파츠만 제거합니다.",
+                        this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// RootController가 파츠 참조를 직접 지정할 때 사용합니다.
+        /// </summary>
+        public void SetRootController(
+            BossPartDamageTestRootController controller)
+        {
+            rootController = controller;
+        }
+
+        private void ApplyBrokenVisual()
+        {
+            if (rootController != null && rootController.UsesFiveCoreHealth && keepBrokenFiveCoreVisible)
+            {
+                SetVisualEnabled(!rootController.IsBossDead);
+                foreach (SpriteRenderer renderer in spriteRenderers)
+                    if (renderer != null) renderer.color = brokenCoreColor;
+            }
+            else if (hideRenderersWhenBroken)
+            {
+                SetVisualEnabled(false);
+            }
+        }
+
+        /// <summary>
+        /// 피해 Collider를 일괄 활성/비활성화합니다.
+        /// </summary>
+        public void SetDamageEnabled(
+            bool enabled)
+        {
+            ResolveReferences();
+            damageEnabled = enabled && !isBroken &&
+                (rootController == null || rootController.CanReceivePartDamage(this));
+
+            for (int i = 0;
+                 i < hitColliders.Length;
+                 i++)
+            {
+                if (hitColliders[i] != null)
+                {
+                    hitColliders[i].enabled =
+                        damageEnabled;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 파츠 SpriteRenderer를 일괄 활성/비활성화합니다.
+        /// </summary>
+        public void SetVisualEnabled(
+            bool enabled)
+        {
+            ResolveReferences();
+            if (rootController != null && rootController.UsesFiveCoreHealth && rootController.IsBossDead)
+                enabled = false;
+
+            for (int i = 0;
+                 i < spriteRenderers.Length;
+                 i++)
+            {
+                if (spriteRenderers[i] != null)
+                {
+                    spriteRenderers[i].enabled =
+                        enabled;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 부모 계층에서 RootController를 탐색합니다.
+        ///
+        /// 이전 테스트에서 Root를 찾지 못하는 문제가 있었기 때문에
+        /// 일반 부모 탐색 후 prefab 최상위에서도 한 번 더 찾습니다.
+        /// </summary>
+        private void ResolveRootController()
+        {
+            if (rootController != null)
+            {
+                return;
+            }
+
+            rootController =
+                GetComponentInParent
+                <
+                    BossPartDamageTestRootController
+                >(true);
+
+            if (rootController != null)
+            {
+                return;
+            }
+
+            Transform topRoot =
+                transform.root;
+
+            if (topRoot != null)
+            {
+                rootController =
+                    topRoot.GetComponentInChildren
+                    <
+                        BossPartDamageTestRootController
+                    >(true);
+            }
+        }
+        /// <summary>
+        /// 이 보스 파츠가 사용할 BossPartDamageRules를 찾습니다.
+        ///
+        /// 우선순위:
+        /// 1. 현재 파츠의 부모 계층
+        /// 2. RootController 오브젝트
+        /// 3. RootController의 자식 전체
+        /// 4. Prefab 최상위의 자식 전체
+        ///
+        /// 현재 테스트 프리팹처럼 BossPartDamageRules가
+        /// Root의 별도 자식 GameObject에 있어도 정상적으로 찾을 수 있습니다.
+        /// </summary>
+        private BossPartDamageRules ResolveDamageRules()
+        {
+            BossPartDamageRules damageRules =
+                GetComponentInParent
+                <
+                    BossPartDamageRules
+                >(true);
+
+            if (damageRules != null)
+            {
+                return damageRules;
+            }
+
+            ResolveRootController();
+
+            if (rootController != null)
+            {
+                damageRules =
+                    rootController.GetComponent
+                    <
+                        BossPartDamageRules
+                    >();
+
+                if (damageRules != null)
+                {
+                    return damageRules;
+                }
+
+                damageRules =
+                    rootController.GetComponentInChildren
+                    <
+                        BossPartDamageRules
+                    >(true);
+
+                if (damageRules != null)
+                {
+                    return damageRules;
+                }
+            }
+
+            Transform topRoot =
+                transform.root;
+
+            if (topRoot != null)
+            {
+                damageRules =
+                    topRoot.GetComponentInChildren
+                    <
+                        BossPartDamageRules
+                    >(true);
+            }
+
+            return damageRules;
+        }
+        private void ResolveReferences()
+        {
+            if (hitColliders == null ||
+                hitColliders.Length == 0)
+            {
+                hitColliders =
+                    GetComponents<Collider2D>();
+            }
+
+            if (spriteRenderers == null ||
+                spriteRenderers.Length == 0)
+            {
+                spriteRenderers =
+                    GetComponentsInChildren
+                    <
+                        SpriteRenderer
+                    >(true);
+            }
+        }
+
+        private void CacheOriginalVisualState()
+        {
+            originalSharedMaterials =
+                new Material[spriteRenderers.Length][];
+
+            originalColors =
+                new Color[spriteRenderers.Length];
+
+            for (int i = 0;
+                 i < spriteRenderers.Length;
+                 i++)
+            {
+                SpriteRenderer renderer =
+                    spriteRenderers[i];
+
+                if (renderer == null)
+                {
+                    originalSharedMaterials[i] = null;
+                    originalColors[i] = Color.white;
+                    continue;
+                }
+
+                originalSharedMaterials[i] =
+                    renderer.sharedMaterials;
+
+                originalColors[i] =
+                    renderer.color;
+            }
+        }
+
+        private void PlayHitFlash()
+        {
+            if (!isActiveAndEnabled ||
+                hitFlashDuration <= 0f)
+            {
+                return;
+            }
+
+            if (hitFlashCoroutine != null)
+            {
+                StopCoroutine(
+                    hitFlashCoroutine);
+            }
+
+            hitFlashCoroutine =
+                StartCoroutine(
+                    HitFlashRoutine());
+        }
+
+        private IEnumerator HitFlashRoutine()
+        {
+            for (int i = 0;
+                 i < spriteRenderers.Length;
+                 i++)
+            {
+                SpriteRenderer renderer =
+                    spriteRenderers[i];
+
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                if (hitFlashMaterial != null)
+                {
+                    Material[] materials =
+                        renderer.sharedMaterials;
+
+                    for (int materialIndex = 0;
+                         materialIndex < materials.Length;
+                         materialIndex++)
+                    {
+                        materials[materialIndex] =
+                            hitFlashMaterial;
+                    }
+
+                    renderer.sharedMaterials =
+                        materials;
+                }
+                else
+                {
+                    renderer.color =
+                        fallbackHitColor;
+                }
+            }
+
+            yield return new WaitForSeconds(
+                hitFlashDuration);
+
+            RestoreOriginalVisualState();
+
+            hitFlashCoroutine = null;
+        }
+
+        private void StopHitFlashAndRestore()
+        {
+            if (hitFlashCoroutine != null)
+            {
+                StopCoroutine(
+                    hitFlashCoroutine);
+
+                hitFlashCoroutine = null;
+            }
+
+            RestoreOriginalVisualState();
+        }
+
+        private void RestoreOriginalVisualState()
+        {
+            if (spriteRenderers == null ||
+                originalSharedMaterials == null ||
+                originalColors == null)
+            {
+                return;
+            }
+
+            int count =
+                Mathf.Min(
+                    spriteRenderers.Length,
+                    originalColors.Length);
+
+            for (int i = 0;
+                 i < count;
+                 i++)
+            {
+                SpriteRenderer renderer =
+                    spriteRenderers[i];
+
+                if (renderer == null)
+                {
+                    continue;
+                }
+
+                if (i < originalSharedMaterials.Length &&
+                    originalSharedMaterials[i] != null)
+                {
+                    renderer.sharedMaterials =
+                        originalSharedMaterials[i];
+                }
+
+                renderer.color =
+                    originalColors[i];
+            }
+        }
+
+        private string GetPartLabel()
+        {
+            string resolvedName =
+                string.IsNullOrWhiteSpace(displayName)
+                    ? gameObject.name
+                    : displayName;
+
+            return
+                $"{resolvedName} ({partType})";
+        }
+    }
+}

@@ -38,7 +38,7 @@ namespace Vampire
 
             foreach (SpriteRenderer renderer in renderers)
             {
-                if (renderer == null)
+                if (renderer == null || renderer.GetComponent<BossGroundShadow>() != null)
                 {
                     continue;
                 }

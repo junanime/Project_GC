@@ -155,6 +155,9 @@ namespace Vampire
             [HideInInspector] public bool finished;
             [HideInInspector] public float resolvedStartTime;
             [HideInInspector] public float elapsed;
+
+            // 카메라 Tilt 효과음이 이 이벤트에서 이미 재생됐는지 기록합니다.
+            [HideInInspector] public bool tiltSfxPlayed;
         }
 
         [System.Serializable]
@@ -271,6 +274,7 @@ namespace Vampire
         private Camera mainCamera;
         private Quaternion originalCameraRotation;
         private bool hasOriginalCameraRotation;
+        private bool miniStageCameraRestored;
         private Coroutine activeAcidRefluxRoutine;
         private Coroutine activeCoffeeWaveRoutine;
 
@@ -304,6 +308,20 @@ namespace Vampire
 
         private void Update()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                // 필드 기류가 MiniStage 카메라에 남지 않도록 기본 회전을 사용합니다.
+                if (!miniStageCameraRestored && mainCamera != null && hasOriginalCameraRotation)
+                {
+                    mainCamera.transform.rotation = originalCameraRotation;
+                }
+
+                miniStageCameraRestored = true;
+                return;
+            }
+
+            miniStageCameraRestored = false;
+
             if (levelManager == null)
             {
                 return;
@@ -331,6 +349,11 @@ namespace Vampire
 
         private void FixedUpdate()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             for (int i = 0; i < peristalsisDriftEvents.Count; i++)
             {
                 PeristalsisDriftEvent driftEvent = peristalsisDriftEvents[i];
@@ -376,6 +399,7 @@ namespace Vampire
                 driftEvent.started = false;
                 driftEvent.finished = false;
                 driftEvent.elapsed = 0f;
+                driftEvent.tiltSfxPlayed = false;
                 driftEvent.resolvedStartTime = ResolveStartTime(
                     driftEvent.eventName,
                     driftEvent.startTime,
@@ -530,12 +554,18 @@ namespace Vampire
                     affectMonsters: true,
                     waveColor: waveEvent.waveColor,
                     warningColor: waveEvent.warningColor,
-                    visualOnly: false);
+                    visualOnly: false,
+                    travelStartSfxId: GameAudioManager.GameSfxId.AcidRefluxWavePass);
 
                 if (i < safeWaveCount - 1)
                 {
-                    yield return new WaitForSeconds(Mathf.Max(0f, waveEvent.intervalBetweenWaves));
+                    yield return WaitForFieldSeconds(Mathf.Max(0f, waveEvent.intervalBetweenWaves));
                 }
+            }
+
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
             }
 
             waveEvent.finished = true;
@@ -621,7 +651,7 @@ namespace Vampire
 
             for (int i = 0; i < monsters.Length; i++)
             {
-                if (monsters[i] == null)
+                if (monsters[i] == null || monsters[i].IsMiniStageOwned || monsters[i].IsFieldRuntimeSuspended)
                 {
                     continue;
                 }
@@ -658,7 +688,7 @@ namespace Vampire
             float force,
             float maxAddedVelocity)
         {
-            if (targetRb == null)
+            if (targetRb == null || !targetRb.simulated)
             {
                 return;
             }
@@ -710,6 +740,17 @@ namespace Vampire
                 mainCamera.transform.rotation,
                 targetRotation,
                 Time.deltaTime * Mathf.Max(0.1f, driftEvent.cameraTiltLerpSpeed));
+
+            // 카메라가 존재하고 실제 Tilt 처리가 처음 실행된 순간에만
+            // 연동운동 Tilt 효과음을 1회 재생합니다.
+            if (!driftEvent.tiltSfxPlayed)
+            {
+                driftEvent.tiltSfxPlayed = true;
+
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.PeristalsisTilt
+                );
+            }
         }
 
         private void RestoreCameraTiltIfNoActiveDrift()
@@ -811,7 +852,8 @@ namespace Vampire
                 affectMonsters: false,
                 waveColor: coffeeEvent.coffeeWaveColor,
                 warningColor: coffeeEvent.warningColor,
-                visualOnly: true);
+                visualOnly: true,
+                travelStartSfxId: GameAudioManager.GameSfxId.CoffeeTransfusionPour);
 
             activeCoffeeWaveRoutine = null;
         }
@@ -826,7 +868,7 @@ namespace Vampire
             {
                 Monster monster = monsters[i];
 
-                if (monster == null)
+                if (monster == null || monster.IsMiniStageOwned || monster.IsFieldRuntimeSuspended)
                 {
                     continue;
                 }
@@ -876,8 +918,22 @@ namespace Vampire
             bool affectMonsters,
             Color waveColor,
             Color warningColor,
-            bool visualOnly)
+            bool visualOnly,
+            GameAudioManager.GameSfxId? travelStartSfxId = null)
         {
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
+            }
+
+            // 실제 피해 파도일 때만 위험 경고음.
+            // 커피수혈의 VisualOnly 파도에는 재생하지 않습니다.
+            if (!visualOnly)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.DangerWave
+                );
+            }
             Rect cameraRect = GetCameraWorldRect(screenPadding);
 
             float centerY = (cameraRect.yMin + cameraRect.yMax) * 0.5f;
@@ -914,7 +970,12 @@ namespace Vampire
                     warningColor);
             }
 
-            yield return new WaitForSeconds(Mathf.Max(0f, warningDuration));
+            yield return WaitForFieldSeconds(Mathf.Max(0f, warningDuration));
+
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
+            }
 
             if (warningObject != null)
             {
@@ -954,14 +1015,45 @@ namespace Vampire
                         affectPlayer,
                         affectMonsters);
                 }
+
+                // 경고가 끝난 뒤 실제 파도 오브젝트가 생성되고
+                // 이동을 시작하는 순간에만 해당 전용 효과음을 1회 재생합니다.
+                if (travelStartSfxId.HasValue)
+                {
+                    GameAudioManager.PlaySfx(
+                        travelStartSfxId.Value
+                    );
+                }
             }
 
-            yield return new WaitForSeconds(Mathf.Max(0.05f, travelDuration));
+            yield return WaitForFieldSeconds(Mathf.Max(0.05f, travelDuration));
+
+            while (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                yield return null;
+            }
 
             if (waveObject != null)
             {
                 Destroy(waveObject);
             }
+        }
+
+        // 새 내부 대기 함수: 일반 버프 시간이 아닌 필드 이벤트의 대기 시간만 셉니다.
+        private IEnumerator WaitForFieldSeconds(float duration)
+        {
+            float remaining = Mathf.Max(0f, duration);
+
+            do
+            {
+                yield return null;
+
+                if (!MiniStageRuntimeState.IsInsideMiniStage)
+                {
+                    remaining -= Time.deltaTime;
+                }
+            }
+            while (remaining > 0f || MiniStageRuntimeState.IsInsideMiniStage);
         }
 
         private GameObject CreateWaveVisualObject(
@@ -1080,6 +1172,12 @@ namespace Vampire
         {
             string safeEventName = string.IsNullOrEmpty(eventName) ? "스테이지" : eventName;
             string message = string.Format(eventStartMessageFormat, safeEventName);
+
+            // 산성 역류 / 연동운동 / 커피수혈 모두
+            // 동일한 필드 이벤트 시작 효과음을 이벤트당 1회 재생합니다.
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.FieldEventStart
+            );
 
             if (eventToastUI != null)
             {

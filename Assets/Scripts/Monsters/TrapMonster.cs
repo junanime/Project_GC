@@ -13,14 +13,23 @@ namespace Vampire
             Dead
         }
 
+        private enum TrapArrowDirection
+        {
+            Up,
+            Down,
+            Left,
+            Right
+        }
+
         [Header("Trap Components")]
         [Tooltip("함정 몬스터의 외형을 보여줄 SpriteRenderer입니다.")]
         [SerializeField] private SpriteRenderer trapSpriteRenderer;
 
-        [Tooltip("플레이어가 밟았는지 확인하고, 활성화 후 공격받는 판정으로 사용할 Collider2D입니다.")]
+        [Tooltip("플레이어가 밟았는지 확인하는 Collider2D입니다.")]
         [SerializeField] private Collider2D triggerCollider;
 
         [Header("Debug")]
+        [Tooltip("함정 몬스터 디버그 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = true;
 
         private TrapMonsterBlueprint trapBlueprint;
@@ -34,6 +43,11 @@ namespace Vampire
         private Coroutine tickDamageCoroutine;
         private Coroutine bindDurationCoroutine;
         private Coroutine deathRoutineCoroutine;
+        private Coroutine arrowInputCoroutine;
+
+        private TrapArrowDirection[] arrowSequence;
+        private int arrowProgress;
+        private TrapArrowMiniGameUI arrowMiniGameUI;
 
         private float trapHpBuff = 0f;
         private bool setupCompleted = false;
@@ -62,7 +76,11 @@ namespace Vampire
             }
         }
 
-        public override void Setup(int monsterIndex, Vector2 position, MonsterBlueprint incomingBlueprint, float hpBuff = 0)
+        public override void Setup(
+            int monsterIndex,
+            Vector2 position,
+            MonsterBlueprint incomingBlueprint,
+            float hpBuff = 0)
         {
             trapBlueprint = incomingBlueprint as TrapMonsterBlueprint;
 
@@ -74,12 +92,16 @@ namespace Vampire
 
             this.monsterIndex = monsterIndex;
             monsterBlueprint = trapBlueprint;
-
             trapHpBuff = hpBuff;
-            currentHealth = trapBlueprint.activeHealth + trapHpBuff;
+           
             alive = true;
             killStarted = false;
             setupCompleted = true;
+            arrowProgress = 0;
+            // 중요:
+            // Pool에서 이전 사망 상태(Dead/Dying)가 남지 않도록
+            // 매 스폰마다 반드시 Dormant로 초기화한다.
+            currentState = TrapState.Dormant;
 
             if (!entityManager.LivingMonsters.Contains(this))
             {
@@ -99,6 +121,11 @@ namespace Vampire
             if (rb == null)
             {
                 rb = GetComponent<Rigidbody2D>();
+            }
+
+            if (trapSpriteRenderer != null)
+            {
+                trapSpriteRenderer.enabled = true;
             }
 
             Vector2 spawnPosition = position;
@@ -157,11 +184,15 @@ namespace Vampire
             StopTrapCoroutines();
             ReleaseTrappedPlayer();
 
+            // Pool에서 다시 나온 뒤 Dormant 애니메이션도 반드시 다시 시작.
             ChangeState(TrapState.Dormant);
 
             if (debugLog)
             {
-                Debug.Log($"[TrapMonster] 스폰 완료 | 위치 {transform.position} | 휴면 상태", this);
+                Debug.Log(
+                    $"[TrapMonster] 스폰 완료 | 위치 {transform.position} | 휴면 상태",
+                    this
+                );
             }
         }
 
@@ -171,8 +202,13 @@ namespace Vampire
             // 함정 몬스터는 자체 상태머신으로만 동작한다.
         }
 
-        protected new void FixedUpdate()
+        protected override void FixedUpdate()
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (rb != null)
             {
                 rb.velocity = Vector2.zero;
@@ -190,10 +226,15 @@ namespace Vampire
         }
 
         public override void TakeDamage(
-    float damage,
-    Vector2 direction = default(Vector2),
-    bool isCritical = false)
+            float damage,
+            Vector2 direction = default(Vector2),
+            bool isCritical = false)
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (!setupCompleted || trapBlueprint == null)
             {
                 return;
@@ -204,6 +245,16 @@ namespace Vampire
                 if (debugLog)
                 {
                     Debug.Log("[TrapMonster] 휴면 상태라서 데미지를 받지 않음", this);
+                }
+
+                return;
+            }
+
+            if (trapBlueprint.useArrowEscapeMiniGame)
+            {
+                if (debugLog)
+                {
+                    Debug.Log("[TrapMonster] 방향키 미니게임 방식이라 데미지로 해제되지 않음", this);
                 }
 
                 return;
@@ -232,6 +283,15 @@ namespace Vampire
             killStarted = true;
             alive = false;
 
+            if (triggerCollider != null)
+            {
+                triggerCollider.enabled = false;
+            }
+            if (monsterHitbox != null)
+            {
+                monsterHitbox.enabled = false;
+            }
+
             ReleaseTrappedPlayer();
 
             ChangeState(TrapState.Dying);
@@ -257,6 +317,15 @@ namespace Vampire
             }
 
             currentState = TrapState.Dead;
+            if (stateAnimationCoroutine != null)
+            {
+                StopCoroutine(stateAnimationCoroutine);
+                stateAnimationCoroutine = null;
+            }
+            if (trapSpriteRenderer != null)
+            {
+                trapSpriteRenderer.enabled = false;
+            }
 
             if (debugLog)
             {
@@ -268,6 +337,10 @@ namespace Vampire
 
         private void OnTriggerEnter2D(Collider2D other)
         {
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
             if (!setupCompleted || currentState != TrapState.Dormant)
             {
                 return;
@@ -318,8 +391,13 @@ namespace Vampire
             }
 
             currentHealth = trapBlueprint.activeHealth + trapHpBuff;
+            arrowProgress = 0;
 
             ChangeState(TrapState.Active);
+
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.TrapActivate
+);
 
             if (tickDamageCoroutine != null)
             {
@@ -338,9 +416,14 @@ namespace Vampire
                 bindDurationCoroutine = StartCoroutine(BindDurationRoutine());
             }
 
+            if (trapBlueprint.useArrowEscapeMiniGame)
+            {
+                StartArrowMiniGame();
+            }
+
             if (debugLog)
             {
-                Debug.Log($"[TrapMonster] 활성화됨 | HP {currentHealth:0.##} | 플레이어 구속", this);
+                Debug.Log("[TrapMonster] 활성화됨 | 방향키 미니게임 시작 | 플레이어 구속", this);
             }
         }
 
@@ -386,19 +469,239 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log("[TrapMonster] 바인드 시간이 종료되어 플레이어를 해제", this);
+                Debug.Log("[TrapMonster] 바인드 시간이 종료되어 플레이어 해제 후 함정 사망 처리", this);
+            }
+
+            ReleaseAndKillTrap();
+        }
+
+        private void StartArrowMiniGame()
+        {
+            StopArrowMiniGame();
+
+            int sequenceLength = Mathf.Clamp(trapBlueprint.arrowMiniGameSequenceLength, 1, 8);
+            arrowSequence = new TrapArrowDirection[sequenceLength];
+            char[] arrowCharacters = new char[sequenceLength];
+
+            for (int i = 0; i < sequenceLength; i++)
+            {
+                arrowSequence[i] = (TrapArrowDirection)Random.Range(0, 4);
+                arrowCharacters[i] = GetArrowCharacter(arrowSequence[i]);
+            }
+
+            arrowProgress = 0;
+
+            arrowMiniGameUI = TrapArrowMiniGameUI.Create(
+                transform,
+                arrowCharacters,
+                trapBlueprint.arrowMiniGameUiYOffset,
+                trapBlueprint.arrowMiniGameUiScale,
+                trapBlueprint.arrowMiniGameSortingOrder);
+
+            arrowInputCoroutine = StartCoroutine(ArrowInputRoutine());
+
+            if (debugLog)
+            {
+                Debug.Log($"[TrapMonster] 방향키 미니게임 생성 | 길이 {sequenceLength}", this);
+            }
+        }
+
+        private IEnumerator ArrowInputRoutine()
+        {
+            while (currentState == TrapState.Active)
+            {
+                if (arrowSequence == null || arrowSequence.Length == 0)
+                {
+                    yield break;
+                }
+
+                if (TryReadArrowInput(out TrapArrowDirection inputDirection))
+                {
+                    HandleArrowInput(inputDirection);
+                }
+
+                yield return null;
+            }
+        }
+
+        private bool TryReadArrowInput(out TrapArrowDirection inputDirection)
+        {
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                inputDirection = TrapArrowDirection.Up;
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                inputDirection = TrapArrowDirection.Down;
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                inputDirection = TrapArrowDirection.Left;
+                return true;
+            }
+
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                inputDirection = TrapArrowDirection.Right;
+                return true;
+            }
+
+            inputDirection = TrapArrowDirection.Up;
+            return false;
+        }
+
+        private void HandleArrowInput(TrapArrowDirection inputDirection)
+        {
+            if (currentState != TrapState.Active)
+            {
+                return;
+            }
+
+            if (arrowSequence == null ||
+                arrowProgress < 0 ||
+                arrowProgress >= arrowSequence.Length)
+            {
+                return;
+            }
+
+            TrapArrowDirection expectedDirection = arrowSequence[arrowProgress];
+
+            if (inputDirection == expectedDirection)
+            {
+                if (arrowMiniGameUI != null)
+                {
+                    arrowMiniGameUI.MarkCleared(arrowProgress);
+                }
+
+                arrowProgress++;
+
+                if (debugLog)
+                {
+                    Debug.Log($"[TrapMonster] 방향키 성공 | {arrowProgress}/{arrowSequence.Length}", this);
+                }
+
+                if (arrowProgress >= arrowSequence.Length)
+                {
+                    CompleteArrowMiniGame();
+                }
+
+                return;
+            }
+
+            if (arrowMiniGameUI != null)
+            {
+                arrowMiniGameUI.FlashWrong(
+                    arrowProgress,
+                    trapBlueprint.wrongArrowFlashDuration);
+            }
+
+            if (trapBlueprint.wrongArrowInputPenaltyDamage > 0f &&
+                trappedDamageable != null)
+            {
+                trappedDamageable.TakeDamage(
+                    trapBlueprint.wrongArrowInputPenaltyDamage,
+                    Vector2.zero,
+                    false);
+            }
+
+            if (trapBlueprint.resetArrowProgressOnWrongInput)
+            {
+                arrowProgress = 0;
+
+                if (arrowMiniGameUI != null)
+                {
+                    arrowMiniGameUI.ResetProgress();
+                }
+            }
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[TrapMonster] 방향키 실패 | 입력={inputDirection}, 정답={expectedDirection}",
+                    this);
+            }
+        }
+
+        private void CompleteArrowMiniGame()
+        {
+            if (debugLog)
+            {
+                Debug.Log("[TrapMonster] 방향키 미니게임 성공 - 플레이어 해제 후 함정 사망 처리", this);
+            }
+
+            ReleaseAndKillTrap();
+        }
+
+        private void ReleaseAndKillTrap()
+        {
+            if (currentState != TrapState.Active)
+            {
+                return;
             }
 
             ReleaseTrappedPlayer();
 
-            // 제한 시간이 끝났는데 함정이 죽지 않았다면 다시 휴면 상태로 돌아간다.
-            // 나중에 원하면 여기서 바로 사망하거나, 일정 쿨타임 후 재활성 가능하도록 바꿀 수 있다.
-            currentHealth = trapBlueprint.activeHealth + trapHpBuff;
-            ChangeState(TrapState.Dormant);
+            if (!killStarted)
+            {
+                StartCoroutine(Killed(false));
+            }
         }
 
+        private char GetArrowCharacter(TrapArrowDirection direction)
+        {
+            switch (direction)
+            {
+                case TrapArrowDirection.Up:
+                    return '↑';
+                case TrapArrowDirection.Down:
+                    return '↓';
+                case TrapArrowDirection.Left:
+                    return '←';
+                case TrapArrowDirection.Right:
+                    return '→';
+                default:
+                    return '?';
+            }
+        }
+        protected override void OnFieldRuntimeSuspended()
+        {
+            if (!setupCompleted || !alive)
+            {
+                return;
+            }
+
+            // MiniStage 포탈 진입 순간 Trap에 잡혀 있었다면
+            // PlayerTrapBindRuntime이 플레이어를 예전 필드 위치로 잡아당길 수 있으므로
+            // 반드시 구속 / 틱데미지 / 방향키 UI를 해제한다.
+            if (currentState == TrapState.Active)
+            {
+                ReleaseTrappedPlayer();
+
+                currentState = TrapState.Dormant;
+                ChangeState(TrapState.Dormant);
+
+                if (debugLog)
+                {
+                    Debug.Log(
+                        "[TrapMonster] MiniStage 진입 - 플레이어 구속 해제 및 Dormant 복귀",
+                        this
+                    );
+                }
+            }
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            // Dormant 상태 그대로 다시 필드에서 작동하면 된다.
+        }
         private void ReleaseTrappedPlayer()
         {
+            StopArrowMiniGame();
+
             if (trappedBindRuntime != null)
             {
                 trappedBindRuntime.Release(this);
@@ -419,6 +722,25 @@ namespace Vampire
                 StopCoroutine(bindDurationCoroutine);
                 bindDurationCoroutine = null;
             }
+        }
+
+        private void StopArrowMiniGame()
+        {
+            if (arrowInputCoroutine != null)
+            {
+                StopCoroutine(arrowInputCoroutine);
+                arrowInputCoroutine = null;
+            }
+
+            if (arrowMiniGameUI != null)
+            {
+                arrowMiniGameUI.gameObject.SetActive(false);
+                Destroy(arrowMiniGameUI.gameObject);
+                arrowMiniGameUI = null;
+            }
+
+            arrowSequence = null;
+            arrowProgress = 0;
         }
 
         private void StopTrapCoroutines()
@@ -446,6 +768,8 @@ namespace Vampire
                 StopCoroutine(deathRoutineCoroutine);
                 deathRoutineCoroutine = null;
             }
+
+            StopArrowMiniGame();
         }
 
         private void ChangeState(TrapState nextState)
@@ -502,7 +826,8 @@ namespace Vampire
             }
 
             int index = 0;
-            WaitForSeconds wait = new WaitForSeconds(Mathf.Max(0.01f, trapBlueprint.animationFrameTime));
+            WaitForSeconds wait = new WaitForSeconds(
+                Mathf.Max(0.01f, trapBlueprint.animationFrameTime));
 
             while (true)
             {
@@ -530,7 +855,8 @@ namespace Vampire
                 yield break;
             }
 
-            WaitForSeconds wait = new WaitForSeconds(Mathf.Max(0.01f, trapBlueprint.animationFrameTime));
+            WaitForSeconds wait = new WaitForSeconds(
+                Mathf.Max(0.01f, trapBlueprint.animationFrameTime));
 
             for (int i = 0; i < frames.Length; i++)
             {

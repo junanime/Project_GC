@@ -1469,6 +1469,7 @@ GameObject:
   - component: {fileID: 172030361}
   - component: {fileID: 172030360}
   - component: {fileID: 172030359}
+  - component: {fileID: 172030362}
   m_Layer: 5
   m_Name: Btn_GameStart
   m_TagString: Untagged
@@ -1590,6 +1591,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 172030357}
   m_CullTransparentMesh: 1
+--- !u!114 &172030362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 172030357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2651ac23f756cb346863754be83e5c06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &175111541
 GameObject:
   m_ObjectHideFlags: 0
@@ -6408,7 +6421,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 832, y: -760}
+  m_AnchoredPosition: {x: 832, y: -856.2639}
   m_SizeDelta: {x: 450, y: 128}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &870851705
@@ -7006,6 +7019,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 923418309}
   m_CullTransparentMesh: 1
+--- !u!1001 &972651840
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5396072568873023266, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7631884578750469968, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
+      propertyPath: m_Name
+      value: GameAudioManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: e2377a9e58ac02e4397c54cef5792963, type: 3}
 --- !u!1001 &999244624
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7609,7 +7679,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 277.33334, y: -760}
+  m_AnchoredPosition: {x: 277.33334, y: -856.2639}
   m_SizeDelta: {x: 450, y: 128}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1059869326
@@ -9287,7 +9357,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1386.6667, y: -760}
+  m_AnchoredPosition: {x: 1386.6667, y: -856.2639}
   m_SizeDelta: {x: 450, y: 128}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1430565461
@@ -10076,6 +10146,7 @@ GameObject:
   - component: {fileID: 1564796537}
   - component: {fileID: 1564796536}
   - component: {fileID: 1564796535}
+  - component: {fileID: 1564796539}
   m_Layer: 5
   m_Name: ShopIconButton
   m_TagString: Untagged
@@ -10185,6 +10256,18 @@ RectTransform:
   m_AnchoredPosition: {x: 819, y: 398}
   m_SizeDelta: {x: 150, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1564796539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1564796534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2651ac23f756cb346863754be83e5c06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1566822851
 GameObject:
   m_ObjectHideFlags: 0
@@ -11542,6 +11625,7 @@ GameObject:
   - component: {fileID: 1716989256}
   - component: {fileID: 1716989255}
   - component: {fileID: 1716989254}
+  - component: {fileID: 1716989258}
   m_Layer: 5
   m_Name: RelicShopOpenButton
   m_TagString: Untagged
@@ -11677,6 +11761,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1716989252}
   m_CullTransparentMesh: 1
+--- !u!114 &1716989258
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1716989252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2651ac23f756cb346863754be83e5c06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1724941706
 GameObject:
   m_ObjectHideFlags: 0
@@ -14469,6 +14565,7 @@ RectTransform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 972651840}
   - {fileID: 519420032}
   - {fileID: 425052720}
   - {fileID: 240838773}

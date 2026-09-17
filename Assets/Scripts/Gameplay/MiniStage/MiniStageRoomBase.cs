@@ -26,7 +26,7 @@ namespace Vampire
 
         [Header("Debug")]
         [Tooltip("방 시작/클리어/보상/귀환 상태 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+        [SerializeField] protected bool debugLog = true;
 
         protected MiniStageDirector director;
         protected EntityManager entityManager;
@@ -146,6 +146,17 @@ namespace Vampire
 
             roomCleared = true;
             rewardChestOpened = true;
+
+            // 미니 스테이지 보상 획득 SFX
+            GameAudioManager.PlaySfx(
+                GameAudioManager.GameSfxId.RewardEvent
+            );
+            if (debugLog)
+            {
+                Debug.Log(
+                    "[MiniStageRoomBase] 보상 상자 획득 확인. 귀환 상호작용 활성화."
+                );
+            }
             optionalReturnUnlocked = true;
             activeRewardChest = null;
 
@@ -184,7 +195,10 @@ namespace Vampire
         {
             if (entityManager == null)
             {
-                Debug.LogWarning("[MiniStageRoomBase] EntityManager가 없어 보상 상자를 생성할 수 없습니다.");
+                Debug.LogWarning(
+                    "[MiniStageRoomBase] EntityManager가 없어 보상 상자를 생성할 수 없습니다."
+                );
+
                 UnlockReturnInteractableIfAllowed();
                 return;
             }
@@ -193,24 +207,43 @@ namespace Vampire
             {
                 if (debugLog)
                 {
-                    Debug.LogWarning("[MiniStageRoomBase] Reward Chest Blueprint가 비어 있습니다.");
+                    Debug.LogWarning(
+                        "[MiniStageRoomBase] Reward Chest Blueprint가 비어 있습니다."
+                    );
                 }
 
                 UnlockReturnInteractableIfAllowed();
                 return;
             }
 
-            Vector3 spawnPosition = rewardPosition ?? (
-                rewardSpawnPoint != null
-                    ? rewardSpawnPoint.position
-                    : transform.position
-            );
+            Vector3 spawnPosition =
+                rewardPosition ??
+                (
+                    rewardSpawnPoint != null
+                        ? rewardSpawnPoint.position
+                        : transform.position
+                );
 
-            activeRewardChest = entityManager.SpawnChest(rewardChestBlueprint, spawnPosition);
+            activeRewardChest =
+                entityManager.SpawnChest(
+                    rewardChestBlueprint,
+                    spawnPosition
+                );
+
+            // 미니 스테이지 클리어 후 보상 상자가
+            // 실제로 생성된 경우에만 클리어 효과음을 재생합니다.
+            if (activeRewardChest != null)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.MiniStageClear
+                );
+            }
 
             if (debugLog)
             {
-                Debug.Log($"[MiniStageRoomBase] 보상 상자 생성: position={spawnPosition}");
+                Debug.Log(
+                    $"[MiniStageRoomBase] 보상 상자 생성: position={spawnPosition}"
+                );
             }
 
             if (!requireRewardChestOpenedBeforeReturn)

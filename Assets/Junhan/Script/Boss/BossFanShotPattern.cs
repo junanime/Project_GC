@@ -102,6 +102,7 @@ namespace Vampire
 
         private void FireFanShot(int bulletCount)
         {
+            if (bossController != null && bossController.UsesFiveCoreSkills && !bossController.FiveCoreSkills.CanContinue(this)) return;
             if (bulletPrefab == null)
             {
                 Debug.LogWarning("[BossFanShotPattern] Bullet Prefab이 비어 있습니다.");
@@ -113,7 +114,7 @@ namespace Vampire
                 return;
             }
 
-            Vector3 bossPosition = bossController.BossCenterPosition;
+            Vector3 bossPosition = bossController.AttackOriginPosition;
             Vector2 baseDirection = ((Vector2)bossController.PlayerCharacter.transform.position - (Vector2)bossPosition).normalized;
 
             if (baseDirection == Vector2.zero)
@@ -129,7 +130,7 @@ namespace Vampire
                 float angle = startAngle + angleStep * i;
                 Vector2 direction = RotateVector(baseDirection, angle);
 
-                Vector3 spawnPosition = bossPosition + (Vector3)(direction.normalized * muzzleOffsetFromBoss);
+                Vector3 spawnPosition = bossController.GetProjectileSpawnPosition((Vector3)(direction.normalized * muzzleOffsetFromBoss));
 
                 SpawnBullet(spawnPosition, direction);
             }

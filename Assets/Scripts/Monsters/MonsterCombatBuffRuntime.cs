@@ -31,6 +31,11 @@ namespace Vampire
 
         private void Update()
         {
+            if (monster == null)
+            {
+                monster = GetComponent<Monster>();
+            }
+
             TickMoveSpeedBuff();
             TickDamageReductionBuff();
         }

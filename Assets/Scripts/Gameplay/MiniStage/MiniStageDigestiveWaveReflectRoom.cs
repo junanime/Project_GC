@@ -117,9 +117,7 @@ namespace Vampire
         [Tooltip("방이 완전 클리어되거나 플레이어가 중도 퇴장할 때 남아 있는 몬스터를 제거할지 여부입니다.")]
         [SerializeField] private bool clearRemainingMonstersOnEnd = true;
 
-        [Header("Debug")]
-        [Tooltip("소화 파동 반사방 진행 로그를 출력합니다.")]
-        [SerializeField] private bool debugLog = true;
+     
 
         [Tooltip("빔이 맞힌 오브젝트 정보를 로그로 출력합니다. 문제 확인용입니다.")]
         [SerializeField] private bool debugBeamHitLog = false;

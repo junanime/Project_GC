@@ -86,6 +86,11 @@ namespace Vampire
 
             CleanupActiveObjects();
 
+            if (MiniStageRuntimeState.IsInsideMiniStage || levelManager.IsRunFlowPaused)
+            {
+                return;
+            }
+
             timer += Time.deltaTime;
 
             if (!firstSpawnDone)
@@ -109,6 +114,12 @@ namespace Vampire
 
         private void SpawnWave()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage ||
+                (levelManager != null && levelManager.IsRunFlowPaused))
+            {
+                return;
+            }
+
             CleanupActiveObjects();
 
             int availableSlots = Mathf.Max(0, maxActiveObjects - activeObjects.Count);

@@ -55,6 +55,8 @@ MonoBehaviour:
   playerCharacter: {fileID: 0}
   rb: {fileID: 0}
   spriteRenderer: {fileID: 0}
+  coreStateController: {fileID: 0}
+  autoCreateCoreStateController: 1
   patterns:
   - {fileID: 1143178848134284278}
   - {fileID: 2870901366507585317}
@@ -72,6 +74,13 @@ MonoBehaviour:
   basicAttackBulletSpeed: 4
   basicAttackMuzzleOffset: 1.2
   basicAttackWhileUsingPattern: 0
+  basicAttackCoreTraits: 1
+  basicAttackCoreMatchMode: 0
+  basicAttackBurstCountPhase1: 4
+  basicAttackBurstCountPhase2: 5
+  basicAttackBurstCountPhase3: 7
+  basicAttackBurstInterval: 0.2
+  reAimEachBasicBurstShot: 1
   usePredictiveBasicAim: 1
   basicAimLeadTime: 0.45
   basicAimInaccuracyAngle: 5
@@ -79,8 +88,7 @@ MonoBehaviour:
   forceBasicBulletSortingOrder: 1
   basicBulletSortingOrder: 500
   enableMovement: 1
-  moveSpeedPhase1: 0.6
-  moveSpeedPhase2: 1.8
+  baseMoveSpeed: 0.8
   stopDistanceFromPlayer: 2.5
   moveWhileUsingPattern: 1
   patternMoveSpeedMultiplier: 0.35
@@ -91,14 +99,55 @@ MonoBehaviour:
   patternIntervalMax: 7
   thinkInterval: 0.5
   patternGap: 1.5
-  nearDistanceThreshold: 4
-  midDistanceThreshold: 8
-  phase2HpRatio: 0.5
-  phase2Active: 0
-  rewardOnDeath: 1
+  phase1Settings:
+    phaseName: Phase 1 - Single Core
+    enterHpRatio: 1
+    damageMultiplier: 1
+    projectileSpeedMultiplier: 1
+    movementSpeedMultiplier: 1
+    basicAttackCooldownMultiplier: 1
+    patternCooldownMultiplier: 1
+    patternIntervalMultiplier: 1
+    patternGapMultiplier: 1
+    transitionPauseSeconds: 0
+    invincibleDuringTransition: 0
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase2Settings:
+    phaseName: Phase 2 - Dual Core
+    enterHpRatio: 0.6
+    damageMultiplier: 1.15
+    projectileSpeedMultiplier: 1.1
+    movementSpeedMultiplier: 1.1
+    basicAttackCooldownMultiplier: 0.95
+    patternCooldownMultiplier: 0.95
+    patternIntervalMultiplier: 0.9
+    patternGapMultiplier: 0.95
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
+  phase3Settings:
+    phaseName: Phase 3 - Rainbow Core
+    enterHpRatio: 0.3
+    damageMultiplier: 1.2
+    projectileSpeedMultiplier: 1.15
+    movementSpeedMultiplier: 1.15
+    basicAttackCooldownMultiplier: 0.9
+    patternCooldownMultiplier: 0.85
+    patternIntervalMultiplier: 0.85
+    patternGapMultiplier: 0.9
+    transitionPauseSeconds: 2
+    invincibleDuringTransition: 1
+    phaseSprite: {fileID: 0}
+    phaseTransitionEffectPrefab: {fileID: 0}
   debugMovement: 0
   debugPattern: 0
   debugBasicAttack: 0
+  debugPhase: 1
+  debugCore: 0
+  debugForcePatternIndex: 0
+  externalActionLock: 0
 --- !u!70 &2438705909054591538
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -227,20 +276,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: 
   cooldown: 3
-  nearWeightPhase1: 10
-  midWeightPhase1: 10
-  farWeightPhase1: 10
-  nearWeightPhase2: 10
-  midWeightPhase2: 10
-  farWeightPhase2: 10
+  coreTraits: -1
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 6
   bulletDamage: 8
   bulletCountPhase1: 12
   bulletCountPhase2: 20
+  bulletCountPhase3: 24
   ringCountPhase1: 1
   ringCountPhase2: 2
+  ringCountPhase3: 2
   ringInterval: 0.25
+  patternRepeatAngleOffsetStep: 20
+  ringAngleOffsetStep: 8
+  accumulateRepeatAngleOffset: 1
+  resetRepeatIndexOnDisable: 1
+  forceBulletSortingOrder: 1
+  bulletSortingOrder: 550
   debugShot: 0
 --- !u!114 &2870901366507585317
 MonoBehaviour:
@@ -256,19 +315,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: 
   cooldown: 3
-  nearWeightPhase1: 10
-  midWeightPhase1: 10
-  farWeightPhase1: 10
-  nearWeightPhase2: 10
-  midWeightPhase2: 10
-  farWeightPhase2: 10
+  coreTraits: 7
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   warningCirclePrefab: {fileID: 6326675434172693389, guid: f5088ef85aadd1c4eb438815cf7627c4, type: 3}
   warningDuration: 1
+  bombProjectilePrefab: {fileID: 0}
+  projectileStartOffsetFromBoss: {x: 0, y: 1.6}
+  arcHeight: 3
+  projectileScaleMultiplier: 1
+  rotateProjectileToMoveDirection: 1
+  projectileVisualAngleOffset: 0
+  spinProjectile: 0
+  projectileSpinSpeed: 360
+  disableProjectileColliders: 1
+  disableProjectileRigidbodySimulation: 1
+  forceProjectileSortingOrder: 1
+  projectileSortingOrder: 800
   explosionRadius: 2
   explosionDamage: 20
+  explosionEffectPrefab: {fileID: 0}
+  projectileDestroyDelayAfterImpact: 0
+  enableBossSelfDamage: 1
+  bossSelfMaxHpDamagePercent: 0.0125
+  bossSelfDamageRadiusPadding: 0
   bombCountPhase1: 1
   bombCountPhase2: 3
+  bombCountPhase3: 4
   randomOffsetRadius: 1.5
+  intervalBetweenBombs: 0.15
+  debugBomb: 0
 --- !u!114 &7205549940929198468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283,20 +364,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: 
   cooldown: 3
-  nearWeightPhase1: 10
-  midWeightPhase1: 10
-  farWeightPhase1: 10
-  nearWeightPhase2: 10
-  midWeightPhase2: 10
-  farWeightPhase2: 10
+  coreTraits: 7
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   bulletPrefab: {fileID: 2434312293593349568, guid: 76661a6e6373fae4e9bcd9a73322111f, type: 3}
   bulletSpeed: 8
   bulletDamage: 10
   bulletCountPhase1: 7
   bulletCountPhase2: 11
+  bulletCountPhase3: 13
   totalSpreadAngle: 90
   burstCountPhase1: 1
   burstCountPhase2: 2
+  burstCountPhase3: 2
   burstInterval: 0.25
   muzzleOffsetFromBoss: 0.9
   forceBulletSortingOrder: 1
@@ -316,28 +401,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   patternName: "\uB3CC\uC9C4\uD328\uD134"
   cooldown: 3
-  nearWeightPhase1: 10
-  midWeightPhase1: 10
-  farWeightPhase1: 10
-  nearWeightPhase2: 10
-  midWeightPhase2: 10
-  farWeightPhase2: 10
+  coreTraits: 7
+  coreMatchMode: 0
+  autoFindOwnerPartFromParent: 1
+  ownerPart: {fileID: 0}
+  additionalRequiredParts: []
+  requireAllAdditionalParts: 1
+  useOwnerPartAsPatternOrigin: 1
+  debugPartBinding: 0
   warningLinePrefab: {fileID: 3500323201647957297, guid: 39ffc1f9dd07a9248bd4bda7a75c0bae, type: 3}
   warningTime: 0.9
   warningWidth: 1.5
   warningColor: {r: 0.8742138, g: 0.7415973, b: 0.15669861, a: 0.5137255}
+  chargeCountPhase1: 1
+  chargeCountPhase2: 2
+  chargeCountPhase3: 3
+  betweenChargeDelayPhase2: 0.5
+  betweenChargeDelayPhase3: 0.2
+  reAimBeforeEachCharge: 1
+  zigzagAngle: 12
+  randomizeFirstZigzagSide: 1
   chargeDistancePhase1: 6
   chargeDistancePhase2: 8
+  chargeDistancePhase3: 9
   chargeSpeedPhase1: 14
   chargeSpeedPhase2: 18
+  chargeSpeedPhase3: 20
   chargeDamagePhase1: 15
   chargeDamagePhase2: 25
+  chargeDamagePhase3: 30
   endLag: 0.4
   hitboxSize: {x: 1.2, y: 1.2}
   playerLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  canHitPlayerOncePerCharge: 1
+  ignorePlayerPhysicsCollisionDuringCharge: 1
+  forceExactChargeMovement: 1
   showDebugHitbox: 0
+  enableEmbeddedMissileCrash: 1
+  embeddedMissileLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  embeddedMissileBossDamageMultiplier: 2
+  embeddedMissileCrashPadding: 0.1
+  embeddedMissileGroggyDuration: 2
+  coreDamageStateBridge: {fileID: 0}
   debugCharge: 0
 --- !u!114 &5284272268825781628
 MonoBehaviour:

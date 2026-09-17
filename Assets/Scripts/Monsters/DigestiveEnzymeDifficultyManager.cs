@@ -24,7 +24,17 @@ namespace Vampire
         [Header("Increase Rules")]
         [Tooltip("소화효소 처치로 난이도가 한 번 오를 때 증가하는 퍼센트입니다. 5면 +5%입니다.")]
         [SerializeField] private float difficultyIncreasePercent = 5f;
+        [Header("Protection Contract")]
+        [Tooltip("소화효소가 일반 몬스터를 처치했을 때 난이도 하락 계약을 사용할지 여부입니다.")]
+        [SerializeField] private bool enableProtectionContract = true;
 
+        [Tooltip("소화효소가 일반 몬스터를 몇 마리 처치하면 난이도를 1회 낮출지 정합니다.")]
+        [SerializeField] private int enzymeMonsterKillsPerDecrease = 5;
+
+        [Tooltip("보호 계약으로 난이도가 한 번 낮아질 때 감소하는 퍼센트입니다. 5면 -5%입니다.")]
+        [SerializeField] private float difficultyDecreasePercent = 5f;
+
+        private int enzymeMonsterKillCount;
         [Tooltip("소화효소를 몇 마리 처치할 때마다 난이도를 1회 올릴지 정합니다. 1이면 매번 상승합니다.")]
         [SerializeField] private int killCountPerIncrease = 1;
 
@@ -143,7 +153,123 @@ namespace Vampire
             nextMoveSpeedApplyTime = Time.time + Mathf.Max(0.1f, moveSpeedApplyInterval);
             ApplyMoveSpeedBonusToActiveMonsters();
         }
+        public static void NotifyDigestiveEnzymeKilledMonster(
+    DigestiveEnzymeMonster source,
+    Monster killedMonster)
+        {
+            if (Instance == null)
+            {
+                return;
+            }
 
+            Instance.RegisterDigestiveEnzymeMonsterKill(source, killedMonster);
+        }
+
+        private void RegisterDigestiveEnzymeMonsterKill(
+            DigestiveEnzymeMonster source,
+            Monster killedMonster)
+        {
+            if (!enableProtectionContract)
+            {
+                return;
+            }
+
+            if (source == null || killedMonster == null)
+            {
+                return;
+            }
+
+            enzymeMonsterKillCount++;
+
+            int safeRequiredKillCount = Mathf.Max(1, enzymeMonsterKillsPerDecrease);
+
+            if (debugLog)
+            {
+                Debug.Log(
+                    $"[DigestiveEnzymeProtectionContract] 소화효소 몬스터 처치 누적: " +
+                    $"{enzymeMonsterKillCount}/{safeRequiredKillCount}");
+            }
+
+            if (enzymeMonsterKillCount < safeRequiredKillCount)
+            {
+                return;
+            }
+
+            enzymeMonsterKillCount = 0;
+            ApplyRandomDifficultyDecrease();
+        }
+
+        private void ApplyRandomDifficultyDecrease()
+        {
+            List<DigestiveEnzymeDifficultyType> decreaseCandidates =
+                new List<DigestiveEnzymeDifficultyType>();
+
+            if (spawnRateBonusPercent > 0f)
+            {
+                decreaseCandidates.Add(DigestiveEnzymeDifficultyType.SpawnRate);
+            }
+
+            if (monsterHealthBonusPercent > 0f)
+            {
+                decreaseCandidates.Add(DigestiveEnzymeDifficultyType.MonsterHealth);
+            }
+
+            if (monsterMoveSpeedBonusPercent > 0f)
+            {
+                decreaseCandidates.Add(DigestiveEnzymeDifficultyType.MonsterMoveSpeed);
+            }
+
+            if (decreaseCandidates.Count <= 0)
+            {
+                if (debugLog)
+                {
+                    Debug.Log("[DigestiveEnzymeProtectionContract] 낮출 수 있는 난이도 누적치가 없습니다.");
+                }
+
+                return;
+            }
+
+            DigestiveEnzymeDifficultyType selectedType =
+                decreaseCandidates[Random.Range(0, decreaseCandidates.Count)];
+
+            float decreaseAmount = Mathf.Max(0f, difficultyDecreasePercent);
+
+            switch (selectedType)
+            {
+                case DigestiveEnzymeDifficultyType.SpawnRate:
+                    spawnRateBonusPercent = Mathf.Max(0f, spawnRateBonusPercent - decreaseAmount);
+
+                    if (debugLog)
+                    {
+                        Debug.Log(
+                            $"[DigestiveEnzymeProtectionContract] 스폰량 난이도 감소. " +
+                            $"spawnRateBonus={spawnRateBonusPercent}% / multiplier={SpawnRateMultiplier:F2}");
+                    }
+                    break;
+
+                case DigestiveEnzymeDifficultyType.MonsterHealth:
+                    monsterHealthBonusPercent = Mathf.Max(0f, monsterHealthBonusPercent - decreaseAmount);
+
+                    if (debugLog)
+                    {
+                        Debug.Log(
+                            $"[DigestiveEnzymeProtectionContract] 몬스터 체력 난이도 감소. " +
+                            $"hpBonus={monsterHealthBonusPercent}% / multiplier={MonsterHpMultiplier:F2}");
+                    }
+                    break;
+
+                case DigestiveEnzymeDifficultyType.MonsterMoveSpeed:
+                    monsterMoveSpeedBonusPercent = Mathf.Max(0f, monsterMoveSpeedBonusPercent - decreaseAmount);
+
+                    if (debugLog)
+                    {
+                        Debug.Log(
+                            $"[DigestiveEnzymeProtectionContract] 몬스터 이동속도 난이도 감소. " +
+                            $"moveSpeedBonus={monsterMoveSpeedBonusPercent}% / multiplier={MonsterMoveSpeedMultiplier:F2}");
+                    }
+                    break;
+            }
+        }
         public static void NotifyDigestiveEnzymeKilledByPlayer(DigestiveEnzymeMonster source)
         {
             if (Instance == null)

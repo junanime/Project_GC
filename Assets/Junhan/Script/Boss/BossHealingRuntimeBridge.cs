@@ -73,6 +73,16 @@ namespace Vampire
                 return false;
             }
 
+            var root = bossController.FiveCoreHealthRoot;
+            if (root != null && root.UsesFiveCoreHealth)
+            {
+                beforeHp = root.CurrentBossHealth;
+                maxHp = root.TotalMaxHealth;
+                root.HealLivingCores(healAmount);
+                afterHp = root.CurrentBossHealth;
+                bossController.NotifyBossHealthChanged(afterHp, maxHp);
+                return afterHp > beforeHp;
+            }
             BossMonster bossMonster = FindBossMonster(bossController);
 
             if (bossMonster == null)

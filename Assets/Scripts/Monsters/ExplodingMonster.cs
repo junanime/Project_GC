@@ -65,6 +65,13 @@ namespace Vampire
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
 
+            // Apply on every pooled spawn, including inactive child hitboxes.
+            // Keep player layers and the existing collision/trigger damage path intact.
+            int monsterLayers = LayerMask.GetMask("Monster Full", "Monster Legs");
+            foreach (Collider2D collider in GetComponentsInChildren<Collider2D>(true))
+            {
+                collider.excludeLayers |= monsterLayers;
+            }
             timeSinceSpawn = 0f;
             lockedTrajectoryTimer = 0f;
 
@@ -128,7 +135,15 @@ namespace Vampire
         {
             base.Update();
 
-            if (!alive || explosionStarted || missedAutoDeathStarted || playerCharacter == null)
+            if (IsFieldRuntimeSuspended)
+            {
+                return;
+            }
+
+            if (!alive ||
+                explosionStarted ||
+                missedAutoDeathStarted ||
+                playerCharacter == null)
             {
                 return;
             }
@@ -142,11 +157,23 @@ namespace Vampire
         {
             base.FixedUpdate();
 
-            if (!alive || explosionStarted || missedAutoDeathStarted || playerCharacter == null || rb == null)
+            if (IsFieldRuntimeSuspended)
             {
                 return;
             }
 
+            if (!alive ||
+                explosionStarted ||
+                missedAutoDeathStarted ||
+                playerCharacter == null ||
+                rb == null ||
+                explodingBlueprint == null)
+            {
+                return;
+            }
+
+            // Arm Delay 동안에는 플레이어를 추적해서 이동만 한다.
+            // 이 시간에는 궤도 고정 / 빗나감 자동사망을 시작하지 않는다.
             if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
             {
                 MoveTowardPlayer();
@@ -168,7 +195,8 @@ namespace Vampire
 
             UpdateGridPosition();
 
-            // 충돌 이벤트가 누락되거나, 몬스터끼리 겹쳐서 물리 판정이 흔들리는 경우를 대비한 안전장치.
+            // 충돌 이벤트가 누락되거나
+            // 몬스터끼리 겹쳐 물리 판정이 흔들리는 경우의 안전장치.
             TryExplodeByDistance();
         }
 
@@ -385,16 +413,19 @@ namespace Vampire
 
         private void TryExplodeByDistance()
         {
-            if (!alive || explosionStarted || missedAutoDeathStarted)
+            if (IsFieldRuntimeSuspended)
             {
                 return;
             }
 
-            if (explodingBlueprint == null || playerCharacter == null)
+            if (!alive ||
+     explosionStarted ||
+     missedAutoDeathStarted ||
+     explodingBlueprint == null ||
+     playerCharacter == null)
             {
                 return;
             }
-
             if (timeSinceSpawn < Mathf.Max(0f, explodingBlueprint.armDelay))
             {
                 return;
@@ -438,12 +469,12 @@ namespace Vampire
 
         private void TryExplodeFromCollider(Collider2D other)
         {
-            if (!alive || explosionStarted || missedAutoDeathStarted)
+            if (IsFieldRuntimeSuspended)
             {
                 return;
             }
 
-            if (explodingBlueprint == null)
+            if (!alive || explosionStarted || missedAutoDeathStarted)
             {
                 return;
             }
@@ -540,7 +571,28 @@ namespace Vampire
 
             StartCoroutine(MissedAutoDeathRoutine());
         }
+        protected override void OnFieldRuntimeSuspended()
+        {
+            StopWarningCoroutine();
 
+            // Resume 후 필요하면 다시 거리 체크해서 경고를 시작할 수 있게 한다.
+            warningActive = false;
+
+            if (monsterSpriteRenderer != null)
+            {
+                monsterSpriteRenderer.color = originalColor;
+            }
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            warningActive = false;
+
+            if (monsterSpriteRenderer != null)
+            {
+                monsterSpriteRenderer.color = originalColor;
+            }
+        }
         private void StopWarningCoroutine()
         {
             if (warningCoroutine != null)

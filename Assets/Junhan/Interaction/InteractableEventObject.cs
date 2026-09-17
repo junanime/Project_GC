@@ -162,6 +162,11 @@ namespace Vampire
 
         public void TryInteract()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             if (focusedObject != this)
             {
                 return;
@@ -212,6 +217,11 @@ namespace Vampire
 
         private bool CanBeFocusedBy(Character player)
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return false;
+            }
+
             if (player == null)
             {
                 return false;

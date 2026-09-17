@@ -118,6 +118,13 @@ namespace Vampire
         private Vector2 idleAnchorPosition;
         private DigestiveEnzymeFieldSpawner ownerSpawner;
 
+
+        // MiniStage 중 메인 필드 소화효소의 AI/물리 런타임을 정지하기 위한 상태입니다.
+        private bool miniStageRuntimeSuspended;
+        private float miniStageSuspendStartTime = -1f;
+        private bool cachedRigidbodySimulated = true;
+
+
         private static FieldInfo monsterCurrentHealthField;
 
         public bool IsAlive => isAlive;
@@ -151,11 +158,13 @@ namespace Vampire
         private void OnEnable()
         {
             ResetRuntimeState();
+            RefreshMiniStageRuntimeSuspension();
         }
-
         private void Update()
         {
-            if (!isAlive)
+            RefreshMiniStageRuntimeSuspension();
+
+            if (!isAlive || miniStageRuntimeSuspended)
             {
                 return;
             }
@@ -172,7 +181,9 @@ namespace Vampire
 
         private void FixedUpdate()
         {
-            if (!isAlive || rb == null)
+            RefreshMiniStageRuntimeSuspension();
+
+            if (!isAlive || rb == null || miniStageRuntimeSuspended)
             {
                 return;
             }
@@ -205,12 +216,18 @@ namespace Vampire
             ownerSpawner = spawner;
         }
 
-        public override void TakeDamage(float damage, Vector2 knockback = default, bool isCritical = false)
+        public override void TakeDamage(
+    float damage,
+    Vector2 knockback = default,
+    bool isCritical = false)
         {
-            if (!isAlive)
+            RefreshMiniStageRuntimeSuspension();
+
+            if (!isAlive || miniStageRuntimeSuspended)
             {
                 return;
             }
+
 
             if (damage <= 0f)
             {
@@ -237,7 +254,9 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (rb == null)
+            RefreshMiniStageRuntimeSuspension();
+
+            if (rb == null || miniStageRuntimeSuspended)
             {
                 return;
             }
@@ -424,7 +443,55 @@ namespace Vampire
 
             entityManager.SpawnDamageText(textPosition, damage, isCritical);
         }
+        private void RefreshMiniStageRuntimeSuspension()
+        {
+            bool shouldSuspend = MiniStageRuntimeState.IsInsideMiniStage;
 
+            if (miniStageRuntimeSuspended == shouldSuspend)
+            {
+                return;
+            }
+
+            if (shouldSuspend)
+            {
+                miniStageRuntimeSuspended = true;
+                miniStageSuspendStartTime = Time.time;
+
+                if (rb != null)
+                {
+                    cachedRigidbodySimulated = rb.simulated;
+
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+                    rb.simulated = false;
+                }
+
+                return;
+            }
+
+            // MiniStage 종료 후 복귀.
+            float suspendedDuration = miniStageSuspendStartTime >= 0f
+                ? Mathf.Max(0f, Time.time - miniStageSuspendStartTime)
+                : 0f;
+
+            miniStageRuntimeSuspended = false;
+            miniStageSuspendStartTime = -1f;
+
+            // 소화효소 AI의 절대시간 기반 타이머도
+            // MiniStage 체류시간만큼 뒤로 밀어 정지했던 것처럼 처리합니다.
+            if (suspendedDuration > 0f)
+            {
+                nextRetargetTime += suspendedDuration;
+                lastAttackTime += suspendedDuration;
+            }
+
+            if (rb != null)
+            {
+                rb.simulated = cachedRigidbodySimulated;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+        }
         private void ResetRuntimeState()
         {
             currentHealth = maxHealth;
@@ -540,7 +607,9 @@ namespace Vampire
             string targetName = currentTarget.name;
 
             ApplyNeutralDamageToMonster(currentTarget, attackDamage, knockback);
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.DigestiveEnzymeAttack
+);
             lastAttackTime = Time.time;
 
             if (debugLog)
@@ -591,6 +660,7 @@ namespace Vampire
             {
                 monsterCurrentHealthField.SetValue(monster, 0f);
                 monster.StartCoroutine(monster.Killed(false));
+                DigestiveEnzymeDifficultyManager.NotifyDigestiveEnzymeKilledMonster(this, monster);
             }
             else
             {

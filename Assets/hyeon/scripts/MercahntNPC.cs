@@ -27,6 +27,11 @@ namespace Vampire
 
         void OnCollisionEnter2D(Collision2D col)
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             if (!isShopOpen && playerCharacter != null && col.collider.gameObject == playerCharacter.gameObject)
             {
                 OpenShopUI();
@@ -35,8 +40,13 @@ namespace Vampire
 
         private void OpenShopUI()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return;
+            }
+
             isShopOpen = true;
-            Debug.Log("¼ö»óÇÑ »óÀÎ°ú ºÎµúÇû½À´Ï´Ù! »óÁ¡ UI¸¦ ¿±´Ï´Ù.");
+            Debug.Log("ìˆ˜ìƒí•œ ìƒì¸ê³¼ ë¶€ë”ªí˜”ìŠµë‹ˆë‹¤! ìƒì  UIë¥¼ ì—½ë‹ˆë‹¤.");
 
             Time.timeScale = 0;
             MerchantUIManager.Instance.OpenShop(this);

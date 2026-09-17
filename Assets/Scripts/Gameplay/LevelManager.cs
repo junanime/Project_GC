@@ -215,6 +215,7 @@ namespace Vampire
                     levelBlueprint.monsters.Length,
                     levelBlueprint.miniBosses[0].bossBlueprint
                 );
+                GameAudioManager.PlayBossAppearOnly();
             }
 
             if (!finalBossSpawned && levelTime > levelBlueprint.levelTime)
@@ -228,6 +229,8 @@ namespace Vampire
 
                 if (finalBoss != null)
                 {
+
+                    GameAudioManager.StartBossAudio();
                     finalBoss.OnKilled.AddListener(LevelPassed);
                 }
             }
@@ -394,6 +397,9 @@ namespace Vampire
             levelEnded = true;
 
             SaveCoinsGained();
+
+            GameAudioManager.EndRunAudio(false);
+
             Time.timeScale = 0f;
 
             if (levelResultPanel != null)
@@ -418,6 +424,10 @@ namespace Vampire
             levelEnded = true;
 
             SaveCoinsGained();
+            GameAudioManager.EndRunAudio(true);
+            // Boss BGM 종료.
+            // Ingame BGM은 재개하지 않음.
+            // 승리 보상 효과음 재생.
             Time.timeScale = 0f;
 
             if (levelResultPanel != null)

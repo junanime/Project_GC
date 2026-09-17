@@ -24,6 +24,11 @@ namespace Vampire
         {
             get
             {
+                if (MiniStageRuntimeState.IsInsideMiniStage)
+                {
+                    return false;
+                }
+
                 return CoinDropAttemptMultiplier > 1f ||
                        CoinValueMultiplier > 1f ||
                        AdditionalCoinDropChance > 0f ||
@@ -69,6 +74,11 @@ namespace Vampire
 
         public static bool ShouldForceGoldRushCoinDrop(bool isEliteMonster)
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return false;
+            }
+
             if (!ForceGoldRushCoinDrop)
             {
                 return false;
@@ -89,6 +99,11 @@ namespace Vampire
 
         public static int GetCoinDropAttemptCount()
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return 1;
+            }
+
             float multiplier = Mathf.Max(1f, CoinDropAttemptMultiplier);
             int guaranteedAttempts = Mathf.FloorToInt(multiplier);
             float fractionalChance = multiplier - guaranteedAttempts;
@@ -120,6 +135,11 @@ namespace Vampire
 
         public static int ApplyCoinValueMultiplier(int baseValue)
         {
+            if (MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                return Mathf.Max(1, baseValue);
+            }
+
             float multiplier = Mathf.Max(1f, CoinValueMultiplier);
 
             return Mathf.Max(1, Mathf.RoundToInt(baseValue * multiplier));

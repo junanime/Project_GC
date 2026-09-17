@@ -27,6 +27,11 @@ namespace Vampire
         private bool unlocked;
         private bool playerInside;
 
+        [Header("Portal Visual")]
+        [SerializeField] private SpriteRenderer portalRenderer;
+        [SerializeField] private Sprite lockedSprite;
+        [SerializeField] private Sprite unlockedSprite;
+
         public bool IsUnlocked => unlocked;
 
         private void Awake()
@@ -69,6 +74,9 @@ namespace Vampire
         public void SetUnlocked(bool value)
         {
             unlocked = value;
+            if (portalRenderer == null) portalRenderer = GetComponentInChildren<SpriteRenderer>(true);
+            Sprite sprite = unlocked ? unlockedSprite : lockedSprite;
+            if (portalRenderer != null && sprite != null) portalRenderer.sprite = sprite;
 
             if (debugLog)
             {

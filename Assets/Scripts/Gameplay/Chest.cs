@@ -55,6 +55,10 @@ namespace Vampire
             if (!opened)
             {
                 opened = true;
+                // 상자가 실제로 처음 열리는 순간 1회 재생합니다.
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.ChestOpen
+                );
                 OnAnyChestOpened?.Invoke(this);
                 StartCoroutine(Open(openedByPlayer));
             }

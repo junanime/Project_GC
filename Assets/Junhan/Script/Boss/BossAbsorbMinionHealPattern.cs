@@ -86,18 +86,6 @@ namespace Vampire
         {
             patternName = "Absorb Minion Heal";
             cooldown = 45f;
-
-            nearWeightPhase1 = 0;
-            midWeightPhase1 = 2;
-            farWeightPhase1 = 4;
-
-            nearWeightPhase2 = 2;
-            midWeightPhase2 = 5;
-            farWeightPhase2 = 8;
-
-            nearWeightPhase3 = 3;
-            midWeightPhase3 = 7;
-            farWeightPhase3 = 10;
         }
 
         public override void Init(BossController controller)
@@ -412,6 +400,12 @@ namespace Vampire
                     renderer.sortingOrder = minionSortingOrder;
                 }
             }
+        }
+
+        public override void CancelExecution()
+        {
+            CleanupOnDisableOrDestroy();
+            base.CancelExecution();
         }
 
         private void OnDisable()

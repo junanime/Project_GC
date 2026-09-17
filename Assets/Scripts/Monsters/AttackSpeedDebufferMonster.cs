@@ -166,7 +166,10 @@ namespace Vampire
 
         protected override void FixedUpdate()
         {
-            if (!alive || rb == null || debufferBlueprint == null)
+            if (!alive ||
+        IsFieldRuntimeSuspended ||
+        rb == null ||
+        debufferBlueprint == null)
             {
                 return;
             }
@@ -295,7 +298,9 @@ namespace Vampire
             projectile.SetSourceMonster(debufferBlueprint);
 
             projectile.Launch(direction.normalized);
-
+            GameAudioManager.PlaySfx(
+    GameAudioManager.GameSfxId.AttackSpeedDebuffCast
+);
             DebugDebuffer(
                 $"디버프 탄환 발사 | Spawn={spawnPosition} | Target={targetPosition} | Speed={debufferBlueprint.projectileSpeed}");
         }
@@ -393,6 +398,34 @@ namespace Vampire
             }
 
             Debug.Log($"[공속감소디버퍼] {message}", this);
+        }
+        protected override void OnFieldRuntimeSuspended()
+        {
+            StopAttackLoop();
+
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+
+            DebugDebuffer("MiniStage 진입 - 필드 런타임 정지");
+        }
+
+        protected override void OnFieldRuntimeResumed()
+        {
+            if (!alive || debufferBlueprint == null)
+            {
+                return;
+            }
+
+            // 이미 실행 중이면 중복 생성하지 않는다.
+            if (attackCoroutine == null)
+            {
+                attackCoroutine = StartCoroutine(AttackLoop());
+            }
+
+            DebugDebuffer("MiniStage 종료 - 필드 런타임 재개");
         }
     }
 }

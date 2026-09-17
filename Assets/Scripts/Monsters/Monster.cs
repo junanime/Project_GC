@@ -34,9 +34,27 @@ namespace Vampire
         //상현추가
         protected float currentAcceleration;
         protected float runtimeMoveSpeed;
+        // ============================================================
+        // Mini Stage Runtime Ownership / Suspend
+        // ============================================================
+
+        // true면 미니 스테이지 방에서 생성된 몬스터.
+        // false면 기존 메인 필드 몬스터.
+        private bool miniStageOwned = false;
+
+        // 현재 메인 필드 런타임 정지 상태인지 여부.
+        private bool fieldRuntimeSuspended = false;
+
+        // 미니 스테이지 진입 전에 Rigidbody2D.simulated가 어떤 값이었는지 보존한다.
+        // 특수 몬스터가 원래 simulated=false 상태였을 가능성도 고려한다.
+        private bool cachedRigidbodySimulated = true;
+        private bool hasCachedRigidbodySimulated = false;
+
 
         private Vector3 originalLocalScale = Vector3.one;
 
+        public bool IsMiniStageOwned => miniStageOwned;
+        public bool IsFieldRuntimeSuspended => fieldRuntimeSuspended;
         public Transform CenterTransform { get => centerTransform; }
 
         // 다른 코드에서 OnKilled.AddListener(OnEliteKilled(Monster)) 식으로 쓰고 있으므로 Monster 인자를 넘긴다.
@@ -149,7 +167,108 @@ namespace Vampire
                 zPositioner.Init(playerCharacter.transform);
             }
         }
+        /// <summary>
+        /// EntityManager가 Pool에서 몬스터를 꺼낸 직후 Setup()보다 먼저 호출합니다.
+        ///
+        /// allowDuringMiniStage=true로 생성된 몬스터는
+        /// 미니 스테이지 전용 몬스터로 취급합니다.
+        ///
+        /// Pool에서 이전 사용 상태가 남아 있더라도
+        /// Rigidbody / Suspend 상태를 안전하게 초기화합니다.
+        /// </summary>
+        public void PrepareForSpawnRuntime(bool isMiniStageOwned)
+        {
+            miniStageOwned = isMiniStageOwned;
 
+            fieldRuntimeSuspended = false;
+            hasCachedRigidbodySimulated = false;
+
+            if (rb == null)
+            {
+                rb = GetComponent<Rigidbody2D>();
+            }
+
+            if (rb != null)
+            {
+                rb.simulated = true;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+        }
+
+        /// <summary>
+        /// 메인 필드 몬스터만 일시 정지/재개합니다.
+        ///
+        /// 미니 스테이지 소유 몬스터는 이 호출을 무시하므로
+        /// MiniStageSniper / ExplodingRush 같은 방 몬스터는 정상 동작합니다.
+        /// </summary>
+        public void SetFieldRuntimeSuspended(bool suspended)
+        {
+            // 미니 스테이지에서 생성한 몬스터는
+            // 필드 정지 대상이 아니다.
+            if (miniStageOwned)
+            {
+                return;
+            }
+
+            if (fieldRuntimeSuspended == suspended)
+            {
+                return;
+            }
+
+            fieldRuntimeSuspended = suspended;
+
+            if (suspended)
+            {
+                if (rb != null)
+                {
+                    cachedRigidbodySimulated = rb.simulated;
+                    hasCachedRigidbodySimulated = true;
+
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+
+                    // Physics2D Solver 자체에서 제외한다.
+                    // 따라서 다른 몬스터에게 밀리거나 이동하는 것도 막힌다.
+                    rb.simulated = false;
+                }
+
+                OnFieldRuntimeSuspended();
+                return;
+            }
+
+            // Resume
+            if (rb != null)
+            {
+                if (hasCachedRigidbodySimulated)
+                {
+                    rb.simulated = cachedRigidbodySimulated;
+                }
+
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+            }
+
+            hasCachedRigidbodySimulated = false;
+
+            OnFieldRuntimeResumed();
+        }
+
+        /// <summary>
+        /// 특수 몬스터가 MiniStage 진입 시
+        /// 자체 Coroutine / Warning / UI 등을 정리하고 싶을 때 Override.
+        /// </summary>
+        protected virtual void OnFieldRuntimeSuspended()
+        {
+        }
+
+        /// <summary>
+        /// 특수 몬스터가 MiniStage 종료 후
+        /// 자체 행동을 다시 시작하고 싶을 때 Override.
+        /// </summary>
+        protected virtual void OnFieldRuntimeResumed()
+        {
+        }
         public virtual void Setup(
             int monsterIndex,
             Vector2 position,
@@ -306,6 +425,12 @@ namespace Vampire
             }
 
             StopAllCoroutines();
+            if (eliteBlueprint != null)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.EliteSpawn
+                );
+            }
 
             if (eliteBlueprint != null && eliteBlueprint.debugLog)
             {
@@ -318,6 +443,11 @@ namespace Vampire
 
         protected virtual void Update()
         {
+            if (fieldRuntimeSuspended)
+            {
+                return;
+            }
+
             if (playerCharacter == null || monsterSpriteRenderer == null || rb == null)
             {
                 return;
@@ -333,7 +463,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (rb == null)
+            if (fieldRuntimeSuspended || rb == null)
             {
                 return;
             }
@@ -346,7 +476,8 @@ namespace Vampire
     Vector2 knockback = default(Vector2),
     bool isCritical = false)
         {
-            if (!alive)
+            if (!alive || fieldRuntimeSuspended)
+
             {
                 return;
             }
@@ -362,6 +493,23 @@ namespace Vampire
             }
 
             currentHealth -= damage;
+
+            if (damage > 0f)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.MonsterHit
+                );
+            }
+
+            // 치명타 판정이면서 실제 피해가 0보다 클 때만
+            // 치명타 효과음을 1회 재생합니다.
+            if (isCritical && damage > 0f)
+            {
+                GameAudioManager.PlaySfx(
+                    GameAudioManager.GameSfxId.CriticalHit
+                );
+            }
+
 
             if (hitAnimationCoroutine != null)
             {
@@ -463,7 +611,11 @@ namespace Vampire
 
             if (entityManager != null)
             {
-                entityManager.DespawnMonster(monsterIndex, this, true);
+                entityManager.DespawnMonster(
+                    monsterIndex,
+                    this,
+                    killedByPlayer
+                );
             }
         }
 

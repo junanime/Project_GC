@@ -696,7 +696,7 @@ namespace Vampire
 
         private CursorControlledNeedleController cursorControlledNeedleController;
 
-
+    
         public GameObject ProjectilePrefab => projectilePrefab;
         public LayerMask MonsterLayer => monsterLayer;
 
@@ -809,14 +809,17 @@ namespace Vampire
 
         protected override void Attack()
         {
+           
             StartCoroutine(LaunchSyringes());
         }
 
         protected IEnumerator LaunchSyringes()
         {
-            int totalProjectileCount = GetEffectiveProjectileCount();
+            int totalProjectileCount =
+                GetEffectiveProjectileCount();
 
-            Vector2 baseDirection = playerCharacter.LookDirection;
+            Vector2 baseDirection =
+                playerCharacter.LookDirection;
 
             if (baseDirection == Vector2.zero)
             {
@@ -825,18 +828,45 @@ namespace Vampire
 
             if (bipolarNeedleEnabled)
             {
-                yield return LaunchBipolarSyringes(baseDirection, totalProjectileCount);
+                yield return LaunchBipolarSyringes(
+                    baseDirection,
+                    totalProjectileCount
+                );
+
                 yield break;
             }
 
-            timeSinceLastAttack -= totalProjectileCount * syringeDelay;
+            timeSinceLastAttack -=
+                totalProjectileCount * syringeDelay;
 
-            for (int i = 0; i < totalProjectileCount; i++)
+            for (int i = 0;
+                 i < totalProjectileCount;
+                 i++)
             {
-                Vector2 spreadDirection = GetSpreadDirection(baseDirection, i, totalProjectileCount);
-                LaunchSyringeProjectile(spreadDirection);
+                Vector2 spreadDirection =
+                    GetSpreadDirection(
+                        baseDirection,
+                        i,
+                        totalProjectileCount
+                    );
 
-                yield return new WaitForSeconds(syringeDelay);
+                bool launched =
+                    LaunchSyringeProjectile(
+                        spreadDirection
+                    );
+
+                // 실제 침 발사에 성공한 경우,
+                // 발사체 1개당 발사 효과음을 1회 재생합니다.
+                if (launched)
+                {
+                    GameAudioManager.PlaySfx(
+                        GameAudioManager.GameSfxId.NeedleAttack
+                    );
+                }
+
+                yield return new WaitForSeconds(
+                    syringeDelay
+                );
             }
         }
         private IEnumerator LaunchBipolarSyringes(Vector2 baseDirection, int totalProjectileCount)
@@ -906,7 +936,7 @@ namespace Vampire
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
-        private void LaunchSyringeProjectile(Vector2 direction)
+        private bool LaunchSyringeProjectile(Vector2 direction)
         {
             Vector2 spawnPosition = GetProjectileSpawnPosition(direction);
 
@@ -921,53 +951,44 @@ namespace Vampire
 
             if (projectile == null)
             {
-                return;
+                return false;
             }
+
+            // 기존 설정 코드 전부 그대로 유지
+            // 절대 삭제하지 않음
 
             if (playerCharacter != null)
             {
-                projectile.transform.localScale = Vector3.one * GetPlayerProjectileSizeMultiplier();
+                projectile.transform.localScale =
+                    Vector3.one * GetPlayerProjectileSizeMultiplier();
 
-                // Shuriken.prefab의 Max Distance를 곱해서 쓰지 않고,
-                // SyringeDartAbility의 baseSyringeMaxDistance를 기준으로 명확하게 세팅한다.
-                projectile.maxDistance = GetEffectiveSyringeMaxDistance();
+                projectile.maxDistance =
+                    GetEffectiveSyringeMaxDistance();
             }
 
             if (projectile is SyringeProjectile syringeProjectile)
             {
-                syringeProjectile.ConfigureSpecials(BuildSpecialRuntime());
+                syringeProjectile.ConfigureSpecials(
+                    BuildSpecialRuntime()
+                );
             }
             else
             {
                 Debug.LogWarning(
-                    $"[SyringeDartAbility] Spawned projectile is '{projectile.GetType().Name}', not 'SyringeProjectile'. " +
+                    $"[SyringeDartAbility] Spawned projectile is " +
+                    $"'{projectile.GetType().Name}', not 'SyringeProjectile'. " +
                     "Projectile Prefab 연결을 다시 확인하세요."
                 );
             }
 
-            // 기본침 피해는 기존 전체 피해량에는 포함하지만
-            // AugmentDamageTracker의 증강별 피해 경쟁에서는 제외합니다.
-            projectile.OnHitDamageable.AddListener(ReportBaseNeedleDamage);
+            projectile.OnHitDamageable.AddListener(
+                playerCharacter.OnDealDamage.Invoke
+            );
+
             projectile.Launch(direction);
-        }
 
-        // =========================================================
-        // Base Needle Damage Report
-        // =========================================================
-
-        private void ReportBaseNeedleDamage(float dealtDamage)
-        {
-            if (dealtDamage <= 0f)
-            {
-                return;
-            }
-
-            // 기본침 피해는 기존 전체 피해량 시스템에만 전달합니다.
-            // 증강별 피해 추적에는 기록하지 않습니다.
-            if (playerCharacter != null)
-            {
-                playerCharacter.OnDealDamage.Invoke(dealtDamage);
-            }
+            // 여기까지 왔을 때만 실제 발사 성공.
+            return true;
         }
 
         private void HandleCursorControlModeUpdate()
@@ -1311,9 +1332,10 @@ namespace Vampire
                     this);
             }
 
-            projectile.OnHitDamageable.AddListener(
-                dealtDamage => ReportDamage("침샷건", dealtDamage)
-            );
+            if (playerCharacter != null)
+            {
+                projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
+            }
 
             projectile.Launch(direction);
         }
@@ -1536,9 +1558,7 @@ namespace Vampire
                 syringeProjectile.ConfigureSpecials(runtime);
             }
 
-            projectile.OnHitDamageable.AddListener(
-                dealtDamage => ReportDamage("대물침", dealtDamage)
-            );
+            projectile.OnHitDamageable.AddListener(playerCharacter.OnDealDamage.Invoke);
             projectile.Launch(aimDirection);
 
             if (debugHeavySnipe)
@@ -2598,7 +2618,7 @@ namespace Vampire
         public bool HasPressureNeedleAugment() => pressureNeedleEnabled;
 
         public bool HasMarkNeedleAugment() => markNeedleEnabled;
-
+       
         public void EnablePierceAugment()
         {
             pierceEnabled = true;
