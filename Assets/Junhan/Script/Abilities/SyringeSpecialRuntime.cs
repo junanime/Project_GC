@@ -6,6 +6,9 @@ namespace Vampire
     [Serializable]
     public struct SyringeSpecialRuntime
     {
+        public Ver4CombatSnapshot ver4;
+        public float ver4HitDamage;
+        public float ver4Knockback;
         // Poison
         public bool poisonEnabled;
         public float poisonDuration;

@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e71c07c0609981f40a1ebf57b879e222, type: 3}
+  m_Name: Ver4AugmentBalance
+  m_EditorClassIdentifier: 
+  odds:
+    common: 3437
+    rare: 2749
+    epic: 1718
+    original: 1400
+    legendary: 516
+    supreme: 180
+  newSpecialChance: 0.25
+  miniBossLegendaryChestChance: 1
+  antacidCompletionLegendaryChest: 1
+  legendaryChoiceCount: 3
+  legendaryReroll: 0
+  legendaryChest: {fileID: 11400000, guid: 91ec1ec700f307b459c26abe6e1d4a2d, type: 2}
+  plannedIcons:
+  - {fileID: 21300000, guid: d6a093bdf6d765a4f9eca0a6817d861e, type: 3}
+  - {fileID: 21300000, guid: 9f85e5914ba22ea45886842d37900a48, type: 3}
+  - {fileID: 21300000, guid: 7c304763b1cd4cb48864ad0a4d2d8f16, type: 3}
+  - {fileID: 21300000, guid: 41615dba54934a449bd10440c27360b1, type: 3}
+  - {fileID: 21300000, guid: d459513534e127c46941189a5a160570, type: 3}
+  numeric:
+  - damage: 0.08
+    criticalChance: 0.05
+    criticalDamage: 0.1
+    attackSpeed: 0.05
+    projectileSpeed: 0.05
+    knockback: 0.06
+    range: 0.04
+    size: 0.05
+    projectiles: 1
+  - damage: 0.12
+    criticalChance: 0.1
+    criticalDamage: 0.18
+    attackSpeed: 0.08
+    projectileSpeed: 0.08
+    knockback: 0.1
+    range: 0.07
+    size: 0.08
+    projectiles: 1
+  - damage: 0.16
+    criticalChance: 0.15
+    criticalDamage: 0.25
+    attackSpeed: 0.12
+    projectileSpeed: 0.12
+    knockback: 0.15
+    range: 0.1
+    size: 0.12
+    projectiles: 2
+  - damage: 0.24
+    criticalChance: 0.2
+    criticalDamage: 0.4
+    attackSpeed: 0.18
+    projectileSpeed: 0.18
+    knockback: 0.23
+    range: 0.15
+    size: 0.18
+    projectiles: 3
+  - damage: 0.36
+    criticalChance: 0.25
+    criticalDamage: 0.6
+    attackSpeed: 0.27
+    projectileSpeed: 0.27
+    knockback: 0.35
+    range: 0.23
+    size: 0.27
+    projectiles: 4

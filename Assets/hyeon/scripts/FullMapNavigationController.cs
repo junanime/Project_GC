@@ -12,19 +12,19 @@ namespace Vampire
 
         [Header("References")]
 
-        [Tooltip("¸¶¿ì½º ÀÔ·ÂÀ» ¹ŞÀ» Áöµµ ¿µ¿ª")]
+        [Tooltip("ë§ˆìš°ìŠ¤ ì…ë ¥ì„ ë°›ì„ ì§€ë„ ì˜ì—­")]
         [SerializeField]
         private RectTransform mapArea;
 
-        [Tooltip("½ÇÁ¦ ÀüÃ¼ Áöµµ RawImage")]
+        [Tooltip("ì‹¤ì œ ì „ì²´ ì§€ë„ RawImage")]
         [SerializeField]
         private RawImage fullMapImage;
 
-        [Tooltip("ÀüÃ¼ Áöµµ ÇÃ·¹ÀÌ¾î/¸¶Ä¿ À§Ä¡¸¦ °»½ÅÇÒ Áöµµ ½Ã½ºÅÛ")]
+        [Tooltip("ì „ì²´ ì§€ë„ í”Œë ˆì´ì–´/ë§ˆì»¤ ìœ„ì¹˜ë¥¼ ê°±ì‹ í•  ì§€ë„ ì‹œìŠ¤í…œ")]
         [SerializeField]
         private ExplorationMapSystem mapSystem;
 
-        [Tooltip("ÀüÃ¼ ÁöµµÀÇ È®´ë/Ãà¼Ò »óÅÂ¸¦ °ü¸®ÇÏ´Â ÄÁÆ®·Ñ·¯")]
+        [Tooltip("ì „ì²´ ì§€ë„ì˜ í™•ëŒ€/ì¶•ì†Œ ìƒíƒœë¥¼ ê´€ë¦¬í•˜ëŠ” ì»¨íŠ¸ë¡¤ëŸ¬")]
         [SerializeField]
         private TabMapResizeController resizeController;
 
@@ -35,7 +35,7 @@ namespace Vampire
 
         [Header("Pan")]
 
-        [Tooltip("Alt + ÁÂÅ¬¸¯ ÀÌµ¿ ¼Óµµ")]
+        [Tooltip("Alt + ì¢Œí´ë¦­ ì´ë™ ì†ë„")]
         [SerializeField]
         private float panSpeed = 1f;
 
@@ -46,15 +46,15 @@ namespace Vampire
 
         [Header("Zoom")]
 
-        [Tooltip("ÃÖ¼Ò È®´ë ¹èÀ²")]
+        [Tooltip("ìµœì†Œ í™•ëŒ€ ë°°ìœ¨")]
         [SerializeField]
         private float minZoom = 1f;
 
-        [Tooltip("ÃÖ´ë È®´ë ¹èÀ²")]
+        [Tooltip("ìµœëŒ€ í™•ëŒ€ ë°°ìœ¨")]
         [SerializeField]
         private float maxZoom = 4f;
 
-        [Tooltip("ÈÙ ÇÑ ¹ø´ç È®´ë/Ãà¼Ò ºñÀ²")]
+        [Tooltip("íœ  í•œ ë²ˆë‹¹ í™•ëŒ€/ì¶•ì†Œ ë¹„ìœ¨")]
         [SerializeField]
         private float zoomStep = 0.15f;
 
@@ -66,9 +66,9 @@ namespace Vampire
         [Header("Expanded Start View")]
 
         [Tooltip(
-            "+ ¹öÆ°À¸·Î ÀüÃ¼ Áöµµ¸¦ È®´ëÇßÀ» ¶§ Ã³À½ º¸¿©ÁÙ UV ¹üÀ§ÀÔ´Ï´Ù. " +
-            "1ÀÌ¸é Áöµµ ÀüÃ¼, 0.7ÀÌ¸é ÀüÃ¼ ÁöµµÀÇ 70%¸¦ º¸¿©Áà¼­ " +
-            "ÈÙÀ» µ¹¸®Áö ¾Ê¾Æµµ ¹Ù·Î µå·¡±×ÇÒ ¼ö ÀÖ½À´Ï´Ù."
+            "+ ë²„íŠ¼ìœ¼ë¡œ ì „ì²´ ì§€ë„ë¥¼ í™•ëŒ€í–ˆì„ ë•Œ ì²˜ìŒ ë³´ì—¬ì¤„ UV ë²”ìœ„ì…ë‹ˆë‹¤. " +
+            "1ì´ë©´ ì§€ë„ ì „ì²´, 0.7ì´ë©´ ì „ì²´ ì§€ë„ì˜ 70%ë¥¼ ë³´ì—¬ì¤˜ì„œ " +
+            "íœ ì„ ëŒë¦¬ì§€ ì•Šì•„ë„ ë°”ë¡œ ë“œë˜ê·¸í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤."
         )]
         [Range(0.25f, 1f)]
         [SerializeField]
@@ -81,7 +81,7 @@ namespace Vampire
 
         [Header("Options")]
 
-        [Tooltip("ÀüÃ¼ Áöµµ¸¦ Ãà¼ÒÇÒ ¶§ UV À§Ä¡¿Í È®´ë ¹èÀ²À» ÃÊ±âÈ­")]
+        [Tooltip("ì „ì²´ ì§€ë„ë¥¼ ì¶•ì†Œí•  ë•Œ UV ìœ„ì¹˜ì™€ í™•ëŒ€ ë°°ìœ¨ì„ ì´ˆê¸°í™”")]
         [SerializeField]
         private bool resetWhenShrunk = true;
 
@@ -111,6 +111,8 @@ namespace Vampire
         private Canvas parentCanvas;
 
         private Camera uiCamera;
+        private int touchPanId = -1;
+        private float touchPinchDistance;
 
 
         // ========================================
@@ -147,7 +149,7 @@ namespace Vampire
             }
 
 
-            // °ÔÀÓ ½ÃÀÛ ½Ã¿¡´Â ÀüÃ¼ Áöµµ »óÅÂ·Î ÃÊ±âÈ­
+            // ê²Œì„ ì‹œì‘ ì‹œì—ëŠ” ì „ì²´ ì§€ë„ ìƒíƒœë¡œ ì´ˆê¸°í™”
             ResetView();
 
 
@@ -178,7 +180,7 @@ namespace Vampire
         private void Update()
         {
             // ========================================
-            // Reference °Ë»ç
+            // Reference ê²€ì‚¬
             // ========================================
 
             if (mapArea == null ||
@@ -189,6 +191,11 @@ namespace Vampire
             }
 
 
+            if (MobileGameplayInput.Active && Touchscreen.current != null)
+            {
+                HandleMobileTouches();
+                return;
+            }
             if (Mouse.current == null ||
                 Keyboard.current == null)
             {
@@ -200,7 +207,7 @@ namespace Vampire
 
 
             // ========================================
-            // È®´ë »óÅÂ
+            // í™•ëŒ€ ìƒíƒœ
             // ========================================
 
             bool expanded =
@@ -208,7 +215,7 @@ namespace Vampire
 
 
             // ========================================
-            // È®´ë ¡æ Ãà¼Ò
+            // í™•ëŒ€ â†’ ì¶•ì†Œ
             // ========================================
 
             if (previousExpandedState &&
@@ -233,19 +240,19 @@ namespace Vampire
 
 
             // ========================================
-            // Ãà¼Ò ¡æ È®´ë
+            // ì¶•ì†Œ â†’ í™•ëŒ€
             // ========================================
 
             if (!previousExpandedState &&
                 expanded)
             {
-                // ¡Ú ÇÙ½É
+                // â˜… í•µì‹¬
                 //
-                // + ¹öÆ°À¸·Î ÀüÃ¼ Áöµµ¸¦ È®´ëÇÏ¸é
-                // Ã³À½ºÎÅÍ Áöµµ ÀÏºÎ¸¸ º¸¿©ÁØ´Ù.
+                // + ë²„íŠ¼ìœ¼ë¡œ ì „ì²´ ì§€ë„ë¥¼ í™•ëŒ€í•˜ë©´
+                // ì²˜ìŒë¶€í„° ì§€ë„ ì¼ë¶€ë§Œ ë³´ì—¬ì¤€ë‹¤.
                 //
-                // µû¶ó¼­ ÈÙ È®´ë¸¦ ¸ÕÀú ÇÏÁö ¾Ê¾Æµµ
-                // Alt + ÁÂÅ¬¸¯À¸·Î ¹Ù·Î Pan °¡´É.
+                // ë”°ë¼ì„œ íœ  í™•ëŒ€ë¥¼ ë¨¼ì € í•˜ì§€ ì•Šì•„ë„
+                // Alt + ì¢Œí´ë¦­ìœ¼ë¡œ ë°”ë¡œ Pan ê°€ëŠ¥.
                 ApplyExpandedStartView();
 
 
@@ -265,7 +272,7 @@ namespace Vampire
 
 
             // ========================================
-            // È®´ë »óÅÂ°¡ ¾Æ´Ï¸é Á¶ÀÛ ±İÁö
+            // í™•ëŒ€ ìƒíƒœê°€ ì•„ë‹ˆë©´ ì¡°ì‘ ê¸ˆì§€
             // ========================================
 
             if (!expanded)
@@ -283,8 +290,8 @@ namespace Vampire
                 Mouse.current.position.ReadValue();
 
 
-            // ÀÌÀü Å×½ºÆ®¿¡¼­ MapPanel ±âÁØ ÆÇÁ¤ÀÌ
-            // Á¤»ó ÀÛµ¿ÇßÀ¸¹Ç·Î À¯Áö
+            // ì´ì „ í…ŒìŠ¤íŠ¸ì—ì„œ MapPanel ê¸°ì¤€ íŒì •ì´
+            // ì •ìƒ ì‘ë™í–ˆìœ¼ë¯€ë¡œ ìœ ì§€
             RectTransform interactionArea =
                 resizeController.MapPanel;
 
@@ -341,7 +348,7 @@ namespace Vampire
 
 
             // ========================================
-            // Alt + Left Click ½ÃÀÛ
+            // Alt + Left Click ì‹œì‘
             // ========================================
 
             if (Mouse.current.leftButton
@@ -365,7 +372,7 @@ namespace Vampire
 
 
             // ========================================
-            // Alt + Left Click µå·¡±×
+            // Alt + Left Click ë“œë˜ê·¸
             // ========================================
 
             if (isDragging)
@@ -409,6 +416,41 @@ namespace Vampire
         // Pan
         // ========================================
 
+        private void HandleMobileTouches()
+        {
+            RefreshCanvasReference();
+            bool expanded=resizeController.IsExpanded;
+            if(expanded && !previousExpandedState) ApplyExpandedStartView();
+            if(!expanded && previousExpandedState && resetWhenShrunk) ResetView();
+            previousExpandedState=expanded;
+            if(!expanded) { touchPanId=-1; touchPinchDistance=0; return; }
+            var area=resizeController.MapPanel!=null ? resizeController.MapPanel : mapArea;
+            UnityEngine.InputSystem.Controls.TouchControl first=null,second=null;
+            foreach(var touch in Touchscreen.current.touches)
+            {
+                if(!touch.press.isPressed || !IsMouseInside(area,touch.position.ReadValue())) continue;
+                if(first==null) first=touch; else {second=touch;break;}
+            }
+            if(first==null) {touchPanId=-1;touchPinchDistance=0;return;}
+            if(second!=null)
+            {
+                float distance=Vector2.Distance(first.position.ReadValue(),second.position.ReadValue());
+                if(touchPinchDistance>0 && Mathf.Abs(distance-touchPinchDistance)>12)
+                {
+                    ZoomAtMouse((first.position.ReadValue()+second.position.ReadValue())*.5f,distance-touchPinchDistance);
+                    touchPinchDistance=distance;
+                }
+                else if(touchPinchDistance<=0) touchPinchDistance=distance;
+                touchPanId=-1;
+            }
+            else
+            {
+                touchPinchDistance=0;
+                if(touchPanId==first.touchId.ReadValue()) PanMap(first.delta.ReadValue());
+                touchPanId=first.touchId.ReadValue();
+            }
+        }
+
         private void PanMap(
             Vector2 screenDelta)
         {
@@ -438,10 +480,10 @@ namespace Vampire
 
 
             // ========================================
-            // ¸¶¿ì½º¸¦ ¿À¸¥ÂÊÀ¸·Î ²ø¸é
-            // Áöµµ ³»¿ëµµ ¿À¸¥ÂÊÀ¸·Î µû¶ó¿À´Â ´À³¦.
+            // ë§ˆìš°ìŠ¤ë¥¼ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ëŒë©´
+            // ì§€ë„ ë‚´ìš©ë„ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë”°ë¼ì˜¤ëŠ” ëŠë‚Œ.
             //
-            // µû¶ó¼­ UV ¿µ¿ªÀº ¹İ´ë ¹æÇâÀ¸·Î ÀÌµ¿.
+            // ë”°ë¼ì„œ UV ì˜ì—­ì€ ë°˜ëŒ€ ë°©í–¥ìœ¼ë¡œ ì´ë™.
             // ========================================
 
             float uvDeltaX =
@@ -475,8 +517,8 @@ namespace Vampire
                 uv;
 
 
-            // ÇÃ·¹ÀÌ¾î / ¸¶Ä¿ À§Ä¡µµ
-            // ÇöÀç UV¿¡ ¸ÂÃç Áï½Ã °»½Å
+            // í”Œë ˆì´ì–´ / ë§ˆì»¤ ìœ„ì¹˜ë„
+            // í˜„ì¬ UVì— ë§ì¶° ì¦‰ì‹œ ê°±ì‹ 
             RefreshMarkers();
         }
 
@@ -513,7 +555,7 @@ namespace Vampire
 
 
             // ========================================
-            // ÇöÀç ¸¶¿ì½º À§Ä¡¸¦ 0~1 ÁÂÇ¥·Î º¯È¯
+            // í˜„ì¬ ë§ˆìš°ìŠ¤ ìœ„ì¹˜ë¥¼ 0~1 ì¢Œí‘œë¡œ ë³€í™˜
             // ========================================
 
             Vector2 mouseNormalized =
@@ -541,7 +583,7 @@ namespace Vampire
 
 
             // ========================================
-            // Zoom ¹èÀ² º¯°æ
+            // Zoom ë°°ìœ¨ ë³€ê²½
             // ========================================
 
             if (scroll > 0f)
@@ -573,11 +615,11 @@ namespace Vampire
 
 
             // ========================================
-            // Zoom ¹èÀ² ¡æ UV Å©±â
+            // Zoom ë°°ìœ¨ â†’ UV í¬ê¸°
             //
-            // 1¹è = 1.0
-            // 2¹è = 0.5
-            // 4¹è = 0.25
+            // 1ë°° = 1.0
+            // 2ë°° = 0.5
+            // 4ë°° = 0.25
             // ========================================
 
             float newUvSize =
@@ -586,8 +628,8 @@ namespace Vampire
 
 
             // ========================================
-            // È®´ëÇÏ±â Àü¿¡
-            // ¸¶¿ì½º Ä¿¼­ ¾Æ·¡ ÀÖ´ø ½ÇÁ¦ Texture ÁÂÇ¥
+            // í™•ëŒ€í•˜ê¸° ì „ì—
+            // ë§ˆìš°ìŠ¤ ì»¤ì„œ ì•„ë˜ ìˆë˜ ì‹¤ì œ Texture ì¢Œí‘œ
             // ========================================
 
             Vector2 mapPointUnderMouse =
@@ -612,8 +654,8 @@ namespace Vampire
 
 
             // ========================================
-            // È®´ë ÈÄ¿¡µµ °°Àº Áöµµ ÁÂÇ¥°¡
-            // Ä¿¼­ ¾Æ·¡¿¡ ÀÖµµ·Ï º¸Á¤
+            // í™•ëŒ€ í›„ì—ë„ ê°™ì€ ì§€ë„ ì¢Œí‘œê°€
+            // ì»¤ì„œ ì•„ë˜ì— ìˆë„ë¡ ë³´ì •
             // ========================================
 
             newUv.x =
@@ -664,11 +706,11 @@ namespace Vampire
 
 
             // ========================================
-            // ¿¹:
+            // ì˜ˆ:
             //
             // expandedStartUvSize = 0.70
             //
-            // Texture ÀüÃ¼ÀÇ 70% ¿µ¿ªÀ» º¸¿©ÁØ´Ù.
+            // Texture ì „ì²´ì˜ 70% ì˜ì—­ì„ ë³´ì—¬ì¤€ë‹¤.
             // ========================================
 
             float requestedUvSize =
@@ -680,9 +722,9 @@ namespace Vampire
 
 
             // ========================================
-            // UV Å©±â ¡æ Zoom ¹èÀ²
+            // UV í¬ê¸° â†’ Zoom ë°°ìœ¨
             //
-            // 0.70 ¡æ ¾à 1.428¹è
+            // 0.70 â†’ ì•½ 1.428ë°°
             // ========================================
 
             float requestedZoom =
@@ -698,8 +740,8 @@ namespace Vampire
                 );
 
 
-            // ½ÇÁ¦ ClampµÈ Zoom ±âÁØÀ¸·Î
-            // UV Å©±â¸¦ ´Ù½Ã °è»ê
+            // ì‹¤ì œ Clampëœ Zoom ê¸°ì¤€ìœ¼ë¡œ
+            // UV í¬ê¸°ë¥¼ ë‹¤ì‹œ ê³„ì‚°
             float actualUvSize =
                 1f /
                 Mathf.Max(
@@ -709,9 +751,9 @@ namespace Vampire
 
 
             // ========================================
-            // Áöµµ Áß¾Ó¿¡¼­ ½ÃÀÛ
+            // ì§€ë„ ì¤‘ì•™ì—ì„œ ì‹œì‘
             //
-            // UV 0.70ÀÌ¸é:
+            // UV 0.70ì´ë©´:
             //
             // X = 0.15
             // Y = 0.15
@@ -751,7 +793,7 @@ namespace Vampire
             Rect uv)
         {
             // ========================================
-            // UV Å©±â Á¦ÇÑ
+            // UV í¬ê¸° ì œí•œ
             // ========================================
 
             uv.width =
@@ -767,7 +809,7 @@ namespace Vampire
 
 
             // ========================================
-            // Texture ¹Ù±ùÀ¸·Î ³ª°¡Áö ¸øÇÏµµ·Ï Á¦ÇÑ
+            // Texture ë°”ê¹¥ìœ¼ë¡œ ë‚˜ê°€ì§€ ëª»í•˜ë„ë¡ ì œí•œ
             // ========================================
 
             uv.x =
@@ -823,7 +865,7 @@ namespace Vampire
 
 
         // ========================================
-        // Marker Áï½Ã °»½Å
+        // Marker ì¦‰ì‹œ ê°±ì‹ 
         // ========================================
 
         private void RefreshMarkers()
@@ -937,7 +979,7 @@ namespace Vampire
 #if UNITY_EDITOR
 
         // ========================================
-        // Inspector °ª º¸È£
+        // Inspector ê°’ ë³´í˜¸
         // ========================================
 
         private void OnValidate()

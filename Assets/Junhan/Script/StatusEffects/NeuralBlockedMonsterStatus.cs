@@ -16,6 +16,19 @@ namespace Vampire
         private float[] originalAnimatorSpeeds;
 
         private float endTime = -1f;
+        private float iceEndTime = -1f;
+        public bool IceFrozen => Time.time < iceEndTime;
+        public void ApplyIce(float duration)
+        {
+            if (!initialized) CacheReferences();
+            iceEndTime=Mathf.Max(iceEndTime,Time.time+Mathf.Max(.05f,duration));
+            DisableMonsterMovementComponent(); SetAnimatorSpeed(0f); StopMovement();
+        }
+        public void ReleaseIce()
+        {
+            iceEndTime=-1f;
+            if (Time.time>=endTime) { RestoreMonsterMovementComponent(); RestoreAnimatorSpeed(); }
+        }
         private bool initialized = false;
 
         private bool capturedMonsterEnabled = false;
@@ -59,7 +72,8 @@ namespace Vampire
 
         private void Update()
         {
-            if (Time.time >= endTime || !SyringeAugmentVfx.IsLiving(this))
+            if (Time.time >= endTime) SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            if (Time.time >= Mathf.Max(endTime,iceEndTime) || !SyringeAugmentVfx.IsLiving(this))
             {
                 SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
                 RestoreMonsterMovementComponent();
@@ -74,7 +88,7 @@ namespace Vampire
 
         private void FixedUpdate()
         {
-            if (Time.time < endTime)
+            if (Time.time < Mathf.Max(endTime,iceEndTime))
             {
                 StopMovement();
             }
@@ -162,6 +176,7 @@ namespace Vampire
             RestoreMonsterMovementComponent();
             RestoreAnimatorSpeed();
             endTime = -1f;
+            iceEndTime = -1f;
         }
 
         private void OnDestroy()

@@ -20,6 +20,7 @@ namespace Vampire
         private int requiredStacks = 3;
         private int maxStacks = 5;
         private int bonusGemCount = 1;
+        public float ExtraGemChance { get; set; }
         private GemType bonusGemType = GemType.White1;
         private float bonusGemSpawnRadius = 0.35f;
         private bool debugLog = false;
@@ -143,7 +144,8 @@ namespace Vampire
                 ? (Vector2)killedMonster.transform.position
                 : (Vector2)transform.position;
 
-            for (int i = 0; i < bonusGemCount; i++)
+            int finalGemCount = bonusGemCount + (Random.value < ExtraGemChance ? 1 : 0);
+            for (int i = 0; i < finalGemCount; i++)
             {
                 Vector2 offset = Random.insideUnitCircle * bonusGemSpawnRadius;
                 entityManager.SpawnExpGem(center + offset, bonusGemType, true);
@@ -173,6 +175,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            ExtraGemChance = 0;
             SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             stackExpireTimes.Clear();
             rewardGiven = false;

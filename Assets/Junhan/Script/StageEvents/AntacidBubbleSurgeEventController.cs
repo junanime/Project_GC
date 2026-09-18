@@ -198,6 +198,9 @@ namespace Vampire
         private void EndEvent(float currentTime)
         {
             finished = true;
+            var rewards=Object.FindObjectOfType<Ver4AugmentRuntime>();
+            if (rewards != null && rewards.Balance.antacidCompletionLegendaryChest && levelManager.PlayerCharacter != null)
+                rewards.SpawnLegendaryReward((Vector2)levelManager.PlayerCharacter.transform.position + Vector2.right);
             SetWarningEdgeAlpha(0f);
 
             for (int i = activeBubbles.Count - 1; i >= 0; i--)

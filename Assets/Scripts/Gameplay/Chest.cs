@@ -67,14 +67,27 @@ namespace Vampire
         // This is some truly atrocious code: tread with caution.
         private IEnumerator Open(bool openedByPlayer = true)
         {
+            // Two chests may overlap the player in one physics step. Queue this
+            // reward until the first modal has closed instead of losing a choice.
+            while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
             spriteRenderer.sprite = chestBlueprint.openingChest;
-            bool spawnLoot = !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
+            bool spawnLoot = chestBlueprint.legendaryAugmentChest
+                ? !entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
+                : !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
             if (spawnLoot)
                 SpawnLoot(chestBlueprint.lootTable.DropLootObject(), openedByPlayer);
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.sprite = chestBlueprint.openChest;
             if (!spawnLoot)
-                entityManager.AbilitySelectionDialog.Open(false);
+            {
+                while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
+                bool stillAvailable=chestBlueprint.legendaryAugmentChest
+                    ? entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
+                    : entityManager.AbilitySelectionDialog.HasAvailableAbilities();
+                if (!stillAvailable) SpawnLoot(chestBlueprint.lootTable.DropLootObject(),openedByPlayer);
+                else if (chestBlueprint.legendaryAugmentChest) entityManager.AbilitySelectionDialog.OpenLegendary();
+                else entityManager.AbilitySelectionDialog.Open(false);
+            }
             yield return new WaitForSeconds(0.15f);
             float t = 0;
             while (t < 1.0f)

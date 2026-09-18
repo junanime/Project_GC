@@ -421,6 +421,7 @@ namespace Vampire.Tests.Editor
         private static bool ReadSpecialState(SyringeDartAbility syringe,
             SyringeSpecialAugmentAbility.SpecialAugmentType type)
         {
+            if ((int)type >= 16) return syringe.HasVer4Special(type);
             switch (type)
             {
                 case SyringeSpecialAugmentAbility.SpecialAugmentType.Poison: return syringe.HasPoisonAugment();

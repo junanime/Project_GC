@@ -239,6 +239,7 @@ namespace Vampire
 
         public void RerollAbilities()
         {
+            if (abilityManager != null && abilityManager.LegendaryRewardContext && abilityManager.Ver4 != null && !abilityManager.Ver4.Balance.legendaryReroll) return;
             if (!enableReroll)
             {
                 return;
@@ -315,7 +316,7 @@ namespace Vampire
                 return;
             }
 
-            bool shouldShow = enableReroll && menuOpen;
+            bool shouldShow = enableReroll && menuOpen && !(abilityManager != null && abilityManager.LegendaryRewardContext && abilityManager.Ver4 != null && !abilityManager.Ver4.Balance.legendaryReroll);
             rerollButton.gameObject.SetActive(shouldShow);
 
             if (!shouldShow)
@@ -359,6 +360,7 @@ namespace Vampire
             RestoreMinimapLayer();
 
             menuOpen = false;
+            if (abilityManager != null) abilityManager.LegendaryRewardContext = false;
             Time.timeScale = 1;
 
             if (pauseMenu != null)
@@ -379,6 +381,23 @@ namespace Vampire
         public bool HasAvailableAbilities()
         {
             return abilityManager.HasAvailableAbilities();
+        }
+
+        public bool HasAvailableLegendaryAbilities()
+        {
+            if (abilityManager == null || abilityManager.Ver4 == null) return false;
+            bool oldContext=abilityManager.LegendaryRewardContext;
+            abilityManager.LegendaryRewardContext=true;
+            bool result=abilityManager.HasAvailableAbilities();
+            abilityManager.LegendaryRewardContext=oldContext;
+            return result;
+        }
+
+        public void OpenLegendary()
+        {
+            if (menuOpen || abilityManager == null) return;
+            abilityManager.LegendaryRewardContext=true;
+            Open(false);
         }
 
         private void ApplyMinimapBehindModal()

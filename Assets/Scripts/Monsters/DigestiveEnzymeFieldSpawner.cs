@@ -95,7 +95,7 @@ namespace Vampire
         {
             CleanupAliveList();
 
-            if (enableForceSpawnKey && Input.GetKeyDown(forceSpawnKey))
+            if (enableForceSpawnKey && Vampire.GameInput.GetKeyDown(forceSpawnKey))
             {
                 if (!CanSpawnNow())
                 {

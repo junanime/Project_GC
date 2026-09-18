@@ -18,21 +18,21 @@ public class MiscTesting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.RightArrow))
+        // if (Vampire.GameInput.GetKeyDown(KeyCode.RightArrow))
         //     healthBar.AddPoints(1);
-        // if (Input.GetKeyDown(KeyCode.LeftArrow))
+        // if (Vampire.GameInput.GetKeyDown(KeyCode.LeftArrow))
         //     healthBar.SubtractPoints(1);
         // if (Input.GetKey(KeyCode.UpArrow))
         //     expBar.AddPoints(1);
         // if (Input.GetKey(KeyCode.DownArrow))
         //     expBar.SubtractPoints(1);
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Vampire.GameInput.GetKeyDown(KeyCode.Space))
             entityManager.CollectAllCoinsAndGems();//entityManager.DamageAllVisibileEnemies(1);
-        if (Input.GetKeyDown(KeyCode.G))
+        if (Vampire.GameInput.GetKeyDown(KeyCode.G))
             entityManager.DamageAllVisibileEnemies(500);
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Vampire.GameInput.GetKeyDown(KeyCode.E))
             character.GainExp(1000);
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Vampire.GameInput.GetKeyDown(KeyCode.A))
             GetComponent<AudioSource>().Play();
     }
 }
