@@ -91,10 +91,21 @@ namespace Vampire
                         "특수 증강: "+ParentName(parent),parent.Description+"\n최초 획득 · 오리지널 Lv.0/9"));
                     continue;
                 }
-                if(ownedParents.Count==0) break;
+                if(ownedParents.Count==0)
+                {
+                    // There is no valid numeric/original source yet. Keep
+                    // trying the next slot while new parent candidates remain
+                    // instead of returning a partially populated panel.
+                    if(newParents.Count>0) continue;
+                    break;
+                }
                 // Random.value includes 1; TryRoll deliberately uses [0,1).
                 double sample=Math.Min(UnityEngine.Random.value,.999999999);
-                if(!Balance.odds.TryRoll(sample,g=>g!=AugmentUpgradeGrade.Original || originals.Count>0,out var grade)) break;
+                if(!Balance.odds.TryRoll(sample,g=>g!=AugmentUpgradeGrade.Original || originals.Count>0,out var grade))
+                {
+                    if(!TryAddNumericFallback(result,ownedParents)) break;
+                    continue;
+                }
                 if(grade==AugmentUpgradeGrade.Original)
                 {
                     var candidate=originals[UnityEngine.Random.Range(0,originals.Count)];
@@ -111,7 +122,11 @@ namespace Vampire
                     var parent=ownedParents[UnityEngine.Random.Range(0,ownedParents.Count)];
                     grade=Progress.ResolveNumericGrade(parent.Type.ToString(),grade);
                     var options=Enumerable.Range(0,9).Where(i=>NumericEligible(i)).ToList();
-                    if(options.Count==0) break;
+                    if(options.Count==0)
+                    {
+                        if(!TryAddNumericFallback(result,ownedParents)) break;
+                        continue;
+                    }
                     int option=options[UnityEngine.Random.Range(0,options.Count)];
                     float amount=Balance.NumericValue(grade,option);
                     if(option==1) amount=Mathf.Min(amount,Mathf.Max(0,1f-playerCharacter.CritChance));
@@ -120,7 +135,33 @@ namespace Vampire
                         (Progress.Level(parent.Type.ToString())==9 ? "\n지존 승급 완료" : "")));
                 }
             }
+
+            // A disabled grade, a temporarily exhausted option, or a malformed
+            // balance asset must not make the selection dialog silently lose a
+            // card. Fill any remaining slots from a valid shared numeric stat.
+            while(result.Count<requestedCount && TryAddNumericFallback(result,ownedParents)) { }
+
+            if(result.Count<requestedCount)
+                Debug.LogWarning($"[Ver4AugmentRuntime] 유효한 증강 후보가 부족해 {result.Count}/{requestedCount}개만 생성되었습니다.");
             return result;
+        }
+
+        private bool TryAddNumericFallback(List<Ability> result,List<SyringeSpecialAugmentAbility> ownedParents)
+        {
+            if(ownedParents==null || ownedParents.Count==0) return false;
+            var parent=ownedParents[UnityEngine.Random.Range(0,ownedParents.Count)];
+            var options=Enumerable.Range(0,9).Where(i=>NumericEligible(i)).ToList();
+            if(options.Count==0) return false;
+            int option=options[UnityEngine.Random.Range(0,options.Count)];
+            const AugmentUpgradeGrade fallbackGrade=AugmentUpgradeGrade.Common;
+            float amount=Balance.NumericValue(fallbackGrade,option);
+            if(option==1) amount=Mathf.Min(amount,Mathf.Max(0,1f-playerCharacter.CritChance));
+            result.Add(Offer(Ver4RewardKind.Numeric,fallbackGrade,parent,option,amount,
+                ParentName(parent)+" · 수치 강화",
+                "강화 등급: "+AugmentUpgradeOdds.DisplayName(fallbackGrade)+"\n"+
+                Ver4AugmentCatalog.NumericDescription(option,amount)+
+                (Progress.Level(parent.Type.ToString())==9 ? "\n지존 승급 완료" : "")));
+            return true;
         }
 
         private bool NumericEligible(int option) => option!=1 || playerCharacter.CritChance<1f;

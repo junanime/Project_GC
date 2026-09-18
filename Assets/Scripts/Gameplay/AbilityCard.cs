@@ -114,6 +114,14 @@ namespace Vampire
         private AbilitySelectionDialog levelUpMenu;
         private Ability ability;
         private bool initialized;
+        private Coroutine appearCoroutine;
+        private Vector3 baseLocalScale = Vector3.one;
+        private bool baseScaleCached;
+
+        private void Awake()
+        {
+            CacheBaseScale();
+        }
 
         private void OnEnable()
         {
@@ -123,6 +131,42 @@ namespace Vampire
         private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+
+            if (appearCoroutine != null)
+            {
+                StopCoroutine(appearCoroutine);
+                appearCoroutine = null;
+            }
+
+            CacheBaseScale();
+            transform.localScale = baseLocalScale;
+        }
+
+        private void CacheBaseScale()
+        {
+            if (baseScaleCached)
+            {
+                return;
+            }
+
+            baseLocalScale = transform.localScale;
+            baseScaleCached = true;
+        }
+
+        private void ResetAppearAnimation()
+        {
+            CacheBaseScale();
+
+            if (appearCoroutine != null)
+            {
+                StopCoroutine(appearCoroutine);
+                appearCoroutine = null;
+            }
+
+            // Cards are pooled by AbilitySelectionDialog. Always restore the
+            // prefab scale before reusing one, otherwise a reroll/scene return
+            // can leave one panel larger (or invisible) than its siblings.
+            transform.localScale = baseLocalScale;
         }
 
         private void HandleLocaleChanged(Locale _)
@@ -162,6 +206,7 @@ namespace Vampire
 
         public void Init(AbilitySelectionDialog levelUpMenu, Ability ability, float waitToAppear)
         {
+            ResetAppearAnimation();
             this.levelUpMenu = levelUpMenu;
             this.ability = ability;
 
@@ -178,7 +223,7 @@ namespace Vampire
             }
             ApplyAbilityIcon();
 
-            StartCoroutine(Appear(waitToAppear));
+            appearCoroutine = StartCoroutine(Appear(waitToAppear));
 
             initialized = true;
             SetText();
@@ -355,7 +400,8 @@ namespace Vampire
 
         public IEnumerator Appear(float waitToAppear)
         {
-            Vector3 initialScale = transform.localScale;
+            CacheBaseScale();
+            Vector3 initialScale = baseLocalScale;
             transform.localScale = Vector3.zero;
 
             yield return new WaitForSecondsRealtime(waitToAppear);
@@ -370,6 +416,7 @@ namespace Vampire
             }
 
             transform.localScale = initialScale;
+            appearCoroutine = null;
         }
 
         public void Selected()

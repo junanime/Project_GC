@@ -115,7 +115,37 @@ namespace Vampire
 
         void OnCollisionEnter2D(Collision2D col)
         {
-            if (col.collider.gameObject == playerCharacter.gameObject)
+            TryOpenForPlayer(col != null ? col.collider : null);
+        }
+
+        // The chest prefab uses a trigger BoxCollider2D for the interaction
+        // footprint (plus a tiny physical CircleCollider2D). The old code only
+        // listened for collisions, so mobile movement could pass through a
+        // reward chest and make it look like a tap/click was required.
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            TryOpenForPlayer(other);
+        }
+
+        private void OnCollisionStay2D(Collision2D collision)
+        {
+            TryOpenForPlayer(collision != null ? collision.collider : null);
+        }
+
+        private void OnTriggerStay2D(Collider2D other)
+        {
+            TryOpenForPlayer(other);
+        }
+
+        private void TryOpenForPlayer(Collider2D other)
+        {
+            if (opened || other == null || playerCharacter == null)
+            {
+                return;
+            }
+
+            Character colliderCharacter = other.GetComponentInParent<Character>();
+            if (colliderCharacter == playerCharacter || other.transform.root == playerCharacter.transform.root)
             {
                 OpenChest();
             }
