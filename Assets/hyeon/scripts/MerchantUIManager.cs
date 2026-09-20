@@ -366,7 +366,7 @@ namespace Vampire
         {
             if (audioSource != null && rerollSound != null)
             {
-                audioSource.PlayOneShot(rerollSound);
+                GameAudioManager.PlayUiClip(rerollSound);
             }
         }
 

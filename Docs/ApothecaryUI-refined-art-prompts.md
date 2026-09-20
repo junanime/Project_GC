@@ -1,0 +1,27 @@
+# Refined UI art prompts
+
+Generated with imagegen using the user's existing theme reference. PNG pixels are unchanged; Unity sprite import rectangles trim transparent padding and nine-slice borders preserve edges.
+
+## v2-book-prompt
+
+Use case: ui-mockup. Production Unity background asset, not a mockup. Reference image gives exact art direction: Korean apothecary cozy illustrated game, dimensional carved reddish wood, luminous cream hanji paper, coral sunset, pink blossoms, leaves and ceramic jars. Generate a LANDSCAPE 16:9 OPEN ANCIENT HERBAL BOOK ON A WOODEN DESK that fills the screen, straight-on UI view. Book usable page spans x6% to94%, y15% to88%. Two blank cream pages with visible gently curved layered paper edges and center binding at x49%; central areas bright clean for live UI. Narrow floral wooden border, tied crimson cords, carved cloud corner fittings, a mortar and herbs lower left and ceramic herb jars lower right. Pink organic stomach arches and apothecary rafters visible only narrow outer perimeter. Empty ornate horizontal title plaque at top center occupies x34%-66%, y2%-13%. Rich detailed polished handpainted game UI, match reference charm, lighting and tactile detail. NO buttons, NO slots, NO characters, NO currency, NO letters or writing anywhere. Full bleed no black margins. This is actual game art; keep ornament at edges so content doesn't collide.
+
+## v2-stage-prompt
+
+Use case: illustration-story. ONE transparent-background character display stage sprite for a Korean apothecary-themed 2D game matching reference style. Square composition: carved reddish wood arched window frame with small pink blossom and herb arrangements at top corners, cream warm pink glowing opening showing soft distant pink organic stomach arches, a short round wooden stump pedestal at bottom center, tiny ginseng and medicine jars at bottom edges. Empty middle where a separate animated chick will stand. Stage occupies full square with 5 percent transparent outside padding. Rich charming handpainted game illustration, strong dimensional wood rim, soft amber glow, pink and cream colors. NO character, NO words, NO buttons, NO glyphs on jars, no ground outside cutout. Transparent PNG. The interior scenic arch is opaque, outside silhouette transparent.
+
+## v2-panel-prompt
+
+Use case: ui-mockup. ONE production transparent PNG UI panel sprite, square 1024x1024. Match Korean apothecary fantasy game reference, polished softly painted 2D game art. A rectangular antique cream parchment card with small rounded edges, rolled wooden rods top and bottom, thin carved reddish brown frame, two tiny brass corner fittings, subtle pink flower and green leaf accent ONLY lower right corner. Blank luminous ivory center occupies at least 82 percent area, subtle paper fibers, light shadow inside frame. No text no symbols no icons no slots no characters. Symmetric clean straight middle segments suitable for Unity nine-slicing, corners small not huge. Transparent outside silhouette and full empty opaque paper interior. Panel fills canvas with 2 percent padding. Rich texture and depth without busy decoration.
+
+## v2-primary-prompt
+
+Use case: ui-mockup. One transparent PNG production game button sprite, landscape aspect 3:1. Match the supplied Korean cozy game UI: rich glossy coral-pink rounded rectangular button, thick dark red-brown contour, thin cream-gold rim, inset luminous pink face, bright glossy upper left reflection, dimensional beveled lower lip and gentle cast shadow. Small carved curl flourish on left and right ends, no additional decorations elsewhere. Straight horizontal center edges for nine-slicing. The entire face is blank. NO text, no symbols, no icons. Transparent outside. Button occupies 95 percent canvas width and 85 percent height, centered, premium finished handpainted mobile game art. Main action button style like 게임 시작 in reference. Strong saturation, substantial depth; not a flat rectangle.
+
+## v2-ribbon-prompt
+
+Use case: ui-mockup. One blank horizontal ornamental title ribbon sprite, transparent PNG, landscape aspect 3:1. For Korean illustrated apothecary game UI: deep crimson vermilion lacquer center label panel, subtle red silk texture, warmly highlighted cream and dark wood thin layered contour, scalloped carved cloud corners, two little round gold studs left/right. Elegant but legible center occupies 80 percent width and half canvas height, absolutely empty NO lettering NO icons. Ribbon fills width with minimal padding, no external objects. Rich handcrafted painterly game asset matching supplied reference red name and section headers. Transparent exterior.
+
+## v2-slot-prompt
+
+Use case: ui-mockup. ONE square inventory slot sprite for production game UI, transparent PNG, 1024 square. Match provided richly illustrated Korean herbal game. Rounded square carved warm reddish wood border, tiny brass corner accents, inner ivory trim, deeply inset parchment beige center with a warm soft radial highlight. Center empty at least 80 percent area, for a large relic or potion icon added in Unity. Fine paper texture, tactile beveled edges, clean silhouette suitable nine slicing. No text, no icons, no lock, no buttons within, no plants outside. Fill 96 percent canvas, transparent outside rounded corners. This should look like a beautiful little drawer compartment on a herbal cabinet, not a flat rectangle or metallic modern button.

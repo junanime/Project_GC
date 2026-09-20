@@ -11,7 +11,7 @@ using UnityEngine.UI;
 namespace Vampire
 {
     // Text, icons, animation and hit targets are live UI, never flattened into the artwork.
-    public sealed class ApothecaryUI : MonoBehaviour
+    public sealed partial class ApothecaryUI : MonoBehaviour
     {
         public static ApothecaryUI Instance { get; private set; }
         public string Page { get; private set; }
@@ -91,7 +91,7 @@ namespace Vampire
             root.sizeDelta = new Vector2(1280,720);
             SilverWallet.OnChanged += OnSilver;
             LobbyLoadoutData.OnChanged += OnLoadout;
-            AudioListener.volume = PlayerPrefs.GetFloat("Apothecary.Volume", 1);
+            AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
             Show(lobby ? "main" : "hud");
         }
         void OnDestroy()
@@ -110,6 +110,7 @@ namespace Vampire
         void Update()
         {
             if (safe == null) return;
+            UpdatePreferencesUI();
             Rect area = Screen.safeArea;
             safe.anchorMin = new Vector2(area.xMin / Screen.width,area.yMin / Screen.height);
             safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
@@ -131,12 +132,14 @@ namespace Vampire
         }
         public void Show(string page, int tab = 0)
         {
+            if(page=="settings" && Page!="settings")BeginSettings();
             Page = page; Tab = tab; selection = pageIndex = 0; message = "";
             Render();
         }
         public void Back()
         {
             if (starting || Page == "result") return;
+            if(Page=="settings"){CancelSettings();return;}
             if (Page == "run") { CloseRunBook(); return; }
             if (Page == "hud") { OpenRunBook(); return; }
             if (Page == "main") Show("exit"); else Show("main");
@@ -153,7 +156,7 @@ namespace Vampire
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
-            ImageAt(content,Page == "main" ? Config.mainBackground : Config.panelBackground,0,0,1,1,false);
+            ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { Main(); return; }
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "잠금 해제" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "스테이지 클리어!" : "탐험 실패") : Page == "exit" ? "게임 종료" : "설정";
             Label(content,title,.30f,.865f,.70f,.965f,34);
@@ -194,17 +197,18 @@ namespace Vampire
         void Prepare()
         {
             character = Config.characters[characterIndex];
-            Panel(content,.12f,.325f,.48f,.83f);
-            Label(content,character.name,.19f,.755f,.41f,.82f,30);
-            portrait = ImageAt(content,CharacterSprite(character),.225f,.53f,.375f,.75f);
+            ImageAt(content,Config.characterStage,.175f,.55f,.435f,.85f);
+            portrait = ImageAt(content,CharacterSprite(character),.235f,.605f,.375f,.805f);
+            Ribbon(character.name,.19f,.51f,.42f,.57f,26);
             ActionButton(content,"<",.13f,.60f,.195f,.70f,()=>ChangeCharacter(-1));
             ActionButton(content,">",.405f,.60f,.47f,.70f,()=>ChangeCharacter(1));
-            Panel(content,.135f,.345f,.30f,.515f); Panel(content,.31f,.345f,.465f,.515f);
-            Label(content,$"기본 능력치\n체력 {character.hp:0}  방어 {character.armor}\n이동 {character.movespeed:0.##}  행운 {character.luck:0.##}",.14f,.35f,.295f,.51f,18);
-            Label(content,"고유 스킬",.32f,.46f,.455f,.51f,19);
-            Label(content,"?",.355f,.395f,.415f,.46f,30);
-            Label(content,"추후 공개 · 1종",.315f,.35f,.46f,.397f,16);
-            Label(content,character.description,.13f,.275f,.48f,.32f,16);
+            Panel(content,.135f,.335f,.305f,.50f); Panel(content,.315f,.335f,.47f,.50f);
+            Label(content,$"기본 능력치\n체력 {character.hp:0}  방어 {character.armor}\n이동 {character.movespeed:0.##}  행운 {character.luck:0.##}",.15f,.35f,.29f,.48f,18);
+            Ribbon("고유 스킬",.33f,.45f,.455f,.492f,17);
+            ImageAt(content,Config.inventorySlot,.368f,.385f,.414f,.452f);
+            Label(content,"?",.374f,.395f,.409f,.444f,25);
+            Label(content,"추후 공개 · 1종",.329f,.35f,.457f,.385f,14);
+            Label(content,character.description,.13f,.30f,.48f,.332f,16);
             // Exactly one row: relic, item 1, item 2. No quantities or second row.
             RelicBlueprint equipped = Config.relics.FirstOrDefault(r=>RelicSaveData.IsEquipped(r.relicId));
             Slot(.13f,"유물",equipped != null ? equipped.icon : null,equipped != null ? equipped.relicName : "미장착",()=>SwitchTab(0));
@@ -216,16 +220,20 @@ namespace Vampire
             ActionButton(content,"유물",.52f,.75f,.69f,.825f,()=>SwitchTab(0),false,true,Tab==0);
             ActionButton(content,"아이템",.71f,.75f,.88f,.825f,()=>SwitchTab(1),false,true,Tab==1);
             if (Tab==0) RelicSelection(); else ItemSelection();
-            Label(content,message,.52f,.185f,.88f,.245f,17);
+            Label(content,message,.52f,.155f,.88f,.198f,16).color=new Color(1,.96f,.81f);
             ActionButton(content,"뒤로",.12f,.07f,.27f,.14f,()=>Show("main"));
             ActionButton(content,Owned(character)?"출전하기":"캐릭터 잠금 해제 필요",.53f,.07f,.88f,.15f,StartRun,true,Owned(character)&&!starting);
         }
         void Slot(float x,string kind,Sprite icon,string name,Action click)
         {
-            var b=ActionButton(content,"",x,.16f,x+.105f,.275f,click);
-            ImageAt(b.transform,icon,.30f,.27f,.70f,.85f);
-            Label(b.transform,kind,0,.78f,1,1,12);
-            Label(b.transform,name,0,0,1,.28f,12);
+            var b=ActionButton(content,"",x,.16f,x+.105f,.295f,click);
+            SlotArt(b);
+            var visual=b.transform.Find("Visual");
+            ImageAt(visual,icon,.10f,.23f,.90f,.86f);
+            var caption=ImageAt(visual,null,.06f,.03f,.94f,.23f,false);caption.color=new Color(1,.91f,.74f,.95f);
+            var heading=ImageAt(visual,null,.08f,.81f,.92f,.98f,false);heading.color=new Color(.48f,.13f,.10f,.95f);
+            Label(visual,kind,.06f,.81f,.94f,.98f,12).color=new Color(1,.97f,.85f);
+            Label(visual,name,.06f,.03f,.94f,.23f,12);
         }
         void SwitchTab(int tab) { Tab=tab; selection=pageIndex=0;message="";Render(); }
         void RelicSelection()
@@ -237,23 +245,27 @@ namespace Vampire
                 ActionButton(content,"잠금 해제",.56f,.26f,.85f,.34f,()=>Show("unlock",1)); return;
             }
             selection=Mathf.Clamp(selection,0,available.Length-1);
-            Grid(available.Length,i=>available[i].icon,i=>available[i].relicName,.52f,.45f,.88f,.72f);
+            Grid(available.Length,i=>available[i].icon,i=>available[i].relicName,.52f,.57f,.88f,.73f,1);
             var relic=available[selection];
-            Label(content,RelicDescription(relic),.53f,.34f,.87f,.43f,21);
+            Panel(content,.52f,.20f,.88f,.55f);
+            ImageAt(content,relic.icon,.54f,.33f,.69f,.53f);
+            Label(content,relic.relicName,.68f,.44f,.86f,.52f,25);
+            Label(content,RelicDescription(relic),.68f,.34f,.86f,.44f,21);
             bool equipped=RelicSaveData.IsEquipped(relic.relicId);
-            ActionButton(content,equipped?"장착 중":"유물 장착",.57f,.255f,.84f,.335f,()=>{RelicSaveData.Equip(relic.relicId);message="유물을 장착했습니다.";Render();},true,!equipped);
+            ActionButton(content,equipped?"장착 중":"유물 장착",.57f,.205f,.84f,.28f,()=>{RelicSaveData.Equip(relic.relicId);message="유물을 장착했습니다.";Render();},true,!equipped);
         }
         void ItemSelection()
         {
             var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
             if(items.Length==0) { Label(content,"구매 가능한 아이템이 없습니다.",.53f,.4f,.88f,.65f,22);return; }
             selection=Mathf.Clamp(selection,0,items.Length-1);
-            Grid(items.Length,i=>items[i].itemIcon,i=>items[i].itemName,.52f,.45f,.88f,.72f);
+            Panel(content,.52f,.20f,.88f,.355f);
+            Grid(items.Length,i=>items[i].itemIcon,i=>items[i].itemName,.52f,.43f,.88f,.73f);
             var item=items[selection];
             bool full=LobbyLoadoutData.SelectedCarryItems.Count>=2, bought=LobbyLoadoutData.IsEquipped(item), afford=SilverWallet.CanSpend(item.silverCost);
-            Label(content,item.description,.53f,.35f,.88f,.43f,18);
+            Label(content,item.description,.53f,.29f,.88f,.355f,18);
             string label=full?"구매 불가 · 2 / 2":bought?"구매 완료":!afford?"실버 부족":$"구매하기 · {item.silverCost} 실버";
-            ActionButton(content,label,.55f,.255f,.86f,.335f,()=>{LobbyLoadoutData.TryBuyAndEquip(item,item.silverCost,out message);Render();},true,!full&&!bought&&afford);
+            ActionButton(content,label,.55f,.205f,.86f,.28f,()=>{LobbyLoadoutData.TryBuyAndEquip(item,item.silverCost,out message);Render();},true,!full&&!bought&&afford);
         }
         public void StartRun()
         {
@@ -305,17 +317,21 @@ namespace Vampire
             Label(content,message,.34f,.12f,.87f,.20f,18);
             ActionButton(content,"메인으로",.12f,.07f,.30f,.15f,()=>Show("main"));
         }
-        void Grid(int count,Func<int,Sprite> icon,Func<int,string> name,float x,float y,float right,float top)
+        void Grid(int count,Func<int,Sprite> icon,Func<int,string> name,float x,float y,float right,float top,int rows=2)
         {
-            int pages=Mathf.Max(1,Mathf.CeilToInt(count/(float)ItemsPerPage));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
-            float w=(right-x)/3,h=(top-y)/2;
-            for(int j=0;j<ItemsPerPage;j++)
+            int capacity=3*rows;
+            int pages=Mathf.Max(1,Mathf.CeilToInt(count/(float)capacity));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
+            float w=(right-x)/3,h=(top-y)/rows;
+            for(int j=0;j<capacity;j++)
             {
-                int i=pageIndex*ItemsPerPage+j;if(i>=count)break;
+                int i=pageIndex*capacity+j;if(i>=count)break;
                 float left=x+(j%3)*w,bottom=top-(j/3+1)*h;
                 var button=ActionButton(content,"",left+.003f,bottom+.009f,left+w-.01f,bottom+h-.009f,()=>{selection=i;Render();},false,true,selection==i);
-                ImageAt(button.transform,icon(i),.23f,.28f,.77f,.91f);
-                Label(button.transform,name(i),.035f,.025f,.965f,.27f,16);
+                SlotArt(button);
+                var visual=button.transform.Find("Visual");
+                ImageAt(visual,icon(i),.07f,.25f,.93f,.93f);
+                var caption=ImageAt(visual,null,.07f,.03f,.93f,.23f,false);caption.color=new Color(1,.91f,.74f,.95f);
+                Label(visual,name(i),.07f,.03f,.93f,.23f,15);
             }
             if(pages>1)
             {
@@ -376,6 +392,7 @@ namespace Vampire
             }
             Label(content,$"이번 탐험 골드  {(stats!=null?stats.CoinsGained:0):N0}",.55f,.08f,.85f,.15f,21);
             ActionButton(content,"닫기 / TAB",.12f,.07f,.32f,.15f,CloseRunBook);
+            ActionButton(content,"설정",.35f,.07f,.49f,.15f,()=>Show("settings"));
         }
         public static bool TryShowResult(bool success)
         {
@@ -385,31 +402,20 @@ namespace Vampire
         void Result()
         {
             bool isAshi=character==Config.characters.FirstOrDefault();
+            ImageAt(content,Config.characterStage,.14f,.30f,.47f,.79f);
             portrait=ImageAt(content,!passed&&isAshi?Config.failureAshi:CharacterSprite(character),.17f,.35f,.46f,.75f);
             if(!passed&&!isAshi)portrait.rectTransform.localRotation=Quaternion.Euler(0,0,-75);
-            Label(content,character != null ? character.name : "",.19f,.29f,.44f,.37f,29);
+            Ribbon(character != null ? character.name : "",.19f,.29f,.44f,.36f,29);
             float time=level!=null?level.CurrentLevelTime:0;
             string values=$"생존 시간   {(int)time/60:00}:{(int)time%60:00}\n처치 몬스터   {(stats!=null?stats.MonstersKilled:0):N0}\n획득 골드   {(stats!=null?stats.CoinsGained:0):N0}\n도달 레벨   {(level!=null&&level.PlayerCharacter!=null?level.PlayerCharacter.CurrentLevel:1)}";
             Panel(content,.50f,.35f,.86f,.70f);Label(content,values,.53f,.38f,.83f,.68f,29);
-            Label(content,passed?"위장 구역을 지켜냈어요!":"다시 힘을 모아 도전해요.",.25f,.22f,.75f,.31f,25);
+            Label(content,passed?"위장 구역을 지켜냈어요!":"다시 힘을 모아 도전해요.",.52f,.23f,.85f,.31f,25);
             ActionButton(content,"출전 준비",.24f,.09f,.48f,.18f,()=>ReturnToLobby(true),true);
             ActionButton(content,"메인으로",.52f,.09f,.76f,.18f,()=>ReturnToLobby(false));
         }
         static bool prepareOnReturn;
         void ReturnToLobby(bool prepare) {prepareOnReturn=prepare;Time.timeScale=1;SceneManager.LoadScene(0);}
         void Start() {if(prepareOnReturn&&Page=="main"){prepareOnReturn=false;Show("prepare");}}
-        void Settings()
-        {
-            Label(content,"전체 음량",.21f,.62f,.79f,.71f,30);
-            var sr=Rect("Volume slider",content,.25f,.48f,.75f,.60f);var slider=sr.gameObject.AddComponent<Slider>();
-            var track=ImageAt(sr,null,0,.4f,1,.6f,false);track.color=new Color(.52f,.3f,.22f);
-            var handle=ImageAt(sr,Config.buttonBody,0,.1f,.07f,.9f,false);handle.color=new Color(1,.75f,.28f);
-            slider.handleRect=handle.rectTransform;slider.targetGraphic=handle;slider.direction=Slider.Direction.LeftToRight;
-            slider.value=AudioListener.volume;slider.onValueChanged.AddListener(v=>{AudioListener.volume=v;PlayerPrefs.SetFloat("Apothecary.Volume",v);});
-            bool reduce=PlayerPrefs.GetInt("Apothecary.ReducedMotion",0)!=0;
-            ActionButton(content,"움직임 줄이기  "+(reduce?"켜짐":"꺼짐"),.29f,.32f,.71f,.43f,()=>{PlayerPrefs.SetInt("Apothecary.ReducedMotion",reduce?0:1);PlayerPrefs.Save();Render();});
-            ActionButton(content,"메인으로",.34f,.12f,.66f,.23f,()=>{PlayerPrefs.Save();Show("main");});
-        }
         public static string RelicDescription(RelicBlueprint r)
         {
             switch(r.effectType)
@@ -431,8 +437,16 @@ namespace Vampire
         }
         void Panel(Transform parent,float x,float y,float r,float t)
         {
-            var p=ImageAt(parent,null,x,y,r,t,false);p.color=new Color(.86f,.61f,.38f,.18f);
-            var outline=p.gameObject.AddComponent<Outline>();outline.effectColor=new Color(.63f,.36f,.19f,.45f);outline.effectDistance=new Vector2(1,-1);
+            var p=ImageAt(parent,Config.scrollPanel,x,y,r,t,false);p.type=Image.Type.Sliced;p.pixelsPerUnitMultiplier=7;
+        }
+        void Ribbon(string text,float x,float y,float r,float t,float size)
+        {
+            var p=ImageAt(content,Config.sectionRibbon,x,y,r,t,false);p.type=Image.Type.Sliced;p.pixelsPerUnitMultiplier=10;
+            Label(content,text,x+.006f,y+.005f,r-.006f,t-.005f,size).color=new Color(1,.94f,.8f);
+        }
+        void SlotArt(Button button)
+        {
+            var body=button.transform.Find("Visual").GetComponent<Image>();body.sprite=Config.inventorySlot;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=16;
         }
         TextMeshProUGUI Label(Transform parent,string text,float x,float y,float r,float t,float size)
         {
@@ -441,17 +455,18 @@ namespace Vampire
             label.alignment=TextAlignmentOptions.Center;label.raycastTarget=false;label.enableAutoSizing=true;label.fontSizeMin=size*.8f;label.fontSizeMax=size;
             return label;
         }
-        Button ActionButton(Transform parent,string text,float x,float y,float r,float t,Action action,bool primary=false,bool enabled=true,bool chosen=false)
+        Button ActionButton(Transform parent,string text,float x,float y,float r,float t,Action action,bool primary=false,bool enabled=true,bool chosen=false,bool clickSound=true)
         {
             var hit=Rect("Button "+text,parent,x,y,r,t);var hitImage=hit.gameObject.AddComponent<Image>();hitImage.color=Color.clear;
             var button=hit.gameObject.AddComponent<Button>();button.targetGraphic=hitImage;button.transition=Selectable.Transition.None;button.interactable=enabled;
             var visual=Rect("Visual",hit,0,0,1,1);
-            var body=visual.gameObject.AddComponent<Image>();body.sprite=Config.buttonBody;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=12;body.raycastTarget=false;
+            var body=visual.gameObject.AddComponent<Image>();body.sprite=primary?Config.primaryButton:Config.buttonBody;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=12;body.raycastTarget=false;
             var surface=Rect("Orbiting edge light",visual,0,0,1,1).gameObject.AddComponent<TitleMenuSurface>();
             surface.button=button;surface.hideIcon=true;surface.decorationOnly=true;surface.raycastTarget=false;
             var label=Label(visual,text,.04f,.04f,.96f,.96f,24);label.fontStyle=FontStyles.Bold;
+            if(primary)label.color=new Color(1,.97f,.88f);
             var feedback=hit.gameObject.AddComponent<ApothecaryButtonFeedback>();feedback.button=button;feedback.visual=visual;feedback.body=body;feedback.sparkle=surface;feedback.primary=primary;feedback.chosen=chosen;
-            button.onClick.AddListener(()=>{if(button.IsInteractable())action?.Invoke();});
+            button.onClick.AddListener(()=>{if(button.IsInteractable()){if(clickSound)GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);action?.Invoke();}});
             return button;
         }
     }

@@ -23,9 +23,10 @@ namespace Vampire.Tests.Editor
         static ApothecaryButtonFeedback feedback;
         static int beforeBuy;
         [Serializable] class Save { public string key;public bool exists;public int value; }
-        [Serializable] class Backup {public Save[] values;public bool equippedExists;public string equipped;}
+        [Serializable] class Backup {public Save[] values;public bool equippedExists;public string equipped;public bool settingsExists;public string settings;}
         static string BackupPath=>Path.GetFullPath("Library/ApothecarySaveBackup.json");
         static ApothecaryUIPlaySmoke(){if(SessionState.GetBool(Key,false))Attach();}
+        public static void RefreshAndRun(){Vampire.EditorTools.ApothecaryUIInstaller.Install();Run();}
         public static void Run()
         {
             Directory.CreateDirectory(Output);
@@ -33,6 +34,7 @@ namespace Vampire.Tests.Editor
             Check(config!=null&&config.characters.Length>0&&config.items.Length>=2&&config.relics.Length>0,"Catalog valid");
             var keys=new[]{"LobbySilverCoins","Coins","Apothecary.ReducedMotion"}.Concat(config.relics.Select(r=>"RelicUnlocked_"+r.relicId)).Concat(config.characters.Select(c=>"LobbyUnlock.Character."+c.name)).ToArray();
             var backup=new Backup{values=keys.Select(k=>new Save{key=k,exists=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray(),equippedExists=PlayerPrefs.HasKey("EquippedRelicId"),equipped=PlayerPrefs.GetString("EquippedRelicId")};
+            backup.settingsExists=PlayerPrefs.HasKey(GamePreferences.SaveKey);backup.settings=PlayerPrefs.GetString(GamePreferences.SaveKey);
             File.WriteAllText(BackupPath,JsonUtility.ToJson(backup));
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
@@ -61,6 +63,7 @@ namespace Vampire.Tests.Editor
                 var b=JsonUtility.FromJson<Backup>(File.ReadAllText(BackupPath));
                 foreach(var s in b.values){if(s.exists)PlayerPrefs.SetInt(s.key,s.value);else PlayerPrefs.DeleteKey(s.key);}
                 if(b.equippedExists)PlayerPrefs.SetString("EquippedRelicId",b.equipped);else PlayerPrefs.DeleteKey("EquippedRelicId");
+                if(b.settingsExists)PlayerPrefs.SetString(GamePreferences.SaveKey,b.settings);else PlayerPrefs.DeleteKey(GamePreferences.SaveKey);
                 PlayerPrefs.Save();
             }
             SessionState.SetBool(Key,false);
@@ -85,6 +88,9 @@ namespace Vampire.Tests.Editor
                 switch(step++)
                 {
                     case 0:
+                        // Synthetic pointer events must not race the desktop mouse outside the hidden Game View.
+                        EventSystem.current.GetComponent<InputSystemUIInputModule>().enabled=false;
+                        var testPreferences=GamePreferences.Current.Copy();testPreferences.reducedMotion=false;testPreferences.pauseOnFocusLoss=false;testPreferences.muteOnFocusLoss=false;GamePreferences.Apply(testPreferences,false);
                         SilverWallet.Set(5000);LobbyLoadoutData.Clear();
                         RelicSaveData.Unlock(ui.Config.relics[0].relicId);RelicSaveData.Equip(ui.Config.relics[0].relicId);
                         Check(ui.Page=="main","Starts on main");break;
@@ -152,7 +158,35 @@ namespace Vampire.Tests.Editor
                     case 25: Capture("20-tablet");ValidateHitTargets();Click("출전하기");next+=2;break;
                     case 26:UnityEngine.Object.FindObjectOfType<LevelManager>().GameOver();Check(ui.Page=="result","Player death opens result");break;
                     case 27:Click("메인으로");break;
-                    case 28:Check(ui.Page=="main"&&!HasText("실버"),"Failure returns to main without balance");SessionState.SetBool(Key+"Done",true);break;
+                    case 28:Check(ui.Page=="main"&&!HasText("실버"),"Failure returns to main without balance");Click("설정");break;
+                    case 29:Capture("21-settings-graphics");ValidateHitTargets();Click("사운드");break;
+                    case 30:
+                        var sliders=ui.GetComponentsInChildren<Slider>();Check(sliders.Length==4,"Four independent sound categories");
+                        var sliderRect=(RectTransform)sliders[0].transform;
+                        var sliderTouch=new ExtendedPointerEventData(EventSystem.current){pointerType=UIPointerType.Touch,position=RectTransformUtility.WorldToScreenPoint(null,sliderRect.TransformPoint(new Vector3(sliderRect.rect.xMax-2,0,0))),button=PointerEventData.InputButton.Left};
+                        sliders[0].value=0;ExecuteEvents.Execute(sliders[0].gameObject,sliderTouch,ExecuteEvents.pointerDownHandler);
+                        Check(sliders[0].value>.95f,"Touch on sound slider changes value");ExecuteEvents.Execute(sliders[0].gameObject,sliderTouch,ExecuteEvents.pointerUpHandler);
+                        sliders[0].value=.7f;sliders[1].value=.23f;sliders[2].value=.42f;sliders[3].value=.61f;
+                        Check(Mathf.Abs(AudioListener.volume-.7f)<.001f,"Master audio preview");
+                        var audio=GameAudioManager.Instance;
+                        Check(Mathf.Abs(audio.MusicVolume-.23f)<.001f&&Mathf.Abs(audio.EffectsVolume-.42f)<.001f&&Mathf.Abs(audio.UIVolume-.61f)<.001f,"Audio sources independently follow categories");
+                        Click("적용");Check(Mathf.Abs(GamePreferences.Read().music-.23f)<.001f,"Applied sound is persisted");break;
+                    case 31:Capture("22-settings-sound");Click("편의 기능");break;
+                    case 32:Capture("23-settings-accessibility");Click("기본값");break;
+                    case 33:Click("뒤로");Check(Mathf.Abs(GamePreferences.Current.music-.23f)<.001f,"Cancel restores applied settings after default preview");break;
+                    case 34:Click("설정");break;
+                    case 35:Click(GamePreferences.Current.displayMode==0?"전체 화면":"창 모드");break;
+                    case 36:Click("적용");Check(HasText("되돌리기"),"Display changes require confirmation");break;
+                    case 37:Capture("24-settings-display-confirm");Click("되돌리기");Check(GamePreferences.Current.displayMode==GamePreferences.Read().displayMode,"Display revert restores saved mode");break;
+                    case 38:Click(GamePreferences.Current.displayMode==0?"전체 화면":"창 모드");break;
+                    case 39:Click("적용");ui.GetType().GetField("displayDeadline",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).SetValue(ui,Time.unscaledTime-1);break;
+                    case 40:Check(!HasText("되돌리기"),"Display confirmation times out safely");Click("뒤로");break;
+                    case 41:Click("게임 시작");break;
+                    case 42:Click("출전하기");next+=2;break;
+                    case 43:Check(Mathf.Abs(GamePreferences.Current.music-.23f)<.001f,"Settings survive scene transition");ui.OpenRunBook();break;
+                    case 44:Click("설정");break;
+                    case 45:Check(Time.timeScale==0,"In-run settings retain pause");Click("뒤로");Check(ui.Page=="run"&&Time.timeScale==0,"Settings return to paused book");break;
+                    case 46:ui.CloseRunBook();Check(Time.timeScale>0,"Gameplay resumes after settings");SessionState.SetBool(Key+"Done",true);break;
                 }
             }
             catch(Exception e){Debug.LogException(e);SessionState.SetBool(Key+"Failed",true);SessionState.SetBool(Key+"Done",true);}

@@ -59,11 +59,11 @@ namespace Vampire
             bool available = button.IsInteractable();
             if (!available) hovered = pressed = focused = false;
             bool active = IsHighlighted || pressed;
-            bool reduced = PlayerPrefs.GetInt("Apothecary.ReducedMotion", 0) != 0;
+            bool reduced = GamePreferences.Current.reducedMotion;
             float target = !available || reduced ? 1 : pressed ? .96f : active ? 1.035f : 1;
             visual.localScale = Vector3.Lerp(visual.localScale, Vector3.one * target, 1 - Mathf.Exp(-20 * Time.unscaledDeltaTime));
-            body.color = !available ? new Color(.61f,.55f,.48f) : pressed ? new Color(.8f,.34f,.28f) :
-                active ? new Color(1,.76f,.28f) : primary ? new Color(.96f,.31f,.43f) : new Color(.93f,.72f,.5f);
+            body.color = !available ? new Color(.65f,.62f,.59f) : pressed ? new Color(.83f,.70f,.68f) :
+                active ? new Color(1,.91f,.72f) : Color.white;
             sparkle.SetActiveStyle(available && active && !reduced);
         }
     }

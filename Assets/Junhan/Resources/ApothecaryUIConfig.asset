@@ -16,6 +16,12 @@ MonoBehaviour:
   panelBackground: {fileID: 21300000, guid: 0209a8bd5774da142a8d10477fc86d44, type: 3}
   failureAshi: {fileID: 21300000, guid: 194686c5ade9b5f43badce5ac18cfc54, type: 3}
   buttonBody: {fileID: -4000982346974253384, guid: 540a40d879ba44c43b36b3cb46a45f09, type: 3}
+  bookBackground: {fileID: 21300000, guid: b0b2367f4bf5d244cbbd107f1ded8224, type: 3}
+  characterStage: {fileID: 21300000, guid: 737a81a3fed97c74ca6f77d8a2f59247, type: 3}
+  scrollPanel: {fileID: 21300000, guid: 61fcfb3797dc0b54eb34863ef48a24d2, type: 3}
+  primaryButton: {fileID: 4840391630668541875, guid: 4e95d0a2ac79fec4095f8bfb7a5b1868, type: 3}
+  sectionRibbon: {fileID: 5836190753337752797, guid: fc4aa35e6ae5fa947b92a03c8a8d3356, type: 3}
+  inventorySlot: {fileID: 21300000, guid: 8a137303c58fe8b4ab93d69e91e86cf0, type: 3}
   font: {fileID: 11400000, guid: 7197d315232af3944b951aa9b64bd92b, type: 2}
   characters:
   - {fileID: 11400000, guid: 138b085873865480984b6ebcd8312fae, type: 2}
@@ -58,8 +64,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d103f8bca153c3146bcc69c4e90f3494, type: 2}
   augments:
   - title: "\uC77C\uBC18 \uC99D\uAC15"
-    description: "- \uAE4A\uC740 \uC790\uCE68: \uCE58\uBA85\uD0C0 \uD53C\uD574 +15%\n-
-      \uC7A5\uCE68 \uC81C\uC791: \uC0AC\uAC70\uB9AC +10%"
+    description: "\uC120\uD0DD \uC2DC \uC81C\uC2DC\uB41C \uB2A5\uB825\uCE58 \uD6A8\uACFC\uB97C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
     icon: {fileID: 21300000, guid: 1d4b999890d36554b990825e3d120a99, type: 3}
     tier: 0
   - title: "\uC870\uAC74\uBD80 \uC77C\uBC18\uC99D\uAC15"

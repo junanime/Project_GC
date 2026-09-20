@@ -16,7 +16,7 @@ namespace Vampire.EditorTools
         public static void Install()
         {
             AssetDatabase.Refresh();
-            foreach(string name in new[]{"MainBackground","PanelBackground","AshiFailure","Button"})
+            foreach(string name in new[]{"MainBackground","PanelBackground","AshiFailure","Button","BookBackground","CharacterStage","ScrollPanel","PrimaryButton","SectionRibbon","InventorySlot"})
             {
                 string path=Art+name+".png";
                 var importer=AssetImporter.GetAtPath(path) as TextureImporter;
@@ -30,6 +30,13 @@ namespace Vampire.EditorTools
                     importer.spriteImportMode=SpriteImportMode.Multiple;
                     importer.spritesheet=new[]{new SpriteMetaData{name="Button",rect=new Rect(0,105,2172,540),alignment=9,pivot=new Vector2(.5f,.5f),border=new Vector4(250,110,250,110)}};
                 }
+                if(name=="PrimaryButton" || name=="SectionRibbon")
+                {
+                    importer.spriteImportMode=SpriteImportMode.Multiple;
+                    importer.spritesheet=new[]{new SpriteMetaData{name=name,rect=name=="PrimaryButton"?new Rect(56,140,2061,472):new Rect(28,150,2117,442),alignment=9,pivot=new Vector2(.5f,.5f),border=new Vector4(330,80,330,80)}};
+                }
+                if(name=="ScrollPanel")importer.spriteBorder=new Vector4(170,210,170,210);
+                if(name=="InventorySlot")importer.spriteBorder=new Vector4(200,200,200,200);
                 importer.SaveAndReimport();
             }
             var config=AssetDatabase.LoadAssetAtPath<ApothecaryUIConfig>(ConfigPath);
@@ -39,6 +46,12 @@ namespace Vampire.EditorTools
             config.panelBackground=AssetDatabase.LoadAssetAtPath<Sprite>(Art+"PanelBackground.png");
             config.failureAshi=AssetDatabase.LoadAssetAtPath<Sprite>(Art+"AshiFailure.png");
             config.buttonBody=AssetDatabase.LoadAllAssetsAtPath(Art+"Button.png").OfType<Sprite>().First();
+            config.bookBackground=AssetDatabase.LoadAssetAtPath<Sprite>(Art+"BookBackground.png");
+            config.characterStage=AssetDatabase.LoadAssetAtPath<Sprite>(Art+"CharacterStage.png");
+            config.scrollPanel=AssetDatabase.LoadAssetAtPath<Sprite>(Art+"ScrollPanel.png");
+            config.inventorySlot=AssetDatabase.LoadAssetAtPath<Sprite>(Art+"InventorySlot.png");
+            config.primaryButton=AssetDatabase.LoadAllAssetsAtPath(Art+"PrimaryButton.png").OfType<Sprite>().First();
+            config.sectionRibbon=AssetDatabase.LoadAllAssetsAtPath(Art+"SectionRibbon.png").OfType<Sprite>().First();
             config.font=AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/Fonts/Cafe24Danjunghae-v2.asset");
             var previous=EditorSceneManager.GetSceneManagerSetup();
             try
@@ -73,7 +86,7 @@ namespace Vampire.EditorTools
                 int index=new SerializedObject(ability).FindProperty("augmentType").intValue;
                 if(index>=0&&index<names.Length)title=names[index];
             }
-            else if(title=="General")title="일반 증강";
+            else if(title=="General"){title="일반 증강";description="선택 시 제시된 능력치 효과를 획득합니다.";}
             if(string.IsNullOrWhiteSpace(description))description="플레이 중 증강 선택에서 획득합니다.";
             return new ApothecaryUIConfig.AugmentInfo{title=title,description=description,icon=ability.Image,tier=ability.Tier};
         }
