@@ -309,6 +309,7 @@ namespace Vampire
 
         public void Toggle()
         {
+            if (ApothecaryUI.Instance != null) { ApothecaryUI.Instance.OpenRunBook(); return; }
             SetOpen(
                 !isOpen
             );

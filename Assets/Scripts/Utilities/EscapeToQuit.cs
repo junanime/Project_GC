@@ -13,6 +13,7 @@ namespace Vampire
 
         void Update()
         {
+            if (ApothecaryUI.Instance != null) return;
             if (Vampire.GameInput.GetKeyDown(KeyCode.Escape))
             {
                 // Android's system Back is not an unconditional desktop quit.

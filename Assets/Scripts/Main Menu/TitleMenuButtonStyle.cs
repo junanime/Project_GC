@@ -107,6 +107,8 @@ namespace Vampire
         public Button button;
         public TextMeshProUGUI label;
         public int index;
+        public bool hideIcon;
+        public bool decorationOnly;
         public bool Selected { get; private set; }
         private static readonly string[] Icons = {
             "1100000/1111000/1111100/1111111/1111100/1111000/1100000",
@@ -117,7 +119,7 @@ namespace Vampire
         public void SetActiveStyle(bool value) {
             Selected = value;
             var image = button.targetGraphic as Image;
-            var sprite = value ? owner.activeBody : owner.normalBody;
+            var sprite = owner != null ? (value ? owner.activeBody : owner.normalBody) : null;
             if (image != null && sprite != null) { image.sprite = sprite; image.color = Color.white; image.type = Image.Type.Sliced; }
             Layout(); SetVerticesDirty();
         }
@@ -128,12 +130,12 @@ namespace Vampire
         }
         private void Update()
         {
-            if (owner == null) return;
             Layout();
             if (Selected) SetVerticesDirty();
         }
         private void Layout()
         {
+            if (owner == null) return;
             float width = (Selected ? 336f : 298f) / 1672f;
             float center = 1f - (645f + index * 65f) / 941f;
             var buttonRect = (RectTransform)button.transform;
@@ -186,7 +188,7 @@ namespace Vampire
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();float px=rectTransform.rect.height/58f;
-            if (owner == null || owner.activeBody == null || owner.normalBody == null) {
+            if (!decorationOnly && (owner == null || owner.activeBody == null || owner.normalBody == null)) {
             Fill(vh,Outline(0),new Color(.09f,.055f,.22f));
             Fill(vh,Outline(1.6f*px),Selected?new Color(1,.86f,.26f):new Color(.55f,.49f,.77f),Selected?new Color(.91f,.57f,.1f):new Color(.31f,.25f,.55f));
             Fill(vh,Outline(3.2f*px),new Color(.12f,.07f,.27f));
@@ -204,6 +206,7 @@ namespace Vampire
                 Line(vh,pos-Vector2.right*3*px,pos+Vector2.right*3*px,px,new Color(1,1,.9f,.85f));
                 Line(vh,pos-Vector2.up*3*px,pos+Vector2.up*3*px,px,new Color(1,1,.9f,.85f));
             }
+            if (hideIcon) return;
             var rows=Icons[Mathf.Clamp(index,0,3)].Split('/');float unit=px*3.3f;Vector2 origin=new Vector2(-rectTransform.rect.width*.24f-unit*3.5f,unit*3.5f);
             Color ink=Selected?Color.white:new Color(.74f,.67f,.93f);
             for(int y=0;y<7;y++)for(int x=0;x<7;x++)if(rows[y][x]=='1'){Vector2 a=origin+new Vector2(x*unit,-y*unit);Line(vh,a+new Vector2(0,-unit/2),a+new Vector2(unit,-unit/2),unit,ink);}
