@@ -15,6 +15,8 @@ namespace Vampire
 
         public void PlayPause()
         {
+            var skills = FindObjectOfType<CharacterSkillRuntime>();
+            if (skills != null && skills.IsCutin) return;
             if (paused = !paused)
             {
                 if (!timeIsFrozen)

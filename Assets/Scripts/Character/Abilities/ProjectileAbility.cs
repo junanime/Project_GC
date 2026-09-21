@@ -143,7 +143,7 @@ namespace Vampire
                 playerCharacter.AdditionalProjectiles;
 
             int total =
-                1 + extra;
+                playerCharacter.SkillProjectileCount(1 + extra);
 
 
             if (debugProjectileLog)
@@ -211,7 +211,7 @@ namespace Vampire
                         spawnPosition,
                         totalDamage,
                         knockback.Value,
-                        speed.Value,
+                        speed.Value * playerCharacter.ProjectileSpeedMultiplier,
                         monsterLayer
                     );
 

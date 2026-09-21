@@ -110,6 +110,7 @@ namespace Vampire
         void OnLoadout() { dirty = true; }
         void Update()
         {
+            UpdateSkillUI();
             if (safe == null) return;
             UpdatePreferencesUI();
             Rect area = Screen.safeArea;
@@ -139,7 +140,7 @@ namespace Vampire
         }
         public void Back()
         {
-            if (starting || Page == "result") return;
+            if (starting || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
             if(Page=="settings"){CancelSettings();return;}
             if (Page == "run") { CloseRunBook(); return; }
             if (Page == "hud") { OpenRunBook(); return; }
@@ -148,11 +149,13 @@ namespace Vampire
         void Render()
         {
             if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
+            ClearSkillUI();
             portrait = null; previewCharacter = character; silverLabel = null;
             content = Rect("Page " + Page, root,0,0,1,1);
             fullScreenBackdrop.gameObject.SetActive(Page!="hud");
             if (Page == "hud")
             {
+                BuildSkillHud();
                 ActionButton(content,"상태 / TAB", .81f,.87f,.97f,.97f, OpenRunBook);
                 return;
             }
@@ -178,6 +181,7 @@ namespace Vampire
         void Main()
         {
             portrait = IdlePreview(character,.41f,.395f,.59f,.665f);
+            ProfileSkills(character,.66f,.17f,.85f,.36f);
             string[] labels = {"게임 시작","잠금 해제","설정","종료"};
             string[] pages = {"prepare","unlock","settings","exit"};
             for (int i=0;i<4;i++) { int n=i; ActionButton(content,labels[i],.355f,.29f-i*.078f,.645f,.36f-i*.078f,()=>Show(pages[n]),i==0); }
@@ -214,10 +218,7 @@ namespace Vampire
             ActionButton(content,">",.405f,.60f,.47f,.70f,()=>ChangeCharacter(1));
             Panel(content,.135f,.335f,.305f,.50f); Panel(content,.315f,.335f,.47f,.50f);
             Label(content,$"기본 능력치\n체력 {character.hp:0}  방어 {character.armor}\n이동 {character.movespeed:0.##}  행운 {character.luck:0.##}",.15f,.35f,.29f,.48f,18);
-            Ribbon("고유 스킬",.33f,.45f,.455f,.492f,17);
-            ImageAt(content,Config.inventorySlot,.368f,.385f,.414f,.452f);
-            Label(content,"?",.374f,.395f,.409f,.444f,25);
-            Label(content,"외형 테스트 · 미적용",.329f,.35f,.457f,.385f,14);
+            ProfileSkills(character,.323f,.345f,.462f,.492f);
             Label(content,character.description,.13f,.30f,.48f,.332f,16);
             // Exactly one row: relic, item 1, item 2. No quantities or second row.
             RelicBlueprint equipped = Config.relics.FirstOrDefault(r=>RelicSaveData.IsEquipped(r.relicId));
@@ -324,7 +325,8 @@ namespace Vampire
             Label(content,title,.61f,.63f,.86f,.70f,27);
             if(Tab==0) portrait=IdlePreview(previewCharacter,.63f,.43f,.85f,.63f);
             else ImageAt(content,icon,.68f,.43f,.80f,.62f);
-            Label(content,description,.615f,.29f,.86f,.43f,18);
+            if(Tab==0) { ProfileSkills(previewCharacter,.63f,.305f,.85f,.445f); }
+            else Label(content,description,.615f,.29f,.86f,.43f,18);
             ActionButton(content,action,.615f,.22f,.86f,.29f,()=>unlock?.Invoke(),true,enabled);
             Label(content,message,.34f,.12f,.87f,.20f,18);
             ActionButton(content,"메인으로",.12f,.07f,.30f,.15f,()=>Show("main"));
@@ -369,8 +371,9 @@ namespace Vampire
             var player=level != null ? level.PlayerCharacter : null;
             if(Tab==0 && player!=null)
             {
-                portrait=ImageAt(content,CharacterSprite(character),.15f,.45f,.32f,.69f);
+                portrait=ImageAt(content,CharacterSprite(character),.18f,.59f,.30f,.73f);
                 Label(content,$"{player.DisplayName}  Lv.{player.CurrentLevel}\nHP {player.CurrentHealth:0} / {player.MaxHealth:0}\n공격 x{player.DamageMultiplier:0.00}\n방어 {player.CurrentArmor:0} · 이동 {player.CurrentMoveSpeed:0.##}\n치명타 {player.CritChance*100:0}%",.13f,.20f,.37f,.44f,23);
+                ProfileSkills(player.Blueprint,.14f,.455f,.36f,.60f);
                 Label(content,"탐험 지도",.45f,.65f,.85f,.72f,26);
                 var map=ExplorationMapSystem.Instance;
                 if(map!=null && map.FullMapTexture!=null)
@@ -418,6 +421,7 @@ namespace Vampire
             portrait=ImageAt(content,!passed&&isAshi?Config.failureAshi:CharacterSprite(character),.17f,.35f,.46f,.75f);
             if(!passed&&!isAshi)portrait.rectTransform.localRotation=Quaternion.Euler(0,0,-75);
             Ribbon(character != null ? character.name : "",.19f,.29f,.44f,.36f,29);
+            ProfileSkills(character,.22f,.19f,.43f,.29f);
             float time=level!=null?level.CurrentLevelTime:0;
             string values=$"생존 시간   {(int)time/60:00}:{(int)time%60:00}\n처치 몬스터   {(stats!=null?stats.MonstersKilled:0):N0}\n획득 골드   {(stats!=null?stats.CoinsGained:0):N0}\n도달 레벨   {(level!=null&&level.PlayerCharacter!=null?level.PlayerCharacter.CurrentLevel:1)}";
             Panel(content,.50f,.35f,.86f,.70f);Label(content,values,.53f,.38f,.83f,.68f,29);

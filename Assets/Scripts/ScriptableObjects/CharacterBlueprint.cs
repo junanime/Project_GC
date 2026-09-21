@@ -63,6 +63,9 @@ namespace Vampire
         public Sprite[] resultActionBSpriteSequence;
         public float resultActionFrameTime = 0.12f;
 
+        [Header("Character skills")]
+        public CharacterSkillDefinition skills;
+
         [Header("Abilities")]
         public GameObject[] startingAbilities;
 

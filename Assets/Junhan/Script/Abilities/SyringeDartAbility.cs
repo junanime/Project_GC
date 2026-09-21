@@ -1304,7 +1304,7 @@ namespace Vampire
                 totalCount += lifeBurnBonusProjectiles;
             }
 
-            return Mathf.Max(1, totalCount);
+            return playerCharacter != null ? playerCharacter.SkillProjectileCount(totalCount) : Mathf.Max(1,totalCount);
         }
 
         private Vector2 GetNeedleShotgunSpreadDirection(Vector2 baseDirection, int projectileIndex, int totalCount)
@@ -1560,6 +1560,12 @@ namespace Vampire
         private SyringeAugmentVfx heavyChargeVisual;
         private bool heavyVisualFull;
 
+        public int GetHeavySnipeSkillProjectileCount()
+        {
+            int count = 1 + (playerCharacter != null && playerCharacter.Skills != null && playerCharacter.Skills.PassiveActive ? 2 : 0);
+            return ApplySkillProjectileCount(count);
+        }
+
         private void FireHeavySnipe(float chargeRatio)
         {
             if (AttacksBlocked) return;
@@ -1575,6 +1581,10 @@ namespace Vampire
 
             Vector2 spawnPosition = GetHeavySnipeChargePreviewPosition(chargeRatio, aimDirection);
 
+            // Charged needles normally fire once; character skills add/multiply this final count.
+            int shots = GetHeavySnipeSkillProjectileCount();
+            for (int shot = 0; shot < shots; shot++)
+            {
             Projectile projectile = SpawnPlayerProjectile(
                 projectileIndex,
                 spawnPosition,
@@ -1607,7 +1617,8 @@ namespace Vampire
             projectile.OnHitDamageable.AddListener(
                 dealtDamage => ReportDamage("대물침", dealtDamage)
             );
-            projectile.Launch(aimDirection);
+            projectile.Launch(GetSpreadDirection(aimDirection, shot, shots));
+            }
 
             if (debugHeavySnipe)
             {
@@ -2355,7 +2366,7 @@ namespace Vampire
                 totalCount += Mathf.Max(0, bipolarNeedleBonusProjectileCount);
             }
 
-            return Mathf.Max(1, totalCount);
+            return playerCharacter != null ? playerCharacter.SkillProjectileCount(totalCount) : Mathf.Max(1,totalCount);
         }
 
         public float GetEffectiveSyringeMaxDistance()
@@ -2432,7 +2443,9 @@ namespace Vampire
             return speed.Value * multiplier;
         }
 
-        public int GetAcupunctureFormationProjectileCount()
+        public int ApplySkillProjectileCount(int count) => playerCharacter != null ? playerCharacter.SkillProjectileCount(count) : Mathf.Max(1,count);
+
+        public int GetAcupunctureFormationProjectileCount(bool applySkillMultiplier = true)
         {
             // 생명연소 같은 전설 추가 투사체는 제외하고,
             // 기본 무기 성장 + 일반 추가 투사체만 반영한다.
@@ -2443,7 +2456,7 @@ namespace Vampire
                 totalCount += playerCharacter.AdditionalProjectiles;
             }
 
-            return Mathf.Max(1, totalCount);
+            return applySkillMultiplier ? ApplySkillProjectileCount(totalCount) : Mathf.Max(1,totalCount);
         }
 
         public float GetAcupunctureFormationProjectileSizeMultiplier()
@@ -2783,7 +2796,9 @@ namespace Vampire
         {
             if (!acupunctureFormationEnabled || playerCharacter == null || !playerCharacter.IsDashing ||
                 playerCharacter.IsTrapBound || entityManager == null) return null;
-            return entityManager.SpawnProjectile(index, position, damageValue, knockbackValue, speedValue, targets);
+            var projectile=entityManager.SpawnProjectile(index, position, damageValue, knockbackValue, speedValue, targets);
+            SkillProjectileWind.Attach(projectile,playerCharacter != null ? playerCharacter.Skills : null);
+            return projectile;
         }
 
         private SyringeAugmentVfx lifeBurnVisual;

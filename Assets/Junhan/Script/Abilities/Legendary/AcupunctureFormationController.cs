@@ -408,7 +408,7 @@ namespace Vampire
                     Mathf.Max(
                         0,
                         sourceNeedleAbility
-                            .GetAcupunctureFormationProjectileCount()
+                            .GetAcupunctureFormationProjectileCount(false)
                         -
                         1
                     );
@@ -420,10 +420,7 @@ namespace Vampire
             }
 
 
-            return Mathf.Max(
-                1,
-                finalCount
-            );
+            return sourceNeedleAbility != null ? sourceNeedleAbility.ApplySkillProjectileCount(finalCount) : Mathf.Max(1,finalCount);
         }
 
 

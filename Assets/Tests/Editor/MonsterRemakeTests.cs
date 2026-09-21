@@ -113,7 +113,7 @@ namespace Vampire.Tests.Editor
                         type.GetMethod("DamageMonster", Hidden).Invoke(attack, new object[] { null, 1f, Vector2.zero });
                     else if (type == typeof(SyringeDartAbility))
                     {
-                        Assert.That(type.GetMethod("LaunchSyringeProjectile", Hidden).Invoke(attack, new object[] { Vector2.right }), Is.False);
+                        Assert.That(type.GetMethod("LaunchSyringeProjectile", Hidden).Invoke(attack, new object[] { Vector2.right, false }), Is.False);
                         type.GetMethod("LaunchNeedleShotgunProjectile", Hidden).Invoke(attack, new object[] { Vector2.right });
                         type.GetMethod("FireHeavySnipe", Hidden).Invoke(attack, new object[] { 1f });
                     }
