@@ -28,6 +28,8 @@ namespace Vampire
         public float acceleration;
 
         [Header("Sprites")]
+        [Tooltip("캐릭터 선택 카드 전용 정면 프로필. 인게임 애니메이션과 분리합니다.")]
+        public Sprite profileSprite;
         public Sprite[] walkSpriteSequence;
         public float walkFrameTime = 0.08f;
 
@@ -38,6 +40,12 @@ namespace Vampire
         [Tooltip("대쉬 중 재생할 다리 회전 애니메이션입니다.")]
         public Sprite[] dashSpriteSequence;
         public float dashFrameTime = 0.0275f;
+
+        [Tooltip("대쉬 전체 시간에 프레임을 한 번씩 배분합니다. 능력치에는 영향이 없습니다.")]
+        public bool fitDashAnimationToDuration;
+
+        [Tooltip("대쉬 원본이 오른쪽 이동 기준이면 체크. 혁이 원본은 왼쪽을 보며 오른쪽으로 문워크합니다.")]
+        public bool dashArtMovesRight = true;
 
         [Tooltip("포획 직후 부리가 열리는 표정. 마지막 프레임을 구속 해제까지 유지합니다.")]
         public Sprite[] capturedSpriteSequence;

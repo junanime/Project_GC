@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cebba9219e8740668e9101e947a97e4, type: 3}
+  m_Name: Shini Character Blueprint
+  m_EditorClassIdentifier: 
+  name: "\uC2E0\uC774"
+  description: "\uB05D\uAE4C\uC9C0 \uB3C4\uC804\uD558\uB294 \uC5F4\uD608 \uB178\uB825\uD30C
+    \uBD09\uD669."
+  owned: 1
+  cost: 0
+  hp: 100
+  recovery: 0
+  armor: 0
+  movespeed: 1.15
+  luck: 1
+  acceleration: 50
+  profileSprite: {fileID: 21300000, guid: 5fb2d82c705edc94894833a0c852caa6, type: 3}
+  walkSpriteSequence:
+  - {fileID: 1856404447692883828, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: 2586386932646324282, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: 5160755530593088446, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: 7265237881062462101, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: 5308198680105569255, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: -8775616577506928032, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: -7217389879694786676, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  - {fileID: -7035371293607200375, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
+  walkFrameTime: 0.08
+  idleSpriteSequence:
+  - {fileID: -7886327545936906244, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 7158255445742128755, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 1494791378984588401, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 4433635247956833620, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: -1033280669450618194, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 8312175917054808878, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: -5175540352244220460, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 7807556633718890276, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  idleFrameTime: 0.23
+  dashSpriteSequence:
+  - {fileID: 7838928397567946127, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: 6224130183512372492, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: -729662904435376605, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: -3059671461171505866, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: -3251199914330949516, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: -3983175793789647970, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: -8544348771882560225, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  - {fileID: -5428392027036411193, guid: 669a73533cb99d3459d5cabfe3405a58, type: 3}
+  dashFrameTime: 0.0275
+  fitDashAnimationToDuration: 1
+  dashArtMovesRight: 1
+  capturedSpriteSequence:
+  - {fileID: -7877577762063688105, guid: ba47ea988417fcd4398d6b6f3777ce6a, type: 3}
+  capturedFrameTime: 0.09
+  resultIdleSpriteSequence:
+  - {fileID: -7886327545936906244, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 7158255445742128755, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 1494791378984588401, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 4433635247956833620, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: -1033280669450618194, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 8312175917054808878, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: -5175540352244220460, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  - {fileID: 7807556633718890276, guid: 349a29b64019cf34092dd0865c2029c6, type: 3}
+  resultIdleFrameTime: 0.23
+  resultActionASpriteSequence: []
+  resultActionBSpriteSequence: []
+  resultActionFrameTime: 0.12
+  startingAbilities:
+  - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}

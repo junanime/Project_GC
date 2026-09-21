@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 067b1629452014542acea3a70cc11107, type: 3}
   m_Name: ApothecaryUIConfig
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   mainBackground: {fileID: 21300000, guid: 27e190be069886c40bc362de4de91984, type: 3}
   panelBackground: {fileID: 21300000, guid: 0209a8bd5774da142a8d10477fc86d44, type: 3}
   failureAshi: {fileID: 21300000, guid: 194686c5ade9b5f43badce5ac18cfc54, type: 3}
@@ -25,8 +25,9 @@ MonoBehaviour:
   font: {fileID: 11400000, guid: 7197d315232af3944b951aa9b64bd92b, type: 2}
   characters:
   - {fileID: 11400000, guid: 138b085873865480984b6ebcd8312fae, type: 2}
-  - {fileID: 11400000, guid: 02309cd829b224b648ed3c3df7c86e6c, type: 2}
-  - {fileID: 11400000, guid: afa99349eb3ad4e2aa7701749ec87eea, type: 2}
+  - {fileID: 11400000, guid: a893452d5c9694b418d649b1f4b04da4, type: 2}
+  - {fileID: 11400000, guid: de5021f44761c9e41a59b85a87b06d50, type: 2}
+  - {fileID: 11400000, guid: 67491fd5b2b94384fa765a2abe5482db, type: 2}
   relics:
   - {fileID: 11400000, guid: 8a7f84788ca95eb45b11534da95190bd, type: 2}
   - {fileID: 11400000, guid: e6efe4e036920fe4b9334cedb4ef4486, type: 2}

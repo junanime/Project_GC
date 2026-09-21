@@ -672,7 +672,7 @@ namespace Vampire
 
             if (dashDirection.x != 0f)
             {
-                if (dashSpriteFacesRight)
+                if (hasDashAnimation ? characterBlueprint.dashArtMovesRight : dashSpriteFacesRight)
                 {
                     spriteRenderer.flipX = dashDirection.x < 0f;
                 }
@@ -687,7 +687,9 @@ namespace Vampire
                 PlayVisualState(
                     CharacterVisualState.Dash,
                     characterBlueprint.dashSpriteSequence,
-                    characterBlueprint.dashFrameTime);
+                    characterBlueprint.fitDashAnimationToDuration
+                        ? dashDuration / characterBlueprint.dashSpriteSequence.Length
+                        : characterBlueprint.dashFrameTime);
             }
             else
             {
@@ -1249,7 +1251,9 @@ namespace Vampire
                 return;
 
             visualState = state;
-            spriteAnimator.Init(sequence, Mathf.Max(0.01f, frameTime), true);
+            // Start at frame zero; a short dash must not enter halfway through its sequence.
+            spriteAnimator.Init(sequence, Mathf.Max(0.01f, frameTime), false,
+                state != CharacterVisualState.Dash || !characterBlueprint.fitDashAnimationToDuration);
             spriteAnimator.StartAnimating();
         }
 

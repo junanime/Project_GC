@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cebba9219e8740668e9101e947a97e4, type: 3}
+  m_Name: Hyuki Character Blueprint
+  m_EditorClassIdentifier: 
+  name: "\uD601\uC774"
+  description: "\uB290\uAE0B\uD55C \uB0AE\uC7A0\uC744 \uC990\uAE30\uB294 \uC7AC\uB2A5
+    \uC788\uB294 \uCE5C\uAD6C."
+  owned: 1
+  cost: 0
+  hp: 100
+  recovery: 0
+  armor: 0
+  movespeed: 1.15
+  luck: 1
+  acceleration: 50
+  profileSprite: {fileID: 21300000, guid: 6b1872621e84b4645b361cce40cc1a99, type: 3}
+  walkSpriteSequence:
+  - {fileID: 4459870643526393012, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 8645526209452238827, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 7177944211563045298, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: -5267232931580505476, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: -5836893476829198220, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 4585566489794605879, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 1523800142781248985, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 289482890230222796, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  walkFrameTime: 0.08
+  idleSpriteSequence:
+  - {fileID: 7775993126238104958, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: -7047665272211853551, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 4253725048632090991, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: -4117464457667682850, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 2197849625935184010, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: -3785406483036433123, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 327413703509183192, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 8203560746426602675, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  idleFrameTime: 0.26
+  dashSpriteSequence:
+  - {fileID: -5130315161991886198, guid: f716b47248e9f6d4b8481c28dd158513, type: 3}
+  - {fileID: -6676886521471398112, guid: f716b47248e9f6d4b8481c28dd158513, type: 3}
+  dashFrameTime: 0.11
+  fitDashAnimationToDuration: 1
+  dashArtMovesRight: 1
+  capturedSpriteSequence:
+  - {fileID: 582160902688759878, guid: 7956e2b65620d9a408c5e0ff649f23dd, type: 3}
+  capturedFrameTime: 0.09
+  resultIdleSpriteSequence:
+  - {fileID: 7775993126238104958, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: -7047665272211853551, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 4253725048632090991, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: -4117464457667682850, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 2197849625935184010, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: -3785406483036433123, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 327413703509183192, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  - {fileID: 8203560746426602675, guid: ed063f56cf836b149a8f87af8c7eb1ca, type: 3}
+  resultIdleFrameTime: 0.26
+  resultActionASpriteSequence: []
+  resultActionBSpriteSequence: []
+  resultActionFrameTime: 0.12
+  startingAbilities:
+  - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}

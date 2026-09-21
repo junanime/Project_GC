@@ -18,6 +18,7 @@ namespace Vampire
         private int currSequenceFrame = 0;
         private bool useGlobalTime;
         private float animationTime;
+        private bool loop = true;
         public SpriteRenderer SpriteRenderer { get => spriteRenderer; }
 
         void Awake()
@@ -25,11 +26,12 @@ namespace Vampire
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
-        public void Init(Sprite[] spriteSequence, float frameTime, bool useGlobalTime = true)
+        public void Init(Sprite[] spriteSequence, float frameTime, bool useGlobalTime = true, bool loop = true)
         {
             this.spriteSequence = spriteSequence;
             this.frameTime = frameTime;
             this.useGlobalTime = useGlobalTime;
+            this.loop = loop;
             Setup();
         }
 
@@ -69,7 +71,8 @@ namespace Vampire
             if (animating)
             {
                 animationTime = useGlobalTime ? Time.time : (animationTime + Time.deltaTime);
-                int sequenceFrame = Mathf.FloorToInt(animationTime / frameTime) % spriteSequence.Length;
+                int frame = Mathf.FloorToInt(animationTime / frameTime);
+                int sequenceFrame = loop ? frame % spriteSequence.Length : Mathf.Min(frame, spriteSequence.Length - 1);
                 if (sequenceFrame != currSequenceFrame)
                 {
                     spriteRenderer.sprite = spriteSequence[currSequenceFrame = sequenceFrame];
