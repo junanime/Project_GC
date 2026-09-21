@@ -412,6 +412,7 @@ namespace Vampire
 
                 finalCount +=
                     projectileBonus;
+                finalCount += sourceNeedleAbility.Ver4FormationAdditionalCount;
             }
 
 

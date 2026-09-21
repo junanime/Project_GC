@@ -92,7 +92,7 @@ namespace Vampire
 
         protected override void OnTick()
         {
-            if (enableForceSpawnKey && Input.GetKeyDown(forceSpawnKey))
+            if (enableForceSpawnKey && Vampire.GameInput.GetKeyDown(forceSpawnKey))
             {
                 SpawnBloodClot();
                 return;

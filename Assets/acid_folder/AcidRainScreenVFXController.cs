@@ -73,7 +73,7 @@ public class AcidRainScreenVFXController : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(testToggleKey))
+        if (Vampire.GameInput.GetKeyDown(testToggleKey))
         {
             if (isPlaying)
             {

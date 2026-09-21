@@ -103,6 +103,10 @@ namespace Vampire
             "비워 두면 런타임에 자동 생성합니다.")]
         [SerializeField]
         private AudioSource sfxSource;
+        private AudioSource uiSource;
+        public float MusicVolume => baseBgmSource != null ? baseBgmSource.volume : 0;
+        public float EffectsVolume => sfxSource != null ? sfxSource.volume : 0;
+        public float UIVolume => uiSource != null ? uiSource.volume : 0;
 
         [Header("BGM Clips")]
 
@@ -423,6 +427,10 @@ namespace Vampire
 
             ResolveAudioSources();
             ApplySourceSettings();
+            uiSource=gameObject.AddComponent<AudioSource>();
+            uiSource.playOnAwake=false;uiSource.spatialBlend=0;uiSource.ignoreListenerPause=true;
+            GamePreferences.Changed+=ApplyUserVolumes;
+            ApplyUserVolumes();
 
             SceneManager.sceneLoaded +=
                 HandleSceneLoaded;
@@ -448,6 +456,7 @@ namespace Vampire
                 HandleSceneLoaded;
 
             Instance = null;
+            GamePreferences.Changed-=ApplyUserVolumes;
         }
 
         private void OnValidate()
@@ -549,6 +558,17 @@ namespace Vampire
                 sfxSource.volume =
                     masterVolume * sfxVolume;
             }
+        }
+
+        private void ApplyUserVolumes()
+        {
+            // Master is applied once at AudioListener, including the independent UI channel.
+            masterVolume=1;bgmVolume=GamePreferences.Current.music;sfxVolume=GamePreferences.Current.effects;
+            ApplySourceVolumes();if(uiSource!=null)uiSource.volume=GamePreferences.Current.ui;
+        }
+        public static void PlayUiClip(AudioClip clip)
+        {
+            if(Instance!=null&&Instance.uiSource!=null&&clip!=null)Instance.uiSource.PlayOneShot(clip);
         }
 
         private void HandleSceneLoaded(
@@ -1116,7 +1136,8 @@ namespace Vampire
                 return;
             }
 
-            sfxSource.PlayOneShot(clip);
+            if(id==GameSfxId.UiClick||id==GameSfxId.AugmentSelect)PlayUiClip(clip);
+            else sfxSource.PlayOneShot(clip);
         }
 
         private AudioClip GetSfxClip(

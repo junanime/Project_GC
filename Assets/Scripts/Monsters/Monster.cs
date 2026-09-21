@@ -31,22 +31,22 @@ namespace Vampire
         protected Coroutine hitAnimationCoroutine = null;
         protected bool alive = true;
         protected Transform centerTransform;
-        //»óÇöÃß°¡
+        //ìƒí˜„ì¶”ê°€
         protected float currentAcceleration;
         protected float runtimeMoveSpeed;
         // ============================================================
         // Mini Stage Runtime Ownership / Suspend
         // ============================================================
 
-        // true¸é ¹Ì´Ï ½ºÅ×ÀÌÁö ¹æ¿¡¼­ »ı¼ºµÈ ¸ó½ºÅÍ.
-        // false¸é ±âÁ¸ ¸ŞÀÎ ÇÊµå ¸ó½ºÅÍ.
+        // trueë©´ ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ë°©ì—ì„œ ìƒì„±ëœ ëª¬ìŠ¤í„°.
+        // falseë©´ ê¸°ì¡´ ë©”ì¸ í•„ë“œ ëª¬ìŠ¤í„°.
         private bool miniStageOwned = false;
 
-        // ÇöÀç ¸ŞÀÎ ÇÊµå ·±Å¸ÀÓ Á¤Áö »óÅÂÀÎÁö ¿©ºÎ.
+        // í˜„ì¬ ë©”ì¸ í•„ë“œ ëŸ°íƒ€ì„ ì •ì§€ ìƒíƒœì¸ì§€ ì—¬ë¶€.
         private bool fieldRuntimeSuspended = false;
 
-        // ¹Ì´Ï ½ºÅ×ÀÌÁö ÁøÀÔ Àü¿¡ Rigidbody2D.simulated°¡ ¾î¶² °ªÀÌ¾ú´ÂÁö º¸Á¸ÇÑ´Ù.
-        // Æ¯¼ö ¸ó½ºÅÍ°¡ ¿ø·¡ simulated=false »óÅÂ¿´À» °¡´É¼ºµµ °í·ÁÇÑ´Ù.
+        // ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ì§„ì… ì „ì— Rigidbody2D.simulatedê°€ ì–´ë–¤ ê°’ì´ì—ˆëŠ”ì§€ ë³´ì¡´í•œë‹¤.
+        // íŠ¹ìˆ˜ ëª¬ìŠ¤í„°ê°€ ì›ë˜ simulated=false ìƒíƒœì˜€ì„ ê°€ëŠ¥ì„±ë„ ê³ ë ¤í•œë‹¤.
         private bool cachedRigidbodySimulated = true;
         private bool hasCachedRigidbodySimulated = false;
 
@@ -57,12 +57,14 @@ namespace Vampire
         public bool IsFieldRuntimeSuspended => fieldRuntimeSuspended;
         public Transform CenterTransform { get => centerTransform; }
 
-        // ´Ù¸¥ ÄÚµå¿¡¼­ OnKilled.AddListener(OnEliteKilled(Monster)) ½ÄÀ¸·Î ¾²°í ÀÖÀ¸¹Ç·Î Monster ÀÎÀÚ¸¦ ³Ñ±ä´Ù.
+        // ë‹¤ë¥¸ ì½”ë“œì—ì„œ OnKilled.AddListener(OnEliteKilled(Monster)) ì‹ìœ¼ë¡œ ì“°ê³  ìˆìœ¼ë¯€ë¡œ Monster ì¸ìë¥¼ ë„˜ê¸´ë‹¤.
         public UnityEvent<Monster> OnKilled { get; } = new UnityEvent<Monster>();
 
         public float HP => currentHealth;
+        public float SpawnMaxHealth { get; private set; }
+        public bool WasKilledByPlayer { get; private set; }
 
-        // °á°ú È­¸é ¹× °ø°İ ÃâÃ³ ÃßÀû¿ë
+        // ê²°ê³¼ í™”ë©´ ë° ê³µê²© ì¶œì²˜ ì¶”ì ìš©
         public MonsterBlueprint Blueprint => monsterBlueprint;
 
         public Vector2 Position => transform.position;
@@ -70,17 +72,17 @@ namespace Vampire
 
         public Dictionary<int, int> ListIndexByCellIndex { get; set; }
         public int QueryID { get; set; } = -1;
-        //»óÇöÃß°¡
+        //ìƒí˜„ì¶”ê°€
         public float moveSpeed
         {
             get => runtimeMoveSpeed;
             set
             {
-                // ¼Óµµ°¡ 0 ÀÌÇÏ·Î ³»·Á°¡¼­ ¹«ÇÑ´ë µå·¡±×°¡ °É¸®´Â °ÍÀ» ¹æÁö
+                // ì†ë„ê°€ 0 ì´í•˜ë¡œ ë‚´ë ¤ê°€ì„œ ë¬´í•œëŒ€ ë“œë˜ê·¸ê°€ ê±¸ë¦¬ëŠ” ê²ƒì„ ë°©ì§€
                 runtimeMoveSpeed = Mathf.Max(0.05f, value);
                 if (rb != null)
                 {
-                    //  ¼Óµµ°¡ º¯ÇÏ¸é °¡¼Óµµ¿Í ºñ·ÊÇÏ¿© ¹°¸® ¸¶Âû·Â(drag)À» ½Ç½Ã°£À¸·Î Àç°è»êÇÕ´Ï´Ù!
+                    //  ì†ë„ê°€ ë³€í•˜ë©´ ê°€ì†ë„ì™€ ë¹„ë¡€í•˜ì—¬ ë¬¼ë¦¬ ë§ˆì°°ë ¥(drag)ì„ ì‹¤ì‹œê°„ìœ¼ë¡œ ì¬ê³„ì‚°í•©ë‹ˆë‹¤!
                     rb.drag = currentAcceleration / (runtimeMoveSpeed * runtimeMoveSpeed);
                 }
             }
@@ -125,7 +127,7 @@ namespace Vampire
 
                 string objectName = renderer.gameObject.name.ToLower();
 
-                // ±×¸²ÀÚ¿ë SpriteRenderer¸¦ ¸ŞÀÎ ¸ó½ºÅÍ ÀÌ¹ÌÁö·Î ÀâÁö ¾Ê°Ô ¹æÁö
+                // ê·¸ë¦¼ììš© SpriteRendererë¥¼ ë©”ì¸ ëª¬ìŠ¤í„° ì´ë¯¸ì§€ë¡œ ì¡ì§€ ì•Šê²Œ ë°©ì§€
                 if (objectName.Contains("shadow"))
                 {
                     continue;
@@ -168,13 +170,13 @@ namespace Vampire
             }
         }
         /// <summary>
-        /// EntityManager°¡ Pool¿¡¼­ ¸ó½ºÅÍ¸¦ ²¨³½ Á÷ÈÄ Setup()º¸´Ù ¸ÕÀú È£ÃâÇÕ´Ï´Ù.
+        /// EntityManagerê°€ Poolì—ì„œ ëª¬ìŠ¤í„°ë¥¼ êº¼ë‚¸ ì§í›„ Setup()ë³´ë‹¤ ë¨¼ì € í˜¸ì¶œí•©ë‹ˆë‹¤.
         ///
-        /// allowDuringMiniStage=true·Î »ı¼ºµÈ ¸ó½ºÅÍ´Â
-        /// ¹Ì´Ï ½ºÅ×ÀÌÁö Àü¿ë ¸ó½ºÅÍ·Î Ãë±ŞÇÕ´Ï´Ù.
+        /// allowDuringMiniStage=trueë¡œ ìƒì„±ëœ ëª¬ìŠ¤í„°ëŠ”
+        /// ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ì „ìš© ëª¬ìŠ¤í„°ë¡œ ì·¨ê¸‰í•©ë‹ˆë‹¤.
         ///
-        /// Pool¿¡¼­ ÀÌÀü »ç¿ë »óÅÂ°¡ ³²¾Æ ÀÖ´õ¶óµµ
-        /// Rigidbody / Suspend »óÅÂ¸¦ ¾ÈÀüÇÏ°Ô ÃÊ±âÈ­ÇÕ´Ï´Ù.
+        /// Poolì—ì„œ ì´ì „ ì‚¬ìš© ìƒíƒœê°€ ë‚¨ì•„ ìˆë”ë¼ë„
+        /// Rigidbody / Suspend ìƒíƒœë¥¼ ì•ˆì „í•˜ê²Œ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
         /// </summary>
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
@@ -199,15 +201,15 @@ namespace Vampire
         }
 
         /// <summary>
-        /// ¸ŞÀÎ ÇÊµå ¸ó½ºÅÍ¸¸ ÀÏ½Ã Á¤Áö/Àç°³ÇÕ´Ï´Ù.
+        /// ë©”ì¸ í•„ë“œ ëª¬ìŠ¤í„°ë§Œ ì¼ì‹œ ì •ì§€/ì¬ê°œí•©ë‹ˆë‹¤.
         ///
-        /// ¹Ì´Ï ½ºÅ×ÀÌÁö ¼ÒÀ¯ ¸ó½ºÅÍ´Â ÀÌ È£ÃâÀ» ¹«½ÃÇÏ¹Ç·Î
-        /// MiniStageSniper / ExplodingRush °°Àº ¹æ ¸ó½ºÅÍ´Â Á¤»ó µ¿ÀÛÇÕ´Ï´Ù.
+        /// ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ ì†Œìœ  ëª¬ìŠ¤í„°ëŠ” ì´ í˜¸ì¶œì„ ë¬´ì‹œí•˜ë¯€ë¡œ
+        /// MiniStageSniper / ExplodingRush ê°™ì€ ë°© ëª¬ìŠ¤í„°ëŠ” ì •ìƒ ë™ì‘í•©ë‹ˆë‹¤.
         /// </summary>
         public void SetFieldRuntimeSuspended(bool suspended)
         {
-            // ¹Ì´Ï ½ºÅ×ÀÌÁö¿¡¼­ »ı¼ºÇÑ ¸ó½ºÅÍ´Â
-            // ÇÊµå Á¤Áö ´ë»óÀÌ ¾Æ´Ï´Ù.
+            // ë¯¸ë‹ˆ ìŠ¤í…Œì´ì§€ì—ì„œ ìƒì„±í•œ ëª¬ìŠ¤í„°ëŠ”
+            // í•„ë“œ ì •ì§€ ëŒ€ìƒì´ ì•„ë‹ˆë‹¤.
             if (miniStageOwned)
             {
                 return;
@@ -230,8 +232,8 @@ namespace Vampire
                     rb.velocity = Vector2.zero;
                     rb.angularVelocity = 0f;
 
-                    // Physics2D Solver ÀÚÃ¼¿¡¼­ Á¦¿ÜÇÑ´Ù.
-                    // µû¶ó¼­ ´Ù¸¥ ¸ó½ºÅÍ¿¡°Ô ¹Ğ¸®°Å³ª ÀÌµ¿ÇÏ´Â °Íµµ ¸·Èù´Ù.
+                    // Physics2D Solver ìì²´ì—ì„œ ì œì™¸í•œë‹¤.
+                    // ë”°ë¼ì„œ ë‹¤ë¥¸ ëª¬ìŠ¤í„°ì—ê²Œ ë°€ë¦¬ê±°ë‚˜ ì´ë™í•˜ëŠ” ê²ƒë„ ë§‰íŒë‹¤.
                     rb.simulated = false;
                 }
 
@@ -257,16 +259,16 @@ namespace Vampire
         }
 
         /// <summary>
-        /// Æ¯¼ö ¸ó½ºÅÍ°¡ MiniStage ÁøÀÔ ½Ã
-        /// ÀÚÃ¼ Coroutine / Warning / UI µîÀ» Á¤¸®ÇÏ°í ½ÍÀ» ¶§ Override.
+        /// íŠ¹ìˆ˜ ëª¬ìŠ¤í„°ê°€ MiniStage ì§„ì… ì‹œ
+        /// ìì²´ Coroutine / Warning / UI ë“±ì„ ì •ë¦¬í•˜ê³  ì‹¶ì„ ë•Œ Override.
         /// </summary>
         protected virtual void OnFieldRuntimeSuspended()
         {
         }
 
         /// <summary>
-        /// Æ¯¼ö ¸ó½ºÅÍ°¡ MiniStage Á¾·á ÈÄ
-        /// ÀÚÃ¼ Çàµ¿À» ´Ù½Ã ½ÃÀÛÇÏ°í ½ÍÀ» ¶§ Override.
+        /// íŠ¹ìˆ˜ ëª¬ìŠ¤í„°ê°€ MiniStage ì¢…ë£Œ í›„
+        /// ìì²´ í–‰ë™ì„ ë‹¤ì‹œ ì‹œì‘í•˜ê³  ì‹¶ì„ ë•Œ Override.
         /// </summary>
         protected virtual void OnFieldRuntimeResumed()
         {
@@ -339,6 +341,8 @@ namespace Vampire
             }
 
             currentHealth = finalHp;
+            SpawnMaxHealth = finalHp;
+            WasKilledByPlayer = false;
             alive = true;
 
             if (entityManager != null)
@@ -402,7 +406,7 @@ namespace Vampire
                 centerTransform.position = transform.position;
             }
 
-            // »óÇö¼öÁ¤
+            // ìƒí˜„ìˆ˜ì •
             float baseMoveSpeed = monsterBlueprint != null ? monsterBlueprint.movespeed : 1f;
             currentAcceleration = monsterBlueprint != null ? monsterBlueprint.acceleration : 1f;
 
@@ -417,8 +421,8 @@ namespace Vampire
                 baseMoveSpeed + 0.1f
             );
 
-            // Áß¿ä: »õ·Î ¸¸µç ÇÁ·ÎÆÛÆ¼¿¡ ´ëÀÔÇÏ¿© ±âº» ¼Óµµ¸¦ ¼¼ÆÃÇÕ´Ï´Ù.
-            // ÇÁ·ÎÆÛÆ¼ ³»ºÎÀÇ set ±¸¹®ÀÌ ÀÛµ¿ÇÏ¸é¼­ rb.drag(¸¶Âû·Â)µµ ÀÚµ¿À¸·Î °è»êµÇ¾î µé¾î°©´Ï´Ù!
+            // ì¤‘ìš”: ìƒˆë¡œ ë§Œë“  í”„ë¡œí¼í‹°ì— ëŒ€ì…í•˜ì—¬ ê¸°ë³¸ ì†ë„ë¥¼ ì„¸íŒ…í•©ë‹ˆë‹¤.
+            // í”„ë¡œí¼í‹° ë‚´ë¶€ì˜ set êµ¬ë¬¸ì´ ì‘ë™í•˜ë©´ì„œ rb.drag(ë§ˆì°°ë ¥)ë„ ìë™ìœ¼ë¡œ ê³„ì‚°ë˜ì–´ ë“¤ì–´ê°‘ë‹ˆë‹¤!
             this.moveSpeed = spd;
 
             if (rb != null)
@@ -507,8 +511,8 @@ namespace Vampire
                 );
             }
 
-            // Ä¡¸íÅ¸ ÆÇÁ¤ÀÌ¸é¼­ ½ÇÁ¦ ÇÇÇØ°¡ 0º¸´Ù Å¬ ¶§¸¸
-            // Ä¡¸íÅ¸ È¿°úÀ½À» 1È¸ Àç»ıÇÕ´Ï´Ù.
+            // ì¹˜ëª…íƒ€ íŒì •ì´ë©´ì„œ ì‹¤ì œ í”¼í•´ê°€ 0ë³´ë‹¤ í´ ë•Œë§Œ
+            // ì¹˜ëª…íƒ€ íš¨ê³¼ìŒì„ 1íšŒ ì¬ìƒí•©ë‹ˆë‹¤.
             if (isCritical && damage > 0f)
             {
                 GameAudioManager.PlaySfx(
@@ -561,6 +565,7 @@ namespace Vampire
             if (deathStarted) yield break;
             deathStarted = true;
             alive = false;
+            WasKilledByPlayer = killedByPlayer;
             Died?.Invoke(this);
 
             if (monsterHitbox != null)

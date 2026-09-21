@@ -67,14 +67,27 @@ namespace Vampire
         // This is some truly atrocious code: tread with caution.
         private IEnumerator Open(bool openedByPlayer = true)
         {
+            // Two chests may overlap the player in one physics step. Queue this
+            // reward until the first modal has closed instead of losing a choice.
+            while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
             spriteRenderer.sprite = chestBlueprint.openingChest;
-            bool spawnLoot = !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
+            bool spawnLoot = chestBlueprint.legendaryAugmentChest
+                ? !entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
+                : !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
             if (spawnLoot)
                 SpawnLoot(chestBlueprint.lootTable.DropLootObject(), openedByPlayer);
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.sprite = chestBlueprint.openChest;
             if (!spawnLoot)
-                entityManager.AbilitySelectionDialog.Open(false);
+            {
+                while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
+                bool stillAvailable=chestBlueprint.legendaryAugmentChest
+                    ? entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
+                    : entityManager.AbilitySelectionDialog.HasAvailableAbilities();
+                if (!stillAvailable) SpawnLoot(chestBlueprint.lootTable.DropLootObject(),openedByPlayer);
+                else if (chestBlueprint.legendaryAugmentChest) entityManager.AbilitySelectionDialog.OpenLegendary();
+                else entityManager.AbilitySelectionDialog.Open(false);
+            }
             yield return new WaitForSeconds(0.15f);
             float t = 0;
             while (t < 1.0f)
@@ -102,7 +115,37 @@ namespace Vampire
 
         void OnCollisionEnter2D(Collision2D col)
         {
-            if (col.collider.gameObject == playerCharacter.gameObject)
+            TryOpenForPlayer(col != null ? col.collider : null);
+        }
+
+        // The chest prefab uses a trigger BoxCollider2D for the interaction
+        // footprint (plus a tiny physical CircleCollider2D). The old code only
+        // listened for collisions, so mobile movement could pass through a
+        // reward chest and make it look like a tap/click was required.
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            TryOpenForPlayer(other);
+        }
+
+        private void OnCollisionStay2D(Collision2D collision)
+        {
+            TryOpenForPlayer(collision != null ? collision.collider : null);
+        }
+
+        private void OnTriggerStay2D(Collider2D other)
+        {
+            TryOpenForPlayer(other);
+        }
+
+        private void TryOpenForPlayer(Collider2D other)
+        {
+            if (opened || other == null || playerCharacter == null)
+            {
+                return;
+            }
+
+            Character colliderCharacter = other.GetComponentInParent<Character>();
+            if (colliderCharacter == playerCharacter || other.transform.root == playerCharacter.transform.root)
             {
                 OpenChest();
             }

@@ -530,25 +530,31 @@ namespace Vampire
 
         private bool TryReadArrowInput(out TrapArrowDirection inputDirection)
         {
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            if (Time.timeScale <= 0f) { inputDirection = TrapArrowDirection.Up; return false; }
+            if (MobileGameplayInput.ConsumeArrow(out int mobileDirection))
+            {
+                inputDirection = (TrapArrowDirection)mobileDirection;
+                return true;
+            }
+            if (Vampire.GameInput.GetKeyDown(KeyCode.UpArrow))
             {
                 inputDirection = TrapArrowDirection.Up;
                 return true;
             }
 
-            if (Input.GetKeyDown(KeyCode.DownArrow))
+            if (Vampire.GameInput.GetKeyDown(KeyCode.DownArrow))
             {
                 inputDirection = TrapArrowDirection.Down;
                 return true;
             }
 
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (Vampire.GameInput.GetKeyDown(KeyCode.LeftArrow))
             {
                 inputDirection = TrapArrowDirection.Left;
                 return true;
             }
 
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (Vampire.GameInput.GetKeyDown(KeyCode.RightArrow))
             {
                 inputDirection = TrapArrowDirection.Right;
                 return true;

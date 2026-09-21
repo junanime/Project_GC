@@ -9,6 +9,10 @@ namespace Vampire
     {
         [Header("Augment Selection")]
         [SerializeField] private int selectionCount = 3;
+        [Header("Ver.4 Shared Needle Rewards")]
+        [SerializeField] private Ver4AugmentBalance ver4Balance;
+        public Ver4AugmentRuntime Ver4 { get; private set; }
+        public bool LegendaryRewardContext { get; set; }
 
         [Header("Base Tier Odds")]
         [SerializeField] private float baseGeneralChance = 55f;
@@ -98,6 +102,34 @@ namespace Vampire
                 ability.Init(abilityManager, entityManager, playerCharacter);
                 newAbilities.Add(ability);
             }
+            if (GetComponentInChildren<SyringeDartAbility>(true) != null)
+            {
+                if (ver4Balance == null) ver4Balance = Resources.Load<Ver4AugmentBalance>("Ver4AugmentBalance");
+                if (ver4Balance != null)
+                {
+                    for (int i=0; i<5; i++)
+                    {
+                        var obj=new GameObject("Ver4 Special " + ((SyringeSpecialAugmentAbility.SpecialAugmentType)(16+i)));
+                        obj.transform.SetParent(transform,false);
+                        var ability=obj.AddComponent<SyringeSpecialAugmentAbility>();
+                        ability.ConfigureNewAugment((SyringeSpecialAugmentAbility.SpecialAugmentType)(16+i),ver4Balance.plannedIcons[i]);
+                        ability.Init(abilityManager,entityManager,playerCharacter);
+                        newAbilities.Add(ability);
+                    }
+                    var objState=new GameObject("Ver4 Upgrade State"); objState.transform.SetParent(transform,false);
+                    Ver4=objState.AddComponent<Ver4AugmentRuntime>();
+                    Ver4.Configure(ver4Balance,abilityManager,entityManager,playerCharacter);
+                    ownedAbilities.Add(Ver4);
+                }
+            }
+        }
+
+        public bool AcquireVer4Ability(Ability ability)
+        {
+            if (ability==null || ability.Owned || !ability.RequirementsMet() || !newAbilities.Remove(ability)) return false;
+            ability.Select();
+            ownedAbilities.Add(ability);
+            return true;
         }
 
         public void RegisterUpgradeableValue(IUpgradeableValue upgradeableValue, bool inUse = false)
@@ -141,6 +173,7 @@ namespace Vampire
         /// </summary>
         public List<Ability> SelectAbilities(IReadOnlyCollection<Ability> rerollExcludedAbilities)
         {
+            if (Ver4 != null) return Ver4.CreateOffers(LegendaryRewardContext, selectionCount);
             List<Ability> selectedAbilities = new List<Ability>();
 
             WeightedAbilities availableOwnedAbilities = ExtractAvailableAbilities(ownedAbilities);
@@ -272,6 +305,11 @@ namespace Vampire
                 {
                     continue;
                 }
+                if (ability is Ver4AugmentOffer)
+                {
+                    Destroy(ability.gameObject);
+                    continue;
+                }
 
                 if (ability.Owned)
                 {
@@ -297,6 +335,11 @@ namespace Vampire
 
         public bool HasAvailableAbilities()
         {
+            if (Ver4 != null)
+            {
+                if (!LegendaryRewardContext) return true;
+                return GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Any(a=>!a.Owned && a.RequirementsMet());
+            }
             foreach (Ability ability in ownedAbilities)
             {
                 if (ability == null)

@@ -1063,7 +1063,8 @@ namespace Vampire
                     targetComponent.transform.position,
                     monsterLayer,
                     targetComponent.gameObject,
-                    consumedNeedleMark
+                    consumedNeedleMark,
+                    finalDamage
                 );
 
 

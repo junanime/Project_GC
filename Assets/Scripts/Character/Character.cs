@@ -355,6 +355,7 @@ namespace Vampire
 
             InitDash();
             UpdateThermometerDisplay();
+            MobileGameplayControls.Ensure(this);
         }
 
         protected virtual void Update()
@@ -459,6 +460,7 @@ namespace Vampire
 
         public bool TryDash()
         {
+            if (Time.timeScale <= 0f || (abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen)) return false;
             if (IsTrapBound) return false;
             if (!enableDash)
             {

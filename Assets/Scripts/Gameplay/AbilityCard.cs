@@ -10,97 +10,101 @@ namespace Vampire
     public class AbilityCard : MonoBehaviour
     {
         [Header("Existing References")]
-        [Tooltip("Áõ°­ ¾ÆÀÌÄÜ ImageÀÔ´Ï´Ù. ±âÁ¸ Ability Image ¿ÀºêÁ§Æ®¸¦ ¿¬°áÇÏ¼¼¿ä.")]
+        [Tooltip("ì¦ê°• ì•„ì´ì½˜ Imageì…ë‹ˆë‹¤. ê¸°ì¡´ Ability Image ì˜¤ë¸Œì íŠ¸ë¥¼ ì—°ê²°í•˜ì„¸ìš”.")]
         [SerializeField] private Image abilityImage;
 
-        [Tooltip("Áõ°­ ¾ÆÀÌÄÜ Å©±â °è»ê¿¡ »ç¿ëÇÏ´Â RectTransformÀÔ´Ï´Ù. ±âÁ¸ Ability Image Rect¸¦ ¿¬°áÇÏ¼¼¿ä.")]
+        [Tooltip("ì¦ê°• ì•„ì´ì½˜ í¬ê¸° ê³„ì‚°ì— ì‚¬ìš©í•˜ëŠ” RectTransformì…ë‹ˆë‹¤. ê¸°ì¡´ Ability Image Rectë¥¼ ì—°ê²°í•˜ì„¸ìš”.")]
         [SerializeField] private RectTransform abilityImageRect;
 
-        [Tooltip("Áõ°­ ÀÌ¸§ ÅØ½ºÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì¦ê°• ì´ë¦„ í…ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private TextMeshProUGUI nameText;
 
-        [Tooltip("Áõ°­ ¼³¸í ÅØ½ºÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì¦ê°• ì„¤ëª… í…ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private TextMeshProUGUI descriptionText;
 
-        [Tooltip("¼±ÅÃ / °­È­ ¹öÆ° ÅØ½ºÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì„ íƒ / ê°•í™” ë²„íŠ¼ í…ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private TextMeshProUGUI buttonText;
 
         [Header("Tier Visual Image References")]
-        [Tooltip("Ä«µå ÀüÃ¼ ¹è°æ ImageÀÔ´Ï´Ù. Ability Card ·çÆ® Image°¡ ¾Æ´Ï¶ó Background ButtonÀÇ Image¸¦ ¿¬°áÇÏ´Â °ÍÀ» ÃßÃµÇÕ´Ï´Ù.")]
+        [Tooltip("ì¹´ë“œ ì „ì²´ ë°°ê²½ Imageì…ë‹ˆë‹¤. Ability Card ë£¨íŠ¸ Imageê°€ ì•„ë‹ˆë¼ Background Buttonì˜ Imageë¥¼ ì—°ê²°í•˜ëŠ” ê²ƒì„ ì¶”ì²œí•©ë‹ˆë‹¤.")]
         [SerializeField] private Image cardBackgroundImage;
 
-        [Tooltip("¾ÆÀÌÄÜ ¾×ÀÚ ImageÀÔ´Ï´Ù. Ability Image Background ¿ÀºêÁ§Æ®ÀÇ Image¸¦ ¿¬°áÇÏ¼¼¿ä.")]
+        [Tooltip("ì•„ì´ì½˜ ì•¡ì Imageì…ë‹ˆë‹¤. Ability Image Background ì˜¤ë¸Œì íŠ¸ì˜ Imageë¥¼ ì—°ê²°í•˜ì„¸ìš”.")]
         [SerializeField] private Image iconFrameImage;
 
-        [Tooltip("¼³¸í ÆĞ³Î ¹è°æ ImageÀÔ´Ï´Ù. ¾øÀ¸¸é ºñ¿öµÖµµ µË´Ï´Ù.")]
+        [Tooltip("ì„¤ëª… íŒ¨ë„ ë°°ê²½ Imageì…ë‹ˆë‹¤. ì—†ìœ¼ë©´ ë¹„ì›Œë‘¬ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] private Image descriptionBackgroundImage;
 
-        [Tooltip("¼±ÅÃ ¹öÆ° ¹è°æ ImageÀÔ´Ï´Ù. Selection Button ¿ÀºêÁ§Æ®ÀÇ Image¸¦ ¿¬°áÇÏ¼¼¿ä.")]
+        [Tooltip("ì„ íƒ ë²„íŠ¼ ë°°ê²½ Imageì…ë‹ˆë‹¤. Selection Button ì˜¤ë¸Œì íŠ¸ì˜ Imageë¥¼ ì—°ê²°í•˜ì„¸ìš”.")]
         [SerializeField] private Image selectionButtonImage;
 
-        [Tooltip("ÇÏ´Ü Àå½Ä ¿¥ºí·³ ImageÀÔ´Ï´Ù. ¾øÀ¸¸é ºñ¿öµÖµµ µË´Ï´Ù.")]
+        [Tooltip("í•˜ë‹¨ ì¥ì‹ ì— ë¸”ëŸ¼ Imageì…ë‹ˆë‹¤. ì—†ìœ¼ë©´ ë¹„ì›Œë‘¬ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] private Image bottomEmblemImage;
 
         [Header("General Tier Sprites")]
-        [Tooltip("ÀÏ¹İ Áõ°­ Ä«µå ¹è°æ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì¼ë°˜ ì¦ê°• ì¹´ë“œ ë°°ê²½ ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private Sprite generalCardBackgroundSprite;
 
-        [Tooltip("ÀÏ¹İ Áõ°­ ¾ÆÀÌÄÜ ¾×ÀÚ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì¼ë°˜ ì¦ê°• ì•„ì´ì½˜ ì•¡ì ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private Sprite generalIconFrameSprite;
 
-        [Tooltip("ÀÏ¹İ Áõ°­ ÇÏ´Ü ¿¥ºí·³ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù. ¾øÀ¸¸é ºñ¿öµÖµµ µË´Ï´Ù.")]
+        [Tooltip("ì¼ë°˜ ì¦ê°• í•˜ë‹¨ ì— ë¸”ëŸ¼ ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤. ì—†ìœ¼ë©´ ë¹„ì›Œë‘¬ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] private Sprite generalBottomEmblemSprite;
 
         [Header("Special Tier Sprites")]
-        [Tooltip("Æ¯¼ö Áõ°­ Ä«µå ¹è°æ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("íŠ¹ìˆ˜ ì¦ê°• ì¹´ë“œ ë°°ê²½ ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private Sprite specialCardBackgroundSprite;
 
-        [Tooltip("Æ¯¼ö Áõ°­ ¾ÆÀÌÄÜ ¾×ÀÚ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("íŠ¹ìˆ˜ ì¦ê°• ì•„ì´ì½˜ ì•¡ì ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private Sprite specialIconFrameSprite;
 
-        [Tooltip("Æ¯¼ö Áõ°­ ÇÏ´Ü ¿¥ºí·³ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù. ¾øÀ¸¸é ºñ¿öµÖµµ µË´Ï´Ù.")]
+        [Tooltip("íŠ¹ìˆ˜ ì¦ê°• í•˜ë‹¨ ì— ë¸”ëŸ¼ ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤. ì—†ìœ¼ë©´ ë¹„ì›Œë‘¬ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] private Sprite specialBottomEmblemSprite;
 
         [Header("Legendary Tier Sprites")]
-        [Tooltip("Àü¼³ Áõ°­ Ä«µå ¹è°æ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì „ì„¤ ì¦ê°• ì¹´ë“œ ë°°ê²½ ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private Sprite legendaryCardBackgroundSprite;
 
-        [Tooltip("Àü¼³ Áõ°­ ¾ÆÀÌÄÜ ¾×ÀÚ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù.")]
+        [Tooltip("ì „ì„¤ ì¦ê°• ì•„ì´ì½˜ ì•¡ì ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤.")]
         [SerializeField] private Sprite legendaryIconFrameSprite;
 
-        [Tooltip("Àü¼³ Áõ°­ ÇÏ´Ü ¿¥ºí·³ ½ºÇÁ¶óÀÌÆ®ÀÔ´Ï´Ù. ¾øÀ¸¸é ºñ¿öµÖµµ µË´Ï´Ù.")]
+        [Tooltip("ì „ì„¤ ì¦ê°• í•˜ë‹¨ ì— ë¸”ëŸ¼ ìŠ¤í”„ë¼ì´íŠ¸ì…ë‹ˆë‹¤. ì—†ìœ¼ë©´ ë¹„ì›Œë‘¬ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] private Sprite legendaryBottomEmblemSprite;
 
         [Header("Tier Colors")]
-        [Tooltip("ÀÏ¹İ Áõ°­ ÀÌ¸§ »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ì¼ë°˜ ì¦ê°• ì´ë¦„ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color generalNameColor = new Color(0.75f, 0.9f, 1f, 1f);
 
-        [Tooltip("Æ¯¼ö Áõ°­ ÀÌ¸§ »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("íŠ¹ìˆ˜ ì¦ê°• ì´ë¦„ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color specialNameColor = new Color(0.9f, 0.65f, 1f, 1f);
 
-        [Tooltip("Àü¼³ Áõ°­ ÀÌ¸§ »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ì „ì„¤ ì¦ê°• ì´ë¦„ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color legendaryNameColor = new Color(1f, 0.82f, 0.35f, 1f);
 
-        [Tooltip("ÀÏ¹İ Áõ°­ ¼³¸í ±ÛÀÚ »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ì¼ë°˜ ì¦ê°• ì„¤ëª… ê¸€ì ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color generalDescriptionColor = Color.white;
 
-        [Tooltip("Æ¯¼ö Áõ°­ ¼³¸í ±ÛÀÚ »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("íŠ¹ìˆ˜ ì¦ê°• ì„¤ëª… ê¸€ì ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color specialDescriptionColor = Color.white;
 
-        [Tooltip("Àü¼³ Áõ°­ ¼³¸í ±ÛÀÚ »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ì „ì„¤ ì¦ê°• ì„¤ëª… ê¸€ì ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color legendaryDescriptionColor = Color.white;
 
-        [Tooltip("ÀÏ¹İ Áõ°­ ¼±ÅÃ ¹öÆ° »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ì¼ë°˜ ì¦ê°• ì„ íƒ ë²„íŠ¼ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color generalButtonColor = new Color(0.25f, 0.55f, 0.9f, 1f);
 
-        [Tooltip("Æ¯¼ö Áõ°­ ¼±ÅÃ ¹öÆ° »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("íŠ¹ìˆ˜ ì¦ê°• ì„ íƒ ë²„íŠ¼ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color specialButtonColor = new Color(0.55f, 0.25f, 0.85f, 1f);
 
-        [Tooltip("Àü¼³ Áõ°­ ¼±ÅÃ ¹öÆ° »ö»óÀÔ´Ï´Ù.")]
+        [Tooltip("ì „ì„¤ ì¦ê°• ì„ íƒ ë²„íŠ¼ ìƒ‰ìƒì…ë‹ˆë‹¤.")]
         [SerializeField] private Color legendaryButtonColor = new Color(0.95f, 0.45f, 0.1f, 1f);
 
         [Header("Animation")]
-        [Tooltip("Ä«µå°¡ ³ªÅ¸³ª´Â ¼ÓµµÀÔ´Ï´Ù.")]
+        [SerializeField] private Color[] upgradeGradeColors = {
+            new Color(.80f,.85f,.90f), new Color(.45f,.95f,.60f), new Color(.55f,.65f,1f),
+            new Color(.95f,.50f,.90f), new Color(1f,.77f,.28f), new Color(.35f,1f,1f)
+        };
+        [Tooltip("ì¹´ë“œê°€ ë‚˜íƒ€ë‚˜ëŠ” ì†ë„ì…ë‹ˆë‹¤.")]
         [SerializeField] private float appearSpeed = 3f;
 
         [Header("Localization")]
@@ -110,6 +114,14 @@ namespace Vampire
         private AbilitySelectionDialog levelUpMenu;
         private Ability ability;
         private bool initialized;
+        private Coroutine appearCoroutine;
+        private Vector3 baseLocalScale = Vector3.one;
+        private bool baseScaleCached;
+
+        private void Awake()
+        {
+            CacheBaseScale();
+        }
 
         private void OnEnable()
         {
@@ -119,6 +131,42 @@ namespace Vampire
         private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= HandleLocaleChanged;
+
+            if (appearCoroutine != null)
+            {
+                StopCoroutine(appearCoroutine);
+                appearCoroutine = null;
+            }
+
+            CacheBaseScale();
+            transform.localScale = baseLocalScale;
+        }
+
+        private void CacheBaseScale()
+        {
+            if (baseScaleCached)
+            {
+                return;
+            }
+
+            baseLocalScale = transform.localScale;
+            baseScaleCached = true;
+        }
+
+        private void ResetAppearAnimation()
+        {
+            CacheBaseScale();
+
+            if (appearCoroutine != null)
+            {
+                StopCoroutine(appearCoroutine);
+                appearCoroutine = null;
+            }
+
+            // Cards are pooled by AbilitySelectionDialog. Always restore the
+            // prefab scale before reusing one, otherwise a reroll/scene return
+            // can leave one panel larger (or invisible) than its siblings.
+            transform.localScale = baseLocalScale;
         }
 
         private void HandleLocaleChanged(Locale _)
@@ -145,6 +193,11 @@ namespace Vampire
 
             if (buttonText != null)
             {
+                if (ability is Ver4AugmentOffer offer)
+                {
+                    buttonText.text = offer.Kind == Ver4RewardKind.Numeric || offer.Kind == Ver4RewardKind.Original ? "ê°•í™”" : "íšë“";
+                    return;
+                }
                 buttonText.text = !ability.Owned
                     ? selectLocalization.GetLocalizedString()
                     : upgradeLocalization.GetLocalizedString() + " (" + ability.Level + " -> " + (ability.Level + 1) + ")";
@@ -153,14 +206,24 @@ namespace Vampire
 
         public void Init(AbilitySelectionDialog levelUpMenu, Ability ability, float waitToAppear)
         {
+            ResetAppearAnimation();
             this.levelUpMenu = levelUpMenu;
             this.ability = ability;
 
             CacheMissingReferences();
             ApplyTierVisuals(ability.Tier);
+            if (ability is Ver4AugmentOffer preview && preview.Kind != Ver4RewardKind.LegendaryAbility)
+            {
+                Color tint = upgradeGradeColors[(int)preview.Grade];
+                if (cardBackgroundImage != null) cardBackgroundImage.color = tint;
+                if (iconFrameImage != null) iconFrameImage.color = tint;
+                if (bottomEmblemImage != null) bottomEmblemImage.color = tint;
+                if (nameText != null) nameText.color = tint;
+                if (selectionButtonImage != null) selectionButtonImage.color = tint;
+            }
             ApplyAbilityIcon();
 
-            StartCoroutine(Appear(waitToAppear));
+            appearCoroutine = StartCoroutine(Appear(waitToAppear));
 
             initialized = true;
             SetText();
@@ -337,7 +400,8 @@ namespace Vampire
 
         public IEnumerator Appear(float waitToAppear)
         {
-            Vector3 initialScale = transform.localScale;
+            CacheBaseScale();
+            Vector3 initialScale = baseLocalScale;
             transform.localScale = Vector3.zero;
 
             yield return new WaitForSecondsRealtime(waitToAppear);
@@ -352,6 +416,7 @@ namespace Vampire
             }
 
             transform.localScale = initialScale;
+            appearCoroutine = null;
         }
 
         public void Selected()
@@ -361,16 +426,16 @@ namespace Vampire
                 return;
             }
 
-            // ½ÇÁ¦ Áõ°­ Àû¿ëÀ» ¸ÕÀú Ã³¸®ÇÕ´Ï´Ù.
+            // ì‹¤ì œ ì¦ê°• ì ìš©ì„ ë¨¼ì € ì²˜ë¦¬í•©ë‹ˆë‹¤.
             ability.Select();
 
-            // Áõ°­ ¼±ÅÃÀÌ ½ÇÁ¦·Î Ã³¸®µÈ µÚ ¼±ÅÃ È¿°úÀ½À» 1È¸ Àç»ıÇÕ´Ï´Ù.
+            // ì¦ê°• ì„ íƒì´ ì‹¤ì œë¡œ ì²˜ë¦¬ëœ ë’¤ ì„ íƒ íš¨ê³¼ìŒì„ 1íšŒ ì¬ìƒí•©ë‹ˆë‹¤.
             GameAudioManager.PlaySfx(
                 GameAudioManager.GameSfxId.AugmentSelect
             );
 
-            // ¼±ÅÃÃ¢À» ´İÀ¸¸é¼­ Áõ°­ ¼±ÅÃ BGMÀ» Á¾·áÇÏ°í
-            // ÀÌÀü¿¡ Àç»ı ÁßÀÌ´ø BGMÀ¸·Î º¹±ÍÇÕ´Ï´Ù.
+            // ì„ íƒì°½ì„ ë‹«ìœ¼ë©´ì„œ ì¦ê°• ì„ íƒ BGMì„ ì¢…ë£Œí•˜ê³ 
+            // ì´ì „ì— ì¬ìƒ ì¤‘ì´ë˜ BGMìœ¼ë¡œ ë³µê·€í•©ë‹ˆë‹¤.
             levelUpMenu.Close();
         }
     }

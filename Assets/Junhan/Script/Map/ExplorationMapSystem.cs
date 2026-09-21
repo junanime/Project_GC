@@ -26,6 +26,26 @@ namespace Vampire
     public class ExplorationMapSystem : MonoBehaviour
     {
         public static ExplorationMapSystem Instance { get; private set; }
+        public Texture FullMapTexture => fullMapImage != null ? fullMapImage.texture : null;
+        // Snapshot only visible discovered markers while the run is paused; keep the live map texture.
+        public void CopyBookMarkers(RectTransform parent)
+        {
+            if (fullMapMarkerRoot == null) return;
+            RefreshFullMapView();
+            foreach (Transform child in fullMapMarkerRoot)
+            {
+                var source = child.GetComponent<Image>();
+                var rect = child as RectTransform;
+                if (source == null || !child.gameObject.activeSelf || rect == null) continue;
+                Vector2 size = fullMapMarkerRoot.rect.size;
+                var clone = new GameObject(child.name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                clone.transform.SetParent(parent, false);
+                var image = clone.GetComponent<Image>();image.sprite=source.sprite;image.color=source.color;image.raycastTarget=false;
+                var target=image.rectTransform;
+                target.anchorMin=target.anchorMax=new Vector2(.5f+rect.anchoredPosition.x/Mathf.Max(1,size.x),.5f+rect.anchoredPosition.y/Mathf.Max(1,size.y));
+                target.sizeDelta=Vector2.one*16;
+            }
+        }
 
         // ========================================
         // References

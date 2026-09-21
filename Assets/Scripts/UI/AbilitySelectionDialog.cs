@@ -7,6 +7,8 @@ namespace Vampire
 {
     public class AbilitySelectionDialog : DialogBox
     {
+        private const int SelectionPanelCount = 3;
+
         [Header("Ability Card References")]
         [Tooltip("증강 카드들이 생성될 부모 Transform입니다.")]
         [SerializeField] private Transform abilityCardsParent;
@@ -85,6 +87,8 @@ namespace Vampire
 
         private bool menuOpen = false;
         private bool rerollUsed = false;
+        private Vector3 cardParentBaseScale = Vector3.one;
+        private bool cardParentScaleCached;
 
         private Canvas minimapCanvas;
         private CanvasGroup minimapCanvasGroup;
@@ -109,6 +113,7 @@ namespace Vampire
 
         private void Awake()
         {
+            CacheCardParentScale();
             SetupRerollButton();
         }
 
@@ -217,9 +222,28 @@ namespace Vampire
                 abilityCards = new List<AbilityCard>();
             }
 
+            if (abilities == null)
+            {
+                abilities = new List<Ability>();
+            }
+
+            int visibleCount = Mathf.Min(SelectionPanelCount, abilities.Count);
+
+            // The game design always uses three selection slots. The runtime
+            // generator is responsible for supplying three offers; this guard
+            // prevents an oversized/stale fourth card from changing the
+            // layout when a malformed list reaches the UI.
+            if (abilities.Count > SelectionPanelCount)
+            {
+                Debug.LogWarning(
+                    $"[AbilitySelectionDialog] 선택 목록이 {SelectionPanelCount}개를 초과해 초과 항목을 숨깁니다. actual={abilities.Count}");
+            }
+
+            ApplyResponsiveCardScale();
+
             int i = 0;
 
-            for (; i < abilities.Count; i++)
+            for (; i < visibleCount; i++)
             {
                 if (i >= abilityCards.Count)
                 {
@@ -235,10 +259,64 @@ namespace Vampire
             {
                 abilityCards[i].gameObject.SetActive(false);
             }
+
+            if (visibleCount != SelectionPanelCount)
+            {
+                Debug.LogWarning(
+                    $"[AbilitySelectionDialog] 선택 패널 수가 {SelectionPanelCount}개보다 적습니다. actual={visibleCount}. " +
+                    "AbilityManager 후보 생성 결과를 확인하세요.");
+            }
+        }
+
+        private void CacheCardParentScale()
+        {
+            if (cardParentScaleCached || abilityCardsParent == null)
+            {
+                return;
+            }
+
+            cardParentBaseScale = abilityCardsParent.localScale;
+            cardParentScaleCached = true;
+        }
+
+        private void ApplyResponsiveCardScale()
+        {
+            if (abilityCardsParent == null)
+            {
+                return;
+            }
+
+            CacheCardParentScale();
+
+            RectTransform dialogRect = transform as RectTransform;
+            RectTransform parentRect = abilityCardsParent as RectTransform;
+            RectTransform prefabRect = abilityCardPrefab != null
+                ? abilityCardPrefab.GetComponent<RectTransform>()
+                : null;
+
+            if (dialogRect == null || parentRect == null || prefabRect == null)
+            {
+                abilityCardsParent.localScale = cardParentBaseScale;
+                return;
+            }
+
+            float cardWidth = Mathf.Max(1f, prefabRect.rect.width);
+            float spacing = 0f;
+            HorizontalOrVerticalLayoutGroup layout = abilityCardsParent.GetComponent<HorizontalOrVerticalLayoutGroup>();
+            if (layout != null)
+            {
+                spacing = Mathf.Max(0f, layout.spacing);
+            }
+
+            float requiredWidth = cardWidth * SelectionPanelCount + spacing * (SelectionPanelCount - 1);
+            float availableWidth = Mathf.Max(1f, dialogRect.rect.width * 0.94f);
+            float scale = Mathf.Min(1f, availableWidth / requiredWidth);
+            abilityCardsParent.localScale = cardParentBaseScale * scale;
         }
 
         public void RerollAbilities()
         {
+            if (abilityManager != null && abilityManager.LegendaryRewardContext && abilityManager.Ver4 != null && !abilityManager.Ver4.Balance.legendaryReroll) return;
             if (!enableReroll)
             {
                 return;
@@ -315,7 +393,7 @@ namespace Vampire
                 return;
             }
 
-            bool shouldShow = enableReroll && menuOpen;
+            bool shouldShow = enableReroll && menuOpen && !(abilityManager != null && abilityManager.LegendaryRewardContext && abilityManager.Ver4 != null && !abilityManager.Ver4.Balance.legendaryReroll);
             rerollButton.gameObject.SetActive(shouldShow);
 
             if (!shouldShow)
@@ -359,6 +437,7 @@ namespace Vampire
             RestoreMinimapLayer();
 
             menuOpen = false;
+            if (abilityManager != null) abilityManager.LegendaryRewardContext = false;
             Time.timeScale = 1;
 
             if (pauseMenu != null)
@@ -373,12 +452,34 @@ namespace Vampire
 
             UpdateRerollButtonState();
 
+            if (abilityCardsParent != null && cardParentScaleCached)
+            {
+                abilityCardsParent.localScale = cardParentBaseScale;
+            }
+
             base.Close();
         }
 
         public bool HasAvailableAbilities()
         {
             return abilityManager.HasAvailableAbilities();
+        }
+
+        public bool HasAvailableLegendaryAbilities()
+        {
+            if (abilityManager == null || abilityManager.Ver4 == null) return false;
+            bool oldContext=abilityManager.LegendaryRewardContext;
+            abilityManager.LegendaryRewardContext=true;
+            bool result=abilityManager.HasAvailableAbilities();
+            abilityManager.LegendaryRewardContext=oldContext;
+            return result;
+        }
+
+        public void OpenLegendary()
+        {
+            if (menuOpen || abilityManager == null) return;
+            abilityManager.LegendaryRewardContext=true;
+            Open(false);
         }
 
         private void ApplyMinimapBehindModal()

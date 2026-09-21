@@ -16,17 +16,17 @@ namespace Vampire
         [SerializeField] private TMP_Text rerollCostText;
 
         [Header("Hide While Shop Open")]
-        [Tooltip("»óÁ¡Ã¢ÀÌ ¿­·ÈÀ» ¶§ ÆĞ³Î µÚ·Î º¸³¾ ¹Ì´Ï¸Ê ·çÆ® ¿ÀºêÁ§Æ®ÀÔ´Ï´Ù. ±âÁ¸¿¡ ¿¬°áÇØµĞ ¹Ì´Ï¸Ê ¿ÀºêÁ§Æ®¸¦ ±×´ë·Î ³ÖÀ¸¸é µË´Ï´Ù.")]
+        [Tooltip("ìƒì ì°½ì´ ì—´ë ¸ì„ ë•Œ íŒ¨ë„ ë’¤ë¡œ ë³´ë‚¼ ë¯¸ë‹ˆë§µ ë£¨íŠ¸ ì˜¤ë¸Œì íŠ¸ì…ë‹ˆë‹¤. ê¸°ì¡´ì— ì—°ê²°í•´ë‘” ë¯¸ë‹ˆë§µ ì˜¤ë¸Œì íŠ¸ë¥¼ ê·¸ëŒ€ë¡œ ë„£ìœ¼ë©´ ë©ë‹ˆë‹¤.")]
         [SerializeField] private GameObject minimapObject;
 
         [Header("Mini Map Layer Fix")]
-        [Tooltip("Minimap Object°¡ ºñ¾î ÀÖÀ» ¶§ ÀÌ¸§¿¡ Minimap, MiniMap, Mini Map, Mini_MapÀÌ µé¾î°£ UI ¿ÀºêÁ§Æ®¸¦ ÀÚµ¿À¸·Î Ã£¾Æº¾´Ï´Ù.")]
+        [Tooltip("Minimap Objectê°€ ë¹„ì–´ ìˆì„ ë•Œ ì´ë¦„ì— Minimap, MiniMap, Mini Map, Mini_Mapì´ ë“¤ì–´ê°„ UI ì˜¤ë¸Œì íŠ¸ë¥¼ ìë™ìœ¼ë¡œ ì°¾ì•„ë´…ë‹ˆë‹¤.")]
         [SerializeField] private bool autoFindMinimapIfEmpty = true;
 
-        [Tooltip("¹Ì´Ï¸Ê ¿ÀºêÁ§Æ®¿¡ Canvas°¡ ¾øÀ¸¸é ·±Å¸ÀÓ¿¡ Canvas¸¦ Ãß°¡ÇØ¼­ ·¹ÀÌ¾î ¼ø¼­¸¦ °­Á¦·Î Á¦¾îÇÕ´Ï´Ù.")]
+        [Tooltip("ë¯¸ë‹ˆë§µ ì˜¤ë¸Œì íŠ¸ì— Canvasê°€ ì—†ìœ¼ë©´ ëŸ°íƒ€ì„ì— Canvasë¥¼ ì¶”ê°€í•´ì„œ ë ˆì´ì–´ ìˆœì„œë¥¼ ê°•ì œë¡œ ì œì–´í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool addCanvasToMinimapIfMissing = true;
 
-        [Tooltip("»óÁ¡Ã¢ÀÌ ¿­·ÈÀ» ¶§ ¹Ì´Ï¸Ê¿¡ Àû¿ëÇÒ Sorting OrderÀÔ´Ï´Ù. ³·À»¼ö·Ï µÚ·Î °©´Ï´Ù.")]
+        [Tooltip("ìƒì ì°½ì´ ì—´ë ¸ì„ ë•Œ ë¯¸ë‹ˆë§µì— ì ìš©í•  Sorting Orderì…ë‹ˆë‹¤. ë‚®ì„ìˆ˜ë¡ ë’¤ë¡œ ê°‘ë‹ˆë‹¤.")]
         [SerializeField] private int minimapModalSortingOrder = -100;
 
         [Header("Dynamic Shop Card Settings")]
@@ -108,7 +108,7 @@ namespace Vampire
 
         private void Update()
         {
-            if (shopUIContainer != null && shopUIContainer.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+            if (shopUIContainer != null && shopUIContainer.activeSelf && Vampire.GameInput.GetKeyDown(KeyCode.Escape))
             {
                 CloseShop();
             }
@@ -260,13 +260,13 @@ namespace Vampire
 
             if (currentInteractingNPC == null)
             {
-                Debug.LogWarning("[MerchantUIManager] currentInteractingNPC°¡ ¾ø½À´Ï´Ù.");
+                Debug.LogWarning("[MerchantUIManager] currentInteractingNPCê°€ ì—†ìŠµë‹ˆë‹¤.");
                 return;
             }
 
             if (shopCardsParent == null || shopItemCardPrefab == null)
             {
-                Debug.LogError("[MerchantUIManager] ShopCardsParent ¶Ç´Â ShopItemCardPrefabÀÌ ¿¬°áµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+                Debug.LogError("[MerchantUIManager] ShopCardsParent ë˜ëŠ” ShopItemCardPrefabì´ ì—°ê²°ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
                 return;
             }
 
@@ -305,7 +305,7 @@ namespace Vampire
                 }
                 else
                 {
-                    Debug.LogError("[MerchantUIManager] ShopItemCardPrefab¿¡ ShopItemButton ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù!");
+                    Debug.LogError("[MerchantUIManager] ShopItemCardPrefabì— ShopItemButton ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤!");
                 }
             }
         }
@@ -346,11 +346,11 @@ namespace Vampire
                 UpdateRerollCostText();
                 DisplayCurrentShopItems();
 
-                Debug.Log($"[»óÁ¡] ¸®·Ñ ¼º°ø! ÀüÃ¼ ¸®·Ñ È½¼ö: {globalRerollCount}, ´ÙÀ½ ¸®·Ñ ºñ¿ë: {currentRerollCost}G");
+                Debug.Log($"[ìƒì ] ë¦¬ë¡¤ ì„±ê³µ! ì „ì²´ ë¦¬ë¡¤ íšŸìˆ˜: {globalRerollCount}, ë‹¤ìŒ ë¦¬ë¡¤ ë¹„ìš©: {currentRerollCost}G");
             }
             else
             {
-                Debug.LogWarning("[»óÁ¡] ¸®·ÑÇÒ °ñµå°¡ ºÎÁ·ÇÕ´Ï´Ù!");
+                Debug.LogWarning("[ìƒì ] ë¦¬ë¡¤í•  ê³¨ë“œê°€ ë¶€ì¡±í•©ë‹ˆë‹¤!");
             }
         }
 
@@ -366,7 +366,7 @@ namespace Vampire
         {
             if (audioSource != null && rerollSound != null)
             {
-                audioSource.PlayOneShot(rerollSound);
+                GameAudioManager.PlayUiClip(rerollSound);
             }
         }
 
@@ -407,7 +407,7 @@ namespace Vampire
                 }
                 else
                 {
-                    Debug.LogWarning("[½Ã³ÊÁö] SynergyManager°¡ ¾À¿¡ ¾ø½À´Ï´Ù!");
+                    Debug.LogWarning("[ì‹œë„ˆì§€] SynergyManagerê°€ ì”¬ì— ì—†ìŠµë‹ˆë‹¤!");
                 }
 
                 MerchantNPC npcToDestroy = currentInteractingNPC;
@@ -416,7 +416,7 @@ namespace Vampire
 
                 if (npcToDestroy != null)
                 {
-                    Debug.Log("<color=magenta>[½Ã½ºÅÛ]</color> °Å·¡ ¿Ï·á! ¾ÆÀú¾¾°¡ Åğ±ÙÇß½À´Ï´Ù.");
+                    Debug.Log("<color=magenta>[ì‹œìŠ¤í…œ]</color> ê±°ë˜ ì™„ë£Œ! ì•„ì €ì”¨ê°€ í‡´ê·¼í–ˆìŠµë‹ˆë‹¤.");
                     Destroy(npcToDestroy.gameObject);
                 }
             }
@@ -435,12 +435,12 @@ namespace Vampire
                 }
                 else
                 {
-                    Debug.LogWarning("[»óÁ¡] °ñµå°¡ ºÎÁ·ÇÕ´Ï´Ù!");
+                    Debug.LogWarning("[ìƒì ] ê³¨ë“œê°€ ë¶€ì¡±í•©ë‹ˆë‹¤!");
                 }
             }
             else
             {
-                Debug.LogError("[MerchantUIManager] ¸Ê¿¡ StatsManager°¡ ¾ø½À´Ï´Ù!");
+                Debug.LogError("[MerchantUIManager] ë§µì— StatsManagerê°€ ì—†ìŠµë‹ˆë‹¤!");
             }
 
             return false;

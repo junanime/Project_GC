@@ -11,6 +11,7 @@ namespace Vampire
         [SerializeField] protected SilverCoinDisplay silverCoinDisplay;
 
         private CharacterCard[] characterCards;
+        private bool startingGame;
 
         public void Init()
         {
@@ -32,7 +33,9 @@ namespace Vampire
 
         public void StartGame(CharacterBlueprint characterBlueprint)
         {
-            CrossSceneData.StartingLobbyItems = LobbyLoadoutData.ConsumeSelectedCarryItems();
+            if (startingGame || characterBlueprint == null ||
+                !LobbyUnlockSave.IsUnlocked("Character", characterBlueprint.name, characterBlueprint.owned)) return;
+            startingGame = true;
             CrossSceneData.CharacterBlueprint = characterBlueprint;
             CrossSceneData.StartingLobbyItems = LobbyLoadoutData.ConsumeSelectedCarryItems();
 

@@ -930,7 +930,8 @@ float maxHitRadiusBonusFromSpecial)
                 cursorNeedleTransform.position,
                 monsterLayer,
                 damageableComponent.gameObject,
-                consumedNeedleMark
+                consumedNeedleMark,
+                finalDamage
             );
         }
         // =========================================================

@@ -10,7 +10,7 @@ namespace Vampire
     /// Touch interactable joystick. Utilizes IPointer interfaces to ensure
     /// make touches interacting with other UI elements easier to handle.
     /// </summary>
-    public class TouchJoystick : OnScreenControl, IPointerDownHandler, IPointerUpHandler
+    public class TouchJoystick : OnScreenControl, IPointerDownHandler, IPointerUpHandler, IDragHandler
     {
         [SerializeField] private bool permanent = false;
         [SerializeField] private float joystickRadius;
@@ -29,6 +29,7 @@ namespace Vampire
         private RectTransform controlRect;
         private bool beingTouched = false;
         private Vector2 initialTouchPosition;
+        private int? activePointerId;
 
         public bool BeingTouched { get => beingTouched; }
 
@@ -41,13 +42,7 @@ namespace Vampire
         {
             if (beingTouched)
             {
-                if (Time.timeScale > 0)
-                {
-                    Vector2 touchPosition;
-                    RectTransformUtility.ScreenPointToLocalPointInRectangle(controlRect, Input.mousePosition, null, out touchPosition);
-                    UpdateTouch(touchPosition);
-                }
-                else
+                if (Time.timeScale <= 0)
                 {
                     EndTouch();
                 }
@@ -56,14 +51,43 @@ namespace Vampire
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            if (activePointerId.HasValue || Time.timeScale <= 0) return;
+            activePointerId = eventData.pointerId;
             Vector2 touchPosition;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(controlRect, eventData.position, null, out touchPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(controlRect, eventData.position, eventData.pressEventCamera, out touchPosition);
             StartTouch(permanent ? joystick.localPosition : touchPosition);
+            eventData.useDragThreshold = false;
+            UpdateTouch(touchPosition);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            EndTouch();
+            if (activePointerId == eventData.pointerId) EndTouch();
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (activePointerId != eventData.pointerId || !beingTouched) return;
+            if (Time.timeScale <= 0) { EndTouch(); return; }
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(controlRect, eventData.position,
+                eventData.pressEventCamera, out Vector2 position);
+            UpdateTouch(position);
+        }
+
+        protected override void OnDisable()
+        {
+            if (beingTouched) EndTouch();
+            base.OnDisable();
+        }
+
+        private void OnApplicationFocus(bool focused)
+        {
+            if (!focused && beingTouched) EndTouch();
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused && beingTouched) EndTouch();
         }
 
         public void StartTouch(Vector2 touchPosition)
@@ -89,7 +113,7 @@ namespace Vampire
         public void UpdateTouch(Vector2 touchPosition)
         {
             Vector2 joystickDelta = (touchPosition - initialTouchPosition);
-            Vector2 moveDirection = joystickDelta.normalized;
+            Vector2 moveDirection = Vector2.ClampMagnitude(joystickDelta / Mathf.Max(1f, joystickRadius), 1f);
             // Update the joystick position, locking it within the joystick bounds
             joystick.localPosition = joystickDelta.magnitude > joystickRadius ? initialTouchPosition + moveDirection * joystickRadius : touchPosition;
             // Invoke on move callback
@@ -99,6 +123,7 @@ namespace Vampire
 
         public void EndTouch()
         {
+            activePointerId = null;
             joystick.localPosition = joystickBounds.localPosition;
             // Disable the joystick
             joystick.gameObject.SetActive(permanent);

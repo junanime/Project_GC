@@ -415,7 +415,8 @@ SyringeDartAbility sourceNeedleAbility)
                     GetTargetWorldPosition(target),
                     monsterLayer,
                     target.component.gameObject,
-                    consumedNeedleMark
+                    consumedNeedleMark,
+                    finalDamage
                 );
             }
 

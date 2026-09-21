@@ -25,6 +25,7 @@ namespace Vampire
         }
         private Rigidbody2D targetRigidbody;
         private Coroutine slowCoroutine;
+        public bool IsActive => slowCoroutine != null;
 
         private bool hasOriginalDrag = false;
         private float originalDrag;

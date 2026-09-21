@@ -714,6 +714,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            ver4ChillUntil = -1f;
             StopPatternLoop();
             StopBasicAttackBurst();
 
@@ -1079,13 +1080,19 @@ namespace Vampire
                     .projectileSpeedMultiplier;
         }
 
+        private float ver4ChillUntil = -1f;
+        public void ApplyVer4IceChill(float duration)
+        {
+            ver4ChillUntil = Mathf.Max(ver4ChillUntil, Time.time + Mathf.Max(0f, duration));
+        }
+
         public float GetModifiedMovementSpeed(
             float baseSpeed)
         {
             return
                 baseSpeed *
                 GetCurrentPhaseSettings()
-                    .movementSpeedMultiplier;
+                    .movementSpeedMultiplier * (Time.time < ver4ChillUntil ? .8f : 1f);
         }
 
         public float GetModifiedPatternCooldown(

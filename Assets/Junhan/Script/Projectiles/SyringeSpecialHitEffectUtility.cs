@@ -23,6 +23,7 @@ namespace Vampire
     /// </summary>
     public static class SyringeSpecialHitEffectUtility
     {
+        public static void ReapplyVer4Mark(Component target, SyringeSpecialRuntime runtime) => ApplyNeedleMark(target,runtime);
         private static bool hasWarnedHealMethodMissing = false;
 
         public static bool TryGetValidDamageableTarget(
@@ -142,6 +143,7 @@ namespace Vampire
                 multiplier *= GetCorrosionDamageMultiplier(damageableComponent);
             }
 
+            multiplier *= Ver4HitEffects.BeforeHit(damageableComponent,runtime);
             return Mathf.Max(0.01f, multiplier);
         }
 
@@ -152,7 +154,8 @@ namespace Vampire
             Vector2 hitPosition,
             LayerMask damageableLayer,
             GameObject originalTarget,
-            bool consumedNeedleMark)
+            bool consumedNeedleMark,
+            float appliedNeedleDamage = -1f)
         {
             if (damageableComponent == null)
             {
@@ -218,6 +221,8 @@ namespace Vampire
                     originalTarget
                 );
             }
+            if(appliedNeedleDamage>=0) runtime.ver4HitDamage=appliedNeedleDamage;
+            Ver4HitEffects.AfterHit(damageableComponent,runtime,sourceCharacter,damageableLayer,consumedNeedleMark);
         }
 
         private static Monster GetMonster(Component damageableComponent)
@@ -603,7 +608,7 @@ namespace Vampire
                     continue;
                 }
 
-                float finalDamage = runtime.explosionDamage;
+                float finalDamage = runtime.explosionDamage * Ver4HitEffects.ExplosionCenterMultiplier(splashComponent,hitPosition,runtime);
 
                 splashDamageable.TakeDamage(
                     finalDamage,

@@ -25,7 +25,12 @@ namespace Vampire
             // 신규 특수증강
             DigestiveAcidSacNeedle,
             HungerNeedle,
-            GutBacteriaNeedle
+            GutBacteriaNeedle,
+            WoodNeedle = 16,
+            FireNeedle = 17,
+            IceNeedle = 18,
+            WindNeedle = 19,
+            VibrationNeedle = 20
          
         }
 
@@ -38,6 +43,25 @@ namespace Vampire
         [SerializeField] private bool debugLog = true;
 
         private SyringeDartAbility syringeDartAbility;
+        public SpecialAugmentType Type => augmentType;
+        public override string Name => (int)augmentType >= 16 ? Ver4AugmentCatalog.ParentNames[(int)augmentType] : base.Name;
+        public override string Description => (int)augmentType >= 16 ? NewEffectDescription() : base.Description;
+        public void ConfigureNewAugment(SpecialAugmentType type, Sprite icon)
+        {
+            augmentType=type; image=icon; augmentTier=AugmentTier.Special;
+        }
+        private string NewEffectDescription()
+        {
+            switch(augmentType)
+            {
+                case SpecialAugmentType.WoodNeedle: return "적중 시 4초 씨앗. 3중첩이면 소모하여 2 거리 내 다른 적에게 침 피해의 40% 가지 추가타.";
+                case SpecialAugmentType.FireNeedle: return "적중 시 25% 확률로 3초 화상. 1초마다 최대 체력 0.5% 피해, 기본 3중첩. 보스 틱 피해는 부여한 침 피해의 25% 상한.";
+                case SpecialAugmentType.IceNeedle: return "적중 시 20% 확률로 1초 빙결. 다음 침 적중 피해 +20% 후 해제, 재빙결 대기 2초. 보스는 20% 감속.";
+                case SpecialAugmentType.WindNeedle: return "공유 침 공격 속도 +10%, 피해량 +8%, 투사체 속도 +12%.";
+                case SpecialAugmentType.VibrationNeedle: return "적중 시 반경 1 충격파: 침 피해 35%와 넉백. 플레이어당 발동 간격 0.5초. 추가타로 재발동하지 않음.";
+                default:return string.Empty;
+            }
+        }
 
         public override void Init(
             AbilityManager abilityManager,
@@ -65,6 +89,11 @@ namespace Vampire
             base.Use();
 
             RefreshSyringeDartAbilityReference();
+            if ((int)augmentType >= 16 && syringeDartAbility != null)
+            {
+                syringeDartAbility.EnableVer4Special(augmentType);
+                return;
+            }
 
             if (syringeDartAbility == null)
             {
@@ -159,6 +188,8 @@ namespace Vampire
         public override bool RequirementsMet()
         {
             RefreshSyringeDartAbilityReference();
+            if ((int)augmentType >= 16)
+                return syringeDartAbility != null && !syringeDartAbility.HasVer4Special(augmentType) && base.RequirementsMet();
 
             if (syringeDartAbility == null)
             {

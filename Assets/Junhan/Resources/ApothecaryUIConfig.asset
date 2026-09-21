@@ -1,0 +1,222 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 067b1629452014542acea3a70cc11107, type: 3}
+  m_Name: ApothecaryUIConfig
+  m_EditorClassIdentifier:
+  mainBackground: {fileID: 21300000, guid: 27e190be069886c40bc362de4de91984, type: 3}
+  panelBackground: {fileID: 21300000, guid: 0209a8bd5774da142a8d10477fc86d44, type: 3}
+  failureAshi: {fileID: 21300000, guid: 194686c5ade9b5f43badce5ac18cfc54, type: 3}
+  buttonBody: {fileID: -4000982346974253384, guid: 540a40d879ba44c43b36b3cb46a45f09, type: 3}
+  bookBackground: {fileID: 21300000, guid: b0b2367f4bf5d244cbbd107f1ded8224, type: 3}
+  characterStage: {fileID: 21300000, guid: 737a81a3fed97c74ca6f77d8a2f59247, type: 3}
+  scrollPanel: {fileID: 21300000, guid: 61fcfb3797dc0b54eb34863ef48a24d2, type: 3}
+  primaryButton: {fileID: 4840391630668541875, guid: 4e95d0a2ac79fec4095f8bfb7a5b1868, type: 3}
+  sectionRibbon: {fileID: 5836190753337752797, guid: fc4aa35e6ae5fa947b92a03c8a8d3356, type: 3}
+  inventorySlot: {fileID: 21300000, guid: 8a137303c58fe8b4ab93d69e91e86cf0, type: 3}
+  font: {fileID: 11400000, guid: 7197d315232af3944b951aa9b64bd92b, type: 2}
+  characters:
+  - {fileID: 11400000, guid: 138b085873865480984b6ebcd8312fae, type: 2}
+  - {fileID: 11400000, guid: 02309cd829b224b648ed3c3df7c86e6c, type: 2}
+  - {fileID: 11400000, guid: afa99349eb3ad4e2aa7701749ec87eea, type: 2}
+  relics:
+  - {fileID: 11400000, guid: 8a7f84788ca95eb45b11534da95190bd, type: 2}
+  - {fileID: 11400000, guid: e6efe4e036920fe4b9334cedb4ef4486, type: 2}
+  - {fileID: 11400000, guid: cc81d488b4b2cec468613f6dc58d7cc9, type: 2}
+  items:
+  - {fileID: 11400000, guid: 1cb54c8af86a4bd4b964653bfa0877ad, type: 2}
+  - {fileID: 11400000, guid: 85ab3548e89507249aef49a9cbf7c3f8, type: 2}
+  - {fileID: 11400000, guid: 7b64181dc0bfae9428b5c272509d0ece, type: 2}
+  - {fileID: 11400000, guid: 29a36d1062ab25449bf4df01a93b510a, type: 2}
+  - {fileID: 11400000, guid: 72eb7454e13c3ae4e982ffff8ceb0d7a, type: 2}
+  - {fileID: 11400000, guid: 230716999159ef34e8cbea9bd5a3ff0d, type: 2}
+  - {fileID: 11400000, guid: 4a31486d98922394cb1605066e8d5f4a, type: 2}
+  - {fileID: 11400000, guid: 742c1e3dd97775c4c9ca09a04be2b939, type: 2}
+  - {fileID: 11400000, guid: 78001ffcc88959846ab86f687c791f1d, type: 2}
+  - {fileID: 11400000, guid: 64c795e2f3ffa6348a2eadcfcd440634, type: 2}
+  - {fileID: 11400000, guid: c99bc9e2ee32962448eae18d47cff992, type: 2}
+  - {fileID: 11400000, guid: 0d52246c301dc7343ad463ab0f9b1492, type: 2}
+  - {fileID: 11400000, guid: e69108852f3ce4245a52efbb3762ef66, type: 2}
+  - {fileID: 11400000, guid: 0e3eeb9479ca07b42bdeb3c2f040a2eb, type: 2}
+  - {fileID: 11400000, guid: 1a68dca2fa6b7594eb70835a79ca0bed, type: 2}
+  - {fileID: 11400000, guid: e4972fe147d4d6a41a15281651c0a486, type: 2}
+  - {fileID: 11400000, guid: 318a94af7c18f2444b09e611144fd394, type: 2}
+  - {fileID: 11400000, guid: 0ad6d17e98c21204eb4fab76c1f9f8f2, type: 2}
+  - {fileID: 11400000, guid: b8e2ce71e02b25e428b87c7d4212d675, type: 2}
+  - {fileID: 11400000, guid: 81366a096934c4b4987bd4f42f5544d0, type: 2}
+  - {fileID: 11400000, guid: ed63806d3234d534da40a4fefd41f76f, type: 2}
+  - {fileID: 11400000, guid: a86c7b7a35d414747b77932f7ccfdb32, type: 2}
+  - {fileID: 11400000, guid: 64f47c34436621d44b1f2b21405408bc, type: 2}
+  - {fileID: 11400000, guid: e643a24e73d2ecb49b4af21258e85bf0, type: 2}
+  - {fileID: 11400000, guid: 53fdf5cfa76f90345ac3a85e881dbcfd, type: 2}
+  - {fileID: 11400000, guid: ebf53ba50ca08f74a97e065f4edbc015, type: 2}
+  - {fileID: 11400000, guid: 2d7a0c61af21c5b4bac1cc90346a139d, type: 2}
+  - {fileID: 11400000, guid: 04999af680b3453418ce8d523a094669, type: 2}
+  - {fileID: 11400000, guid: d6173aa38062fce41b5b3f50427e1d5f, type: 2}
+  - {fileID: 11400000, guid: d103f8bca153c3146bcc69c4e90f3494, type: 2}
+  augments:
+  - title: "\uC77C\uBC18 \uC99D\uAC15"
+    description: "\uC120\uD0DD \uC2DC \uC81C\uC2DC\uB41C \uB2A5\uB825\uCE58 \uD6A8\uACFC\uB97C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 1d4b999890d36554b990825e3d120a99, type: 3}
+    tier: 0
+  - title: "\uC870\uAC74\uBD80 \uC77C\uBC18\uC99D\uAC15"
+    description: "\uD604\uC7AC \uBCF4\uC720\uD55C \uD2B9\uC218\uC99D\uAC15 \uC911
+      \uAC15\uD654 \uAC00\uB2A5\uD55C \uC870\uAC74\uBD80 \uC77C\uBC18\uC99D\uAC15\uC774
+      \uC5C6\uC2B5\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 7df88df670ba7d8428d9d7648c4d3df8, type: 3}
+    tier: 0
+  - title: "\uB3C5\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: cb5d60a22b00cb840924d36bb1a2fda1, type: 3}
+    tier: 1
+  - title: "\uB2E4\uC774\uB108\uB9C8\uC774\uD2B8\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 9da138cb3e9bc0942bb068c7b03fd6b8, type: 3}
+    tier: 1
+  - title: "\uC720\uB3C4\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: c22daf6a631889a4f980ccc16ae4889f, type: 3}
+    tier: 1
+  - title: "\uAD00\uD1B5\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 71799decdd076bd40be5048cfc481865, type: 3}
+    tier: 1
+  - title: "\uAFC0\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 946e5ec4b6c995c4a8137affa490f8e2, type: 3}
+    tier: 1
+  - title: "\uBAA8\uAE30\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: f6a43b10731f92d49b9e939a34a1220f, type: 3}
+    tier: 1
+  - title: "\uCE68\uC220\uC9C4"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: ce95dcaf73882344d826a5f162b884bc, type: 3}
+    tier: 1
+  - title: "\uCE68\uADC0\uD658"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 92f6d0a5b152025478f7eabcf3f7e7a5, type: 3}
+    tier: 1
+  - title: "\uC18C\uD654\uC561\uB0AD\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: cfa4d15f10d621143a01b8a9545ea8df, type: 3}
+    tier: 1
+  - title: "\uACF5\uBCF5\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 0241e4eefe3655745bb1993b452d05a8, type: 3}
+    tier: 1
+  - title: "\uC7A5\uB0B4\uADE0\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 8cf645917bfc8494988de9e4a19b5f6f, type: 3}
+    tier: 1
+  - title: "\uC12C\uC720\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 409121a127a6d29428fa82df250b82df, type: 3}
+    tier: 1
+  - title: "\uBD80\uC2DD\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 77433ee2d3cfb824ca70d78925dac779, type: 3}
+    tier: 1
+  - title: "\uC555\uB825\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 811eb1e9d49c0494dbab900b473d3ae8, type: 3}
+    tier: 1
+  - title: "\uD45C\uC2DD\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 6c05412c464ed044b8d8b64564d3bec5, type: 3}
+    tier: 1
+  - title: "\uC591\uADF9\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 944a0f0246de2c14fb8ce8dc65bf8a82, type: 3}
+    tier: 1
+  - title: "\uC804\uC124 \uC5F0\uACC4 \uD2B9\uC218\uC99D\uAC15"
+    description: "\uD604\uC7AC \uBCF4\uC720\uD55C \uC804\uC124\uC99D\uAC15 \uC911
+      \uAC15\uD654 \uAC00\uB2A5\uD55C \uC870\uAC74\uBD80 \uD2B9\uC218\uC99D\uAC15\uC774
+      \uC5C6\uC2B5\uB2C8\uB2E4."
+    icon: {fileID: 0}
+    tier: 1
+  - title: "\uBCF5\uC81C \uBC30\uC591"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 681631b61f2e34547b69160486f37451, type: 3}
+    tier: 2
+  - title: "\uC0DD\uBA85 \uC5F0\uC18C"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 9bd106322b842654692199e6ffd42f3d, type: 3}
+    tier: 2
+  - title: "\uACE0\uC2B4\uB3C4\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 1bd9292bc89ebdb47bc37902c7f6fb4f, type: 3}
+    tier: 2
+  - title: "\uB300\uBB3C\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 72315732b5e4a064a85e1aaff77132e2, type: 3}
+    tier: 2
+  - title: "\uC774\uAE30\uC5B4\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: fca821e4497471544baff7e8516391eb, type: 3}
+    tier: 2
+  - title: "\uC2E0\uACBD\uCC28\uB2E8"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: e7a2907fb7b6b8c41aadebd821efc318, type: 3}
+    tier: 2
+  - title: "\uC7A5\uAE30\uC555\uCC29"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: f785239a6f83b544ea26eae592361a89, type: 3}
+    tier: 2
+  - title: "\uB3C5 \uC804\uC5FC"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: cb5d60a22b00cb840924d36bb1a2fda1, type: 3}
+    tier: 2
+  - title: "\uC704\uC0B0 \uC5F0\uB3D9\uD30C"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 774af7b190fd69947ab3627bbdd7eae6, type: 3}
+    tier: 2
+  - title: "\uC810\uB9C9 \uC694\uC0C8"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 583d0a021f62b0a4ca8ed349020419e3, type: 3}
+    tier: 2
+  - title: "\uC0B0\uD0C4\uCE68"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: b8f3b4ef0db5ef645ad7441d39d0e879, type: 3}
+    tier: 2
+  - title: "\uC544\uADC0"
+    description: "\uD50C\uB808\uC774 \uC911 \uC99D\uAC15 \uC120\uD0DD\uC5D0\uC11C
+      \uD68D\uB4DD\uD569\uB2C8\uB2E4."
+    icon: {fileID: 21300000, guid: 5d2f421823189194c80e0e9b4f6c6167, type: 3}
+    tier: 2

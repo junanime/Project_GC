@@ -354,6 +354,7 @@ namespace Vampire
 
             Time.timeScale = 0f;
 
+            if (ApothecaryUI.TryShowResult(false)) return;
             if (levelResultPanel != null)
             {
                 levelResultPanel.Open(false);
@@ -382,6 +383,7 @@ namespace Vampire
             // 승리 보상 효과음 재생.
             Time.timeScale = 0f;
 
+            if (ApothecaryUI.TryShowResult(true)) return;
             if (levelResultPanel != null)
             {
                 levelResultPanel.Open(true);

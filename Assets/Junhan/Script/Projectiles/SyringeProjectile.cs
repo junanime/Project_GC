@@ -16,6 +16,8 @@ namespace Vampire
         }
 
         private SyringeSpecialRuntime specials;
+        private int ver4PiercedTargets;
+        private Transform ver4HomingTarget;
         private SyringeAugmentVfx bipolarVisual;
         private bool heavyImpactVisual;
 
@@ -146,6 +148,8 @@ namespace Vampire
 
             ConfigureFlightVfx(false, false);
             specials = default;
+            ver4PiercedTargets = 0;
+            ver4HomingTarget = null;
             nextHomingVfxTime = 0f;
             remainingPierces = 0;
             remainingBossPierces = 0;
@@ -359,6 +363,7 @@ namespace Vampire
         private void UpdateHomingDirection()
         {
             Transform target = FindClosestTarget();
+            ver4HomingTarget = target;
 
             if (target == null)
             {
@@ -1361,6 +1366,15 @@ namespace Vampire
 
             bool isCritical = false;
 
+            rawDamage *= Ver4HitEffects.BeforeHit(damageableComponent,specials);
+            if (specials.ver4 != null)
+            {
+                if (specials.pierceEnabled && !IsReturnMode)
+                    rawDamage *= 1f + .06f * specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce,2) * ver4PiercedTargets++;
+                if (specials.homingEnabled && ver4HomingTarget != null &&
+                    (ver4HomingTarget == damageableComponent.transform || ver4HomingTarget.IsChildOf(damageableComponent.transform)))
+                    rawDamage *= specials.ver4.Factor(SyringeSpecialAugmentAbility.SpecialAugmentType.Homing,2,.08f);
+            }
             float damageBeforePressure = rawDamage;
             // 압력침:
             // 이동 거리에 따라 기본 피해 증가.
@@ -1412,6 +1426,9 @@ namespace Vampire
 
             float finalKnockback =
                 knockback;
+            if (specials.ver4 != null && specials.pressureEnabled &&
+                Vector2.Distance(pressureLaunchPosition,transform.position)*specials.pressureDamageBonusPerDistance >= specials.pressureMaxDamageBonus)
+                finalKnockback *= specials.ver4.Factor(SyringeSpecialAugmentAbility.SpecialAugmentType.PressureNeedle,2,.15f);
 
             if (statRuntime != null)
             {
@@ -1494,6 +1511,18 @@ namespace Vampire
             // --------------------------------------------------
             // 기존 특수 기능 로직은 그대로 유지.
             // --------------------------------------------------
+            if (IsReturnMode && specials.ver4 != null && playerCharacter != null)
+            {
+                int strength=specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.ReturnNeedle,2);
+                if (strength>0)
+                {
+                    var body=damageableComponent.GetComponent<Rigidbody2D>();
+                    // Monster.Knockback multiplies by sqrt(drag). Compensate
+                    // once more so the free-space travel approaches 2 units/stack.
+                    float dragCompensation=body!=null ? Mathf.Sqrt(Mathf.Max(.01f,body.drag)) : 1f;
+                    damageable.Knockback(((Vector2)damageableComponent.transform.position-(Vector2)playerCharacter.transform.position).normalized*(2f*strength*dragCompensation));
+                }
+            }
 
             if (specials.poisonEnabled)
             {
@@ -1579,6 +1608,10 @@ namespace Vampire
                     damageableComponent.gameObject
                 );
             }
+            var hitRuntime=specials;
+            hitRuntime.ver4HitDamage=finalDamage;
+            hitRuntime.ver4Knockback=finalKnockback;
+            Ver4HitEffects.AfterHit(damageableComponent,hitRuntime,playerCharacter,targetLayer,consumedNeedleMark);
         }
         private void TryCreateStuckNeedleVisual(Component damageableComponent, Vector3 hitPosition, Quaternion hitRotation, Vector3 hitScale)
         {
@@ -1665,7 +1698,7 @@ namespace Vampire
 
                 damagedIds.Add(splashId);
 
-                float splashDamage = specials.explosionDamage;
+                float splashDamage = specials.explosionDamage * Ver4HitEffects.ExplosionCenterMultiplier(splashComponent,transform.position,specials);
                 bool isCritical = false;
 
                 if (statRuntime != null)

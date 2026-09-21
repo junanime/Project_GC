@@ -6,6 +6,7 @@ namespace Vampire
     public class ChestBlueprint : ScriptableObject
     {
         public bool abilityChest = false;
+        public bool legendaryAugmentChest = false;
         public Sprite closedChest;
         public Sprite openingChest;
         public Sprite openChest;

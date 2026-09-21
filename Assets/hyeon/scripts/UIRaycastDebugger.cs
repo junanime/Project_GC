@@ -6,19 +6,20 @@ public class UIRaycastDebugger : MonoBehaviour
 {
     private void Update()
     {
-        if (!Input.GetMouseButtonDown(0))
+        var mouse=UnityEngine.InputSystem.Mouse.current;
+        if (mouse==null || !mouse.leftButton.wasPressedThisFrame)
             return;
 
         if (EventSystem.current == null)
         {
-            Debug.LogError("[UI Debug] EventSystem ¾øÀ½");
+            Debug.LogError("[UI Debug] EventSystem ì—†ìŒ");
             return;
         }
 
         PointerEventData data =
             new PointerEventData(EventSystem.current);
 
-        data.position = Input.mousePosition;
+        data.position = mouse.position.ReadValue();
 
         List<RaycastResult> results =
             new List<RaycastResult>();
@@ -26,7 +27,7 @@ public class UIRaycastDebugger : MonoBehaviour
         EventSystem.current.RaycastAll(data, results);
 
         Debug.Log(
-            $"[UI Debug] Å¬¸¯ À§Ä¡ Raycast ¼ö: {results.Count}"
+            $"[UI Debug] í´ë¦­ ìœ„ì¹˜ Raycast ìˆ˜: {results.Count}"
         );
 
         for (int i = 0; i < results.Count; i++)
