@@ -30,6 +30,10 @@ namespace Vampire
         [Header("Sprites")]
         [Tooltip("캐릭터 선택 카드 전용 정면 프로필. 인게임 애니메이션과 분리합니다.")]
         public Sprite profileSprite;
+        [Header("Needle hand anchor (right-facing, relative to character root)")]
+        public bool useCharacterHandAnchor;
+        public Vector2 idleHandOffset = new Vector2(.24f, -.12f);
+        public Vector2 walkHandOffset = new Vector2(.24f, -.12f);
         public Sprite[] walkSpriteSequence;
         public float walkFrameTime = 0.08f;
 

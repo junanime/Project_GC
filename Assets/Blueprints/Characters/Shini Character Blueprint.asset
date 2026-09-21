@@ -24,6 +24,9 @@ MonoBehaviour:
   luck: 1
   acceleration: 50
   profileSprite: {fileID: 21300000, guid: 5fb2d82c705edc94894833a0c852caa6, type: 3}
+  useCharacterHandAnchor: 1
+  idleHandOffset: {x: 0.23, y: -0.12}
+  walkHandOffset: {x: 0.23, y: -0.12}
   walkSpriteSequence:
   - {fileID: 1856404447692883828, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}
   - {fileID: 2586386932646324282, guid: c9c0b2cc937be754da8063947c9de8f4, type: 3}

@@ -97,7 +97,11 @@ namespace Vampire
         public Projectile SpawnPlayerProjectile(int index, Vector2 position, float damageValue, float knockbackValue, float speedValue, LayerMask targets)
         {
             if (AttacksBlocked) return null;
-            return entityManager.SpawnProjectile(index, position, damageValue, knockbackValue, speedValue, targets);
+            var projectile = entityManager.SpawnProjectile(index, position, damageValue, knockbackValue, speedValue, targets);
+            if (this is ProjectileAbility && playerCharacter != null && playerCharacter.Blueprint != null &&
+                playerCharacter.Blueprint.useCharacterHandAnchor && projectile is SyringeProjectile needle)
+                needle.UseExactSpawnPosition();
+            return projectile;
         }
 
         public virtual Sprite Image => image;

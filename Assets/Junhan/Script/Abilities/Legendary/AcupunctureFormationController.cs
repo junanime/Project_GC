@@ -211,8 +211,9 @@ namespace Vampire
             Vector3 origin
         )
         {
+            if (!sourceNeedleAbility.HasAcupunctureFormationAugment() || sourceCharacter.IsTrapBound) return;
             int finalNeedleCount = GetFinalNeedleCount();
-            SyringeAugmentVfx.Play("AcupunctureFormation", origin, SyringeAugmentVfx.FindTarget(sourceCharacter));
+            bool emitted = false;
 
             if (debugLog)
             {
@@ -243,7 +244,7 @@ namespace Vampire
 
 
                 Projectile projectile =
-                    sourceNeedleAbility.SpawnPlayerProjectile(
+                    sourceNeedleAbility.SpawnFormationProjectile(
                         projectilePoolIndex,
                         origin,
                         sourceNeedleAbility
@@ -340,7 +341,10 @@ namespace Vampire
                 projectile.Launch(
                     direction
                 );
+                emitted = true;
             }
+            // No cosmetic-only ring on a blocked/ordinary dash. Keep it at the burst origin.
+            if (emitted) SyringeAugmentVfx.Play("AcupunctureFormation", origin, SyringeAugmentVfx.FindTarget(sourceCharacter));
         }
 
 

@@ -23,6 +23,8 @@ namespace Vampire.Tests.Editor
         static Character player;
         static TrapMonster trap;
         static Vector3 dashStart;
+        static SyringeDartAbility needle;
+        static int[] beforeFormation;
         static CharacterDesignPlaySmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
         public static void Run()
         {
@@ -94,15 +96,21 @@ namespace Vampire.Tests.Editor
                         UnityEngine.Object.FindObjectOfType<LevelManager>().enabled = false;
                         player.Move(Vector2.zero); break;
                     case 8:
+                        needle = UnityEngine.Object.FindObjectOfType<SyringeDartAbility>();
+                        Check(needle.SpawnFormationProjectile(-1, Vector2.zero, 1, 0, 1, 0) == null, "unowned formation cannot emit");
+                        Check(expected.useCharacterHandAnchor, expected.name + " hand anchor enabled");
+                        CheckHandAnchor(expected.idleHandOffset);
                         Check(expected.idleSpriteSequence.Contains(Renderer.sprite), expected.name + " gameplay idle"); CaptureActor("idle-" + index);
                         player.Move(Vector2.right); break;
                     case 9:
+                        CheckHandAnchor(expected.walkHandOffset);
                         Check(expected.walkSpriteSequence.Contains(Renderer.sprite), expected.name + " gameplay walk"); CaptureActor("walk-" + index);
                         player.Move(Vector2.zero); player.LookDirection = Vector2.right; Time.timeScale = .2f;
                         dashStart = player.transform.position; Check(player.TryDash(), "dash starts");
                         Check(Renderer.sprite == expected.dashSpriteSequence[0], "dash starts at frame zero");
                         Check(!Renderer.flipX, "rightward dash uses approved source orientation"); next = EditorApplication.timeSinceStartup + .65; break;
                     case 10:
+                        Check(!UnityEngine.Object.FindObjectsOfType<SyringeAugmentVfx>().Any(v => v.name.StartsWith("AcupunctureFormation")), "ordinary dash has no formation ring");
                         Check(expected.dashSpriteSequence.Contains(Renderer.sprite), "dash animation active");
                         if (index == 2) Check(Renderer.sprite == expected.dashSpriteSequence[1], "moonwalk second pose during second half");
                         Check(player.transform.position.x > dashStart.x, "dash moves right without changing combat"); CaptureActor("dash-" + index); Time.timeScale = 1; next += .7; break;
@@ -117,12 +125,31 @@ namespace Vampire.Tests.Editor
                     case 12:
                         Check(expected.capturedSpriteSequence.Contains(Renderer.sprite) && Renderer.flipX, expected.name + " capture expression and facing lock");
                         Check(!player.TryDash(), "capture still blocks dash"); CaptureActor("captured-" + index);
+                        needle.EnableAcupunctureFormationAugment();
+                        PacingPatchTests.Set(player, "isDashing", true);
+                        Check(needle.SpawnFormationProjectile(-1, Vector2.zero, 1, 0, 1, 0) == null, "formation exception never bypasses capture");
+                        PacingPatchTests.Set(player, "isDashing", false);
                         PlayerTrapBindRuntime.GetOrCreate(player).Release(trap); UnityEngine.Object.Destroy(trap.gameObject); player.Move(Vector2.zero); break;
                     case 13:
                         Check(expected.idleSpriteSequence.Contains(Renderer.sprite), "release returns to selected character");
+                        needle.enabled = false;
+                        needle.EnableAcupunctureFormationAugment();
+                        beforeFormation = UnityEngine.Object.FindObjectsOfType<SyringeProjectile>().Select(p => p.GetInstanceID()).ToArray();
+                        player.LookDirection = Vector2.right; Time.timeScale = .1f;
+                        Check(player.TryDash(), "formation dash starts");
+                        Check(needle.SpawnPlayerProjectile(-1, Vector2.zero, 1, 0, 1, 0) == null, "normal attacks remain blocked during formation dash");
+                        break;
+                    case 14:
+                        int emittedCount = UnityEngine.Object.FindObjectsOfType<SyringeProjectile>().Count(p => !beforeFormation.Contains(p.GetInstanceID()));
+                        int expectedCount = (int)PacingPatchTests.Get(needle, "acupunctureFormationNeedleCount") + Mathf.Max(0, needle.GetAcupunctureFormationProjectileCount() - 1) + needle.Ver4FormationAdditionalCount;
+                        Check(emittedCount >= expectedCount, "formation actually emits configured radial needles during dash " + emittedCount + "/" + expectedCount);
+                        Check(UnityEngine.Object.FindObjectsOfType<SyringeAugmentVfx>().Count(v => v.name.StartsWith("AcupunctureFormation")) == 1, "one ring for successful formation burst");
+                        CaptureActor("formation-" + index); Time.timeScale = 1; next += .6; break;
+                    case 15:
+                        Check(needle.SpawnFormationProjectile(-1, Vector2.zero, 1, 0, 1, 0) == null, "formation cannot fire outside dash");
                         ui.OpenRunBook(); Check(Time.timeScale == 0, "status pause"); ui.CloseRunBook();
                         SceneManager.LoadScene(0); next += 1; break;
-                    case 14:
+                    case 16:
                         Check(ui.SelectedCharacter == expected, "selection survives return to lobby");
                         if (++index == 4) SessionState.SetBool(Key + "Done", true); else stage = 0; break;
                 }
@@ -130,6 +157,21 @@ namespace Vampire.Tests.Editor
             catch (Exception e) { Debug.LogException(e); SessionState.SetBool(Key + "Failed", true); }
         }
         static Button Button(string label) => ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b => b.name == "Button " + label);
+        static void CheckHandAnchor(Vector2 expectedOffset)
+        {
+            Renderer.flipX = false;
+            Vector2 right = needle.GetReturnCatchPosition(Vector2.right);
+            Check(Vector2.Distance(right, player.transform.TransformPoint(expectedOffset)) < .001f, "right hand spawn/return anchor");
+            Check(Vector2.Distance(right, needle.GetReturnCatchPosition(Vector2.up)) < .001f, "vertical aim stays at hand");
+            int poolIndex = (int)PacingPatchTests.Get(needle, "projectileIndex");
+            var shot = needle.SpawnPlayerProjectile(poolIndex, right, 1, 0, 0, 0);
+            shot.Launch(Vector2.up);
+            Check(Vector2.Distance(shot.transform.position, right) < .001f, "launched needle has no extra muzzle teleport");
+            typeof(Projectile).GetMethod("DestroyProjectile", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(shot, null);
+            Renderer.flipX = true;
+            Check(Vector2.Distance(needle.GetReturnCatchPosition(Vector2.left), player.transform.TransformPoint(new Vector2(-expectedOffset.x, expectedOffset.y))) < .001f, "left hand mirror");
+            Renderer.flipX = false;
+        }
         static void Click(Button button)
         {
             Check(button.interactable, "click enabled " + button.name); Canvas.ForceUpdateCanvases();

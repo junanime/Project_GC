@@ -18,6 +18,8 @@ namespace Vampire.EditorTools
             var ashi = AssetDatabase.LoadAssetAtPath<CharacterBlueprint>(Blueprints + "Main Character Blueprint.asset");
             if (ashi == null) throw new Exception("Missing Ashi baseline");
             ashi.profileSprite = Profile("Ashi");
+            ashi.useCharacterHandAnchor = true;
+            ashi.idleHandOffset = ashi.walkHandOffset = new Vector2(.25f, -.14f);
             EditorUtility.SetDirty(ashi);
             var result = new[] { ashi, Build("Ari", "아리", "작지만 호기심만큼은 누구보다 큰 아기 봉황.", .43f, .18f, ashi),
                 Build("Hyuki", "혁이", "느긋한 낮잠을 즐기는 재능 있는 친구.", .59f, .26f, ashi),
@@ -52,6 +54,10 @@ namespace Vampire.EditorTools
             data.movespeed = baseline.movespeed; data.luck = baseline.luck; data.acceleration = baseline.acceleration;
             data.startingAbilities = baseline.startingAbilities.ToArray();
             data.profileSprite = Profile(id);
+            data.useCharacterHandAnchor = true;
+            data.walkHandOffset = id == "Ari" ? new Vector2(.19f, -.18f)
+                : id == "Hyuki" ? new Vector2(.25f, -.06f) : new Vector2(.23f, -.12f);
+            data.idleHandOffset = id == "Hyuki" ? new Vector2(.43f, -.24f) : data.walkHandOffset;
             float headWorldWidth = 0;
             data.walkSpriteSequence = Sequence(id, "Walk", 4, 2, height, ref headWorldWidth);
             data.idleSpriteSequence = Sequence(id, "Idle", 4, 2, height, ref headWorldWidth);
@@ -98,6 +104,9 @@ namespace Vampire.EditorTools
                 heads[i] = Bounds(pixels, x1 - x0, y1 - y0, c => c.a > .7f && (id == "Ari" ? c.r > .75f && c.g > .48f && c.b > .48f && c.r > c.g * 1.06f : id == "Hyuki" ? c.g > .38f && c.b > .55f && c.b > c.r * 1.25f && c.b > c.g * 1.08f : c.r > .65f && c.g > .18f && c.g < .65f && c.b > .14f && c.b < .60f && c.r > c.g * 1.25f), id == "Hyuki" && (state == "Walk" || state == "Captured") ? .45f : 0);
             }
             float ppu = state == "Walk" ? bounds.Average(b => b.height) / height : heads.Average(b => b.width) / headWorldWidth;
+            // Shini's swept-back crest exaggerates head width during the kick.
+            // Preserve the approved pixels/aspect; enlarge the dash uniformly by 16%.
+            if (id == "Shini" && state == "Dash") ppu /= 1.16f;
             if (state == "Walk") headWorldWidth = heads.Average(b => b.width) / ppu;
             // The sleep quilt is wider than an upright body; its head retains the same scale.
             var sprites = new SpriteMetaData[bounds.Length];

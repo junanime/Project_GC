@@ -308,6 +308,19 @@ namespace Vampire
             Vector2 fireDirection
         )
         {
+            // A manually assigned muzzle keeps precedence. Character anchors are
+            // mirrored, not rotated with aim: upward shots still leave the hand.
+            if (projectileSpawnPoint == null && useProjectileSpawnOffset && playerCharacter != null &&
+                playerCharacter.Blueprint != null && playerCharacter.Blueprint.useCharacterHandAnchor)
+            {
+                var data = playerCharacter.Blueprint;
+                Vector2 offset = playerCharacter.Velocity.sqrMagnitude > .0001f ? data.walkHandOffset : data.idleHandOffset;
+                var visual = playerCharacter.GetComponentInChildren<SpriteAnimator>();
+                bool left = visual != null && visual.SpriteRenderer != null
+                    ? visual.SpriteRenderer.flipX : playerCharacter.LookDirection.x < 0;
+                if (left) offset.x = -offset.x;
+                return playerCharacter.transform.TransformPoint(offset);
+            }
             Vector2 spawnPosition =
                 GetProjectileSpawnBasePosition();
 

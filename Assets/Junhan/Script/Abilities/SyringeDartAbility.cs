@@ -1812,7 +1812,7 @@ namespace Vampire
 
             aimDirection.Normalize();
 
-            Vector2 basePosition = GetPlayerCenterPosition();
+            Vector2 basePosition = GetProjectileSpawnPosition(aimDirection);
             float pullRatio = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(chargeRatio));
 
             float forwardDistance =
@@ -2775,6 +2775,16 @@ namespace Vampire
         public bool HasMosquitoAugment() => mosquitoEnabled;
         public bool HasReturnNeedleAugment() => returnNeedleEnabled;
         public bool HasAcupunctureFormationAugment() => acupunctureFormationEnabled;
+
+        // Only the owned dash-triggered formation bypasses the normal dash attack gate.
+        // Trap suppression is never bypassed; all ordinary weapon emissions keep their gate.
+        public Projectile SpawnFormationProjectile(int index, Vector2 position, float damageValue,
+            float knockbackValue, float speedValue, LayerMask targets)
+        {
+            if (!acupunctureFormationEnabled || playerCharacter == null || !playerCharacter.IsDashing ||
+                playerCharacter.IsTrapBound || entityManager == null) return null;
+            return entityManager.SpawnProjectile(index, position, damageValue, knockbackValue, speedValue, targets);
+        }
 
         private SyringeAugmentVfx lifeBurnVisual;
 

@@ -220,6 +220,9 @@ namespace Vampire
             moveCoroutine = StartCoroutine(Move());
         }
 
+        // Hand-anchored weapons already supply the final muzzle position.
+        public void UseExactSpawnPosition() => hasAppliedLaunchForwardOffset = true;
+
         private void ApplyLaunchForwardOffsetIfNeeded()
         {
             if (!useLaunchForwardOffset)
