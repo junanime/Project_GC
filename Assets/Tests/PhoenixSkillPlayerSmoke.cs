@@ -12,7 +12,7 @@ namespace Vampire.Tests
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            if(Environment.GetCommandLineArgs().Contains("-phoenixSkillsSmoke"))
+            if(Environment.GetCommandLineArgs().Contains("-phoenixSkillsSmoke")||Environment.GetCommandLineArgs().Contains("-hyukiTimingSmoke"))
             {var go=new GameObject("Phoenix player verification");DontDestroyOnLoad(go);go.AddComponent<PhoenixSkillPlayerSmoke>();}
         }
         bool errors;
@@ -37,6 +37,9 @@ namespace Vampire.Tests
                     Monster target=null;
                     if(skill.IsHyuki)
                     {
+                        bool timingOnly=Environment.GetCommandLineArgs().Contains("-hyukiTimingSmoke");
+                        if(!timingOnly)
+                        {
                         skill.RestoreSleep(10,0);yield return new WaitForEndOfFrame();Check(v.CrystalCount==2,"native two stack crystals");
                         Check(player.GetComponentsInChildren<SpriteRenderer>().Where(x=>x.name=="Sleep stack crystal").All(x=>x.sprite==skill.Definition.iceComponents[0]),"new diamond art replaces prison-shaped stack crystals");
                         ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-idle.png"));
@@ -47,17 +50,31 @@ namespace Vampire.Tests
                         Check(v.CrystalCount==0&&snow.DashingWake&&snow.WakeCount>0,"dash has ice wake without crystal orbit");
                         ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-dash.png"));
                         yield return new WaitForSeconds(.4f);player.Move(Vector2.zero);yield return new WaitForSeconds(.1f);
+                        }
                         var data=level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];target=level.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);target.enabled=false;
-                        yield return IceChecks(target,needle.GetCurrentSpecialRuntime(),player);
+                        Physics2D.SyncTransforms();
+                        if(!timingOnly)yield return IceChecks(target,needle.GetCurrentSpecialRuntime(),player);
                     }
                     Check(skill.TryActivate(),name+" native skill activation");
-                    if(skill.IsHyuki)Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceRemaining>4.9f,"active initially applies five-second freeze");
+                    if(skill.IsHyuki)
+                    {
+                        Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"no freeze before blizzard appears");
+                        yield return new WaitForSeconds(.7f);
+                        Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true&&v.BlizzardStrength>0,"snow builds before freeze");
+                        float pending=skill.SummonRemaining;
+                        Time.timeScale=0;yield return new WaitForSecondsRealtime(.15f);
+                        Check(skill.SummonRemaining==pending,"pause holds delayed freeze");Time.timeScale=1;
+                        var saved=player.CaptureRunSceneState();player.RestoreRunSceneState(saved);
+                        Check(Mathf.Abs(skill.SummonRemaining-pending)<.001f,"pending freeze survives run restore");
+                        yield return new WaitForSeconds(pending+.08f);yield return new WaitForEndOfFrame();
+                        Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceRemaining>4.7f&&v.BlizzardStrength>.8f,"freeze begins as full blizzard starts fading");
+                        Check(player.GetComponent<HyukiSnowVisual>().StormCount>=100,"storm combines snowflakes and ice fragments");
+                    }
                     if(skill.IsShini)Check(skill.IsSummoning&&!skill.Active&&skill.CooldownRemaining==0,"Shini summon delays both timers");
                     for(int i=0;i<15;i++)
                     {
                         yield return new WaitForSeconds(.2f);yield return new WaitForEndOfFrame();
                         if(i==2)foreach(var r in player.GetComponentsInChildren<Renderer>())if(r.sharedMaterial!=null)Check(r.sharedMaterial.shader.isSupported,name+" shader supported: "+r.sharedMaterial.shader.name);
-                        if(skill.IsHyuki&&i==5)Check(player.GetComponent<HyukiSnowVisual>().StormCount>=100,"storm combines large snowflakes and ice fragments");
                         if(skill.IsShini&&i==11)
                         {
                             var wrap=player.GetComponent<ShiniPhoenixWrapVisual>();
@@ -68,7 +85,13 @@ namespace Vampire.Tests
                     if(skill.IsHyuki)
                     {
                         Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen==true,"freeze persists beyond old three-second duration");
-                        yield return new WaitForSeconds(2.2f);Check(target.GetComponent<NeuralBlockedMonsterStatus>()==null,"freeze releases at five seconds");
+                        yield return new WaitForSeconds(2.2f);Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"freeze releases five seconds after delayed application");
+                        var saved=player.CaptureRunSceneState();player.RestoreRunSceneState(saved);
+                        yield return new WaitForSeconds(.1f);
+                        Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"restore after release does not repeat freeze");
+                        skill.Restore(0,0,0);Check(skill.TryActivate(),"second cast available after test reset");
+                        skill.enabled=false;skill.enabled=true;yield return new WaitForSeconds(1.8f);
+                        Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"disable cancels pending freeze");
                     }
 
                 }
@@ -120,7 +143,7 @@ namespace Vampire.Tests
             SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
             target.gameObject.SetActive(false);Check(state.Stacks==0&&state.SpeedMultiplier==1,"pooled monster clears chill");
             target.gameObject.SetActive(true);target.enabled=false;yield return new WaitForEndOfFrame();yield return null;
-            Check(target.GetComponent<NeuralBlockedMonsterStatus>()==null,"released pooled freeze finishes cleanup before next cast");
+            Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"pooled monster has no remaining freeze before next cast");
             UnityEngine.Random.state=random;
         }
         static void Check(bool ok,string message){if(!ok)throw new Exception("[PhoenixPlayer] FAIL "+message);Debug.Log("[PhoenixPlayer] PASS "+message);}

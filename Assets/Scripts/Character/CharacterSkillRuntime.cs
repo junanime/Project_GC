@@ -61,12 +61,8 @@ namespace Vampire
                     return true;
                 }
                 ActiveRemaining=Definition.activeDuration; CooldownRemaining=Definition.cooldown;
+                SummonRemaining=IceSkillRules.BlizzardFreezeDelay;
                 GetComponent<PhoenixSkillVisual>()?.Play();
-                if(IsHyuki)
-                {
-                    var needle=FindObjectOfType<SyringeDartAbility>();
-                    if(needle!=null) foreach(var target in Ver4HitEffects.Nearby(transform.position,IceSkillRules.ActiveRadius,needle.SkillTargetLayer,owner)) IceSkillRules.Freeze(target);
-                }
                 return true;
             }
             IsCutin=true; CutinElapsed=0; previousTimeScale=Time.timeScale; Time.timeScale=0;
@@ -100,6 +96,13 @@ namespace Vampire
             if(IsSummoning)
             {
                 SummonRemaining=Mathf.Max(0,SummonRemaining-delta);
+                if(IsHyuki && SummonRemaining<=0 && owner.IsAlive)
+                {
+                    var needle=FindObjectOfType<SyringeDartAbility>();
+                    if(needle!=null)
+                        foreach(var target in Ver4HitEffects.Nearby(transform.position,IceSkillRules.ActiveRadius,needle.SkillTargetLayer,owner))
+                            if(!(target is Monster monster) || !monster.IsFieldRuntimeSuspended) IceSkillRules.Freeze(target);
+                }
             }
             if(IsHyuki && delta>0)
             {
@@ -119,10 +122,11 @@ namespace Vampire
             PassiveRemaining=Mathf.Clamp(passive,0,Definition.passiveDuration);
             ActiveRemaining=Mathf.Clamp(active,0,Definition.activeDuration);
             CooldownRemaining=Mathf.Clamp(cooldown,0,Definition.cooldown);
-            SummonRemaining=IsShini?Mathf.Clamp(summon,0,ShiniSkillRuntime.SummonDuration):0;
+            float summonDuration=IsShini?ShiniSkillRuntime.SummonDuration:IsHyuki?IceSkillRules.BlizzardFreezeDelay:0;
+            SummonRemaining=Mathf.Clamp(summon,0,summonDuration);
             if(IsSummoning)
             {
-                GetComponent<PhoenixSkillVisual>()?.Play(ShiniSkillRuntime.SummonDuration-SummonRemaining);
+                GetComponent<PhoenixSkillVisual>()?.Play(summonDuration-SummonRemaining);
             }
             owner.UpdateMoveSpeed();
             if(IsAri){owner.RefreshSkillDashRecharge(false);GetComponent<AriSkillRuntime>()?.RestoreForm();}

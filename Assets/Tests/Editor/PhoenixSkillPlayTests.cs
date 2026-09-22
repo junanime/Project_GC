@@ -41,8 +41,10 @@ namespace Vampire.Tests.Editor
                 if(EditorApplication.isPlayingOrWillChangePlaymode)return;
                 bool failed=SessionState.GetBool(Key+"Failed",false);SessionState.SetBool(Key,false);Debug.Log("[PhoenixTest] FINISHED failed="+failed);EditorApplication.Exit(failed?1:0);return;
             }
-            if(!EditorApplication.isPlaying||ApothecaryUI.Instance==null||EditorApplication.timeSinceStartup<next)return;
-            next=EditorApplication.timeSinceStartup+.25;
+            // Editor wall time can advance while the game has not rendered a frame (imports/captures).
+            // Use game-frame unscaled time so pause checks still run without racing LateUpdate.
+            if(!EditorApplication.isPlaying||ApothecaryUI.Instance==null||Time.unscaledTime<next)return;
+            next=Time.unscaledTime+.25;
             try
             {
                 var ui=ApothecaryUI.Instance;
@@ -54,13 +56,15 @@ namespace Vampire.Tests.Editor
                     case 1:
                         var level=UnityEngine.Object.FindObjectOfType<LevelManager>();player=level.PlayerCharacter;level.enabled=false;
                         foreach(var m in UnityEngine.Object.FindObjectsOfType<Monster>())m.gameObject.SetActive(false);
-                        needle=UnityEngine.Object.FindObjectOfType<SyringeDartAbility>();needle.enabled=false;skill=player.Skills;visual=player.GetComponent<PhoenixSkillVisual>();
+                        needle=UnityEngine.Object.FindObjectOfType<SyringeDartAbility>();needle.enabled=false;needle.StopAllCoroutines();skill=player.Skills;visual=player.GetComponent<PhoenixSkillVisual>();
+                        foreach(var projectile in UnityEngine.Object.FindObjectsOfType<Projectile>())projectile.gameObject.SetActive(false);
                         Check(skill.IsHyuki&&!skill.AshiActive&&!skill.AshiPassive,"Hyuki has independent skills");
                         Check(needle.GetCurrentSpecialRuntime().ver4.Has(SyringeSpecialAugmentAbility.SpecialAugmentType.IceNeedle),"starts with owned ice needle");
                         Check(skill.Definition.phoenixFrames.Length==16&&skill.Definition.icePrison.Length==8,"phoenix and prison animation frames imported");
                         Check(skill.Definition.passiveIcon!=null&&skill.Definition.activeIcon!=null,"both profile icons installed");
                         player.Move(Vector2.zero);player.StartIdleAnimation();skill.RestoreSleep(4.8f,0);speed=player.CurrentMoveSpeed;projectileSpeed=player.ProjectileSpeedMultiplier;projectiles=needle.GetEffectiveProjectileCount();break;
                     case 2:
+                        if(skill.SleepStacks<5||visual.CrystalCount==0){stage--;break;}
                         Check(skill.SleepStacks>=5&&visual.CrystalCount==1,"fifth idle stack creates one orbiting crystal");
                         skill.RestoreSleep(10,0);break;
                     case 3:
@@ -77,18 +81,22 @@ namespace Vampire.Tests.Editor
                     case 5:
                         InputSystem.QueueStateEvent(keyboard,new KeyboardState());Check(skill.Active&&!skill.IsCutin&&Time.timeScale>0,"R activates in world without pausing");
                         Check(skill.CooldownRemaining>59&&skill.CooldownRemaining<=60,"sixty-second cooldown starts");Check(!skill.TryActivate(),"cooldown prevents repeated cast");
-                        var ice=near.GetComponent<NeuralBlockedMonsterStatus>();Check(ice!=null&&ice.IceRemaining>4.3f&&ice.IceRemaining<=5,"active freezes nearby enemy for five seconds");
+                        Check(near.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"active waits for blizzard before freezing");
                         Check(far.GetComponent<NeuralBlockedMonsterStatus>()==null,"enemy outside radius four is unaffected");
                         var body=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();Check(player.Blueprint.idleSpriteSequence.Contains(body.sprite),"original Hyuki sprite retained");Capture("03-ice-summon");next+=.7;break;
                     case 6:
+                        if(skill.SummonRemaining>.3f){stage--;break;}
                         Check(visual.BlizzardStrength>.7f,"blizzard covers field at its peak");Capture("04-blizzard");phase=visual.BlizzardPhase;next+=1.0;break;
                     case 7:
+                        if(skill.IsSummoning||visual.BlizzardStrength>=1){stage--;break;}
+                        Check(near.GetComponent<NeuralBlockedMonsterStatus>()?.IceRemaining>3.5f,"active releases five-second freeze when blizzard begins fading");
                         Check(visual.BlizzardPhase>phase&&visual.BlizzardStrength>0&&visual.BlizzardStrength<1,"snow keeps moving while fading");
                         var shell=near.GetComponentsInChildren<SpriteRenderer>().First(r=>r.name=="Translucent ice prison");Check(shell.enabled&&shell.color.a>.2f&&shell.color.a<.6f,"monster remains visible through translucent prison");Capture("05-snow-clearing");
                         timer=near.GetComponent<NeuralBlockedMonsterStatus>().IceRemaining;ui.OpenRunBook();break;
                     case 8:
-                        Near(near.GetComponent<NeuralBlockedMonsterStatus>().IceRemaining,timer,"TAB pause freezes ice timer");Check(Button("Active skill slot")!=null&&Button("Passive skill slot")!=null,"TAB contains both skill profiles");Capture("06-tab");ui.CloseRunBook();next+=3;break;
+                        Near(near.GetComponent<NeuralBlockedMonsterStatus>().IceRemaining,timer,"TAB pause freezes ice timer");Check(Button("Active skill slot")!=null&&Button("Passive skill slot")!=null,"TAB contains both skill profiles");Capture("06-tab");ui.CloseRunBook();next+=5;break;
                     case 9:
+                        if(near.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen==true){stage--;break;}
                         Check(near.GetComponent<NeuralBlockedMonsterStatus>()==null&&near.enabled,"five-second freeze expires and restores movement");
                         var status=near.GetComponent<Ver4NeedleStatus>()??near.gameObject.AddComponent<Ver4NeedleStatus>();
                         for(int i=0;i<500&&near.GetComponent<NeuralBlockedMonsterStatus>()==null;i++)status.Hit(needle.GetCurrentSpecialRuntime(),player,needle.SkillTargetLayer);

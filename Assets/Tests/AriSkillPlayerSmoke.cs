@@ -48,6 +48,23 @@ namespace Vampire.Tests
                 yield return new WaitForSeconds(.4f);
                 foreach(var p in FindObjectsOfType<Projectile>())p.gameObject.SetActive(false);
                 var controller=FindObjectOfType<AcupunctureFormationController>();if(controller!=null)controller.enabled=false;
+                // The real dash must hit its whole path even with both weapon and formation disabled.
+                for(int mode=0;mode<2;mode++)
+                {
+                    skill.Restore(0,mode==0?0:8,0);player.RefreshSkillDashRecharge(true);
+                    var origin=(Vector2)player.transform.position;
+                    var along=level.EntityManager.SpawnMonster(0,origin+Vector2.right*(player.DashDistance*.6f),data,500);along.enabled=false;
+                    var outside=level.EntityManager.SpawnMonster(0,origin+Vector2.up*4,data,500);outside.enabled=false;
+                    Physics2D.SyncTransforms();float alongHP=along.HP,outsideHP=outside.HP;
+                    ari.Sweep(origin,origin+Vector2.right*player.DashDistance);
+                    Check(along.HP==alongHP&&along.GetComponent<AriDashPush>()==null,"no Ari contact outside dash "+mode);
+                    player.LookDirection=Vector2.right;Check(player.TryDash(),"real path dash starts "+mode);
+                    yield return new WaitForSeconds(player.DashDuration+.2f);
+                    Check(Mathf.Approximately(alongHP-along.HP,mode==0?10:35)&&along.GetComponent<AriDashPush>()!=null,"path contact works without formation or needle firing "+mode);
+                    Check(outside.HP==outsideHP&&outside.GetComponent<AriDashPush>()==null,"off-path enemy not pushed by dash "+mode);
+                    along.gameObject.SetActive(false);outside.gameObject.SetActive(false);
+                }
+                skill.Restore(0,0,0);yield return new WaitForSeconds(.7f);
                 var body=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
                 var rootScale=player.transform.localScale;float baseRecharge=player.DashRechargeTime;
                 var collider=player.GetComponent<Collider2D>();Vector2 colliderSize=collider.bounds.size;

@@ -55,10 +55,7 @@ MonoBehaviour:
   passiveName: "\uC790\uB294 \uB3D9\uC548\uC5D0\uB3C4 \uCC9C\uC7AC"
   activeName: "\uC7A0\uAE50 \uC9C4\uC2EC"
   passiveDescription: "대기 1초마다 수면 1스택. 5스택마다 수정 1개가 회전합니다. 최대 60스택(수정 12개). 대기를 끝내면 전부 소모하여 4초간 스택당 이동속도 +8%(최대 +480%)."
-  activeDescription: "\uAC70\uB9AC 4 \uC774\uB0B4 \uC801\uC744 \uC989\uC2DC \uCD5C\uB300
-    5\uCD08\uAC04 \uBE59\uACB0\uD569\uB2C8\uB2E4. \uB2E4\uC74C \uBE59\uACB0\uCE68
-    \uC801\uC911 \uC2DC \uD574\uC81C\uB429\uB2C8\uB2E4. \uBCF4\uC2A4\uB294 \uAC10\uC18D
-    \xB7 \uC7AC\uC0AC\uC6A9 60\uCD08."
+  activeDescription: "눈보라가 잦아들기 시작하는 발동 1.65초 후, 거리 4 이내 적을 최대 5초간 빙결합니다. 다음 빙결침 적중 시 해제됩니다. 보스는 감속 · 재사용 60초."
   passiveIcon: {fileID: 21300000, guid: 47cef372ce26da447a852a2fc2e6d5dd, type: 3}
   activeIcon: {fileID: 21300000, guid: d9b2d6ddca65dca488cdb5a03b52f2ee, type: 3}
   cutin: []

@@ -35,7 +35,7 @@ namespace Vampire.Editor
                 if(d==null){d=ScriptableObject.CreateInstance<CharacterSkillDefinition>();AssetDatabase.CreateAsset(d,path);}
                 d.kind=CharacterSkillDefinition.SkillKind.Hyuki;d.passiveName="자는 동안에도 천재";d.activeName="잠깐 진심";
                 d.passiveDescription="대기 1초마다 수면 1스택. 5스택마다 수정 1개가 회전합니다. 최대 60스택(수정 12개). 대기를 끝내면 전부 소모하여 4초간 스택당 이동속도 +8%(최대 +480%).";
-                d.activeDescription="거리 4 이내 적을 즉시 최대 5초간 빙결합니다. 다음 빙결침 적중 시 해제됩니다. 보스는 감속 · 재사용 60초.";
+                d.activeDescription="눈보라가 잦아들기 시작하는 발동 1.65초 후, 거리 4 이내 적을 최대 5초간 빙결합니다. 다음 빙결침 적중 시 해제됩니다. 보스는 감속 · 재사용 60초.";
                 d.passiveDuration=4;d.activeDuration=IceSkillRules.FreezeDuration;d.cooldown=IceSkillRules.ActiveCooldown;
                 d.passiveIcon=Import("HyukiPassive")[0];d.activeIcon=Import("HyukiActive")[0];d.phoenixFrames=Import("IcePhoenix",4,4);d.icePrison=Import("IcePrison",4,2);
                 d.iceComponents=Import("IceComponents",2,2);

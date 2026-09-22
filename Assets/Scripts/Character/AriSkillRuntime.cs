@@ -6,7 +6,9 @@ namespace Vampire
     [DefaultExecutionOrder(700)]
     public sealed class AriSkillRuntime : MonoBehaviour
     {
-        Character owner; CharacterSkillRuntime skill; SyringeDartAbility needle;
+        Character owner; CharacterSkillRuntime skill;
+        // Same damage layers as the needle prefab, but dash contact needs no weapon/formation.
+        int contactLayers;
         SpriteRenderer body,form;
         float bodyWidth,bodyHeight,animationTime,dashTime,transition;
         bool poweredDash,returning,wasActive,hasForm;
@@ -22,6 +24,7 @@ namespace Vampire
         public Sprite CurrentFormSprite => form!=null?form.sprite:null;
         public void Bind(Character character,CharacterSkillRuntime runtime)
         {
+            contactLayers=LayerMask.GetMask("Monster Full","Chest");
             owner=character;skill=runtime;body=GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
             var reference=owner.Blueprint.idleSpriteSequence;
             var sprite=reference!=null&&reference.Length>0?reference[0]:body?.sprite;
@@ -42,13 +45,11 @@ namespace Vampire
         public void Sweep(Vector2 from,Vector2 to)
         {
             if(owner==null||!owner.IsAlive||!owner.IsDashing||owner.IsTrapBound||Time.timeScale<=0)return;
-            if(needle==null)needle=FindObjectOfType<SyringeDartAbility>();
-            if(needle==null)return;
             var delta=to-from;var direction=delta.sqrMagnitude>.000001f?delta.normalized:owner.LookDirection.normalized;
             float radius=Mathf.Max(.05f,ContactRadius);
-            foreach(var c in Physics2D.OverlapCircleAll(from,radius,needle.SkillTargetLayer))Hit(c,direction);
+            foreach(var c in Physics2D.OverlapCircleAll(from,radius,contactLayers))Hit(c,direction);
             if(delta.sqrMagnitude>.000001f)
-                foreach(var hit in Physics2D.CircleCastAll(from,radius,direction,delta.magnitude,needle.SkillTargetLayer))Hit(hit.collider,direction);
+                foreach(var hit in Physics2D.CircleCastAll(from,radius,direction,delta.magnitude,contactLayers))Hit(hit.collider,direction);
         }
         void Hit(Collider2D collider,Vector2 direction)
         {
