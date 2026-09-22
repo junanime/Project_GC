@@ -166,7 +166,7 @@ namespace Vampire
                 velocity = GetIdleWanderVelocity();
             }
 
-            rb.velocity = velocity;
+            rb.velocity = velocity * IceMoveMultiplier;
         }
 
         public override IEnumerator Killed(bool killedByPlayer = true)

@@ -56,7 +56,7 @@ namespace Vampire
             {
                 case SpecialAugmentType.WoodNeedle: return "적중 시 4초 씨앗. 3중첩이면 소모하여 2 거리 내 다른 적에게 침 피해의 40% 가지 추가타.";
                 case SpecialAugmentType.FireNeedle: return "적중 시 25% 확률로 3초 화상. 1초마다 최대 체력 0.5% 피해, 기본 3중첩. 보스 틱 피해는 부여한 침 피해의 25% 상한.";
-                case SpecialAugmentType.IceNeedle: return "적중 시 20% 확률로 5초 빙결. 다음 침 적중 피해 +20% 후 해제, 재빙결 대기 2초. 보스는 20% 감속.";
+                case SpecialAugmentType.IceNeedle: return "적중마다 냉기 1스택. 원본 속도 대비 1·2·3스택에서 20%·30%·40% 감속. 4번째 적중에 확정 5초 빙결, 매 적중 5% 확률로 즉시 빙결. 빙결 시 스택 소모. 다음 침 적중 피해 +20% 후 해제. 보스는 빙결 대신 감속.";
                 case SpecialAugmentType.WindNeedle: return "공유 침 공격 속도 +10%, 피해량 +8%, 투사체 속도 +12%.";
                 case SpecialAugmentType.VibrationNeedle: return "적중 시 반경 1 충격파: 침 피해 35%와 넉백. 플레이어당 발동 간격 0.5초. 추가타로 재발동하지 않음.";
                 default:return string.Empty;

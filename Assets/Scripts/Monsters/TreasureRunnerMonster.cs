@@ -222,7 +222,7 @@ namespace Vampire
                 * Mathf.Sin(Time.time * 2.5f)
                 * approachSideNoiseStrength;
 
-            rb.velocity = (direction + sideNoise).normalized * approachMoveSpeed;
+            rb.velocity = (direction + sideNoise).normalized * approachMoveSpeed * IceMoveMultiplier;
         }
 
         private void FleeFromPlayer(Vector2 toPlayer, float distanceToPlayer)
@@ -252,7 +252,7 @@ namespace Vampire
                 speed *= panicSpeedMultiplier;
             }
 
-            rb.velocity = (awayFromPlayer + sideNoise).normalized * speed;
+            rb.velocity = (awayFromPlayer + sideNoise).normalized * speed * IceMoveMultiplier;
         }
 
         private void DropTreasureReward()

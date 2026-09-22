@@ -48,6 +48,7 @@ namespace Vampire.Tests
                         ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-dash.png"));
                         yield return new WaitForSeconds(.4f);player.Move(Vector2.zero);yield return new WaitForSeconds(.1f);
                         var data=level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];target=level.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);target.enabled=false;
+                        yield return IceChecks(target,needle.GetCurrentSpecialRuntime(),player);
                     }
                     Check(skill.TryActivate(),name+" native skill activation");
                     if(skill.IsHyuki)Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceRemaining>4.9f,"active initially applies five-second freeze");
@@ -83,6 +84,53 @@ namespace Vampire.Tests
                 Check(!errors,"native session has no errors");passed=true;
             }
             finally{Time.timeScale=1;GamePreferences.Apply(original,false);Application.logMessageReceived-=Log;Debug.Log("[PhoenixPlayer] FINISHED passed="+passed);Application.Quit(passed?0:1);}
+        }
+        static void SeedProc(bool proc)
+        {
+            for(int seed=0;seed<10000;seed++)
+            { UnityEngine.Random.InitState(seed);if((UnityEngine.Random.value<.05f)==proc){UnityEngine.Random.InitState(seed);return;} }
+            throw new Exception("Cannot select deterministic random seed");
+        }
+        static IEnumerator IceChecks(Monster target,SyringeSpecialRuntime runtime,Character player)
+        {
+            var random=UnityEngine.Random.state;var rb=target.GetComponent<Rigidbody2D>();float originalDrag=rb.drag;
+            for(int n=1;n<=3;n++)
+            {
+                SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
+                var chill=target.GetComponent<IceChillStatus>();
+                Check(chill.Stacks==n,"ice hit adds exactly one stack "+n);
+                Check(Mathf.Abs(chill.SpeedMultiplier-(.9f-.1f*n))<.001f,"ice uses original speed ratio "+n);
+                Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"first three non-proc hits do not freeze");
+                Check(Mathf.Abs(rb.drag-originalDrag/chill.SpeedMultiplier)<.01f,"slow does not compound across hits");
+                yield return new WaitForEndOfFrame();
+                var visual=target.GetComponent<IceChillVisual>();
+                Check(visual.Visible&&visual.DisplayedSprite==SyringeAugmentVfx.FindTarget(target).sprite,"shared tint follows current monster silhouette");
+                ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Ice-slow-stack-"+n+".png"));
+                yield return new WaitForSeconds(.2f);
+            }
+            SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
+            Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceRemaining>4.9f,"fourth hit guarantees five-second freeze");
+            Check(target.GetComponent<IceChillStatus>().Stacks==0&&Mathf.Abs(rb.drag-originalDrag)<.01f,"freeze consumes stacks and restores chill drag");
+            yield return new WaitForEndOfFrame();Check(!target.GetComponent<IceChillVisual>().Visible,"slow overlay hides during freeze");
+            Check(Mathf.Abs(Ver4HitEffects.BeforeHit(target,runtime)-1.2f)<.001f,"existing shatter bonus preserved");
+            SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
+            Check(target.GetComponent<IceChillStatus>().Stacks==1,"shatter hit starts next stack cycle without ignored hits");
+            target.GetComponent<IceChillStatus>().Clear();
+            SeedProc(true);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
+            Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen==true,"five-percent roll can freeze on first hit");
+            target.GetComponent<NeuralBlockedMonsterStatus>().ReleaseIce();
+            SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
+            var honey=target.gameObject.AddComponent<HoneySlowStatus>();honey.Apply(.1f,.8f);
+            yield return new WaitForSeconds(.2f);
+            var state=target.GetComponent<IceChillStatus>();
+            Check(state.Stacks==1&&Mathf.Abs(rb.drag-originalDrag/.8f)<.01f,"honey expiry preserves independent ice slow");
+            IceSkillRules.Freeze(target);Check(state.Stacks==0,"Hyuki direct freeze consumes chill stacks");
+            target.GetComponent<NeuralBlockedMonsterStatus>().ReleaseIce();
+            SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
+            target.gameObject.SetActive(false);Check(state.Stacks==0&&state.SpeedMultiplier==1,"pooled monster clears chill");
+            target.gameObject.SetActive(true);target.enabled=false;yield return new WaitForEndOfFrame();yield return null;
+            Check(target.GetComponent<NeuralBlockedMonsterStatus>()==null,"released pooled freeze finishes cleanup before next cast");
+            UnityEngine.Random.state=random;
         }
         static void Check(bool ok,string message){if(!ok)throw new Exception("[PhoenixPlayer] FAIL "+message);Debug.Log("[PhoenixPlayer] PASS "+message);}
     }

@@ -9,6 +9,7 @@ namespace Vampire
         public static void Freeze(Component target)
         {
             if (target == null || Ver4HitEffects.Health(target) <= 0) return;
+            target.GetComponent<IceChillStatus>()?.Clear();
             // Preserve the existing boss resistance: chill instead of a complete stun.
             if (Ver4HitEffects.IsBoss(target))
             {

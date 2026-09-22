@@ -1081,8 +1081,10 @@ namespace Vampire
         }
 
         private float ver4ChillUntil = -1f;
-        public void ApplyVer4IceChill(float duration)
+        private float ver4ChillMultiplier = .8f;
+        public void ApplyVer4IceChill(float duration, float multiplier = .8f)
         {
+            ver4ChillMultiplier = Time.time < ver4ChillUntil ? Mathf.Min(ver4ChillMultiplier,multiplier) : multiplier;
             ver4ChillUntil = Mathf.Max(ver4ChillUntil, Time.time + Mathf.Max(0f, duration));
         }
 
@@ -1092,7 +1094,7 @@ namespace Vampire
             return
                 baseSpeed *
                 GetCurrentPhaseSettings()
-                    .movementSpeedMultiplier * (Time.time < ver4ChillUntil ? .8f : 1f);
+                    .movementSpeedMultiplier * (Time.time < ver4ChillUntil ? ver4ChillMultiplier : 1f);
         }
 
         public float GetModifiedPatternCooldown(

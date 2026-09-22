@@ -10,7 +10,7 @@ namespace Vampire
         private int burnStacks;
         private Component target;
         private NeuralBlockedMonsterStatus freeze;
-        private float freezeCooldown, seedExpiry;
+        private float seedExpiry;
         private int seeds;
         private bool shatterPending;
         private void Awake() { target=GetComponent<IDamageable>(); }
@@ -18,7 +18,7 @@ namespace Vampire
         {
             if(freeze==null) freeze=GetComponent<NeuralBlockedMonsterStatus>();
             if(freeze==null || !freeze.IceFrozen) return false;
-            freeze.ReleaseIce(); freezeCooldown=Time.time+2; shatterPending=true; return true;
+            freeze.ReleaseIce(); shatterPending=true; return true;
         }
         public void Hit(SyringeSpecialRuntime runtime,Character source,LayerMask layer)
         {
@@ -27,12 +27,8 @@ namespace Vampire
             ResolveShatter(runtime,source,layer);
             if(Ver4HitEffects.Health(target)<=0) return;
             ApplyFire(runtime,source);
-            if(s.Has(P.IceNeedle) && Time.time>=freezeCooldown && Random.value<.20f+.05f*s.Count(P.IceNeedle,0))
-            {
-                IceSkillRules.Freeze(target);
-                freeze=GetComponent<NeuralBlockedMonsterStatus>();
-                freezeCooldown=Time.time+IceSkillRules.FreezeDuration+2;
-            }
+            if(s.Has(P.IceNeedle))
+                (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0));
             if(s.Has(P.WoodNeedle))
             {
                 if(Time.time>=seedExpiry) seeds=0;
@@ -96,7 +92,7 @@ namespace Vampire
             {
                 for(int i=0;i<burns.Count;i++)
                 { var burn=burns[i]; burn.end+=Time.deltaTime; burn.nextTick+=Time.deltaTime; burns[i]=burn; }
-                seedExpiry+=Time.deltaTime; freezeCooldown+=Time.deltaTime;
+                seedExpiry+=Time.deltaTime;
                 return;
             }
             if(Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
@@ -119,7 +115,7 @@ namespace Vampire
         }
         private void OnDisable()
         {
-            burns.Clear(); burnStacks=0; seeds=0; seedExpiry=freezeCooldown=0; shatterPending=false;
+            burns.Clear(); burnStacks=0; seeds=0; seedExpiry=0; shatterPending=false;
             if(freeze!=null) freeze.ReleaseIce(); freeze=null;
         }
     }
