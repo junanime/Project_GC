@@ -4,6 +4,8 @@ namespace Vampire
     [DisallowMultipleComponent]
     public sealed class CharacterSkillRuntime : MonoBehaviour
     {
+        public const int MaxSleepCrystals=12, SleepStacksPerCrystal=5;
+        public const int MaxSleepStacks=MaxSleepCrystals*SleepStacksPerCrystal;
         Character owner;
         public CharacterSkillDefinition Definition => owner != null && owner.Blueprint != null ? owner.Blueprint.skills : null;
         public float PassiveRemaining { get; private set; }
@@ -20,7 +22,7 @@ namespace Vampire
         public float SleepSeconds { get; private set; }
         public int SleepStacks => Mathf.FloorToInt(SleepSeconds);
         public int ConsumedSleepStacks { get; private set; }
-        public float MovementMultiplier => AshiActive ? 2 : IsHyuki && PassiveActive ? 1 + ConsumedSleepStacks * .08f : 1;
+        public float MovementMultiplier => AshiActive ? 2 : IsShini && Active ? Mathf.Max(1,Definition.shiniActiveMoveMultiplier) : IsHyuki && PassiveActive ? 1 + ConsumedSleepStacks * .08f : 1;
         public bool PassiveActive => PassiveRemaining > 0;
         public bool Active => ActiveRemaining > 0;
         public bool CanActivate => Definition != null && owner.IsAlive && !owner.IsTrapBound && !owner.IsDashing && !IsCutin && !IsSummoning && CooldownRemaining <= 0 && Time.timeScale > 0 && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud");
@@ -28,6 +30,11 @@ namespace Vampire
         SkillWindVisual aura;
         public void Initialize(Character character) { owner=character; aura=gameObject.AddComponent<SkillWindVisual>(); aura.Bind(this); gameObject.AddComponent<ShiniSkillRuntime>().Bind(character,this); gameObject.AddComponent<PhoenixSkillVisual>().Bind(character,this); }
         public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && owner.IsAlive) PassiveRemaining=Definition.passiveDuration; }
+        public void DashStarted()
+        {
+            if(IsShini && owner.IsAlive && owner.IsDashing && !owner.IsTrapBound)
+                GetComponent<ShiniSkillRuntime>()?.ActivatePools();
+        }
         public int ProjectileCount(int count) => Mathf.Max(1,count) * (AshiActive ? 2 : 1);
         public bool TryActivate()
         {
@@ -38,6 +45,7 @@ namespace Vampire
                 {
                     SummonRemaining=ShiniSkillRuntime.SummonDuration;
                     ActiveRemaining=Definition.activeDuration; CooldownRemaining=Definition.cooldown;
+                    owner.UpdateMoveSpeed();
                     GetComponent<ShiniSkillRuntime>()?.ActivatePools();
                     GetComponent<PhoenixSkillVisual>()?.Play();
                     return true;
@@ -84,7 +92,7 @@ namespace Vampire
             }
             if(IsHyuki && delta>0)
             {
-                if(owner.IsSkillIdle) SleepSeconds+=delta;
+                if(owner.IsSkillIdle) SleepSeconds=Mathf.Min(MaxSleepStacks,SleepSeconds+delta);
                 else if(SleepSeconds>0)
                 {
                     int stacks=SleepStacks; SleepSeconds=0;
@@ -108,8 +116,8 @@ namespace Vampire
         }
         public void RestoreSleep(float seconds,int consumed)
         {
-            SleepSeconds=IsHyuki?Mathf.Max(0,seconds):0;
-            ConsumedSleepStacks=IsHyuki?Mathf.Max(0,consumed):0;
+            SleepSeconds=IsHyuki?Mathf.Clamp(seconds,0,MaxSleepStacks):0;
+            ConsumedSleepStacks=IsHyuki?Mathf.Clamp(consumed,0,MaxSleepStacks):0;
             owner.UpdateMoveSpeed();
         }
         void Clear()

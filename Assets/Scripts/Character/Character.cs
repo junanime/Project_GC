@@ -540,6 +540,7 @@ namespace Vampire
         private IEnumerator DashCoroutine(Vector2 dashDirection)
         {
             isDashing = true;
+            Skills?.DashStarted();
 
             if (invincibleDuringDash)
             {

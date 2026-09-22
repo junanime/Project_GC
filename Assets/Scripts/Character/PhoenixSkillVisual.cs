@@ -88,7 +88,7 @@ namespace Vampire
         void UpdateCrystals()
         {
             var frames=skill.Definition.iceComponents;
-            int wanted=skill.IsHyuki&&owner.IsSkillIdle&&frames!=null&&frames.Length>0?skill.SleepStacks/5:0;
+            int wanted=skill.IsHyuki&&owner.IsSkillIdle&&frames!=null&&frames.Length>0?skill.SleepStacks/CharacterSkillRuntime.SleepStacksPerCrystal:0;
             while(crystals.Count>wanted){int n=crystals.Count-1;Destroy(crystals[n].gameObject);crystals.RemoveAt(n);}
             while(crystals.Count<wanted)crystals.Add(Make("Sleep stack crystal"));
             for(int i=0;i<crystals.Count;i++)

@@ -109,17 +109,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 77a22d694f8a4584ea10addd57bbba82, type: 3}
   passiveName: "\uBD88\uB2ED\uC758 \uC2DC\uC791"
   activeName: "\uBD88\uB2ED\uC758 \uB05D"
-  passiveDescription: "\uC774\uB3D9 \uC2DC\uAC04 2\uCD08\uB9C8\uB2E4 \uBC1C\uBC11\uC5D0
-    6\uCD08\uAC04 \uBD88\uAF43 \uC7A5\uD310\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4.
-    \uC7A5\uD310\uC740 \uC801\uC5D0\uAC8C \uC989\uC2DC \uD654\uC0C1 1\uC2A4\uD0DD,
-    \uC774\uD6C4 \uCD08\uB2F9 1\uC2A4\uD0DD\uC744 \uBD80\uC5EC\uD569\uB2C8\uB2E4.
-    \uACB9\uCE5C \uC7A5\uD310\uB3C4 \uB300\uC0C1\uB2F9 \uCD08\uB2F9 1\uD68C. \uD654\uC5FC\uCE68\uACFC
-    \uD654\uC0C1 \uC911\uCCA9\uC744 \uACF5\uC720\uD569\uB2C8\uB2E4."
-  activeDescription: "8\uCD08\uAC04 \uAE30\uC874\xB7\uC0C8 \uC7A5\uD310\uC5D0\uC11C
-    \uD1A0\uB124\uC774\uB3C4\uAC00 1\uD68C\uC529 \uC19F\uAD6C\uCE69\uB2C8\uB2E4.
-    \uC0C1\uC2B9 0.6\uCD08\uC5D0 \uD654\uC0C1 \uC804\uBD80\uB97C \uC18C\uBAA8\uD574
-    \uCE68 \uD53C\uD574 \xD7 (1 + 1.5 \xD7 \uC911\uCCA9) + \uB0A8\uC740 \uD654\uC0C1
-    \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uC7AC\uC0AC\uC6A9 35\uCD08."
+  shiniActiveMoveMultiplier: 1.3
+  shiniActivePoolInterval: 1
+  passiveDescription: "화염침을 보유하고 시작합니다. 이동 시간 2초마다 6초간 장판을 생성하며 적에게 화상 1스택을 부여합니다(대상당 초당 1회). 대쉬 시 필드의 기존 장판에서 토네이도가 솟아 0.6초 후 화상을 소모합니다. 피해: 침 피해 × (1 + 1.5 × 중첩) + 남은 화상 피해."
+  activeDescription: "8초간 이동속도 30% 증가, 이동 중 장판 생성 간격 2초 → 1초. 기존 장판과 지속 중 생성되는 새 장판에서 토네이도가 발동합니다. 대쉬로도 기존 장판의 토네이도를 발동할 수 있습니다. 재사용 35초. 수치는 ShiniSkills에서 조절할 수 있습니다."
   passiveIcon: {fileID: 21300000, guid: 5a81d77fdc546f040b6305616e71900c, type: 3}
   activeIcon: {fileID: 21300000, guid: efc42aaaa75acd04a94563e96f975073, type: 3}
   cutin: []

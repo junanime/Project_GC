@@ -5,6 +5,9 @@ namespace Vampire
     public sealed class CharacterSkillDefinition : ScriptableObject
     {
         public enum SkillKind { Ashi, Shini, Hyuki }
+        [Header("Shini active balance")]
+        [Min(1)] public float shiniActiveMoveMultiplier = 1.3f;
+        [Min(.1f)] public float shiniActivePoolInterval = 1f;
         public SkillKind kind;
         public Sprite[] phoenixFrames, verticalFireTrail, icePrison;
         public Sprite[] iceComponents, fireWrapParts, lavaFrames;

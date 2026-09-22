@@ -19,6 +19,7 @@ namespace Vampire
         readonly Dictionary<Sprite,Sprite> forward=new Dictionary<Sprite,Sprite>(), reverse=new Dictionary<Sprite,Sprite>();
         Vector3 previous; float movedSeconds, bodyWidth;
         public int PoolCount => pools.Count;
+        public float CurrentSpawnInterval => skill.Active ? Mathf.Clamp(skill.Definition.shiniActivePoolInterval,.1f,SpawnInterval) : SpawnInterval;
         public void Bind(Character character,CharacterSkillRuntime runtime)
         {
             owner=character;skill=runtime;previous=transform.position;
@@ -55,7 +56,8 @@ namespace Vampire
         {
             if(!moving||delta<=0)return;
             movedSeconds+=delta;
-            if(movedSeconds>=SpawnInterval){movedSeconds%=SpawnInterval;SpawnPool(Feet,Time.time);}
+            float interval=CurrentSpawnInterval;
+            if(movedSeconds>=interval){movedSeconds%=interval;SpawnPool(Feet,Time.time);}
         }
         SpriteRenderer Make(string name,Vector3 position)
         {
@@ -72,7 +74,12 @@ namespace Vampire
         }
         public void ActivatePools()
         {
-            foreach(var p in pools)if(Time.time-p.born<PoolLifetime&&p.eruption<0)p.eruption=Time.time;
+            if(skill==null || !skill.IsShini || !owner.IsAlive || owner.IsTrapBound)return;
+            // Active activation and successful dashes share the existing field pools.
+            // Do not restart an in-flight eruption or create an extra pool on dash.
+            foreach(var p in pools)
+                if(Time.time-p.born<PoolLifetime && (p.eruption<0 || Time.time-p.eruption>=EruptionDuration))
+                {p.eruption=Time.time;p.hit=false;UpdateVisual(p,Time.time);}
         }
         void UpdateVisual(Pool p,float now)
         {
@@ -144,24 +151,40 @@ namespace Vampire
     }
     public sealed class ShiniBurnVisual : MonoBehaviour
     {
-        SpriteRenderer visual,body;Ver4NeedleStatus status;CharacterSkillDefinition art;float started;
+        SpriteRenderer visual,body,overlay;Ver4NeedleStatus status;CharacterSkillDefinition art;float started;
+        Material tintMaterial;
+        public bool TintVisible => overlay!=null&&overlay.enabled;
         void Awake()
         {
-            status=GetComponent<Ver4NeedleStatus>();body=GetComponentInChildren<SpriteRenderer>();
+            status=GetComponent<Ver4NeedleStatus>();body=SyringeAugmentVfx.FindTarget(this);
             art=Resources.Load<CharacterSkillDefinition>("ShiniSkills");started=Time.time;
             visual=new GameObject("Body burn flames").AddComponent<SpriteRenderer>();visual.transform.SetParent(transform,false);
+            overlay=new GameObject("Burn orange silhouette").AddComponent<SpriteRenderer>();
+            // Exact body transform/sprite mask: preserve the existing silhouette and pixel edges.
+            overlay.transform.SetParent(body!=null?body.transform:transform,false);
+            tintMaterial=new Material(Shader.Find("Vampire/IceChillTint"));
+            overlay.sharedMaterial=tintMaterial;overlay.enabled=false;
         }
         void LateUpdate()
         {
             if(visual==null)return;
-            visual.enabled=status!=null&&status.BurnStacks>0&&body!=null&&body.enabled&&art!=null&&art.burnVfx.Length>0;
+            bool burning=status!=null&&status.BurnStacks>0&&body!=null&&body.enabled&&SyringeAugmentVfx.IsLiving(this);
+            overlay.enabled=burning;
+            if(burning)
+            {
+                overlay.sprite=body.sprite;overlay.flipX=body.flipX;overlay.flipY=body.flipY;
+                overlay.color=new Color(1,.62f,.28f,.25f);
+                overlay.sortingLayerID=body.sortingLayerID;overlay.sortingOrder=body.sortingOrder+1;
+            }
+            visual.enabled=burning&&art!=null&&art.burnVfx.Length>0;
             if(!visual.enabled)return;
             visual.sprite=art.burnVfx[(int)(Time.time-started)%art.burnVfx.Length];
-            visual.sortingLayerID=body.sortingLayerID;visual.sortingOrder=body.sortingOrder+1;
+            visual.sortingLayerID=body.sortingLayerID;visual.sortingOrder=body.sortingOrder+2;
             visual.transform.position=body.bounds.center;
             Vector3 size=body.bounds.size,scale=transform.lossyScale;
             visual.transform.localScale=new Vector3(size.x/visual.sprite.bounds.size.x/Mathf.Max(.001f,Mathf.Abs(scale.x)),size.y/visual.sprite.bounds.size.y/Mathf.Max(.001f,Mathf.Abs(scale.y)),1);
         }
-        void OnDisable(){if(visual!=null)visual.enabled=false;started=Time.time;}
+        void OnDisable(){if(visual!=null)visual.enabled=false;if(overlay!=null)overlay.enabled=false;started=Time.time;}
+        void OnDestroy(){if(tintMaterial!=null)Destroy(tintMaterial);if(overlay!=null)Destroy(overlay.gameObject);if(visual!=null)Destroy(visual.gameObject);}
     }
 }
