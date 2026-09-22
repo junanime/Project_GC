@@ -4,7 +4,14 @@ namespace Vampire
     [CreateAssetMenu(menuName="Blueprints/Character skills")]
     public sealed class CharacterSkillDefinition : ScriptableObject
     {
-        public enum SkillKind { Ashi, Shini, Hyuki }
+        public enum SkillKind { Ashi, Shini, Hyuki, Ari }
+        [Header("Ari roll and rock phoenix")]
+        public float ariRollDamage=10, ariPhoenixDamage=35;
+        public float ariRollPush=.3f, ariPhoenixPush=.6f;
+        public float ariRollWidth=1.1f, ariPhoenixRange=1.3f;
+        public float ariDashCooldown=.5f, ariVisualScale=1.5f;
+        public Sprite[] ariPhoenixIdle, ariPhoenixWalk, ariPhoenixDash, ariPhoenixTransform;
+        [Min(.05f)] public float ariTransformTime=.56f;
         [Header("Shini active balance")]
         [Min(1)] public float shiniActiveMoveMultiplier = 1.3f;
         [Min(.1f)] public float shiniActivePoolInterval = 1f;

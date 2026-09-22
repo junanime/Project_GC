@@ -75,5 +75,7 @@ MonoBehaviour:
   resultActionASpriteSequence: []
   resultActionBSpriteSequence: []
   resultActionFrameTime: 0.12
+  skills: {fileID: 11400000, guid: bf9014974f93775488094360b94843ac, type: 2}
   startingAbilities:
   - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}
+  - {fileID: 7378740072262091319, guid: a0daf2ec26e3f4a45a029d24d08235ef, type: 3}

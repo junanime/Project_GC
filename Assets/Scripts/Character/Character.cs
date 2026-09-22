@@ -256,7 +256,9 @@ namespace Vampire
         public float ExperienceMultiplier => expMultiplier;
 
         public float DashDistance => dashDistance;
+        public float DashDuration => dashDuration;
         public float DashRechargeTime => dashRechargeTime;
+        public float EffectiveDashRechargeTime => Skills!=null&&Skills.IsAri&&Skills.Active ? Mathf.Max(.05f,Skills.Definition.ariDashCooldown) : dashRechargeTime;
 
         public bool HasShield => hasShield;
         public int ReviveCount => reviveCount;
@@ -540,7 +542,6 @@ namespace Vampire
         private IEnumerator DashCoroutine(Vector2 dashDirection)
         {
             isDashing = true;
-            Skills?.DashStarted();
 
             if (invincibleDuringDash)
             {
@@ -564,6 +565,7 @@ namespace Vampire
             }
 
             ApplyDashSpriteVisual(dashDirection);
+            Skills?.DashStarted();
 
             Vector2 startPosition = rb != null ? rb.position : (Vector2)transform.position;
             Vector2 targetPosition = startPosition + dashDirection.normalized * dashDistance;
@@ -590,10 +592,13 @@ namespace Vampire
 
                 if (rb != null)
                 {
-                    rb.MovePosition(BloodClotObstacle.ClampDash(rb, nextPosition));
+                    var allowedPosition=BloodClotObstacle.ClampDash(rb,nextPosition);
+                    Skills?.DashStep(rb.position,allowedPosition);
+                    rb.MovePosition(allowedPosition);
                 }
                 else
                 {
+                    Skills?.DashStep(transform.position,nextPosition);
                     transform.position = nextPosition;
                 }
 
@@ -603,7 +608,9 @@ namespace Vampire
 
             if (rb != null)
             {
-                rb.MovePosition(BloodClotObstacle.ClampDash(rb, targetPosition));
+                var allowedPosition=BloodClotObstacle.ClampDash(rb,targetPosition);
+                Skills?.DashStep(rb.position,allowedPosition);
+                rb.MovePosition(allowedPosition);
 
                 if (stopVelocityAfterDash)
                 {
@@ -612,6 +619,7 @@ namespace Vampire
             }
             else
             {
+                Skills?.DashStep(transform.position,targetPosition);
                 transform.position = targetPosition;
             }
 
@@ -820,7 +828,7 @@ namespace Vampire
         {
             while (currentDashCharges < maxDashCharges)
             {
-                yield return new WaitForSeconds(dashRechargeTime);
+                yield return new WaitForSeconds(EffectiveDashRechargeTime);
 
                 if (!alive)
                 {
@@ -837,6 +845,13 @@ namespace Vampire
             }
 
             dashRechargeCoroutine = null;
+        }
+
+        public void RefreshSkillDashRecharge(bool grantCharge)
+        {
+            StopDashRecharge();
+            if(grantCharge)currentDashCharges=Mathf.Min(maxDashCharges,currentDashCharges+1);
+            EnsureDashRecharge();
         }
 
         public void GainExp(float exp)
