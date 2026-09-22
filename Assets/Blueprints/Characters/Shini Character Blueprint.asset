@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8cebba9219e8740668e9101e947a97e4, type: 3}
   m_Name: Shini Character Blueprint
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   name: "\uC2E0\uC774"
   description: "\uB05D\uAE4C\uC9C0 \uB3C4\uC804\uD558\uB294 \uC5F4\uD608 \uB178\uB825\uD30C
     \uBD09\uD669."
@@ -75,5 +75,6 @@ MonoBehaviour:
   resultActionASpriteSequence: []
   resultActionBSpriteSequence: []
   resultActionFrameTime: 0.12
+  skills: {fileID: 11400000, guid: 307297c452f4d8d44b72fc63a8e30bfd, type: 2}
   startingAbilities:
   - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}

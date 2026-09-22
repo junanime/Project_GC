@@ -1,4 +1,4 @@
-#if DEVELOPMENT_BUILD && !UNITY_EDITOR
+﻿#if DEVELOPMENT_BUILD && !UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Linq;
@@ -31,7 +31,7 @@ namespace Vampire.Tests
                 var preferences=original.Copy();preferences.pauseOnFocusLoss=false;preferences.muteOnFocusLoss=false;GamePreferences.Apply(preferences,false);
                 yield return new WaitForSecondsRealtime(2);
                 var ui=ApothecaryUI.Instance;Check(ui!=null,"native main UI");
-                Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Active skill slot"),"main skill slots");
+                Check(!ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Active skill slot"),"main skill slots removed");
                 CrossSceneData.CharacterBlueprint=ui.Config.characters[0];CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();
                 SceneManager.LoadScene(1);yield return new WaitForSecondsRealtime(2);
                 var level=FindObjectOfType<LevelManager>();level.enabled=false;var player=level.PlayerCharacter;var skill=player.Skills;

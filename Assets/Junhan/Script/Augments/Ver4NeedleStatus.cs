@@ -25,24 +25,7 @@ namespace Vampire
             if(s==null || target==null) return;
             ResolveShatter(runtime,source,layer);
             if(Ver4HitEffects.Health(target)<=0) return;
-            if(s.Has(P.FireNeedle) && Random.value<.25f)
-            {
-                int cap=s.Count(P.FireNeedle,2)==3 ? int.MaxValue : 3+s.Count(P.FireNeedle,2);
-                if(burnStacks>=cap && burns.Count>0)
-                {
-                    var oldest=burns[0];oldest.stacks--;burnStacks--;
-                    if(oldest.stacks==0) burns.RemoveAt(0); else burns[0]=oldest;
-                }
-                float damage=Ver4HitEffects.MaxHealth(target)*.005f*s.Factor(P.FireNeedle,0,.12f);
-                if(Ver4HitEffects.IsBoss(target)) damage=Mathf.Min(damage,runtime.ver4HitDamage*.25f);
-                var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,stacks=1};
-                int last=burns.Count-1;
-                // Equal-timestamp stacks share bookkeeping, not a gameplay cap.
-                if(last>=0 && burns[last].end==added.end && burns[last].nextTick==added.nextTick && burns[last].damage==damage && burns[last].source==source)
-                { var batch=burns[last];batch.stacks++;burns[last]=batch; }
-                else burns.Add(added);
-                burnStacks++;
-            }
+            ApplyFire(runtime,source);
             if(s.Has(P.IceNeedle) && Time.time>=freezeCooldown && Random.value<.20f+.05f*s.Count(P.IceNeedle,0))
             {
                 if(Ver4HitEffects.IsBoss(target))
@@ -91,6 +74,31 @@ namespace Vampire
                 }
             }
         }
+        public int BurnStacks => burnStacks;
+        public void ApplyFire(SyringeSpecialRuntime runtime,Character source)
+        {
+            var s=runtime.ver4;
+            if(s==null || target==null || Ver4HitEffects.Health(target)<=0)return;
+            if(s.Has(P.FireNeedle) && Random.value<.25f)
+            {
+                int cap=s.Count(P.FireNeedle,2)==3 ? int.MaxValue : 3+s.Count(P.FireNeedle,2);
+                if(burnStacks>=cap && burns.Count>0)
+                {
+                    var oldest=burns[0];oldest.stacks--;burnStacks--;
+                    if(oldest.stacks==0) burns.RemoveAt(0); else burns[0]=oldest;
+                }
+                float damage=Ver4HitEffects.MaxHealth(target)*.005f*s.Factor(P.FireNeedle,0,.12f);
+                if(Ver4HitEffects.IsBoss(target)) damage=Mathf.Min(damage,runtime.ver4HitDamage*.25f);
+                var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,stacks=1};
+                int last=burns.Count-1;
+                // Equal-timestamp stacks share bookkeeping, not a gameplay cap.
+                if(last>=0 && burns[last].end==added.end && burns[last].nextTick==added.nextTick && burns[last].damage==damage && burns[last].source==source)
+                { var batch=burns[last];batch.stacks++;burns[last]=batch; }
+                else burns.Add(added);
+                burnStacks++;
+            }
+            if(burnStacks>0 && GetComponent<ShiniBurnVisual>()==null) gameObject.AddComponent<ShiniBurnVisual>();
+        }
         private void ResolveShatter(SyringeSpecialRuntime runtime,Character source,LayerMask layer)
         {
             if(!shatterPending) return;
@@ -116,7 +124,12 @@ namespace Vampire
                 var burn=burns[i];
                 while(burn.nextTick<=Time.time && burn.nextTick<=burn.end+.0001f)
                 {
-                    Ver4HitEffects.Damage(target,burn.damage*burn.stacks,Vector2.zero,burn.source,"화염침",true); burn.nextTick+=1;
+                    for(int stack=0;stack<burn.stacks;stack++)
+                    {
+                        Ver4HitEffects.Damage(target,burn.damage,Vector2.zero,burn.source,"화염침",true);
+                        if(!isActiveAndEnabled || Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
+                    }
+                    burn.nextTick+=1;
                     // A pooled target may disable itself synchronously in TakeDamage.
                     if(!isActiveAndEnabled || Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
                 }

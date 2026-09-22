@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eb3fc082d9979349b9ab3b19b6ef4b9, type: 3}
+  m_Name: ShiniSkills
+  m_EditorClassIdentifier:
+  kind: 1
+  burningIdle:
+  - {fileID: -8381659573352531839, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: -2756498017462300822, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: -6714146255402601037, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: -4914351600739261391, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: 8045593241502845221, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: 457006308311335959, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: -1006470023562271296, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  - {fileID: 8072346608272230478, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
+  burningWalk:
+  - {fileID: -95026768748765244, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: 8866919437582257738, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: -7923221114941991851, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: 8232121291649219200, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: 5907391905570043736, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: -1156535452901077130, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: 6917590313969028531, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  - {fileID: -6651511011356628897, guid: 6d8cc31ed8b041b40ad6cea441fa887e, type: 3}
+  burningDash:
+  - {fileID: 391937791545644278, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: -4518600168230512754, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: 301046621521751748, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: 6982171169486644668, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: 2949741234815980751, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: -7291351836683820710, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: -6760927431935721923, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  - {fileID: 6083977501011348221, guid: 89ab8f5b783840e4e808ea27609bbb40, type: 3}
+  fireTrail:
+  - {fileID: 21300000, guid: 73022066b8c96a245a8c5fb8aff54f04, type: 3}
+  - {fileID: 21300000, guid: 3903c94be6ce1bd4cb5588c9fe3ef32a, type: 3}
+  - {fileID: 21300000, guid: 6f0c88b5c4a2d3a4ea1ef83a1fe90fb8, type: 3}
+  - {fileID: 21300000, guid: 91a46d1b741b78346ace90e61a8f91c9, type: 3}
+  - {fileID: 21300000, guid: 156b3d7a6da79cd41a06775356a087ca, type: 3}
+  - {fileID: 21300000, guid: 0056ed5527c622246a3ae89ba0c1bc4a, type: 3}
+  - {fileID: 21300000, guid: 1c0812c25912c994194ea3d0017d416c, type: 3}
+  burnVfx:
+  - {fileID: 21300000, guid: 72aca97883e7e87419826e6b0e54ddc0, type: 3}
+  - {fileID: 21300000, guid: b72ea373dc3392a4b8935dacf6dc4c56, type: 3}
+  - {fileID: 21300000, guid: 77a22d694f8a4584ea10addd57bbba82, type: 3}
+  passiveName: "\uBD88\uB2ED\uC758 \uC2DC\uC791"
+  activeName: "\uBD88\uB2ED\uC758 \uB05D"
+  passiveDescription: "\uC2E4\uC81C \uB300\uC26C \uACBD\uB85C\uC5D0 \uBD88\uAF43\uAE38\uC744
+    \uB0A8\uAE41\uB2C8\uB2E4. \uAC01 \uAD6C\uAC04\uC740 \uC0DD\uC131 \uD6C4 3\uCD08
+    \uC720\uC9C0\uB429\uB2C8\uB2E4. \uD654\uC5FC\uCE68\uACFC \uD654\uC0C1 \uC911\uCCA9\uC744
+    \uACF5\uC720\uD569\uB2C8\uB2E4."
+  activeDescription: "15\uCD08 \uB3D9\uC548 \uBD88\uB2ED\uC73C\uB85C \uBCC0\uC2E0\uD558\uACE0
+    \uC77C\uBC18 \uC774\uB3D9\uC5D0\uB3C4 \uBD88\uAF43\uAE38\uC744 \uB0A8\uAE41\uB2C8\uB2E4.
+    \uAC01 \uAD6C\uAC04 3\uCD08 \uC720\uC9C0 \xB7 \uC7AC\uC0AC\uC6A9 35\uCD08."
+  passiveIcon: {fileID: 21300000, guid: 5a81d77fdc546f040b6305616e71900c, type: 3}
+  activeIcon: {fileID: 21300000, guid: efc42aaaa75acd04a94563e96f975073, type: 3}
+  cutin: []
+  passiveWind: []
+  activeWind: []
+  projectileWind: []
+  passiveDuration: 3
+  activeDuration: 15
+  cooldown: 35
+  cutinDuration: 2

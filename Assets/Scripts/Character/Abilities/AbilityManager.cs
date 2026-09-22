@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -114,7 +114,9 @@ namespace Vampire
                         var ability=obj.AddComponent<SyringeSpecialAugmentAbility>();
                         ability.ConfigureNewAugment((SyringeSpecialAugmentAbility.SpecialAugmentType)(16+i),ver4Balance.plannedIcons[i]);
                         ability.Init(abilityManager,entityManager,playerCharacter);
-                        newAbilities.Add(ability);
+                        if(playerCharacter.Blueprint.skills != null && playerCharacter.Blueprint.skills.kind == CharacterSkillDefinition.SkillKind.Shini && ability.Type == SyringeSpecialAugmentAbility.SpecialAugmentType.FireNeedle)
+                        { ability.Select(); ownedAbilities.Add(ability); }
+                        else newAbilities.Add(ability);
                     }
                     var objState=new GameObject("Ver4 Upgrade State"); objState.transform.SetParent(transform,false);
                     Ver4=objState.AddComponent<Ver4AugmentRuntime>();

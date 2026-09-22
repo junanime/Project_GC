@@ -14,18 +14,18 @@ namespace Vampire
         void LateUpdate()
         {
             if(visual==null)return;
-            bool show=skill!=null && skill.Definition!=null && (skill.Active||skill.PassiveActive);
+            bool show=skill!=null && skill.Definition!=null && (skill.AshiActive||skill.AshiPassive);
             visual.enabled=show;
             if(!show)return;
-            var frames=skill.Active?skill.Definition.activeWind:skill.Definition.passiveWind;
+            var frames=skill.AshiActive?skill.Definition.activeWind:skill.Definition.passiveWind;
             if(frames==null||frames.Length==0){visual.enabled=false;return;}
-            visual.sprite=frames[(int)(Time.time*(skill.Active?18:10))%frames.Length];
+            visual.sprite=frames[(int)(Time.time*(skill.AshiActive?18:10))%frames.Length];
             var body=GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
             visual.sortingLayerID=body.sortingLayerID;visual.sortingOrder=body.sortingOrder+1;
             visual.transform.localPosition=new Vector3(0,-.06f,-.02f);
-            float width=skill.Active?1.65f:1.05f;
+            float width=skill.AshiActive?1.65f:1.05f;
             visual.transform.localScale=Vector3.one*width/visual.sprite.bounds.size.x;
-            visual.color=new Color(1,1,1,skill.Active?.85f:.65f);
+            visual.color=new Color(1,1,1,skill.AshiActive?.85f:.65f);
         }
     }
     public sealed class SkillProjectileWind : MonoBehaviour
@@ -38,9 +38,9 @@ namespace Vampire
         {
             if(projectile==null)return;
             var effect=projectile.GetComponent<SkillProjectileWind>();
-            if(effect==null && skill!=null && skill.Active)effect=projectile.gameObject.AddComponent<SkillProjectileWind>();
+            if(effect==null && skill!=null && skill.AshiActive)effect=projectile.gameObject.AddComponent<SkillProjectileWind>();
             if(effect==null)return;
-            effect.frames=skill!=null&&skill.Active?skill.Definition.projectileWind:null;
+            effect.frames=skill!=null&&skill.AshiActive?skill.Definition.projectileWind:null;
             effect.previous=projectile.transform.position;
             if(effect.visual==null)
             {

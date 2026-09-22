@@ -206,7 +206,7 @@ namespace Vampire
         public CharacterSkillRuntime Skills { get; private set; }
         public bool IsAlive => alive;
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
-        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value : 0f) * (Skills != null && Skills.Active ? 2 : 1);
+        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value : 0f) * (Skills != null && Skills.AshiActive ? 2 : 1);
         public float CurrentArmor => armor != null ? armor.Value : 0f;
 
         public string DisplayName =>
@@ -231,15 +231,15 @@ namespace Vampire
                     finalSpeed += thermometerStacks * 0.03f;
                 }
 
-                return finalSpeed * (Skills != null && Skills.PassiveActive ? 1.2f : 1);
+                return finalSpeed * (Skills != null && Skills.AshiPassive ? 1.2f : 1);
             }
         }
 
         public int MouthwashCount => mouthwashCount;
-        public float ProjectileSpeedMultiplier => projectileSpeedMultiplier * (Skills != null && Skills.Active ? 2 : 1);
+        public float ProjectileSpeedMultiplier => projectileSpeedMultiplier * (Skills != null && Skills.AshiActive ? 2 : 1);
         public float BurnChance => burnChance;
         public float CritChance => critChance;
-        public int AdditionalProjectiles => additionalProjectiles + (Skills != null && Skills.PassiveActive ? 2 : 0);
+        public int AdditionalProjectiles => additionalProjectiles + (Skills != null && Skills.AshiPassive ? 2 : 0);
         public float InvincibilityTimeBonus => invincibilityTimeBonus;
         public float LifeSteal => lifeSteal;
         public float HealOnKill => healOnKill;
@@ -1195,7 +1195,7 @@ namespace Vampire
             if (rb == null || movementSpeed == null || characterBlueprint == null) return;
             float speed = Mathf.Max(.01f,movementSpeed.Value);
             // Existing movement uses acceleration/drag; halve drag for twice the actual speed.
-            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null && Skills.Active ? 2 : 1));
+            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null && Skills.AshiActive ? 2 : 1));
         }
 
         public void AddHealOnIdle(float amount)

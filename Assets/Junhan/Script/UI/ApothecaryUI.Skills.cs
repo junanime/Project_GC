@@ -39,8 +39,9 @@ namespace Vampire
             var overlay=Rect("Skill details",content,.2f,.32f,.8f,.7f);skillDetails=overlay.gameObject;
             Panel(overlay,0,0,1,1);
             var d=data!=null?data.skills:null;
-            Label(overlay,d!=null?(active?d.activeName:d.passiveName):"스킬 준비 중",.08f,.69f,.92f,.93f,27);
-            Label(overlay,d!=null?(active?d.activeDescription:d.passiveDescription):"이 캐릭터의 스킬은 추후 추가됩니다.",.08f,.30f,.92f,.69f,21);
+            var icon=ImageAt(overlay,d!=null?(active?d.activeIcon:d.passiveIcon):null,.05f,.32f,.29f,.88f); icon.name="Skill detail icon";
+            Label(overlay,d!=null?(active?d.activeName:d.passiveName):"스킬 준비 중",.34f,.70f,.94f,.93f,27);
+            Label(overlay,d!=null?(active?d.activeDescription:d.passiveDescription):"이 캐릭터의 스킬은 추후 추가됩니다.",.34f,.30f,.94f,.69f,21);
             ActionButton(overlay,"닫기",.34f,.06f,.66f,.27f,()=>{Destroy(skillDetails);skillDetails=null;});
         }
         void BuildSkillHud()

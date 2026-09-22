@@ -181,7 +181,6 @@ namespace Vampire
         void Main()
         {
             portrait = IdlePreview(character,.41f,.395f,.59f,.665f);
-            ProfileSkills(character,.66f,.17f,.85f,.36f);
             string[] labels = {"게임 시작","잠금 해제","설정","종료"};
             string[] pages = {"prepare","unlock","settings","exit"};
             for (int i=0;i<4;i++) { int n=i; ActionButton(content,labels[i],.355f,.29f-i*.078f,.645f,.36f-i*.078f,()=>Show(pages[n]),i==0); }
