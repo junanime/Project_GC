@@ -16,6 +16,7 @@ namespace Vampire
         private void Awake() { target=GetComponent<IDamageable>(); }
         public bool ConsumeFrozen()
         {
+            if(freeze==null) freeze=GetComponent<NeuralBlockedMonsterStatus>();
             if(freeze==null || !freeze.IceFrozen) return false;
             freeze.ReleaseIce(); freezeCooldown=Time.time+2; shatterPending=true; return true;
         }
@@ -28,29 +29,9 @@ namespace Vampire
             ApplyFire(runtime,source);
             if(s.Has(P.IceNeedle) && Time.time>=freezeCooldown && Random.value<.20f+.05f*s.Count(P.IceNeedle,0))
             {
-                if(Ver4HitEffects.IsBoss(target))
-                {
-                    if(target is Monster)
-                    {
-                        var slow=GetComponent<HoneySlowStatus>()??gameObject.AddComponent<HoneySlowStatus>(); slow.Apply(1,.8f);
-                    }
-                    else if(target is BossPartDamageTestPart)
-                    {
-                        var boss=target.GetComponentInParent<BossController>();
-                        if(boss==null)
-                        {
-                            var root=target.GetComponentInParent<BossPartDamageTestRootController>();
-                            if(root!=null) boss=root.GetComponentInChildren<BossController>();
-                        }
-                        if(boss!=null) boss.ApplyVer4IceChill(1);
-                    }
-                    freezeCooldown=Time.time+2;
-                }
-                else
-                {
-                    freeze=GetComponent<NeuralBlockedMonsterStatus>()??gameObject.AddComponent<NeuralBlockedMonsterStatus>();
-                    freeze.ApplyIce(1); freezeCooldown=Time.time+3;
-                }
+                IceSkillRules.Freeze(target);
+                freeze=GetComponent<NeuralBlockedMonsterStatus>();
+                freezeCooldown=Time.time+IceSkillRules.FreezeDuration+2;
             }
             if(s.Has(P.WoodNeedle))
             {

@@ -114,7 +114,7 @@ namespace Vampire
                         var ability=obj.AddComponent<SyringeSpecialAugmentAbility>();
                         ability.ConfigureNewAugment((SyringeSpecialAugmentAbility.SpecialAugmentType)(16+i),ver4Balance.plannedIcons[i]);
                         ability.Init(abilityManager,entityManager,playerCharacter);
-                        if(playerCharacter.Blueprint.skills != null && playerCharacter.Blueprint.skills.kind == CharacterSkillDefinition.SkillKind.Shini && ability.Type == SyringeSpecialAugmentAbility.SpecialAugmentType.FireNeedle)
+                        if(playerCharacter.Blueprint.skills != null && ((playerCharacter.Blueprint.skills.kind == CharacterSkillDefinition.SkillKind.Shini && ability.Type == SyringeSpecialAugmentAbility.SpecialAugmentType.FireNeedle) || (playerCharacter.Blueprint.skills.kind == CharacterSkillDefinition.SkillKind.Hyuki && ability.Type == SyringeSpecialAugmentAbility.SpecialAugmentType.IceNeedle)))
                         { ability.Select(); ownedAbilities.Add(ability); }
                         else newAbilities.Add(ability);
                     }

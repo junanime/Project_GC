@@ -34,7 +34,7 @@ namespace Vampire.Tests
                 Check(needle.GetCurrentSpecialRuntime().ver4.Has(SyringeSpecialAugmentAbility.SpecialAugmentType.FireNeedle),"starting fire progression");
                 Check(player.TryDash(),"dash starts");yield return new WaitForSeconds(.35f);Check(trail.SegmentCount>0,"dash leaves real trail");
                 Check(skill.TryActivate()&&!skill.IsCutin,"active starts immediately");player.Move(Vector2.right);yield return new WaitForSeconds(.5f);player.Move(Vector2.zero);
-                Check(skill.Active&&skill.CooldownRemaining>34,"native duration and cooldown");
+                Check(skill.IsSummoning&&!skill.Active&&skill.CooldownRemaining==0,"native summon defers buff and cooldown");
                 var renderer=FindObjectsOfType<MeshRenderer>().First(r=>r.name=="Shini fire path");
                 Check(renderer.sharedMaterial.shader.name=="Vampire/ShiniFireTrail"&&renderer.sharedMaterial.shader.isSupported,"fire shader included and supported");
                 Check(renderer.sharedMaterial.mainTexture!=null,"animated fire texture loaded");
@@ -46,10 +46,13 @@ namespace Vampire.Tests
                     {
                         var vertices=meshFilter.sharedMesh.vertices;
                         for(int i=0;i<vertices.Length;i+=4)
-                            rises &= Mathf.Abs(vertices[i+2].y-vertices[i].y-.6f)<.001f;
+                            rises &= meshFilter.GetComponent<MeshRenderer>().sharedMaterial.shader.name=="Vampire/PhoenixFire"
+                                ? Mathf.Abs(vertices[i+2].x-vertices[i].x-1.2f)<.001f && Mathf.Abs(vertices[i+2].y-vertices[i].y)<.001f
+                                : Mathf.Abs(vertices[i+2].y-vertices[i].y-.6f)<.001f;
                     }
                     Check(rises,"flame rises in world up for "+direction);
                 }
+                yield return new WaitForSeconds(2.8f);
                 yield return new WaitForEndOfFrame();
                 var body=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
                 Check(skill.Definition.burningIdle.Contains(body.sprite)||skill.Definition.burningWalk.Contains(body.sprite),"transformed character rendered");

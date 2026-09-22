@@ -206,7 +206,8 @@ namespace Vampire
         public CharacterSkillRuntime Skills { get; private set; }
         public bool IsAlive => alive;
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
-        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value : 0f) * (Skills != null && Skills.AshiActive ? 2 : 1);
+        public bool IsSkillIdle => alive && !IsDashing && !IsTrapBound && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
+        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value : 0f) * (Skills != null ? Skills.MovementMultiplier : 1);
         public float CurrentArmor => armor != null ? armor.Value : 0f;
 
         public string DisplayName =>
@@ -1195,7 +1196,7 @@ namespace Vampire
             if (rb == null || movementSpeed == null || characterBlueprint == null) return;
             float speed = Mathf.Max(.01f,movementSpeed.Value);
             // Existing movement uses acceleration/drag; halve drag for twice the actual speed.
-            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null && Skills.AshiActive ? 2 : 1));
+            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null ? Skills.MovementMultiplier : 1));
         }
 
         public void AddHealOnIdle(float amount)
@@ -1748,6 +1749,9 @@ namespace Vampire
             snapshot.ThermometerStacks =
                 thermometerStacks;
 
+            snapshot.SkillSummonRemaining=Skills != null ? Skills.SummonRemaining : 0;
+            snapshot.SkillSleepSeconds=Skills != null ? Skills.SleepSeconds : 0;
+            snapshot.SkillConsumedSleepStacks=Skills != null ? Skills.ConsumedSleepStacks : 0;
             snapshot.SkillPassiveRemaining=Skills != null ? Skills.PassiveRemaining : 0;
             snapshot.SkillActiveRemaining=Skills != null ? Skills.ActiveRemaining : 0;
             snapshot.SkillCooldownRemaining=Skills != null ? Skills.CooldownRemaining : 0;
@@ -1961,7 +1965,8 @@ namespace Vampire
             alive =
                 currentHealth > 0f;
 
-            Skills?.Restore(snapshot.SkillPassiveRemaining,snapshot.SkillActiveRemaining,snapshot.SkillCooldownRemaining);
+            Skills?.Restore(snapshot.SkillPassiveRemaining,snapshot.SkillActiveRemaining,snapshot.SkillCooldownRemaining,snapshot.SkillSummonRemaining);
+            Skills?.RestoreSleep(snapshot.SkillSleepSeconds,snapshot.SkillConsumedSleepStacks);
             // Restored spent charges must recharge even when no dash can be started.
             StopDashRecharge();
             EnsureDashRecharge();

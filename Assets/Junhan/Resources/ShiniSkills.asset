@@ -13,6 +13,29 @@ MonoBehaviour:
   m_Name: ShiniSkills
   m_EditorClassIdentifier:
   kind: 1
+  phoenixFrames:
+  - {fileID: -7516215127721556116, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 3616101241681794043, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 5928329258921425018, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: -3509930971402955014, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 2305428989486597452, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 6484511633166413036, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: -8058703645936113454, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: -567531050931584698, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: -8224584716325844226, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 9036769640755671530, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 4095403730370947578, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 877096208983876599, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 7173610880231644048, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: -5794246856190927213, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: 2644156692262815448, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  - {fileID: -73649391581327867, guid: 02ad08c38b9b322438fc5917c36be6cb, type: 3}
+  verticalFireTrail:
+  - {fileID: -2914038902570906254, guid: c7cd2e8af88e3c841873ad55c8f86960, type: 3}
+  - {fileID: 7085280902505334960, guid: c7cd2e8af88e3c841873ad55c8f86960, type: 3}
+  - {fileID: 5064578623962864881, guid: c7cd2e8af88e3c841873ad55c8f86960, type: 3}
+  - {fileID: 4110896843296441553, guid: c7cd2e8af88e3c841873ad55c8f86960, type: 3}
+  icePrison: []
   burningIdle:
   - {fileID: -8381659573352531839, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
   - {fileID: -2756498017462300822, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
@@ -58,9 +81,7 @@ MonoBehaviour:
     \uB0A8\uAE41\uB2C8\uB2E4. \uAC01 \uAD6C\uAC04\uC740 \uC0DD\uC131 \uD6C4 3\uCD08
     \uC720\uC9C0\uB429\uB2C8\uB2E4. \uD654\uC5FC\uCE68\uACFC \uD654\uC0C1 \uC911\uCCA9\uC744
     \uACF5\uC720\uD569\uB2C8\uB2E4."
-  activeDescription: "15\uCD08 \uB3D9\uC548 \uBD88\uB2ED\uC73C\uB85C \uBCC0\uC2E0\uD558\uACE0
-    \uC77C\uBC18 \uC774\uB3D9\uC5D0\uB3C4 \uBD88\uAF43\uAE38\uC744 \uB0A8\uAE41\uB2C8\uB2E4.
-    \uAC01 \uAD6C\uAC04 3\uCD08 \uC720\uC9C0 \xB7 \uC7AC\uC0AC\uC6A9 35\uCD08."
+  activeDescription: "봉황 소환·흡수 완료 후 15초간 기존 불닭 모습으로 변신하고 일반 이동에도 불꽃길을 남깁니다. 각 구간 3초 유지. 활성화 시작부터 재사용 35초."
   passiveIcon: {fileID: 21300000, guid: 5a81d77fdc546f040b6305616e71900c, type: 3}
   activeIcon: {fileID: 21300000, guid: efc42aaaa75acd04a94563e96f975073, type: 3}
   cutin: []

@@ -85,7 +85,7 @@ namespace Vampire.Tests.Editor
                         EventSystem.current.GetComponent<InputSystemUIInputModule>().enabled=false;
                         var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
                         Check(ui.Config.characters[0].skills!=null,"Ashi skill data attached");
-                        Check(ui.Config.characters.Skip(1).All(c=>c.skills==null || c.skills.kind==CharacterSkillDefinition.SkillKind.Shini),"other characters have no accidental Ashi skills");
+                        Check(ui.Config.characters.Skip(1).All(c=>c.skills==null || c.skills.kind!=CharacterSkillDefinition.SkillKind.Ashi),"other characters have no accidental Ashi skills");
                         Capture("01-main");Click(Button("Button 게임 시작"));break;
                     case 1:
                         Check(Button("Passive skill slot")!=null&&Button("Active skill slot")!=null,"two preparation slots");Capture("02-prepare");

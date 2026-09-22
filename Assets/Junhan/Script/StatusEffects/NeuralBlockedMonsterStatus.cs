@@ -14,14 +14,18 @@ namespace Vampire
         private Rigidbody2D rb;
         private Animator[] animators;
         private float[] originalAnimatorSpeeds;
+        private SpriteAnimator[] spriteAnimators;
+        private bool[] spriteAnimatorEnabled;
 
         private float endTime = -1f;
         private float iceEndTime = -1f;
         public bool IceFrozen => Time.time < iceEndTime;
+        public float IceRemaining => Mathf.Max(0,iceEndTime-Time.time);
         public void ApplyIce(float duration)
         {
             if (!initialized) CacheReferences();
             iceEndTime=Mathf.Max(iceEndTime,Time.time+Mathf.Max(.05f,duration));
+            (GetComponent<IcePrisonVisual>()??gameObject.AddComponent<IcePrisonVisual>()).Rebind(this);
             DisableMonsterMovementComponent(); SetAnimatorSpeed(0f); StopMovement();
         }
         public void ReleaseIce()
@@ -56,6 +60,9 @@ namespace Vampire
             monster = GetComponent<Monster>() ?? GetComponentInParent<Monster>();
             rb = GetComponent<Rigidbody2D>() ?? GetComponentInParent<Rigidbody2D>();
             animators = GetComponentsInChildren<Animator>(true);
+            spriteAnimators=GetComponentsInChildren<SpriteAnimator>(true);
+            spriteAnimatorEnabled=new bool[spriteAnimators.Length];
+            for(int i=0;i<spriteAnimators.Length;i++)spriteAnimatorEnabled[i]=spriteAnimators[i].enabled;
 
             if (animators != null && animators.Length > 0)
             {
@@ -140,6 +147,7 @@ namespace Vampire
 
         private void SetAnimatorSpeed(float speed)
         {
+            if(spriteAnimators!=null)foreach(var a in spriteAnimators)if(a!=null)a.enabled=false;
             if (animators == null)
             {
                 return;
@@ -156,6 +164,7 @@ namespace Vampire
 
         private void RestoreAnimatorSpeed()
         {
+            if(spriteAnimators!=null)for(int i=0;i<spriteAnimators.Length;i++)if(spriteAnimators[i]!=null)spriteAnimators[i].enabled=spriteAnimatorEnabled[i];
             if (animators == null || originalAnimatorSpeeds == null)
             {
                 return;

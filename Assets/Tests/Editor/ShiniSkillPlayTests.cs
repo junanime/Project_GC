@@ -72,10 +72,21 @@ namespace Vampire.Tests.Editor
                         Check(fire.SegmentCount>2,"resolved dash path creates continuous segments");Near(player.CurrentMoveSpeed,move,"passive has no Ashi move buff");Near(player.AttackSpeedMultiplier,attack,"passive has no Ashi attack buff");Check(needle.GetEffectiveProjectileCount()==count,"passive has no Ashi projectile buff");Capture("03-dash-trail");
                         keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(UnityEngine.InputSystem.Key.R));break;
                     case 5:
-                        InputSystem.QueueStateEvent(keyboard,new KeyboardState());Check(skill.Active&&!skill.IsCutin,"R activates without Ashi cut-in");Check(skill.ActiveRemaining>14&&skill.CooldownRemaining>34,"15 second duration and 35 second cooldown");Check(!skill.TryActivate(),"cooldown rejects repeat activation");
-                        Near(player.CurrentMoveSpeed,move,"active does not alter movement speed");Check(needle.GetEffectiveProjectileCount()==count,"active does not double needles");
-                        var body=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();Check(skill.Definition.burningIdle.Contains(body.sprite)||skill.Definition.burningWalk.Contains(body.sprite),"body switched to transformed art");walkStart=player.transform.position;player.Move(Vector2.right);next+=.7;break;
+                        InputSystem.QueueStateEvent(keyboard,new KeyboardState());Check(skill.IsSummoning&&!skill.Active&&!skill.IsCutin,"R starts in-world phoenix summoning before active state");
+                        Near(skill.CooldownRemaining,0,"cooldown waits for summon completion");Check(!skill.TryActivate(),"summoning rejects repeat activation");
+                        var body=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();Check(player.Blueprint.idleSpriteSequence.Contains(body.sprite)||player.Blueprint.walkSpriteSequence.Contains(body.sprite),"original body retained during phoenix summoning");
+                        var casting=player.CaptureRunSceneState();skill.Restore(0,0,0);player.RestoreRunSceneState(casting);Near(skill.SummonRemaining,casting.SkillSummonRemaining,"scene snapshot restores pending summon");
+                        ui.OpenRunBook();pause=skill.SummonRemaining;break;
                     case 6:
+                        Near(skill.SummonRemaining,pause,"TAB pauses summoning and delays cooldown start");ui.CloseRunBook();stage=60;next+=3;break;
+                    case 60:
+                        Check(skill.Active&&!skill.IsSummoning&&skill.ActiveRemaining>14&&skill.CooldownRemaining>34,"full fifteen-second active and thirty-five-second cooldown start after summon");
+                        Check(player.GetComponent<PhoenixSkillVisual>().Absorbed,"phoenix finishes before transformation");
+                        var transformed=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();Check(skill.Definition.burningIdle.Contains(transformed.sprite)||skill.Definition.burningWalk.Contains(transformed.sprite),"existing burning active images resume after summon");
+                        Near(player.CurrentMoveSpeed,move,"active does not alter movement speed");Check(needle.GetEffectiveProjectileCount()==count,"active does not double needles");
+                        walkStart=player.transform.position;player.Move(Vector2.right);next+=.7;break;
+                    case 61:
+                        stage=7;
                         Check(Vector3.Distance(walkStart,player.transform.position)>.05f,"ordinary movement actually changes world position");Check(fire.SegmentCount>4,"ordinary movement generates active trail");Capture("04-active-walk");player.Move(Vector2.zero);
                         ui.OpenRunBook();pause=skill.CooldownRemaining;break;
                     case 7:
@@ -105,7 +116,7 @@ namespace Vampire.Tests.Editor
                         target.gameObject.SetActive(false);Check(status.BurnStacks==0,"pooled enemy clears burn state");
                         typeof(MobileGameplayInput).GetProperty("Active").SetValue(null,true);break;
                     case 9:
-                        Check(ui.GetComponentsInChildren<RectTransform>().First(r=>r.name=="Skill HUD").anchoredPosition.y>190,"mobile HUD clears joystick");Button("Active skill R").onClick.Invoke();Check(skill.Active,"HUD button activates Shini");Capture("07-mobile");
+                        Check(ui.GetComponentsInChildren<RectTransform>().First(r=>r.name=="Skill HUD").anchoredPosition.y>190,"mobile HUD clears joystick");Button("Active skill R").onClick.Invoke();Check(skill.IsSummoning&&!skill.Active,"HUD button starts Shini summoning");Capture("07-mobile");
                         var dead=player.CaptureRunSceneState();dead.CurrentHealth=0;player.RestoreRunSceneState(dead);break;
                     case 10:
                         Check(!skill.CanActivate&&skill.CooldownRemaining==0,"death clears timers and blocks input");Check(fire.SegmentCount==0,"death clears fire path");typeof(MobileGameplayInput).GetProperty("Active").SetValue(null,false);SessionState.SetBool(Key+"Done",true);break;

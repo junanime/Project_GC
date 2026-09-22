@@ -61,7 +61,7 @@ namespace Vampire.Editor
                 data.kind=CharacterSkillDefinition.SkillKind.Shini;
                 data.passiveName="불닭의 시작";data.activeName="불닭의 끝";
                 data.passiveDescription="실제 대쉬 경로에 불꽃길을 남깁니다. 각 구간은 생성 후 3초 유지됩니다. 화염침과 화상 중첩을 공유합니다.";
-                data.activeDescription="15초 동안 불닭으로 변신하고 일반 이동에도 불꽃길을 남깁니다. 각 구간 3초 유지 · 재사용 35초.";
+                data.activeDescription="봉황 소환·흡수 완료 후 15초간 기존 불닭 모습으로 변신하고 일반 이동에도 불꽃길을 남깁니다. 각 구간 3초 유지. 활성화 시작부터 재사용 35초.";
                 data.passiveDuration=3;data.activeDuration=15;data.cooldown=35;
                 data.passiveIcon=Import("Passive")[0];data.activeIcon=Import("Active")[0];
                 data.burningIdle=Import("Idle",character.idleSpriteSequence);data.burningWalk=Import("Walk",character.walkSpriteSequence);data.burningDash=Import("Dash",character.dashSpriteSequence);

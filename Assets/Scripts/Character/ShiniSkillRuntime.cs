@@ -11,6 +11,7 @@ namespace Vampire
             public readonly List<Vector3> points=new List<Vector3>();
             public readonly List<float> times=new List<float>();
             public MeshRenderer renderer; public Mesh mesh;
+            public bool vertical;
         }
         Character owner; CharacterSkillRuntime skill; SpriteRenderer body;
         SyringeDartAbility needle;
@@ -19,7 +20,7 @@ namespace Vampire
         readonly List<Component> stale=new List<Component>();
         readonly Dictionary<Sprite,Sprite> forward=new Dictionary<Sprite,Sprite>(), reverse=new Dictionary<Sprite,Sprite>();
         Stroke current; Vector3 previous; bool emitting, wasDashing; float nextScan;
-        Material material;
+        Material material,verticalMaterial;
         public int SegmentCount { get { int n=0;foreach(var s in strokes)n+=Mathf.Max(0,s.points.Count-1);return n; } }
         public void Bind(Character character,CharacterSkillRuntime runtime)
         {
@@ -30,6 +31,8 @@ namespace Vampire
             Map(owner.Blueprint.walkSpriteSequence,skill.Definition.burningWalk);
             Map(owner.Blueprint.dashSpriteSequence,skill.Definition.burningDash);
             material=new Material(Shader.Find("Vampire/ShiniFireTrail"));
+            verticalMaterial=new Material(Shader.Find("Vampire/PhoenixFire"));
+            verticalMaterial.SetFloat("_EdgePixels",8);
 
         }
         void Map(Sprite[] from,Sprite[] to)
@@ -42,7 +45,7 @@ namespace Vampire
             {
                 Sprite original=reverse.TryGetValue(body.sprite,out var normal)?normal:body.sprite;
                 if(skill.Active && forward.TryGetValue(original,out var burning))body.sprite=burning;
-                else if(!skill.Active)body.sprite=original;
+                else body.sprite=original;
             }
             Vector3 position=transform.position;
             bool emit=owner.IsDashing||wasDashing||skill.Active;
@@ -53,6 +56,13 @@ namespace Vampire
             var frames=skill.Definition.fireTrail;
             if(material!=null && frames!=null && frames.Length>0)
                 material.mainTexture=frames[(int)(Time.time*8)%frames.Length].texture;
+            var vertical=skill.Definition.verticalFireTrail;
+            if(verticalMaterial!=null&&vertical!=null&&vertical.Length>0)
+            {
+                var frame=vertical[(int)(Time.time*8)%vertical.Length];verticalMaterial.mainTexture=frame.texture;
+                verticalMaterial.mainTextureScale=new Vector2(frame.rect.width/frame.texture.width,frame.rect.height/frame.texture.height);
+                verticalMaterial.mainTextureOffset=new Vector2(frame.rect.x/frame.texture.width,frame.rect.y/frame.texture.height);
+            }
             if(needle==null)needle=FindObjectOfType<SyringeDartAbility>();
             if(needle!=null && Time.time>=nextScan){nextScan=Time.time+.05f;DamageTrail();}
         }
@@ -60,11 +70,13 @@ namespace Vampire
         {
             if(!emit){current=null;emitting=false;return;}
             if((to-from).sqrMagnitude<.000001f)return;
-            if(!emitting||current==null)
+            Vector3 delta=to-from;bool vertical=Mathf.Abs(delta.x)<Mathf.Abs(delta.y)*.3f;
+            if(vertical&&current!=null&&current.points.Count>1&&delta.y*(current.points[current.points.Count-1].y-current.points[current.points.Count-2].y)<0)current=null;
+            if(!emitting||current==null||current.vertical!=vertical)
             {
-                current=new Stroke();strokes.Add(current);
+                current=new Stroke {vertical=vertical};strokes.Add(current);
                 var go=new GameObject("Shini fire path",typeof(MeshFilter),typeof(MeshRenderer));
-                current.renderer=go.GetComponent<MeshRenderer>();current.renderer.sharedMaterial=material;
+                current.renderer=go.GetComponent<MeshRenderer>();current.renderer.sharedMaterial=vertical?verticalMaterial:material;
                 current.mesh=new Mesh();current.mesh.MarkDynamic();go.GetComponent<MeshFilter>().sharedMesh=current.mesh;
                 if(body!=null){current.renderer.sortingLayerID=body.sortingLayerID;current.renderer.sortingOrder=body.sortingOrder-1;}
                 current.points.Add(from);current.times.Add(now);
@@ -88,12 +100,22 @@ namespace Vampire
                 Vector3 a=s.points[i]+footOffset,b=s.points[i+1]+footOffset;
                 float distance=Vector3.Distance(a,b),u0=walked/Mathf.Max(.01f,length),u1=(walked+distance)/Mathf.Max(.01f,length);walked+=distance;
                 if(a.x>b.x){var swap=a;a=b;b=swap;float u=u0;u0=u1;u1=u;}
-                float padding=Mathf.Abs(b.x-a.x)<Mathf.Abs(b.y-a.y)*.3f?.12f:0;
-                a.x-=padding;b.x+=padding;
                 // Exported strip has a small transparent bottom margin; sink only that margin.
                 a.y-=.04f;b.y-=.04f;
                 int v=i*4,t=i*6;vertices[v]=a;vertices[v+1]=b;vertices[v+2]=a+Vector3.up*.6f;vertices[v+3]=b+Vector3.up*.6f;
                 uv[v]=new Vector2(u0,0);uv[v+1]=new Vector2(u1,0);uv[v+2]=new Vector2(u0,1);uv[v+3]=new Vector2(u1,1);
+                if(s.vertical)
+                {
+                    // Shared path endpoints and continuous longitudinal UVs: no stacked
+                    // horizontal cards. Keep flame tongues upright for both travel directions.
+                    a=s.points[i]+footOffset;b=s.points[i+1]+footOffset;
+                    float y0=Mathf.Min(s.points[0].y,s.points[s.points.Count-1].y)+footOffset.y;
+                    float span=Mathf.Max(.01f,Mathf.Abs(s.points[s.points.Count-1].y-s.points[0].y));
+                    vertices[v]=a-Vector3.right*.6f;vertices[v+1]=b-Vector3.right*.6f;
+                    vertices[v+2]=a+Vector3.right*.6f;vertices[v+3]=b+Vector3.right*.6f;
+                    float va=Mathf.Lerp(.12f,.88f,(a.y-y0)/span),vb=Mathf.Lerp(.12f,.88f,(b.y-y0)/span);
+                    uv[v]=new Vector2(0,va);uv[v+1]=new Vector2(0,vb);uv[v+2]=new Vector2(1,va);uv[v+3]=new Vector2(1,vb);
+                }
                 triangles[t]=v;triangles[t+1]=v+2;triangles[t+2]=v+1;triangles[t+3]=v+1;triangles[t+4]=v+2;triangles[t+5]=v+3;
             }
             s.mesh.Clear();s.mesh.vertices=vertices;s.mesh.uv=uv;s.mesh.triangles=triangles;s.mesh.RecalculateBounds();
@@ -141,7 +163,7 @@ namespace Vampire
         }
         void Clear(){foreach(var s in strokes)Remove(s);strokes.Clear();nextHit.Clear();current=null;emitting=false;}
         void OnDisable(){Clear();}
-        void OnDestroy(){if(material!=null)Destroy(material);}
+        void OnDestroy(){if(material!=null)Destroy(material);if(verticalMaterial!=null)Destroy(verticalMaterial);}
     }
     public sealed class ShiniBurnVisual : MonoBehaviour
     {
