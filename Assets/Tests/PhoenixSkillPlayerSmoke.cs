@@ -37,7 +37,16 @@ namespace Vampire.Tests
                     Monster target=null;
                     if(skill.IsHyuki)
                     {
-                        skill.RestoreSleep(10,0);yield return null;Check(v.CrystalCount==2,"native two stack crystals");
+                        skill.RestoreSleep(10,0);yield return new WaitForEndOfFrame();Check(v.CrystalCount==2,"native two stack crystals");
+                        Check(player.GetComponentsInChildren<SpriteRenderer>().Where(x=>x.name=="Sleep stack crystal").All(x=>x.sprite==skill.Definition.iceComponents[0]),"new diamond art replaces prison-shaped stack crystals");
+                        ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-idle.png"));
+                        player.Move(Vector2.right);yield return new WaitForSeconds(.25f);yield return new WaitForEndOfFrame();
+                        var snow=player.GetComponent<HyukiSnowVisual>();Check(v.CrystalCount==0&&snow.WakeCount>0&&!snow.DashingWake,"walking uses drifting snow without orbiting crystals");
+                        ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-walk.png"));
+                        Check(player.TryDash(),"Hyuki dash starts");yield return new WaitForSeconds(.04f);yield return new WaitForEndOfFrame();
+                        Check(v.CrystalCount==0&&snow.DashingWake&&snow.WakeCount>0,"dash has ice wake without crystal orbit");
+                        ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-dash.png"));
+                        yield return new WaitForSeconds(.4f);player.Move(Vector2.zero);yield return new WaitForSeconds(.1f);
                         var data=level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];target=level.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);target.enabled=false;
                     }
                     Check(skill.TryActivate(),name+" native skill activation");
@@ -47,6 +56,12 @@ namespace Vampire.Tests
                     {
                         yield return new WaitForSeconds(.2f);yield return new WaitForEndOfFrame();
                         if(i==2)foreach(var r in player.GetComponentsInChildren<Renderer>())if(r.sharedMaterial!=null)Check(r.sharedMaterial.shader.isSupported,name+" shader supported: "+r.sharedMaterial.shader.name);
+                        if(skill.IsHyuki&&i==5)Check(player.GetComponent<HyukiSnowVisual>().StormCount>=100,"storm combines large snowflakes and ice fragments");
+                        if(skill.IsShini&&i==11)
+                        {
+                            var wrap=player.GetComponent<ShiniPhoenixWrapVisual>();
+                            Check(wrap.WingsVisible&&wrap.CorrectLayerOrder&&wrap.WrapProgress>.7f,"crossing wings occlude Shini while phoenix body stays behind");
+                        }
                         if(i==2||i==5||i==11)ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,(skill.IsHyuki?"Hyuki":"Shini")+"-phoenix-"+i+".png"));
                     }
                     if(skill.IsHyuki)

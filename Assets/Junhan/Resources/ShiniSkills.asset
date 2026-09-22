@@ -36,6 +36,13 @@ MonoBehaviour:
   - {fileID: 5064578623962864881, guid: c7cd2e8af88e3c841873ad55c8f86960, type: 3}
   - {fileID: 4110896843296441553, guid: c7cd2e8af88e3c841873ad55c8f86960, type: 3}
   icePrison: []
+  iceComponents: []
+  fireWrapParts:
+  - {fileID: -1370781097827154595, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
+  - {fileID: -1108825844819847500, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
+  - {fileID: -4173924350276374682, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
+  - {fileID: 628312301665967092, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
+  blizzardTexture: {fileID: 0}
   burningIdle:
   - {fileID: -8381659573352531839, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
   - {fileID: -2756498017462300822, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
@@ -81,7 +88,11 @@ MonoBehaviour:
     \uB0A8\uAE41\uB2C8\uB2E4. \uAC01 \uAD6C\uAC04\uC740 \uC0DD\uC131 \uD6C4 3\uCD08
     \uC720\uC9C0\uB429\uB2C8\uB2E4. \uD654\uC5FC\uCE68\uACFC \uD654\uC0C1 \uC911\uCCA9\uC744
     \uACF5\uC720\uD569\uB2C8\uB2E4."
-  activeDescription: "봉황 소환·흡수 완료 후 15초간 기존 불닭 모습으로 변신하고 일반 이동에도 불꽃길을 남깁니다. 각 구간 3초 유지. 활성화 시작부터 재사용 35초."
+  activeDescription: "\uBD09\uD669 \uC18C\uD658\xB7\uD761\uC218 \uC644\uB8CC \uD6C4
+    15\uCD08\uAC04 \uAE30\uC874 \uBD88\uB2ED \uBAA8\uC2B5\uC73C\uB85C \uBCC0\uC2E0\uD558\uACE0
+    \uC77C\uBC18 \uC774\uB3D9\uC5D0\uB3C4 \uBD88\uAF43\uAE38\uC744 \uB0A8\uAE41\uB2C8\uB2E4.
+    \uAC01 \uAD6C\uAC04 3\uCD08 \uC720\uC9C0. \uD65C\uC131\uD654 \uC2DC\uC791\uBD80\uD130
+    \uC7AC\uC0AC\uC6A9 35\uCD08."
   passiveIcon: {fileID: 21300000, guid: 5a81d77fdc546f040b6305616e71900c, type: 3}
   activeIcon: {fileID: 21300000, guid: efc42aaaa75acd04a94563e96f975073, type: 3}
   cutin: []

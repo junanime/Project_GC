@@ -8,7 +8,7 @@ namespace Vampire
     {
         Character owner; CharacterSkillRuntime skill; SpriteRenderer body,first,second;
         readonly List<SpriteRenderer> crystals=new List<SpriteRenderer>();
-        readonly List<SpriteRenderer> wake=new List<SpriteRenderer>();
+
         Material fireMaterial,blizzardMaterial; MeshRenderer blizzard; Mesh blizzardMesh;
         float elapsed=10,phase;
         public const float Duration=3f;
@@ -25,14 +25,15 @@ namespace Vampire
             first=Make("Phoenix current pose");second=Make("Phoenix next pose");
             if(skill.IsShini)
             {
-                fireMaterial=new Material(Shader.Find("Vampire/PhoenixFire"));
-                first.sharedMaterial=second.sharedMaterial=fireMaterial;
+                gameObject.AddComponent<ShiniPhoenixWrapVisual>().Bind(character,runtime);
             }
             else
             {
+                gameObject.AddComponent<HyukiSnowVisual>().Bind(character,runtime);
                 fireMaterial=new Material(Shader.Find("Vampire/PhoenixIce"));first.sharedMaterial=second.sharedMaterial=fireMaterial;
                 var go=new GameObject("Hyuki diagonal blizzard",typeof(MeshFilter),typeof(MeshRenderer));go.transform.SetParent(transform,false);
                 blizzard=go.GetComponent<MeshRenderer>();blizzardMaterial=new Material(Shader.Find("Vampire/PhoenixBlizzard"));blizzard.sharedMaterial=blizzardMaterial;
+                blizzardMaterial.mainTexture=skill.Definition.blizzardTexture;
                 blizzardMesh=new Mesh {vertices=new[]{new Vector3(-1,-1),new Vector3(1,-1),new Vector3(-1,1),new Vector3(1,1)},uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one},triangles=new[]{0,2,1,1,2,3}};
                 go.GetComponent<MeshFilter>().sharedMesh=blizzardMesh;blizzard.enabled=false;
             }
@@ -52,7 +53,7 @@ namespace Vampire
             if(skill.IsShini)elapsed=skill.IsSummoning?Duration-skill.SummonRemaining:Mathf.Max(Duration,elapsed);
             UpdateCrystals();
             var frames=skill.Definition.phoenixFrames;
-            bool show=Playing&&frames!=null&&frames.Length>0;
+            bool show=!skill.IsShini&&Playing&&frames!=null&&frames.Length>0;
             first.enabled=second.enabled=show;
             if(show)
             {
@@ -86,36 +87,25 @@ namespace Vampire
         }
         void UpdateCrystals()
         {
-            var frames=skill.Definition.icePrison;
-            int wanted=skill.IsHyuki&&frames!=null&&frames.Length>0?skill.SleepStacks/5:0;
+            var frames=skill.Definition.iceComponents;
+            int wanted=skill.IsHyuki&&owner.IsSkillIdle&&frames!=null&&frames.Length>0?skill.SleepStacks/5:0;
             while(crystals.Count>wanted){int n=crystals.Count-1;Destroy(crystals[n].gameObject);crystals.RemoveAt(n);}
             while(crystals.Count<wanted)crystals.Add(Make("Sleep stack crystal"));
             for(int i=0;i<crystals.Count;i++)
             {
-                var r=crystals[i];r.enabled=true;r.sprite=frames[(int)(phase*6)%frames.Length];
+                var r=crystals[i];r.enabled=true;r.sprite=frames[0];
                 float a=phase*1.2f+i*Mathf.PI*2/Mathf.Max(1,crystals.Count);
                 float radius=.65f+.12f*(i/10);r.transform.position=transform.position+new Vector3(Mathf.Cos(a)*radius,Mathf.Sin(a)*radius*.55f+.15f,-.02f);
-                float scale=.22f/r.sprite.bounds.size.x;r.transform.localScale=new Vector3(scale/Mathf.Abs(transform.lossyScale.x),scale/Mathf.Abs(transform.lossyScale.y),1);
+                float scale=.34f/r.sprite.bounds.size.x;r.transform.localScale=new Vector3(scale/Mathf.Abs(transform.lossyScale.x),scale/Mathf.Abs(transform.lossyScale.y),1);
                 r.color=new Color(.85f,1,1,.85f);r.sortingOrder=body!=null?body.sortingOrder+(Mathf.Sin(a)>0?-1:2):2;
             }
-            bool showWake=skill.IsHyuki&&skill.PassiveActive&&frames!=null&&frames.Length>0;
-            if(showWake&&wake.Count==0)for(int i=0;i<10;i++)wake.Add(Make("Ice crystal speed wake"));
-            for(int i=0;i<wake.Count;i++)
-            {
-                var r=wake[i];r.enabled=showWake;if(!showWake)continue;
-                r.sprite=frames[i%frames.Length];float a=phase*5+i*2.4f;
-                r.transform.position=transform.position+new Vector3(Mathf.Cos(a)*.6f,Mathf.Sin(a)*.28f-.1f,0);
-                float scale=(.055f+.02f*(i%3))/r.sprite.bounds.size.x;
-                r.transform.localScale=new Vector3(scale/Mathf.Abs(transform.lossyScale.x),scale/Mathf.Abs(transform.lossyScale.y),1);
-                r.color=new Color(.75f,1,1,Mathf.Min(1,skill.PassiveRemaining));
-            }
         }
+
         void Hide()
         {
             elapsed=10;BlizzardStrength=0;
             if(first!=null)first.enabled=false;if(second!=null)second.enabled=false;if(blizzard!=null)blizzard.enabled=false;
             foreach(var r in crystals)if(r!=null)Destroy(r.gameObject);crystals.Clear();
-            foreach(var r in wake)if(r!=null)r.enabled=false;
         }
         void OnDisable(){Hide();}
         void OnDestroy(){if(fireMaterial!=null)Destroy(fireMaterial);if(blizzardMaterial!=null)Destroy(blizzardMaterial);if(blizzardMesh!=null)Destroy(blizzardMesh);}

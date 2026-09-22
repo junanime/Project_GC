@@ -1,6 +1,6 @@
 Shader "Vampire/PhoenixBlizzard"
 {
-    Properties { _MainTex("Unused",2D)="white" {} _Strength("Strength",Range(0,1))=0 _Phase("Phase",Float)=0 }
+    Properties { _MainTex("Reference snowstorm",2D)="white" {} _Strength("Strength",Range(0,1))=0 _Phase("Phase",Float)=0 }
     SubShader
     {
         Tags { "Queue"="Transparent+80" "RenderType"="Transparent" }
@@ -11,25 +11,18 @@ Shader "Vampire/PhoenixBlizzard"
             #pragma vertex vert_img
             #pragma fragment frag
             #include "UnityCG.cginc"
-            float _Strength,_Phase;
-            float hash(float2 p){return frac(sin(dot(p,float2(127.1,311.7)))*43758.5453);}
+            sampler2D _MainTex;float _Strength,_Phase;
             fixed4 frag(v2f_img i):SV_Target
             {
-                // UV y is up. Subtracting (+x,-y) moves every layer down-right,
-                // including the release envelope; phase never reverses or stops.
-                float2 p=i.uv-float2(.45,-.65)*_Phase;
-                float snow=0;
-                for(int k=0;k<3;k++)
-                {
-                    float2 q=p*(float2(45,27)+k*13);
-                    float2 id=floor(q),f=frac(q)-.5;
-                    f.x+=f.y*.5;
-                    float r=hash(id+k*21);
-                    snow+=smoothstep(.15,0,length(f*float2(2,.75)))*step(.45,r);
-                }
-                float ribbons=pow(saturate(.5+.5*sin((p.x+p.y*.8)*32+sin(p.y*13-_Phase*2)*1.3)),5);
-                float a=saturate(_Strength*(.7+ribbons*.26+snow*.4));
-                return fixed4(.78+snow*.2,.91+snow*.09,1,a);
+                // Keep translating down-right throughout both the dense and clearing phases.
+                float2 p=i.uv-float2(.22,-.32)*_Phase;
+                p+=float2(sin(i.uv.y*7+_Phase)*.009,cos(i.uv.x*8+_Phase)*.007);
+                p=1-abs(frac(p*.5)*2-1);
+                fixed4 snow=tex2D(_MainTex,p);
+                float fog=_Strength*_Strength*.92;
+                float flakes=smoothstep(.85,.99,snow.r)*pow(max(0,_Strength),.65)*.85;
+                float alpha=fog+flakes*(1-fog)*snow.a;
+                return fixed4(snow.rgb,alpha);
             }
             ENDCG
         }
