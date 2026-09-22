@@ -25,7 +25,7 @@ namespace Vampire.Tests
                 var prefs=original.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
                 yield return new WaitForSecondsRealtime(2);
                 var config=ApothecaryUI.Instance.Config;
-                foreach(string name in new[]{"혁이","신이"})
+                foreach(string name in new[]{"혁이"})
                 {
                     CrossSceneData.CharacterBlueprint=config.characters.Single(c=>c.name==name);CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();
                     SceneManager.LoadScene(1);yield return new WaitForSecondsRealtime(2);
@@ -70,16 +70,7 @@ namespace Vampire.Tests
                         Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen==true,"freeze persists beyond old three-second duration");
                         yield return new WaitForSeconds(2.2f);Check(target.GetComponent<NeuralBlockedMonsterStatus>()==null,"freeze releases at five seconds");
                     }
-                    else
-                    {
-                        Check(skill.Active&&skill.ActiveRemaining>14&&skill.CooldownRemaining>34,"Shini timers begin after phoenix animation");
-                        player.Move(Vector2.up);yield return new WaitForSeconds(1.2f);player.Move(Vector2.zero);yield return new WaitForEndOfFrame();
-                        var mesh=FindObjectsOfType<MeshFilter>().First(f=>f.name=="Shini fire path"&&f.GetComponent<MeshRenderer>().sharedMaterial.shader.name=="Vampire/PhoenixFire").sharedMesh;
-                        var positions=mesh.vertices;var uv=mesh.uv;bool continuous=true;
-                        for(int i=0;i+7<positions.Length;i+=4)continuous&=Vector3.Distance(positions[i+1],positions[i+4])<.001f&&Vector2.Distance(uv[i+1],uv[i+4])<.001f;
-                        Check(continuous,"vertical fire endpoints and UVs join without gaps");ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Shini-vertical-fire.png"));
-                        yield return null;
-                    }
+
                 }
                 Check(!errors,"native session has no errors");passed=true;
             }

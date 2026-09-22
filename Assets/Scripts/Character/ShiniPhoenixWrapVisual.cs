@@ -82,7 +82,7 @@ namespace Vampire
             bool summon=skill.IsSummoning;
             if(wasSummoning&&!summon&&skill.Active)burstRemaining=.45f;
             wasSummoning=summon;
-            float t=1-skill.SummonRemaining/PhoenixSkillVisual.Duration;
+            float t=1-skill.SummonRemaining/ShiniSkillRuntime.SummonDuration;
             WrapProgress=Mathf.SmoothStep(0,1,(t-.42f)/.43f);
             rear.enabled=left.renderer.enabled=right.renderer.enabled=summon;
             foreach(var spark in sparks)spark.enabled=summon;

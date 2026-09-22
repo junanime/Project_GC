@@ -52,11 +52,11 @@ namespace Vampire
             }
         }
         public int BurnStacks => burnStacks;
-        public void ApplyFire(SyringeSpecialRuntime runtime,Character source)
+        public void ApplyFire(SyringeSpecialRuntime runtime,Character source,bool guaranteed=false)
         {
             var s=runtime.ver4;
             if(s==null || target==null || Ver4HitEffects.Health(target)<=0)return;
-            if(s.Has(P.FireNeedle) && Random.value<.25f)
+            if(s.Has(P.FireNeedle) && (guaranteed || Random.value<.25f))
             {
                 int cap=s.Count(P.FireNeedle,2)==3 ? int.MaxValue : 3+s.Count(P.FireNeedle,2);
                 if(burnStacks>=cap && burns.Count>0)
@@ -75,6 +75,20 @@ namespace Vampire
                 burnStacks++;
             }
             if(burnStacks>0 && GetComponent<ShiniBurnVisual>()==null) gameObject.AddComponent<ShiniBurnVisual>();
+        }
+        // Cash out every outstanding tick before clearing the shared needle/pool stacks.
+        public float ConsumeBurn(out int stacks)
+        {
+            float remaining=0;stacks=0;
+            foreach(var burn in burns)
+            {
+                if(burn.end<Time.time)continue;
+                stacks+=burn.stacks;
+                int ticks=Mathf.Max(0,Mathf.FloorToInt(burn.end-burn.nextTick+.0001f)+1);
+                remaining+=ticks*burn.damage*burn.stacks;
+            }
+            burns.Clear();burnStacks=0;
+            return remaining;
         }
         private void ResolveShatter(SyringeSpecialRuntime runtime,Character source,LayerMask layer)
         {

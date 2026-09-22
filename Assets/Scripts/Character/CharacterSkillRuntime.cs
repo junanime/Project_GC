@@ -27,7 +27,7 @@ namespace Vampire
         float previousTimeScale = 1;
         SkillWindVisual aura;
         public void Initialize(Character character) { owner=character; aura=gameObject.AddComponent<SkillWindVisual>(); aura.Bind(this); gameObject.AddComponent<ShiniSkillRuntime>().Bind(character,this); gameObject.AddComponent<PhoenixSkillVisual>().Bind(character,this); }
-        public void DashFinished() { if (Definition != null && !IsHyuki && owner.IsAlive) PassiveRemaining=Definition.passiveDuration; }
+        public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && owner.IsAlive) PassiveRemaining=Definition.passiveDuration; }
         public int ProjectileCount(int count) => Mathf.Max(1,count) * (AshiActive ? 2 : 1);
         public bool TryActivate()
         {
@@ -36,7 +36,9 @@ namespace Vampire
             {
                 if(IsShini)
                 {
-                    SummonRemaining=PhoenixSkillVisual.Duration;
+                    SummonRemaining=ShiniSkillRuntime.SummonDuration;
+                    ActiveRemaining=Definition.activeDuration; CooldownRemaining=Definition.cooldown;
+                    GetComponent<ShiniSkillRuntime>()?.ActivatePools();
                     GetComponent<PhoenixSkillVisual>()?.Play();
                     return true;
                 }
@@ -79,11 +81,6 @@ namespace Vampire
             if(IsSummoning)
             {
                 SummonRemaining=Mathf.Max(0,SummonRemaining-delta);
-                if(!IsSummoning)
-                {
-                    ActiveRemaining=Definition.activeDuration;
-                    CooldownRemaining=Definition.cooldown;
-                }
             }
             if(IsHyuki && delta>0)
             {
@@ -102,11 +99,10 @@ namespace Vampire
             PassiveRemaining=Mathf.Clamp(passive,0,Definition.passiveDuration);
             ActiveRemaining=Mathf.Clamp(active,0,Definition.activeDuration);
             CooldownRemaining=Mathf.Clamp(cooldown,0,Definition.cooldown);
-            SummonRemaining=IsShini?Mathf.Clamp(summon,0,PhoenixSkillVisual.Duration):0;
+            SummonRemaining=IsShini?Mathf.Clamp(summon,0,ShiniSkillRuntime.SummonDuration):0;
             if(IsSummoning)
             {
-                ActiveRemaining=CooldownRemaining=0;
-                GetComponent<PhoenixSkillVisual>()?.Play(PhoenixSkillVisual.Duration-SummonRemaining);
+                GetComponent<PhoenixSkillVisual>()?.Play(ShiniSkillRuntime.SummonDuration-SummonRemaining);
             }
             owner.UpdateMoveSpeed();
         }

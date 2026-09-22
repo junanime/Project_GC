@@ -42,6 +42,31 @@ MonoBehaviour:
   - {fileID: -1108825844819847500, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
   - {fileID: -4173924350276374682, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
   - {fileID: 628312301665967092, guid: 225df52143400a14b951ce56d6db9a87, type: 3}
+  lavaFrames:
+  - {fileID: -5556709503076785494, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -3805008659790359372, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -3214238046874209430, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -8072411751260464435, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -4975234890425867400, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 9073931311885802031, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 1436043245246544787, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 231356730185026811, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -448788551602807277, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -2052808396328020063, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -3383141145072359188, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -2415454120820810850, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 952959412584738551, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 4213045651352210588, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 4116518465287326428, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -5948470912372053080, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 5407603699134393157, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 6102944148913008810, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -3886045064900161345, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -3768715930727610960, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 6009868530938108355, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: -5638131002303448600, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 5552440494484252872, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
+  - {fileID: 320782293363073376, guid: 6d5d9da483910914e84c7f74abd7ae7c, type: 3}
   blizzardTexture: {fileID: 0}
   burningIdle:
   - {fileID: -8381659573352531839, guid: 2c31ead98b6413a43bafa94f6a0422b4, type: 3}
@@ -84,22 +109,24 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 77a22d694f8a4584ea10addd57bbba82, type: 3}
   passiveName: "\uBD88\uB2ED\uC758 \uC2DC\uC791"
   activeName: "\uBD88\uB2ED\uC758 \uB05D"
-  passiveDescription: "\uC2E4\uC81C \uB300\uC26C \uACBD\uB85C\uC5D0 \uBD88\uAF43\uAE38\uC744
-    \uB0A8\uAE41\uB2C8\uB2E4. \uAC01 \uAD6C\uAC04\uC740 \uC0DD\uC131 \uD6C4 3\uCD08
-    \uC720\uC9C0\uB429\uB2C8\uB2E4. \uD654\uC5FC\uCE68\uACFC \uD654\uC0C1 \uC911\uCCA9\uC744
-    \uACF5\uC720\uD569\uB2C8\uB2E4."
-  activeDescription: "\uBD09\uD669 \uC18C\uD658\xB7\uD761\uC218 \uC644\uB8CC \uD6C4
-    15\uCD08\uAC04 \uAE30\uC874 \uBD88\uB2ED \uBAA8\uC2B5\uC73C\uB85C \uBCC0\uC2E0\uD558\uACE0
-    \uC77C\uBC18 \uC774\uB3D9\uC5D0\uB3C4 \uBD88\uAF43\uAE38\uC744 \uB0A8\uAE41\uB2C8\uB2E4.
-    \uAC01 \uAD6C\uAC04 3\uCD08 \uC720\uC9C0. \uD65C\uC131\uD654 \uC2DC\uC791\uBD80\uD130
-    \uC7AC\uC0AC\uC6A9 35\uCD08."
+  passiveDescription: "\uC774\uB3D9 \uC2DC\uAC04 2\uCD08\uB9C8\uB2E4 \uBC1C\uBC11\uC5D0
+    6\uCD08\uAC04 \uBD88\uAF43 \uC7A5\uD310\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4.
+    \uC7A5\uD310\uC740 \uC801\uC5D0\uAC8C \uC989\uC2DC \uD654\uC0C1 1\uC2A4\uD0DD,
+    \uC774\uD6C4 \uCD08\uB2F9 1\uC2A4\uD0DD\uC744 \uBD80\uC5EC\uD569\uB2C8\uB2E4.
+    \uACB9\uCE5C \uC7A5\uD310\uB3C4 \uB300\uC0C1\uB2F9 \uCD08\uB2F9 1\uD68C. \uD654\uC5FC\uCE68\uACFC
+    \uD654\uC0C1 \uC911\uCCA9\uC744 \uACF5\uC720\uD569\uB2C8\uB2E4."
+  activeDescription: "8\uCD08\uAC04 \uAE30\uC874\xB7\uC0C8 \uC7A5\uD310\uC5D0\uC11C
+    \uD1A0\uB124\uC774\uB3C4\uAC00 1\uD68C\uC529 \uC19F\uAD6C\uCE69\uB2C8\uB2E4.
+    \uC0C1\uC2B9 0.6\uCD08\uC5D0 \uD654\uC0C1 \uC804\uBD80\uB97C \uC18C\uBAA8\uD574
+    \uCE68 \uD53C\uD574 \xD7 (1 + 1.5 \xD7 \uC911\uCCA9) + \uB0A8\uC740 \uD654\uC0C1
+    \uD53C\uD574\uB97C \uC90D\uB2C8\uB2E4. \uC7AC\uC0AC\uC6A9 35\uCD08."
   passiveIcon: {fileID: 21300000, guid: 5a81d77fdc546f040b6305616e71900c, type: 3}
   activeIcon: {fileID: 21300000, guid: efc42aaaa75acd04a94563e96f975073, type: 3}
   cutin: []
   passiveWind: []
   activeWind: []
   projectileWind: []
-  passiveDuration: 3
-  activeDuration: 15
+  passiveDuration: 6
+  activeDuration: 8
   cooldown: 35
   cutinDuration: 2

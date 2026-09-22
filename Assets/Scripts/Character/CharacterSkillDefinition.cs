@@ -7,7 +7,7 @@ namespace Vampire
         public enum SkillKind { Ashi, Shini, Hyuki }
         public SkillKind kind;
         public Sprite[] phoenixFrames, verticalFireTrail, icePrison;
-        public Sprite[] iceComponents, fireWrapParts;
+        public Sprite[] iceComponents, fireWrapParts, lavaFrames;
         public Texture2D blizzardTexture;
         public Sprite[] burningIdle, burningWalk, burningDash, fireTrail, burnVfx;
         public string passiveName = "마라톤", activeName = "단거리 경주";

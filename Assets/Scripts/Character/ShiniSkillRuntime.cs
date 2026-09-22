@@ -2,168 +2,145 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Vampire
 {
-    // Samples resolved positions, never the intended dash destination.
     [DefaultExecutionOrder(500)]
     public sealed class ShiniSkillRuntime : MonoBehaviour
     {
-        sealed class Stroke
+        public const float SpawnInterval=2, PoolLifetime=6, SummonDuration=.6f, HitDelay=.6f, EruptionDuration=1.6f;
+        sealed class Pool
         {
-            public readonly List<Vector3> points=new List<Vector3>();
-            public readonly List<float> times=new List<float>();
-            public MeshRenderer renderer; public Mesh mesh;
-            public bool vertical;
+            public Vector3 position; public float born, radius, eruption=-1; public bool hit;
+            public SpriteRenderer ground, tornado;
         }
-        Character owner; CharacterSkillRuntime skill; SpriteRenderer body;
-        SyringeDartAbility needle;
-        readonly List<Stroke> strokes=new List<Stroke>();
-        readonly Dictionary<Component,float> nextHit=new Dictionary<Component,float>();
+        Character owner; CharacterSkillRuntime skill; SpriteRenderer body; SyringeDartAbility needle;
+        readonly List<Pool> pools=new List<Pool>();
+        readonly Dictionary<Component,float> nextBurn=new Dictionary<Component,float>();
         readonly List<Component> stale=new List<Component>();
+        readonly HashSet<Component> hitWave=new HashSet<Component>();
         readonly Dictionary<Sprite,Sprite> forward=new Dictionary<Sprite,Sprite>(), reverse=new Dictionary<Sprite,Sprite>();
-        Stroke current; Vector3 previous; bool emitting, wasDashing; float nextScan;
-        Material material,verticalMaterial;
-        public int SegmentCount { get { int n=0;foreach(var s in strokes)n+=Mathf.Max(0,s.points.Count-1);return n; } }
+        Vector3 previous; float movedSeconds, bodyWidth;
+        public int PoolCount => pools.Count;
         public void Bind(Character character,CharacterSkillRuntime runtime)
         {
             owner=character;skill=runtime;previous=transform.position;
             body=GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
             if(!skill.IsShini)return;
+            bodyWidth=body!=null?body.bounds.size.x:.6f;
             Map(owner.Blueprint.idleSpriteSequence,skill.Definition.burningIdle);
             Map(owner.Blueprint.walkSpriteSequence,skill.Definition.burningWalk);
             Map(owner.Blueprint.dashSpriteSequence,skill.Definition.burningDash);
-            material=new Material(Shader.Find("Vampire/ShiniFireTrail"));
-            verticalMaterial=new Material(Shader.Find("Vampire/PhoenixFire"));
-            verticalMaterial.SetFloat("_EdgePixels",8);
-
         }
         void Map(Sprite[] from,Sprite[] to)
         { if(from==null||to==null)return;for(int i=0;i<Mathf.Min(from.Length,to.Length);i++){forward[from[i]]=to[i];reverse[to[i]]=from[i];} }
+        Vector3 Feet => body!=null ? body.transform.position-Vector3.up*(.27f*Mathf.Abs(body.transform.lossyScale.y)) : transform.position-Vector3.up*.27f;
         void LateUpdate()
         {
             if(skill==null||!skill.IsShini)return;
             if(!owner.IsAlive){Clear();return;}
-            if(body!=null && body.sprite!=null)
+            if(body!=null&&body.sprite!=null)
             {
                 Sprite original=reverse.TryGetValue(body.sprite,out var normal)?normal:body.sprite;
-                if(skill.Active && forward.TryGetValue(original,out var burning))body.sprite=burning;
-                else body.sprite=original;
+                body.sprite=skill.Active&&!skill.IsSummoning&&forward.TryGetValue(original,out var burning)?burning:original;
             }
-            Vector3 position=transform.position;
-            bool emit=owner.IsDashing||wasDashing||skill.Active;
-            // A pause must neither age the trail nor consume its movement sample.
             if(Time.deltaTime<=0)return;
-            Sample(previous,position,emit,Time.time);previous=position;wasDashing=owner.IsDashing;
-            Expire(Time.time);
-            var frames=skill.Definition.fireTrail;
-            if(material!=null && frames!=null && frames.Length>0)
-                material.mainTexture=frames[(int)(Time.time*8)%frames.Length].texture;
-            var vertical=skill.Definition.verticalFireTrail;
-            if(verticalMaterial!=null&&vertical!=null&&vertical.Length>0)
-            {
-                var frame=vertical[(int)(Time.time*8)%vertical.Length];verticalMaterial.mainTexture=frame.texture;
-                verticalMaterial.mainTextureScale=new Vector2(frame.rect.width/frame.texture.width,frame.rect.height/frame.texture.height);
-                verticalMaterial.mainTextureOffset=new Vector2(frame.rect.x/frame.texture.width,frame.rect.y/frame.texture.height);
-            }
+            UpdatePools(Time.time);
+        }
+        void FixedUpdate()
+        {
+            if(skill==null||!skill.IsShini||!owner.IsAlive)return;
+            Vector3 position=transform.position;
+            // Physics ticks avoid undercounting movement on render frames between physics updates.
+            AdvanceMovement((position-previous).sqrMagnitude>.000001f,Time.fixedDeltaTime);previous=position;
+        }
+        public void AdvanceMovement(bool moving,float delta)
+        {
+            if(!moving||delta<=0)return;
+            movedSeconds+=delta;
+            if(movedSeconds>=SpawnInterval){movedSeconds%=SpawnInterval;SpawnPool(Feet,Time.time);}
+        }
+        SpriteRenderer Make(string name,Vector3 position)
+        {
+            var renderer=new GameObject(name).AddComponent<SpriteRenderer>();
+            renderer.transform.position=position;renderer.sortingLayerName="GroundEffects";
+            return renderer;
+        }
+        public void SpawnPool(Vector3 position,float now)
+        {
+            var p=new Pool {position=position,born=now,radius=Mathf.Max(.2f,bodyWidth),ground=Make("Shini lava pool",position),tornado=Make("Shini fire tornado",position)};
+            p.tornado.sortingOrder=1;p.tornado.enabled=false;pools.Add(p);
+            if(skill.Active)p.eruption=now;
+            UpdateVisual(p,now);
+        }
+        public void ActivatePools()
+        {
+            foreach(var p in pools)if(Time.time-p.born<PoolLifetime&&p.eruption<0)p.eruption=Time.time;
+        }
+        void UpdateVisual(Pool p,float now)
+        {
+            var frames=skill.Definition.lavaFrames;
+            if(frames==null||frames.Length!=24)return;
+            p.ground.sprite=frames[(int)((now-p.born)*6)%6];
+            // All imported frames share an identical, stationary footprint and foot pivot.
+            float scale=p.radius*2/(190f/100);
+            p.ground.transform.localScale=Vector3.one*scale;
+            p.ground.enabled=now-p.born<PoolLifetime;
+            float t=now-p.eruption;
+            p.tornado.enabled=p.eruption>=0&&t<EruptionDuration;
+            if(!p.tornado.enabled)return;
+            int frame=t<.2f?6: t<.6f?7+Mathf.Min(4,(int)((t-.2f)/.4f*5)):t<1.2f?12+Mathf.Min(5,(int)((t-.6f)/.6f*6)):18+Mathf.Min(5,(int)((t-1.2f)/.4f*6));
+            p.tornado.sprite=frames[frame];
+            // A narrow upright column; the lower footprint remains rendered on the ground.
+            float height=Camera.main!=null?Camera.main.orthographicSize*2*.267f:3;
+            p.tornado.transform.localScale=new Vector3(scale,Mathf.Max(scale,height/2.05f),1);
+        }
+        public void UpdatePools(float now)
+        {
             if(needle==null)needle=FindObjectOfType<SyringeDartAbility>();
-            if(needle!=null && Time.time>=nextScan){nextScan=Time.time+.05f;DamageTrail();}
-        }
-        public void Sample(Vector3 from,Vector3 to,bool emit,float now)
-        {
-            if(!emit){current=null;emitting=false;return;}
-            if((to-from).sqrMagnitude<.000001f)return;
-            Vector3 delta=to-from;bool vertical=Mathf.Abs(delta.x)<Mathf.Abs(delta.y)*.3f;
-            if(vertical&&current!=null&&current.points.Count>1&&delta.y*(current.points[current.points.Count-1].y-current.points[current.points.Count-2].y)<0)current=null;
-            if(!emitting||current==null||current.vertical!=vertical)
+            stale.Clear();foreach(var pair in nextBurn)if(pair.Key==null||pair.Value<=now)stale.Add(pair.Key);
+            foreach(var key in stale)nextBurn.Remove(key);
+            hitWave.Clear();
+            foreach(var p in pools)
             {
-                current=new Stroke {vertical=vertical};strokes.Add(current);
-                var go=new GameObject("Shini fire path",typeof(MeshFilter),typeof(MeshRenderer));
-                current.renderer=go.GetComponent<MeshRenderer>();current.renderer.sharedMaterial=vertical?verticalMaterial:material;
-                current.mesh=new Mesh();current.mesh.MarkDynamic();go.GetComponent<MeshFilter>().sharedMesh=current.mesh;
-                if(body!=null){current.renderer.sortingLayerID=body.sortingLayerID;current.renderer.sortingOrder=body.sortingOrder-1;}
-                current.points.Add(from);current.times.Add(now);
-            }
-            int steps=Mathf.Max(1,Mathf.CeilToInt(Vector3.Distance(from,to)/.15f));
-            for(int i=1;i<=steps;i++){current.points.Add(Vector3.Lerp(from,to,(float)i/steps));current.times.Add(now);}
-            emitting=true;Refresh(current);
-        }
-        Vector3 FootOffset => body!=null ? body.transform.position-transform.position-Vector3.up*(.27f*Mathf.Abs(body.transform.lossyScale.y)) : Vector3.down*.27f;
-        void Refresh(Stroke s)
-        {
-            // Billboard ribbons always rise in world +Y, even when moving left or vertically.
-            // The original sprite pivot is exactly .27 world units above the feet.
-            Vector3 footOffset=FootOffset;
-            int segments=s.points.Count-1;
-            var vertices=new Vector3[segments*4];var uv=new Vector2[vertices.Length];var triangles=new int[segments*6];
-            float length=0;for(int i=1;i<s.points.Count;i++)length+=Vector3.Distance(s.points[i-1],s.points[i]);
-            float walked=0;
-            for(int i=0;i<segments;i++)
-            {
-                Vector3 a=s.points[i]+footOffset,b=s.points[i+1]+footOffset;
-                float distance=Vector3.Distance(a,b),u0=walked/Mathf.Max(.01f,length),u1=(walked+distance)/Mathf.Max(.01f,length);walked+=distance;
-                if(a.x>b.x){var swap=a;a=b;b=swap;float u=u0;u0=u1;u1=u;}
-                // Exported strip has a small transparent bottom margin; sink only that margin.
-                a.y-=.04f;b.y-=.04f;
-                int v=i*4,t=i*6;vertices[v]=a;vertices[v+1]=b;vertices[v+2]=a+Vector3.up*.6f;vertices[v+3]=b+Vector3.up*.6f;
-                uv[v]=new Vector2(u0,0);uv[v+1]=new Vector2(u1,0);uv[v+2]=new Vector2(u0,1);uv[v+3]=new Vector2(u1,1);
-                if(s.vertical)
+                UpdateVisual(p,now);
+                if(needle==null)continue;
+                bool eruption=p.eruption>=0&&!p.hit&&now-p.eruption>=HitDelay;
+                if(eruption)p.hit=true;
+                if(now-p.born>=PoolLifetime&&!eruption)continue;
+                foreach(var collider in Physics2D.OverlapCircleAll(p.position,p.radius,needle.SkillTargetLayer))
                 {
-                    // Shared path endpoints and continuous longitudinal UVs: no stacked
-                    // horizontal cards. Keep flame tongues upright for both travel directions.
-                    a=s.points[i]+footOffset;b=s.points[i+1]+footOffset;
-                    float y0=Mathf.Min(s.points[0].y,s.points[s.points.Count-1].y)+footOffset.y;
-                    float span=Mathf.Max(.01f,Mathf.Abs(s.points[s.points.Count-1].y-s.points[0].y));
-                    vertices[v]=a-Vector3.right*.6f;vertices[v+1]=b-Vector3.right*.6f;
-                    vertices[v+2]=a+Vector3.right*.6f;vertices[v+3]=b+Vector3.right*.6f;
-                    float va=Mathf.Lerp(.12f,.88f,(a.y-y0)/span),vb=Mathf.Lerp(.12f,.88f,(b.y-y0)/span);
-                    uv[v]=new Vector2(0,va);uv[v+1]=new Vector2(0,vb);uv[v+2]=new Vector2(1,va);uv[v+3]=new Vector2(1,vb);
-                }
-                triangles[t]=v;triangles[t+1]=v+2;triangles[t+2]=v+1;triangles[t+3]=v+1;triangles[t+4]=v+2;triangles[t+5]=v+3;
-            }
-            s.mesh.Clear();s.mesh.vertices=vertices;s.mesh.uv=uv;s.mesh.triangles=triangles;s.mesh.RecalculateBounds();
-        }
-        void Remove(Stroke s){if(s.renderer!=null)Destroy(s.renderer.gameObject);if(s.mesh!=null)Destroy(s.mesh);}
-        public void Expire(float now)
-        {
-            for(int i=strokes.Count-1;i>=0;i--)
-            {
-                var s=strokes[i];
-                // Segment lifetime belongs to its endpoint's creation time.
-                while(s.points.Count>1 && now-s.times[1]>=3){s.points.RemoveAt(0);s.times.RemoveAt(0);}
-                if(s.points.Count<2){if(s==current){current=null;emitting=false;}Remove(s);strokes.RemoveAt(i);}
-                else Refresh(s);
-            }
-        }
-        void DamageTrail()
-        {
-            stale.Clear();foreach(var pair in nextHit)if(pair.Key==null||pair.Value<=Time.time)stale.Add(pair.Key);
-            foreach(var key in stale)nextHit.Remove(key);
-            foreach(var s in strokes)for(int i=1;i<s.points.Count;i++)
-            {
-                Vector2 a=s.points[i-1]+FootOffset,b=s.points[i]+FootOffset,delta=b-a;
-                foreach(var c in Physics2D.OverlapCapsuleAll((a+b)*.5f,new Vector2(delta.magnitude+.24f,.24f),CapsuleDirection2D.Horizontal,Mathf.Atan2(delta.y,delta.x)*Mathf.Rad2Deg,needle.SkillTargetLayer))
-                {
-                    if(!SyringeSpecialHitEffectUtility.TryGetValidDamageableTarget(c,owner,out _,out var target,out _) || nextHit.ContainsKey(target))continue;
-                    if(target is Monster m && m.IsFieldRuntimeSuspended)continue;
-                    nextHit[target]=Time.time+needle.GetEffectiveCooldown();
-                    Hit(target);
+                    if(!SyringeSpecialHitEffectUtility.TryGetValidDamageableTarget(collider,owner,out _,out var target,out _) || target is Monster m&&m.IsFieldRuntimeSuspended)continue;
+                    if(now-p.born<PoolLifetime&&!nextBurn.ContainsKey(target))
+                    {
+                        nextBurn[target]=now+1;
+                        var runtime=needle.GetCurrentSpecialRuntime();runtime.ver4HitDamage=NonCriticalDamage(target);
+                        (target.GetComponent<Ver4NeedleStatus>()??target.gameObject.AddComponent<Ver4NeedleStatus>()).ApplyFire(runtime,owner,true);
+                    }
+                    if(eruption&&hitWave.Add(target))Detonate(target);
                 }
             }
+            for(int i=pools.Count-1;i>=0;i--)
+            {
+                var p=pools[i];
+                if(now-p.born>=PoolLifetime&&(p.eruption<0||now-p.eruption>=EruptionDuration))
+                {Destroy(p.ground.gameObject);Destroy(p.tornado.gameObject);pools.RemoveAt(i);}
+            }
         }
-        public void Hit(Component target)
+        float NonCriticalDamage(Component target)
+        {
+            float damage=needle.GetEffectiveDamage();var stats=PlayerGeneralStatRuntime.GetOrCreate(owner);
+            if(stats!=null)damage=stats.ApplyBossDamageBonus(target,damage);
+            var corrosion=target.GetComponent<CorrosionStatus>();if(corrosion!=null)damage*=corrosion.GetDamageTakenMultiplier();
+            return damage;
+        }
+        public void Detonate(Component target)
         {
             if(needle==null)needle=FindObjectOfType<SyringeDartAbility>();
             if(needle==null||Ver4HitEffects.Health(target)<=0)return;
-            float damage=needle.GetEffectiveDamage();
-            var stats=PlayerGeneralStatRuntime.GetOrCreate(owner);
-            if(stats!=null)damage=stats.CalculateOffensiveDamage(owner,target,damage,out _);
-            var corrosion=target.GetComponent<CorrosionStatus>();if(corrosion!=null)damage*=corrosion.GetDamageTakenMultiplier();
-            var runtime=needle.GetCurrentSpecialRuntime();runtime.ver4HitDamage=damage;
-            Ver4HitEffects.Damage(target,damage,Vector2.zero,owner,"불꽃길");
-            if(Ver4HitEffects.Health(target)>0)
-                (target.GetComponent<Ver4NeedleStatus>()??target.gameObject.AddComponent<Ver4NeedleStatus>()).ApplyFire(runtime,owner);
+            var status=target.GetComponent<Ver4NeedleStatus>();int stacks=0;
+            float remaining=status!=null?status.ConsumeBurn(out stacks):0;
+            Ver4HitEffects.Damage(target,NonCriticalDamage(target)*(1+1.5f*stacks)+remaining,Vector2.zero,owner,"불꽃 토네이도");
         }
-        void Clear(){foreach(var s in strokes)Remove(s);strokes.Clear();nextHit.Clear();current=null;emitting=false;}
+        void Clear(){foreach(var p in pools){if(p.ground!=null)Destroy(p.ground.gameObject);if(p.tornado!=null)Destroy(p.tornado.gameObject);}pools.Clear();nextBurn.Clear();movedSeconds=0;previous=transform.position;}
         void OnDisable(){Clear();}
-        void OnDestroy(){if(material!=null)Destroy(material);if(verticalMaterial!=null)Destroy(verticalMaterial);}
     }
     public sealed class ShiniBurnVisual : MonoBehaviour
     {
