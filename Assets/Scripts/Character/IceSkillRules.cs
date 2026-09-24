@@ -6,6 +6,7 @@ namespace Vampire
         public const float FreezeDuration = 5f;
         public const float ActiveRadius = 4f;
         public const float ActiveCooldown = 60f;
+        public const float InstantFreezeChance = .10f;
         // Gameplay release and the visual fade share a single timing source.
         public const float BlizzardFreezeDelay = 1.65f;
         public static void Freeze(Component target)

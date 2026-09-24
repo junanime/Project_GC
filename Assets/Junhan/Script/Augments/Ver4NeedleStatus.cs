@@ -28,7 +28,7 @@ namespace Vampire
             if(Ver4HitEffects.Health(target)<=0) return;
             ApplyFire(runtime,source);
             if(s.Has(P.IceNeedle))
-                (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0));
+                (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0),source);
             if(s.Has(P.WoodNeedle))
             {
                 if(Time.time>=seedExpiry) seeds=0;

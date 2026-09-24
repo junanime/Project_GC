@@ -116,14 +116,14 @@ namespace Vampire.Tests
                 level=FindObjectOfType<LevelManager>();level.enabled=false;player=level.PlayerCharacter;skill=player.Skills;
                 foreach(var monster in FindObjectsOfType<Monster>())monster.gameObject.SetActive(false);
                 skill.RestoreSleep(59,0);skill.Tick(1000);
-                Check(skill.SleepStacks==60&&skill.SleepSeconds==60,"Hyuki idle accumulation caps at sixty stacks");
-                skill.Tick(1000);Check(skill.SleepStacks==60,"long idle cannot exceed twelve crystals");
+                Check(skill.SleepStacks==0&&skill.SleepSeconds==0,"retired Hyuki sleep does not accumulate");
+                skill.Tick(1000);Check(skill.SleepStacks==0,"long idle does not restore old passive");
                 yield return new WaitForEndOfFrame();
-                Check(player.GetComponent<PhoenixSkillVisual>().CrystalCount==12,"capped sleep displays exactly twelve crystals");
+                Check(player.GetComponent<PhoenixSkillVisual>().CrystalCount==0,"retired sleep has no orbiting crystals");
                 player.Move(Vector2.right);skill.Tick(.01f);
-                Check(skill.ConsumedSleepStacks==60&&Mathf.Approximately(skill.MovementMultiplier,5.8f),"consumed sleep bonus caps at plus 480 percent");
+                Check(skill.ConsumedSleepStacks==0&&Mathf.Approximately(skill.MovementMultiplier,1),"retired sleep cannot boost movement");
                 skill.RestoreSleep(999,999);
-                Check(skill.SleepStacks==60&&skill.ConsumedSleepStacks==60,"old oversized saved stacks clamp on restore");
+                Check(skill.SleepStacks==0&&skill.ConsumedSleepStacks==0,"old sleep save fields ignored safely");
                 skill.Tick(.01f);skill.Tick(10);Check(skill.MovementMultiplier==1,"capped movement buff still expires");
                 Check(!errors,"no native errors");passed=true;
             }

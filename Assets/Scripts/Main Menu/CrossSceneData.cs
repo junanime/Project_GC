@@ -31,6 +31,7 @@ namespace Vampire
         public float SkillPassiveRemaining, SkillActiveRemaining, SkillCooldownRemaining;
         public float SkillSleepSeconds, SkillSummonRemaining;
         public int SkillConsumedSleepStacks;
+        public int SkillIceProcFailures;
         public int CurrentLevel;
 
         public float CurrentExp;

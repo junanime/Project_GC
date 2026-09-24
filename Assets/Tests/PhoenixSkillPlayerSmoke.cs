@@ -40,7 +40,7 @@ namespace Vampire.Tests
                         bool timingOnly=Environment.GetCommandLineArgs().Contains("-hyukiTimingSmoke");
                         if(!timingOnly)
                         {
-                        skill.RestoreSleep(10,0);yield return new WaitForEndOfFrame();Check(v.CrystalCount==2,"native two stack crystals");
+                        skill.RestoreSleep(10,0);yield return new WaitForEndOfFrame();Check(v.CrystalCount==0,"retired sleep crystals stay hidden");
                         Check(player.GetComponentsInChildren<SpriteRenderer>().Where(x=>x.name=="Sleep stack crystal").All(x=>x.sprite==skill.Definition.iceComponents[0]),"new diamond art replaces prison-shaped stack crystals");
                         ScreenCapture.CaptureScreenshot(Path.Combine(Application.dataPath,"Hyuki-polished-idle.png"));
                         player.Move(Vector2.right);yield return new WaitForSeconds(.25f);yield return new WaitForEndOfFrame();
@@ -102,7 +102,7 @@ namespace Vampire.Tests
         static void SeedProc(bool proc)
         {
             for(int seed=0;seed<10000;seed++)
-            { UnityEngine.Random.InitState(seed);if((UnityEngine.Random.value<.05f)==proc){UnityEngine.Random.InitState(seed);return;} }
+            { UnityEngine.Random.InitState(seed);float value=UnityEngine.Random.value;if(proc?value<.1f:value>.99f){UnityEngine.Random.InitState(seed);return;} }
             throw new Exception("Cannot select deterministic random seed");
         }
         static IEnumerator IceChecks(Monster target,SyringeSpecialRuntime runtime,Character player)
@@ -131,7 +131,7 @@ namespace Vampire.Tests
             Check(target.GetComponent<IceChillStatus>().Stacks==1,"shatter hit starts next stack cycle without ignored hits");
             target.GetComponent<IceChillStatus>().Clear();
             SeedProc(true);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
-            Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen==true,"five-percent roll can freeze on first hit");
+            Check(target.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen==true,"instant roll can freeze on first hit");
             target.GetComponent<NeuralBlockedMonsterStatus>().ReleaseIce();
             SeedProc(false);Ver4HitEffects.AfterHit(target,runtime,player,~0,false);
             var honey=target.gameObject.AddComponent<HoneySlowStatus>();honey.Apply(.1f,.8f);

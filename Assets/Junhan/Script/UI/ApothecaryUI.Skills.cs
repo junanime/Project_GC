@@ -101,7 +101,7 @@ namespace Vampire
             activeSeconds.text=skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
             // Marathon has no separate cooldown: its countdown is the remaining buff duration.
             passiveDuration.fillAmount=0;
-            passiveSeconds.text=d!=null&&skill.IsHyuki&&skill.SleepStacks>0?skill.SleepStacks.ToString():d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
+            passiveSeconds.text=d!=null&&skill.IsHyuki?Mathf.RoundToInt(skill.IceProcChance*100)+"%":d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
             activeDurationBar.fillAmount=d!=null?skill.ActiveRemaining/d.activeDuration:0;
             cutinPanel.SetActive(skill!=null&&skill.IsCutin);
             if(skill!=null&&skill.IsCutin&&d.cutin!=null&&d.cutin.Length>0)

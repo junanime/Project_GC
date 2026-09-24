@@ -11,13 +11,18 @@ namespace Vampire
         Component target; Rigidbody2D rb; float lastDrag,baseDrag;bool applied;
         public static float Multiplier(int stacks,int upgrades=0) => stacks<=0?1:Mathf.Max(.1f,1-(.1f+.1f*Mathf.Min(stacks,3))-.05f*upgrades*stacks);
         void Awake(){target=GetComponent<IDamageable>();rb=GetComponent<Rigidbody2D>();}
-        public void Hit(int upgrades)
+        public void Hit(int upgrades, Character source=null)
         {
             if(target==null||Ver4HitEffects.Health(target)<=0)return;
             var frozen=GetComponent<NeuralBlockedMonsterStatus>();
             if(frozen!=null&&frozen.IceFrozen)return;
             Stacks++;SpeedMultiplier=Multiplier(Stacks,upgrades);
-            if(Stacks>=FreezeStacks || Random.value<.05f){Clear();IceSkillRules.Freeze(target);return;}
+            // Roll even on the fourth hit. A failed roll grows Hyuki's chance while the
+            // independent four-stack guarantee still freezes; only a successful roll resets it.
+            float roll=Random.value;
+            bool instant=source!=null && source.IsAlive && source.Skills!=null
+                ? source.Skills.RollInstantFreeze(roll) : roll<IceSkillRules.InstantFreezeChance;
+            if(Stacks>=FreezeStacks || instant){Clear();IceSkillRules.Freeze(target);return;}
             if(GetComponent<IceChillVisual>()==null)gameObject.AddComponent<IceChillVisual>();
             ApplyDrag();
             if(target is BossPartDamageTestPart)

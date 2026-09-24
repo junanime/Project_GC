@@ -33,11 +33,11 @@ namespace Vampire.Editor
                 AssetDatabase.Refresh();const string path="Assets/Junhan/Resources/HyukiSkills.asset";
                 var d=AssetDatabase.LoadAssetAtPath<CharacterSkillDefinition>(path);
                 if(d==null){d=ScriptableObject.CreateInstance<CharacterSkillDefinition>();AssetDatabase.CreateAsset(d,path);}
-                d.kind=CharacterSkillDefinition.SkillKind.Hyuki;d.passiveName="자는 동안에도 천재";d.activeName="잠깐 진심";
-                d.passiveDescription="대기 1초마다 수면 1스택. 5스택마다 수정 1개가 회전합니다. 최대 60스택(수정 12개). 대기를 끝내면 전부 소모하여 4초간 스택당 이동속도 +8%(최대 +480%).";
+                d.kind=CharacterSkillDefinition.SkillKind.Hyuki;d.passiveName="하다보면";d.activeName="잠깐 진심";
+                d.passiveDescription="빙결침의 즉시 빙결 확률은 10%로 시작합니다. 즉시 빙결 추첨 실패마다 +1%p(최대 100%), 성공 시 10%로 초기화됩니다. 적별 냉기 4스택 확정 빙결과 액티브 빙결은 누적 확률을 초기화하지 않습니다.";
                 d.activeDescription="눈보라가 잦아들기 시작하는 발동 1.65초 후, 거리 4 이내 적을 최대 5초간 빙결합니다. 다음 빙결침 적중 시 해제됩니다. 보스는 감속 · 재사용 60초.";
                 d.passiveDuration=4;d.activeDuration=IceSkillRules.FreezeDuration;d.cooldown=IceSkillRules.ActiveCooldown;
-                d.passiveIcon=Import("HyukiPassive")[0];d.activeIcon=Import("HyukiActive")[0];d.phoenixFrames=Import("IcePhoenix",4,4);d.icePrison=Import("IcePrison",4,2);
+                d.passiveIcon=Import("HyukiHadaBomyeon")[0];d.activeIcon=Import("HyukiActive")[0];d.phoenixFrames=Import("IcePhoenix",4,4);d.icePrison=Import("IcePrison",4,2);
                 d.iceComponents=Import("IceComponents",2,2);
                 const string stormPath=Art+"BlizzardReference.png";
                 var stormImporter=(TextureImporter)AssetImporter.GetAtPath(stormPath);

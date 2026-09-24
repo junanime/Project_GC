@@ -12,6 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7eb3fc082d9979349b9ab3b19b6ef4b9, type: 3}
   m_Name: HyukiSkills
   m_EditorClassIdentifier:
+  ariRollDamage: 10
+  ariPhoenixDamage: 35
+  ariRollPush: 0.3
+  ariPhoenixPush: 0.6
+  ariRollWidth: 1.1
+  ariPhoenixRange: 1.3
+  ariDashCooldown: 0.5
+  ariVisualScale: 1.5
+  ariPhoenixIdle: []
+  ariPhoenixWalk: []
+  ariPhoenixDash: []
+  ariPhoenixTransform: []
+  ariTransformTime: 0.56
+  shiniActiveMoveMultiplier: 1.3
+  shiniActivePoolInterval: 1
   kind: 2
   phoenixFrames:
   - {fileID: 1488946362246943561, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
@@ -46,17 +61,27 @@ MonoBehaviour:
   - {fileID: -8118423887531490043, guid: fe6df0ad1cbc1db49aa2a26ec66057d3, type: 3}
   - {fileID: -1332107117447761720, guid: fe6df0ad1cbc1db49aa2a26ec66057d3, type: 3}
   fireWrapParts: []
+  lavaFrames: []
   blizzardTexture: {fileID: 2800000, guid: c21caf63ff5dde34688b2f1d8f923faf, type: 3}
   burningIdle: []
   burningWalk: []
   burningDash: []
   fireTrail: []
   burnVfx: []
-  passiveName: "\uC790\uB294 \uB3D9\uC548\uC5D0\uB3C4 \uCC9C\uC7AC"
+  passiveName: "\uD558\uB2E4\uBCF4\uBA74"
   activeName: "\uC7A0\uAE50 \uC9C4\uC2EC"
-  passiveDescription: "대기 1초마다 수면 1스택. 5스택마다 수정 1개가 회전합니다. 최대 60스택(수정 12개). 대기를 끝내면 전부 소모하여 4초간 스택당 이동속도 +8%(최대 +480%)."
-  activeDescription: "눈보라가 잦아들기 시작하는 발동 1.65초 후, 거리 4 이내 적을 최대 5초간 빙결합니다. 다음 빙결침 적중 시 해제됩니다. 보스는 감속 · 재사용 60초."
-  passiveIcon: {fileID: 21300000, guid: 47cef372ce26da447a852a2fc2e6d5dd, type: 3}
+  passiveDescription: "\uBE59\uACB0\uCE68\uC758 \uC989\uC2DC \uBE59\uACB0 \uD655\uB960\uC740
+    10%\uB85C \uC2DC\uC791\uD569\uB2C8\uB2E4. \uC989\uC2DC \uBE59\uACB0 \uCD94\uCCA8
+    \uC2E4\uD328\uB9C8\uB2E4 +1%p(\uCD5C\uB300 100%), \uC131\uACF5 \uC2DC 10%\uB85C
+    \uCD08\uAE30\uD654\uB429\uB2C8\uB2E4. \uC801\uBCC4 \uB0C9\uAE30 4\uC2A4\uD0DD
+    \uD655\uC815 \uBE59\uACB0\uACFC \uC561\uD2F0\uBE0C \uBE59\uACB0\uC740 \uB204\uC801
+    \uD655\uB960\uC744 \uCD08\uAE30\uD654\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  activeDescription: "\uB208\uBCF4\uB77C\uAC00 \uC7A6\uC544\uB4E4\uAE30 \uC2DC\uC791\uD558\uB294
+    \uBC1C\uB3D9 1.65\uCD08 \uD6C4, \uAC70\uB9AC 4 \uC774\uB0B4 \uC801\uC744 \uCD5C\uB300
+    5\uCD08\uAC04 \uBE59\uACB0\uD569\uB2C8\uB2E4. \uB2E4\uC74C \uBE59\uACB0\uCE68
+    \uC801\uC911 \uC2DC \uD574\uC81C\uB429\uB2C8\uB2E4. \uBCF4\uC2A4\uB294 \uAC10\uC18D
+    \xB7 \uC7AC\uC0AC\uC6A9 60\uCD08."
+  passiveIcon: {fileID: 21300000, guid: 886fbd3e9416ad14998a0e73da412e23, type: 3}
   activeIcon: {fileID: 21300000, guid: d9b2d6ddca65dca488cdb5a03b52f2ee, type: 3}
   cutin: []
   passiveWind: []

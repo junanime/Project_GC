@@ -1768,6 +1768,7 @@ namespace Vampire
             snapshot.SkillSummonRemaining=Skills != null ? Skills.SummonRemaining : 0;
             snapshot.SkillSleepSeconds=Skills != null ? Skills.SleepSeconds : 0;
             snapshot.SkillConsumedSleepStacks=Skills != null ? Skills.ConsumedSleepStacks : 0;
+            snapshot.SkillIceProcFailures=Skills != null ? Skills.IceProcFailures : 0;
             snapshot.SkillPassiveRemaining=Skills != null ? Skills.PassiveRemaining : 0;
             snapshot.SkillActiveRemaining=Skills != null ? Skills.ActiveRemaining : 0;
             snapshot.SkillCooldownRemaining=Skills != null ? Skills.CooldownRemaining : 0;
@@ -1983,6 +1984,7 @@ namespace Vampire
 
             Skills?.Restore(snapshot.SkillPassiveRemaining,snapshot.SkillActiveRemaining,snapshot.SkillCooldownRemaining,snapshot.SkillSummonRemaining);
             Skills?.RestoreSleep(snapshot.SkillSleepSeconds,snapshot.SkillConsumedSleepStacks);
+            Skills?.RestoreIceProcFailures(snapshot.SkillIceProcFailures);
             // Restored spent charges must recharge even when no dash can be started.
             StopDashRecharge();
             EnsureDashRecharge();

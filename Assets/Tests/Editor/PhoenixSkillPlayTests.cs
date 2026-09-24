@@ -64,15 +64,14 @@ namespace Vampire.Tests.Editor
                         Check(skill.Definition.passiveIcon!=null&&skill.Definition.activeIcon!=null,"both profile icons installed");
                         player.Move(Vector2.zero);player.StartIdleAnimation();skill.RestoreSleep(4.8f,0);speed=player.CurrentMoveSpeed;projectileSpeed=player.ProjectileSpeedMultiplier;projectiles=needle.GetEffectiveProjectileCount();break;
                     case 2:
-                        if(skill.SleepStacks<5||visual.CrystalCount==0){stage--;break;}
-                        Check(skill.SleepStacks>=5&&visual.CrystalCount==1,"fifth idle stack creates one orbiting crystal");
-                        skill.RestoreSleep(10,0);break;
+                        Check(skill.SleepStacks==0&&visual.CrystalCount==0,"retired sleep passive stays inactive");
+                        skill.RollInstantFreeze(.99f);break;
                     case 3:
-                        Check(visual.CrystalCount==2,"ten idle stacks show two crystals");Capture("01-idle-crystals");player.Move(Vector2.right);break;
+                        Check(skill.IceProcFailures==1&&visual.CrystalCount==0,"failed roll increases chance without old crystals");Capture("01-shivering-idle");player.Move(Vector2.right);break;
                     case 4:
-                        Check(skill.SleepStacks==0&&skill.ConsumedSleepStacks==10&&skill.PassiveActive,"movement consumes all ten stacks");Near(player.CurrentMoveSpeed,speed*1.8f,"ten stacks provide eighty percent movement bonus");
+                        Check(skill.IceProcFailures==1&&!skill.PassiveActive,"movement preserves ice probability counter");Near(player.CurrentMoveSpeed,speed,"movement has no retired sleep boost");
                         Check(!skill.AshiPassive&&needle.GetEffectiveProjectileCount()==projectiles,"Hyuki passive does not inherit Ashi projectiles");Near(player.ProjectileSpeedMultiplier,projectileSpeed,"sleep boost affects movement only");Capture("02-passive-wake");
-                        var snapshot=player.CaptureRunSceneState();skill.Tick(100);player.RestoreRunSceneState(snapshot);Check(skill.ConsumedSleepStacks==10&&skill.PassiveActive,"scene snapshot restores consumed stack buff");
+                        var snapshot=player.CaptureRunSceneState();skill.RestoreIceProcFailures(0);player.RestoreRunSceneState(snapshot);Check(skill.IceProcFailures==1,"scene snapshot restores ice failures");
                         skill.Tick(5);Near(player.CurrentMoveSpeed,speed,"four-second movement boost expires");player.Move(Vector2.zero);
                         var l=UnityEngine.Object.FindObjectOfType<LevelManager>();var data=l.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];
                         near=l.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);near.enabled=true;
