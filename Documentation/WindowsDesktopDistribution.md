@@ -34,7 +34,7 @@ Steam Cloud 공식 문서: https://partner.steamgames.com/doc/features/cloud
 4. 설치 패키지는 `Builds/Installers/24tu-Setup-0.1.20260929.exe`. SHA-256 파일도 생성된다. 새 배포마다 버전을 올린다.
 5. Steam에는 설치 프로그램이 아니라 검증한 `WindowsDesktop` 실행 파일/데이터 폴더를 depot 콘텐츠로 준비하되, `*_DoNotShip`/`*.pdb`/`*.mdb`는 제외한다(로컬 설치 패키지는 자동 제외). 실제 App ID, depot ID, Steamworks 설정과 출시 검토는 별도다.
 
-NSIS 공식 배포: https://nsis.sourceforge.io/Download
+설치 패키지 제작 도구: NSIS 3.13. 이 문서에는 외부 설치 파일 다운로드 링크를 게시하지 않는다.
 
 ## 주의
 
