@@ -7,6 +7,7 @@ namespace Vampire
     public partial class AbilityCard
     {
         bool themedCard;
+        public bool UsesNoblePanel { get; private set; }
         TextMeshProUGUI gradeLabel;
         Image gradeBorder, gradeBody, titleRule, opaqueBacking;
         Image legacyDescriptionPaper;
@@ -19,7 +20,10 @@ namespace Vampire
             // Serialized Legendary tier/kind is the mechanic-changing Noble reward,
             // independent of the numeric Legendary upgrade grade.
             bool noble = offer != null ? offer.Kind == Ver4RewardKind.LegendaryAbility : ability.Tier == Ability.AugmentTier.Legendary;
-            var frame = noble ? null : AugmentPanelTheme.Frame(grade);
+            var nobleSource = (offer != null ? offer.Source : ability) as SyringeLegendaryAugmentAbility;
+            var nobleArt = noble && nobleSource != null ? Resources.Load<Sprite>("NoblePanels/" + nobleSource.Type) : null;
+            UsesNoblePanel = nobleArt != null;
+            var frame = UsesNoblePanel ? nobleArt : noble ? null : AugmentPanelTheme.Frame(grade);
             themedCard = frame != null;
             if (!themedCard && legacyPanelSprite == null && legendaryCardBackgroundSprite != null)
             {
@@ -29,7 +33,7 @@ namespace Vampire
                 legacyPanelSprite.name="Existing legendary frame";
             }
             var root = (RectTransform)transform;
-            root.sizeDelta = new Vector2(282,454);
+            root.sizeDelta = UsesNoblePanel ? new Vector2(360,510) : new Vector2(282,454);
             var rootImage = GetComponent<Image>(); if (rootImage != null) rootImage.enabled = false;
             if (iconFrameImage != null) iconFrameImage.enabled = false;
             if (bottomEmblemImage != null) bottomEmblemImage.enabled = false;
@@ -89,10 +93,23 @@ namespace Vampire
             descriptionText.color=nameText.color; descriptionText.raycastTarget=false;
             gradeLabel.text = noble ? "고귀" : offer != null && offer.Kind == Ver4RewardKind.NewSpecial ? "특수" : AugmentUpgradeOdds.DisplayName(grade);
             gradeLabel.color=gradeBorder.color=AugmentPanelTheme.Accent(grade);
+            if (UsesNoblePanel)
+            {
+                // The approved composite already contains its icon, liquid overframe and backdrop.
+                // Never add an icon mask, top seal, rarity plaque or duplicate icon over it.
+                opaqueBacking.gameObject.SetActive(false);
+                gradeBorder.gameObject.SetActive(false);
+                titleRule.gameObject.SetActive(false);
+                cardBackgroundImage.preserveAspect = true;
+                nameText.transform.SetAsLastSibling();
+                descriptionText.transform.SetAsLastSibling();
+            }
+            else if (cardBackgroundImage != null) cardBackgroundImage.preserveAspect = false;
         }
 
         string PanelTitle()
         {
+            if (UsesNoblePanel) return (ability is Ver4AugmentOffer nobleOffer ? nobleOffer.Source.Name : ability.Name).Trim();
             if (!(ability is Ver4AugmentOffer offer) || !themedCard) return ability.Name;
             if (offer.Kind == Ver4RewardKind.NewSpecial && ability.Name.StartsWith("특수 증강: ")) return ability.Name.Substring(7);
             return ability.Name.Replace(" · 수치 강화", "").Replace(" · 오리지널 강화", "");
@@ -100,6 +117,8 @@ namespace Vampire
 
         string PanelDescription()
         {
+            // Noble acquisition rules live in the prescription. Reserve the card for its effect.
+            if (UsesNoblePanel) return (ability is Ver4AugmentOffer nobleOffer ? nobleOffer.Source.Description : ability.Description).Trim();
             if (!(ability is Ver4AugmentOffer offer) || !themedCard) return ability.Description;
             // The grade has its own badge. Keep every effect, numeric value and progress line.
             return ability.Description.Replace("강화 등급: "+AugmentUpgradeOdds.DisplayName(offer.Grade)+"\n", "");

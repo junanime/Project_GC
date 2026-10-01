@@ -125,7 +125,7 @@ namespace Vampire.Tests.Editor
             view.Claim.onClick.Invoke();yield return new WaitForSecondsRealtime(.6f);
             var offers=(List<Ability>)Get(dialog,"displayedAbilities");var cards=dialog.GetComponentsInChildren<AbilityCard>();
             Check(offers.Count==3&&offers.All(a=>a.Name.StartsWith("고귀 증강: ")),"All mechanic rewards are named Noble augments");
-            Check(cards.All(c=>!(bool)Get(c,"themedCard")),"Noble rewards retain their existing dedicated gold frame");
+            Check(cards.All(c=>c.UsesNoblePanel),"Noble rewards use their dedicated liquid overframe art");
             Check(!view.gameObject.activeInHierarchy,"Prescription HUD hides behind reward modal");Capture("noble-reward");
             cards[0].Selected();yield return null;Check(quest.Claimed&&!dialog.MenuOpen,"Noble reward claim completes once");
             var parent=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true)[0];if(!parent.Owned)manager.AcquireVer4Ability(parent);

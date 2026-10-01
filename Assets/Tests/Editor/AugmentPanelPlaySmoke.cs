@@ -81,6 +81,17 @@ namespace Vampire.Tests.Editor
         {
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             level.PlayerCharacter.AddMaxHealthBonus(10000);level.PlayerCharacter.GainHealth(10000);level.SetRunFlowPaused(true);
+            var camera=Object.FindObjectOfType<CharacterCamera>().GetComponent<Camera>();
+            float zoomed=camera.orthographicSize;
+            Check(Mathf.Abs(zoomed*camera.aspect-6.25f)<.001f,"Level1 serialized camera half-width is 6.25");
+            Vector3 point=level.PlayerCharacter.transform.position;
+            float after=(camera.WorldToScreenPoint(point+Vector3.up)-camera.WorldToScreenPoint(point)).magnitude;
+            camera.orthographicSize=5/camera.aspect;
+            float before=(camera.WorldToScreenPoint(point+Vector3.up)-camera.WorldToScreenPoint(point)).magnitude;
+            Capture("camera-before");
+            camera.orthographicSize=zoomed;
+            Check(Mathf.Abs(after/before-.8f)<.001f,"World sprite projected size is 80 percent of previous camera");
+            yield return null;Capture("camera-after");
             var dialog=level.EntityManager.AbilitySelectionDialog;
             var manager=Object.FindObjectOfType<AbilityManager>();
             if(dialog.MenuOpen)dialog.Close(); dialog.Open(false);
@@ -177,11 +188,52 @@ namespace Vampire.Tests.Editor
             typeof(AbilitySelectionDialog).GetMethod("Populate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(dialog,new object[]{mixed});
             EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(0,0,1280,741);
             yield return new WaitForSecondsRealtime(1);Capture("actual-rewards");
-            foreach(var legendSourceTest in manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true))
+            var nobles=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.AvailableAsNoble).OrderBy(a=>(int)a.Type).ToArray();
+            Check(nobles.Length==11,"Eleven current Noble rewards");
+            var poison=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Single(a=>a.Type==SyringeLegendaryAugmentAbility.LegendaryAugmentType.PoisonContagion);
+            Check(!poison.RequirementsMet(),"Poison contagion never enters any current offer pool");
+            for(int trial=0;trial<40;trial++)
+            {
+                var pool=manager.Ver4.CreateOffers(true,3);
+                Check(pool.All(a=>((Ver4AugmentOffer)a).Source!=poison),"Noble draw excludes postponed poison "+trial);
+                manager.ReturnAbilities(pool);
+            }
+            foreach(var legendSourceTest in nobles)
             {
                 examples[0].Configure(manager.Ver4,Ver4RewardKind.LegendaryAbility,AugmentUpgradeGrade.Legendary,legendSourceTest,0,0,
                     "고귀 증강: "+legendSourceTest.Name,legendSourceTest.Description+"\n비전서 보상 · 강화 불가");
                 cards[0].Init(dialog,examples[0],0);Canvas.ForceUpdateCanvases();TextFits(cards[0],legendSourceTest.Name+" legend");
+                var title=(TextMeshProUGUI)Get(cards[0],"nameText");
+                Check(cards[0].UsesNoblePanel&&((Image)Get(cards[0],"cardBackgroundImage")).sprite.name==legendSourceTest.Type.ToString(),"Approved artwork matches "+legendSourceTest.Type);
+                Check(!title.enableAutoSizing&&title.fontSize==24&&title.rectTransform.anchorMin==new Vector2(.215f,.345f),"Uniform Noble title geometry "+legendSourceTest.Type);
+                Check(title.text==legendSourceTest.Name.Trim()&&!((Image)Get(cards[0],"gradeBorder")).gameObject.activeSelf,"No Noble grade text or plaque "+legendSourceTest.Type);
+                Check(!((Image)Get(cards[0],"abilityImage")).enabled,"No duplicate icon layered over overframe "+legendSourceTest.Type);
+            }
+            for(int page=0;page<4;page++)
+            {
+                for(int i=0;i<3;i++)
+                {
+                    var current=nobles[Mathf.Min(page*3+i,nobles.Length-1)];
+                    examples[i].Configure(manager.Ver4,Ver4RewardKind.LegendaryAbility,AugmentUpgradeGrade.Legendary,current,0,0,"고귀 증강: "+current.Name,current.Description+"\n비전서 보상 · 강화 불가");
+                    cards[i].Init(dialog,examples[i],0);
+                }
+                yield return new WaitForSecondsRealtime(.7f);Capture("noble-gallery-"+page);
+            }
+            foreach(var size in new[]{new Vector2(1024,789),new Vector2(1560,741),new Vector2(1280,741)})
+            {
+                EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(Vector2.zero,size);
+                yield return new WaitForSecondsRealtime(.5f);Canvas.ForceUpdateCanvases();
+                Rect previous=default;
+                foreach(var card in cards)
+                {
+                    var rect=ScreenRect((RectTransform)card.transform);
+                    Check(rect.xMin>=0&&rect.yMin>=0&&rect.xMax<=Screen.width+1&&rect.yMax<=Screen.height+1,"Full overframe inside viewport "+Screen.width);
+                    Check(previous==default||rect.xMin>previous.xMax,"Noble effects never overlap adjacent card");previous=rect;
+                    TextFits(card,"Noble resolution "+Screen.width);
+                    var hits=new List<RaycastResult>();EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current){position=rect.center},hits);
+                    Check(hits.Count>0&&hits[0].gameObject.GetComponentInParent<AbilityCard>()==card,"Noble whole-card click target");
+                }
+                Capture("noble-"+Screen.width);
             }
             dialog.Close();foreach(var offer in examples)Object.Destroy(offer.gameObject);
             dialog.OpenLegendary();yield return new WaitForSecondsRealtime(1);
@@ -189,6 +241,9 @@ namespace Vampire.Tests.Editor
             foreach(var card in cards)TextFits(card,"Legendary");Capture("legendary-existing-frame");
             var legend=(Ver4AugmentOffer)((List<Ability>)Get(dialog,"displayedAbilities"))[0];var legendSource=legend.Source;
             cards[0].Selected();Check(legendSource.Owned&&!dialog.MenuOpen,"Legendary reward still selectable");
+            dialog.Open(false);yield return new WaitForSecondsRealtime(.7f);
+            Check(cards.All(c=>!c.UsesNoblePanel&&((Image)Get(c,"abilityImage")).enabled),"Reused Noble cards restore ordinary icons");
+            dialog.Close();
             SessionState.SetBool(Key+"Done",true);
         }
     }
