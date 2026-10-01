@@ -44,6 +44,7 @@ namespace Vampire
 
         public void Init(LevelBlueprint levelBlueprint)
         {
+            if (!CrossSceneData.HasPendingRunSceneTransfer) SnailFieldProgress.Reset();
             this.levelBlueprint = levelBlueprint;
 
             levelTime = 0f;
@@ -394,6 +395,15 @@ namespace Vampire
             {
                 gameOverDialog.Open(true, statsManager);
             }
+        }
+
+        public void AbandonRun()
+        {
+            if (levelEnded) return;
+            levelEnded = true;
+            SaveCoinsGained();
+            GameAudioManager.EndRunAudio(false);
+            PlayerPrefs.Save();
         }
 
         private void SaveCoinsGained()

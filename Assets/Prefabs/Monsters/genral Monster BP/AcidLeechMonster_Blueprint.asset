@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1ae058c390b426495056b39e15d543, type: 3}
   m_Name: AcidLeechMonster_Blueprint
   m_EditorClassIdentifier: 
-  name: "\uC704\uC0B0\uAC70\uBA38"
+  name: "\uD544\uB4DC \uBBF8\uB2C8 \uB864\uCF00\uC774\uD06C"
   hp: 65
   atk: 0
   recovery: 0

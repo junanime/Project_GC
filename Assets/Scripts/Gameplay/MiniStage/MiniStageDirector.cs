@@ -63,6 +63,7 @@ namespace Vampire
         private BloodClotMiniStagePortal activeEntrancePortal;
         private MiniStageRoomBase currentRoom;
 
+        public bool CurrentEnhanced { get; private set; }
         public bool IsInsideMiniStage => isInsideMiniStage;
         public bool CanEnterFromPortal => !isInsideMiniStage && !isTransitioning;
         public bool CanReturnFromInteractable(MiniStageReturnInteractable interactable)
@@ -138,6 +139,7 @@ namespace Vampire
             // 중요:
             // BloodClotMiniStagePortal에는 Init()이 없고 Setup()이 있다.
             activeEntrancePortal.Setup(this);
+            playerCharacter?.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.Portal);
 
             // 포탈 생성 및 Setup까지 실제로 완료된 순간 1회 재생합니다.
             GameAudioManager.PlaySfx(
@@ -175,6 +177,7 @@ namespace Vampire
                 return;
             }
 
+            CurrentEnhanced = portal != null && (portal.GetComponent<BloodClotOvercharge>()?.Enhanced ?? false);
             if (portal != null)
             {
                 portal.Consume();
@@ -255,6 +258,7 @@ namespace Vampire
             }
         }
 
+        public static bool RoomEnabled(MiniStageRoomBase room) => room != null && !(room is MiniStageAcidBalanceRoom) && !(room is MiniStageDigestiveWaveReflectRoom) && !(room is MiniStageAcidLureRoom);
         private MiniStageRoomBase SelectRoomPrefab()
         {
             if (roomPrefabs == null || roomPrefabs.Length == 0)
@@ -265,11 +269,11 @@ namespace Vampire
             if (useForcedRoomIndex)
             {
                 int safeIndex = Mathf.Clamp(forcedRoomIndex, 0, roomPrefabs.Length - 1);
-                return roomPrefabs[safeIndex];
+                return RoomEnabled(roomPrefabs[safeIndex]) ? roomPrefabs[safeIndex] : null;
             }
 
-            int randomIndex = Random.Range(0, roomPrefabs.Length);
-            return roomPrefabs[randomIndex];
+            var enabledRooms = System.Array.FindAll(roomPrefabs, RoomEnabled);
+            return enabledRooms.Length == 0 ? null : enabledRooms[Random.Range(0, enabledRooms.Length)];
         }
 
         public void ReturnToFieldFromInteractable(MiniStageReturnInteractable interactable)

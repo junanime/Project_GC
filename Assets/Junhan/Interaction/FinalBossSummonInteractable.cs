@@ -238,7 +238,7 @@ namespace Vampire
             BossMonster existingBossMonster = FindObjectOfType<BossMonster>();
             BossController existingBossController = FindObjectOfType<BossController>();
 
-            return existingBossMonster != null || existingBossController != null;
+            return existingBossMonster != null || existingBossController != null || FindObjectOfType<SnailBossRuntime>() != null;
         }
 
         private void DisableBossLevelSpawners()

@@ -5,6 +5,7 @@ namespace Vampire
 {
     public partial class SyringeDartAbility
     {
+        public LayerMask SkillTargetLayer => monsterLayer;
         public Ver4AugmentRuntime Ver4 { get; set; }
         private readonly HashSet<ParentType> ver4Specials = new HashSet<ParentType>();
         public void EnableVer4Special(ParentType type)

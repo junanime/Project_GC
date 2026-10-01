@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cebba9219e8740668e9101e947a97e4, type: 3}
+  m_Name: Hyuki Character Blueprint
+  m_EditorClassIdentifier: 
+  name: "\uD601\uC774"
+  description: "\uCD94\uC6CC\uD558\uBA74\uC11C\uB3C4 \uBE59\uACB0\uCE68\uC744 \uB2A5\uCCAD\uC2A4\uB7FD\uAC8C
+    \uB0A0\uB9AC\uB294 \uC5BC\uC74C \uC7AC\uB2A5\uAFBC."
+  owned: 1
+  cost: 0
+  hp: 100
+  recovery: 0
+  armor: 0
+  movespeed: 1.15
+  luck: 1
+  acceleration: 50
+  profileSprite: {fileID: 21300000, guid: 6b1872621e84b4645b361cce40cc1a99, type: 3}
+  useCharacterHandAnchor: 1
+  idleHandOffset: {x: 0.2, y: -0.06}
+  walkHandOffset: {x: 0.25, y: -0.06}
+  walkSpriteSequence:
+  - {fileID: 4459870643526393012, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 8645526209452238827, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 7177944211563045298, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: -5267232931580505476, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: -5836893476829198220, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 4585566489794605879, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 1523800142781248985, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  - {fileID: 289482890230222796, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
+  walkFrameTime: 0.08
+  idleSpriteSequence:
+  - {fileID: -7314979933727673989, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -8081032536798243898, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -4539074958209568715, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: 1739567181259139291, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: 8678885071075774289, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -106750726642967808, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -5084235833021441256, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -2557863510584615543, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  idleFrameTime: 0.1
+  dashSpriteSequence:
+  - {fileID: 5248685834588034732, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: 4370969615533919276, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: 964266061684134628, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: -1763060046659543566, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: 2054081584894590774, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: -4797407647350604229, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: 2856942303697598913, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: 88717187037516196, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  dashFrameTime: 0.0275
+  fitDashAnimationToDuration: 1
+  dashArtMovesRight: 1
+  capturedSpriteSequence:
+  - {fileID: 582160902688759878, guid: 7956e2b65620d9a408c5e0ff649f23dd, type: 3}
+  capturedFrameTime: 0.09
+  resultIdleSpriteSequence:
+  - {fileID: -7314979933727673989, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -8081032536798243898, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -4539074958209568715, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: 1739567181259139291, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: 8678885071075774289, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -106750726642967808, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -5084235833021441256, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  - {fileID: -2557863510584615543, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
+  resultIdleFrameTime: 0.1
+  resultActionASpriteSequence: []
+  resultActionBSpriteSequence: []
+  resultActionFrameTime: 0.12
+  skills: {fileID: 11400000, guid: 8e66063cfe8c2924ba3a71c3dd41ae9b, type: 2}
+  startingAbilities:
+  - {fileID: 7378740072262091319, guid: ff02d7e92f7d99f4284f50a5f9632dce, type: 3}

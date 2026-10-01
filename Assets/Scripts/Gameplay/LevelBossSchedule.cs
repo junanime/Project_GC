@@ -33,7 +33,7 @@ namespace Vampire
                 GameAudioManager.PlayBossAppearOnly();
             }
             if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && time >= data.levelTime &&
-                FindObjectOfType<BossController>() == null && FindObjectOfType<BossMonster>() == null)
+                FindObjectOfType<BossController>() == null && FindObjectOfType<BossMonster>() == null && FindObjectOfType<SnailBossRuntime>() == null)
             {
                 // Automatic expiry must go through the terminal's transmission and descent.
                 var terminal = FindObjectOfType<FinalBossSummonInteractable>();

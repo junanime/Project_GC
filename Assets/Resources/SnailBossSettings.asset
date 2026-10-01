@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 600898e7687bfcc4a9cd3462f82fd931, type: 3}
+  m_Name: SnailBossSettings
+  m_EditorClassIdentifier:
+  maxHealth: 6000
+  bodyWidth: 4.2
+  walkSpeed: 0.7
+  phaseThreshold: 0.3
+  transitionDuration: 1.6
+  basicCooldown: 4
+  patternGap: 2
+  projectileSpeed: 3.2
+  radialCount: 18
+  vanillaBurstGap: 0.8
+  chocolateBurstGap: 0.6
+  dashSpeed: 10
+  dashDistance: 9
+  dashWarning: 0.8
+  dashGap: 1
+  dashPuddleDuration: 4
+  vanillaSlow: 0.25
+  chocolateSlow: 0.3
+  bombFlight: 0.85
+  strawberryRadius: 1.25
+  kissesRadius: 0.7
+  kissesPuddleDuration: 3
+  kissesSlowTail: 2
+  plateDirectionDifference: 15
+  plateLaneAngle: 12
+  melonSpread: 9
+  homingDuration: 3
+  mineLifetime: 18
+  groggyDuration: 3
+  groggyMultiplier: 1.5
+  trapDamageFraction: 0.025
+  summonHealth: 60
+  summonSpeed: 1.5
+  vanillaAbsorbSpeed: 1.2
+  chocolateAbsorbSpeed: 1.5
+  contactDamage: 12
+  bulletDamage: 8
+  bombDamage: 14

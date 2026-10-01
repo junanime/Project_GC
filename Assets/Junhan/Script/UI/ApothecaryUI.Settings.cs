@@ -15,16 +15,33 @@ namespace Vampire
         TextMeshProUGUI countdown, fpsLabel;
         float fpsTime;
         int fpsFrames;
+        string pendingSessionAction;
+
+        public void OpenSettings()
+        {
+            if(starting || (level != null && (level.IsLevelEnded || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)))) return;
+            if(Page=="hud")
+            {
+                // Do not steal a pause owned by a level-up dialog or another system.
+                if(Time.timeScale==0) return;
+                previousTime=Time.timeScale; ownsPause=true; Time.timeScale=0;
+            }
+            Show("settings",3);
+        }
 
         void BeginSettings()
         {
-            settingsReturn=Page=="run"?"run":"main";
+            settingsReturn=Page ?? "main";
+            pendingSessionAction=null;
             settingsOriginal=GamePreferences.Current.Copy();settingsDraft=settingsOriginal.Copy();
             confirmingDisplay=false;
         }
         void CancelSettings()
         {
-            GamePreferences.Apply(settingsOriginal,false);confirmingDisplay=false;Show(settingsReturn);
+            if(pendingSessionAction!=null){pendingSessionAction=null;Render();return;}
+            if(confirmingDisplay){RevertDisplay();return;}
+            GamePreferences.Apply(settingsOriginal,false);confirmingDisplay=false;
+            if(settingsReturn=="hud") CloseRunBook(); else Show(settingsReturn);
         }
         void ApplySettings()
         {
@@ -59,8 +76,8 @@ namespace Vampire
         void Settings()
         {
             if(settingsDraft==null)BeginSettings();
-            string[] tabs={"그래픽","사운드","편의 기능"};
-            for(int i=0;i<3;i++){int n=i;ActionButton(content,tabs[i],.16f+i*.23f,.755f,.37f+i*.23f,.835f,()=>{Tab=n;Render();},false,true,Tab==i);}
+            string[] tabs={"그래픽","사운드","편의 기능","게임 메뉴"};
+            for(int i=0;i<4;i++){int n=i;ActionButton(content,tabs[i],.145f+i*.18f,.755f,.315f+i*.18f,.835f,()=>{Tab=n;Render();},false,true,Tab==i);}
             Panel(content,.145f,.205f,.855f,.735f);
             if(Tab==0)
             {
@@ -87,13 +104,25 @@ namespace Vampire
                 AudioSlider("UI 효과음",settingsDraft.ui,3,v=>settingsDraft.ui=v);
                 SettingChoice("음소거",OnOff(settingsDraft.muted),4,()=>{settingsDraft.muted=!settingsDraft.muted;GamePreferences.PreviewAudio(settingsDraft);});
             }
-            else
+            else if(Tab==2)
             {
                 SettingChoice("움직임 줄이기",OnOff(settingsDraft.reducedMotion),0,()=>settingsDraft.reducedMotion=!settingsDraft.reducedMotion);
                 SettingChoice("프레임 수 표시",OnOff(settingsDraft.showFps),1,()=>settingsDraft.showFps=!settingsDraft.showFps);
                 SettingChoice("다른 창으로 이동 시 일시정지",OnOff(settingsDraft.pauseOnFocusLoss),2,()=>settingsDraft.pauseOnFocusLoss=!settingsDraft.pauseOnFocusLoss);
                 SettingChoice("다른 창으로 이동 시 음소거",OnOff(settingsDraft.muteOnFocusLoss),3,()=>settingsDraft.muteOnFocusLoss=!settingsDraft.muteOnFocusLoss);
                 Label(content,"모든 버튼은 터치로도 사용할 수 있습니다.",.20f,.25f,.80f,.32f,18);
+            }
+            else
+            {
+                ActionButton(content,level!=null?"계속하기":"이전 화면",.30f,.62f,.70f,.70f,()=>
+                {
+                    GamePreferences.Apply(settingsOriginal,false);
+                    if(level!=null)CloseRunBook();else Show(settingsReturn);
+                },true);
+                ActionButton(content,"출전 준비로 돌아가기",.30f,.515f,.70f,.595f,()=>RequestSessionAction("prepare"));
+                ActionButton(content,"메인 화면으로 돌아가기",.30f,.41f,.70f,.49f,()=>RequestSessionAction("main"));
+                ActionButton(content,"게임 종료",.30f,.305f,.70f,.385f,()=>RequestSessionAction("quit"));
+                Label(content,"TAB: 탐험 기록  /  ESC: 설정 열기·뒤로",.20f,.22f,.80f,.28f,17);
             }
             Label(content,message,.26f,.155f,.74f,.20f,17);
             ActionButton(content,"뒤로",.15f,.065f,.34f,.15f,CancelSettings);
@@ -107,6 +136,36 @@ namespace Vampire
                 ActionButton(content,"유지",.30f,.34f,.48f,.43f,ConfirmDisplay,true);
                 ActionButton(content,"되돌리기",.52f,.34f,.70f,.43f,RevertDisplay);
             }
+            if(pendingSessionAction!=null)
+            {
+                var shade=ImageAt(content,null,0,0,1,1,false);shade.color=new Color(0,0,0,.7f);shade.raycastTarget=true;
+                Panel(content,.20f,.26f,.80f,.73f);
+                string destination=pendingSessionAction=="quit"?"게임을 종료할까요?":pendingSessionAction=="prepare"?"출전 준비로 돌아갈까요?":"메인 화면으로 돌아갈까요?";
+                Label(content,destination,.24f,.57f,.76f,.67f,28);
+                Label(content,level!=null?"현재 탐험은 종료되며 이 판은 이어할 수 없습니다.\n획득 골드와 저장된 영구 성장은 유지됩니다.":"적용하지 않은 설정 변경은 저장되지 않습니다.",.24f,.41f,.76f,.55f,21);
+                ActionButton(content,"취소 / ESC",.28f,.30f,.48f,.39f,()=>{pendingSessionAction=null;Render();});
+                ActionButton(content,"확인",.52f,.30f,.72f,.39f,ConfirmSessionAction,true);
+            }
+        }
+        void RequestSessionAction(string action){pendingSessionAction=action;Render();}
+        void ConfirmSessionAction()
+        {
+            string action=pendingSessionAction;
+            if(action==null || starting)return;
+            starting=true;pendingSessionAction=null;
+            GamePreferences.Apply(settingsOriginal,false);
+            if(level!=null)level.AbandonRun();
+            PlayerPrefs.Save();ownsPause=false;Time.timeScale=1;
+            if(action=="quit")
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying=false;
+#else
+                Application.Quit();
+#endif
+            }
+            else if(level!=null)ReturnToLobby(action=="prepare");
+            else {starting=false;Show(action);}
         }
         static string OnOff(bool value)=>value?"켜짐":"꺼짐";
         void SettingChoice(string title,string value,int row,Action change)

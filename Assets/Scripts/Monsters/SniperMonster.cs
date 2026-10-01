@@ -23,6 +23,12 @@ namespace Vampire
         private Coroutine attackCoroutine;
         private SniperRecoilVisual recoilVisual;
         private bool aimFacingLocked, lockedFacingLeft;
+        public static event System.Action<SniperMonster> Fired;
+        public void RestartAfterRelocation()
+        {
+            StopSniperLoop(); HideLaser(); aimFacingLocked=false;
+            if(alive && !IsFieldRuntimeSuspended)attackCoroutine=StartCoroutine(SniperAttackLoop());
+        }
 
         protected override void Awake()
         {
@@ -736,6 +742,7 @@ namespace Vampire
                 direction.normalized
             );
             if (recoilVisual != null) recoilVisual.Fire(direction);
+            Fired?.Invoke(this);
 
             GameAudioManager.PlaySfx(
                 GameAudioManager.GameSfxId.SniperFire

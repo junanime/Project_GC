@@ -62,14 +62,14 @@ namespace Vampire
 
             if (!hasOriginalDrag)
             {
-                originalDrag = targetRigidbody.drag;
+                originalDrag = IceChillStatus.UnmodifiedDrag(targetRigidbody);
                 hasOriginalDrag = true;
             }
 
             // 이 프로젝트의 몬스터는 rb.drag로 최고 속도에 가까운 움직임을 제어한다.
             // drag를 높이면 같은 acceleration을 받아도 이동 속도가 낮아진다.
             // 속도 체감 비율을 맞추기 위해 제곱 반비례로 drag를 증가시킨다.
-            targetRigidbody.drag = originalDrag / (slowMultiplier * slowMultiplier);
+            IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag / (slowMultiplier * slowMultiplier));
 
             if (slowCoroutine != null)
             {
@@ -92,7 +92,7 @@ namespace Vampire
             ReleaseAugmentVisual();
             if (targetRigidbody != null && hasOriginalDrag)
             {
-                targetRigidbody.drag = originalDrag;
+                IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag);
             }
 
             slowCoroutine = null;

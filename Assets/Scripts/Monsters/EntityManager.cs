@@ -60,10 +60,21 @@ namespace Vampire
         public FastList<Collectable> MagneticCollectables { get => magneticCollectables; }
         public Inventory Inventory { get => inventory; }
         public AbilitySelectionDialog AbilitySelectionDialog { get; private set; }
+        private LevelBlueprint remakeLevel;
         public SpatialHashGrid Grid { get => grid; }
 
+        public Monster SpawnOverchargeElite(Vector2 position)
+        {
+            if (remakeLevel == null || MiniStageRuntimeState.IsInsideMiniStage) return null;
+            for (int i=0;i<remakeLevel.monsters.Length;i++)
+                foreach(var blueprint in remakeLevel.monsters[i].monsterBlueprints)
+                    if(blueprint is EliteMonsterBlueprint)
+                        return SpawnMonster(i,position,blueprint,0,false);
+            return null;
+        }
         public void Init(LevelBlueprint levelBlueprint, Character character, Inventory inventory, StatsManager statsManager, InfiniteBackground infiniteBackground, AbilitySelectionDialog abilitySelectionDialog)
         {
+            remakeLevel = levelBlueprint;
             this.playerCharacter = character;
             this.inventory = inventory;
             this.infiniteBackground = infiniteBackground;
@@ -193,6 +204,8 @@ namespace Vampire
                 return monster != null ? monster.gameObject : null;
             }
             var boss = Instantiate(prefab, position, Quaternion.identity, transform);
+            var snail = boss.GetComponent<SnailBossRuntime>();
+            if (snail != null) snail.Initialize(playerCharacter);
             var controller = boss.GetComponentInChildren<BossController>(true);
             if (controller != null) controller.SetPlayerCharacter(playerCharacter);
             return boss;

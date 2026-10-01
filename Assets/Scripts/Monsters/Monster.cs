@@ -60,6 +60,7 @@ namespace Vampire
         // 다른 코드에서 OnKilled.AddListener(OnEliteKilled(Monster)) 식으로 쓰고 있으므로 Monster 인자를 넘긴다.
         public UnityEvent<Monster> OnKilled { get; } = new UnityEvent<Monster>();
 
+        public float IceMoveMultiplier => GetComponent<IceChillStatus>()?.SpeedMultiplier ?? 1f;
         public float HP => currentHealth;
         public float SpawnMaxHealth { get; private set; }
         public bool WasKilledByPlayer { get; private set; }
@@ -83,7 +84,7 @@ namespace Vampire
                 if (rb != null)
                 {
                     //  속도가 변하면 가속도와 비례하여 물리 마찰력(drag)을 실시간으로 재계산합니다!
-                    rb.drag = currentAcceleration / (runtimeMoveSpeed * runtimeMoveSpeed);
+                    IceChillStatus.SetBaseDrag(rb, currentAcceleration / (runtimeMoveSpeed * runtimeMoveSpeed));
                 }
             }
         }

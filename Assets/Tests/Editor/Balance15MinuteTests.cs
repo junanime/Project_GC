@@ -114,8 +114,10 @@ namespace Vampire.Tests.Editor
                 Assert.AreEqual(25, child.hp);
                 Assert.IsFalse(child.CanSplit());
             }
-            var root = Level.finalBoss.bossPrefab.GetComponentInChildren<BossPartDamageTestRootController>(true);
-            Assert.AreEqual(9000, new SerializedObject(root).FindProperty("fiveCoreMaxHealth").floatValue);
+            var snail = Level.finalBoss.bossPrefab.GetComponent<SnailBossRuntime>();
+            Assert.NotNull(snail);
+            Assert.AreEqual(6000, snail.settings.maxHealth);
+            Assert.AreEqual(.3f, snail.settings.phaseThreshold);
         }
         [Test]
         public void InitialCombatAndSummonBindingsAreValid()
@@ -124,7 +126,7 @@ namespace Vampire.Tests.Editor
             var weapon = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Junhan/Prefabs/Abilities/Syringe Dart Ability.prefab");
             var serialized = new SerializedObject(weapon.GetComponent<SyringeDartAbility>());
             Assert.AreEqual(10, serialized.FindProperty("damage.value").floatValue);
-            Assert.NotNull(Level.finalBoss.bossPrefab.GetComponentInChildren<BossController>(true));
+            Assert.NotNull(Level.finalBoss.bossPrefab.GetComponent<SnailBossRuntime>());
             Assert.IsNull(Level.finalBoss.bossPrefab.GetComponent<BossMonster>());
             foreach (var path in new[] { "Assets/Scenes/Game/Level 1.unity", "Assets/Scenes/Game/Level1_TAB_RECOVERY.unity" })
             {

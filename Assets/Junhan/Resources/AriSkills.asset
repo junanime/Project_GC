@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7eb3fc082d9979349b9ab3b19b6ef4b9, type: 3}
+  m_Name: AriSkills
+  m_EditorClassIdentifier: 
+  ariRollDamage: 10
+  ariPhoenixDamage: 35
+  ariRollPush: 0.3
+  ariPhoenixPush: 0.6
+  ariRollWidth: 1.1
+  ariPhoenixRange: 1.3
+  ariDashCooldown: 0.5
+  ariVisualScale: 1.5
+  ariPhoenixIdle:
+  - {fileID: 21300000, guid: 841878e5597be4f48acdc724cdb525e0, type: 3}
+  - {fileID: 21300000, guid: ed71e6344f37c524c9516b3517792fb2, type: 3}
+  - {fileID: 21300000, guid: dccc9bbe6d46bde48857907d6c59f810, type: 3}
+  - {fileID: 21300000, guid: 581161624fa209f4cacc9984049e66e3, type: 3}
+  - {fileID: 21300000, guid: db2b68805663c1e4c98a94e2da9ea0d3, type: 3}
+  - {fileID: 21300000, guid: c73de3a0ce951be48a2cfb6c3c8200f9, type: 3}
+  - {fileID: 21300000, guid: 01ddd8853d232484eb859c21006a2702, type: 3}
+  - {fileID: 21300000, guid: 8e84da4af180d6c42b971cc95a67177a, type: 3}
+  ariPhoenixWalk:
+  - {fileID: 21300000, guid: 6b10c02149d78fa4fba54b5bb2443837, type: 3}
+  - {fileID: 21300000, guid: 75aab2a329ca7dc43ba4c75d523cba56, type: 3}
+  - {fileID: 21300000, guid: 6b7a137557ae55e40a4f97cbc2636793, type: 3}
+  - {fileID: 21300000, guid: ada214c223915d24aa8a9ae40d58b0e1, type: 3}
+  - {fileID: 21300000, guid: 69f350f10e3cd454ca2b10cff0f10796, type: 3}
+  - {fileID: 21300000, guid: ada3c92c0670b294393b9ff403398c27, type: 3}
+  - {fileID: 21300000, guid: 2cf5e35af4c6ab247af1eb6961b6abae, type: 3}
+  - {fileID: 21300000, guid: babd6ff04110b0d44bde59089bf693be, type: 3}
+  ariPhoenixDash:
+  - {fileID: 21300000, guid: 177d2b8459e01ad4b95c26122e797929, type: 3}
+  - {fileID: 21300000, guid: 92be1b03eaf476a4e81c0e621f43c36f, type: 3}
+  - {fileID: 21300000, guid: eb30b2a511b576d47b3a12cc65922d76, type: 3}
+  - {fileID: 21300000, guid: eb2d99c1fae6f8746953d86407add577, type: 3}
+  - {fileID: 21300000, guid: f122d33ff6fcb5948b6962668f2ac945, type: 3}
+  - {fileID: 21300000, guid: 77f8aac8caef642429169dc280e4589a, type: 3}
+  - {fileID: 21300000, guid: a07b74c195e8d6c4dbfb4389a2ad4d70, type: 3}
+  - {fileID: 21300000, guid: fc8697483d438ec4db6af1decd5c6aa6, type: 3}
+  ariPhoenixTransform:
+  - {fileID: 21300000, guid: c6b78691fa89c2c4188c738f9afb17c3, type: 3}
+  - {fileID: 21300000, guid: 2a12a8303d9516c429214d8591a1a9f3, type: 3}
+  - {fileID: 21300000, guid: 176c8c194ec9d834e9e51a577d561c0a, type: 3}
+  - {fileID: 21300000, guid: 3241a5d38deccce479b095ffdd521505, type: 3}
+  - {fileID: 21300000, guid: 359eeaa655d28864889f19dfaecdc736, type: 3}
+  - {fileID: 21300000, guid: 864d3152605db7a46a5ce94c20dc8cd8, type: 3}
+  - {fileID: 21300000, guid: 13d18e2549d2bd04dbaa5cd3e8ad273c, type: 3}
+  - {fileID: 21300000, guid: 6c6bf374077522449ba44457f9a46fe9, type: 3}
+  ariTransformTime: 0.56
+  shiniActiveMoveMultiplier: 1.3
+  shiniActivePoolInterval: 1
+  kind: 3
+  phoenixFrames: []
+  verticalFireTrail: []
+  icePrison: []
+  iceComponents: []
+  fireWrapParts: []
+  lavaFrames: []
+  blizzardTexture: {fileID: 0}
+  burningIdle: []
+  burningWalk: []
+  burningDash: []
+  fireTrail: []
+  burnVfx: []
+  passiveName: "\uB370\uAD74\uB370\uAD74"
+  activeName: "\uB098 \uBA4B\uC9C0\uC9C0"
+  passiveDescription: "\uCE68\uC220\uC9C4\uC744 \uBCF4\uC720\uD558\uACE0 \uC2DC\uC791\uD569\uB2C8\uB2E4.
+    \uB300\uC26C \uC911 \uBAB8 \uD06C\uAE30 1.1\uBC30 \uBC94\uC704\uC758 \uC801\uC5D0\uAC8C
+    10 \uD53C\uD574\uB97C \uC8FC\uACE0 0.3\uB9CC\uD07C \uBC00\uCE69\uB2C8\uB2E4.
+    \uAC19\uC740 \uC801\uC740 \uB300\uC26C\uB2F9 1\uD68C \uC801\uC911. \uBCF4\uC2A4\xB7\uACE0\uC815\uD615
+    \uC801\uC740 \uBC00\uB9AC\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  activeDescription: "8\uCD08\uAC04 \uC554\uC11D \uBD09\uD669\uC73C\uB85C \uBCC0\uC2E0\uD569\uB2C8\uB2E4.
+    \uB300\uC26C 1\uD68C \uC989\uC2DC \uCDA9\uC804, \uCDA9\uC804\uC2DC\uAC04 0.5\uCD08.
+    \uC131\uCCB4 \uBAB8 \uD06C\uAE30 1.3\uBC30 \uBC94\uC704\uC5D0 35 \uD53C\uD574,
+    \uBC00\uCE58\uAE30 \uAC70\uB9AC 0.6. \uCCB4\uB825\xB7\uD53C\uACA9 \uD310\uC815
+    \uC720\uC9C0. \uC9C4\uD589 \uC911\uC778 \uAC15\uD654 \uB300\uC26C \uD6C4 \uC678\uD615
+    \uBCF5\uADC0. \uC7AC\uC0AC\uC6A9 35\uCD08."
+  passiveIcon: {fileID: 21300000, guid: 5c92423cd01cd8c4b9b3f5633c011664, type: 3}
+  activeIcon: {fileID: 21300000, guid: ad57b7ab433d7e84e942eaccde2010a2, type: 3}
+  cutin: []
+  passiveWind: []
+  activeWind: []
+  projectileWind: []
+  passiveDuration: 3
+  activeDuration: 8
+  cooldown: 35
+  cutinDuration: 2

@@ -21,6 +21,7 @@ namespace Vampire
         TMP_FontAsset runtimeFont;
         TextMeshProUGUI silverLabel;
         Image portrait;
+        CharacterBlueprint previewCharacter;
         Image fullScreenBackdrop;
         CharacterBlueprint character;
         int characterIndex, selection, pageIndex;
@@ -109,6 +110,8 @@ namespace Vampire
         void OnLoadout() { dirty = true; }
         void Update()
         {
+            UpdateSkillUI();
+            UpdatePrescriptionUI();
             if (safe == null) return;
             UpdatePreferencesUI();
             Rect area = Screen.safeArea;
@@ -117,11 +120,11 @@ namespace Vampire
             float scale = Mathf.Min(safe.rect.width / 1280, safe.rect.height / 720);
             root.localScale = Vector3.one * scale;
             if (dirty && !starting) { dirty = false; Render(); }
-            if (portrait != null && character != null && !(Page == "result" && !passed))
+            if (portrait != null && portrait.GetComponentInParent<CharacterIdlePreview>() == null && previewCharacter != null && !(Page == "result" && !passed))
             {
-                Sprite[] frames = character.idleSpriteSequence;
+                Sprite[] frames = previewCharacter.idleSpriteSequence;
                 if (frames != null && frames.Length > 0)
-                    portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, character.idleFrameTime)) % frames.Length];
+                    portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
             if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
             {
@@ -138,26 +141,29 @@ namespace Vampire
         }
         public void Back()
         {
-            if (starting || Page == "result") return;
+            if (starting || Page == "skillReward" || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
             if(Page=="settings"){CancelSettings();return;}
-            if (Page == "run") { CloseRunBook(); return; }
-            if (Page == "hud") { OpenRunBook(); return; }
-            if (Page == "main") Show("exit"); else Show("main");
+            if (Page == "hud" || Page == "run" || Page == "main" || Page == "prepare") { OpenSettings(); return; }
+            Show("main");
         }
         void Render()
         {
             if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
-            portrait = null; silverLabel = null;
+            ClearSkillUI();
+            portrait = null; previewCharacter = character; silverLabel = null;
             content = Rect("Page " + Page, root,0,0,1,1);
             fullScreenBackdrop.gameObject.SetActive(Page!="hud");
             if (Page == "hud")
             {
-                ActionButton(content,"상태 / TAB", .81f,.87f,.97f,.97f, OpenRunBook);
+                BuildSkillHud();
+                BuildMobileHudNavigation();
+                BuildPrescriptionHud();
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
             ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { Main(); return; }
+            if (Page == "skillReward") { BuildSkillReward(); return; }
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "잠금 해제" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "스테이지 클리어!" : "탐험 실패") : Page == "exit" ? "게임 종료" : "설정";
             Label(content,title,.30f,.865f,.70f,.965f,34);
             if (Page == "prepare" || Page == "unlock")
@@ -176,8 +182,7 @@ namespace Vampire
         }
         void Main()
         {
-            portrait = ImageAt(content,CharacterSprite(Config.characters.FirstOrDefault()),.41f,.395f,.59f,.665f);
-            character = Config.characters.FirstOrDefault();
+            portrait = IdlePreview(character,.41f,.395f,.59f,.665f);
             string[] labels = {"게임 시작","잠금 해제","설정","종료"};
             string[] pages = {"prepare","unlock","settings","exit"};
             for (int i=0;i<4;i++) { int n=i; ActionButton(content,labels[i],.355f,.29f-i*.078f,.645f,.36f-i*.078f,()=>Show(pages[n]),i==0); }
@@ -188,6 +193,15 @@ namespace Vampire
             if (c.idleSpriteSequence != null && c.idleSpriteSequence.Length > 0) return c.idleSpriteSequence[0];
             return c.walkSpriteSequence != null && c.walkSpriteSequence.Length > 0 ? c.walkSpriteSequence[0] : null;
         }
+        public static Sprite CharacterProfile(CharacterBlueprint c) => c != null && c.profileSprite != null ? c.profileSprite : CharacterSprite(c);
+        public CharacterBlueprint SelectedCharacter => character;
+        public CharacterBlueprint PreviewCharacter => previewCharacter;
+        public Image CharacterPreview => portrait;
+        Image IdlePreview(CharacterBlueprint data,float x,float y,float right,float top)
+        {
+            var holder=Rect("Character idle preview",content,x,y,right,top);
+            var preview=holder.gameObject.AddComponent<CharacterIdlePreview>();preview.Bind(data);return preview.Image;
+        }
         bool Owned(CharacterBlueprint c) => c != null && LobbyUnlockSave.IsUnlocked("Character",c.name,c.owned);
         void ChangeCharacter(int direction)
         {
@@ -197,17 +211,15 @@ namespace Vampire
         void Prepare()
         {
             character = Config.characters[characterIndex];
+            previewCharacter = character;
             ImageAt(content,Config.characterStage,.175f,.55f,.435f,.85f);
-            portrait = ImageAt(content,CharacterSprite(character),.235f,.605f,.375f,.805f);
+            portrait = IdlePreview(character,.215f,.59f,.395f,.82f);
             Ribbon(character.name,.19f,.51f,.42f,.57f,26);
             ActionButton(content,"<",.13f,.60f,.195f,.70f,()=>ChangeCharacter(-1));
             ActionButton(content,">",.405f,.60f,.47f,.70f,()=>ChangeCharacter(1));
             Panel(content,.135f,.335f,.305f,.50f); Panel(content,.315f,.335f,.47f,.50f);
             Label(content,$"기본 능력치\n체력 {character.hp:0}  방어 {character.armor}\n이동 {character.movespeed:0.##}  행운 {character.luck:0.##}",.15f,.35f,.29f,.48f,18);
-            Ribbon("고유 스킬",.33f,.45f,.455f,.492f,17);
-            ImageAt(content,Config.inventorySlot,.368f,.385f,.414f,.452f);
-            Label(content,"?",.374f,.395f,.409f,.444f,25);
-            Label(content,"추후 공개 · 1종",.329f,.35f,.457f,.385f,14);
+            ProfileSkills(character,.323f,.345f,.462f,.492f);
             Label(content,character.description,.13f,.30f,.48f,.332f,16);
             // Exactly one row: relic, item 1, item 2. No quantities or second row.
             RelicBlueprint equipped = Config.relics.FirstOrDefault(r=>RelicSaveData.IsEquipped(r.relicId));
@@ -284,10 +296,11 @@ namespace Vampire
             if(Tab==0 && Config.characters.Length>0)
             {
                 selection=Mathf.Clamp(selection,0,Config.characters.Length-1);
-                Grid(Config.characters.Length,i=>CharacterSprite(Config.characters[i]),i=>Config.characters[i].name+(Owned(Config.characters[i])?"":" · 잠김"),.12f,.27f,.56f,.70f);
+                Grid(Config.characters.Length,i=>CharacterProfile(Config.characters[i]),i=>Config.characters[i].name+(Owned(Config.characters[i])?"":" · 잠김"),.12f,.27f,.56f,.70f);
                 var c=Config.characters[selection];title=c.name;description=c.description;icon=CharacterSprite(c);
-                bool owned=Owned(c);action=owned?"해금 완료":SilverWallet.CanSpend(c.cost)?$"잠금 해제 · {c.cost} 실버":$"실버 부족 · {c.cost}";enabled=!owned&&SilverWallet.CanSpend(c.cost);
-                unlock=()=>{if(!Owned(c)&&SilverWallet.TrySpend(c.cost)){LobbyUnlockSave.Unlock("Character",c.name);message="새로운 동료를 해금했습니다.";}Render();};
+                previewCharacter=c;
+                bool owned=Owned(c);action=owned?"선택하고 출전 준비":SilverWallet.CanSpend(c.cost)?$"잠금 해제 · {c.cost} 실버":$"실버 부족 · {c.cost}";enabled=owned||SilverWallet.CanSpend(c.cost);
+                unlock=()=>{if(Owned(c)){character=c;characterIndex=Array.IndexOf(Config.characters,c);CrossSceneData.CharacterBlueprint=c;Show("prepare");return;}if(SilverWallet.TrySpend(c.cost)){LobbyUnlockSave.Unlock("Character",c.name);message="새로운 동료를 해금했습니다.";}Render();};
             }
             else if(Tab==1 && Config.relics.Length>0)
             {
@@ -311,8 +324,10 @@ namespace Vampire
             }
             Panel(content,.595f,.22f,.88f,.70f);
             Label(content,title,.61f,.63f,.86f,.70f,27);
-            ImageAt(content,icon,.68f,.43f,.80f,.62f);
-            Label(content,description,.615f,.29f,.86f,.43f,18);
+            if(Tab==0) portrait=IdlePreview(previewCharacter,.63f,.43f,.85f,.63f);
+            else ImageAt(content,icon,.68f,.43f,.80f,.62f);
+            if(Tab==0) { ProfileSkills(previewCharacter,.63f,.305f,.85f,.445f); }
+            else Label(content,description,.615f,.29f,.86f,.43f,18);
             ActionButton(content,action,.615f,.22f,.86f,.29f,()=>unlock?.Invoke(),true,enabled);
             Label(content,message,.34f,.12f,.87f,.20f,18);
             ActionButton(content,"메인으로",.12f,.07f,.30f,.15f,()=>Show("main"));
@@ -342,7 +357,7 @@ namespace Vampire
         }
         public void OpenRunBook()
         {
-            if(level==null || level.IsLevelEnded || Time.timeScale==0 || Page!="hud")return;
+            if(level==null || level.IsLevelEnded || Time.timeScale==0 || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
             previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("run");
         }
         public void CloseRunBook()
@@ -357,8 +372,9 @@ namespace Vampire
             var player=level != null ? level.PlayerCharacter : null;
             if(Tab==0 && player!=null)
             {
-                portrait=ImageAt(content,CharacterSprite(character),.15f,.45f,.32f,.69f);
+                portrait=ImageAt(content,CharacterSprite(character),.18f,.59f,.30f,.73f);
                 Label(content,$"{player.DisplayName}  Lv.{player.CurrentLevel}\nHP {player.CurrentHealth:0} / {player.MaxHealth:0}\n공격 x{player.DamageMultiplier:0.00}\n방어 {player.CurrentArmor:0} · 이동 {player.CurrentMoveSpeed:0.##}\n치명타 {player.CritChance*100:0}%",.13f,.20f,.37f,.44f,23);
+                ProfileSkills(player.Blueprint,.14f,.455f,.36f,.60f);
                 Label(content,"탐험 지도",.45f,.65f,.85f,.72f,26);
                 var map=ExplorationMapSystem.Instance;
                 if(map!=null && map.FullMapTexture!=null)
@@ -406,6 +422,7 @@ namespace Vampire
             portrait=ImageAt(content,!passed&&isAshi?Config.failureAshi:CharacterSprite(character),.17f,.35f,.46f,.75f);
             if(!passed&&!isAshi)portrait.rectTransform.localRotation=Quaternion.Euler(0,0,-75);
             Ribbon(character != null ? character.name : "",.19f,.29f,.44f,.36f,29);
+            ProfileSkills(character,.22f,.19f,.43f,.29f);
             float time=level!=null?level.CurrentLevelTime:0;
             string values=$"생존 시간   {(int)time/60:00}:{(int)time%60:00}\n처치 몬스터   {(stats!=null?stats.MonstersKilled:0):N0}\n획득 골드   {(stats!=null?stats.CoinsGained:0):N0}\n도달 레벨   {(level!=null&&level.PlayerCharacter!=null?level.PlayerCharacter.CurrentLevel:1)}";
             Panel(content,.50f,.35f,.86f,.70f);Label(content,values,.53f,.38f,.83f,.68f,29);

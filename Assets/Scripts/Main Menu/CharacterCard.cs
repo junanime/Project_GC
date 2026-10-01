@@ -52,7 +52,7 @@ namespace Vampire
             this.characterBlueprint = characterBlueprint;
             this.silverCoinDisplay = silverCoinDisplay;
 
-            characterImage.sprite = characterBlueprint.walkSpriteSequence[0];
+            characterImage.sprite = ApothecaryUI.CharacterProfile(characterBlueprint);
             nameText.text = characterBlueprint.name.ToString();
             hpText.text = characterBlueprint.hp.ToString();
             armorText.text = characterBlueprint.armor.ToString();
@@ -86,7 +86,7 @@ namespace Vampire
         {
             // Character image layout
             float yHeight = Mathf.Abs(characterImageRect.sizeDelta.y);
-            float xWidth = characterBlueprint.walkSpriteSequence[0].textureRect.width / (float) characterBlueprint.walkSpriteSequence[0].textureRect.height * yHeight;
+            float xWidth = characterImage.sprite.rect.width / characterImage.sprite.rect.height * yHeight;
             if (xWidth > Mathf.Abs(characterImageRect.sizeDelta.x))
             {
                 xWidth = Mathf.Abs(characterImageRect.sizeDelta.x);

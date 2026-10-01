@@ -10,14 +10,15 @@ namespace Vampire
         private int burnStacks;
         private Component target;
         private NeuralBlockedMonsterStatus freeze;
-        private float freezeCooldown, seedExpiry;
+        private float seedExpiry;
         private int seeds;
         private bool shatterPending;
         private void Awake() { target=GetComponent<IDamageable>(); }
         public bool ConsumeFrozen()
         {
+            if(freeze==null) freeze=GetComponent<NeuralBlockedMonsterStatus>();
             if(freeze==null || !freeze.IceFrozen) return false;
-            freeze.ReleaseIce(); freezeCooldown=Time.time+2; shatterPending=true; return true;
+            freeze.ReleaseIce(); shatterPending=true; return true;
         }
         public void Hit(SyringeSpecialRuntime runtime,Character source,LayerMask layer)
         {
@@ -25,50 +26,9 @@ namespace Vampire
             if(s==null || target==null) return;
             ResolveShatter(runtime,source,layer);
             if(Ver4HitEffects.Health(target)<=0) return;
-            if(s.Has(P.FireNeedle) && Random.value<.25f)
-            {
-                int cap=s.Count(P.FireNeedle,2)==3 ? int.MaxValue : 3+s.Count(P.FireNeedle,2);
-                if(burnStacks>=cap && burns.Count>0)
-                {
-                    var oldest=burns[0];oldest.stacks--;burnStacks--;
-                    if(oldest.stacks==0) burns.RemoveAt(0); else burns[0]=oldest;
-                }
-                float damage=Ver4HitEffects.MaxHealth(target)*.005f*s.Factor(P.FireNeedle,0,.12f);
-                if(Ver4HitEffects.IsBoss(target)) damage=Mathf.Min(damage,runtime.ver4HitDamage*.25f);
-                var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,stacks=1};
-                int last=burns.Count-1;
-                // Equal-timestamp stacks share bookkeeping, not a gameplay cap.
-                if(last>=0 && burns[last].end==added.end && burns[last].nextTick==added.nextTick && burns[last].damage==damage && burns[last].source==source)
-                { var batch=burns[last];batch.stacks++;burns[last]=batch; }
-                else burns.Add(added);
-                burnStacks++;
-            }
-            if(s.Has(P.IceNeedle) && Time.time>=freezeCooldown && Random.value<.20f+.05f*s.Count(P.IceNeedle,0))
-            {
-                if(Ver4HitEffects.IsBoss(target))
-                {
-                    if(target is Monster)
-                    {
-                        var slow=GetComponent<HoneySlowStatus>()??gameObject.AddComponent<HoneySlowStatus>(); slow.Apply(1,.8f);
-                    }
-                    else if(target is BossPartDamageTestPart)
-                    {
-                        var boss=target.GetComponentInParent<BossController>();
-                        if(boss==null)
-                        {
-                            var root=target.GetComponentInParent<BossPartDamageTestRootController>();
-                            if(root!=null) boss=root.GetComponentInChildren<BossController>();
-                        }
-                        if(boss!=null) boss.ApplyVer4IceChill(1);
-                    }
-                    freezeCooldown=Time.time+2;
-                }
-                else
-                {
-                    freeze=GetComponent<NeuralBlockedMonsterStatus>()??gameObject.AddComponent<NeuralBlockedMonsterStatus>();
-                    freeze.ApplyIce(1); freezeCooldown=Time.time+3;
-                }
-            }
+            ApplyFire(runtime,source);
+            if(s.Has(P.IceNeedle))
+                (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0),source);
             if(s.Has(P.WoodNeedle))
             {
                 if(Time.time>=seedExpiry) seeds=0;
@@ -91,6 +51,45 @@ namespace Vampire
                 }
             }
         }
+        public int BurnStacks => burnStacks;
+        public void ApplyFire(SyringeSpecialRuntime runtime,Character source,bool guaranteed=false)
+        {
+            var s=runtime.ver4;
+            if(s==null || target==null || Ver4HitEffects.Health(target)<=0)return;
+            if(s.Has(P.FireNeedle) && (guaranteed || Random.value<.25f))
+            {
+                int cap=s.Count(P.FireNeedle,2)==3 ? int.MaxValue : 3+s.Count(P.FireNeedle,2);
+                if(burnStacks>=cap && burns.Count>0)
+                {
+                    var oldest=burns[0];oldest.stacks--;burnStacks--;
+                    if(oldest.stacks==0) burns.RemoveAt(0); else burns[0]=oldest;
+                }
+                float damage=Ver4HitEffects.MaxHealth(target)*.005f*s.Factor(P.FireNeedle,0,.12f);
+                if(Ver4HitEffects.IsBoss(target)) damage=Mathf.Min(damage,runtime.ver4HitDamage*.25f);
+                var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,stacks=1};
+                int last=burns.Count-1;
+                // Equal-timestamp stacks share bookkeeping, not a gameplay cap.
+                if(last>=0 && burns[last].end==added.end && burns[last].nextTick==added.nextTick && burns[last].damage==damage && burns[last].source==source)
+                { var batch=burns[last];batch.stacks++;burns[last]=batch; }
+                else burns.Add(added);
+                burnStacks++;
+            }
+            if(burnStacks>0 && GetComponent<ShiniBurnVisual>()==null) gameObject.AddComponent<ShiniBurnVisual>();
+        }
+        // Cash out every outstanding tick before clearing the shared needle/pool stacks.
+        public float ConsumeBurn(out int stacks)
+        {
+            float remaining=0;stacks=0;
+            foreach(var burn in burns)
+            {
+                if(burn.end<Time.time)continue;
+                stacks+=burn.stacks;
+                int ticks=Mathf.Max(0,Mathf.FloorToInt(burn.end-burn.nextTick+.0001f)+1);
+                remaining+=ticks*burn.damage*burn.stacks;
+            }
+            burns.Clear();burnStacks=0;
+            return remaining;
+        }
         private void ResolveShatter(SyringeSpecialRuntime runtime,Character source,LayerMask layer)
         {
             if(!shatterPending) return;
@@ -107,7 +106,7 @@ namespace Vampire
             {
                 for(int i=0;i<burns.Count;i++)
                 { var burn=burns[i]; burn.end+=Time.deltaTime; burn.nextTick+=Time.deltaTime; burns[i]=burn; }
-                seedExpiry+=Time.deltaTime; freezeCooldown+=Time.deltaTime;
+                seedExpiry+=Time.deltaTime;
                 return;
             }
             if(Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
@@ -116,7 +115,12 @@ namespace Vampire
                 var burn=burns[i];
                 while(burn.nextTick<=Time.time && burn.nextTick<=burn.end+.0001f)
                 {
-                    Ver4HitEffects.Damage(target,burn.damage*burn.stacks,Vector2.zero,burn.source,"화염침",true); burn.nextTick+=1;
+                    for(int stack=0;stack<burn.stacks;stack++)
+                    {
+                        Ver4HitEffects.Damage(target,burn.damage,Vector2.zero,burn.source,"화염침",true);
+                        if(!isActiveAndEnabled || Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
+                    }
+                    burn.nextTick+=1;
                     // A pooled target may disable itself synchronously in TakeDamage.
                     if(!isActiveAndEnabled || Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
                 }
@@ -125,7 +129,7 @@ namespace Vampire
         }
         private void OnDisable()
         {
-            burns.Clear(); burnStacks=0; seeds=0; seedExpiry=freezeCooldown=0; shatterPending=false;
+            burns.Clear(); burnStacks=0; seeds=0; seedExpiry=0; shatterPending=false;
             if(freeze!=null) freeze.ReleaseIce(); freeze=null;
         }
     }

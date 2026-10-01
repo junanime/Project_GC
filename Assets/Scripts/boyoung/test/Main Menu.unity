@@ -5828,8 +5828,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterBlueprints:
   - {fileID: 11400000, guid: 138b085873865480984b6ebcd8312fae, type: 2}
-  - {fileID: 11400000, guid: 02309cd829b224b648ed3c3df7c86e6c, type: 2}
-  - {fileID: 11400000, guid: afa99349eb3ad4e2aa7701749ec87eea, type: 2}
+  - {fileID: 11400000, guid: a893452d5c9694b418d649b1f4b04da4, type: 2}
+  - {fileID: 11400000, guid: de5021f44761c9e41a59b85a87b06d50, type: 2}
+  - {fileID: 11400000, guid: 67491fd5b2b94384fa765a2abe5482db, type: 2}
   characterCardPrefab: {fileID: 979783560240380161, guid: 886cc4577ecba4fc6af0c792a1e21501, type: 3}
   silverCoinDisplay: {fileID: 0}
 --- !u!1 &823428263
@@ -14168,6 +14169,28 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2065842042}
   m_CullTransparentMesh: 1
+--- !u!114 &908887661234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376967279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 935d87a2a3424c2a9ec85d224168689a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startButton: {fileID: 172030359}
+  font: {fileID: 11400000, guid: 0e5f8d21122b64a7a8459a1c61b9b9d8, type: 2}
+  activeBody: {fileID: 21300000, guid: 4e43a2ac80f64a9ca55f3479d309f512, type: 3}
+  normalBody: {fileID: 21300000, guid: 663d495884c140a1ba237c11f39ddadc, type: 3}
+  onContinue:
+    m_PersistentCalls:
+      m_Calls: []
+  onSettings:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &438191656155057042
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14580,26 +14603,3 @@ SceneRoots:
   - {fileID: 69683704}
   - {fileID: 1537918145}
   - {fileID: 491207476}
-
---- !u!114 &908887661234
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 376967279}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 935d87a2a3424c2a9ec85d224168689a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startButton: {fileID: 172030359}
-  font: {fileID: 11400000, guid: 0e5f8d21122b64a7a8459a1c61b9b9d8, type: 2}
-  activeBody: {fileID: 21300000, guid: 4e43a2ac80f64a9ca55f3479d309f512, type: 3}
-  normalBody: {fileID: 21300000, guid: 663d495884c140a1ba237c11f39ddadc, type: 3}
-  onContinue:
-    m_PersistentCalls:
-      m_Calls: []
-  onSettings:
-    m_PersistentCalls:
-      m_Calls: []

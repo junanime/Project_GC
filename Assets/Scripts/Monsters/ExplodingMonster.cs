@@ -331,7 +331,7 @@ namespace Vampire
                 return 0.1f;
             }
 
-            return Mathf.Max(0.1f, explodingBlueprint.movespeed);
+            return Mathf.Max(0.1f, explodingBlueprint.movespeed) * IceMoveMultiplier;
         }
 
         private Vector2 GetPlayerCenterPosition()
