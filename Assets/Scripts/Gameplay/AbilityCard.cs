@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Vampire
 {
-    public class AbilityCard : MonoBehaviour
+    public partial class AbilityCard : MonoBehaviour
     {
         [Header("Existing References")]
         [Tooltip("증강 아이콘 Image입니다. 기존 Ability Image 오브젝트를 연결하세요.")]
@@ -183,14 +183,14 @@ namespace Vampire
 
             if (nameText != null)
             {
-                nameText.text = ability.Name;
-                FitCardText(nameText, new Vector2(.21f,.45f), new Vector2(.79f,.51f), 25, TextAlignmentOptions.Center);
+                nameText.text = PanelTitle();
+                FitCardText(nameText, new Vector2(themedCard ? .10f : .12f,themedCard ? .385f : .45f), new Vector2(themedCard ? .90f : .88f,themedCard ? .48f : .51f), themedCard ? 27 : 20, TextAlignmentOptions.Center);
             }
 
             if (descriptionText != null)
             {
-                descriptionText.text = ability.Description;
-                FitCardText(descriptionText, new Vector2(.21f,.29f), new Vector2(.79f,.435f), 20, TextAlignmentOptions.TopLeft);
+                descriptionText.text = PanelDescription();
+                FitCardText(descriptionText, new Vector2(themedCard ? .105f : .13f,themedCard ? .07f : .11f), new Vector2(themedCard ? .895f : .87f,themedCard ? .34f : .42f), themedCard ? 18 : 16, TextAlignmentOptions.TopLeft);
             }
 
             if (buttonText != null)
@@ -218,7 +218,7 @@ namespace Vampire
             text.enableAutoSizing = true;
             text.fontSizeMin = 13;
             text.fontSizeMax = fontMax;
-            text.overflowMode = TextOverflowModes.Truncate;
+            text.overflowMode = TextOverflowModes.Overflow;
         }
 
         public void Init(AbilitySelectionDialog levelUpMenu, Ability ability, float waitToAppear)
@@ -229,15 +229,7 @@ namespace Vampire
 
             CacheMissingReferences();
             ApplyTierVisuals(ability.Tier);
-            if (ability is Ver4AugmentOffer preview && preview.Kind != Ver4RewardKind.LegendaryAbility)
-            {
-                Color tint = upgradeGradeColors[(int)preview.Grade];
-                if (cardBackgroundImage != null) cardBackgroundImage.color = tint;
-                if (iconFrameImage != null) iconFrameImage.color = tint;
-                if (bottomEmblemImage != null) bottomEmblemImage.color = tint;
-                if (nameText != null) nameText.color = tint;
-                if (selectionButtonImage != null) selectionButtonImage.color = tint;
-            }
+            ApplyPanelTheme();
             ApplyAbilityIcon();
 
             appearCoroutine = StartCoroutine(Appear(waitToAppear));
@@ -389,8 +381,11 @@ namespace Vampire
 
         private void ApplyAbilityIcon()
         {
-            if (abilityImage == null || ability == null || ability.Image == null)
+            if (abilityImage == null) return;
+            if (ability == null || ability.Image == null)
             {
+                abilityImage.sprite = null;
+                abilityImage.enabled = false;
                 return;
             }
 
@@ -438,7 +433,7 @@ namespace Vampire
 
         public void Selected()
         {
-            if (ability == null || levelUpMenu == null)
+            if (ability == null || levelUpMenu == null || !levelUpMenu.MenuOpen)
             {
                 return;
             }
