@@ -83,6 +83,7 @@ namespace Vampire
         private Vector2 knockback;
         private Action<MiniStageFallingFoodStrike> onFinished;
 
+        public bool Explodes { get; set; }
         private bool initialized;
         private bool finished;
 
@@ -187,6 +188,7 @@ namespace Vampire
             yield return StartCoroutine(FallMotionRoutine());
 
             ResolveImpact();
+            if(Explodes)yield return ExplosionRoutine();
 
             if (warningCircleRenderer != null)
             {
@@ -205,6 +207,30 @@ namespace Vampire
             FinishStrike();
         }
 
+        private IEnumerator ExplosionRoutine()
+        {
+            var balance=RemakeBalance.Current;
+            float radius=damageRadius*balance.foodExplosionRadiusMultiplier;
+            var ringObject=new GameObject("격화 폭발 예고");ringObject.transform.SetParent(transform,false);
+            var ring=ringObject.AddComponent<LineRenderer>();
+            var material=new Material(Shader.Find("Sprites/Default"));ring.sharedMaterial=material;
+            var cleanup=ringObject.AddComponent<RemakeMaterialCleanup>();cleanup.Material=material;
+            ring.useWorldSpace=false;ring.loop=true;ring.positionCount=48;ring.widthMultiplier=.08f;ring.sortingOrder=40;
+            for(int i=0;i<48;i++){float a=i*Mathf.PI*2/48;ring.SetPosition(i,new Vector3(Mathf.Cos(a),Mathf.Sin(a))*radius);}
+            float timer=0;
+            while(timer<balance.foodExplosionDelay)
+            {
+                timer+=Time.deltaTime;
+                ring.startColor=ring.endColor=Color.Lerp(Color.yellow,Color.red,timer/balance.foodExplosionDelay);
+                yield return null;
+            }
+            if(targetPlayer!=null && targetPlayer.IsAlive && Vector2.Distance(targetPlayer.transform.position,transform.position)<=radius)
+                targetPlayer.TakeDamage(damage*balance.foodExplosionDamageMultiplier,Vector2.zero,false);
+            if(fallingFoodRenderer!=null)fallingFoodRenderer.enabled=false;
+            ring.widthMultiplier=.35f;ring.startColor=ring.endColor=new Color(1,.6f,.2f);
+            yield return new WaitForSeconds(.18f);
+            Destroy(ringObject);
+        }
         private void UpdateWarningVisual(float timer)
         {
             if (warningCircleRenderer == null)

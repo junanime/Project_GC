@@ -20,8 +20,8 @@ MonoBehaviour:
     legendary: 516
     supreme: 180
   newSpecialChance: 0.25
-  miniBossLegendaryChestChance: 1
-  antacidCompletionLegendaryChest: 1
+  miniBossLegendaryChestChance: 0
+  antacidCompletionLegendaryChest: 0
   legendaryChoiceCount: 3
   legendaryReroll: 0
   legendaryChest: {fileID: 11400000, guid: 91ec1ec700f307b459c26abe6e1d4a2d, type: 2}

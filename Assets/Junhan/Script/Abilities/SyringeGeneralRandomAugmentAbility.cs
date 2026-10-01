@@ -11,7 +11,7 @@ namespace Vampire
     // - 유저가 선택하면 표시된 2개가 그대로 적용된다.
     //
     // RollMode.ConditionalRandomOne:
-    // - 현재 보유한 특수/전설 증강을 기준으로 조건부 일반 증강 1개를 미리 뽑아 Description에 표시.
+    // - 현재 보유한 특수/고귀 증강을 기준으로 조건부 일반 증강 1개를 미리 뽑아 Description에 표시.
     // - 유저가 선택하면 표시된 1개가 그대로 적용된다.
     public class SyringeGeneralRandomAugmentAbility :
         Ability,
@@ -334,7 +334,7 @@ namespace Vampire
             {
                 if (rollMode == RollMode.ConditionalRandomOne)
                 {
-                    return "현재 보유한 특수/전설 증강 중 강화 가능한 대상이 없습니다.";
+                    return "현재 보유한 특수/고귀 증강 중 강화 가능한 대상이 없습니다.";
                 }
 
                 return "현재 적용 가능한 일반 증강이 없습니다.";
@@ -582,7 +582,7 @@ namespace Vampire
                 case GeneralAugmentType.LuckyMeridian:
                     // Character.Luck = characterBlueprint.luck * luckMultiplier 구조를 그대로 사용한다.
                     // 기본 luck이 1이라면 AddLuck(1f) 후 Luck은 2가 되고,
-                    // AbilityManager의 기존 공식에 의해 일반 -3%, 특수 +2%, 전설 +1% 효과가 적용된다.
+                    // AbilityManager의 기존 공식에 의해 일반 -3%, 특수 +2%, 고귀 +1% 효과가 적용된다.
                     playerCharacter.AddLuck(1f);
                     break;
 
@@ -786,7 +786,7 @@ namespace Vampire
                 case GeneralAugmentType.CellActivation: return "픽업 범위 +12%";
                 case GeneralAugmentType.MoneySense: return "골드 드롭 확률 +5%";
                 case GeneralAugmentType.BossDamageTraining: return "보스 피해 +10%";
-                case GeneralAugmentType.LuckyMeridian: return "행운 +1. 일반 -3%, 특수 +2%, 전설 +1%";
+                case GeneralAugmentType.LuckyMeridian: return "행운 +1. 일반 -3%, 특수 +2%, 고귀 +1%";
                 case GeneralAugmentType.ExplosionRadiusControl: return "폭발 반경 +8%";
                 case GeneralAugmentType.FragmentDiffusion: return "폭발 피해 +10%";
                 case GeneralAugmentType.ReturnMastery: return "귀환 피해 +10%";

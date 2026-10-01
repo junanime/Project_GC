@@ -8,9 +8,9 @@ namespace Vampire
         [Tooltip("임시: 신규 특수 본체 후보와 강화 후보가 모두 있을 때 본체 획득 카드 확률.")]
         [Range(0,1)] public float newSpecialChance = .25f;
         [Tooltip("임시: 미니보스 전설 전용 상자 드롭 확률.")]
-        [Range(0,1)] public float miniBossLegendaryChestChance = 1f;
+        [Range(0,1)] public float miniBossLegendaryChestChance = 0f;
         [Tooltip("임시: 제산 거품 폭주 생존 완료 보상. 다른 이벤트는 자동 지급하지 않음.")]
-        public bool antacidCompletionLegendaryChest = true;
+        public bool antacidCompletionLegendaryChest = false;
         [Range(1,3)] public int legendaryChoiceCount = 3;
         public bool legendaryReroll = false;
         public ChestBlueprint legendaryChest;

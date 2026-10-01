@@ -43,6 +43,8 @@ namespace Vampire
         // 방 클리어는 아니지만, 제한 시간 이후 플레이어가 선택적으로 나갈 수 있게 하는 상태.
         // 이 값이 true이면 CanReturnFrom()에서 roomCleared 조건을 우회합니다.
         private bool optionalReturnUnlocked;
+        private bool awaitingSkillReward;
+        public bool Enhanced => director != null && director.CurrentEnhanced;
 
         public Transform PlayerStartPoint
         {
@@ -77,6 +79,7 @@ namespace Vampire
             roomCleared = false;
             rewardChestOpened = false;
             optionalReturnUnlocked = false;
+            awaitingSkillReward = false;
             activeRewardChest = null;
 
             if (returnInteractable == null)
@@ -137,7 +140,14 @@ namespace Vampire
             }
 
             OnRoomCleared();
-            SpawnRewardChest();
+            playerCharacter?.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.Room);
+            awaitingSkillReward = true;
+            if (ApothecaryUI.Instance == null || !ApothecaryUI.Instance.RequestSkillReward(FinishSkillReward))
+            {
+                // Test/legacy scenes without the replacement UI retain a usable reward and exit.
+                awaitingSkillReward = false;
+                SpawnRewardChest();
+            }
         }
 
         protected void CompleteRoomWithoutReward()
@@ -194,6 +204,13 @@ namespace Vampire
             OnOptionalReturnUnlocked();
         }
 
+        private void FinishSkillReward()
+        {
+            if(this == null || !awaitingSkillReward)return;
+            awaitingSkillReward = false;
+            if(Enhanced)SpawnRewardChest();
+            else { rewardChestOpened = true; UnlockReturnInteractable(); }
+        }
         private void SpawnRewardChest()
         {
             if (entityManager == null)
@@ -206,6 +223,7 @@ namespace Vampire
                 return;
             }
 
+            if (rewardChestBlueprint == null) rewardChestBlueprint = RemakeBalance.Current.levelUpChest;
             if (rewardChestBlueprint == null)
             {
                 if (debugLog)
@@ -229,6 +247,7 @@ namespace Vampire
 
             // 미니 스테이지 클리어 후 보상 상자가
             // 실제로 생성된 경우에만 클리어 효과음을 재생합니다.
+            if (activeRewardChest == null) { UnlockReturnInteractableIfAllowed(); return; }
             if (activeRewardChest != null)
             {
                 GameAudioManager.PlaySfx(
@@ -310,6 +329,7 @@ namespace Vampire
         {
             if (unlockReturnIfRewardChestMissing)
             {
+                rewardChestOpened = true;
                 UnlockReturnInteractable();
             }
         }
@@ -332,6 +352,7 @@ namespace Vampire
                 return false;
             }
 
+            if(awaitingSkillReward)return false;
             // 추가:
             // 제한 시간 이후 선택형 귀환이 열린 상태라면,
             // 방 클리어/보상 여부와 상관없이 귀환을 허용합니다.

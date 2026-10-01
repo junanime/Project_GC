@@ -44,6 +44,9 @@ namespace Vampire
         [Header("Legendary Augment")]
         [Tooltip("이 Ability가 적용할 전설증강 종류입니다.")]
         [SerializeField] private LegendaryAugmentType augmentType;
+        public LegendaryAugmentType Type => augmentType;
+        // Keep the serialized ID and implementation for a future reward category.
+        public bool AvailableAsNoble => augmentType != LegendaryAugmentType.PoisonContagion;
 
         [Header("Debug")]
         [Tooltip("전설증강 적용/조건 검사 로그를 출력할지 여부입니다.")]
@@ -157,6 +160,7 @@ namespace Vampire
 
         public override bool RequirementsMet()
         {
+            if (!AvailableAsNoble) return false;
             RefreshSyringeDartAbilityReference();
 
             if (syringeDartAbility == null)

@@ -210,7 +210,7 @@ namespace Vampire
                 Debug.Log("[MiniStageCollectionRoom] 제한 시간 종료. 귀환 상호작용을 활성화합니다.");
             }
 
-            CompleteRoomWithoutReward();
+            CompleteRoom();
             timeAttackRoutine = null;
         }
 

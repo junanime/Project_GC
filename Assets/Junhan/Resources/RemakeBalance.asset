@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3550558ab369b9d48a7e4f834645089a, type: 3}
+  m_Name: RemakeBalance
+  m_EditorClassIdentifier:
+  randomTagEachRun: 1
+  designatedTag: 0
+  overchargeRadius: 2.5
+  overchargeKills: 25
+  overchargeStaySeconds: 25
+  foodExplosionDelay: 1.25
+  foodExplosionRadiusMultiplier: 1.35
+  foodExplosionDamageMultiplier: 0.6
+  fastBomberEvery: 4
+  fastBomberSpeed: 1.2
+  sniperTeleportDelay: 0.2
+  sniperSafeDistance: 3
+  levelUpChest: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}

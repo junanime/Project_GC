@@ -56,7 +56,7 @@ namespace Vampire
             if(!SyringeSpecialHitEffectUtility.TryGetValidDamageableTarget(collider,owner,out _,out var target,out int id)
                 ||target is Monster suspended&&suspended.IsFieldRuntimeSuspended||Ver4HitEffects.Health(target)<=0||!hitThisDash.Add(id))return;
             var d=skill.Definition;
-            Ver4HitEffects.Damage(target,poweredDash?d.ariPhoenixDamage:d.ariRollDamage,Vector2.zero,owner,poweredDash?"나 멋지지":"데굴데굴");
+            Ver4HitEffects.Damage(target,poweredDash?d.ariPhoenixDamage*skill.ActivePower:d.ariRollDamage*skill.PassivePower,Vector2.zero,owner,poweredDash?"나 멋지지":"데굴데굴");
             if(Ver4HitEffects.Health(target)<=0||Ver4HitEffects.IsBoss(target)||target is SniperMonster||target is TrapMonster||target is BloodClotMonster)return;
             var rb=target.GetComponent<Rigidbody2D>();
             if(rb==null||rb.bodyType!=RigidbodyType2D.Dynamic||(rb.constraints&RigidbodyConstraints2D.FreezePosition)!=0)return;
