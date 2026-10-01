@@ -7,13 +7,13 @@ using LegendaryType = Vampire.SyringeLegendaryAugmentAbility.LegendaryAugmentTyp
 namespace Vampire
 {
     /// <summary>
-    /// 전설증강을 보유했을 때만 등장하는 조건부 특수증강 카드입니다.
+    /// 고귀 증강을 보유했을 때만 등장하는 조건부 특수증강 카드입니다.
     ///
     /// 규칙:
-    /// - 전설증강을 먹은 뒤에만 등장합니다.
+    /// - 고귀 증강을 먹은 뒤에만 등장합니다.
     /// - 조건부 특수증강은 업그레이드되지 않습니다.
     /// - 각 조건부 특수증강은 1회만 획득할 수 있습니다.
-    /// - 카드 이미지는 조건이 되는 원본 전설증강 스프라이트를 공유합니다.
+    /// - 카드 이미지는 조건이 되는 원본 고귀 증강 스프라이트를 공유합니다.
     /// </summary>
     public class SyringeLegendaryConditionalSpecialAugmentAbility :
         Ability,
@@ -22,10 +22,10 @@ namespace Vampire
         [Serializable]
         private class LegendarySourceIconEntry
         {
-            [Tooltip("이 아이콘을 사용할 조건 전설증강 종류입니다.")]
+            [Tooltip("이 아이콘을 사용할 조건 고귀 증강 종류입니다.")]
             public LegendaryType legendaryType;
 
-            [Tooltip("원본 전설증강 Ability 프리팹/컴포넌트입니다. 여기의 Image를 조건부 카드 아이콘으로 공유합니다.")]
+            [Tooltip("원본 고귀 증강 Ability 프리팹/컴포넌트입니다. 여기의 Image를 조건부 카드 아이콘으로 공유합니다.")]
             public Ability sourceAbility;
 
             [Tooltip("sourceAbility가 비어 있을 때 사용할 예비 스프라이트입니다.")]
@@ -60,7 +60,7 @@ namespace Vampire
         [SerializeField] private bool debugLog = false;
 
         [Header("Source Sprite Sharing")]
-        [Tooltip("조건이 되는 원본 전설증강의 Ability 프리팹을 연결합니다.")]
+        [Tooltip("조건이 되는 원본 고귀 증강의 Ability 프리팹을 연결합니다.")]
         [SerializeField]
         private List<LegendarySourceIconEntry> sourceIconEntries =
             new List<LegendarySourceIconEntry>();
@@ -101,7 +101,7 @@ namespace Vampire
 
                 if (previewDefinition == null)
                 {
-                    return "전설 연계 특수증강";
+                    return "고귀 연계 특수증강";
                 }
 
                 return previewDefinition.displayName;
@@ -116,7 +116,7 @@ namespace Vampire
 
                 if (previewDefinition == null)
                 {
-                    return "현재 보유한 전설증강 중 강화 가능한 조건부 특수증강이 없습니다.";
+                    return "현재 보유한 고귀 증강 중 강화 가능한 조건부 특수증강이 없습니다.";
                 }
 
                 return
@@ -187,7 +187,7 @@ namespace Vampire
 
             // level로 막지 않습니다.
             // 이 Ability 컨테이너가 몇 번 선택됐는지가 아니라,
-            // 현재 보유 전설증강 기준으로 아직 안 먹은 조건부 특수증강이 남아 있는지가 핵심입니다.
+            // 현재 보유 고귀 증강 기준으로 아직 안 먹은 조건부 특수증강이 남아 있는지가 핵심입니다.
             List<Definition> candidates = BuildCandidateList();
 
             if (candidates.Count <= 0)
@@ -456,7 +456,7 @@ namespace Vampire
                     return "샷건침";
 
                 default:
-                    return "전설증강";
+                    return "고귀 증강";
             }
         }
 

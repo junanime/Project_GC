@@ -7,8 +7,10 @@ namespace Vampire
 {
     public sealed partial class ApothecaryUI
     {
-        bool prescriptionExpanded=true;
+        bool prescriptionExpanded;
         RectTransform prescriptionHud;
+        PrescriptionScrollView prescriptionScroll;
+        readonly Vector3[] prescriptionSafeCorners=new Vector3[4];
         TextMeshProUGUI prescriptionTitle;
         readonly TextMeshProUGUI[] prescriptionRows=new TextMeshProUGUI[3];
         Button prescriptionClaim, overchargeButton;
@@ -18,22 +20,13 @@ namespace Vampire
         void BuildPrescriptionHud()
         {
             prescriptionHud=Rect("Prescription HUD",content,0,0,1,1);
-            var header=ActionButton(prescriptionHud,"",.72f,.795f,.97f,.858f,()=>{prescriptionExpanded=!prescriptionExpanded;Render();});
-            header.name="Prescription toggle";
-            prescriptionTitle=header.GetComponentInChildren<TextMeshProUGUI>();prescriptionTitle.fontSize=18;
-            for(int i=0;i<3;i++)prescriptionRows[i]=null;
-            prescriptionClaim=null;
-            if(prescriptionExpanded)
-            {
-                Panel(prescriptionHud,.68f,.43f,.97f,.79f);
-                for(int i=0;i<3;i++)
-                {
-                    var row=Label(prescriptionHud,"",.695f,.685f-i*.08f,.955f,.755f-i*.08f,15);
-                    row.alignment=TextAlignmentOptions.MidlineLeft;prescriptionRows[i]=row;
-                }
-                prescriptionClaim=ActionButton(prescriptionHud,"전설 증강 선택",.73f,.445f,.95f,.503f,()=>Prescription?.TryClaim(FindObjectOfType<EntityManager>()?.AbilitySelectionDialog),true);
-                prescriptionClaim.GetComponentInChildren<TextMeshProUGUI>().fontSize=17;
-            }
+            prescriptionScroll=AugmentPanelTheme.Rect("Vision scroll dock",prescriptionHud).gameObject.AddComponent<PrescriptionScrollView>();
+            prescriptionScroll.Build(runtimeFont!=null?runtimeFont:Config.font,()=>{
+                prescriptionExpanded=!prescriptionExpanded;prescriptionScroll.SetExpanded(prescriptionExpanded);
+            },()=>Prescription?.TryClaim(FindObjectOfType<EntityManager>()?.AbilitySelectionDialog),prescriptionExpanded);
+            prescriptionTitle=prescriptionScroll.Title;
+            for(int i=0;i<3;i++)prescriptionRows[i]=prescriptionScroll.Rows[i];
+            prescriptionClaim=prescriptionScroll.Claim;
             overchargeButton=ActionButton(prescriptionHud,"혈전 과충전 / Q",.70f,.14f,.97f,.22f,()=>FindNearbyOvercharge()?.Begin(),true);
             overchargeButton.gameObject.SetActive(false);
         }
@@ -52,14 +45,19 @@ namespace Vampire
                 var quest=Prescription;
                 if(quest!=null && prescriptionTitle!=null)
                 {
-                    prescriptionTitle.text=$"비전 처방전 {quest.Completed}/3  {(prescriptionExpanded?"접기":"펼치기")}";
+                    prescriptionTitle.text=quest.Claimed?"비전서 · 완료":$"비전서  {quest.Completed}/3";
+                    prescriptionScroll.Tag.text=$"[{PrescriptionRuntime.Tags[quest.Tag]}] 비전 처방전";
                     for(int i=0;i<3;i++)if(prescriptionRows[i]!=null)
                     {
-                        string line=$"[{PrescriptionRuntime.Tags[quest.Tag]}] {quest.Description(i)}\n{Mathf.FloorToInt(quest.Progress(i))}/{quest.Target(i):0}";
+                        string line=$"{quest.Description(i)}\n{Mathf.FloorToInt(quest.Progress(i))}/{quest.Target(i):0}";
                         prescriptionRows[i].text=quest.IsComplete(i)?"<s>"+line+"</s>  완료":line;
                         prescriptionRows[i].color=quest.IsComplete(i)?new Color(.35f,.4f,.3f):Ink;
                     }
-                    if(prescriptionClaim!=null){prescriptionClaim.gameObject.SetActive(quest.Ready);prescriptionClaim.interactable=Time.timeScale>0;}
+                    if(prescriptionClaim!=null)
+                    {
+                        prescriptionClaim.interactable=quest.Ready&&Time.timeScale>0;
+                        prescriptionClaim.GetComponentInChildren<TextMeshProUGUI>().text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택":"처방 3개 완료 → 고귀 증강";
+                    }
                 }
                 if(overchargeButton!=null)
                 {
@@ -74,6 +72,19 @@ namespace Vampire
                     {previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("skillReward");}
                 }
             }
+        }
+        void LateUpdate()
+        {
+            if(Page!="hud"||prescriptionScroll==null||safe==null)return;
+            safe.GetWorldCorners(prescriptionSafeCorners);
+            Vector2 corner=prescriptionHud.InverseTransformPoint(prescriptionSafeCorners[2]);
+            prescriptionScroll.Dock.anchoredPosition=corner-prescriptionHud.rect.max-new Vector2(0,78);
+        }
+        void BuildMobileHudNavigation()
+        {
+            if(!Application.isMobilePlatform&&!MobileGameplayInput.Active)return;
+            ActionButton(content,"상태",.60f,.805f,.715f,.875f,OpenRunBook).name="Mobile status";
+            ActionButton(content,"설정",.60f,.72f,.715f,.79f,OpenSettings).name="Mobile settings";
         }
         public bool RequestSkillReward(Action complete)
         {

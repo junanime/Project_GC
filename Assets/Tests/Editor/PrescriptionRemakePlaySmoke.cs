@@ -95,10 +95,12 @@ namespace Vampire.Tests.Editor
             q.StartPrescription(1,42);
             var goals=q.Capture().quests;
             q.Record((PrescriptionRuntime.Goal)goals[0],1000);
-            yield return null;Capture("hud");
+            yield return null;
+            ui.GetComponentsInChildren<Button>().First(b=>b.name=="Prescription toggle").onClick.Invoke();
+            yield return new WaitForSecondsRealtime(.35f);Capture("hud");
             var toggle=ui.GetComponentsInChildren<Button>().First(b=>b.name=="Prescription toggle");toggle.onClick.Invoke();
-            yield return null;Check(ui.GetComponentsInChildren<TMPro.TextMeshProUGUI>().All(t=>!t.text.Contains("<s>")),"Fold hides quest rows");
-            ui.GetComponentsInChildren<Button>().First(b=>b.name=="Prescription toggle").onClick.Invoke();yield return null;
+            yield return new WaitForSecondsRealtime(.35f);Check(ui.GetComponentsInChildren<TMPro.TextMeshProUGUI>().All(t=>!t.text.Contains("<s>")),"Fold hides quest rows");
+            ui.GetComponentsInChildren<Button>().First(b=>b.name=="Prescription toggle").onClick.Invoke();yield return new WaitForSecondsRealtime(.35f);
             Check(ui.GetComponentsInChildren<TMPro.TextMeshProUGUI>().Any(t=>t.text.Contains("<s>")),"Unfold preserves completed strikethrough");
             var originalDefinition=player.Blueprint.skills;
             foreach(CharacterSkillDefinition.SkillKind kind in Enum.GetValues(typeof(CharacterSkillDefinition.SkillKind)))

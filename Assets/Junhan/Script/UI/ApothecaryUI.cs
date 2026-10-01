@@ -156,8 +156,7 @@ namespace Vampire
             if (Page == "hud")
             {
                 BuildSkillHud();
-                ActionButton(content,"상태 / TAB", .81f,.87f,.97f,.97f, OpenRunBook);
-                ActionButton(content,"설정 / ESC", .81f,.335f,.97f,.415f, OpenSettings);
+                BuildMobileHudNavigation();
                 BuildPrescriptionHud();
                 return;
             }

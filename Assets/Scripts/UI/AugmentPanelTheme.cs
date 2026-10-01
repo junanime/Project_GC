@@ -11,8 +11,7 @@ namespace Vampire
         public static readonly Color Jade = new Color(.52f, .79f, .67f);
         public static Sprite Frame(AugmentUpgradeGrade grade)
         {
-            // The existing legendary frame remains until its separate overframe is designed.
-            return grade == AugmentUpgradeGrade.Legendary ? null : Resources.Load<Sprite>("AugmentPanels/" + grade);
+            return Resources.Load<Sprite>("AugmentPanels/" + grade);
         }
         public static Color Accent(AugmentUpgradeGrade grade)
         {
@@ -20,7 +19,7 @@ namespace Vampire
             {
                 case AugmentUpgradeGrade.Rare: return new Color(.32f,.65f,1);
                 case AugmentUpgradeGrade.Epic: return new Color(.79f,.49f,1);
-                case AugmentUpgradeGrade.Supreme: return new Color(1,.65f,.12f);
+                case AugmentUpgradeGrade.Supreme: return new Color(.92f,.19f,.28f);
                 case AugmentUpgradeGrade.Original: return Jade;
                 case AugmentUpgradeGrade.Legendary: return new Color(1,.8f,.3f);
                 default: return new Color(.76f,.81f,.81f);

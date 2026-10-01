@@ -16,7 +16,10 @@ namespace Vampire
         {
             var offer = ability as Ver4AugmentOffer;
             var grade = offer != null ? offer.Grade : ability.Tier == Ability.AugmentTier.Legendary ? AugmentUpgradeGrade.Legendary : AugmentUpgradeGrade.Common;
-            var frame = AugmentPanelTheme.Frame(grade);
+            // Serialized Legendary tier/kind is the mechanic-changing Noble reward,
+            // independent of the numeric Legendary upgrade grade.
+            bool noble = offer != null ? offer.Kind == Ver4RewardKind.LegendaryAbility : ability.Tier == Ability.AugmentTier.Legendary;
+            var frame = noble ? null : AugmentPanelTheme.Frame(grade);
             themedCard = frame != null;
             if (!themedCard && legacyPanelSprite == null && legendaryCardBackgroundSprite != null)
             {
@@ -84,7 +87,7 @@ namespace Vampire
             nameText.color=themedCard ? AugmentPanelTheme.Paper : new Color(.22f,.12f,.06f);
             nameText.fontStyle=FontStyles.Bold; nameText.raycastTarget=false;
             descriptionText.color=nameText.color; descriptionText.raycastTarget=false;
-            gradeLabel.text = offer != null && offer.Kind == Ver4RewardKind.NewSpecial ? "특수" : AugmentUpgradeOdds.DisplayName(grade);
+            gradeLabel.text = noble ? "고귀" : offer != null && offer.Kind == Ver4RewardKind.NewSpecial ? "특수" : AugmentUpgradeOdds.DisplayName(grade);
             gradeLabel.color=gradeBorder.color=AugmentPanelTheme.Accent(grade);
         }
 

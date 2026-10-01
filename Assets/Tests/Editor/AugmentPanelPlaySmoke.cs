@@ -106,7 +106,7 @@ namespace Vampire.Tests.Editor
             dialog.Open(false);yield return new WaitForSecondsRealtime(1);
             Check(reroll.interactable,"Reopening resets reroll allowance");
             var examples=new List<Ver4AugmentOffer>();
-            var grades=new[]{AugmentUpgradeGrade.Common,AugmentUpgradeGrade.Rare,AugmentUpgradeGrade.Epic,AugmentUpgradeGrade.Supreme,AugmentUpgradeGrade.Original};
+            var grades=new[]{AugmentUpgradeGrade.Common,AugmentUpgradeGrade.Rare,AugmentUpgradeGrade.Epic,AugmentUpgradeGrade.Legendary,AugmentUpgradeGrade.Supreme,AugmentUpgradeGrade.Original};
             for(int i=0;i<grades.Length;i++)
             {
                 var offer=new GameObject("Theme test preview").AddComponent<Ver4AugmentOffer>();examples.Add(offer);
@@ -115,7 +115,7 @@ namespace Vampire.Tests.Editor
             }
             for(int start=0;start<2;start++)
             {
-                for(int i=0;i<3;i++)cards[i].Init(dialog,examples[start*2+i],0);
+                for(int i=0;i<3;i++)cards[i].Init(dialog,examples[start*3+i],0);
                 yield return new WaitForSecondsRealtime(.7f);
                 foreach(var card in cards)
                 {
@@ -124,7 +124,7 @@ namespace Vampire.Tests.Editor
                     var offer=(Ver4AugmentOffer)Get(card,"ability");
                     Check(((Image)Get(card,"cardBackgroundImage")).sprite==AugmentPanelTheme.Frame(offer.Grade),"Imported frame matches "+offer.Grade);
                 }
-                Capture(start==0?"common-rare-epic":"epic-supreme-original");
+                Capture(start==0?"common-rare-epic":"legendary-supreme-original");
             }
             // Every actual original description, including progress, must remain readable.
             foreach(var parent in parents)
@@ -180,7 +180,7 @@ namespace Vampire.Tests.Editor
             foreach(var legendSourceTest in manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true))
             {
                 examples[0].Configure(manager.Ver4,Ver4RewardKind.LegendaryAbility,AugmentUpgradeGrade.Legendary,legendSourceTest,0,0,
-                    "전설 증강: "+legendSourceTest.Name,legendSourceTest.Description+"\n비전 처방전 보상 · 강화 불가");
+                    "고귀 증강: "+legendSourceTest.Name,legendSourceTest.Description+"\n비전서 보상 · 강화 불가");
                 cards[0].Init(dialog,examples[0],0);Canvas.ForceUpdateCanvases();TextFits(cards[0],legendSourceTest.Name+" legend");
             }
             dialog.Close();foreach(var offer in examples)Object.Destroy(offer.gameObject);
