@@ -424,6 +424,7 @@ namespace Vampire
 
             // 중요: 새로 만든 프로퍼티에 대입하여 기본 속도를 세팅합니다.
             // 프로퍼티 내부의 set 구문이 작동하면서 rb.drag(마찰력)도 자동으로 계산되어 들어갑니다!
+            if(playerCharacter!=null && playerCharacter.GetComponent<OctoberItemRuntime>()?.Has(25)==true && !(this is BossMonster) && !(this is MiniBossMonster) && eliteBlueprint==null)spd*=1.15f;
             this.moveSpeed = spd;
 
             if (rb != null)
@@ -482,6 +483,8 @@ namespace Vampire
         private float nextHitFlashTime;
         private bool deathStarted;
 
+        bool itemPureDamage;
+        public void TakeItemPureDamage(float amount){itemPureDamage=true;try{TakeDamage(amount);}finally{itemPureDamage=false;}}
         public override void TakeDamage(
     float damage,
     Vector2 knockback = default(Vector2),
@@ -494,7 +497,7 @@ namespace Vampire
             }
             MonsterCombatBuffRuntime combatBuffRuntime = GetComponent<MonsterCombatBuffRuntime>();
 
-            if (combatBuffRuntime != null)
+            if (combatBuffRuntime != null && !itemPureDamage)
             {
                 damage = combatBuffRuntime.ModifyIncomingDamage(damage);
             }
@@ -503,6 +506,8 @@ namespace Vampire
                 entityManager.SpawnDamageText(monsterHitbox.transform.position, damage, isCritical);
             }
 
+            var itemStatus=GetComponent<OctoberItemTargetStatus>();
+            if(itemStatus!=null&&itemStatus.VulnerableUntil>Time.time&&!itemPureDamage&&!SuppressHitFlash)damage*=1.08f;
             currentHealth -= damage;
 
             if (damage > 0f)

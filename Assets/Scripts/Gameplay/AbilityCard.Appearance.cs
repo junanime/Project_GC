@@ -56,7 +56,7 @@ namespace Vampire
                 AugmentPanelTheme.Anchors(titleRule.rectTransform,new Vector2(.14f,.362f),new Vector2(.86f,.362f));
                 titleRule.rectTransform.sizeDelta=new Vector2(0,1);
             }
-            opaqueBacking.gameObject.SetActive(themedCard);
+            opaqueBacking.gameObject.SetActive(false);
             gradeBorder.gameObject.SetActive(themedCard);
             titleRule.gameObject.SetActive(themedCard);
             if (cardBackgroundImage != null)
@@ -88,11 +88,11 @@ namespace Vampire
             abilityImage.transform.SetParent(abilityImageRect,false);
             AugmentPanelTheme.Box(abilityImage.rectTransform,Vector2.zero,Vector2.one*160);
             abilityImage.preserveAspect=true; abilityImage.raycastTarget=false;
-            nameText.color=themedCard ? AugmentPanelTheme.Paper : new Color(.22f,.12f,.06f);
+            nameText.color=UsesNoblePanel ? AugmentPanelTheme.Paper : OctoberArt.Ink;
             nameText.fontStyle=FontStyles.Bold; nameText.raycastTarget=false;
             descriptionText.color=nameText.color; descriptionText.raycastTarget=false;
             gradeLabel.text = noble ? "고귀" : offer != null && offer.Kind == Ver4RewardKind.NewSpecial ? "특수" : AugmentUpgradeOdds.DisplayName(grade);
-            gradeLabel.color=gradeBorder.color=AugmentPanelTheme.Accent(grade);
+            gradeBorder.color=AugmentPanelTheme.Accent(grade);gradeBody.color=AugmentPanelTheme.Accent(grade);gradeLabel.color=OctoberArt.Ink;
             if (UsesNoblePanel)
             {
                 // The approved composite already contains its icon, liquid overframe and backdrop.

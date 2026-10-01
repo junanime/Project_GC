@@ -11,7 +11,8 @@ namespace Vampire
         Portal,
         Event,
         Boss,
-        Custom
+        Custom,
+        EliteSpawner
     }
 
     /// <summary>
@@ -68,6 +69,13 @@ namespace Vampire
         public float FullMapSize => Mathf.Max(1f, fullMapSize);
 
         public bool IsDiscovered { get; private set; }
+
+        public Sprite Icon => OctoberMapIcons.For(this);
+        public void Configure(MapMarkerKind kind,string label,bool global=false)
+        {
+            markerKind=kind;displayName=label;alwaysVisible=global;hideUntilDiscovered=!global;
+            miniMapSize=12;fullMapSize=16;miniMapColor=fullMapColor=Color.white;
+        }
 
         private void OnEnable()
         {

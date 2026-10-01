@@ -221,6 +221,8 @@ namespace Vampire
 
         private Vector2 GetRandomEdgeSpawnPosition()
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Perimeter(Random.value);
             SpawnSide side = GetRandomAllowedSide();
 
             Vector2 center = (Vector2)transform.position + roomCenterOffset;

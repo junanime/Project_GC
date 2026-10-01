@@ -571,6 +571,8 @@ namespace Vampire
 
             Vector2 startPosition = rb != null ? rb.position : (Vector2)transform.position;
             Vector2 targetPosition = startPosition + dashDirection.normalized * dashDistance;
+            var itemRuntime=GetComponent<OctoberItemRuntime>();
+            if(itemRuntime!=null)targetPosition=itemRuntime.DashDestination(targetPosition);
 
             float elapsed = 0f;
             float safeDuration = Mathf.Max(0.01f, dashDuration);
@@ -594,7 +596,7 @@ namespace Vampire
 
                 if (rb != null)
                 {
-                    var allowedPosition=BloodClotObstacle.ClampDash(rb,nextPosition);
+                    var allowedPosition=MiniStageArenaGeometry.ClampMovement(rb, BloodClotObstacle.ClampDash(rb,nextPosition));
                     Skills?.DashStep(rb.position,allowedPosition);
                     rb.MovePosition(allowedPosition);
                 }
@@ -610,7 +612,7 @@ namespace Vampire
 
             if (rb != null)
             {
-                var allowedPosition=BloodClotObstacle.ClampDash(rb,targetPosition);
+                var allowedPosition=MiniStageArenaGeometry.ClampMovement(rb,BloodClotObstacle.ClampDash(rb,targetPosition));
                 Skills?.DashStep(rb.position,allowedPosition);
                 rb.MovePosition(allowedPosition);
 
@@ -860,7 +862,9 @@ namespace Vampire
         {
             if (alive)
             {
-                coroutineQueue.EnqueueCoroutine(GainExpCoroutine(exp * expMultiplier));
+                var items=GetComponent<OctoberItemRuntime>();
+                if(items!=null)exp=items.Experience(exp);
+                if(exp>0)coroutineQueue.EnqueueCoroutine(GainExpCoroutine(exp * expMultiplier));
             }
         }
 
@@ -1029,8 +1033,12 @@ namespace Vampire
                 mucosalFortressShield.NotifyPlayerDamaged();
             }
 
+            var items=GetComponent<OctoberItemRuntime>();
+            if(items!=null)damage=items.Incoming(damage,pendingDamageMonsterBlueprint);
+            float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+            items?.Hurt(actualLoss,pendingDamageMonsterBlueprint);
 
             // 실제 HP가 감소한 경우에만 피격 효과음.
             GameAudioManager.PlaySfx(
@@ -1194,6 +1202,10 @@ namespace Vampire
             }
 
             float maxHealth = GetMaxHealth();
+            var items=GetComponent<OctoberItemRuntime>();
+            if(items!=null)health=items.Healing(health);
+            float actualHeal=Mathf.Clamp(health,0,Mathf.Max(0,maxHealth-currentHealth));
+            items?.Healed(actualHeal,Mathf.Max(0,health-actualHeal));
 
             healthBar.AddPoints(health);
             currentHealth += health;

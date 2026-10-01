@@ -6,6 +6,17 @@ namespace Vampire
 {
     public class MiniStageFallingFoodRoom : MiniStageRoomBase
     {
+        protected override void OnInitRoom()
+        {
+            fallingFoodVariants=new FallingFoodVariant[6];
+            for(int i=0;i<6;i++)
+            {
+                var sprite=OctoberArt.Get("OctoberContent/Food/Food"+(i+1));
+                float scale=sprite!=null?1.8f/Mathf.Max(sprite.bounds.size.x,sprite.bounds.size.y):.2f;
+                float rotation=i==4?-60:i==5?55:0;
+                fallingFoodVariants[i]=new FallingFoodVariant{foodSprite=sprite,weight=1,visualScaleMin=Vector2.one*scale*.9f,visualScaleMax=Vector2.one*scale*1.1f,damageRadiusMin=.8f,damageRadiusMax=1.05f,rotationMin=rotation-(i<4?18:2),rotationMax=rotation+(i<4?18:2)};
+            }
+        }
         [System.Serializable]
         private class FallingFoodVariant
         {
@@ -416,14 +427,14 @@ namespace Vampire
                 maxY = middleY;
             }
 
-            return new Vector2(
-                Random.Range(minX, maxX),
-                Random.Range(minY, maxY)
-            );
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            return arena!=null?arena.RandomInside(safeRadius+.15f):new Vector2(Random.Range(minX,maxX),Random.Range(minY,maxY));
         }
 
         private Vector2 ClampPositionInsideArena(Vector2 position, float selectedRadius)
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Clamp(position,selectedRadius+.15f);
             Vector2 center = (Vector2)transform.position + roomCenterOffset;
 
             float safeRadius = Mathf.Max(0.1f, selectedRadius);

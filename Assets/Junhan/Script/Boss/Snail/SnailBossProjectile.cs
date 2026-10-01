@@ -13,7 +13,7 @@ namespace Vampire
         {
             var go=new GameObject(key+" projectile");go.transform.SetParent(owner.EffectsRoot);go.transform.position=position;
             var p=go.AddComponent<SnailBossProjectile>();p.owner=owner;p.chocolate=owner.Chocolate;
-            p.art=SnailBossArt.Make(go.transform,key,width,520);return p;
+            p.art=SnailBossArt.Make(go.transform,key,width,520);OctoberEnemyProjectile.Register(go,true);return p;
         }
         public static void Bomb(SnailBossRuntime owner,Vector2 from,Vector2 to)
         {

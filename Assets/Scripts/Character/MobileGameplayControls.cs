@@ -134,9 +134,9 @@ namespace Vampire
             arrowRoot.SetActive(false);
             // Existing pause/menu UI remains responsible for resuming, preventing
             // gameplay controls from consuming taps on upgrade cards while paused.
-            if (pauseMenu != null)
+            if (pauseMenu != null && ApothecaryUI.Instance==null)
                 Control("PAUSE", root, Vector2.one, new Vector2(-90,-70), new Vector2(150,90)).Pressed = pauseMenu.PlayPause;
-            if (map != null)
+            if (map != null && ApothecaryUI.Instance==null)
             {
                 Control("MAP", root, Vector2.one, new Vector2(-260,-70), new Vector2(150,90)).Pressed = map.Toggle;
                 var closeRect=Rect("Close mobile map",safe,Vector2.one,new Vector2(-105,-70),new Vector2(190,90));

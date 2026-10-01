@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 160a7fac6fdace04195ea832efe0918b, type: 3}
+  m_Name: Item10
+  m_EditorClassIdentifier:
+  itemName: "\uD6C4\uCD94 \uD658"
+  octoberId: 10
+  itemRarity: 0
+  itemTag: 4
+  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC 20% \uD655\uB960\uB85C \uB109\uBC31
+    +1.5."
+  itemIcon: {fileID: -8867113925279384392, guid: 62cc8f23bbc4bb84ab82eb0ff2759ff4, type: 3}
+  cost: 25
+  canBuyInLobby: 1
+  silverCost: 80
+  abilityPrefab: {fileID: 0}
+  atkSpeedBoost: 0
+  atkDamageBoost: 0
+  maxHpBoost: 0
+  moveSpeedBoost: 0
+  critBoost: 0
+  magnetBoost: 0
+  expBoost: 0
+  projSpeedBoost: 0
+  luckBoost: 0
+  sizeBoost: 0
+  rangeBoost: 0
+  pierceCountBoost: 0
+  extraProjectiles: 0
+  burnChance: 0
+  slowChance: 0
+  statusDurationBoost: 0
+  auraDamagePerSecond: 0
+  healOnKill: 0
+  summonOnKillChance: 0
+  healOnIdlePerSecond: 0
+  lifeSteal: 0
+  knockbackOnHit: 0
+  giveShield: 0
+  extraRevives: 0
+  invincibilityBoost: 0
+  autoCollectItems: 0
+  infiniteDash: 0
+  reflectProjectile: 0
+  explosiveAttacks: 0

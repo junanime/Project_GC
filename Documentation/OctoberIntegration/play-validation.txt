@@ -1,0 +1,309 @@
+[OctoberIntegrationSmoke] PASS Catalog valid
+[OctoberIntegrationSmoke] PASS 66 item catalog entries
+[OctoberIntegrationSmoke] PASS All items have icon and effect
+[OctoberIntegrationSmoke] PASS Character art 아시 state 0
+[OctoberIntegrationSmoke] PASS Character art 아시 state 1
+[OctoberIntegrationSmoke] PASS Character art 아시 state 2
+[OctoberIntegrationSmoke] PASS Character art 아리 state 0
+[OctoberIntegrationSmoke] PASS Character art 아리 state 1
+[OctoberIntegrationSmoke] PASS Character art 아리 state 2
+[OctoberIntegrationSmoke] PASS Character art 혁이 state 0
+[OctoberIntegrationSmoke] PASS Character art 혁이 state 1
+[OctoberIntegrationSmoke] PASS Character art 혁이 state 2
+[OctoberIntegrationSmoke] PASS Character art 신이 state 0
+[OctoberIntegrationSmoke] PASS Character art 신이 state 1
+[OctoberIntegrationSmoke] PASS Character art 신이 state 2
+[OctoberIntegrationSmoke] PASS Four actors and interactive germ on title
+[OctoberIntegrationSmoke] PASS Button active: Button 게임 시작
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 게임 시작
+[OctoberIntegrationSmoke] PASS Hover feedback
+[OctoberIntegrationSmoke] PASS Pressed feedback
+[OctoberIntegrationSmoke] PASS Button active: Button 아이템
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 아이템
+[OctoberIntegrationSmoke] PASS Button active: Button 구매 · 80
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 구매 · 80
+[OctoberIntegrationSmoke] PASS One purchase, exact debit
+[OctoberIntegrationSmoke] PASS Button active: Button 구매 · 80
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 구매 · 80
+[OctoberIntegrationSmoke] PASS Two carry items
+[OctoberIntegrationSmoke] PASS Button active: Button 캐릭터
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 캐릭터
+[OctoberIntegrationSmoke] PASS Button active: Button ›
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button ›
+[OctoberIntegrationSmoke] PASS Items survive character changes
+[OctoberIntegrationSmoke] PASS Button active: Button ‹
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button ‹
+[OctoberIntegrationSmoke] PASS Button active: Button 유물
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 유물
+[OctoberIntegrationSmoke] PASS Button active: Button 출전하기
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 출전하기
+[OctoberIntegrationSmoke] PASS Gameplay loaded
+[OctoberIntegrationSmoke] PASS Carry item mechanics installed once
+[OctoberIntegrationSmoke] PASS Duplicate item cannot apply twice
+[OctoberIntegrationSmoke] PASS Carry queue consumed
+[OctoberIntegrationSmoke] PASS All 66 effects registered without errors
+[OctoberIntegrationSmoke] PASS Overheal storage is capped
+[OctoberIntegrationSmoke] PASS Experience mill defers and bonuses XP
+[OctoberIntegrationSmoke] PASS Transfer state retains owned mechanics and pending XP
+[OctoberIntegrationSmoke] PASS Legacy pause control hidden
+[OctoberIntegrationSmoke] PASS Legacy pause control hidden
+[OctoberIntegrationSmoke] PASS TAB pauses gameplay
+[OctoberIntegrationSmoke] PASS Button active: Button 설정
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 설정
+[OctoberGameplay] PASS Heavy charge preview never counts as an attack or triggers item echoes
+[OctoberGameplay] PASS Repeated damage resistance caps at 20%
+[OctoberGameplay] PASS Resistance survives serialized stage transfer
+[OctoberGameplay] PASS Slow item adds 15 percentage points
+[OctoberGameplay] PASS Slow strength never exceeds 70%
+[OctoberGameplay] PASS Overheal cannot grow without bound
+[OctoberGameplay] PASS Real NPC opens themed paused shop
+[OctoberGameplay] PASS Real shop purchase applies item and exact payment
+[OctoberGameplay] PASS Repeated purchase callback cannot charge twice
+[OctoberGameplay] PASS Purchase returns to live gameplay
+[OctoberGameplay] PASS Live mini-stage director
+[OctoberGameplay] PASS Exactly six enabled room prefabs; excluded rooms stay excluded
+[OctoberGameplay] PASS Enter MiniStageExpTimeAttackRoom
+[OctoberGameplay] PASS Player starts inside MiniStageExpTimeAttackRoom
+[OctoberGameplay] PASS Original world background dimensions MiniStageExpTimeAttackRoom
+[OctoberGameplay] PASS Eight thick visual wall segments MiniStageExpTimeAttackRoom
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #0
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #1
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #2
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #3
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #4
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #5
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #6
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #7
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #8
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #9
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #10
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #11
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #12
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #13
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #14
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #15
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #16
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #17
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #18
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #19
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #20
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #21
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #22
+[OctoberGameplay] PASS Safe spawn MiniStageExpTimeAttackRoom #23
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageExpTimeAttackRoom #0
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageExpTimeAttackRoom #1
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageExpTimeAttackRoom #2
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageExpTimeAttackRoom #3
+[OctoberGameplay] PASS Return from MiniStageExpTimeAttackRoom
+[OctoberGameplay] PASS Room boundary released on return
+[OctoberGameplay] PASS Enter MiniStageGoldTimeAttackRoom
+[OctoberGameplay] PASS Player starts inside MiniStageGoldTimeAttackRoom
+[OctoberGameplay] PASS Original world background dimensions MiniStageGoldTimeAttackRoom
+[OctoberGameplay] PASS Eight thick visual wall segments MiniStageGoldTimeAttackRoom
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #0
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #1
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #2
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #3
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #4
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #5
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #6
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #7
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #8
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #9
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #10
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #11
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #12
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #13
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #14
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #15
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #16
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #17
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #18
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #19
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #20
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #21
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #22
+[OctoberGameplay] PASS Safe spawn MiniStageGoldTimeAttackRoom #23
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageGoldTimeAttackRoom #0
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageGoldTimeAttackRoom #1
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageGoldTimeAttackRoom #2
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall MiniStageGoldTimeAttackRoom #3
+[OctoberGameplay] PASS Return from MiniStageGoldTimeAttackRoom
+[OctoberGameplay] PASS Room boundary released on return
+[OctoberGameplay] PASS Enter Room_BonusChest
+[OctoberGameplay] PASS Player starts inside Room_BonusChest
+[OctoberGameplay] PASS Original world background dimensions Room_BonusChest
+[OctoberGameplay] PASS Eight thick visual wall segments Room_BonusChest
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #0
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #1
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #2
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #3
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #4
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #5
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #6
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #7
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #8
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #9
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #10
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #11
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #12
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #13
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #14
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #15
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #16
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #17
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #18
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #19
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #20
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #21
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #22
+[OctoberGameplay] PASS Safe spawn Room_BonusChest #23
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_BonusChest #0
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_BonusChest #1
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_BonusChest #2
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_BonusChest #3
+[OctoberGameplay] PASS Return from Room_BonusChest
+[OctoberGameplay] PASS Room boundary released on return
+[OctoberGameplay] PASS Enter Room_ExplodingRush
+[OctoberGameplay] PASS Player starts inside Room_ExplodingRush
+[OctoberGameplay] PASS Original world background dimensions Room_ExplodingRush
+[OctoberGameplay] PASS Eight thick visual wall segments Room_ExplodingRush
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #0
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #1
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #2
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #3
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #4
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #5
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #6
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #7
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #8
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #9
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #10
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #11
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #12
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #13
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #14
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #15
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #16
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #17
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #18
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #19
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #20
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #21
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #22
+[OctoberGameplay] PASS Safe spawn Room_ExplodingRush #23
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_ExplodingRush #0
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_ExplodingRush #1
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_ExplodingRush #2
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_ExplodingRush #3
+[OctoberGameplay] PASS Return from Room_ExplodingRush
+[OctoberGameplay] PASS Room boundary released on return
+[OctoberGameplay] PASS Enter Room_FallingFood
+[OctoberGameplay] PASS Player starts inside Room_FallingFood
+[OctoberGameplay] PASS Original world background dimensions Room_FallingFood
+[OctoberGameplay] PASS Eight thick visual wall segments Room_FallingFood
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #0
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #1
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #2
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #3
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #4
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #5
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #6
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #7
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #8
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #9
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #10
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #11
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #12
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #13
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #14
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #15
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #16
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #17
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #18
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #19
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #20
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #21
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #22
+[OctoberGameplay] PASS Safe spawn Room_FallingFood #23
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_FallingFood #0
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_FallingFood #1
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_FallingFood #2
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_FallingFood #3
+[OctoberGameplay] PASS Return from Room_FallingFood
+[OctoberGameplay] PASS Room boundary released on return
+[OctoberGameplay] PASS Enter Room_SniperCircle
+[OctoberGameplay] PASS Player starts inside Room_SniperCircle
+[OctoberGameplay] PASS Original world background dimensions Room_SniperCircle
+[OctoberGameplay] PASS Eight thick visual wall segments Room_SniperCircle
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #0
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #1
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #2
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #3
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #4
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #5
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #6
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #7
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #8
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #9
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #10
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #11
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #12
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #13
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #14
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #15
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #16
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #17
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #18
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #19
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #20
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #21
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #22
+[OctoberGameplay] PASS Safe spawn Room_SniperCircle #23
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_SniperCircle #0
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_SniperCircle #1
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_SniperCircle #2
+[OctoberGameplay] PASS Actual diagonal dash cannot cross wall Room_SniperCircle #3
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Sniper spawns inside near perimeter
+[OctoberGameplay] PASS Return from Room_SniperCircle
+[OctoberGameplay] PASS Room boundary released on return
+[OctoberGameplay] PASS Offscreen boss visible (1.00, 0.00)
+[OctoberGameplay] PASS Boss indicator follows correct edge (1.00, 0.00)
+[OctoberGameplay] PASS Offscreen boss visible (0.00, 1.00)
+[OctoberGameplay] PASS Boss indicator follows correct edge (0.00, 1.00)
+[OctoberGameplay] PASS Offscreen boss visible (-1.00, 0.00)
+[OctoberGameplay] PASS Boss indicator follows correct edge (-1.00, 0.00)
+[OctoberGameplay] PASS Offscreen boss visible (0.00, -1.00)
+[OctoberGameplay] PASS Boss indicator follows correct edge (0.00, -1.00)
+[OctoberGameplay] PASS Nearby/onscreen boss indicator hides
+[OctoberGameplay] PASS Correct result art 아시 0
+[OctoberGameplay] PASS Identical result actions 아시 0
+[OctoberGameplay] PASS Correct result art 아시 1
+[OctoberGameplay] PASS Identical result actions 아시 1
+[OctoberGameplay] PASS Correct result art 아리 0
+[OctoberGameplay] PASS Identical result actions 아리 0
+[OctoberGameplay] PASS Correct result art 아리 1
+[OctoberGameplay] PASS Identical result actions 아리 1
+[OctoberGameplay] PASS Correct result art 혁이 0
+[OctoberGameplay] PASS Identical result actions 혁이 0
+[OctoberGameplay] PASS Correct result art 혁이 1
+[OctoberGameplay] PASS Identical result actions 혁이 1
+[OctoberGameplay] PASS Correct result art 신이 0
+[OctoberGameplay] PASS Identical result actions 신이 0
+[OctoberGameplay] PASS Correct result art 신이 1
+[OctoberGameplay] PASS Identical result actions 신이 1
+[OctoberIntegrationSmoke] PASS Same three result actions
+[OctoberIntegrationSmoke] PASS Button active: Button 준비화면
+[OctoberIntegrationSmoke] PASS Pointer hits actual target: Button 준비화면
+[OctoberIntegrationSmoke] PASS Returns to loadout
+[OctoberIntegrationSmoke] PASS Used consumables not duplicated
+[OctoberIntegrationSmoke] FINISHED failed=False

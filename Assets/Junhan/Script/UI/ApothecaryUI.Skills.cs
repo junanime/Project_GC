@@ -93,7 +93,7 @@ namespace Vampire
         }
         void UpdateSkillUI()
         {
-            if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(false);
+            if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(Page=="hud"&&Time.timeScale>0&&!MiniStageRuntimeState.IsInsideMiniStage);
             var skill=CurrentSkills;
             if(activeSkillButton==null)return;
             skillHudRoot.anchoredPosition=new Vector2(0,(Application.isMobilePlatform||MobileGameplayInput.Active)?205:0);

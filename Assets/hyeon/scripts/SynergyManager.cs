@@ -37,12 +37,12 @@ namespace Vampire
         // Synergy
         // =========================================================
 
-        // ÀÌ¹Ì ¹ßµ¿µÈ ½Ã³ÊÁö Ã¼Å©¿ë
+        // ì´ë¯¸ ë°œë™ëœ ì‹œë„ˆì§€ ì²´í¬ìš©
         private HashSet<ItemTag> activatedSynergies =
             new HashSet<ItemTag>();
 
 
-        // UI µî¿¡ Ç¥½ÃÇÏ±â À§ÇÑ ½Ã³ÊÁö ÀÌ¸§ ¸ñ·Ï
+        // UI ë“±ì— í‘œì‹œí•˜ê¸° ìœ„í•œ ì‹œë„ˆì§€ ì´ë¦„ ëª©ë¡
         private List<string> activeSynergyNames =
             new List<string>();
 
@@ -52,8 +52,8 @@ namespace Vampire
         }
 
 
-        // ½Ã³ÊÁö°¡ ¹ßµ¿µÈ ¼ø¼­¸¦ ÀúÀå
-        // ´ëÇ¥ ½Ã³ÊÁö µ¿·ü Ã³¸®¿¡ »ç¿ë
+        // ì‹œë„ˆì§€ê°€ ë°œë™ëœ ìˆœì„œë¥¼ ì €ì¥
+        // ëŒ€í‘œ ì‹œë„ˆì§€ ë™ë¥  ì²˜ë¦¬ì— ì‚¬ìš©
         private List<ItemTag> activeSynergyTags =
             new List<ItemTag>();
 
@@ -79,7 +79,7 @@ namespace Vampire
             if (player == null)
             {
                 Debug.LogWarning(
-                    "[½Ã³ÊÁö] Character¸¦ Ã£Áö ¸øÇß½À´Ï´Ù."
+                    "[ì‹œë„ˆì§€] Characterë¥¼ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤."
                 );
             }
         }
@@ -117,11 +117,11 @@ namespace Vampire
 
 
             Debug.Log(
-                $"[½Ã³ÊÁö] {item.itemName} È¹µæ! ÅÂ±× : {item.itemTag}"
+                $"[ì‹œë„ˆì§€] {item.itemName} íšë“! íƒœê·¸ : {item.itemTag}"
             );
 
 
-            CheckTagCounts();
+            if(item.octoberId==0)CheckTagCounts();
 
 
             ItemsChanged?.Invoke();
@@ -135,58 +135,58 @@ namespace Vampire
         private void CheckTagCounts()
         {
             int supplement =
-                CountTag(ItemTag.¿µ¾çÁ¦);
+                CountTag(ItemTag.ì˜ì–‘ì œ);
 
             int medicine =
-                CountTag(ItemTag.ÀÇ¾àÇ°);
+                CountTag(ItemTag.ì˜ì•½í’ˆ);
 
             int food =
-                CountTag(ItemTag.À½½Ä);
+                CountTag(ItemTag.ìŒì‹);
 
             int hygiene =
-                CountTag(ItemTag.À§»ı);
+                CountTag(ItemTag.ìœ„ìƒ);
 
             int utility =
-                CountTag(ItemTag.À¯Æ¿¸®Æ¼);
+                CountTag(ItemTag.ìœ í‹¸ë¦¬í‹°);
 
 
             Debug.Log(
-                $"¿µ¾çÁ¦:{supplement} " +
-                $"ÀÇ¾àÇ°:{medicine} " +
-                $"À½½Ä:{food} " +
-                $"À§»ı:{hygiene} " +
-                $"À¯Æ¿:{utility}"
+                $"ì˜ì–‘ì œ:{supplement} " +
+                $"ì˜ì•½í’ˆ:{medicine} " +
+                $"ìŒì‹:{food} " +
+                $"ìœ„ìƒ:{hygiene} " +
+                $"ìœ í‹¸:{utility}"
             );
 
 
             TryActivateSynergy(
-                ItemTag.¿µ¾çÁ¦,
+                ItemTag.ì˜ì–‘ì œ,
                 supplement,
-                "°Ç°­ ¸¶´Ï¾Æ"
+                "ê±´ê°• ë§ˆë‹ˆì•„"
             );
 
             TryActivateSynergy(
-                ItemTag.ÀÇ¾àÇ°,
+                ItemTag.ì˜ì•½í’ˆ,
                 medicine,
-                "¾à¹° °ú´Ù"
+                "ì•½ë¬¼ ê³¼ë‹¤"
             );
 
             TryActivateSynergy(
-                ItemTag.À½½Ä,
+                ItemTag.ìŒì‹,
                 food,
-                "ÀÚ±ØÀûÀÎ ¸À"
+                "ìê·¹ì ì¸ ë§›"
             );
 
             TryActivateSynergy(
-                ItemTag.À§»ı,
+                ItemTag.ìœ„ìƒ,
                 hygiene,
-                "À§»ı Àü¹®°¡"
+                "ìœ„ìƒ ì „ë¬¸ê°€"
             );
 
             TryActivateSynergy(
-                ItemTag.À¯Æ¿¸®Æ¼,
+                ItemTag.ìœ í‹¸ë¦¬í‹°,
                 utility,
-                "ÁıÁß ÄÉ¾î"
+                "ì§‘ì¤‘ ì¼€ì–´"
             );
         }
 
@@ -239,13 +239,13 @@ namespace Vampire
 
             activeSynergyNames.Add(synergyName);
 
-            // ¹ßµ¿ ¼ø¼­ ÀúÀå
+            // ë°œë™ ìˆœì„œ ì €ì¥
             activeSynergyTags.Add(tag);
 
 
             Debug.Log(
-                $"<color=magenta>[½Ã³ÊÁö ¹ßµ¿]</color> " +
-                $"{synergyName} È°¼ºÈ­!"
+                $"<color=magenta>[ì‹œë„ˆì§€ ë°œë™]</color> " +
+                $"{synergyName} í™œì„±í™”!"
             );
 
 
@@ -256,25 +256,25 @@ namespace Vampire
         // =========================================================
         // Get Dominant Synergy
         //
-        // °á°úÈ­¸éÀÇ "ÃÖÁ¾ ºôµå ÀÌ¸§"À¸·Î »ç¿ë
+        // ê²°ê³¼í™”ë©´ì˜ "ìµœì¢… ë¹Œë“œ ì´ë¦„"ìœ¼ë¡œ ì‚¬ìš©
         // =========================================================
 
         public string GetDominantSynergyName()
         {
             int supplement =
-                CountTag(ItemTag.¿µ¾çÁ¦);
+                CountTag(ItemTag.ì˜ì–‘ì œ);
 
             int medicine =
-                CountTag(ItemTag.ÀÇ¾àÇ°);
+                CountTag(ItemTag.ì˜ì•½í’ˆ);
 
             int food =
-                CountTag(ItemTag.À½½Ä);
+                CountTag(ItemTag.ìŒì‹);
 
             int hygiene =
-                CountTag(ItemTag.À§»ı);
+                CountTag(ItemTag.ìœ„ìƒ);
 
             int utility =
-                CountTag(ItemTag.À¯Æ¿¸®Æ¼);
+                CountTag(ItemTag.ìœ í‹¸ë¦¬í‹°);
 
 
             int maxCount = Mathf.Max(
@@ -286,16 +286,16 @@ namespace Vampire
             );
 
 
-            // ½Ã³ÊÁö ¹ßµ¿ ±âÁØÀÌ 3°³ÀÌ¹Ç·Î
-            // ÃÖ´ë °³¼ö°¡ 3 ¹Ì¸¸ÀÌ¸é ½Ã³ÊÁö ¾øÀ½
+            // ì‹œë„ˆì§€ ë°œë™ ê¸°ì¤€ì´ 3ê°œì´ë¯€ë¡œ
+            // ìµœëŒ€ ê°œìˆ˜ê°€ 3 ë¯¸ë§Œì´ë©´ ì‹œë„ˆì§€ ì—†ìŒ
             if (maxCount < 3)
             {
-                return "½Ã³ÊÁö ¾øÀ½";
+                return "ì‹œë„ˆì§€ ì—†ìŒ";
             }
 
 
             // =====================================================
-            // µ¿·üÀÌ¸é ¸ÕÀú ¹ßµ¿ÇÑ ½Ã³ÊÁö ¿ì¼±
+            // ë™ë¥ ì´ë©´ ë¨¼ì € ë°œë™í•œ ì‹œë„ˆì§€ ìš°ì„ 
             // =====================================================
 
             foreach (ItemTag tag in activeSynergyTags)
@@ -310,25 +310,25 @@ namespace Vampire
             }
 
 
-            // È¤½Ã ¹ßµ¿ ±â·ÏÀÌ ¾ø´Â ¿¹¿Ü »óÈ²ÀÌ »ı±ä °æ¿ì
-            // ÇöÀç °³¼ö°¡ °¡Àå ³ôÀº ÅÂ±×¸¦ ±âÁØÀ¸·Î ¹İÈ¯
+            // í˜¹ì‹œ ë°œë™ ê¸°ë¡ì´ ì—†ëŠ” ì˜ˆì™¸ ìƒí™©ì´ ìƒê¸´ ê²½ìš°
+            // í˜„ì¬ ê°œìˆ˜ê°€ ê°€ì¥ ë†’ì€ íƒœê·¸ë¥¼ ê¸°ì¤€ìœ¼ë¡œ ë°˜í™˜
             if (supplement == maxCount)
-                return GetSynergyName(ItemTag.¿µ¾çÁ¦);
+                return GetSynergyName(ItemTag.ì˜ì–‘ì œ);
 
             if (medicine == maxCount)
-                return GetSynergyName(ItemTag.ÀÇ¾àÇ°);
+                return GetSynergyName(ItemTag.ì˜ì•½í’ˆ);
 
             if (food == maxCount)
-                return GetSynergyName(ItemTag.À½½Ä);
+                return GetSynergyName(ItemTag.ìŒì‹);
 
             if (hygiene == maxCount)
-                return GetSynergyName(ItemTag.À§»ı);
+                return GetSynergyName(ItemTag.ìœ„ìƒ);
 
             if (utility == maxCount)
-                return GetSynergyName(ItemTag.À¯Æ¿¸®Æ¼);
+                return GetSynergyName(ItemTag.ìœ í‹¸ë¦¬í‹°);
 
 
-            return "½Ã³ÊÁö ¾øÀ½";
+            return "ì‹œë„ˆì§€ ì—†ìŒ";
         }
 
 
@@ -340,23 +340,23 @@ namespace Vampire
         {
             switch (tag)
             {
-                case ItemTag.¿µ¾çÁ¦:
-                    return "°Ç°­ ¸¶´Ï¾Æ";
+                case ItemTag.ì˜ì–‘ì œ:
+                    return "ê±´ê°• ë§ˆë‹ˆì•„";
 
-                case ItemTag.ÀÇ¾àÇ°:
-                    return "¾à¹° °ú´Ù";
+                case ItemTag.ì˜ì•½í’ˆ:
+                    return "ì•½ë¬¼ ê³¼ë‹¤";
 
-                case ItemTag.À½½Ä:
-                    return "ÀÚ±ØÀûÀÎ ¸À";
+                case ItemTag.ìŒì‹:
+                    return "ìê·¹ì ì¸ ë§›";
 
-                case ItemTag.À§»ı:
-                    return "À§»ı Àü¹®°¡";
+                case ItemTag.ìœ„ìƒ:
+                    return "ìœ„ìƒ ì „ë¬¸ê°€";
 
-                case ItemTag.À¯Æ¿¸®Æ¼:
-                    return "ÁıÁß ÄÉ¾î";
+                case ItemTag.ìœ í‹¸ë¦¬í‹°:
+                    return "ì§‘ì¤‘ ì¼€ì–´";
 
                 default:
-                    return "½Ã³ÊÁö ¾øÀ½";
+                    return "ì‹œë„ˆì§€ ì—†ìŒ";
             }
         }
 
@@ -370,8 +370,8 @@ namespace Vampire
             if (player == null)
             {
                 Debug.LogWarning(
-                    "[½Ã³ÊÁö] Character°¡ ¾ø¾î " +
-                    "½Ã³ÊÁö È¿°ú¸¦ Àû¿ëÇÏÁö ¸øÇß½À´Ï´Ù."
+                    "[ì‹œë„ˆì§€] Characterê°€ ì—†ì–´ " +
+                    "ì‹œë„ˆì§€ íš¨ê³¼ë¥¼ ì ìš©í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤."
                 );
 
                 return;
@@ -381,82 +381,82 @@ namespace Vampire
             switch (tag)
             {
                 // =================================================
-                // ¿µ¾çÁ¦
+                // ì˜ì–‘ì œ
                 // =================================================
 
-                case ItemTag.¿µ¾çÁ¦:
+                case ItemTag.ì˜ì–‘ì œ:
 
                     player.AddMaxHealthBonus(20f);
                     player.GainHealth(20f);
 
                     Debug.Log(
-                        "<color=green>[°Ç°­ ¸¶´Ï¾Æ]</color> " +
-                        "ÃÖ´ë Ã¼·Â +20 Àû¿ë!"
+                        "<color=green>[ê±´ê°• ë§ˆë‹ˆì•„]</color> " +
+                        "ìµœëŒ€ ì²´ë ¥ +20 ì ìš©!"
                     );
 
                     break;
 
 
                 // =================================================
-                // ÀÇ¾àÇ°
+                // ì˜ì•½í’ˆ
                 // =================================================
 
-                case ItemTag.ÀÇ¾àÇ°:
+                case ItemTag.ì˜ì•½í’ˆ:
 
                     player.AddDamageMultiplier(0.3f);
                     player.AddMoveSpeedBoost(-0.05f);
 
                     Debug.Log(
-                        "<color=red>[¾à¹° °ú´Ù]</color> " +
-                        "°ø°İ·Â +30%, ÀÌµ¿¼Óµµ -0.05 Àû¿ë!"
+                        "<color=red>[ì•½ë¬¼ ê³¼ë‹¤]</color> " +
+                        "ê³µê²©ë ¥ +30%, ì´ë™ì†ë„ -0.05 ì ìš©!"
                     );
 
                     break;
 
 
                 // =================================================
-                // À½½Ä
+                // ìŒì‹
                 // =================================================
 
-                case ItemTag.À½½Ä:
+                case ItemTag.ìŒì‹:
 
                     player.AddBurnChance(0.2f);
 
                     Debug.Log(
-                        "<color=orange>[ÀÚ±ØÀûÀÎ ¸À]</color> " +
-                        "È­»ó È®·ü +20% Àû¿ë!"
+                        "<color=orange>[ìê·¹ì ì¸ ë§›]</color> " +
+                        "í™”ìƒ í™•ë¥  +20% ì ìš©!"
                     );
 
                     break;
 
 
                 // =================================================
-                // À§»ı
+                // ìœ„ìƒ
                 // =================================================
 
-                case ItemTag.À§»ı:
+                case ItemTag.ìœ„ìƒ:
 
                     player.EnableShield();
 
                     Debug.Log(
-                        "<color=cyan>[À§»ı Àü¹®°¡]</color> " +
-                        "1È¸¿ë º¸È£¸· Àû¿ë!"
+                        "<color=cyan>[ìœ„ìƒ ì „ë¬¸ê°€]</color> " +
+                        "1íšŒìš© ë³´í˜¸ë§‰ ì ìš©!"
                     );
 
                     break;
 
 
                 // =================================================
-                // À¯Æ¿¸®Æ¼
+                // ìœ í‹¸ë¦¬í‹°
                 // =================================================
 
-                case ItemTag.À¯Æ¿¸®Æ¼:
+                case ItemTag.ìœ í‹¸ë¦¬í‹°:
 
                     player.AddProjectileSize(0.1f);
 
                     Debug.Log(
-                        "<color=blue>[ÁıÁß ÄÉ¾î]</color> " +
-                        "Åõ»çÃ¼ Å©±â +10% Àû¿ë!"
+                        "<color=blue>[ì§‘ì¤‘ ì¼€ì–´]</color> " +
+                        "íˆ¬ì‚¬ì²´ í¬ê¸° +10% ì ìš©!"
                     );
 
                     break;

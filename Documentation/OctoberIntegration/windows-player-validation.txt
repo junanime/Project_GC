@@ -1,0 +1,9 @@
+[ApothecaryPlayerSmoke] PASS Player opens main UI
+[ApothecaryPlayerSmoke] PASS Native window mode and resolution applied (actual Windowed 1280x720, desktop 1920x1080)
+[ApothecaryPlayerSmoke] PASS Quality, VSync and frame cap applied
+[ApothecaryPlayerSmoke] PASS Player audio categories independent
+[ApothecaryPlayerSmoke] PASS New display size previewed
+[ApothecaryPlayerSmoke] PASS Timed-out display preview restores native window size
+[ApothecaryPlayerSmoke] PASS Borderless fullscreen applied
+[ApothecaryPlayerSmoke] PASS Confirmed display mode saved
+[ApothecaryPlayerSmoke] FINISHED passed=True

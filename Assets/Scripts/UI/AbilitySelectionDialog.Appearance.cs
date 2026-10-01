@@ -35,19 +35,15 @@ namespace Vampire
             dimmer.raycastTarget = true; panelDimmer = dimmer.rectTransform; panelDimmer.SetAsFirstSibling();
             panelContent = AugmentPanelTheme.Rect("Training content", transform);
             AugmentPanelTheme.Box(panelContent, Vector2.zero, new Vector2(1280,720));
-            var title = AugmentPanelTheme.Label("Training title", panelContent, font, "단 련", 52);
-            title.fontStyle = FontStyles.Bold;
-            AugmentPanelTheme.Box(title.rectTransform, new Vector2(0,300), new Vector2(500,64));
-            var subtitle = AugmentPanelTheme.Label("Training subtitle", panelContent, font, "강해지고 싶은 자 나에게로..", 23);
-            AugmentPanelTheme.Box(subtitle.rectTransform, new Vector2(0,246), new Vector2(520,38));
-            for (int sign=-1; sign<=1; sign+=2)
-            {
-                var line = AugmentPanelTheme.Fill("Header jade rule", panelContent, AugmentPanelTheme.Jade);
-                AugmentPanelTheme.Box(line.rectTransform, new Vector2(sign*275,246), new Vector2(52,1.5f));
-                var diamond = AugmentPanelTheme.Fill("Header jade seal", panelContent, AugmentPanelTheme.Jade);
-                AugmentPanelTheme.Box(diamond.rectTransform, new Vector2(sign*239,246), new Vector2(5,5));
-                diamond.rectTransform.localRotation = Quaternion.Euler(0,0,45);
-            }
+            var banner=AugmentPanelTheme.Fill("Training banner",panelContent,Color.white);
+            banner.sprite=OctoberArt.Get("OctoberUI/Banner");banner.preserveAspect=true;
+            AugmentPanelTheme.Box(banner.rectTransform,new Vector2(0,287),new Vector2(400,138));
+            var title=AugmentPanelTheme.Label("Training title",panelContent,font,"단 련",42);
+            title.fontStyle=FontStyles.Bold;title.color=new Color(1,.95f,.7f);title.outlineColor=OctoberArt.Ink;title.outlineWidth=.15f;
+            AugmentPanelTheme.Box(title.rectTransform,new Vector2(0,306),new Vector2(300,62));
+            var subtitle=AugmentPanelTheme.Label("Training subtitle",panelContent,font,"강해지고 싶은 자 나에게로..",20);
+            subtitle.color=Color.white;
+            AugmentPanelTheme.Box(subtitle.rectTransform,new Vector2(0,244),new Vector2(490,30));
             abilityCardsParent.SetParent(panelContent,false);
             AugmentPanelTheme.Box((RectTransform)abilityCardsParent,new Vector2(0,-6),new Vector2(890,454));
             var parentImage = abilityCardsParent.GetComponent<Image>(); if(parentImage != null) parentImage.enabled = false;
@@ -64,10 +60,22 @@ namespace Vampire
                 AugmentPanelTheme.Box((RectTransform)rerollButton.transform,new Vector2(0,-291),new Vector2(310,66));
                 foreach (Transform child in rerollButton.transform) child.gameObject.SetActive(false);
                 rerollButtonImage = rerollButton.GetComponent<Image>();
-                rerollButtonImage.sprite = Resources.Load<Sprite>("AugmentPanels/Reroll");
-                rerollButtonImage.type = Image.Type.Simple; rerollButtonImage.preserveAspect = false;
-                rerollButton.targetGraphic = rerollButtonImage;
-                rerollUsedImageColor = new Color(.45f,.45f,.45f,1);
+                rerollButtonImage.color=Color.clear;
+                var visual=AugmentPanelTheme.Rect("Visual",rerollButton.transform);
+                AugmentPanelTheme.Anchors(visual,Vector2.zero,Vector2.one);
+                var body=visual.gameObject.AddComponent<Image>();body.sprite=OctoberArt.Button(false);body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=4;body.raycastTarget=false;
+                var light=AugmentPanelTheme.Rect("Orbiting edge light",visual).gameObject.AddComponent<TitleMenuSurface>();
+                AugmentPanelTheme.Anchors(light.rectTransform,Vector2.zero,Vector2.one);
+                light.button=rerollButton;light.hideIcon=true;light.decorationOnly=true;light.raycastTarget=false;
+                rerollButtonText=AugmentPanelTheme.Label("Reroll label",visual,font,"새로고침",26);
+                AugmentPanelTheme.Anchors(rerollButtonText.rectTransform,Vector2.zero,Vector2.one);
+                rerollButtonText.fontStyle=FontStyles.Bold;rerollButtonText.color=OctoberArt.Ink;
+                var feedback=rerollButton.gameObject.AddComponent<ApothecaryButtonFeedback>();
+                feedback.button=rerollButton;feedback.visual=visual;feedback.body=body;feedback.sparkle=light;feedback.label=rerollButtonText;
+                rerollButton.targetGraphic=rerollButtonImage;rerollButton.transition=Selectable.Transition.None;
+                rerollAvailableImageColor=rerollUsedImageColor=Color.clear;
+                rerollAvailableTextColor=rerollUsedTextColor=OctoberArt.Ink;
+
             }
             UpdatePanelLayout();
         }

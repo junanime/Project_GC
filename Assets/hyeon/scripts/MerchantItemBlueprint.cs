@@ -2,13 +2,14 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public enum ItemTag { ¿µ¾çÁ¦, ÀÇ¾àÇ°, À½½Ä, À§»ı, À¯Æ¿¸®Æ¼ }
+    public enum ItemTag { ì˜ì–‘ì œ, ì˜ì•½í’ˆ, ìŒì‹, ìœ„ìƒ, ìœ í‹¸ë¦¬í‹° }
 
     [CreateAssetMenu(fileName = "New Merchant Item", menuName = "Vampire/Merchant Item")]
     public class MerchantItemBlueprint : ScriptableObject
     {
-        [Header("±âº» Á¤º¸")]
+        [Header("ê¸°ë³¸ ì •ë³´")]
         public string itemName;
+        public int octoberId;
         public enum Rarity { Common, Uncommon, Rare, Legendary }
         public Rarity itemRarity;
         public ItemTag itemTag;
@@ -21,11 +22,11 @@ namespace Vampire
         public bool canBuyInLobby = true;
         public int silverCost = 100;
 
-        //  º¹±¸µÊ: ¹«±â³ª Æ¯¼ö ´É·ÂÀ» ºÎ¿©ÇÒ ¶§ ¾²´Â ÇÁ¸®ÆÕ
-        [Header("Ability Reward (¹«±â/Æ¯¼ö ´É·Â ÇÁ¸®ÆÕ)")]
+        //  ë³µêµ¬ë¨: ë¬´ê¸°ë‚˜ íŠ¹ìˆ˜ ëŠ¥ë ¥ì„ ë¶€ì—¬í•  ë•Œ ì“°ëŠ” í”„ë¦¬íŒ¹
+        [Header("Ability Reward (ë¬´ê¸°/íŠ¹ìˆ˜ ëŠ¥ë ¥ í”„ë¦¬íŒ¹)")]
         public GameObject abilityPrefab;
 
-        [Header("1. ±âÃÊ ½ºÅÈ (Common / Uncommon)")]
+        [Header("1. ê¸°ì´ˆ ìŠ¤íƒ¯ (Common / Uncommon)")]
         [Range(-1f, 2f)] public float atkSpeedBoost;
         [Range(-1f, 2f)] public float atkDamageBoost;
         public float maxHpBoost;
@@ -35,29 +36,29 @@ namespace Vampire
         [Range(0, 1f)] public float expBoost;
         [Range(0, 2f)] public float projSpeedBoost;
 
-        //  º¹±¸µÊ: ¿î ½ºÅÈ
+        //  ë³µêµ¬ë¨: ìš´ ìŠ¤íƒ¯
         [Range(0, 1f)] public float luckBoost;
 
-        [Header("2. À¯Æ¿¸®Æ¼ & ¹«±â ½ºÅÈ (Uncommon / Rare)")]
+        [Header("2. ìœ í‹¸ë¦¬í‹° & ë¬´ê¸° ìŠ¤íƒ¯ (Uncommon / Rare)")]
         [Range(0, 2f)] public float sizeBoost;
         public float rangeBoost;
         public int pierceCountBoost;
         public int extraProjectiles;
 
-        [Header("3. »óÅÂ ÀÌ»ó & ¿À¶ó (½Ã½ºÅÛ ±¸Çö ¿¹Á¤)")]
+        [Header("3. ìƒíƒœ ì´ìƒ & ì˜¤ë¼ (ì‹œìŠ¤í…œ êµ¬í˜„ ì˜ˆì •)")]
         [Range(0, 1f)] public float burnChance;
         [Range(0, 1f)] public float slowChance;
         public float statusDurationBoost;
         public float auraDamagePerSecond;
 
-        [Header("4. Æ®¸®°Å & ÈíÇ÷ È¿°ú (½Ã½ºÅÛ ±¸Çö ¿¹Á¤)")]
+        [Header("4. íŠ¸ë¦¬ê±° & í¡í˜ˆ íš¨ê³¼ (ì‹œìŠ¤í…œ êµ¬í˜„ ì˜ˆì •)")]
         public float healOnKill;
         [Range(0, 1f)] public float summonOnKillChance;
         public float healOnIdlePerSecond;
         [Range(0, 1f)] public float lifeSteal;
         public bool knockbackOnHit;
 
-        [Header("5. Æ¯¼ö ±â´É ÇÃ·¡±× (Rare / Legendary)")]
+        [Header("5. íŠ¹ìˆ˜ ê¸°ëŠ¥ í”Œë˜ê·¸ (Rare / Legendary)")]
         public bool giveShield;
         public int extraRevives;
         public float invincibilityBoost;

@@ -50,17 +50,19 @@ namespace Vampire
         }
         public static float Health(Component target)
         {
+            if(target is SnailBossRuntime snail)return snail.Health;
             if(target is Monster monster) return monster.HP;
             if(target is BossPartDamageTestPart part) return part.CurrentHealth;
             return 0;
         }
         public static float MaxHealth(Component target)
         {
+            if(target is SnailBossRuntime snail)return snail.settings!=null?snail.settings.maxHealth:1;
             if(target is Monster monster) return monster.SpawnMaxHealth;
             if(target is BossPartDamageTestPart part) return part.MaxHealth;
             return 0;
         }
-        public static bool IsBoss(Component target) => target is BossMonster || target is MiniBossMonster || target is BossPartDamageTestPart;
+        public static bool IsBoss(Component target) => target is SnailBossRuntime || target is BossMonster || target is MiniBossMonster || target is BossPartDamageTestPart;
         public static List<Component> Nearby(Vector2 center,float radius,LayerMask layer,Character source)
         {
             var result=new List<Component>(); var ids=new HashSet<int>();

@@ -29,7 +29,7 @@ namespace Vampire
             this.speed = speed;
             this.damage = damage;
 
-            initialized = true;
+            initialized = true;OctoberEnemyProjectile.Register(gameObject,true);
 
             Destroy(gameObject, lifeTime);
         }
