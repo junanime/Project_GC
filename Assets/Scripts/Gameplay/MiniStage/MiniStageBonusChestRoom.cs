@@ -204,53 +204,14 @@ namespace Vampire
 
             if (debugLog)
             {
-                Debug.Log("[MiniStageBonusChestRoom] 진짜 보스 보상 상자 선택. 실제 보상 Chest를 생성하고 자동 오픈합니다.");
+                Debug.Log("[MiniStageBonusChestRoom] 당첨 상자 선택. 스킬 강화 후 격화 여부에 따라 추가 상자를 지급합니다.");
             }
         }
 
         private IEnumerator TrueRewardRoutine(MiniStageMysteryChestInteractable selectedChest)
         {
-            if (entityManager == null)
-            {
-                Debug.LogWarning("[MiniStageBonusChestRoom] EntityManager가 없어 보상 Chest를 생성할 수 없습니다.");
-                CompleteRoomWithoutReward();
-                yield break;
-            }
-
-            if (trueRewardChestBlueprint == null)
-            {
-                Debug.LogWarning("[MiniStageBonusChestRoom] True Reward Chest Blueprint가 비어 있습니다. 보상 없이 귀환을 엽니다.");
-                CompleteRoomWithoutReward();
-                yield break;
-            }
-
-            Vector2 spawnPosition = GetTrueRewardChestSpawnPosition(selectedChest);
-
-            Chest rewardChest = entityManager.SpawnChest(trueRewardChestBlueprint, spawnPosition);
-
-            if (rewardChest == null)
-            {
-                Debug.LogWarning("[MiniStageBonusChestRoom] 보상 Chest 생성에 실패했습니다. 보상 없이 귀환을 엽니다.");
-                CompleteRoomWithoutReward();
-                yield break;
-            }
-
-            if (trueRewardOpenDelay > 0f)
-            {
-                yield return new WaitForSeconds(trueRewardOpenDelay);
-            }
-
-            rewardChest.OpenChest(true);
-
-            if (unlockReturnAfterRewardDelay > 0f)
-            {
-                yield return new WaitForSeconds(unlockReturnAfterRewardDelay);
-            }
-
-            // 이 방은 MiniStageRoomBase의 CompleteRoom()으로 보상 Chest를 생성하지 않는다.
-            // 우리가 직접 SpawnChest + OpenChest를 했으므로, 귀환만 열어준다.
-            UnlockOptionalReturn();
-
+            yield return new WaitForSeconds(trueRewardOpenDelay);
+            CompleteRoom();
             rewardRoutine = null;
         }
 
@@ -326,7 +287,7 @@ namespace Vampire
                 Debug.Log("[MiniStageBonusChestRoom] 몬스터 상자 몬스터 처치 완료. 귀환 가능.");
             }
 
-            CompleteRoomWithoutReward();
+            CompleteRoom();
         }
 
         private Vector2 GetTrueRewardChestSpawnPosition(MiniStageMysteryChestInteractable selectedChest)
@@ -377,6 +338,7 @@ namespace Vampire
         private void BuildRoleList()
         {
             roleBuffer.Clear();
+            if(Enhanced) { for(int i=0;i<mysteryChests.Length;i++)roleBuffer.Add(MiniStageMysteryChestOutcome.TrueReward); return; }
 
             roleBuffer.Add(MiniStageMysteryChestOutcome.Fake);
             roleBuffer.Add(MiniStageMysteryChestOutcome.TrueReward);

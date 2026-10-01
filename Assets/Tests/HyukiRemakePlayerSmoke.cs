@@ -11,7 +11,7 @@ namespace Vampire.Tests
     {
         bool errors;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        static void Boot(){if(Environment.GetCommandLineArgs().Contains("-hyukiRemakeSmoke")){var go=new GameObject("Hyuki remake verification");DontDestroyOnLoad(go);go.AddComponent<HyukiRemakePlayerSmoke>();}}
+        static void Boot(){if(Environment.GetCommandLineArgs().Contains("-hyukiRemakeSmoke")){Application.runInBackground=true;var go=new GameObject("Hyuki remake verification");DontDestroyOnLoad(go);go.AddComponent<HyukiRemakePlayerSmoke>();}}
         void Log(string m,string stack,LogType type){if(type==LogType.Error||type==LogType.Exception||type==LogType.Assert)errors=true;}
         static void Check(bool ok,string message){if(!ok)throw new Exception("[HyukiRemake] FAIL "+message);Debug.Log("[HyukiRemake] PASS "+message);}
         static void Seed(bool success,float chance){for(int i=0;i<10000;i++){UnityEngine.Random.InitState(i);if((UnityEngine.Random.value<chance)==success){UnityEngine.Random.InitState(i);return;}}throw new Exception("No deterministic seed");}
@@ -45,7 +45,16 @@ namespace Vampire.Tests
                 var transformScale=player.transform.localScale;var collider=player.GetComponent<Collider2D>();var colliderSize=collider.bounds.size;float hp=player.CurrentHealth;
                 skill.RestoreSleep(999,999);skill.Tick(500);yield return null;
                 Check(skill.SleepStacks==0&&skill.MovementMultiplier==1&&player.GetComponent<PhoenixSkillVisual>().CrystalCount==0,"retired sleep speed and crystals removed");
+                // Live attacks during scene startup can already have failed an instant-freeze roll.
+                Debug.Log("[HyukiRemake] Setup chance="+skill.IceProcChance+" failures="+skill.IceProcFailures+" level="+skill.PassiveLevel);
+                skill.RestoreIceProcFailures(0);
+                Check(skill.PassiveLevel==1&&skill.ActiveLevel==1,"new run starts both skills at level one");
                 Check(Mathf.Approximately(skill.IceProcChance,.10f),"base instant chance ten percent");
+                for(int n=0;n<4;n++){skill.TryUpgrade(false);skill.TryUpgrade(true);}
+                Check(Mathf.Abs(skill.IceProcChance-.28561f)<.0001f,"level five passive raises base freeze chance to 28.561 percent");
+                Check(Mathf.Abs(skill.EffectiveCooldown-skill.Definition.cooldown/2.8561f)<.001f,"level five active reduces cooldown by compound power");
+                Check(!skill.TryUpgrade(false)&&!skill.TryUpgrade(true),"both upgrades stop at level five");
+                skill.RestoreLevels(1,1);
                 var data=level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];
                 var a=level.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);a.enabled=false;
                 for(int n=1;n<=4;n++)

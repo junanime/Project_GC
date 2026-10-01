@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Vampire
 {
-    public class AbilityCard : MonoBehaviour
+    public partial class AbilityCard : MonoBehaviour
     {
         [Header("Existing References")]
         [Tooltip("증강 아이콘 Image입니다. 기존 Ability Image 오브젝트를 연결하세요.")]
@@ -183,12 +183,21 @@ namespace Vampire
 
             if (nameText != null)
             {
-                nameText.text = ability.Name;
+                nameText.text = PanelTitle();
+                FitCardText(nameText, new Vector2(themedCard ? .10f : .12f,themedCard ? .385f : .45f), new Vector2(themedCard ? .90f : .88f,themedCard ? .48f : .51f), themedCard ? 27 : 20, TextAlignmentOptions.Center);
+                if (UsesNoblePanel)
+                {
+                    FitCardText(nameText,new Vector2(.215f,.345f),new Vector2(.785f,.415f),24,TextAlignmentOptions.Center);
+                    nameText.enableAutoSizing=false; nameText.fontSize=24; nameText.enableWordWrapping=false;
+                }
             }
 
             if (descriptionText != null)
             {
-                descriptionText.text = ability.Description;
+                descriptionText.text = PanelDescription();
+                FitCardText(descriptionText, new Vector2(themedCard ? .105f : .13f,themedCard ? .07f : .11f), new Vector2(themedCard ? .895f : .87f,themedCard ? .34f : .42f), themedCard ? 18 : 16, TextAlignmentOptions.TopLeft);
+                if (UsesNoblePanel)
+                    FitCardText(descriptionText,new Vector2(.235f,.155f),new Vector2(.765f,.325f),15,TextAlignmentOptions.TopLeft);
             }
 
             if (buttonText != null)
@@ -204,6 +213,21 @@ namespace Vampire
             }
         }
 
+        private static void FitCardText(TextMeshProUGUI text, Vector2 min, Vector2 max, float fontMax, TextAlignmentOptions alignment)
+        {
+            // The old one-line description rect overflowed into the title and select button.
+            var rect = text.rectTransform;
+            rect.anchorMin = min; rect.anchorMax = max; rect.pivot = new Vector2(.5f,.5f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            text.alignment = alignment;
+            text.margin = Vector4.zero;
+            text.enableWordWrapping = true;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 13;
+            text.fontSizeMax = fontMax;
+            text.overflowMode = TextOverflowModes.Overflow;
+        }
+
         public void Init(AbilitySelectionDialog levelUpMenu, Ability ability, float waitToAppear)
         {
             ResetAppearAnimation();
@@ -212,15 +236,7 @@ namespace Vampire
 
             CacheMissingReferences();
             ApplyTierVisuals(ability.Tier);
-            if (ability is Ver4AugmentOffer preview && preview.Kind != Ver4RewardKind.LegendaryAbility)
-            {
-                Color tint = upgradeGradeColors[(int)preview.Grade];
-                if (cardBackgroundImage != null) cardBackgroundImage.color = tint;
-                if (iconFrameImage != null) iconFrameImage.color = tint;
-                if (bottomEmblemImage != null) bottomEmblemImage.color = tint;
-                if (nameText != null) nameText.color = tint;
-                if (selectionButtonImage != null) selectionButtonImage.color = tint;
-            }
+            ApplyPanelTheme();
             ApplyAbilityIcon();
 
             appearCoroutine = StartCoroutine(Appear(waitToAppear));
@@ -372,8 +388,12 @@ namespace Vampire
 
         private void ApplyAbilityIcon()
         {
-            if (abilityImage == null || ability == null || ability.Image == null)
+            if (abilityImage == null) return;
+            if (UsesNoblePanel) { abilityImage.enabled=false; return; }
+            if (ability == null || ability.Image == null)
             {
+                abilityImage.sprite = null;
+                abilityImage.enabled = false;
                 return;
             }
 
@@ -421,7 +441,7 @@ namespace Vampire
 
         public void Selected()
         {
-            if (ability == null || levelUpMenu == null)
+            if (ability == null || levelUpMenu == null || !levelUpMenu.MenuOpen)
             {
                 return;
             }

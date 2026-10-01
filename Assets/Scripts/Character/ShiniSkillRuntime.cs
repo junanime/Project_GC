@@ -118,7 +118,7 @@ namespace Vampire
                     if(now-p.born<PoolLifetime&&!nextBurn.ContainsKey(target))
                     {
                         nextBurn[target]=now+1;
-                        var runtime=needle.GetCurrentSpecialRuntime();runtime.ver4HitDamage=NonCriticalDamage(target);
+                        var runtime=needle.GetCurrentSpecialRuntime();runtime.ver4HitDamage=NonCriticalDamage(target)*skill.PassivePower;
                         (target.GetComponent<Ver4NeedleStatus>()??target.gameObject.AddComponent<Ver4NeedleStatus>()).ApplyFire(runtime,owner,true);
                     }
                     if(eruption&&hitWave.Add(target))Detonate(target);
@@ -144,7 +144,7 @@ namespace Vampire
             if(needle==null||Ver4HitEffects.Health(target)<=0)return;
             var status=target.GetComponent<Ver4NeedleStatus>();int stacks=0;
             float remaining=status!=null?status.ConsumeBurn(out stacks):0;
-            Ver4HitEffects.Damage(target,NonCriticalDamage(target)*(1+1.5f*stacks)+remaining,Vector2.zero,owner,"불꽃 토네이도");
+            Ver4HitEffects.Damage(target,(NonCriticalDamage(target)*(1+1.5f*stacks)+remaining)*skill.ActivePower,Vector2.zero,owner,"불꽃 토네이도");
         }
         void Clear(){foreach(var p in pools){if(p.ground!=null)Destroy(p.ground.gameObject);if(p.tornado!=null)Destroy(p.tornado.gameObject);}pools.Clear();nextBurn.Clear();movedSeconds=0;previous=transform.position;}
         void OnDisable(){Clear();}

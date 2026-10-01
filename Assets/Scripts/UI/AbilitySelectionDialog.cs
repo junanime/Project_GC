@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Vampire
 {
-    public class AbilitySelectionDialog : DialogBox
+    public partial class AbilitySelectionDialog : DialogBox
     {
         private const int SelectionPanelCount = 3;
 
@@ -113,6 +113,7 @@ namespace Vampire
 
         private void Awake()
         {
+            InstallPanelTheme();
             CacheCardParentScale();
             SetupRerollButton();
         }
@@ -281,6 +282,7 @@ namespace Vampire
 
         private void ApplyResponsiveCardScale()
         {
+            if (panelContent != null) { UpdatePanelLayout(); return; }
             if (abilityCardsParent == null)
             {
                 return;

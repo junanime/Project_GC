@@ -42,6 +42,7 @@ namespace Vampire
         public void Setup(MiniStageDirector director)
         {
             miniStageDirector = director;
+            if(GetComponent<BloodClotOvercharge>()==null)gameObject.AddComponent<BloodClotOvercharge>();
             consumed = false;
             RefreshGuide();
 

@@ -1,0 +1,30 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-01",
+  "prompts": [
+    [
+      "supreme",
+      {
+        "referenced_image_paths": [
+          "C:/Users/zxc64/Documents/GitHub/Project_GC/Assets/Resources/AugmentPanels/Supreme.png"
+        ],
+        "transparent_background": true,
+        "prompt": "Precise object edit. This is the actual blank Unity game card frame PNG. Preserve EXACT composition, canvas 1024x1536, outer card bounds, border thickness, all pixel stair steps, ginseng engraving bottom right, cloud curl bottom left, tiny ornaments and EMPTY interior. Change ONLY the orange/gold/yellow border, ornament accent and glow colors to a rich BLACKENED CRIMSON / deep oxblood palette with restrained bright blood-red edge highlights so the border is readable. Dark burgundy shadows, muted crimson red luminous lines. Keep interior dark charcoal green unchanged; do NOT tint the entire image red. Keep alpha/transparency exactly outside the card and preserve existing transparency. No new ornaments, no skulls, no icons, no text, no layout changes. This is the Supreme upgrade grade recolor of the identical artwork."
+      }
+    ],
+    [
+      "scroll-rolled",
+      {
+        "transparent_background": true,
+        "prompt": "Production-ready transparent sprite for a Korean pixel-art herbal medicine roguelike HUD. A small antique East Asian HORIZONTAL rolled parchment scroll, viewed straight on, with dark carved rosewood cylindrical end caps, warm aged ivory tightly rolled paper, very restrained brass and oxblood ribbon details. The left 75 percent is the closed horizontal scroll roll, substantial enough for a live text label to be overlaid on its blank pale central surface. On the RIGHT the scroll is attached to a short dark wood signboard bracket/arm that continues straight to the far right canvas edge, as though fixed to the right edge of a screen. Simple clean polished pixel illustration with crisp stepped edges matching an ornate ginseng/mother of pearl card UI, no noisy stippling, no tiny clutter. Wide aspect ratio 4:1. Orthographic flat UI art, transparent surrounding pixels, no cast scene/background. Keep paper center completely blank: NO text, NO symbols, NO characters. Intended animation: the scroll will unroll vertically downward beneath this header."
+      }
+    ],
+    [
+      "scroll-open",
+      {
+        "transparent_background": true,
+        "prompt": "Production-ready transparent sprite of an antique East Asian hanging scroll UI panel fully unrolled, straight-on orthographic front view, portrait 3:4 aspect. Warm aged ivory parchment broad perfectly blank central 80% for readable runtime Korean quest list, subtle clean parchment color, narrow dark burgundy silk edging, dark rosewood roller with small restrained antique brass end caps at top and bottom. Tiny simple cloud knot corner accents only, very understated. Korean herbal-medicine pixel art game, clean crisp pixel stepped edges, harmonious with dark charcoal-green mother of pearl and ginseng cards, no gritty noise, no dense patterns. The top roller should be a horizontal wooden/paper roll; the bottom roller should be distinct so animation can roll it downward. Keep generous usable blank parchment within border from 10% to 90% width, 15% to 85% height. No words, no calligraphy, no pictograms, no illustration in center. Isolated asset on genuinely transparent background, no scene, no shadow baked across entire canvas."
+      }
+    ]
+  ]
+}

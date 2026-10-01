@@ -15,6 +15,7 @@ namespace Vampire
 
         public void PlayPause()
         {
+            if (ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == "skillReward") return;
             var skills = FindObjectOfType<CharacterSkillRuntime>();
             if (skills != null && skills.IsCutin) return;
             if (paused = !paused)

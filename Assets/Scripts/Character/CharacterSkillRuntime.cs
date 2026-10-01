@@ -7,6 +7,34 @@ namespace Vampire
         public const int MaxSleepCrystals=12, SleepStacksPerCrystal=5;
         public const int MaxSleepStacks=MaxSleepCrystals*SleepStacksPerCrystal;
         Character owner;
+        public const int MaxLevel = 5;
+        public int PassiveLevel { get; private set; } = 1;
+        public int ActiveLevel { get; private set; } = 1;
+        public float PassivePower => Mathf.Pow(1.3f, PassiveLevel - 1);
+        public float ActivePower => Mathf.Pow(1.3f, ActiveLevel - 1);
+        public float EffectivePassiveDuration => Definition.passiveDuration * (Definition.kind == CharacterSkillDefinition.SkillKind.Ashi ? PassivePower : 1);
+        public float EffectiveActiveDuration => Definition.activeDuration * (Definition.kind == CharacterSkillDefinition.SkillKind.Ashi ? ActivePower : 1);
+        public float EffectiveCooldown => Definition.cooldown / (IsHyuki ? ActivePower : 1);
+        public bool TryUpgrade(bool active)
+        {
+            if (Definition == null || (active ? ActiveLevel : PassiveLevel) >= MaxLevel) return false;
+            if (active) ActiveLevel++; else PassiveLevel++;
+            return true;
+        }
+        public void RestoreLevels(int passive, int active)
+        { PassiveLevel = Mathf.Clamp(passive, 1, MaxLevel); ActiveLevel = Mathf.Clamp(active, 1, MaxLevel); }
+        public string UpgradeDescription(bool active)
+        {
+            int current = active ? ActiveLevel : PassiveLevel;
+            float power = active ? ActivePower : PassivePower;
+            string label; float value;
+            if (IsAri) { label = "대시 접촉 피해"; value = (active ? Definition.ariPhoenixDamage : Definition.ariRollDamage) * power; }
+            else if (IsShini) { label = active ? "토네이도 피해 배율" : "장판 화상 피해 배율"; value = power; }
+            else if (IsHyuki) { label = active ? "재사용 대기시간(초)" : "기본 빙결 확률(%)"; value = active ? EffectiveCooldown : IceSkillRules.InstantFreezeChance * PassivePower * 100; }
+            else { label = "효과 지속시간(초)"; value = active ? EffectiveActiveDuration : EffectivePassiveDuration; }
+            float next = current >= MaxLevel ? value : IsHyuki && active ? value / 1.3f : value * 1.3f;
+            return $"{label}\n{value:0.##} → {next:0.##}";
+        }
         public CharacterSkillDefinition Definition => owner != null && owner.Blueprint != null ? owner.Blueprint.skills : null;
         public float PassiveRemaining { get; private set; }
         public float ActiveRemaining { get; private set; }
@@ -24,7 +52,7 @@ namespace Vampire
         public int SleepStacks => Mathf.FloorToInt(SleepSeconds);
         public int ConsumedSleepStacks { get; private set; }
         public int IceProcFailures { get; private set; }
-        public float IceProcChance => Mathf.Min(1f,IceSkillRules.InstantFreezeChance + (IsHyuki ? IceProcFailures * .01f : 0));
+        public float IceProcChance => Mathf.Min(1f,IceSkillRules.InstantFreezeChance * (IsHyuki ? PassivePower : 1) + (IsHyuki ? IceProcFailures * .01f : 0));
         // Only the instant-freeze roll owns this counter; four-hit/active freezes never reset it.
         public bool RollInstantFreeze(float roll)
         {
@@ -40,9 +68,10 @@ namespace Vampire
         float previousTimeScale = 1;
         SkillWindVisual aura;
         public void Initialize(Character character) { owner=character; aura=gameObject.AddComponent<SkillWindVisual>(); aura.Bind(this); gameObject.AddComponent<ShiniSkillRuntime>().Bind(character,this); gameObject.AddComponent<PhoenixSkillVisual>().Bind(character,this); if(IsAri)gameObject.AddComponent<AriSkillRuntime>().Bind(character,this); }
-        public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && !IsAri && owner.IsAlive) PassiveRemaining=Definition.passiveDuration; }
+        public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && !IsAri && owner.IsAlive) PassiveRemaining=EffectivePassiveDuration; }
         public void DashStarted()
         {
+            owner.GetComponent<PrescriptionRuntime>()?.RecordDash();
             if(IsShini && owner.IsAlive && owner.IsDashing && !owner.IsTrapBound)
                 GetComponent<ShiniSkillRuntime>()?.ActivatePools();
             if(IsAri) GetComponent<AriSkillRuntime>()?.BeginDash();
@@ -52,9 +81,10 @@ namespace Vampire
         public bool TryActivate()
         {
             if (!CanActivate) return false;
+            owner.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.ActiveUses);
             if(IsAri)
             {
-                ActiveRemaining=Definition.activeDuration;CooldownRemaining=Definition.cooldown;
+                ActiveRemaining=EffectiveActiveDuration;CooldownRemaining=EffectiveCooldown;
                 owner.RefreshSkillDashRecharge(true);
                 GetComponent<AriSkillRuntime>()?.BeginTransform();
                 return true;
@@ -64,13 +94,13 @@ namespace Vampire
                 if(IsShini)
                 {
                     SummonRemaining=ShiniSkillRuntime.SummonDuration;
-                    ActiveRemaining=Definition.activeDuration; CooldownRemaining=Definition.cooldown;
+                    ActiveRemaining=EffectiveActiveDuration; CooldownRemaining=EffectiveCooldown;
                     owner.UpdateMoveSpeed();
                     GetComponent<ShiniSkillRuntime>()?.ActivatePools();
                     GetComponent<PhoenixSkillVisual>()?.Play();
                     return true;
                 }
-                ActiveRemaining=Definition.activeDuration; CooldownRemaining=Definition.cooldown;
+                ActiveRemaining=EffectiveActiveDuration; CooldownRemaining=EffectiveCooldown;
                 SummonRemaining=IceSkillRules.BlizzardFreezeDelay;
                 GetComponent<PhoenixSkillVisual>()?.Play();
                 return true;
@@ -89,7 +119,7 @@ namespace Vampire
                 if (CutinElapsed>=Definition.cutinDuration)
                 {
                     IsCutin=false; Time.timeScale=previousTimeScale;
-                    ActiveRemaining=Definition.activeDuration; CooldownRemaining=Definition.cooldown; owner.UpdateMoveSpeed();
+                    ActiveRemaining=EffectiveActiveDuration; CooldownRemaining=EffectiveCooldown; owner.UpdateMoveSpeed();
                 }
                 return;
             }
@@ -120,9 +150,9 @@ namespace Vampire
         public void Restore(float passive,float active,float cooldown,float summon=0)
         {
             if(Definition==null)return;
-            PassiveRemaining=IsHyuki?0:Mathf.Clamp(passive,0,Definition.passiveDuration);
-            ActiveRemaining=Mathf.Clamp(active,0,Definition.activeDuration);
-            CooldownRemaining=Mathf.Clamp(cooldown,0,Definition.cooldown);
+            PassiveRemaining=IsHyuki?0:Mathf.Clamp(passive,0,EffectivePassiveDuration);
+            ActiveRemaining=Mathf.Clamp(active,0,EffectiveActiveDuration);
+            CooldownRemaining=Mathf.Clamp(cooldown,0,EffectiveCooldown);
             float summonDuration=IsShini?ShiniSkillRuntime.SummonDuration:IsHyuki?IceSkillRules.BlizzardFreezeDelay:0;
             SummonRemaining=Mathf.Clamp(summon,0,summonDuration);
             if(IsSummoning)

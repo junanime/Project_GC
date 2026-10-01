@@ -155,8 +155,8 @@ MonoBehaviour:
       \uD68D\uB4DD\uD569\uB2C8\uB2E4."
     icon: {fileID: 21300000, guid: 944a0f0246de2c14fb8ce8dc65bf8a82, type: 3}
     tier: 1
-  - title: "\uC804\uC124 \uC5F0\uACC4 \uD2B9\uC218\uC99D\uAC15"
-    description: "\uD604\uC7AC \uBCF4\uC720\uD55C \uC804\uC124\uC99D\uAC15 \uC911
+  - title: "\uACE0\uADC0 \uC5F0\uACC4 \uD2B9\uC218\uC99D\uAC15"
+    description: "\uD604\uC7AC \uBCF4\uC720\uD55C \uACE0\uADC0\uC99D\uAC15 \uC911
       \uAC15\uD654 \uAC00\uB2A5\uD55C \uC870\uAC74\uBD80 \uD2B9\uC218\uC99D\uAC15\uC774
       \uC5C6\uC2B5\uB2C8\uB2E4."
     icon: {fileID: 0}

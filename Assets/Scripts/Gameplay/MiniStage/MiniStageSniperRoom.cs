@@ -47,6 +47,35 @@ namespace Vampire
 
         private readonly List<Monster> spawnedSnipers = new List<Monster>();
         private int remainingSniperCount;
+        float teleportAt = -1;
+        void OnEnable(){SniperMonster.Fired+=OnSniperFired;}
+        void OnDisable(){SniperMonster.Fired-=OnSniperFired;teleportAt=-1;}
+        void OnSniperFired(SniperMonster sniper)
+        {
+            if(Enhanced && !RoomCleared && spawnedSnipers.Contains(sniper) && teleportAt<0)
+                teleportAt=Time.time+RemakeBalance.Current.sniperTeleportDelay;
+        }
+        void Update()
+        {
+            if(teleportAt<0 || Time.timeScale<=0 || Time.time<teleportAt)return;
+            teleportAt=-1;
+            foreach(var monster in spawnedSnipers)
+            {
+                if(monster==null || monster.HP<=0 || !monster.gameObject.activeInHierarchy)continue;
+                Vector2 next=monster.transform.position;
+                for(int i=0;i<40;i++)
+                {
+                    var candidate=GetRandomOuterPosition();
+                    if(playerCharacter!=null && Vector2.Distance(candidate,playerCharacter.transform.position)<RemakeBalance.Current.sniperSafeDistance)continue;
+                    bool blocked=false;
+                    foreach(var other in spawnedSnipers)
+                        if(other!=null && other!=monster && other.HP>0 && Vector2.Distance(candidate,other.transform.position)<minimumSniperDistance){blocked=true;break;}
+                    if(!blocked){next=candidate;break;}
+                }
+                ForceMonsterPosition(monster,next);
+                (monster as SniperMonster)?.RestartAfterRelocation();
+            }
+        }
 
         protected override void OnBeginRoom()
         {
@@ -254,11 +283,18 @@ namespace Vampire
                 if (sniper != null)
                 {
                     sniper.OnKilled.RemoveListener(OnSniperKilled);
+                    if (sniper.gameObject.activeInHierarchy && sniper.IsMiniStageOwned && entityManager != null)
+                    {
+                        if (entityManager.LivingMonsters.Contains(sniper))
+                            entityManager.LivingMonsters.Remove(sniper);
+                        entityManager.DespawnMonster(sniperMonsterPoolIndex, sniper, false);
+                    }
                 }
             }
 
             spawnedSnipers.Clear();
             remainingSniperCount = 0;
+            teleportAt = -1;
         }
     }
 }
