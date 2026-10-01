@@ -95,6 +95,7 @@ namespace Vampire
             Chest.OnAnyChestOpened -= OnAnyChestOpened;
             Chest.OnAnyChestOpened += OnAnyChestOpened;
 
+            MiniStageArenaGeometry.Install(this, playerCharacter);
             OnInitRoom();
 
             if (debugLog)

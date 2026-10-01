@@ -74,7 +74,7 @@ namespace Vampire
             }
 
             var newParents=parents.Where(p=>!p.Owned && p.RequirementsMet()).ToList();
-            var ownedParents=parents.Where(p=>p.Owned).ToList();
+            var ownedParents=parents.Where(p=>p.Owned && StartingNeedleSelection.Owned(p)).ToList();
             var originals=new List<(SyringeSpecialAugmentAbility parent,int option)>();
             foreach(var parent in ownedParents)
                 for(int option=0;option<3;option++)
@@ -181,8 +181,8 @@ namespace Vampire
             {
                 case Ver4RewardKind.NewSpecial: return !offer.Source.Owned && offer.Source.RequirementsMet();
                 case Ver4RewardKind.LegendaryAbility: return offer.Source is SyringeLegendaryAugmentAbility && !offer.Source.Owned && offer.Source.RequirementsMet();
-                case Ver4RewardKind.Original: return offer.Parent!=null && offer.Parent.Owned && Progress.CanSelect(offer.Parent.Type.ToString(),offer.Option);
-                case Ver4RewardKind.Numeric: return offer.Parent!=null && offer.Parent.Owned && NumericEligible(offer.Option) && AugmentUpgradeOdds.IsNumeric(offer.Grade);
+                case Ver4RewardKind.Original: return offer.Parent!=null && offer.Parent.Owned && StartingNeedleSelection.Owned(offer.Parent) && Progress.CanSelect(offer.Parent.Type.ToString(),offer.Option);
+                case Ver4RewardKind.Numeric: return offer.Parent!=null && offer.Parent.Owned && StartingNeedleSelection.Owned(offer.Parent) && NumericEligible(offer.Option) && AugmentUpgradeOdds.IsNumeric(offer.Grade);
                 default:return false;
             }
         }

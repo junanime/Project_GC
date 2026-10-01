@@ -14,7 +14,12 @@ namespace Vampire.Tests
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Boot()
         {
-            if(Environment.GetCommandLineArgs().Contains("-apothecarySmoke"))new GameObject("Player verification").AddComponent<ApothecaryPlayerSmoke>();
+            if(Environment.GetCommandLineArgs().Contains("-apothecarySmoke"))
+            {
+                // Verification must advance even while the test window is behind the editor.
+                Application.runInBackground=true;
+                new GameObject("Player verification").AddComponent<ApothecaryPlayerSmoke>();
+            }
         }
         IEnumerator Start()
         {
@@ -29,7 +34,7 @@ namespace Vampire.Tests
                 values.master=.7f;values.music=.2f;values.effects=.4f;values.ui=.6f;values.muted=false;
                 GamePreferences.Apply(values,false);
                 yield return new WaitForSecondsRealtime(2);
-                Check(Screen.fullScreenMode==FullScreenMode.Windowed&&Screen.width==1280&&Screen.height==720,"Native window mode and resolution applied");
+                Check(Screen.fullScreenMode==FullScreenMode.Windowed&&Screen.width==1280&&Screen.height==720,$"Native window mode and resolution applied (actual {Screen.fullScreenMode} {Screen.width}x{Screen.height}, desktop {Display.main.systemWidth}x{Display.main.systemHeight})");
                 Check(QualitySettings.GetQualityLevel()==0&&QualitySettings.vSyncCount==0&&Application.targetFrameRate==30,"Quality, VSync and frame cap applied");
                 Check(Mathf.Abs(GameAudioManager.Instance.MusicVolume-.2f)<.001f&&Mathf.Abs(GameAudioManager.Instance.EffectsVolume-.4f)<.001f&&Mathf.Abs(GameAudioManager.Instance.UIVolume-.6f)<.001f,"Player audio categories independent");
                 ui.Show("settings");

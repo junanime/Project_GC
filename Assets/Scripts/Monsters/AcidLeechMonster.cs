@@ -169,6 +169,17 @@ namespace Vampire
             rollCakeVisual = new GameObject("Mini roll cake art");
             rollCakeVisual.transform.SetParent(transform, false);
             SnailBossMinion.MakeArt(rollCakeVisual.transform, false, rollCakeIngredient);
+            if(shadow!=null)
+            {
+                shadow.transform.localPosition=new Vector3(.02f,-.025f,0);
+                var shadowArt=shadow.GetComponent<SpriteRenderer>();
+                if(shadowArt!=null&&shadowArt.sprite!=null)
+                {
+                    var size=shadowArt.sprite.bounds.size;
+                    shadow.transform.localScale=new Vector3(.84f/Mathf.Max(.001f,size.x),.19f/Mathf.Max(.001f,size.y),1);
+                    shadowArt.sortingOrder=-1;
+                }
+            }
             if (monsterHitbox != null) { monsterHitbox.size = new Vector2(.8f, .8f); monsterHitbox.offset = Vector2.up * .3f; }
 
             currentState = LeechState.Moving;

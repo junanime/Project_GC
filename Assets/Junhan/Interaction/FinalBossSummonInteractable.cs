@@ -44,6 +44,18 @@ namespace Vampire
             base.Awake();
             presentation = gameObject.AddComponent<BossSummonPresentation>();
             presentation.Initialize(GetComponent<SpriteRenderer>());
+            var marker=GetComponent<MapMarker>();if(marker==null)marker=gameObject.AddComponent<MapMarker>();
+            marker.Configure(MapMarkerKind.Event,"롤케이크 소환 제단");
+            // Separate the E-key trigger from a thick static footprint; dashes collide with the base.
+            var trigger=GetComponent<Collider2D>();
+            if(trigger is BoxCollider2D box){box.size=new Vector2(3.6f,3.2f);box.offset=new Vector2(0,.45f);}
+            else if(trigger is CircleCollider2D circle){circle.radius=1.9f;circle.offset=new Vector2(0,.4f);}
+            var solid=new GameObject("Roll cake altar solid base");solid.transform.SetParent(transform,false);
+            solid.layer=LayerMask.NameToLayer("BloodClot Solid");
+            var body=solid.AddComponent<Rigidbody2D>();body.bodyType=RigidbodyType2D.Static;
+            var collider=solid.AddComponent<BoxCollider2D>();
+            collider.size=new Vector2(1.75f/Mathf.Abs(transform.lossyScale.x),.90f/Mathf.Abs(transform.lossyScale.y));
+            collider.offset=new Vector2(0,.30f/Mathf.Abs(transform.lossyScale.y));
         }
 
         protected override void OnDisable()

@@ -162,6 +162,8 @@ namespace Vampire
 
         private Vector2 GetSpawnPosition(int index)
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Perimeter((index+.5f)/Mathf.Max(1,GetSpawnCount()));
             if (useExplicitSniperSpawnPoints &&
                 sniperSpawnPoints != null &&
                 sniperSpawnPoints.Length > 0)
@@ -215,6 +217,8 @@ namespace Vampire
 
         private Vector2 GetRandomOuterPositionRaw()
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Perimeter(Random.value);
             Vector2 center = transform.position;
 
             float minX = center.x - arenaHalfWidth + edgePadding;

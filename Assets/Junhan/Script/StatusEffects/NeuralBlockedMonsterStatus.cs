@@ -20,6 +20,7 @@ namespace Vampire
         private float endTime = -1f;
         private float iceEndTime = -1f;
         public bool IceFrozen => Time.time < iceEndTime;
+        public bool Active => Time.time < Mathf.Max(endTime,iceEndTime);
         public float IceRemaining => Mathf.Max(0,iceEndTime-Time.time);
         public void ApplyIce(float duration)
         {

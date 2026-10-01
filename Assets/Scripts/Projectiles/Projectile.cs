@@ -7,38 +7,38 @@ namespace Vampire
     public class Projectile : MonoBehaviour
     {
         [Header("References")]
-        [Tooltip("Åõ»çÃ¼ÀÇ ½ÇÁ¦ ½ºÇÁ¶óÀÌÆ®¸¦ Ç¥½ÃÇÏ´Â SpriteRendererÀÔ´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ì˜ ì‹¤ì œ ìŠ¤í”„ë¼ì´íŠ¸ë¥¼ í‘œì‹œí•˜ëŠ” SpriteRendererì…ë‹ˆë‹¤.")]
         [SerializeField] protected SpriteRenderer projectileSpriteRenderer;
 
         [Header("Movement Settings")]
-        [Tooltip("Åõ»çÃ¼°¡ ÀÌµ¿ÇÒ ¼ö ÀÖ´Â ÃÖ´ë °Å¸®ÀÔ´Ï´Ù. ÀÌ °Å¸®¸¦ ³ÑÀ¸¸é ÀÚµ¿À¸·Î »ç¶óÁı´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ê°€ ì´ë™í•  ìˆ˜ ìˆëŠ” ìµœëŒ€ ê±°ë¦¬ì…ë‹ˆë‹¤. ì´ ê±°ë¦¬ë¥¼ ë„˜ìœ¼ë©´ ìë™ìœ¼ë¡œ ì‚¬ë¼ì§‘ë‹ˆë‹¤.")]
         [SerializeField] public float maxDistance;
 
-        [Tooltip("Åõ»çÃ¼°¡ ³¯¾Æ°¡´Â µ¿¾È È¸ÀüÇÏ´Â ¼ÓµµÀÔ´Ï´Ù. ¿ÀÀÌÃ³·³ ¹æÇâÀ» °íÁ¤ÇØ¼­ ³¯¾Æ°¡¾ß ÇÏ´Â ÅºÈ¯Àº 0À¸·Î µÎ¼¼¿ä.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ê°€ ë‚ ì•„ê°€ëŠ” ë™ì•ˆ íšŒì „í•˜ëŠ” ì†ë„ì…ë‹ˆë‹¤. ì˜¤ì´ì²˜ëŸ¼ ë°©í–¥ì„ ê³ ì •í•´ì„œ ë‚ ì•„ê°€ì•¼ í•˜ëŠ” íƒ„í™˜ì€ 0ìœ¼ë¡œ ë‘ì„¸ìš”.")]
         [SerializeField] protected float rotationSpeed = 0;
 
-        [Tooltip("Åõ»çÃ¼°¡ ³¯¾Æ°¡´Â µ¿¾È ¼Óµµ°¡ ÁÙ¾îµå´Â Á¤µµÀÔ´Ï´Ù. ¿ÀÀÌ Àú°İ ÅºÈ¯Ã³·³ Á÷¼±À¸·Î ºü¸£°Ô ³¯¾Æ°¡¾ß ÇÏ¸é 0À¸·Î µÎ¼¼¿ä.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ê°€ ë‚ ì•„ê°€ëŠ” ë™ì•ˆ ì†ë„ê°€ ì¤„ì–´ë“œëŠ” ì •ë„ì…ë‹ˆë‹¤. ì˜¤ì´ ì €ê²© íƒ„í™˜ì²˜ëŸ¼ ì§ì„ ìœ¼ë¡œ ë¹ ë¥´ê²Œ ë‚ ì•„ê°€ì•¼ í•˜ë©´ 0ìœ¼ë¡œ ë‘ì„¸ìš”.")]
         [SerializeField] protected float airResistance = 0;
 
         [Header("Launch Direction Visual Settings")]
-        [Tooltip("Ã¼Å©ÇÏ¸é Åõ»çÃ¼ ÀÌ¹ÌÁö°¡ ¹ß»ç ¹æÇâÀ» ¹Ù¶óº¸µµ·Ï ÀÚµ¿ È¸ÀüÇÕ´Ï´Ù. ¿ÀÀÌ Àú°İ ÅºÈ¯Àº Ã¼Å©ÇÏ¼¼¿ä.")]
+        [Tooltip("ì²´í¬í•˜ë©´ íˆ¬ì‚¬ì²´ ì´ë¯¸ì§€ê°€ ë°œì‚¬ ë°©í–¥ì„ ë°”ë¼ë³´ë„ë¡ ìë™ íšŒì „í•©ë‹ˆë‹¤. ì˜¤ì´ ì €ê²© íƒ„í™˜ì€ ì²´í¬í•˜ì„¸ìš”.")]
         [SerializeField] private bool alignVisualToLaunchDirection = false;
 
-        [Tooltip("½ºÇÁ¶óÀÌÆ®ÀÇ ±âº» ¾Õ ¹æÇâ º¸Á¤ °¢µµÀÔ´Ï´Ù. ÀÌ¹ÌÁö°¡ ¿À¸¥ÂÊÀ» ¹Ù¶óº¸¸é 0, ¿ŞÂÊÀ» ¹Ù¶óº¸¸é 180, À§ÂÊÀ» ¹Ù¶óº¸¸é -90, ¾Æ·¡ÂÊÀ» ¹Ù¶óº¸¸é 90À» ³ÖÀ¸¼¼¿ä.")]
+        [Tooltip("ìŠ¤í”„ë¼ì´íŠ¸ì˜ ê¸°ë³¸ ì• ë°©í–¥ ë³´ì • ê°ë„ì…ë‹ˆë‹¤. ì´ë¯¸ì§€ê°€ ì˜¤ë¥¸ìª½ì„ ë°”ë¼ë³´ë©´ 0, ì™¼ìª½ì„ ë°”ë¼ë³´ë©´ 180, ìœ„ìª½ì„ ë°”ë¼ë³´ë©´ -90, ì•„ë˜ìª½ì„ ë°”ë¼ë³´ë©´ 90ì„ ë„£ìœ¼ì„¸ìš”.")]
         [SerializeField] private float visualAngleOffset = 0f;
 
-        [Tooltip("¿ÀºêÁ§Æ® Ç®¿¡¼­ Àç»ç¿ëµÉ ¶§ ÀÌÀü È¸Àü°ªÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù. ´ëºÎºĞ ÄÑµÎ´Â °ÍÀÌ ¾ÈÀüÇÕ´Ï´Ù.")]
+        [Tooltip("ì˜¤ë¸Œì íŠ¸ í’€ì—ì„œ ì¬ì‚¬ìš©ë  ë•Œ ì´ì „ íšŒì „ê°’ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤. ëŒ€ë¶€ë¶„ ì¼œë‘ëŠ” ê²ƒì´ ì•ˆì „í•©ë‹ˆë‹¤.")]
         [SerializeField] private bool resetRotationOnSetup = true;
 
-        [Tooltip("ÀÌµ¿ Áß¿¡µµ °è¼Ó ¹æÇâ È¸ÀüÀ» ´Ù½Ã ¸ÂÃä´Ï´Ù. ÀÏ¹İ Á÷¼± ÅºÈ¯Àº ²¨µµ µË´Ï´Ù.")]
+        [Tooltip("ì´ë™ ì¤‘ì—ë„ ê³„ì† ë°©í–¥ íšŒì „ì„ ë‹¤ì‹œ ë§ì¶¥ë‹ˆë‹¤. ì¼ë°˜ ì§ì„  íƒ„í™˜ì€ êº¼ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] private bool keepVisualAlignedWhileMoving = false;
 
         [Header("Effects")]
-        [Tooltip("Åõ»çÃ¼°¡ »ç¶óÁú ¶§ Àç»ıÇÒ ÆÄÆ¼Å¬ÀÔ´Ï´Ù. ¾øÀ¸¸é ºñ¿öµÖµµ µË´Ï´Ù.")]
+        [Tooltip("íˆ¬ì‚¬ì²´ê°€ ì‚¬ë¼ì§ˆ ë•Œ ì¬ìƒí•  íŒŒí‹°í´ì…ë‹ˆë‹¤. ì—†ìœ¼ë©´ ë¹„ì›Œë‘¬ë„ ë©ë‹ˆë‹¤.")]
         [SerializeField] protected ParticleSystem destructionParticleSystem;
 
         [Header("Critical Settings")]
-        [Tooltip("Ä¡¸íÅ¸°¡ ¹ß»ıÇßÀ» ¶§ µ¥¹ÌÁö ¹èÀ²ÀÔ´Ï´Ù.")]
+        [Tooltip("ì¹˜ëª…íƒ€ê°€ ë°œìƒí–ˆì„ ë•Œ ë°ë¯¸ì§€ ë°°ìœ¨ì…ë‹ˆë‹¤.")]
         [SerializeField] protected float criticalDamageMultiplier = 2f;
 
         protected float despawnTime = 1;
@@ -60,12 +60,12 @@ namespace Vampire
         private Quaternion initialRotation;
 
         // =========================================================
-        // Result Screen - ¸ó½ºÅÍ Åõ»çÃ¼ ÃâÃ³
+        // Result Screen - ëª¬ìŠ¤í„° íˆ¬ì‚¬ì²´ ì¶œì²˜
         // =========================================================
 
         /// <summary>
-        /// ÀÌ Åõ»çÃ¼¸¦ ¹ß»çÇÑ ¸ó½ºÅÍÀÇ Blueprint.
-        /// ÇÃ·¹ÀÌ¾î°¡ ¹ß»çÇÑ Åõ»çÃ¼¶ó¸é nullÀÔ´Ï´Ù.
+        /// ì´ íˆ¬ì‚¬ì²´ë¥¼ ë°œì‚¬í•œ ëª¬ìŠ¤í„°ì˜ Blueprint.
+        /// í”Œë ˆì´ì–´ê°€ ë°œì‚¬í•œ íˆ¬ì‚¬ì²´ë¼ë©´ nullì…ë‹ˆë‹¤.
         /// </summary>
         protected MonsterBlueprint sourceMonsterBlueprint;
 
@@ -124,9 +124,9 @@ namespace Vampire
             this.targetLayer = targetLayer;
 
             // =====================================================
-            // Áß¿ä
-            // ProjectileÀº ¿ÀºêÁ§Æ® Ç®¿¡¼­ Àç»ç¿ëµÇ¹Ç·Î
-            // ÀÌÀü ¸ó½ºÅÍÀÇ °ø°İÀÚ Á¤º¸°¡ ³²¾ÆÀÖÀ¸¸é ¾È µË´Ï´Ù.
+            // ì¤‘ìš”
+            // Projectileì€ ì˜¤ë¸Œì íŠ¸ í’€ì—ì„œ ì¬ì‚¬ìš©ë˜ë¯€ë¡œ
+            // ì´ì „ ëª¬ìŠ¤í„°ì˜ ê³µê²©ì ì •ë³´ê°€ ë‚¨ì•„ìˆìœ¼ë©´ ì•ˆ ë©ë‹ˆë‹¤.
             // =====================================================
             sourceMonsterBlueprint = null;
 
@@ -146,16 +146,19 @@ namespace Vampire
         }
 
         /// <summary>
-        /// ¸ó½ºÅÍ°¡ ÀÌ Åõ»çÃ¼¸¦ ¹ß»çÇßÀ» ¶§
-        /// ¹ß»çÇÑ ¸ó½ºÅÍÀÇ Blueprint¸¦ µî·ÏÇÕ´Ï´Ù.
+        /// ëª¬ìŠ¤í„°ê°€ ì´ íˆ¬ì‚¬ì²´ë¥¼ ë°œì‚¬í–ˆì„ ë•Œ
+        /// ë°œì‚¬í•œ ëª¬ìŠ¤í„°ì˜ Blueprintë¥¼ ë“±ë¡í•©ë‹ˆë‹¤.
         /// </summary>
         public void SetSourceMonster(MonsterBlueprint sourceMonster)
         {
             sourceMonsterBlueprint = sourceMonster;
         }
 
+        public bool IsEnemyProjectile=>sourceMonsterBlueprint!=null;
+        public void RemoveForItem(){DestroyProjectile();}
         public virtual void Launch(Vector2 direction)
         {
+            OctoberEnemyProjectile.Register(gameObject,sourceMonsterBlueprint!=null,this);
             if (direction.sqrMagnitude <= 0.0001f)
             {
                 this.direction = Vector2.right;
@@ -244,11 +247,11 @@ namespace Vampire
             bool isCritical = false;
 
             // =====================================================
-            // ÇÃ·¹ÀÌ¾î°¡ ¹ß»çÇÑ Projectile¿¡¸¸ ÇÃ·¹ÀÌ¾î Ä¡¸íÅ¸ Àû¿ë
+            // í”Œë ˆì´ì–´ê°€ ë°œì‚¬í•œ Projectileì—ë§Œ í”Œë ˆì´ì–´ ì¹˜ëª…íƒ€ ì ìš©
             //
-            // sourceMonsterBlueprint != nullÀÌ¸é
-            // ¸ó½ºÅÍ°¡ ¹ß»çÇÑ ProjectileÀÌ¹Ç·Î
-            // ÇÃ·¹ÀÌ¾îÀÇ CritChance¸¦ »ç¿ëÇÏÁö ¾Ê½À´Ï´Ù.
+            // sourceMonsterBlueprint != nullì´ë©´
+            // ëª¬ìŠ¤í„°ê°€ ë°œì‚¬í•œ Projectileì´ë¯€ë¡œ
+            // í”Œë ˆì´ì–´ì˜ CritChanceë¥¼ ì‚¬ìš©í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
             // =====================================================
 
             if (sourceMonsterBlueprint == null &&
@@ -261,14 +264,14 @@ namespace Vampire
                     criticalDamageMultiplier;
 
                 Debug.Log(
-                    $"<color=red>[Ä¡¸íÅ¸]</color> " +
+                    $"<color=red>[ì¹˜ëª…íƒ€]</color> " +
                     $"Critical Hit! Damage: {finalDamage}"
                 );
             }
 
             // =====================================================
-            // ÇÃ·¹ÀÌ¾î°¡ ¸ó½ºÅÍ Projectile¿¡ ¸ÂÀº °æ¿ì
-            // ¸ó½ºÅÍ Blueprint¸¦ Character¿¡°Ô Àü´Ş
+            // í”Œë ˆì´ì–´ê°€ ëª¬ìŠ¤í„° Projectileì— ë§ì€ ê²½ìš°
+            // ëª¬ìŠ¤í„° Blueprintë¥¼ Characterì—ê²Œ ì „ë‹¬
             // =====================================================
 
             Character targetCharacter =
@@ -286,7 +289,7 @@ namespace Vampire
             }
             else
             {
-                // ±âÁ¸ ÇÃ·¹ÀÌ¾î Projectile ¹× ±âÅ¸ ÇÇÇØ ´ë»ó
+                // ê¸°ì¡´ í”Œë ˆì´ì–´ Projectile ë° ê¸°íƒ€ í”¼í•´ ëŒ€ìƒ
                 damageable.TakeDamage(
                     finalDamage,
                     knockback * direction,

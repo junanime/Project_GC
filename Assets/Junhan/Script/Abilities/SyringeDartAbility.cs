@@ -820,8 +820,15 @@ namespace Vampire
             DestroyNeedleShotgunAmmoText();
         }
 
+        float itemEchoScale=1; bool itemEcho;
+        public void FireItemEcho(Vector2 direction,float strength)
+        {
+            itemEcho=true;itemEchoScale=strength;
+            try{LaunchSyringeProjectile(direction);}finally{itemEcho=false;itemEchoScale=1;}
+        }
         protected override void Attack()
         {
+            playerCharacter?.GetComponent<OctoberItemRuntime>()?.Attack(this);
            
             StartCoroutine(LaunchSyringes());
         }
@@ -988,6 +995,7 @@ namespace Vampire
                     BuildSpecialRuntime()
                 );
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
+                syringeProjectile.ConfigureItemAttack(itemEchoScale,itemEcho);
             }
             else
             {
@@ -1262,6 +1270,7 @@ namespace Vampire
 
         private void FireNeedleShotgunVolley(Vector2 baseDirection)
         {
+            playerCharacter?.GetComponent<OctoberItemRuntime>()?.Attack(this);
             if (baseDirection == Vector2.zero)
             {
                 baseDirection = playerCharacter != null && playerCharacter.LookDirection != Vector2.zero
@@ -1364,6 +1373,7 @@ namespace Vampire
             {
                 syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
+                syringeProjectile.ConfigureItemAttack(itemEchoScale,itemEcho);
             }
             else
             {
@@ -1574,6 +1584,7 @@ namespace Vampire
                 return;
             }
 
+            playerCharacter.GetComponent<OctoberItemRuntime>()?.Attack(this);
             HeavySnipeChargeStats stats = CalculateHeavySnipeChargeStats(chargeRatio);
             Vector2 aimDirection = GetAimDirectionFromMouseOrLookDirection();
 
@@ -1611,6 +1622,7 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(runtime);
+                syringeProjectile.ConfigureItemAttack(1,false);
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, true);
             }
 

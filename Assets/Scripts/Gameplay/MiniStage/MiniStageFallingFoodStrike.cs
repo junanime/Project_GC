@@ -126,12 +126,14 @@ namespace Vampire
             {
                 GroundVisualSorting.Apply(warningCircleRenderer);
                 warningCircleRenderer.enabled = true;
-                warningCircleRenderer.color = warningColor;
+                warningCircleRenderer.color = Color.white;
+                warningCircleRenderer.sprite=OctoberArt.Get("OctoberUI/WarningStates","0");
 
                 if (autoScaleWarningCircle)
                 {
                     float diameter = damageRadius * 2f;
-                    warningCircleRenderer.transform.localScale = new Vector3(diameter, diameter, 1f);
+                    float natural=warningCircleRenderer.sprite!=null?warningCircleRenderer.sprite.bounds.size.x:1;
+                    warningCircleRenderer.transform.localScale = Vector3.one*(diameter/Mathf.Max(.01f,natural));
                 }
             }
 
@@ -238,8 +240,9 @@ namespace Vampire
                 return;
             }
 
-            float blink = Mathf.PingPong(timer * warningBlinkSpeed, 1f);
-            warningCircleRenderer.color = Color.Lerp(warningColor, warningBlinkColor, blink);
+            int phase=Mathf.Min(2,Mathf.FloorToInt(timer/Mathf.Max(.01f,warningDuration)*3));
+            warningCircleRenderer.sprite=OctoberArt.Get("OctoberUI/WarningStates",phase.ToString());
+            warningCircleRenderer.color=Color.white;
         }
 
         private IEnumerator FallMotionRoutine()
@@ -272,9 +275,7 @@ namespace Vampire
             while (timer < fallMotionDuration)
             {
                 float normalizedTime = Mathf.Clamp01(timer / fallMotionDuration);
-                float curveValue = fallMotionCurve != null
-                    ? fallMotionCurve.Evaluate(normalizedTime)
-                    : normalizedTime;
+                float curveValue=normalizedTime*normalizedTime;
 
                 fallingFoodRenderer.transform.localPosition = Vector3.Lerp(
                     startPosition,

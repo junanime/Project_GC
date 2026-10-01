@@ -136,6 +136,8 @@ namespace Vampire
             baseMaxDistance = maxDistance;
         }
 
+        float itemScale=1;bool itemSecondary;
+        public void ConfigureItemAttack(float scale,bool secondary){itemScale=scale;itemSecondary=secondary;}
         public override void Setup(
             int projectileIndex,
             Vector2 position,
@@ -145,6 +147,7 @@ namespace Vampire
             LayerMask targetLayer)
         {
             base.Setup(projectileIndex, position, damage, knockback, speed, targetLayer);
+            itemScale=1;itemSecondary=false;
 
             ConfigureFlightVfx(false, false);
             specials = default;
@@ -476,7 +479,7 @@ namespace Vampire
 
             honeySlowStatus.Apply(
                 specials.honeyDuration,
-                specials.honeySlowMultiplier
+                playerCharacter!=null&&playerCharacter.GetComponent<OctoberItemRuntime>()!=null?playerCharacter.GetComponent<OctoberItemRuntime>().SlowMultiplier(specials.honeySlowMultiplier):specials.honeySlowMultiplier
             );
         }
         private void TrySpawnFiberTrailSegment(Vector2 previousPosition, Vector2 currentPosition)
@@ -1369,6 +1372,7 @@ namespace Vampire
 
             bool isCritical = false;
 
+            rawDamage *= itemScale;
             rawDamage *= Ver4HitEffects.BeforeHit(damageableComponent,specials);
             if (specials.ver4 != null)
             {
@@ -1456,6 +1460,9 @@ namespace Vampire
                         >(true);
             }
 
+            var items=playerCharacter!=null?playerCharacter.GetComponent<OctoberItemRuntime>():null;
+            if(items!=null)finalDamage=items.BeforeHit(damageableComponent,finalDamage,itemSecondary,ref isCritical,ref finalKnockback);
+            float hpBefore=Ver4HitEffects.Health(damageableComponent);
             float actualReportedDamage =
                 finalDamage;
 
@@ -1487,6 +1494,8 @@ namespace Vampire
                 );
             }
 
+            if(hpBefore>0)actualReportedDamage=Mathf.Clamp(hpBefore-Ver4HitEffects.Health(damageableComponent),0,hpBefore);
+            if(actualReportedDamage>0)items?.AfterHit(damageableComponent,finalDamage,isCritical,itemSecondary,hpBefore);
             // 보스 파츠는 Core Open 배율과
             // 남은 HP까지 반영된 실제 피해를 전달합니다.
             OnHitDamageable?.Invoke(

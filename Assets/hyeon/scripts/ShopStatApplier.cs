@@ -10,216 +10,218 @@ namespace Vampire
         private void Awake()
         {
             abilityManager = FindObjectOfType<AbilityManager>();
-            // »óÁ¡ ½Ã½ºÅÛÀÌ º°µµÀÇ ¸Å´ÏÀú ¿ÀºêÁ§Æ®¿¡ ºÙ¾îÀÖÀ¸¹Ç·Î ¸Ê¿¡¼­ Character¸¦ Ã£½À´Ï´Ù.
+            // ìƒì  ì‹œìŠ¤í…œì´ ë³„ë„ì˜ ë§¤ë‹ˆì € ì˜¤ë¸Œì íŠ¸ì— ë¶™ì–´ìˆìœ¼ë¯€ë¡œ ë§µì—ì„œ Characterë¥¼ ì°¾ìŠµë‹ˆë‹¤.
             player = FindObjectOfType<Character>();
 
-            if (abilityManager == null) Debug.LogError("[»óÁ¡] AbilityManager¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
-            if (player == null) Debug.LogError("[»óÁ¡] ¸Ê¿¡¼­ Character¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            if (abilityManager == null) Debug.LogError("[ìƒì ] AbilityManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
+            if (player == null) Debug.LogError("[ìƒì ] ë§µì—ì„œ Characterë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
         }
 
         public void ApplyStats(MerchantItemBlueprint item)
         {
+            if(player==null)player=FindObjectOfType<Character>();
             if (item == null || player == null) return;
+            if(item.octoberId>0){OctoberItemRuntime.Get(player).Give(item);return;}
 
-            Debug.Log($"<color=yellow>[»óÁ¡]</color> <b>{item.itemName}</b> ({item.itemRarity} / {item.itemTag}) Àû¿ë ½ÃÀÛ!");
+            Debug.Log($"<color=yellow>[ìƒì ]</color> <b>{item.itemName}</b> ({item.itemRarity} / {item.itemTag}) ì ìš© ì‹œì‘!");
 
             // ==========================================
-            // 1. ÀüÅõ ½ºÅÈ (Common)
+            // 1. ì „íˆ¬ ìŠ¤íƒ¯ (Common)
             // ==========================================
             if (item.atkSpeedBoost > 0)
             {
                 player.AddAttackSpeed(item.atkSpeedBoost);
-                Debug.Log($"<color=cyan>[ÀüÅõ]</color> °ø°İ¼Óµµ +{item.atkSpeedBoost * 100}%");
+                Debug.Log($"<color=cyan>[ì „íˆ¬]</color> ê³µê²©ì†ë„ +{item.atkSpeedBoost * 100}%");
             }
-            if (item.atkDamageBoost != 0) // > 0 À» != 0 À¸·Î ¼öÁ¤
+            if (item.atkDamageBoost != 0) // > 0 ì„ != 0 ìœ¼ë¡œ ìˆ˜ì •
             {
                 player.AddDamageMultiplier(item.atkDamageBoost);
 
-                // ·Î±×µµ Áõ°¡/°¨¼Ò¿¡ ¸ÂÃç ³ª¿À¸é ´õ ÁÁ°ÚÁÒ?
+                // ë¡œê·¸ë„ ì¦ê°€/ê°ì†Œì— ë§ì¶° ë‚˜ì˜¤ë©´ ë” ì¢‹ê² ì£ ?
                 string sign = item.atkDamageBoost > 0 ? "+" : "";
-                Debug.Log($"<color=red>[ÀüÅõ]</color> °ø°İ·Â {sign}{item.atkDamageBoost * 100}%");
+                Debug.Log($"<color=red>[ì „íˆ¬]</color> ê³µê²©ë ¥ {sign}{item.atkDamageBoost * 100}%");
             }
             if (item.maxHpBoost > 0)
             {
                 player.AddMaxHealthBonus(item.maxHpBoost);
-                player.GainHealth(item.maxHpBoost); // ´Ã¾î³­ ¸¸Å­ ÇöÀç Ã¼·Âµµ Ã¤¿öÁÜ
-                Debug.Log($"<color=green>[ÀüÅõ]</color> ÃÖ´ëÃ¼·Â +{item.maxHpBoost}");
+                player.GainHealth(item.maxHpBoost); // ëŠ˜ì–´ë‚œ ë§Œí¼ í˜„ì¬ ì²´ë ¥ë„ ì±„ì›Œì¤Œ
+                Debug.Log($"<color=green>[ì „íˆ¬]</color> ìµœëŒ€ì²´ë ¥ +{item.maxHpBoost}");
             }
             if (item.projSpeedBoost > 0)
             {
                 player.AddProjectileSpeed(item.projSpeedBoost);
-                Debug.Log($"<color=cyan>[ÀüÅõ]</color> Åõ»çÃ¼ ¼Óµµ +{item.projSpeedBoost * 100}%");
+                Debug.Log($"<color=cyan>[ì „íˆ¬]</color> íˆ¬ì‚¬ì²´ ì†ë„ +{item.projSpeedBoost * 100}%");
             }
             if (item.moveSpeedBoost > 0)
             {
                 player.AddMoveSpeedBoost(item.moveSpeedBoost);
-                Debug.Log($"<color=cyan>[ÀüÅõ]</color> ÀÌµ¿¼Óµµ +{item.moveSpeedBoost}");
+                Debug.Log($"<color=cyan>[ì „íˆ¬]</color> ì´ë™ì†ë„ +{item.moveSpeedBoost}");
             }
             if (item.rangeBoost != 0)
             {
                 player.AddRangeBoost(item.rangeBoost);
-                Debug.Log($"<color=cyan>[ÀüÅõ]</color> »ç°Å¸® +{item.rangeBoost * 100}%");
+                Debug.Log($"<color=cyan>[ì „íˆ¬]</color> ì‚¬ê±°ë¦¬ +{item.rangeBoost * 100}%");
             }
 
             // ==========================================
-            // 2. À¯Æ¿¸®Æ¼ ½ºÅÈ (Uncommon)
+            // 2. ìœ í‹¸ë¦¬í‹° ìŠ¤íƒ¯ (Uncommon)
             // ==========================================
             
-            // ±¸°­ Ã»°áÁ¦ (Åõ»çÃ¼ ÁßÃ¸ ¹İ»ç) ¿¬µ¿
+            // êµ¬ê°• ì²­ê²°ì œ (íˆ¬ì‚¬ì²´ ì¤‘ì²© ë°˜ì‚¬) ì—°ë™
             // ------------------------------------------
-            if (item.itemName.Contains("±¸°­ Ã»°áÁ¦") || item.itemName.Contains("Mouthwash"))
+            if (item.itemName.Contains("êµ¬ê°• ì²­ê²°ì œ") || item.itemName.Contains("Mouthwash"))
             {
                 player.AddMouthwash(); 
-                Debug.Log($"<color=blue>[Æ¯¼ö]</color> <b>{item.itemName}</b> È¹µæ! ÇöÀç ÁßÃ¸ °³¼ö: {player.MouthwashCount}È¸ ¹İ»ç °¡´É");
+                Debug.Log($"<color=blue>[íŠ¹ìˆ˜]</color> <b>{item.itemName}</b> íšë“! í˜„ì¬ ì¤‘ì²© ê°œìˆ˜: {player.MouthwashCount}íšŒ ë°˜ì‚¬ ê°€ëŠ¥");
             }
             if (item.magnetBoost > 0)
             {
                 player.AddMagnetRange(item.magnetBoost);
-                Debug.Log($"<color=white>[À¯Æ¿]</color> ÀÚ¼® ¹üÀ§ +{item.magnetBoost}");
+                Debug.Log($"<color=white>[ìœ í‹¸]</color> ìì„ ë²”ìœ„ +{item.magnetBoost}");
             }
             if (item.expBoost > 0)
             {
                 player.AddExpMultiplier(item.expBoost);
-                Debug.Log($"<color=yellow>[À¯Æ¿]</color> °æÇèÄ¡ È¹µæ·® +{item.expBoost * 100}%");
+                Debug.Log($"<color=yellow>[ìœ í‹¸]</color> ê²½í—˜ì¹˜ íšë“ëŸ‰ +{item.expBoost * 100}%");
             }
             if (item.critBoost > 0)
             {
                 player.AddCritChance(item.critBoost);
-                Debug.Log($"<color=red>[À¯Æ¿]</color> Ä¡¸íÅ¸ È®·ü +{item.critBoost * 100}%");
+                Debug.Log($"<color=red>[ìœ í‹¸]</color> ì¹˜ëª…íƒ€ í™•ë¥  +{item.critBoost * 100}%");
             }
             if (item.luckBoost > 0)
             {
                 player.AddLuck(item.luckBoost);
-                Debug.Log($"<color=yellow>[À¯Æ¿]</color> Çà¿î +{item.luckBoost * 100}%");
+                Debug.Log($"<color=yellow>[ìœ í‹¸]</color> í–‰ìš´ +{item.luckBoost * 100}%");
             }
 
             // ==========================================
-            // 3. Æ¯¼ö ±â´É (Rare / Legendary)
+            // 3. íŠ¹ìˆ˜ ê¸°ëŠ¥ (Rare / Legendary)
             // ==========================================
             // ------------------------------------------
-            // È«»ï ½ºÆ½ (µşÇÇ ½Ã °ø°İ·Â +50%) ¹è´Ş ÄÚµå
+            // í™ì‚¼ ìŠ¤í‹± (ë”¸í”¼ ì‹œ ê³µê²©ë ¥ +50%) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
-            if (item.itemName.Contains("È«»ï")) // È¤Àº item.atkDamageBoost °ü·Ã °íÀ¯ Á¶°Ç
+            if (item.itemName.Contains("í™ì‚¼")) // í˜¹ì€ item.atkDamageBoost ê´€ë ¨ ê³ ìœ  ì¡°ê±´
             {
                 player.EnableGinsengStick();
-                Debug.Log($"<color=orange>[Æ¯¼ö]</color> <b>{item.itemName}</b> È°¼ºÈ­! Ã¼·Â 30% ÀÌÇÏ ½Ã °ø°İ·ÂÀÌ 50% Áõ°¡ÇÕ´Ï´Ù.");
+                Debug.Log($"<color=orange>[íŠ¹ìˆ˜]</color> <b>{item.itemName}</b> í™œì„±í™”! ì²´ë ¥ 30% ì´í•˜ ì‹œ ê³µê²©ë ¥ì´ 50% ì¦ê°€í•©ë‹ˆë‹¤.");
             }
-            // ¼ö¸é À¯µµÁ¦ (Á¤Áö ½Ã ÃÊ´ç Ã¼·Â 2% È¸º¹) ¿¬µ¿
+            // ìˆ˜ë©´ ìœ ë„ì œ (ì •ì§€ ì‹œ ì´ˆë‹¹ ì²´ë ¥ 2% íšŒë³µ) ì—°ë™
             // ------------------------------------------
-            if (item.itemName.Contains("¼ö¸é À¯µµÁ¦") || item.itemName.Contains("SleepingPill"))
+            if (item.itemName.Contains("ìˆ˜ë©´ ìœ ë„ì œ") || item.itemName.Contains("SleepingPill"))
             {
-                player.AddHealOnIdle(0.02f); //  ±âÈ¹¼­¿¡ ÀûÈù 0.02(2%) ¼öÄ¡ ÁÖÀÔ!
-                Debug.Log($"<color=green>[È¸º¹]</color> <b>{item.itemName}</b> È¹µæ! ÀÌÁ¦ °¡¸¸È÷ ¼­ ÀÖÀ¸¸é ÃÊ´ç ÃÖ´ë Ã¼·ÂÀÇ 2%¸¦ È¸º¹ÇÕ´Ï´Ù.");
+                player.AddHealOnIdle(0.02f); //  ê¸°íšì„œì— ì íŒ 0.02(2%) ìˆ˜ì¹˜ ì£¼ì…!
+                Debug.Log($"<color=green>[íšŒë³µ]</color> <b>{item.itemName}</b> íšë“! ì´ì œ ê°€ë§Œíˆ ì„œ ìˆìœ¼ë©´ ì´ˆë‹¹ ìµœëŒ€ ì²´ë ¥ì˜ 2%ë¥¼ íšŒë³µí•©ë‹ˆë‹¤.");
             }
-            // ¹İ»ç½Å°æ ¸ÁÄ¡ (ÇÇ°İ ½Ã °­³Ë¹é) ¿¬µ¿
+            // ë°˜ì‚¬ì‹ ê²½ ë§ì¹˜ (í”¼ê²© ì‹œ ê°•ë„‰ë°±) ì—°ë™
             // ------------------------------------------
-            if (item.itemName.Contains("¹İ»ç½Å°æ ¸ÁÄ¡") || item.itemName.Contains("ReflexHammer"))
+            if (item.itemName.Contains("ë°˜ì‚¬ì‹ ê²½ ë§ì¹˜") || item.itemName.Contains("ReflexHammer"))
             {
-                player.AddReflexHammer(); //  AddReflexHammer() È£Ãâ 
-                Debug.Log($"<color=red>[Æ¯¼ö]</color> <b>{item.itemName}</b> È¹µæ! ÇöÀç ÁßÃ¸ °³¼ö: {player.MouthwashCount}°³ (¹ßµ¿ È®·ü: {player.MouthwashCount * 0.5f}%)");
+                player.AddReflexHammer(); //  AddReflexHammer() í˜¸ì¶œ
+                Debug.Log($"<color=red>[íŠ¹ìˆ˜]</color> <b>{item.itemName}</b> íšë“! í˜„ì¬ ì¤‘ì²© ê°œìˆ˜: {player.MouthwashCount}ê°œ (ë°œë™ í™•ë¥ : {player.MouthwashCount * 0.5f}%)");
             }
             if (item.extraProjectiles > 0)
             {
                 player.AddProjectileCount(item.extraProjectiles);
-                Debug.Log($"<color=magenta>[Æ¯¼ö]</color> Åõ»çÃ¼ ¹ß»ç ¼ö +{item.extraProjectiles}°³!");
+                Debug.Log($"<color=magenta>[íŠ¹ìˆ˜]</color> íˆ¬ì‚¬ì²´ ë°œì‚¬ ìˆ˜ +{item.extraProjectiles}ê°œ!");
             }
             if (item.giveShield)
             {
                 player.EnableShield();
-                Debug.Log($"<color=blue>[Æ¯¼ö]</color> 1È¸¿ë º¸È£¸· È°¼ºÈ­!");
+                Debug.Log($"<color=blue>[íŠ¹ìˆ˜]</color> 1íšŒìš© ë³´í˜¸ë§‰ í™œì„±í™”!");
             }
             if (item.extraRevives > 0)
             {
                 player.AddReviveCount(item.extraRevives);
-                Debug.Log($"<color=magenta>[Æ¯¼ö]</color> ºÎÈ° È½¼ö +{item.extraRevives}È¸!");
+                Debug.Log($"<color=magenta>[íŠ¹ìˆ˜]</color> ë¶€í™œ íšŸìˆ˜ +{item.extraRevives}íšŒ!");
             }
             if (item.invincibilityBoost > 0)
             {
                 player.AddInvincibilityTime(item.invincibilityBoost);
-                Debug.Log($"<color=blue>[Æ¯¼ö]</color> ÇÇ°İ ¹«Àû ½Ã°£ +{item.invincibilityBoost}ÃÊ Áõ°¡!");
+                Debug.Log($"<color=blue>[íŠ¹ìˆ˜]</color> í”¼ê²© ë¬´ì  ì‹œê°„ +{item.invincibilityBoost}ì´ˆ ì¦ê°€!");
             }
             if (item.lifeSteal > 0)
             {
                 player.AddLifeSteal(item.lifeSteal);
-                Debug.Log($"<color=red>[ÈíÇ÷]</color> ¶óÀÌÇÁ½ºÆ¿ +{item.lifeSteal * 100}% Áõ°¡!");
+                Debug.Log($"<color=red>[í¡í˜ˆ]</color> ë¼ì´í”„ìŠ¤í‹¸ +{item.lifeSteal * 100}% ì¦ê°€!");
             }
-            // ÀüÀÚÃ¼¿Â°è (Å¸°İ ½Ã Ã¼¿Â »ó½Â ¹× Ãë¾à) ¹è´Ş ÄÚµå
+            // ì „ìì²´ì˜¨ê³„ (íƒ€ê²© ì‹œ ì²´ì˜¨ ìƒìŠ¹ ë° ì·¨ì•½) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
-            if (item.itemName.Contains("Ã¼¿Â°è"))
+            if (item.itemName.Contains("ì²´ì˜¨ê³„"))
             {
                 player.EnableThermometer();
-                Debug.Log($"<color=orange>[Æ¯¼ö]</color> <b>{item.itemName}</b> È°¼ºÈ­! ¿¬¼Ó Å¸°İ ½Ã ÀûÀÇ Ã¼¿ÂÀÌ »ó½ÂÇÏ¿© ¹Ş´Â ÇÇÇØ°¡ Áõ°¡ÇÕ´Ï´Ù.");
+                Debug.Log($"<color=orange>[íŠ¹ìˆ˜]</color> <b>{item.itemName}</b> í™œì„±í™”! ì—°ì† íƒ€ê²© ì‹œ ì ì˜ ì²´ì˜¨ì´ ìƒìŠ¹í•˜ì—¬ ë°›ëŠ” í”¼í•´ê°€ ì¦ê°€í•©ë‹ˆë‹¤.");
             }
 
-            //  [Ãß°¡] Æ÷µµ´ç ¸µ°Å (Ã³Ä¡ ½Ã È¸º¹) ¹è´Ş ÄÚµå
+            //  [ì¶”ê°€] í¬ë„ë‹¹ ë§ê±° (ì²˜ì¹˜ ì‹œ íšŒë³µ) ë°°ë‹¬ ì½”ë“œ
             if (item.healOnKill > 0)
             {
                 player.AddHealOnKill(item.healOnKill);
-                Debug.Log($"<color=green>[È¸º¹]</color> Ã³Ä¡ ½Ã Ã¼·Â È¸º¹ +{item.healOnKill} Áõ°¡!");
+                Debug.Log($"<color=green>[íšŒë³µ]</color> ì²˜ì¹˜ ì‹œ ì²´ë ¥ íšŒë³µ +{item.healOnKill} ì¦ê°€!");
             }
             if (item.healOnIdlePerSecond != 0)
             {
                 player.AddHealOnIdle(item.healOnIdlePerSecond);
-                Debug.Log($"<color=green>[È¸º¹]</color> Á¤Áö ½Ã ÃÊ´ç È¸º¹ +{item.healOnIdlePerSecond}");
+                Debug.Log($"<color=green>[íšŒë³µ]</color> ì •ì§€ ì‹œ ì´ˆë‹¹ íšŒë³µ +{item.healOnIdlePerSecond}");
             }
             if (item.sizeBoost != 0)
             {
                 player.AddProjectileSize(item.sizeBoost);
-                Debug.Log($"<color=cyan>[Æ¯¼ö]</color> Åõ»çÃ¼ Å©±â {item.sizeBoost * 100}% Áõ°¡!");
+                Debug.Log($"<color=cyan>[íŠ¹ìˆ˜]</color> íˆ¬ì‚¬ì²´ í¬ê¸° {item.sizeBoost * 100}% ì¦ê°€!");
             }
-            // MRI ÀÚ¼® (¾ÆÀÌÅÛ ÀÚµ¿ ¼öÁı) ¹è´Ş ÄÚµå
+            // MRI ìì„ (ì•„ì´í…œ ìë™ ìˆ˜ì§‘) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
             if (item.autoCollectItems)
             {
                 player.EnableAutoCollect();
-                Debug.Log($"<color=yellow>[À¯Æ¿]</color> <b>{item.itemName}</b> È°¼ºÈ­! ¸ÊÀÇ ¸ğµç ¾ÆÀÌÅÛÀ» Èí¼öÇÕ´Ï´Ù.");
+                Debug.Log($"<color=yellow>[ìœ í‹¸]</color> <b>{item.itemName}</b> í™œì„±í™”! ë§µì˜ ëª¨ë“  ì•„ì´í…œì„ í¡ìˆ˜í•©ë‹ˆë‹¤.");
             }
-            // ¹ÚÇÏ »çÅÁ (µĞÈ­ È®·ü) ¹è´Ş ÄÚµå
+            // ë°•í•˜ ì‚¬íƒ• (ë‘”í™” í™•ë¥ ) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
             if (item.slowChance > 0)
             {
                 player.AddSlowChance(item.slowChance);
-                Debug.Log($"<color=lightblue>[µğ¹öÇÁ]</color> µĞÈ­ È®·ü +{item.slowChance * 100}% Ãß°¡");
+                Debug.Log($"<color=lightblue>[ë””ë²„í”„]</color> ë‘”í™” í™•ë¥  +{item.slowChance * 100}% ì¶”ê°€");
             }
-            // Ä¡½Ç (»ç°Å¸® +20%, °üÅë +1È¸) ¹è´Ş ÄÚµå
+            // ì¹˜ì‹¤ (ì‚¬ê±°ë¦¬ +20%, ê´€í†µ +1íšŒ) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
-            if (item.rangeBoost > 0 && item.itemName.Contains("Ä¡½Ç")) // È¤Àº item.id³ª °íÀ¯ ÇÃ·¡±× Á¶°Ç
+            if (item.rangeBoost > 0 && item.itemName.Contains("ì¹˜ì‹¤")) // í˜¹ì€ item.idë‚˜ ê³ ìœ  í”Œë˜ê·¸ ì¡°ê±´
             {
-                // ÀÎ°ø´«¹° ¶§ ¸¸µé¾îµĞ »ç°Å¸® Áõ°¡ ÇÔ¼ö È£Ãâ (0.2 ´õÇÏ±â)
+                // ì¸ê³µëˆˆë¬¼ ë•Œ ë§Œë“¤ì–´ë‘” ì‚¬ê±°ë¦¬ ì¦ê°€ í•¨ìˆ˜ í˜¸ì¶œ (0.2 ë”í•˜ê¸°)
                 player.AddRangeMultiplier(item.rangeBoost);
 
-                // ¹æ±İ ¸¸µç °üÅë Áõ°¡ ÇÔ¼ö È£Ãâ (1 ´õÇÏ±â)
+                // ë°©ê¸ˆ ë§Œë“  ê´€í†µ ì¦ê°€ í•¨ìˆ˜ í˜¸ì¶œ (1 ë”í•˜ê¸°)
                 player.AddAdditionalPierce((int)item.pierceCountBoost);
 
-                Debug.Log($"<color=green>[ÀüÅõ]</color> <b>{item.itemName}</b> ÀåÂø! »ç°Å¸® +20%, °üÅë È½¼ö +1");
+                Debug.Log($"<color=green>[ì „íˆ¬]</color> <b>{item.itemName}</b> ì¥ì°©! ì‚¬ê±°ë¦¬ +20%, ê´€í†µ íšŸìˆ˜ +1");
             }
-            // ¸Å¿î ¶±ººÀÌ (È­»ó È®·ü) ¹è´Ş ÄÚµå
+            // ë§¤ìš´ ë–¡ë³¶ì´ (í™”ìƒ í™•ë¥ ) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
             if (item.burnChance > 0)
             {
                 player.AddBurnChance(item.burnChance);
-                Debug.Log($"<color=red>[µğ¹öÇÁ]</color> È­»ó È®·ü +{item.burnChance * 100}% Ãß°¡");
+                Debug.Log($"<color=red>[ë””ë²„í”„]</color> í™”ìƒ í™•ë¥  +{item.burnChance * 100}% ì¶”ê°€");
             }
 
             // ==========================================
-            // 4. »õ·Î¿î ´É·Â ÇØ±İ (¹«±â Ãß°¡ µî)
+            // 4. ìƒˆë¡œìš´ ëŠ¥ë ¥ í•´ê¸ˆ (ë¬´ê¸° ì¶”ê°€ ë“±)
             // ==========================================
             if (item.abilityPrefab != null)
             {
-                // abilityManager¸¦ ÅëÇØ »õ ´É·ÂÀ» µî·Ï (ÇÁ·ÎÁ§Æ® ÇÔ¼ö¸í¿¡ ¸ÂÃç ÃßÈÄ ÁÖ¼® ÇØÁ¦)
+                // abilityManagerë¥¼ í†µí•´ ìƒˆ ëŠ¥ë ¥ì„ ë“±ë¡ (í”„ë¡œì íŠ¸ í•¨ìˆ˜ëª…ì— ë§ì¶° ì¶”í›„ ì£¼ì„ í•´ì œ)
                 // abilityManager.UnlockAbility(item.abilityPrefab); 
-                Debug.Log($"<color=orange>[ÇØ±İ]</color> {item.itemName} ½ºÅ³ È°¼ºÈ­!");
+                Debug.Log($"<color=orange>[í•´ê¸ˆ]</color> {item.itemName} ìŠ¤í‚¬ í™œì„±í™”!");
             }
             // ------------------------------------------
-            //  Ç×»ıÁ¦ ÆøÅº (ÀûÁß ½Ã Æø¹ß) ¹è´Ş ÄÚµå
+            //  í•­ìƒì œ í­íƒ„ (ì ì¤‘ ì‹œ í­ë°œ) ë°°ë‹¬ ì½”ë“œ
             // ------------------------------------------
-            if (item.itemName.Contains("Ç×»ıÁ¦"))
+            if (item.itemName.Contains("í•­ìƒì œ"))
             {
                 player.EnableAntibioticBomb();
-                Debug.Log($"<color=orange>[Àü¼³]</color> <b>{item.itemName}</b> È°¼ºÈ­! ÁÖ»ç±â°¡ ÀûÀ» °üÅëÇÏ°Å³ª ÀûÁßÇÒ ¶§ °­·ÂÇÑ Ç×»ıÁ¦ Æø¹ßÀÌ ÀÏ¾î³³´Ï´Ù.");
+                Debug.Log($"<color=orange>[ì „ì„¤]</color> <b>{item.itemName}</b> í™œì„±í™”! ì£¼ì‚¬ê¸°ê°€ ì ì„ ê´€í†µí•˜ê±°ë‚˜ ì ì¤‘í•  ë•Œ ê°•ë ¥í•œ í•­ìƒì œ í­ë°œì´ ì¼ì–´ë‚©ë‹ˆë‹¤.");
             }
 
-            Debug.Log($"<color=green>[Àû¿ë ¿Ï·á]</color> ¸ğµç È¿°ú°¡ Ä³¸¯ÅÍ¿¡°Ô ¼º°øÀûÀ¸·Î Àü´ŞµÇ¾ú½À´Ï´Ù.");
+            Debug.Log($"<color=green>[ì ìš© ì™„ë£Œ]</color> ëª¨ë“  íš¨ê³¼ê°€ ìºë¦­í„°ì—ê²Œ ì„±ê³µì ìœ¼ë¡œ ì „ë‹¬ë˜ì—ˆìŠµë‹ˆë‹¤.");
         }
 
     }

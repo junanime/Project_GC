@@ -28,6 +28,7 @@ namespace Vampire
                 return;
             }
 
+            if(item.octoberId>0){OctoberItemRuntime.Get(player).Give(item);return;}
             string itemName = GetString(item, item.name, "itemName", "displayName", "name");
 
             if (debugLog)

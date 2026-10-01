@@ -15,6 +15,8 @@ namespace Vampire
         public TitleMenuSurface sparkle;
         public bool chosen;
         public bool primary;
+        public bool useThemeStates=true;
+        public TMPro.TextMeshProUGUI label;
         bool hovered, pressed, focused;
         public bool IsPressed => pressed;
         public bool IsHighlighted => button != null && button.IsInteractable() && (hovered || focused || chosen);
@@ -62,8 +64,15 @@ namespace Vampire
             bool reduced = GamePreferences.Current.reducedMotion;
             float target = !available || reduced ? 1 : pressed ? .96f : active ? 1.035f : 1;
             visual.localScale = Vector3.Lerp(visual.localScale, Vector3.one * target, 1 - Mathf.Exp(-20 * Time.unscaledDeltaTime));
-            body.color = !available ? new Color(.65f,.62f,.59f) : pressed ? new Color(.83f,.70f,.68f) :
-                active ? new Color(1,.91f,.72f) : Color.white;
+            if(useThemeStates && OctoberArt.Button(false)!=null)
+            {
+                // Scale the corner slices with button height, preserving the main button silhouette.
+                body.pixelsPerUnitMultiplier=4f*73.44f/Mathf.Max(18,visual.rect.height);
+                bool red=primary||active;
+                body.sprite=OctoberArt.Button(red);
+                if(label!=null)label.color=red?Color.white:OctoberArt.Ink;
+            }
+            body.color = !available ? new Color(.60f,.64f,.72f) : pressed ? new Color(.85f,.85f,.85f) : Color.white;
             sparkle.SetActiveStyle(available && active && !reduced);
         }
     }
