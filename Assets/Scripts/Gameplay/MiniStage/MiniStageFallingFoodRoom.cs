@@ -265,6 +265,7 @@ namespace Vampire
                 knockback = direction * knockbackForce;
             }
 
+            strike.Explodes = Enhanced;
             strike.Setup(
                 playerCharacter,
                 selectedFood.Sprite,

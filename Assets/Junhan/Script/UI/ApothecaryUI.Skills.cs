@@ -6,7 +6,7 @@ namespace Vampire
     public sealed partial class ApothecaryUI
     {
         Image activeCooldown, passiveDuration, cutinPortrait, activeDurationBar;
-        TextMeshProUGUI activeSeconds, passiveSeconds;
+        TextMeshProUGUI activeSeconds, passiveSeconds, passiveLevelLabel, activeLevelLabel;
         Button activeSkillButton;
         GameObject cutinPanel, skillDetails;
         RectTransform skillHudRoot;
@@ -63,7 +63,9 @@ namespace Vampire
                 mask.sprite=SkillSquare;mask.type=Image.Type.Filled;mask.fillMethod=Image.FillMethod.Radial360;
                 mask.fillOrigin=(int)Image.Origin360.Top;mask.fillClockwise=false;mask.fillAmount=0;
                 var seconds=Label(visual,"",.15f,.25f,.85f,.75f,22);seconds.color=Color.white;seconds.fontStyle=FontStyles.Bold;
-                Label(skillHudRoot,active?"R · 액티브":"패시브",x,y-.028f,x+.065f,y,13).color=Color.white;
+                var levelLabel=Label(skillHudRoot,active?"R · 액티브":"패시브",x-.008f,y-.028f,x+.073f,y,13);
+                levelLabel.color=Color.white;
+                if(active)activeLevelLabel=levelLabel;else passiveLevelLabel=levelLabel;
                 if(active)
                 {
                     activeCooldown=mask;activeSeconds=seconds;activeSkillButton=b;
@@ -97,12 +99,14 @@ namespace Vampire
             skillHudRoot.anchoredPosition=new Vector2(0,(Application.isMobilePlatform||MobileGameplayInput.Active)?205:0);
             var d=skill!=null?skill.Definition:null;
             activeSkillButton.interactable=skill!=null&&skill.CanActivate;
-            activeCooldown.fillAmount=d!=null?skill.CooldownRemaining/d.cooldown:0;
+            if(passiveLevelLabel!=null)passiveLevelLabel.text=$"패시브 Lv.{(skill!=null?skill.PassiveLevel:1)}";
+            if(activeLevelLabel!=null)activeLevelLabel.text=$"R · 액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
+            activeCooldown.fillAmount=d!=null?skill.CooldownRemaining/skill.EffectiveCooldown:0;
             activeSeconds.text=skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
             // Marathon has no separate cooldown: its countdown is the remaining buff duration.
             passiveDuration.fillAmount=0;
             passiveSeconds.text=d!=null&&skill.IsHyuki?Mathf.RoundToInt(skill.IceProcChance*100)+"%":d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
-            activeDurationBar.fillAmount=d!=null?skill.ActiveRemaining/d.activeDuration:0;
+            activeDurationBar.fillAmount=d!=null?skill.ActiveRemaining/skill.EffectiveActiveDuration:0;
             cutinPanel.SetActive(skill!=null&&skill.IsCutin);
             if(skill!=null&&skill.IsCutin&&d.cutin!=null&&d.cutin.Length>0)
             {

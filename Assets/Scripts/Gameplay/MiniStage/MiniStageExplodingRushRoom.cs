@@ -203,6 +203,10 @@ namespace Vampire
                 ForceMonsterPosition(monster, spawnPosition);
             }
 
+            bool fast = Enhanced && (spawnedCount + 1) % RemakeBalance.Current.fastBomberEvery == 0;
+            if(fast)monster.moveSpeed *= RemakeBalance.Current.fastBomberSpeed;
+            var visual = monster.GetComponentInChildren<SpriteRenderer>();
+            if(visual != null)visual.color = fast ? new Color(1,.68f,.35f) : Color.white;
             monster.OnKilled.AddListener(OnExplodingMonsterKilled);
 
             spawnedMonsters.Add(monster);
@@ -358,14 +362,15 @@ namespace Vampire
 
                 monster.OnKilled.RemoveListener(OnExplodingMonsterKilled);
 
-                if (!monster.gameObject.activeInHierarchy)
+                if (!monster.gameObject.activeInHierarchy || !monster.IsMiniStageOwned)
                 {
                     continue;
                 }
 
                 if (entityManager != null)
                 {
-                    entityManager.LivingMonsters.Remove(monster);
+                    if (entityManager.LivingMonsters.Contains(monster))
+                        entityManager.LivingMonsters.Remove(monster);
                     entityManager.DespawnMonster(explodingMonsterPoolIndex, monster, false);
                 }
                 else

@@ -111,6 +111,7 @@ namespace Vampire
         void Update()
         {
             UpdateSkillUI();
+            UpdatePrescriptionUI();
             if (safe == null) return;
             UpdatePreferencesUI();
             Rect area = Screen.safeArea;
@@ -140,7 +141,7 @@ namespace Vampire
         }
         public void Back()
         {
-            if (starting || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
+            if (starting || Page == "skillReward" || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
             if(Page=="settings"){CancelSettings();return;}
             if (Page == "hud" || Page == "run" || Page == "main" || Page == "prepare") { OpenSettings(); return; }
             Show("main");
@@ -156,12 +157,14 @@ namespace Vampire
             {
                 BuildSkillHud();
                 ActionButton(content,"상태 / TAB", .81f,.87f,.97f,.97f, OpenRunBook);
-                ActionButton(content,"설정 / ESC", .81f,.76f,.97f,.85f, OpenSettings);
+                ActionButton(content,"설정 / ESC", .81f,.335f,.97f,.415f, OpenSettings);
+                BuildPrescriptionHud();
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
             ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { Main(); return; }
+            if (Page == "skillReward") { BuildSkillReward(); return; }
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "잠금 해제" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "스테이지 클리어!" : "탐험 실패") : Page == "exit" ? "게임 종료" : "설정";
             Label(content,title,.30f,.865f,.70f,.965f,34);
             if (Page == "prepare" || Page == "unlock")

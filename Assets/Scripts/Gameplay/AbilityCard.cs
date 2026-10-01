@@ -184,11 +184,13 @@ namespace Vampire
             if (nameText != null)
             {
                 nameText.text = ability.Name;
+                FitCardText(nameText, new Vector2(.21f,.45f), new Vector2(.79f,.51f), 25, TextAlignmentOptions.Center);
             }
 
             if (descriptionText != null)
             {
                 descriptionText.text = ability.Description;
+                FitCardText(descriptionText, new Vector2(.21f,.29f), new Vector2(.79f,.435f), 20, TextAlignmentOptions.TopLeft);
             }
 
             if (buttonText != null)
@@ -202,6 +204,21 @@ namespace Vampire
                     ? selectLocalization.GetLocalizedString()
                     : upgradeLocalization.GetLocalizedString() + " (" + ability.Level + " -> " + (ability.Level + 1) + ")";
             }
+        }
+
+        private static void FitCardText(TextMeshProUGUI text, Vector2 min, Vector2 max, float fontMax, TextAlignmentOptions alignment)
+        {
+            // The old one-line description rect overflowed into the title and select button.
+            var rect = text.rectTransform;
+            rect.anchorMin = min; rect.anchorMax = max; rect.pivot = new Vector2(.5f,.5f);
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+            text.alignment = alignment;
+            text.margin = Vector4.zero;
+            text.enableWordWrapping = true;
+            text.enableAutoSizing = true;
+            text.fontSizeMin = 13;
+            text.fontSizeMax = fontMax;
+            text.overflowMode = TextOverflowModes.Truncate;
         }
 
         public void Init(AbilitySelectionDialog levelUpMenu, Ability ability, float waitToAppear)

@@ -68,7 +68,7 @@ namespace Vampire
                 {
                     int index=UnityEngine.Random.Range(0,candidates.Count); var source=candidates[index]; candidates.RemoveAt(index);
                     result.Add(Offer(Ver4RewardKind.LegendaryAbility,AugmentUpgradeGrade.Legendary,source,0,0,
-                        "전설 증강: "+source.Name,source.Description+"\n전용 상자 획득 · 강화 불가"));
+                        "전설 증강: "+source.Name,source.Description+"\n비전 처방전 보상 · 강화 불가"));
                 }
                 return result;
             }

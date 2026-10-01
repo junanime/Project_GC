@@ -364,6 +364,7 @@ namespace Vampire
             UpdateThermometerDisplay();
             MobileGameplayControls.Ensure(this);
             if (Skills == null) { Skills=gameObject.AddComponent<CharacterSkillRuntime>(); Skills.Initialize(this); }
+            if (GetComponent<PrescriptionRuntime>() == null) gameObject.AddComponent<PrescriptionRuntime>().Initialize(this);
         }
 
         protected virtual void Update()
@@ -1770,6 +1771,9 @@ namespace Vampire
             snapshot.SkillSleepSeconds=Skills != null ? Skills.SleepSeconds : 0;
             snapshot.SkillConsumedSleepStacks=Skills != null ? Skills.ConsumedSleepStacks : 0;
             snapshot.SkillIceProcFailures=Skills != null ? Skills.IceProcFailures : 0;
+            snapshot.SkillPassiveLevel=Skills != null ? Skills.PassiveLevel : 1;
+            snapshot.SkillActiveLevel=Skills != null ? Skills.ActiveLevel : 1;
+            snapshot.Prescription=GetComponent<PrescriptionRuntime>()?.Capture();
             snapshot.SkillPassiveRemaining=Skills != null ? Skills.PassiveRemaining : 0;
             snapshot.SkillActiveRemaining=Skills != null ? Skills.ActiveRemaining : 0;
             snapshot.SkillCooldownRemaining=Skills != null ? Skills.CooldownRemaining : 0;
@@ -1983,6 +1987,8 @@ namespace Vampire
             alive =
                 currentHealth > 0f;
 
+            Skills?.RestoreLevels(snapshot.SkillPassiveLevel,snapshot.SkillActiveLevel);
+            GetComponent<PrescriptionRuntime>()?.Restore(snapshot.Prescription);
             Skills?.Restore(snapshot.SkillPassiveRemaining,snapshot.SkillActiveRemaining,snapshot.SkillCooldownRemaining,snapshot.SkillSummonRemaining);
             Skills?.RestoreSleep(snapshot.SkillSleepSeconds,snapshot.SkillConsumedSleepStacks);
             Skills?.RestoreIceProcFailures(snapshot.SkillIceProcFailures);
