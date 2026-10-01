@@ -10,6 +10,18 @@ namespace Vampire
     public static class GameInput
     {
         private static readonly Dictionary<KeyCode,Key> Keys = new Dictionary<KeyCode,Key>();
+        private static int interactionFrame=-1;
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetInteractionFrame(){interactionFrame=-1;}
+
+        // Opening a reward may enable an adjacent return portal during this same frame.
+        // Reserve the press before callbacks run, across both field and mini-stage interactions.
+        public static bool TryConsumeInteraction(KeyCode key)
+        {
+            if(interactionFrame==Time.frameCount)return false;
+            if(!GetKeyDown(key)&&!MobileGameplayInput.ConsumeInteraction())return false;
+            interactionFrame=Time.frameCount;return true;
+        }
         public static bool GetKeyDown(KeyCode code)
         {
             var keyboard=Keyboard.current;

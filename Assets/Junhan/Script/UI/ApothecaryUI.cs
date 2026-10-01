@@ -141,7 +141,7 @@ namespace Vampire
         public void Show(string page, int tab = 0)
         {
             if(page=="settings" && Page!="settings")BeginSettings();
-            Page = page; Tab = tab; selection = pageIndex = 0; message = "";
+            Page = page; Tab = tab; selection = page=="prepare"&&tab==0?characterIndex:0;pageIndex=0; message = "";
             Render();
         }
         public void Back()
@@ -254,7 +254,7 @@ namespace Vampire
             Label(visual,kind,.06f,.81f,.94f,.98f,12).color=new Color(1,.97f,.85f);
             Label(visual,name,.06f,.03f,.94f,.23f,12);
         }
-        void SwitchTab(int tab) { Tab=tab; selection=pageIndex=0;message="";Render(); }
+        void SwitchTab(int tab) { Tab=tab; selection=Page=="prepare"&&tab==0?characterIndex:0;pageIndex=0;message="";Render(); }
         void RelicSelection()
         {
             var available=Config.relics.Where(r=>RelicSaveData.IsUnlocked(r.relicId)).ToArray();

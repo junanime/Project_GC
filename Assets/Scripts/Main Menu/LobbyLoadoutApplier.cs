@@ -22,7 +22,7 @@ namespace Vampire
                 yield break;
             }
 
-            StartingNeedleSelection.Apply(abilityManager);
+            StartingNeedleSelection.Apply(abilityManager,player.Blueprint);
             MerchantItemBlueprint[] items = CrossSceneData.StartingLobbyItems;
 
             if (items == null || items.Length == 0)

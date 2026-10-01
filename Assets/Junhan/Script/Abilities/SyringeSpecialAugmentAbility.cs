@@ -187,6 +187,7 @@ namespace Vampire
 
         public override bool RequirementsMet()
         {
+            if(!StartingNeedleSelection.Owned(this))return false;
             RefreshSyringeDartAbilityReference();
             if ((int)augmentType >= 16)
                 return syringeDartAbility != null && !syringeDartAbility.HasVer4Special(augmentType) && base.RequirementsMet();

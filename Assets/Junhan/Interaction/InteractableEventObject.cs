@@ -16,6 +16,7 @@ namespace Vampire
         private static readonly List<InteractableEventObject> candidates = new List<InteractableEventObject>();
         private static InteractableEventObject focusedObject;
         private static Character focusedPlayer;
+        private static int lastInteractionFrame = -1;
 
         [Header("Interaction")]
         [SerializeField] private KeyCode interactionKey = KeyCode.E;
@@ -50,6 +51,13 @@ namespace Vampire
 
         protected Character CurrentPlayer => currentPlayer;
         protected virtual bool KeepVisibleAfterInteraction => false;
+        protected virtual bool AllowMiniStageInteraction => false;
+        protected virtual bool InteractionAvailable => true;
+        protected virtual Component PromptOwner => this;
+        protected void ConfigureReusableInteraction()
+        {
+            interactOnce=false;disableObjectAfterInteract=false;disableColliderAfterInteract=false;
+        }
 
         protected void ResetInteractionAvailability()
         {
@@ -122,7 +130,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.GetKeyDown(interactionKey) || MobileGameplayInput.ConsumeInteraction())
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
             {
                 TryInteract();
             }
@@ -169,7 +177,7 @@ namespace Vampire
         public void TryInteract()
         {
             if (Time.timeScale <= 0f) return;
-            if (MiniStageRuntimeState.IsInsideMiniStage)
+            if (MiniStageRuntimeState.IsInsideMiniStage && !AllowMiniStageInteraction)
             {
                 return;
             }
@@ -184,6 +192,8 @@ namespace Vampire
                 return;
             }
 
+            if(lastInteractionFrame==Time.frameCount)return;
+
             if (levelManager == null)
             {
                 levelManager = FindObjectOfType<LevelManager>();
@@ -195,6 +205,7 @@ namespace Vampire
             {
                 return;
             }
+            lastInteractionFrame=Time.frameCount;
 
             CompleteInteraction();
         }
@@ -232,7 +243,7 @@ namespace Vampire
 
         private bool CanBeFocusedBy(Character player)
         {
-            if (MiniStageRuntimeState.IsInsideMiniStage)
+            if (!InteractionAvailable || (MiniStageRuntimeState.IsInsideMiniStage && !AllowMiniStageInteraction))
             {
                 return false;
             }
@@ -363,7 +374,7 @@ namespace Vampire
 
         protected void SetPromptVisible(bool visible)
         {
-            PixelInteractionPrompt.Show(this, visible && isActiveAndEnabled, promptRoot);
+            PixelInteractionPrompt.Show(PromptOwner, visible && isActiveAndEnabled, promptRoot);
         }
     }
 }

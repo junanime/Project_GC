@@ -12,10 +12,23 @@ namespace Vampire
         private Sprite standby, active;
         private readonly SpriteRenderer[] arcs = new SpriteRenderer[3];
         private GameObject arrival;
+        private bool cakeAltar;
+        private Vector3 altarScale;
 
         public void Initialize(SpriteRenderer target)
         {
             terminal = target;
+            var cake=OctoberArt.Get("OctoberUI/BossAltar");
+            if(cake!=null)
+            {
+                var art=new GameObject("Roll cake altar art");art.transform.SetParent(transform,false);
+                terminal=art.AddComponent<SpriteRenderer>();terminal.sprite=cake;
+                if(target!=null){terminal.sortingLayerID=target.sortingLayerID;terminal.sortingOrder=target.sortingOrder;target.enabled=false;}
+                float width=2.35f/cake.bounds.size.x;
+                art.transform.localScale=altarScale=new Vector3(width/Mathf.Abs(transform.lossyScale.x),width/Mathf.Abs(transform.lossyScale.y),1);
+                art.transform.localPosition=new Vector3(0,1.05f/Mathf.Abs(transform.lossyScale.y),0);
+                standby=active=cake;cakeAltar=true;return;
+            }
             standby = Resources.Load<Sprite>("BossSummonArt/Standby");
             active = Resources.Load<Sprite>("BossSummonArt/Active");
             if (terminal == null || standby == null || active == null) return;
@@ -38,6 +51,17 @@ namespace Vampire
 
         public IEnumerator Transmit()
         {
+            if(cakeAltar)
+            {
+                for(float t=0;t<1.8f;t+=Time.deltaTime)
+                {
+                    float pulse=Mathf.Max(0,Mathf.Sin(t*12));
+                    terminal.color=Color.Lerp(Color.white,new Color(1,.68f,.76f),pulse*.6f);
+                    terminal.transform.localScale=altarScale*(1+pulse*.025f);
+                    yield return null;
+                }
+                terminal.color=Color.white;terminal.transform.localScale=altarScale;yield break;
+            }
             if (terminal != null && active != null) terminal.sprite = active;
             yield return new WaitForSeconds(.2f);
             for (int cycle = 0; cycle < 2; cycle++)
@@ -106,6 +130,7 @@ namespace Vampire
         {
             HideArcs(); ClearArrival();
             if (terminal != null && standby != null) terminal.sprite = standby;
+            if(cakeAltar&&terminal!=null){terminal.color=Color.white;terminal.transform.localScale=altarScale;}
         }
         private void HideArcs() { foreach (var sr in arcs) if (sr != null) sr.enabled = false; }
         private void ClearArrival()

@@ -66,6 +66,8 @@ namespace Vampire
             visual.localScale = Vector3.Lerp(visual.localScale, Vector3.one * target, 1 - Mathf.Exp(-20 * Time.unscaledDeltaTime));
             if(useThemeStates && OctoberArt.Button(false)!=null)
             {
+                // Scale the corner slices with button height, preserving the main button silhouette.
+                body.pixelsPerUnitMultiplier=4f*73.44f/Mathf.Max(18,visual.rect.height);
                 bool red=primary||active;
                 body.sprite=OctoberArt.Button(red);
                 if(label!=null)label.color=red?Color.white:OctoberArt.Ink;

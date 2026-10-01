@@ -33,7 +33,7 @@ namespace Vampire.Tests.Editor
             Directory.CreateDirectory(Output);
             var config=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             Check(config!=null&&config.characters.Length>0&&config.items.Length>=2&&config.relics.Length>0,"Catalog valid");
-            var keys=new[]{"LobbySilverCoins","Coins","Apothecary.ReducedMotion","October.StartingNeedle"}.Concat(config.relics.Select(r=>"RelicUnlocked_"+r.relicId)).Concat(config.characters.Select(c=>"LobbyUnlock.Character."+c.name)).ToArray();
+            var keys=new[]{"LobbySilverCoins","Coins","Apothecary.ReducedMotion","October.StartingNeedle"}.Concat(config.relics.Select(r=>"RelicUnlocked_"+r.relicId)).Concat(config.characters.Select(c=>"LobbyUnlock.Character."+c.name)).Concat(config.characters.Select(StartingNeedleSelection.SaveKey)).ToArray();
             var backup=new Backup{values=keys.Select(k=>new Save{key=k,exists=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray(),equippedExists=PlayerPrefs.HasKey("EquippedRelicId"),equipped=PlayerPrefs.GetString("EquippedRelicId")};
             backup.settingsExists=PlayerPrefs.HasKey(GamePreferences.SaveKey);backup.settings=PlayerPrefs.GetString(GamePreferences.SaveKey);
             File.WriteAllText(BackupPath,JsonUtility.ToJson(backup));
@@ -104,8 +104,8 @@ namespace Vampire.Tests.Editor
                     case 6:Check(LobbyLoadoutData.SelectedCarryItems.Count==1&&SilverWallet.Silver==beforeBuy-ui.Config.items[0].silverCost,"One purchase, exact debit");SetSelection(ui,1);break;
                     case 7:ClickPrefix("구매 · ");break;
                     case 8:Check(LobbyLoadoutData.SelectedCarryItems.Count==2,"Two carry items");Click("캐릭터");break;
-                    case 9:Click("›");break;
-                    case 10:Check(LobbyLoadoutData.SelectedCarryItems.Count==2,"Items survive character changes");Click("‹");ui.Show("prepare",1);break;
+                    case 9:Activate(ui.GetComponentsInChildren<Button>().First(b=>b.name=="Choice 0 1"));break;
+                    case 10:Check(LobbyLoadoutData.SelectedCarryItems.Count==2,"Items survive character changes");Activate(ui.GetComponentsInChildren<Button>().First(b=>b.name=="Choice 0 0"));ui.Show("prepare",1);break;
                     case 11:Capture("04-preparation-weapons");Click("유물");break;
                     case 12:Capture("05-preparation-relics");Click("출전하기");next+=3;break;
                     case 13:
@@ -150,7 +150,7 @@ namespace Vampire.Tests.Editor
         static bool HasText(string text)=>ApothecaryUI.Instance.GetComponentsInChildren<TextMeshProUGUI>().Any(t=>t.text.Contains(text));
         static Button Button(string text)=>ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.gameObject.name=="Button "+text);
         static void Click(string text){Activate(Button(text));}
-        static void ClickPrefix(string text){Activate(ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.gameObject.name.StartsWith("Button "+text)));}
+        static void ClickPrefix(string text){Activate(ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.gameObject.name.StartsWith("Button "+text)||(b.name=="Selection action"&&b.GetComponentsInChildren<TextMeshProUGUI>().Any(t=>t.text.StartsWith(text)))));}
         static void Activate(Button button)
         {
             Check(button.interactable,"Button active: "+button.name);

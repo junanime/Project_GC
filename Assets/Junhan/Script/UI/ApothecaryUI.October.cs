@@ -39,15 +39,17 @@ namespace Vampire
         void OctoberPrepare()
         {
             character=Config.characters[characterIndex];previewCharacter=null;
-            portrait=ImageAt(content,OctoberArt.Character(character,0),.185f,.55f,.362f,.83f);
-            Label(content,character.name,.19f,.49f,.365f,.553f,27);
-            ActionButton(content,"‹",.134f,.61f,.183f,.70f,()=>ChangeCharacter(-1));
-            ActionButton(content,"›",.38f,.61f,.429f,.70f,()=>ChangeCharacter(1));
-            Panel(content,.128f,.336f,.437f,.493f);
-            Label(content,$"기본 능력치\n체력 {character.hp:0}   방어 {character.armor}\n이동 {character.movespeed:0.##}   행운 {character.luck:0.##}",.14f,.352f,.292f,.481f,18);
-            ProfileSkills(character,.298f,.345f,.43f,.482f);
+            var preview=Rect("Character skill preview",content,.15f,.555f,.423f,.824f);
+            var effect=ImageAt(preview,null,0,0,1,1);
+            portrait=ImageAt(preview,CharacterSprite(character),.05f,-.07f,.95f,1.08f);
+            var motion=preview.gameObject.AddComponent<PreparationSkillPreview>();motion.character=character;motion.body=portrait;motion.effect=effect;
+            Label(content,character.name,.19f,.505f,.365f,.551f,27);
+            Panel(content,.128f,.333f,.437f,.505f);
+            IdentityHeader(content,"기본 능력치",.14f,.457f,.286f,.498f,18);
+            Label(content,$"체력 {character.hp:0}   방어 {character.armor}\n이동 {character.movespeed:0.##}   행운 {character.luck:0.##}",.14f,.357f,.288f,.448f,17);
+            ProfileSkills(character,.298f,.347f,.43f,.491f);
             var relic=Config.relics.FirstOrDefault(r=>RelicSaveData.IsEquipped(r.relicId));
-            var needle=StartingNeedleSelection.Selected(Config);
+            var needle=StartingNeedleSelection.Selected(Config,character);
             SmallLoadoutSlot(.128f,"무기",needle!=null?needle.Image:Config.basicNeedle,needle!=null?Ver4AugmentCatalog.ParentNames[(int)needle.Type]:"기본 침",()=>SwitchTab(1));
             SmallLoadoutSlot(.207f,"유물",relic!=null?relic.icon:null,relic!=null?relic.relicName:"빈 슬롯",()=>SwitchTab(2));
             for(int i=0;i<2;i++)
@@ -56,36 +58,45 @@ namespace Vampire
                 SmallLoadoutSlot(.286f+i*.079f,"아이템 "+(i+1),item!=null?item.itemIcon:null,item!=null?item.itemName:"빈 슬롯",()=>SwitchTab(3));
             }
             string[] tabs={"캐릭터","무기","유물","아이템"};
-            for(int i=0;i<4;i++){int k=i;ActionButton(content,tabs[i],.472f+i*.104f,.759f,.57f+i*.104f,.819f,()=>SwitchTab(k),false,true,Tab==i);}
+            for(int i=0;i<4;i++){int k=i;ActionButton(content,tabs[i],.472f+i*.104f,.769f,.57f+i*.104f,.819f,()=>SwitchTab(k),false,true,Tab==i);}
             OctoberSelection();
             Label(content,message,.472f,.124f,.878f,.16f,14);
             ActionButton(content,"‹  뒤로",.10f,.018f,.28f,.095f,()=>Show("main"));
             ActionButton(content,Owned(character)?"출전하기":"캐릭터 해금 필요",.667f,.018f,.905f,.095f,StartRun,true,Owned(character)&&!starting);
         }
+        void IdentityHeader(Transform parent,string title,float x,float y,float right,float top,float size)
+        {
+            var pill=Rect("Category "+title,parent,x,y,right,top).gameObject.AddComponent<IdentityShape>();
+            pill.color=PreparationIdentity.ColorFor(character);pill.radius=30;pill.raycastTarget=false;
+            var text=Label(pill.transform,title,0,0,1,1,size);text.fontStyle=TMPro.FontStyles.Bold;
+            text.color=OctoberArt.CharacterKey(character)=="Ari"?Ink:Color.white;
+        }
         void SmallLoadoutSlot(float x,string heading,Sprite icon,string caption,Action action)
         {
-            var b=ActionButton(content,"",x,.145f,x+.073f,.322f,action);SlotArt(b);
+            var b=ActionButton(content,"",x,.145f,x+.073f,.322f,action);SlotArt(b);b.name="Loadout "+heading;
             var v=b.transform.Find("Visual");
-            ImageAt(v,icon,.12f,.25f,.88f,.80f);
-            if(icon==null)Label(v,"+",.1f,.3f,.9f,.75f,32);
-            Label(v,heading,.03f,.82f,.97f,.98f,12);
-            Label(v,caption,.03f,.02f,.97f,.24f,11);
+            IdentityHeader(v,heading,0,.78f,1,1,14);
+            var frame=Rect("Icon frame",v,.09f,.21f,.91f,.76f).gameObject.AddComponent<IdentityShape>();
+            frame.color=Color.Lerp(PreparationIdentity.ColorFor(character),Color.white,.50f);frame.frame=true;frame.radius=8;frame.raycastTarget=false;frame.insetColor=new Color(1,.94f,.84f);
+            ImageAt(frame.transform,icon,.1f,.1f,.9f,.9f);
+            if(icon==null)Label(frame.transform,"+",.1f,.1f,.9f,.9f,28).color=new Color(.72f,.51f,.46f);
+            var label=Label(v,caption,.04f,.015f,.96f,.205f,12);label.fontStyle=TMPro.FontStyles.Bold;
         }
         void OctoberSelection()
         {
             var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
-            var weapons=Config.weapons??Array.Empty<SyringeSpecialAugmentAbility>();
+            var weapons=(Config.weapons??Array.Empty<SyringeSpecialAugmentAbility>()).OrderBy(w=>StartingNeedleSelection.Owned(w)?0:1).ThenBy(w=>(int)w.Type).ToArray();
             int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?Config.relics.Length:items.Length;
             selection=Mathf.Clamp(selection,0,Mathf.Max(0,count-1));
-            int pages=Mathf.Max(1,Mathf.CeilToInt(count/9f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
+            int pages=Mathf.Max(1,Mathf.CeilToInt(count/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
             Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(Config.relics[i].relicId):true;
-            Func<int,Sprite> icon=i=>Tab==0?OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?Config.relics[i].icon:items[i].itemIcon;
+            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?Config.relics[i].icon:items[i].itemIcon;
             Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?Config.relics[i].relicName:items[i].itemName;
-            for(int j=0;j<9;j++)
+            for(int j=0;j<6;j++)
             {
-                int index=pageIndex*9+j;if(index>=count)break;
-                float x=.478f+(j%3)*.135f,y=.74f-(j/3+1)*.158f;
-                var b=ActionButton(content,"",x,y,x+.126f,y+.149f,()=>{selection=index;Render();},false,true,selection==index);SlotArt(b);
+                int index=pageIndex*6+j;if(index>=count)break;
+                float x=.478f+(j%3)*.135f,y=.752f-(j/3+1)*.174f;
+                var b=ActionButton(content,"",x,y,x+.126f,y+.162f,()=>{selection=index;if(Tab==0&&index<Config.characters.Length&&Owned(Config.characters[index])){characterIndex=index;character=Config.characters[index];}Render();},false,true,selection==index);SlotArt(b);b.name="Choice "+Tab+" "+index;
                 var v=b.transform.Find("Visual");var a=ImageAt(v,icon(index),.16f,.21f,.84f,.94f);
                 bool unlocked=owned(index);if(!unlocked){a.color=new Color(0,0,0,.65f);DrawLock(v,.38f,.35f,.62f,.65f);}
                 Label(v,unlocked?name(index):"잠김",.03f,.01f,.97f,.22f,15);
@@ -93,9 +104,9 @@ namespace Vampire
             }
             if(pages>1)
             {
-                ActionButton(content,"‹",.48f,.22f,.525f,.265f,()=>{pageIndex--;Render();},false,pageIndex>0);
-                Label(content,$"{pageIndex+1} / {pages}",.545f,.22f,.806f,.265f,14);
-                ActionButton(content,"›",.828f,.22f,.874f,.265f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
+                ActionButton(content,"‹",.48f,.36f,.525f,.398f,()=>{pageIndex--;Render();},false,pageIndex>0);
+                Label(content,$"{pageIndex+1} / {pages}",.545f,.36f,.806f,.398f,14);
+                ActionButton(content,"›",.828f,.36f,.874f,.398f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
             }
             string detail="",action="선택",title=count>0?name(selection):"",need="";Action accept=null;bool can=true;
             if(count==0){Label(content,"준비 중",.5f,.35f,.85f,.6f,24);return;}
@@ -105,8 +116,10 @@ namespace Vampire
                 if(selection>=Config.characters.Length){detail="새로운 동료가 준비 중입니다.";can=false;action="준비 중";}
                 else
                 {
-                    var c=Config.characters[selection];detail=c.description;need=$"{c.cost} 실버로 해금";
-                    action=has?"캐릭터 선택":$"해금 · {c.cost}";can=has||SilverWallet.CanSpend(c.cost);
+                    var c=Config.characters[selection];detail=c.description;
+                    if(c.skills!=null)detail+=$"\n패시브 · {c.skills.passiveName}\n액티브 · {c.skills.activeName}";
+                    need=$"{c.cost} 실버로 해금";
+                    action=has?(character==c?"선택됨":"캐릭터 선택"):$"해금 · {c.cost}";can=has||SilverWallet.CanSpend(c.cost);
                     accept=()=>{if(!Owned(c)&&SilverWallet.TrySpend(c.cost))LobbyUnlockSave.Unlock("Character",c.name);if(Owned(c)){characterIndex=Array.IndexOf(Config.characters,c);character=c;}Render();};
                 }
             }
@@ -114,7 +127,7 @@ namespace Vampire
             {
                 var w=selection==0?null:weapons[selection-1];detail=w!=null?w.Description:"기본 침으로 시작합니다. 전투에서 원하는 침을 획득하세요.";
                 int cost=StartingNeedleSelection.Price(w);need=$"{cost} 실버로 해금";action=has?"무기 장착":$"해금 · {cost}";can=has||SilverWallet.CanSpend(cost);
-                accept=()=>{if(!has&&SilverWallet.TrySpend(cost))LobbyUnlockSave.Unlock("Needle",w.Type.ToString());if(w==null||StartingNeedleSelection.Owned(w))StartingNeedleSelection.Set(w);Render();};
+                accept=()=>{if(!has&&SilverWallet.TrySpend(cost))LobbyUnlockSave.Unlock("Needle",w.Type.ToString());if(w==null||StartingNeedleSelection.Owned(w))StartingNeedleSelection.Set(w,character);Render();};
             }
             else if(Tab==2)
             {
@@ -128,10 +141,15 @@ namespace Vampire
                 can=equipped||(LobbyLoadoutData.SelectedCarryItems.Count<2&&SilverWallet.CanSpend(i.silverCost));
                 accept=()=>{if(LobbyLoadoutData.IsEquipped(i)){LobbyLoadoutData.Unequip(i);SilverWallet.Add(i.silverCost);}else LobbyLoadoutData.TryBuyAndEquip(i,i.silverCost,out message);Render();};
             }
-            Panel(content,.474f,.166f,.878f,.219f);
-            // Details remain readable outside the small tile grid, with an expandable skill-style panel.
-            ActionButton(content,title+" · 정보",.481f,.17f,.703f,.216f,()=>OctoberDetails(title,detail+(!has?"\n"+need:"")));
-            ActionButton(content,action,.709f,.17f,.873f,.216f,()=>accept?.Invoke(),true,can);
+            Panel(content,.474f,.165f,.878f,.352f);
+            var titleLabel=Label(content,title,.486f,.305f,.706f,.347f,19);titleLabel.alignment=TMPro.TextAlignmentOptions.MidlineLeft;titleLabel.fontStyle=TMPro.FontStyles.Bold;
+            var explanation=Label(content,detail,.486f,.179f,.708f,.304f,15);explanation.name="Selection description";
+            explanation.alignment=TMPro.TextAlignmentOptions.TopLeft;explanation.enableWordWrapping=true;
+            // Keep the main-menu button's 3.49:1 footprint at the smaller size.
+            var choose=ActionButton(content,action,.718f,.248f,.865f,.323f,()=>accept?.Invoke(),true,can);
+            choose.name="Selection action";
+            Label(content,!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"캐릭터별 장착 유지":Tab==3?"아이템은 최대 2개":"선택한 유물로 출전",.718f,.178f,.865f,.239f,13);
+
         }
         void OctoberDetails(string title,string description)
         {
@@ -176,21 +194,6 @@ namespace Vampire
             ActionButton(content,"메인으로",.13f,.052f,.355f,.149f,()=>ReturnToLobby(false));
             ActionButton(content,"다시하기",.387f,.052f,.613f,.149f,()=>{Time.timeScale=1;CrossSceneData.CharacterBlueprint=character;CrossSceneData.ClearStartingLobbyItems();SceneManager.LoadScene(1);});
             ActionButton(content,"준비화면",.645f,.052f,.87f,.149f,()=>ReturnToLobby(true),true);
-        }
-    }
-    public static class StartingNeedleSelection
-    {
-        const string Key="October.StartingNeedle";
-        public static int Id=>PlayerPrefs.GetInt(Key,-1);
-        public static SyringeSpecialAugmentAbility Selected(ApothecaryUIConfig c)=>c.weapons?.FirstOrDefault(w=>(int)w.Type==Id);
-        public static bool Owned(SyringeSpecialAugmentAbility w)=>w==null||LobbyUnlockSave.IsUnlocked("Needle",w.Type.ToString(),false);
-        public static int Price(SyringeSpecialAugmentAbility w)=>w==null?0:120+(int)w.Type/4*30;
-        public static void Set(SyringeSpecialAugmentAbility w){PlayerPrefs.SetInt(Key,w==null?-1:(int)w.Type);PlayerPrefs.Save();}
-        public static void Apply(AbilityManager manager)
-        {
-            if(manager==null||Id<0)return;
-            var ability=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).FirstOrDefault(w=>(int)w.Type==Id);
-            if(ability!=null&&Owned(ability)&&!ability.Owned)ability.Select();
         }
     }
 }
