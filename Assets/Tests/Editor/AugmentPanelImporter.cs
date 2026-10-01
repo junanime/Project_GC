@@ -19,6 +19,13 @@ namespace Vampire.Tests.Editor
             var settings=new TextureImporterSettings(); importer.ReadTextureSettings(settings);
             settings.spriteMeshType=SpriteMeshType.FullRect; importer.SetTextureSettings(settings);
             string name=Path.GetFileNameWithoutExtension(assetPath);
+            if(name!="Reroll")
+            {
+                // October frames have new bounds; OctoberContentInstaller derives them from alpha.
+                importer.filterMode=FilterMode.Point;
+                importer.textureCompression=TextureImporterCompression.Uncompressed;
+                return;
+            }
             // Trim excess glow padding at import time, without resampling/editing the approved source art.
             importer.spritesheet=new[]{new SpriteMetaData {
                 name=name, alignment=9, pivot=new Vector2(.5f,.5f),

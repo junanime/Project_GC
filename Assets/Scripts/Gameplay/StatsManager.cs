@@ -18,6 +18,12 @@ namespace Vampire
         public float DamageTaken { get => damageTaken; }
         public int CoinsGained { get => coinsGained; }
 
+        private void Start()
+        {
+            TrainingUITheme.Counter(monstersKilledText,"HudLeaf",156);
+            TrainingUITheme.Counter(coinsGainedText,"HudCoin",22);
+        }
+
         public void IncrementMonstersKilled()
         {
             monstersKilled++;

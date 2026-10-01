@@ -109,6 +109,8 @@ namespace Vampire
         public int index;
         public bool hideIcon;
         public bool decorationOnly;
+        public bool centerIcon;
+        public Color iconColor = new Color(.74f,.67f,.93f);
         public bool Selected { get; private set; }
         private static readonly string[] Icons = {
             "1100000/1111000/1111100/1111111/1111100/1111000/1100000",
@@ -207,8 +209,10 @@ namespace Vampire
                 Line(vh,pos-Vector2.up*3*px,pos+Vector2.up*3*px,px,new Color(1,1,.9f,.85f));
             }
             if (hideIcon) return;
-            var rows=Icons[Mathf.Clamp(index,0,3)].Split('/');float unit=px*3.3f;Vector2 origin=new Vector2(-rectTransform.rect.width*.24f-unit*3.5f,unit*3.5f);
-            Color ink=Selected?Color.white:new Color(.74f,.67f,.93f);
+            var rows=Icons[Mathf.Clamp(index,0,3)].Split('/');
+            float unit=centerIcon?Mathf.Min(rectTransform.rect.width,rectTransform.rect.height)*.82f/7:px*3.3f;
+            Vector2 origin=new Vector2((centerIcon?0:-rectTransform.rect.width*.24f)-unit*3.5f,unit*3.5f);
+            Color ink=Selected?Color.white:iconColor;
             for(int y=0;y<7;y++)for(int x=0;x<7;x++)if(rows[y][x]=='1'){Vector2 a=origin+new Vector2(x*unit,-y*unit);Line(vh,a+new Vector2(0,-unit/2),a+new Vector2(unit,-unit/2),unit,ink);}
         }
     }

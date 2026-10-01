@@ -1085,7 +1085,7 @@ namespace Vampire
         {
             // Give the four field cake types enough opportunities for three-of-a-kind clears.
             if (entry.monsterBlueprint != null && entry.monsterBlueprint.name == "필드 미니 롤케이크")
-                return Mathf.Max(3, entry.spawnCount);
+                return Mathf.Max(1, Mathf.RoundToInt(Mathf.Max(3, entry.spawnCount) * (2f / 3f)));
             if (entry.spawnCountMode == SpawnCountMode.FixedCount)
             {
                 return Mathf.Max(1, entry.spawnCount);

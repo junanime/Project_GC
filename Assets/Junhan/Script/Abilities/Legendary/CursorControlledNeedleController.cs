@@ -914,7 +914,11 @@ float maxHitRadiusBonusFromSpecial)
                 knockback *= statRuntime.KnockbackMultiplier;
             }
 
+            var items=sourceCharacter!=null?sourceCharacter.GetComponent<OctoberItemRuntime>():null;
+            if(items!=null)finalDamage=items.BeforeHit(damageableComponent,finalDamage,false,ref isCritical,ref knockback);
+            float before=Ver4HitEffects.Health(damageableComponent);
             damageable.TakeDamage(finalDamage, knockbackDirection * knockback, isCritical);
+            if(before>Ver4HitEffects.Health(damageableComponent))items?.AfterHit(damageableComponent,finalDamage,isCritical,false,before);
             var hitVisual = SyringeAugmentVfx.PlayDirected("CursorControlHit", cursorNeedleTransform.position, knockbackDirection, cursorNeedleRenderer);
             if (hitVisual != null) hitVisual.SetWorldSize(new Vector2(0.45f, 0.2f), new Vector2(0.9f, 0.4f));
             if (sourceNeedleAbility.HasHeavySnipeLegendary())

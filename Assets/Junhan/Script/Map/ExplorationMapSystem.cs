@@ -43,7 +43,7 @@ namespace Vampire
                 var image = clone.GetComponent<Image>();image.sprite=source.sprite;image.color=source.color;image.raycastTarget=false;
                 var target=image.rectTransform;
                 target.anchorMin=target.anchorMax=new Vector2(.5f+rect.anchoredPosition.x/Mathf.Max(1,size.x),.5f+rect.anchoredPosition.y/Mathf.Max(1,size.y));
-                target.sizeDelta=Vector2.one*16;
+                target.sizeDelta=Vector2.one*24;
             }
         }
 
@@ -1260,6 +1260,7 @@ namespace Vampire
 
         private void UpdatePlayerIcons()
         {
+            ApplyPlayerIcon(miniMapPlayerIcon);ApplyPlayerIcon(fullMapPlayerIcon);
             if (playerCharacter == null)
             {
                 return;
@@ -1297,8 +1298,15 @@ namespace Vampire
         // Full Player Icon
         // ========================================
 
+        void ApplyPlayerIcon(RectTransform rect)
+        {
+            if(rect==null||playerCharacter==null)return;
+            var image=rect.GetComponent<Image>();if(image==null)return;
+            image.sprite=ApothecaryUI.CharacterProfile(playerCharacter.Blueprint)??OctoberArt.Get("OctoberUI/MapSymbols","Player");image.color=Color.white;image.preserveAspect=true;
+        }
         private void UpdateFullMapPlayerIcon()
         {
+            ApplyPlayerIcon(fullMapPlayerIcon);
             if (playerCharacter == null ||
                 fullMapPlayerIcon == null ||
                 fullMapMarkerRoot == null)
@@ -1449,8 +1457,8 @@ namespace Vampire
 
                         if (image != null)
                         {
-                            image.color =
-                                marker.MiniMapColor;
+                            image.sprite=marker.Icon??GetRuntimeWhiteSprite();image.preserveAspect=true;
+                            image.color=marker.Icon!=null?Color.white:marker.MiniMapColor;
                         }
                     }
                 }
@@ -1556,8 +1564,8 @@ namespace Vampire
 
                 if (image != null)
                 {
-                    image.color =
-                        marker.FullMapColor;
+                    image.sprite=marker.Icon??GetRuntimeWhiteSprite();image.preserveAspect=true;
+                    image.color=marker.Icon!=null?Color.white:marker.FullMapColor;
                 }
             }
         }

@@ -17,6 +17,7 @@ namespace Vampire
         public List<RunSceneAbilitySnapshot> AbilityStates =
             new List<RunSceneAbilitySnapshot>();
 
+        public OctoberItemState OctoberItems;
         public MerchantOwnershipSnapshot MerchantItems;
         public int CoinsGained;
     }

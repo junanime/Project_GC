@@ -17,6 +17,7 @@ namespace Vampire
             var frozen=GetComponent<NeuralBlockedMonsterStatus>();
             if(frozen!=null&&frozen.IceFrozen)return;
             Stacks++;SpeedMultiplier=Multiplier(Stacks,upgrades);
+            var items=source!=null?source.GetComponent<OctoberItemRuntime>():null;if(items!=null)SpeedMultiplier=items.SlowMultiplier(SpeedMultiplier);
             // Roll even on the fourth hit. A failed roll grows Hyuki's chance while the
             // independent four-stack guarantee still freezes; only a successful roll resets it.
             float roll=Random.value;

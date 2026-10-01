@@ -1,0 +1,598 @@
+{
+  "items": [
+    {
+      "id": "Item01",
+      "name": "황기 뿌리",
+      "rarity": "평범",
+      "effect": "기본 공격 피해량 증가",
+      "role": "공격 강화",
+      "sourceSheet": 1,
+      "sourceRow": 14
+    },
+    {
+      "id": "Item02",
+      "name": "찹쌀 경단",
+      "rarity": "평범",
+      "effect": "최대 체력 증가",
+      "role": "체력 강화",
+      "sourceSheet": 1,
+      "sourceRow": 15
+    },
+    {
+      "id": "Item03",
+      "name": "생강 절편",
+      "rarity": "평범",
+      "effect": "이동속도 증가",
+      "role": "이동 강화",
+      "sourceSheet": 1,
+      "sourceRow": 16
+    },
+    {
+      "id": "Item04",
+      "name": "감초 뿌리",
+      "rarity": "평범",
+      "effect": "경험치·재화 획득 범위 증가",
+      "role": "획득 보조",
+      "sourceSheet": 1,
+      "sourceRow": 17
+    },
+    {
+      "id": "Item05",
+      "name": "진피 향주머니",
+      "rarity": "평범",
+      "effect": "멀리 있는 적에게 주는 기본 공격 피해 증가",
+      "role": "원거리 특화",
+      "sourceSheet": 1,
+      "sourceRow": 18
+    },
+    {
+      "id": "Item06",
+      "name": "매실 씨앗",
+      "rarity": "평범",
+      "effect": "적 처치 시 확률적으로 다음 기본 공격이 확정 치명타",
+      "role": "처치·치명타",
+      "sourceSheet": 1,
+      "sourceRow": 19
+    },
+    {
+      "id": "Item07",
+      "name": "맥진 팔찌",
+      "rarity": "희귀",
+      "effect": "기본 공격을 일정 횟수 하면 추가 공격 발동",
+      "role": "연속 공격",
+      "sourceSheet": 1,
+      "sourceRow": 20
+    },
+    {
+      "id": "Item08",
+      "name": "위벽 부적",
+      "rarity": "희귀",
+      "effect": "일정 시간마다 보호 충전. 다음 피격 피해를 줄인 뒤 소모",
+      "role": "피해 방어",
+      "sourceSheet": 1,
+      "sourceRow": 21
+    },
+    {
+      "id": "Item09",
+      "name": "호신 호두",
+      "rarity": "평범",
+      "effect": "피격 후 다음 기본 공격의 피해 증가. 발동 대기시간 존재",
+      "role": "피격 후 공격 강화",
+      "sourceSheet": 1,
+      "sourceRow": 22
+    },
+    {
+      "id": "Item10",
+      "name": "후추 환",
+      "rarity": "평범",
+      "effect": "공격 시 확률적으로 적을 짧게 밀어냄",
+      "role": "접근 차단",
+      "sourceSheet": 1,
+      "sourceRow": 23
+    },
+    {
+      "id": "Item11",
+      "name": "조청 단지",
+      "rarity": "평범",
+      "effect": "기본 공격 명중 시 둔화를 부여할 확률 증가",
+      "role": "둔화 부여",
+      "sourceSheet": 1,
+      "sourceRow": 24
+    },
+    {
+      "id": "Item12",
+      "name": "발효 누룩",
+      "rarity": "평범",
+      "effect": "상태이상에 걸린 적에게 주는 기본 공격 피해 증가",
+      "role": "상태이상 대상 강화",
+      "sourceSheet": 1,
+      "sourceRow": 25
+    },
+    {
+      "id": "Item13",
+      "name": "공전 약환",
+      "rarity": "영웅",
+      "effect": "약환이 캐릭터 주변을 회전하며 접촉 피해",
+      "role": "공전 공격",
+      "sourceSheet": 1,
+      "sourceRow": 26
+    },
+    {
+      "id": "Item14",
+      "name": "박하 향로",
+      "rarity": "희귀",
+      "effect": "일정 간격으로 주변 적을 밀어내는 향기 방출",
+      "role": "포위 탈출",
+      "sourceSheet": 1,
+      "sourceRow": 27
+    },
+    {
+      "id": "Item15",
+      "name": "봉인 탕약",
+      "rarity": "희귀",
+      "effect": "처치 수로 충전. 체력이 낮아지면 충전을 소비해 회복",
+      "role": "조건부 회복",
+      "sourceSheet": 1,
+      "sourceRow": 28
+    },
+    {
+      "id": "Item16",
+      "name": "뜸불 화로",
+      "rarity": "영웅",
+      "effect": "기본 공격으로 처치한 적의 자리에 잠시 피해를 주는 뜸불 장판 생성",
+      "role": "처치·장판",
+      "sourceSheet": 1,
+      "sourceRow": 29
+    },
+    {
+      "id": "Item17",
+      "name": "약초 미끼 인형",
+      "rarity": "영웅",
+      "effect": "대시 시작 지점에 적의 주의를 끄는 약초 미끼 생성",
+      "role": "유인·대시",
+      "sourceSheet": 1,
+      "sourceRow": 30
+    },
+    {
+      "id": "Item18",
+      "name": "쌍엽 약초",
+      "rarity": "희귀",
+      "effect": "체력 회복량 증가",
+      "role": "회복 강화",
+      "sourceSheet": 1,
+      "sourceRow": 31
+    },
+    {
+      "id": "Item19",
+      "name": "메아리 경혈석",
+      "rarity": "희귀",
+      "effect": "일정 간격으로 직전 기본 공격을 약하게 재현",
+      "role": "공격 반복",
+      "sourceSheet": 1,
+      "sourceRow": 32
+    },
+    {
+      "id": "Item20",
+      "name": "순기 약환",
+      "rarity": "희귀",
+      "effect": "대시 재사용 대기시간 감소",
+      "role": "대시 대기시간",
+      "sourceSheet": 1,
+      "sourceRow": 33
+    },
+    {
+      "id": "Item21",
+      "name": "점혈 방울",
+      "rarity": "희귀",
+      "effect": "같은 적을 연속 공격하면 표식 부여. 표식 대상에 추가 피해",
+      "role": "단일 대상 집중",
+      "sourceSheet": 1,
+      "sourceRow": 34
+    },
+    {
+      "id": "Item22",
+      "name": "반향 옥구",
+      "rarity": "영웅",
+      "effect": "적에게 가하는 넉백 거리 증가",
+      "role": "넉백 강화",
+      "sourceSheet": 1,
+      "sourceRow": 35
+    },
+    {
+      "id": "Item23",
+      "name": "음양 엽전",
+      "rarity": "희귀",
+      "effect": "기본 공격마다 확률적으로 강한 피해 또는 약한 피해 적용",
+      "role": "확률형 공격",
+      "sourceSheet": 1,
+      "sourceRow": 36
+    },
+    {
+      "id": "Item24",
+      "name": "허기 부적",
+      "rarity": "영웅",
+      "effect": "적 처치 시 공격 강화 중첩. 처치가 끊기면 초기화",
+      "role": "연속 처치",
+      "sourceSheet": 1,
+      "sourceRow": 37
+    },
+    {
+      "id": "Item25",
+      "name": "금단의 환약",
+      "rarity": "전설",
+      "effect": "기본 공격 피해 대폭 증가. 일반 적도 강화되어 등장",
+      "role": "위험과 보상",
+      "sourceSheet": 1,
+      "sourceRow": 38
+    },
+    {
+      "id": "Item26",
+      "name": "축기 호리병",
+      "rarity": "영웅",
+      "effect": "피해 없이 버티며 기 저장. 다음 피격 시 소비해 피해 일부 방어",
+      "role": "회피·방어",
+      "sourceSheet": 1,
+      "sourceRow": 39
+    },
+    {
+      "id": "Item27",
+      "name": "소화 정수병",
+      "rarity": "영웅",
+      "effect": "초과 회복량 저장. 다음 기본 공격 명중 시 추가 피해로 소비",
+      "role": "회복을 공격으로 전환",
+      "sourceSheet": 1,
+      "sourceRow": 40
+    },
+    {
+      "id": "Item28",
+      "name": "야화 약등",
+      "rarity": "영웅",
+      "effect": "밤에 일정 간격으로 주변 적에게 빛 공격 발동",
+      "role": "야간 범위 공격",
+      "sourceSheet": 1,
+      "sourceRow": 41
+    },
+    {
+      "id": "Item29",
+      "name": "십이시진 시계",
+      "rarity": "전설",
+      "effect": "게임 내 매 정각에 주변 적에게 충격파 피해",
+      "role": "정각 범위 공격",
+      "sourceSheet": 1,
+      "sourceRow": 42
+    },
+    {
+      "id": "Item30",
+      "name": "위령 씨앗",
+      "rarity": "전설",
+      "effect": "시간이 지나며 성장하는 위장 수호 정령 소환",
+      "role": "성장형 소환",
+      "sourceSheet": 1,
+      "sourceRow": 43
+    },
+    {
+      "id": "Item31",
+      "name": "새벽의 뜸",
+      "rarity": "전설",
+      "effect": "마지막 1시간에 강력한 뜸불 공격 발동",
+      "role": "후반 공격",
+      "sourceSheet": 1,
+      "sourceRow": 44
+    },
+    {
+      "id": "Item32",
+      "name": "기혈 장부",
+      "rarity": "전설",
+      "effect": "실제로 잃은 체력을 기록하고 주기적으로 반격 파동의 피해량으로 전환",
+      "role": "피격 반격",
+      "sourceSheet": 1,
+      "sourceRow": 45
+    },
+    {
+      "id": "Item33",
+      "name": "위산 항아리",
+      "rarity": "전설",
+      "effect": "이동 중 충전한 위산을 정지 시 전방으로 분출",
+      "role": "이동·정지 공격",
+      "sourceSheet": 1,
+      "sourceRow": 46
+    },
+    {
+      "id": "Item34",
+      "name": "산사 꼬치",
+      "rarity": "평범",
+      "effect": "체력이 가득 찬 적에게 첫 공격의 피해 증가",
+      "role": "첫 타격 강화",
+      "sourceSheet": 2,
+      "sourceRow": 14
+    },
+    {
+      "id": "Item35",
+      "name": "백출 약편",
+      "rarity": "평범",
+      "effect": "한 번에 큰 피해를 받으면 그 피해의 일부 감소. 발동 대기시간 존재",
+      "role": "큰 피해 완화",
+      "sourceSheet": 2,
+      "sourceRow": 15
+    },
+    {
+      "id": "Item36",
+      "name": "대추 정과",
+      "rarity": "평범",
+      "effect": "경험치 획득 시 낮은 확률로 체력 소량 회복",
+      "role": "경험치·회복",
+      "sourceSheet": 2,
+      "sourceRow": 16
+    },
+    {
+      "id": "Item37",
+      "name": "구기자 렌즈",
+      "rarity": "평범",
+      "effect": "치명타 피해량 증가",
+      "role": "치명타 강화",
+      "sourceSheet": 2,
+      "sourceRow": 17
+    },
+    {
+      "id": "Item38",
+      "name": "죽엽 찻잔",
+      "rarity": "평범",
+      "effect": "일정 시간 피해를 받지 않으면 체력 재생 시작. 피격 시 중단",
+      "role": "무피격 재생",
+      "sourceSheet": 2,
+      "sourceRow": 18
+    },
+    {
+      "id": "Item39",
+      "name": "율무 포대",
+      "rarity": "평범",
+      "effect": "경험치 획득 시 낮은 확률로 획득량이 두 배가 됨",
+      "role": "경험치 성장",
+      "sourceSheet": 2,
+      "sourceRow": 19
+    },
+    {
+      "id": "Item40",
+      "name": "오미자 오색환",
+      "rarity": "희귀",
+      "effect": "기본 공격 5회 명중마다 다음 기본 공격 피해 증가",
+      "role": "주기적 공격 강화",
+      "sourceSheet": 2,
+      "sourceRow": 20
+    },
+    {
+      "id": "Item41",
+      "name": "당귀 매듭",
+      "rarity": "희귀",
+      "effect": "기본 공격의 치명타가 발생하면 체력 소량 회복. 발동 대기시간 존재",
+      "role": "치명타·회복",
+      "sourceSheet": 2,
+      "sourceRow": 21
+    },
+    {
+      "id": "Item42",
+      "name": "황련 가루",
+      "rarity": "평범",
+      "effect": "기본 공격 명중 시 적이 받는 직접 공격 피해를 잠시 증가시킴",
+      "role": "받는 피해 증가",
+      "sourceSheet": 2,
+      "sourceRow": 22
+    },
+    {
+      "id": "Item43",
+      "name": "연잎 방패",
+      "rarity": "평범",
+      "effect": "이동 방향 앞쪽에서 오는 적 투사체를 일정 간격으로 하나 막음",
+      "role": "방향성 방어",
+      "sourceSheet": 2,
+      "sourceRow": 23
+    },
+    {
+      "id": "Item44",
+      "name": "도라지 종",
+      "rarity": "평범",
+      "effect": "공격 명중 시 확률적으로 적의 다음 공격을 지연시킴",
+      "role": "적 공격 지연",
+      "sourceSheet": 2,
+      "sourceRow": 24
+    },
+    {
+      "id": "Item45",
+      "name": "쑥 향주머니",
+      "rarity": "평범",
+      "effect": "대시 종료 후 잠시 적의 추적을 끊음. 발동 대기시간 존재",
+      "role": "추적 해제",
+      "sourceSheet": 2,
+      "sourceRow": 25
+    },
+    {
+      "id": "Item46",
+      "name": "산초 독주머니",
+      "rarity": "희귀",
+      "effect": "기본 공격 명중 시 독을 부여할 확률 증가",
+      "role": "독 부여",
+      "sourceSheet": 2,
+      "sourceRow": 26
+    },
+    {
+      "id": "Item47",
+      "name": "탕약 거품병",
+      "rarity": "희귀",
+      "effect": "기본 공격 명중 시 둔화의 강도 증가",
+      "role": "둔화 강화",
+      "sourceSheet": 2,
+      "sourceRow": 27
+    },
+    {
+      "id": "Item48",
+      "name": "경락 매듭",
+      "rarity": "희귀",
+      "effect": "적에게 부여한 상태이상의 지속시간 증가",
+      "role": "상태이상 지속",
+      "sourceSheet": 2,
+      "sourceRow": 28
+    },
+    {
+      "id": "Item49",
+      "name": "부항 흡입컵",
+      "rarity": "영웅",
+      "effect": "일정 간격으로 전방에 적을 한곳으로 모으는 흡입 영역 생성",
+      "role": "흡입·영역",
+      "sourceSheet": 2,
+      "sourceRow": 29
+    },
+    {
+      "id": "Item50",
+      "name": "죽염 결정",
+      "rarity": "영웅",
+      "effect": "둔화된 적에게 치명타를 가하면 둔화를 소비해 파열 피해",
+      "role": "둔화 전환",
+      "sourceSheet": 2,
+      "sourceRow": 30
+    },
+    {
+      "id": "Item51",
+      "name": "회귀 옥패",
+      "rarity": "희귀",
+      "effect": "피격 후 무적시간 증가",
+      "role": "피격 후 생존",
+      "sourceSheet": 2,
+      "sourceRow": 31
+    },
+    {
+      "id": "Item52",
+      "name": "빈속 방울",
+      "rarity": "희귀",
+      "effect": "가까이 지나간 적 투사체로 충전하고 충전이 가득 차면 주변 적 투사체 제거",
+      "role": "근접 회피 보상",
+      "sourceSheet": 2,
+      "sourceRow": 32
+    },
+    {
+      "id": "Item53",
+      "name": "이중 처방첩",
+      "rarity": "희귀",
+      "effect": "서로 다른 상태이상 두 종류에 걸린 적에게 피해 증가",
+      "role": "상태이상 조합",
+      "sourceSheet": 2,
+      "sourceRow": 33
+    },
+    {
+      "id": "Item54",
+      "name": "혈인 조각",
+      "rarity": "희귀",
+      "effect": "체력이 낮은 적에게 주는 기본 공격 피해 증가",
+      "role": "마무리 공격",
+      "sourceSheet": 2,
+      "sourceRow": 34
+    },
+    {
+      "id": "Item55",
+      "name": "사혈 계약서",
+      "rarity": "영웅",
+      "effect": "기본 공격 피해의 일부가 적의 방어 효과를 무시",
+      "role": "방어 무시",
+      "sourceSheet": 2,
+      "sourceRow": 35
+    },
+    {
+      "id": "Item56",
+      "name": "추적 향낭",
+      "rarity": "영웅",
+      "effect": "가까운 적에게 주는 기본 공격 피해 증가",
+      "role": "근거리 강화",
+      "sourceSheet": 2,
+      "sourceRow": 36
+    },
+    {
+      "id": "Item57",
+      "name": "봉인 옥구",
+      "rarity": "영웅",
+      "effect": "일정 간격으로 주변 적 투사체를 잠시 정지시킨 뒤 소멸",
+      "role": "탄막 제어",
+      "sourceSheet": 2,
+      "sourceRow": 37
+    },
+    {
+      "id": "Item58",
+      "name": "백귀 향단",
+      "rarity": "전설",
+      "effect": "일정 간격으로 주변 적을 공격하는 향의 정령 소환",
+      "role": "주기적 소환",
+      "sourceSheet": 2,
+      "sourceRow": 38
+    },
+    {
+      "id": "Item59",
+      "name": "연동운동 북",
+      "rarity": "영웅",
+      "effect": "일정 거리를 이동하면 다음 기본 공격에 적을 끌어당기는 연동 파동 발동",
+      "role": "이동·연동 공격",
+      "sourceSheet": 2,
+      "sourceRow": 39
+    },
+    {
+      "id": "Item60",
+      "name": "소화 효소 맷돌",
+      "rarity": "영웅",
+      "effect": "획득 경험치를 즉시 받지 않고 잠시 소화한 뒤 추가 경험치와 함께 지급",
+      "role": "지연 성장",
+      "sourceSheet": 2,
+      "sourceRow": 40
+    },
+    {
+      "id": "Item61",
+      "name": "유문 문패",
+      "rarity": "영웅",
+      "effect": "첫 대시 출발점에 문을 만들고 짧은 시간 안에 다시 대시하면 문으로 귀환",
+      "role": "귀환 이동",
+      "sourceSheet": 2,
+      "sourceRow": 41
+    },
+    {
+      "id": "Item62",
+      "name": "반추 두루마리",
+      "rarity": "전설",
+      "effect": "주기적으로 최근 이동 경로를 거꾸로 따라가는 공격 잔상 생성",
+      "role": "이동 경로 공격",
+      "sourceSheet": 2,
+      "sourceRow": 42
+    },
+    {
+      "id": "Item63",
+      "name": "위벽 기억석",
+      "rarity": "전설",
+      "effect": "같은 종류의 적에게 반복 피격되면 해당 적 종류에 대한 피해 저항 누적. 상한 존재",
+      "role": "적응형 방어",
+      "sourceSheet": 2,
+      "sourceRow": 43
+    },
+    {
+      "id": "Item64",
+      "name": "균총 배양독",
+      "rarity": "전설",
+      "effect": "가장 자주 한 행동에 맞춰 회복형·공격형·지원형 중 하나로 변화하는 동료 소환",
+      "role": "행동 기반 소환",
+      "sourceSheet": 2,
+      "sourceRow": 44
+    },
+    {
+      "id": "Item65",
+      "name": "한열 쌍옥",
+      "rarity": "전설",
+      "effect": "적의 화상과 둔화를 함께 소비해 큰 증기 폭발 발생. 발동 대기시간 존재",
+      "role": "상태이상 전환",
+      "sourceSheet": 2,
+      "sourceRow": 45
+    },
+    {
+      "id": "Item66",
+      "name": "공복 용왕패",
+      "rarity": "전설",
+      "effect": "회복 없이 버틴 시간으로 충전하고 다음 실제 회복 시 용 모양 공격 발사",
+      "role": "회복 전환 공격",
+      "sourceSheet": 2,
+      "sourceRow": 46
+    }
+  ]
+}

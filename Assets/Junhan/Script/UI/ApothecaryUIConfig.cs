@@ -12,6 +12,8 @@ namespace Vampire
         public RelicBlueprint[] relics;
         public MerchantItemBlueprint[] items;
         public AugmentInfo[] augments;
+        public SyringeSpecialAugmentAbility[] weapons;
+        public Sprite basicNeedle;
         [System.Serializable] public class AugmentInfo
         {
             public string title, description;

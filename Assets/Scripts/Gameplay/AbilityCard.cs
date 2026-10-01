@@ -200,6 +200,8 @@ namespace Vampire
                     FitCardText(descriptionText,new Vector2(.235f,.155f),new Vector2(.765f,.325f),15,TextAlignmentOptions.TopLeft);
             }
 
+            SetTrainingText();
+
             if (buttonText != null)
             {
                 if (ability is Ver4AugmentOffer offer)

@@ -8,6 +8,7 @@ namespace Vampire
     {
         private Character playerCharacter;
         private bool isShopOpen = false;
+        public bool CanInteract => !isShopOpen && !MiniStageRuntimeState.IsInsideMiniStage && MerchantUIManager.Instance!=null;
 
         private List<MerchantItemBlueprint> shopItems = new List<MerchantItemBlueprint>();
         private bool hasGeneratedShopItems = false;
@@ -23,33 +24,17 @@ namespace Vampire
             }
 
             GetComponent<Collider2D>().isTrigger = false;
+            LootInteraction.Attach(this);
         }
 
-        void OnCollisionEnter2D(Collision2D col)
+        public bool TryOpenShop()
         {
-            if (MiniStageRuntimeState.IsInsideMiniStage)
-            {
-                return;
-            }
-
-            if (!isShopOpen && playerCharacter != null && col.collider.gameObject == playerCharacter.gameObject)
-            {
-                OpenShopUI();
-            }
-        }
-
-        private void OpenShopUI()
-        {
-            if (MiniStageRuntimeState.IsInsideMiniStage)
-            {
-                return;
-            }
-
-            isShopOpen = true;
-            Debug.Log("수상한 상인과 부딪혔습니다! 상점 UI를 엽니다.");
-
-            Time.timeScale = 0;
+            if(!CanInteract||Time.timeScale<=0)return false;
+            isShopOpen=true;
+            PixelInteractionPrompt.Show(this,false);
+            Time.timeScale=0;
             MerchantUIManager.Instance.OpenShop(this);
+            return true;
         }
 
         public void CloseShopUI()
