@@ -26,6 +26,7 @@ namespace Vampire
         {
             Dock=(RectTransform)transform;
             Dock.anchorMin=Dock.anchorMax=Dock.pivot=Vector2.one; Dock.sizeDelta=new Vector2(360,100);
+            Dock.localScale=Vector3.one*.7f;
             window=AugmentPanelTheme.Rect("Scroll reveal window",transform);
             TopBox(window,new Vector2(180,-76),new Vector2(252,0));
             window.gameObject.AddComponent<RectMask2D>();

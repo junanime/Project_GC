@@ -345,6 +345,7 @@ namespace Vampire
             expBar.Setup(currentExp, 0, nextLevelExp);
 
             currentLevel = 1;
+            TrainingUITheme.LevelBadge(levelText);
             UpdateLevelDisplay();
 
             StartIdleAnimation();

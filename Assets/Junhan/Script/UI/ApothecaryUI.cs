@@ -55,8 +55,9 @@ namespace Vampire
         {
             Instance = this;
             Config = config;
-            if (config.font != null && config.font.sourceFontFile != null)
-                runtimeFont = TMP_FontAsset.CreateFontAsset(config.font.sourceFontFile);
+            var roundSource=Resources.Load<Font>("TrainingUI/Cafe24Ssurround");
+            if (roundSource!=null || config.font != null && config.font.sourceFontFile != null)
+                runtimeFont = TMP_FontAsset.CreateFontAsset(roundSource!=null?roundSource:config.font.sourceFontFile);
             level = FindObjectOfType<LevelManager>();
             stats = FindObjectOfType<StatsManager>();
             character = CrossSceneData.CharacterBlueprint != null ? CrossSceneData.CharacterBlueprint : config.characters.FirstOrDefault();

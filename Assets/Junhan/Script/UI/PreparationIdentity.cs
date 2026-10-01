@@ -21,13 +21,13 @@ namespace Vampire
     [RequireComponent(typeof(CanvasRenderer))]
     public sealed class IdentityShape : MaskableGraphic
     {
-        public bool frame, sparkle;
+        public bool frame, sparkle, glossy;
         public Color insetColor=OctoberArt.Ink;
         public float radius=12;
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();var rect=GetPixelAdjustedRect();
-            Round(vh,rect,Mathf.Min(radius,rect.height/2),color);
+            Round(vh,rect,Mathf.Min(radius,rect.height/2),color,glossy?Color.Lerp(color,Color.white,.48f):(Color?)null);
             if(frame)
             {
                 Round(vh,new Rect(rect.x+3,rect.y+3,rect.width-6,rect.height-6),Mathf.Max(1,radius-3),Color.Lerp(color,Color.white,.65f));
@@ -43,9 +43,9 @@ namespace Vampire
             }
             else Round(vh,new Rect(rect.x+6,rect.yMax-5,Mathf.Max(0,rect.width-12),2),1,new Color(1,1,1,.22f));
         }
-        static void Round(VertexHelper vh,Rect rect,float radius,Color tint)
+        static void Round(VertexHelper vh,Rect rect,float radius,Color tint,Color? top=null)
         {
-            int first=vh.currentVertCount;vh.AddVert(rect.center,tint,Vector2.zero);
+            int first=vh.currentVertCount;vh.AddVert(rect.center,top.HasValue?Color.Lerp(tint,top.Value,.5f):tint,Vector2.zero);
             const int steps=6;int count=4*(steps+1);
             for(int corner=0;corner<4;corner++)
             {
@@ -53,7 +53,8 @@ namespace Vampire
                 for(int i=0;i<=steps;i++)
                 {
                     float angle=(-90+corner*90+i*90f/steps)*Mathf.Deg2Rad;
-                    vh.AddVert(center+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius,tint,Vector2.zero);
+                    var point=center+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*radius;
+                    vh.AddVert(point,top.HasValue?Color.Lerp(tint,top.Value,Mathf.InverseLerp(rect.yMin,rect.yMax,point.y)):tint,Vector2.zero);
                 }
             }
             for(int i=0;i<count;i++)vh.AddTriangle(first,first+1+i,first+1+(i+1)%count);

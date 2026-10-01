@@ -105,6 +105,7 @@ namespace Vampire
                 descriptionText.transform.SetAsLastSibling();
             }
             else if (cardBackgroundImage != null) cardBackgroundImage.preserveAspect = false;
+            InstallTrainingDecoration(grade);
         }
 
         string PanelTitle()

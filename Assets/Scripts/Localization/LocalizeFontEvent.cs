@@ -20,6 +20,8 @@ namespace Vampire
     [AddComponentMenu("Localization/Asset/Localize Font Event")]
     public class LocalizeFontEvent : LocalizedAssetEvent<TMP_FontAsset, LocalizedTMPFontAsset, UnityEventTMPFont>
     {
+        [NonSerialized] public TMP_FontAsset ThemeFontOverride;
+        public TMP_FontAsset LocalizedFont { get; private set; }
         [Header("TextMeshPro UI Texts")]
         [Tooltip("폰트를 적용할 TextMeshProUGUI 목록입니다. 비어 있거나 삭제된 항목은 자동으로 건너뜁니다.")]
         [SerializeField] private TextMeshProUGUI[] _tmpUITexts;
@@ -30,6 +32,8 @@ namespace Vampire
 
         protected override void UpdateAsset(TMP_FontAsset font)
         {
+            LocalizedFont = font;
+            if (ThemeFontOverride != null) font = ThemeFontOverride;
             base.UpdateAsset(font);
 
             if (font == null)
