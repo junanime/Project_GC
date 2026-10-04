@@ -44,6 +44,7 @@ def actor(name):
 
 
 ART = {name: actor(name) for name in ACTORS}
+MINI_ROOM = Image.open(ROOT / "Assets/Prefabs/MiniStages/miniOG.png").convert("RGBA")
 
 
 def paste(im, name, x, y, width, wobble=0):
@@ -92,6 +93,19 @@ def render(effect, frame):
 
     if effect == "blood_clot":
         # Show the real game flow: defeat the clot, approach its portal, then E.
+        if frame >= 10:
+            # Use the actual mini-stage room texture to make the destination clear.
+            im = MINI_ROOM.resize(SIZE, Image.Resampling.LANCZOS)
+            d = ImageDraw.Draw(im, "RGBA")
+            d.rounded_rectangle((13, 7, 243, 137), radius=14,
+                                outline=(94, 35, 48, 220), width=4)
+            paste(im, "hyuki", 102 + (frame-10)*18, 89, 63)
+            paste(im, "takoyaki", 190, 76, 38)
+            if frame == 10:
+                circle(d, 97, 88, 35, (255, 224, 181, 90), (255, 246, 206, 230), 3)
+            else:
+                hazard(d, 184, 108, 23, (235, 116, 65, 150))
+            return im.convert("RGB")
         hx = [54, 58, 62, 68, 75, 85, 99, 116, 136, 153, 168, 178][frame]
         d.ellipse((130, 54, 220, 122), fill=(245, 110, 126, 43))
         for j in range(3):
