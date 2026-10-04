@@ -38,6 +38,10 @@ MonoBehaviour:
       coinType: 0
   walkSpriteSequence: []
   walkFrameTime: 0
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.07}
+  groundShadowSizeUV: {x: 0.65, y: 0.13}
+  preserveGroundShadowHeight: 1
   description: "\uC704\uC0B0 \uD3EC\uC790?"
   resultSprite: {fileID: 0}
   playerLayer:

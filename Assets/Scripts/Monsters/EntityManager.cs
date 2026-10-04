@@ -312,6 +312,7 @@ namespace Vampire
                 monsterBlueprint,
                 hpBuff
             );
+            newMonster.ConfigureGroundShadow(monsterBlueprint);
 
             grid.InsertClient(newMonster);
 

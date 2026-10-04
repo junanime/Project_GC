@@ -52,8 +52,7 @@ namespace Vampire
 
 
         private Vector3 originalLocalScale = Vector3.one;
-        private Vector3 originalShadowPosition, originalShadowScale;
-        private bool adjustedSharkShadow;
+        private MonsterGroundShadow groundShadow;
 
         public bool IsMiniStageOwned => miniStageOwned;
         public bool IsFieldRuntimeSuspended => fieldRuntimeSuspended;
@@ -94,7 +93,6 @@ namespace Vampire
         protected virtual void Awake()
         {
             originalLocalScale = transform.localScale;
-            if(shadow!=null){originalShadowPosition=shadow.transform.localPosition;originalShadowScale=shadow.transform.localScale;}
 
             rb = GetComponent<Rigidbody2D>();
             monsterLegsCollider = GetComponent<CircleCollider2D>();
@@ -184,6 +182,7 @@ namespace Vampire
         /// </summary>
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
+            if (groundShadow != null) groundShadow.Restore();
             miniStageOwned = isMiniStageOwned;
             nextHitFlashTime = 0f;
             deathStarted = false;
@@ -382,24 +381,6 @@ namespace Vampire
                 monsterSpriteRenderer.sprite = walkSpriteSequence[0];
             }
 
-            if(adjustedSharkShadow && shadow!=null)
-            {shadow.transform.localPosition=originalShadowPosition;shadow.transform.localScale=originalShadowScale;adjustedSharkShadow=false;}
-            if(shadow!=null && monsterSpriteRenderer!=null && walkSpriteSequence!=null && walkSpriteSequence.Length>0 &&
-               walkSpriteSequence[0]!=null && walkSpriteSequence[0].name.StartsWith("SharkIcecream", System.StringComparison.Ordinal))
-            {
-                // This art is foot-pivoted: anchor the shadow to its feet, not the old placeholder centre.
-                var bounds=walkSpriteSequence[0].bounds;
-                adjustedSharkShadow=true;
-                shadow.transform.position=monsterSpriteRenderer.transform.TransformPoint(new Vector3(bounds.center.x,bounds.min.y+bounds.size.y*.06f,0));
-                var shadowRenderer=shadow.GetComponent<SpriteRenderer>();
-                if(shadowRenderer!=null && shadowRenderer.sprite!=null)
-                {
-                    var size=shadowRenderer.sprite.bounds.size;var parentScale=shadow.transform.parent.lossyScale;
-                    shadow.transform.localScale=new Vector3(monsterSpriteRenderer.bounds.size.x*.7f/Mathf.Max(.001f,size.x*Mathf.Abs(parentScale.x)),
-                        monsterSpriteRenderer.bounds.size.y*.13f/Mathf.Max(.001f,size.y*Mathf.Abs(parentScale.y)),1);
-                }
-            }
-
             if (monsterHitbox != null && monsterSpriteRenderer != null)
             {
                 monsterHitbox.enabled = true;
@@ -468,6 +449,23 @@ namespace Vampire
                     $"scale={scaleMultiplier} | hp={currentHealth:0.##}"
                 );
             }
+        }
+
+        // Called after every subtype's Setup, including sniper/trap implementations
+        // which do not call the base Setup. Shared pools restore before their next use.
+        public void ConfigureGroundShadow(MonsterBlueprint blueprint)
+        {
+            var visual = blueprint;
+            if (blueprint is EliteMonsterBlueprint elite && elite.useSourceVisual && elite.sourceNormalBlueprint != null)
+                visual = elite.sourceNormalBlueprint;
+            if (visual == null || !visual.useGroundShadowFootprint || shadow == null || monsterSpriteRenderer == null) return;
+            var renderer = shadow.GetComponent<SpriteRenderer>();
+            if (renderer == null || renderer.sprite == null) return;
+            var frames = visual.walkSpriteSequence;
+            var reference = frames != null && frames.Length > 0 && frames[0] != null ? frames[0] : monsterSpriteRenderer.sprite;
+            if (reference == null) return;
+            if (groundShadow == null) groundShadow = gameObject.AddComponent<MonsterGroundShadow>();
+            groundShadow.Configure(monsterSpriteRenderer, renderer, reference, visual);
         }
 
         protected virtual void Update()
