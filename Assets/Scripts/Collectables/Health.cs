@@ -8,7 +8,7 @@ namespace Vampire
 
         protected override void OnCollected()
         {
-            playerCharacter.GainHealth(healAmount);
+            playerCharacter.GainPickupHealth(healAmount);
             GameAudioManager.PlaySfx(
     GameAudioManager.GameSfxId.HealPickup
 );

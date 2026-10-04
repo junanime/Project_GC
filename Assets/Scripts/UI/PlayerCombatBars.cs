@@ -23,6 +23,7 @@ namespace Vampire
         Transform body;
         Vector3 headLocal, feetLocal;
         Meter health, dash, active;
+        RectTransform relicBarrier;
         static Sprite heart, arrows;
         static readonly Dictionary<Sprite,Bounds> visibleBounds=new Dictionary<Sprite,Bounds>();
         public int DashSegments => dash!=null ? dash.segments : 0;
@@ -58,6 +59,7 @@ namespace Vampire
             dash=Create("Dash meter",new Color(.15f,.85f,.82f),arrows);
             active=Create("Active meter",new Color(1,.78f,.24f),character.Blueprint?.skills?.activeIcon);
             SetSegments(health,1);SetSegments(active,1);
+            relicBarrier=Box("Relic barrier",health.root,16,Height-3,Width-19,2,new Color(.3f,.8f,1));
         }
         static Bounds VisibleBounds(Sprite sprite)
         {
@@ -136,6 +138,9 @@ namespace Vampire
             canvas.enabled=shown;if(!shown)return;
             SetSegments(dash,owner.MaxDashCharges);
             Fill(health,0,owner.MaxHealth>0?owner.CurrentHealth/owner.MaxHealth:0);
+            float barrierMax=owner.RelicBonus(RelicBlueprint.RelicEffectType.Barrier);
+            relicBarrier.gameObject.SetActive(barrierMax>0 && owner.Relics.State.barrier>0);
+            relicBarrier.sizeDelta=new Vector2((Width-19)*(barrierMax>0?owner.Relics.State.barrier/barrierMax:0),2);
             for(int i=0;i<dash.segments;i++)Fill(dash,i,SegmentFill(i,owner.CurrentDashCharges,owner.DashRechargeProgress));
             var skill=owner.Skills;
             active.root.gameObject.SetActive(skill?.Definition!=null);

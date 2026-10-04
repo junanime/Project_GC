@@ -459,12 +459,7 @@ namespace Vampire
         void Start() {if(prepareOnReturn&&Page=="main"){prepareOnReturn=false;Show("prepare");}}
         public static string RelicDescription(RelicBlueprint r)
         {
-            switch(r.effectType)
-            {
-                case RelicBlueprint.RelicEffectType.MaxHealth:return $"최대 체력 +{r.effectValue:0}";
-                case RelicBlueprint.RelicEffectType.MoveSpeed:return $"이동 속도 +{r.effectValue:0.##}";
-                default:return $"치명타 확률 +{r.effectValue*100:0.#}%";
-            }
+            return r != null ? r.Description : "";
         }
         static RectTransform Rect(string name,Transform parent,float x,float y,float right,float top)
         {

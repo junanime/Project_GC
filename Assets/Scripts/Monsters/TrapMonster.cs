@@ -464,7 +464,7 @@ namespace Vampire
 
         private IEnumerator BindDurationRoutine()
         {
-            yield return new WaitForSeconds(trapBlueprint.bindDuration);
+            yield return new WaitForSeconds(playerCharacter != null ? playerCharacter.DebuffDuration(trapBlueprint.bindDuration) : trapBlueprint.bindDuration);
 
             if (currentState != TrapState.Active)
             {

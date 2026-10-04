@@ -205,9 +205,13 @@ namespace Vampire
         public float MaxHealth => GetMaxHealth();
         public CharacterSkillRuntime Skills { get; private set; }
         public bool IsAlive => alive;
+        public RelicRuntime Relics { get; private set; }
+        public float RelicBonus(RelicBlueprint.RelicEffectType effect) => Relics != null ? Relics.Bonus(effect) : 0;
+        public float DebuffDuration(float duration) => Relics != null ? Relics.DebuffDuration(duration) : duration;
+        public void GainPickupHealth(float amount) => GainHealth(Relics != null ? Relics.PickupHealing(amount) : amount);
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
         public bool IsSkillIdle => alive && !IsDashing && !IsTrapBound && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
-        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
+        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
         private float SnailSlowMultiplier => GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f;
         public float CurrentArmor => armor != null ? armor.Value : 0f;
 
@@ -226,7 +230,7 @@ namespace Vampire
         {
             get
             {
-                float finalSpeed = attackSpeedMultiplier;
+                float finalSpeed = attackSpeedMultiplier + RelicBonus(RelicBlueprint.RelicEffectType.AttackSpeed);
 
                 if (hasThermometer)
                 {
@@ -237,16 +241,16 @@ namespace Vampire
             }
         }
 
-        public int MouthwashCount => mouthwashCount;
+        public int MouthwashCount => mouthwashCount + Mathf.RoundToInt(RelicBonus(RelicBlueprint.RelicEffectType.Bounce));
         public float ProjectileSpeedMultiplier => projectileSpeedMultiplier * (Skills != null && Skills.AshiActive ? 2 : 1);
         public float BurnChance => burnChance;
-        public float CritChance => critChance;
-        public int AdditionalProjectiles => additionalProjectiles + (Skills != null && Skills.AshiPassive ? 2 : 0);
-        public float InvincibilityTimeBonus => invincibilityTimeBonus;
+        public float CritChance => Mathf.Clamp01(critChance + RelicBonus(RelicBlueprint.RelicEffectType.CritChance));
+        public int AdditionalProjectiles => additionalProjectiles + Mathf.RoundToInt(RelicBonus(RelicBlueprint.RelicEffectType.ProjectileCount)) + (Skills != null && Skills.AshiPassive ? 2 : 0);
+        public float InvincibilityTimeBonus => invincibilityTimeBonus + RelicBonus(RelicBlueprint.RelicEffectType.HitInvincibility);
         public float LifeSteal => lifeSteal;
         public float HealOnKill => healOnKill;
-        public float ProjectileSizeMultiplier => projectileSizeMultiplier;
-        public float RangeMultiplier => rangeMultiplier;
+        public float ProjectileSizeMultiplier => projectileSizeMultiplier * (1 + RelicBonus(RelicBlueprint.RelicEffectType.Area));
+        public float RangeMultiplier => rangeMultiplier * (1 + RelicBonus(RelicBlueprint.RelicEffectType.Area));
         public int CurrentDashCharges => currentDashCharges;
         private float dashRechargeElapsed;
         public float DashRechargeProgress => currentDashCharges >= maxDashCharges ? 1f :
@@ -257,7 +261,7 @@ namespace Vampire
         public bool AutoCollectItems => autoCollectItems;
         public float IdleHealPerSecond => healOnIdlePerSecond;
         public float MagnetRangeBonus => magnetRangeBonus;
-        public float ExperienceMultiplier => expMultiplier;
+        public float ExperienceMultiplier => expMultiplier + RelicBonus(RelicBlueprint.RelicEffectType.Experience);
 
         public float DashDistance => dashDistance;
         public float DashDuration => dashDuration;
@@ -265,7 +269,7 @@ namespace Vampire
         public float EffectiveDashRechargeTime => Skills!=null&&Skills.IsAri&&Skills.Active ? Mathf.Max(.05f,Skills.Definition.ariDashCooldown) : dashRechargeTime;
 
         public bool HasShield => hasShield;
-        public int ReviveCount => reviveCount;
+        public int ReviveCount => reviveCount + (Relics != null ? Relics.Revives : 0);
 
         public int ThermometerStacks => thermometerStacks;
         public int ReflexHammerCount => reflexHammerCount;
@@ -275,8 +279,8 @@ namespace Vampire
         public UnityEvent<float> OnDealDamage { get; } = new UnityEvent<float>();
         public UnityEvent OnDeath { get; } = new UnityEvent();
 
-        public float SlowChance => slowChance;
-        public int AdditionalPierce => additionalPierce;
+        public float SlowChance => Mathf.Clamp01(slowChance + RelicBonus(RelicBlueprint.RelicEffectType.SlowChance));
+        public int AdditionalPierce => additionalPierce + Mathf.RoundToInt(RelicBonus(RelicBlueprint.RelicEffectType.Pierce));
         public CharacterBlueprint Blueprint => characterBlueprint;
         public Vector2 Velocity => rb != null ? rb.velocity : Vector2.zero;
         public bool HasAntibioticBomb => hasAntibioticBomb;
@@ -343,7 +347,9 @@ namespace Vampire
             coroutineQueue = new CoroutineQueue(this);
             coroutineQueue.StartLoop();
 
-            currentHealth = characterBlueprint.hp;
+            Relics = RelicRuntime.Ensure(this);
+            PlayerGeneralStatRuntime.GetOrCreate(this).SyncPickupCollider();
+            currentHealth = GetMaxHealth();
             healthBar.Setup(currentHealth, 0, GetMaxHealth());
             expBar.Setup(currentExp, 0, nextLevelExp);
 
@@ -881,7 +887,7 @@ namespace Vampire
             {
                 var items=GetComponent<OctoberItemRuntime>();
                 if(items!=null)exp=items.Experience(exp);
-                if(exp>0)coroutineQueue.EnqueueCoroutine(GainExpCoroutine(exp * expMultiplier));
+                if(exp>0)coroutineQueue.EnqueueCoroutine(GainExpCoroutine(exp * ExperienceMultiplier));
             }
         }
 
@@ -1052,10 +1058,13 @@ namespace Vampire
 
             var items=GetComponent<OctoberItemRuntime>();
             if(items!=null)damage=items.Incoming(damage,pendingDamageMonsterBlueprint);
+            if (Relics != null) damage = Relics.Absorb(damage);
+            if (damage <= 0) return;
             float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
             items?.Hurt(actualLoss,pendingDamageMonsterBlueprint);
+            Relics?.Hurt(actualLoss);
 
             // 실제 HP가 감소한 경우에만 피격 효과음.
             GameAudioManager.PlaySfx(
@@ -1085,7 +1094,7 @@ namespace Vampire
 
             if (currentHealth <= 0)
             {
-                if (reviveCount > 0)
+                if (ReviveCount > 0)
                 {
                     Revive();
                     return;
@@ -1120,7 +1129,7 @@ namespace Vampire
             yield return new WaitForSeconds(0.08f);
 
             if (spriteRenderer != null) spriteRenderer.sharedMaterial = defaultMaterial;
-            yield return new WaitForSeconds(Mathf.Max(0f, 0.5f + invincibilityTimeBonus - 0.08f));
+            yield return new WaitForSeconds(Mathf.Max(0f, 0.5f + InvincibilityTimeBonus - 0.08f));
 
             if (spriteRenderer != null)
             {
@@ -1195,7 +1204,7 @@ namespace Vampire
 
         private void Revive()
         {
-            reviveCount--;
+            if (Relics == null || !Relics.ConsumeRevival()) reviveCount--;
             currentHealth = GetMaxHealth() * 0.5f;
             healthBar.Setup(currentHealth, 0, GetMaxHealth());
 
@@ -1241,7 +1250,7 @@ namespace Vampire
         public void UpdateMoveSpeed()
         {
             if (rb == null || movementSpeed == null || characterBlueprint == null) return;
-            float speed = Mathf.Max(.01f,movementSpeed.Value);
+            float speed = Mathf.Max(.01f,movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0));
             // Existing movement uses acceleration/drag; halve drag for twice the actual speed.
             rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null ? Skills.MovementMultiplier : 1) * Mathf.Max(.05f, SnailSlowMultiplier));
         }
@@ -1329,7 +1338,7 @@ namespace Vampire
 
         private float GetMaxHealth()
         {
-            return characterBlueprint.hp + maxHealthBonus;
+            return characterBlueprint.hp + maxHealthBonus + (Relics != null ? Relics.MaxHealthBonus : 0);
         }
 
         public void AddAttackSpeed(float amount)
@@ -1341,7 +1350,7 @@ namespace Vampire
         {
             get
             {
-                float finalMultiplier = damageMultiplier;
+                float finalMultiplier = damageMultiplier + RelicBonus(RelicBlueprint.RelicEffectType.Damage);
 
                 if (hasGinsengStick && (currentHealth / GetMaxHealth()) <= 0.3f)
                 {
@@ -1646,6 +1655,7 @@ namespace Vampire
         {
             RunSceneCharacterSnapshot snapshot =
                 new RunSceneCharacterSnapshot();
+            snapshot.Relic = Relics?.Capture();
 
             // --------------------------------------------------------
             // Level / EXP / HP
@@ -1830,6 +1840,8 @@ namespace Vampire
             // Level / EXP
             // --------------------------------------------------------
 
+            Relics = RelicRuntime.Ensure(this);
+            Relics.Restore(snapshot.Relic);
             currentLevel =
                 Mathf.Max(
                     1,

@@ -2141,8 +2141,8 @@ namespace Vampire
         private SyringeSpecialRuntime BuildSpecialRuntime()
         {
             float additionalPierceFromCharacter = GetPublicFloatProperty(playerCharacter, "AdditionalPierce", 0f);
-            int bonusPierce = pierceEnabled ? Mathf.RoundToInt(additionalPierceFromCharacter) : 0;
-            int totalPierceCount = pierceEnabled ? Mathf.Max(0, pierceCount + bonusPierce) : 0;
+            int bonusPierce = Mathf.RoundToInt(additionalPierceFromCharacter);
+            int totalPierceCount = Mathf.Max(0, (pierceEnabled ? pierceCount : 0) + bonusPierce);
 
             float antibioticBombChance = 0f;
 
@@ -2185,7 +2185,7 @@ namespace Vampire
                 poisonTickDamage = poisonTickDamage * statusDamageMultiplier,
 
                 explosionEnabled = finalExplosionChance > 0f,
-                explosionRadius = explosionRadius,
+                explosionRadius = explosionRadius * (1 + playerCharacter.RelicBonus(RelicBlueprint.RelicEffectType.Area)),
                 explosionDamage = explosionDamage,
                 explosionChance = finalExplosionChance,
 
@@ -2193,9 +2193,8 @@ namespace Vampire
                 homingRange = homingRange,
                 homingLerpSpeed = homingLerpSpeed,
 
-                // 관통침 증강을 먹었을 때만 기본 침이 관통한다.
-                // 기본 pierceCount가 2여도 pierceEnabled가 false면 관통하지 않는다.
-                pierceEnabled = pierceEnabled && totalPierceCount > 0,
+                // 관통 증강이 없으면 기본 관통 수는 제외하되 유물/아이템의 추가 관통은 적용한다.
+                pierceEnabled = totalPierceCount > 0,
                 pierceCount = totalPierceCount,
 
                 honeyEnabled = honeyEnabled,
@@ -2236,7 +2235,7 @@ namespace Vampire
                 markBonusDamageMultiplier = markBonusDamageMultiplier,
                 digestiveAcidSacEnabled = digestiveAcidSacNeedleEnabled,
                 digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime * statusDurationMultiplier,
-                digestiveAcidPuddleRadius = digestiveAcidPuddleRadius,
+                digestiveAcidPuddleRadius = digestiveAcidPuddleRadius * (1 + playerCharacter.RelicBonus(RelicBlueprint.RelicEffectType.Area)),
                 digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond * statusDamageMultiplier,
                 digestiveAcidPuddleTickInterval = digestiveAcidPuddleTickInterval,
                 digestiveAcidPuddleColor = digestiveAcidPuddleColor,

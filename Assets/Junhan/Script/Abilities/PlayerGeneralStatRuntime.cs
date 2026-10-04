@@ -43,18 +43,19 @@ namespace Vampire
         private float goldGainRemainder;
         private bool pickupColliderCached = false;
 
-        public float PickupRangeMultiplier => pickupRangeMultiplier;
-        public float GoldGainMultiplier => goldGainMultiplier;
+        float Relic(RelicBlueprint.RelicEffectType effect) => ownerCharacter != null ? ownerCharacter.RelicBonus(effect) : 0;
+        public float PickupRangeMultiplier => pickupRangeMultiplier + Relic(RelicBlueprint.RelicEffectType.PickupRange);
+        public float GoldGainMultiplier => goldGainMultiplier + Relic(RelicBlueprint.RelicEffectType.Gold);
         public float GoldDropChanceBonus => goldDropChanceBonus;
         public float BossDamageMultiplier => bossDamageMultiplier;
 
         public float CritDamageMultiplier => critDamageMultiplier;
-        public float KnockbackMultiplier => knockbackMultiplier;
+        public float KnockbackMultiplier => knockbackMultiplier + Relic(RelicBlueprint.RelicEffectType.Knockback);
         public float DefensePierceBonus => defensePierceBonus;
-        public float DamageReductionBonus => damageReductionBonus;
-        public float EvasionBonus => evasionBonus;
+        public float DamageReductionBonus => Mathf.Clamp(damageReductionBonus + Relic(RelicBlueprint.RelicEffectType.DamageReduction), 0, .8f);
+        public float EvasionBonus => Mathf.Clamp(evasionBonus + Relic(RelicBlueprint.RelicEffectType.Evasion), 0, .8f);
 
-        public float StatusDurationMultiplier => statusDurationMultiplier;
+        public float StatusDurationMultiplier => statusDurationMultiplier + Relic(RelicBlueprint.RelicEffectType.Duration);
         public float StatusDamageMultiplier => statusDamageMultiplier;
 
         public float CloneDamageMultiplier => cloneDamageMultiplier;
@@ -106,7 +107,7 @@ namespace Vampire
                 return 0;
             }
 
-            float scaledAmount = baseAmount * goldGainMultiplier + goldGainRemainder;
+            float scaledAmount = baseAmount * GoldGainMultiplier + goldGainRemainder;
             int wholeAmount = Mathf.FloorToInt(scaledAmount + 0.0001f);
             goldGainRemainder = Mathf.Max(0f, scaledAmount - wholeAmount);
             return wholeAmount;
@@ -306,7 +307,7 @@ namespace Vampire
             pickupColliderCached = true;
         }
 
-        private void SyncPickupCollider()
+        public void SyncPickupCollider()
         {
             CachePickupColliderIfNeeded();
 
@@ -317,13 +318,13 @@ namespace Vampire
 
             if (pickupCircleCollider != null)
             {
-                pickupCircleCollider.radius = baseCircleRadius * pickupRangeMultiplier;
+                pickupCircleCollider.radius = baseCircleRadius * PickupRangeMultiplier;
                 return;
             }
 
             if (pickupBoxCollider != null)
             {
-                pickupBoxCollider.size = baseBoxSize * pickupRangeMultiplier;
+                pickupBoxCollider.size = baseBoxSize * PickupRangeMultiplier;
             }
         }
     }

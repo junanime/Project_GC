@@ -24,6 +24,7 @@ namespace Vampire.EditorTools
             config.failureAshi=OctoberArt.Character(config.characters.First(),1);
             foreach(var relic in config.relics)
             {
+                if (!string.IsNullOrEmpty(relic.effectDescription)) continue; // Preserve the reviewed 34-relic catalog.
                 string key=relic.effectType==RelicBlueprint.RelicEffectType.MaxHealth?"RelicHealth":relic.effectType==RelicBlueprint.RelicEffectType.MoveSpeed?"RelicSpeed":"RelicCrit";
                 relic.icon=OctoberArt.Get("OctoberUI/"+key);
                 relic.relicName=key=="RelicHealth"?"튼튼 하트":key=="RelicSpeed"?"산들 날개":"반짝 급소";

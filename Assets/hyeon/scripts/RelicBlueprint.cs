@@ -9,7 +9,11 @@ namespace Vampire
         {
             MaxHealth,
             MoveSpeed,
-            CritChance
+            CritChance,
+            HealingPickup, DebuffResistance, Regeneration, AttackSpeed, DamageReduction,
+            PickupRange, ProjectileCount, Experience, Gold, Damage, Pierce, Bounce, Area,
+            Duration, Knockback, Evasion, HitInvincibility, Barrier, Revival, Thorns,
+            IdleRecovery, ShopDiscount, SlowChance, MaxHealthPercent, MoveSpeedPercent
         }
 
         [Header("Basic Info")]
@@ -22,25 +26,27 @@ namespace Vampire
         [Header("Effect")]
         public RelicEffectType effectType;
         public float effectValue;
+        [TextArea(2, 5)] public string effectDescription;
 
 
         // =========================================================
-        // ºÎÀû ¼³¸í
+        // ë¶€ì  ì„¤ëª…
         // =========================================================
         public string Description
         {
             get
             {
+                if (!string.IsNullOrEmpty(effectDescription)) return effectDescription;
                 switch (effectType)
                 {
                     case RelicEffectType.MaxHealth:
-                        return $"ÃÖ´ë Ã¼·ÂÀÌ {effectValue:0} Áõ°¡ÇÕ´Ï´Ù.";
+                        return $"ìµœëŒ€ ì²´ë ¥ì´ {effectValue:0} ì¦ê°€í•©ë‹ˆë‹¤.";
 
                     case RelicEffectType.MoveSpeed:
-                        return $"ÀÌµ¿ ¼Óµµ°¡ {effectValue:0.##} Áõ°¡ÇÕ´Ï´Ù.";
+                        return $"ì´ë™ ì†ë„ê°€ {effectValue:0.##} ì¦ê°€í•©ë‹ˆë‹¤.";
 
                     case RelicEffectType.CritChance:
-                        return $"Ä¡¸íÅ¸ È®·üÀÌ {effectValue * 100f:0.#}% Áõ°¡ÇÕ´Ï´Ù.";
+                        return $"ì¹˜ëª…íƒ€ í™•ë¥ ì´ {effectValue * 100f:0.#}% ì¦ê°€í•©ë‹ˆë‹¤.";
 
                     default:
                         return string.Empty;

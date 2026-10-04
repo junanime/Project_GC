@@ -28,8 +28,9 @@ namespace Vampire
                 Label(card,item.itemName,.08f,.405f,.92f,.50f,23).fontStyle=TMPro.FontStyles.Bold;
                 Label(card,item.description,.11f,.155f,.89f,.401f,18);
                 var runtime=level?.PlayerCharacter?.GetComponent<OctoberItemRuntime>();
-                bool owned=runtime!=null&&runtime.Has(item.octoberId);bool afford=stats!=null&&stats.CoinsGained>=item.cost;
-                ActionButton(card,owned?"보유 중":$"구매 · {item.cost} G",.13f,.04f,.87f,.138f,()=>merchant.OnClickPurchaseItem(item,null),true,!owned&&afford);
+                int price=RelicRuntime.Price(level?.PlayerCharacter,item.cost);
+                bool owned=runtime!=null&&runtime.Has(item.octoberId);bool afford=stats!=null&&stats.CoinsGained>=price;
+                ActionButton(card,owned?"보유 중":$"구매 · {price} G",.13f,.04f,.87f,.138f,()=>merchant.OnClickPurchaseItem(item,null),true,!owned&&afford);
             }
             ActionButton(content,"새로고침 · "+merchantRerollCost+" G",.37f,.075f,.63f,.16f,()=>merchant.OnClickRerollItems(),false,stats!=null&&stats.CoinsGained>=merchantRerollCost);
             ActionButton(content,"닫기",.77f,.075f,.92f,.16f,()=>merchant.CloseShop());

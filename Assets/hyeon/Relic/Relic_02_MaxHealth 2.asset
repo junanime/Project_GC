@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relicId: relic_02
   relicName: "\uC0B0\uB4E4 \uB0A0\uAC1C"
-  price: 1
-  icon: {fileID: -5024506752109457643, guid: 802dd112083fed24696245cd5bf8fde2, type: 3}
+  price: 160
+  icon: {fileID: 5001564561308697692, guid: c1f583186f4c58c42b3f1d4cf31bd78e, type: 3}
   effectType: 1
   effectValue: 0.2
+  effectDescription: "\uC774\uB3D9 \uC18D\uB3C4 \uAE30\uBCF8 \uC218\uCE58 +0.2."
