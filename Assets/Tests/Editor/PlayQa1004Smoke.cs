@@ -70,6 +70,9 @@ namespace Vampire.Tests.Editor
                 CrossSceneData.CharacterBlueprint=ui.Config.characters.First(x=>x.skills!=null&&x.skills.kind==CharacterSkillDefinition.SkillKind.Hyuki);
                 CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();SceneManager.LoadScene(1);yield return new WaitForSecondsRealtime(2);
                 ui=ApothecaryUI.Instance;var level=FindObjectOfType<LevelManager>();level.enabled=false;
+                // This older combat regression does not exercise the first-discovery modal.
+                // Keep its scripted combat checks independent of newly queued tutorials.
+                var tutorial=level.GetComponent<TutorialGuide>();if(tutorial!=null)tutorial.enabled=false;
                 var player=level.PlayerCharacter;var entities=level.EntityManager;
                 foreach(var monster in entities.LivingMonsters.ToArray())monster.gameObject.SetActive(false);
                 var needle=FindObjectOfType<SyringeDartAbility>();needle.enabled=false;needle.StopAllCoroutines();

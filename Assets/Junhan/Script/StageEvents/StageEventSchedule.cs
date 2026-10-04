@@ -493,6 +493,7 @@ namespace Vampire
                 surgeEvent.spawnAccumulator = 0f;
 
                 ShowEventStartedUI(surgeEvent.eventName);
+                TutorialGuide.QueueStageEvent("monster-surge");
 
                 
 
@@ -566,6 +567,7 @@ namespace Vampire
                 goldRushEvent.started = true;
 
                 ShowEventStartedUI(goldRushEvent.eventName);
+                TutorialGuide.QueueStageEvent("gold-rush");
 
                 
                 if (logEventState)
@@ -619,6 +621,7 @@ namespace Vampire
                 PlayAcidRainVFX();
 
                 ShowEventStartedUI(acidEvent.eventName);
+                TutorialGuide.QueueStageEvent("acid-secretion");
 
                
 

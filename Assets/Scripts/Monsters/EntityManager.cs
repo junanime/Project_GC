@@ -315,6 +315,9 @@ namespace Vampire
 
             grid.InsertClient(newMonster);
 
+            if (!allowDuringMiniStage)
+                TutorialGuide.QueueMonster(monsterBlueprint);
+
             return newMonster;
         }
         private bool ShouldBlockFieldMonsterSpawn(bool allowDuringMiniStage)

@@ -182,6 +182,7 @@ namespace Vampire
                 : 0f;
 
             ShowToast($"{eventName} 이벤트가 시작됐습니다!");
+            TutorialGuide.QueueStageEvent("antacid-bubble");
             GameAudioManager.PlaySfx(
     GameAudioManager.GameSfxId.FieldEventStart
 );

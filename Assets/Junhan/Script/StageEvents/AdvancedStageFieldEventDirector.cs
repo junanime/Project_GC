@@ -564,6 +564,7 @@ namespace Vampire
             {
                 waveEvent.started = true;
                 ShowEventStartedUI(waveEvent.eventName);
+                TutorialGuide.QueueStageEvent("acid-reflux");
 
                 if (logEventState)
                 {
@@ -647,6 +648,7 @@ namespace Vampire
                 driftEvent.elapsed = 0f;
 
                 ShowEventStartedUI(driftEvent.eventName);
+                TutorialGuide.QueueStageEvent("peristaltic-drift");
 
                 Debug.Log(
                     $"[AdvancedStageEvent] Start: {driftEvent.eventName} | " +
@@ -843,6 +845,7 @@ namespace Vampire
                 coffeeEvent.started = true;
                 coffeeEvent.monsterScanTimer = 0f;
                 ShowEventStartedUI(coffeeEvent.eventName);
+                TutorialGuide.QueueStageEvent("coffee-transfusion");
 
                 if (logEventState)
                 {

@@ -95,6 +95,9 @@ namespace Vampire
             entityManager.SpawnChest(levelBlueprint.chestBlueprint);
             infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
             inventory.Init();
+            var tutorial = GetComponent<TutorialGuide>();
+            if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
+            tutorial.Initialize(this);
         }
 
         private void Start()
