@@ -16,7 +16,7 @@ namespace Vampire.Tests.Editor
                 var tests = new TutorialGuideTests();
                 tests.EveryFirstDiscoveryHasItsOwnPlayableClip();
                 tests.MonstersHaveDistinctStableDiscoveryIds();
-                Debug.Log("[TutorialGuide] PASS: 38 clips, unique IDs, monster mapping");
+                Debug.Log("[TutorialGuide] PASS: 39 clips, unique IDs, monster mapping");
                 EditorApplication.Exit(0);
             }
             catch (System.Exception exception)
@@ -41,10 +41,10 @@ namespace Vampire.Tests.Editor
             Assert.NotNull(text);
             var catalog = JsonUtility.FromJson<Catalog>(text.text);
             Assert.NotNull(catalog);
-            Assert.AreEqual(38, catalog.entries.Length);
+            Assert.AreEqual(39, catalog.entries.Length);
             var ids = new HashSet<string>();
             var effects = new HashSet<string>();
-            int weapons = 0, events = 0, monsters = 0;
+            int weapons = 0, events = 0, monsters = 0, mechanics = 0;
             foreach (var entry in catalog.entries)
             {
                 Assert.IsTrue(ids.Add(entry.id), "Duplicate tutorial ID: " + entry.id);
@@ -59,11 +59,14 @@ namespace Vampire.Tests.Editor
                 if (entry.kind == "weapon") weapons++;
                 else if (entry.kind == "event") events++;
                 else if (entry.kind == "monster") monsters++;
+                else if (entry.kind == "mechanic") mechanics++;
                 else Assert.Fail("Unknown kind: " + entry.kind);
             }
             Assert.AreEqual(21, weapons);
             Assert.AreEqual(7, events);
             Assert.AreEqual(10, monsters);
+            Assert.AreEqual(1, mechanics);
+            Assert.AreNotEqual(TutorialGuide.SeenKey("mechanic/blood-clot"), TutorialGuide.SeenKey("monster/sniper"));
         }
 
         [Test]

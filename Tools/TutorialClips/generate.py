@@ -6,6 +6,7 @@ composited from their actual game PNGs so their designs are not reinterpreted.
 """
 import json
 import math
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw
 
@@ -27,6 +28,8 @@ ACTORS = {
     "runner": "Assets/Prefabs/Monsters/Monster Sprite/chikiiin.png",
     "trap": "Assets/Art/MonsterRemake/SeaweedFront_00.png",
     "spore": "Assets/Prefabs/Monsters/Monster Sprite/skul.png",
+    "blood_clot_closed": "Assets/Junhan/Art/mini_not_open.png",
+    "blood_clot_open": "Assets/Junhan/Art/mini_open.png",
 }
 
 
@@ -87,7 +90,38 @@ def render(effect, frame):
     monster_effects = {"sniper", "thief", "spore", "sugar", "salt", "pepper", "runner", "elite_sugar", "trap", "armor"}
     event_effects = {"surge", "gold", "acid_event", "wave", "drift", "coffee", "bubble"}
 
-    if effect in monster_effects:
+    if effect == "blood_clot":
+        # Show the real game flow: defeat the clot, approach its portal, then E.
+        hx = [54, 58, 62, 68, 75, 85, 99, 116, 136, 153, 168, 178][frame]
+        d.ellipse((130, 54, 220, 122), fill=(245, 110, 126, 43))
+        for j in range(3):
+            d.arc((145-j*5, 58-j*4, 208+j*5, 114+j*4),
+                  45+frame*15, 245+frame*15,
+                  fill=(255, 183, 139, 72 + j*24), width=2)
+        if frame < 4:
+            paste(im, "blood_clot_closed", 176, 84, 67, -2 if frame == 3 else 0)
+            if frame > 0:
+                needle(d, 84 + frame*23, 76 - frame*2, (172, 238, 251, 255), 14)
+            if frame == 3:
+                for dx, dy in [(-30,-24),(28,-26),(-34,4),(29,12)]:
+                    d.line((176+dx*.5,84+dy*.5,176+dx,84+dy),fill=(255,233,170,245),width=3)
+        else:
+            if frame in (4, 5):
+                circle(d, 176, 84, 31 + (frame-4)*9,
+                       (249, 179, 137, 75), (255, 227, 161, 180), 2)
+            paste(im, "blood_clot_open", 176, 84, 67)
+            d.ellipse((163, 58, 189, 72), outline=(255, 226, 175, 170), width=2)
+            if frame >= 6:
+                d.rounded_rectangle((195, 20, 225, 47), radius=5,
+                                    fill=(253, 235, 197, 245), outline=(70, 35, 46, 255), width=2)
+                d.text((207, 25), "E", fill=(64, 35, 45, 255), stroke_width=0)
+                d.polygon([(202,52),(211,52),(206,60)],fill=(255,235,203,235))
+        if frame >= 9:
+            d.ellipse((155, 61, 197, 107), outline=(255, 242, 189, 160+(frame-9)*30), width=3)
+        paste(im, "hyuki", hx, 94, 68 if frame < 9 else [53, 39, 23][frame-9],
+              math.sin(t*math.pi*4)*2)
+
+    elif effect in monster_effects:
         hx = 58 + (16 if effect in {"sniper", "trap"} else 8) * math.sin(t * math.pi)
         hy = 88 + (13 if effect in {"sniper", "trap"} else 5) * math.sin(t * math.pi)
         enemy = {"elite_sugar": "elite_sugar", "armor": "salt"}.get(effect, effect)
@@ -200,8 +234,11 @@ def render(effect, frame):
 def main():
     SHEETS.mkdir(parents=True, exist_ok=True)
     GIFS.mkdir(parents=True, exist_ok=True)
+    selected = set(sys.argv[1:])
     for entry in CATALOG:
         effect = entry["effect"]
+        if selected and effect not in selected:
+            continue
         frames = [render(effect, i) for i in range(FRAMES)]
         sheet = Image.new("RGB", (SIZE[0]*4, SIZE[1]*3))
         for i, frame in enumerate(frames):
@@ -209,7 +246,7 @@ def main():
         sheet.save(SHEETS / (effect+".png"), optimize=True)
         frames[0].save(GIFS / (effect+".gif"), save_all=True,
                        append_images=frames[1:], duration=115, loop=0, optimize=True)
-    print(f"Generated {len(CATALOG)} loops, sheets in {SHEETS}, GIFs in {GIFS}")
+    print(f"Generated {len(selected) if selected else len(CATALOG)} loops, sheets in {SHEETS}, GIFs in {GIFS}")
 
 
 if __name__ == "__main__":

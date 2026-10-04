@@ -37,6 +37,7 @@
     {"id":"monster/treasure-runner","kind":"monster","title":"보물 도주 몬스터","what":"보상을 지닌 채 빠르게 도망칩니다.","tip":"탈출하기 전에 길을 가로막고 공격하세요.","effect":"runner"},
     {"id":"monster/elite-sugar-cube","kind":"monster","title":"정예 각설탕","what":"일반 각설탕보다 강한 몸으로 밀고 들어옵니다.","tip":"거리를 유지하며 집중 공격하세요.","effect":"elite_sugar"},
     {"id":"monster/trap","kind":"monster","title":"함정 몬스터","what":"혁이를 붙잡아 움직임을 제한합니다.","tip":"속박 조건을 확인하고 위험 구역을 피하세요.","effect":"trap"},
-    {"id":"monster/armor-buffer","kind":"monster","title":"방어 버프 몬스터","what":"주변 몬스터가 받는 피해를 줄여줍니다.","tip":"보호 효과를 주는 몬스터부터 처치하세요.","effect":"armor"}
+    {"id":"monster/armor-buffer","kind":"monster","title":"방어 버프 몬스터","what":"주변 몬스터가 받는 피해를 줄여줍니다.","tip":"보호 효과를 주는 몬스터부터 처치하세요.","effect":"armor"},
+    {"id":"mechanic/blood-clot","kind":"mechanic","title":"혈전과 미니스테이지","what":"혈전 처치 → 입구 출현. 가까이서 E를 누르면 일반 미니스테이지에 입장합니다.","tip":"Q/과충전 버튼으로 시작.\n범위 안에서 처치·체류 목표 완료.\n진행 중 E 입장 불가.\n완료 후 E로 격화 난이도에 도전!\n스킬 강화·레벨업 상자 보상.","effect":"blood_clot"}
   ]
 }

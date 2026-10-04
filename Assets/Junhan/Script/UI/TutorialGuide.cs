@@ -36,7 +36,8 @@ namespace Vampire
         private float previousTimeScale;
         private GameObject canvasObject;
         private RawImage preview;
-        private Text titleText, kindText, whatText, tipText;
+        private Text titleText, kindText, whatText, tipText, tipHeadingText;
+        private RectTransform hintBand;
         private Texture2D activeSheet;
         private float clipStart;
         private Font font;
@@ -67,6 +68,7 @@ namespace Vampire
 
         public static void QueueWeapon(SyringeSpecialAugmentAbility.SpecialAugmentType type) => Queue("weapon/" + type);
         public static void QueueStageEvent(string id) => Queue("event/" + id);
+        public static void QueueBloodClot() => Queue("mechanic/blood-clot");
         public static void QueueMonster(MonsterBlueprint blueprint)
         {
             if (blueprint == null) return;
@@ -133,9 +135,18 @@ namespace Vampire
                 return;
             }
             titleText.text = entry.title;
-            kindText.text = entry.kind == "weapon" ? "새 무기" : entry.kind == "event" ? "스테이지 이벤트" : "특수 몬스터";
+            kindText.text = entry.kind == "weapon" ? "새 무기" : entry.kind == "event" ? "스테이지 이벤트" :
+                entry.kind == "mechanic" ? "필드 기믹" : "특수 몬스터";
             whatText.text = entry.what;
             tipText.text = entry.tip;
+            tipHeadingText.text = entry.kind == "mechanic" ? "혈전 과충전" : "혁이의 대응";
+            whatText.fontSize = entry.kind == "mechanic" ? 18 : 23;
+            tipText.fontSize = entry.kind == "mechanic" ? 16 : 21;
+            var mechanic = entry.kind == "mechanic";
+            SetVertical(whatText.rectTransform, mechanic ? .575f : .52f, mechanic ? .69f : .675f);
+            SetVertical(hintBand, mechanic ? .48f : .405f, mechanic ? .56f : .495f);
+            SetVertical(tipHeadingText.rectTransform, mechanic ? .485f : .411f, mechanic ? .555f : .487f);
+            SetVertical(tipText.rectTransform, mechanic ? .255f : .266f, mechanic ? .47f : .395f);
             preview.texture = activeSheet;
             // The first rendered frame can precede Update after pausing the game.
             // Never expose the complete 4x3 atlas in that frame.
@@ -195,14 +206,19 @@ namespace Vampire
             preview = Rect("Looping gameplay demonstration", previewFrame.rectTransform, .015f, .025f, .985f, .975f).gameObject.AddComponent<RawImage>();
             preview.raycastTarget = false;
             RectImage(card, "Description paper", .63f, .235f, .945f, .78f, new Color(1f,.963f,.895f));
-            Label(card, "어떤 일이 일어나나요?", .655f, .68f, .922f, .76f, 22, new Color(.52f,.27f,.32f));
+            Label(card, "어떤 일이 일어나나요?", .655f, .705f, .922f, .76f, 22, new Color(.52f,.27f,.32f));
             whatText = Label(card, "", .658f, .52f, .915f, .675f, 23, new Color(.20f,.14f,.16f));
-            RectImage(card, "Mint hint", .65f, .405f, .925f, .495f, new Color(.72f,.88f,.76f));
-            Label(card, "혁이의 대응", .664f, .411f, .911f, .487f, 25, new Color(.17f,.31f,.25f));
+            hintBand = RectImage(card, "Mint hint", .65f, .405f, .925f, .495f, new Color(.72f,.88f,.76f)).rectTransform;
+            tipHeadingText = Label(card, "혁이의 대응", .664f, .411f, .911f, .487f, 25, new Color(.17f,.31f,.25f));
             tipText = Label(card, "", .66f, .266f, .915f, .395f, 21, new Color(.20f,.14f,.16f));
             ButtonAt(card, "확인", .37f, .07f, .63f, .19f, new Color(.53f,.83f,.72f), Close);
             ButtonAt(card, "다시 보기", .77f, .095f, .925f, .18f, new Color(.99f,.94f,.85f), Replay);
             canvasObject.SetActive(false);
+        }
+        private static void SetVertical(RectTransform rect, float bottom, float top)
+        {
+            rect.anchorMin = new Vector2(rect.anchorMin.x, bottom);
+            rect.anchorMax = new Vector2(rect.anchorMax.x, top);
         }
         private static RectTransform Rect(string name, Transform parent, float x, float y, float right, float top)
         {
