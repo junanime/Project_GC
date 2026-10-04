@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: fortune_pouch
+  m_EditorClassIdentifier: 
+  relicId: fortune_pouch
+  relicName: "\uBCF5\uBCF5 \uC8FC\uBA38\uB2C8"
+  price: 180
+  icon: {fileID: 8450609787571125289, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
+  effectType: 11
+  effectValue: 0.15
+  effectDescription: "\uB7F0 \uACE8\uB4DC \uD68D\uB4DD\uB7C9 +15%. \uC18C\uC218\uC810\uC740
+    \uB204\uC801\uD558\uBA70 \uB85C\uBE44 \uC2E4\uBC84\uC5D0\uB294 \uBBF8\uC801\uC6A9."

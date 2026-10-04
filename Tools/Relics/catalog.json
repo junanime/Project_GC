@@ -1,0 +1,344 @@
+{
+  "entries": [
+    {
+      "id": "relic_01",
+      "name": "튼튼 하트",
+      "effect": "MaxHealth",
+      "value": 20,
+      "price": 120,
+      "sheet": 1,
+      "cell": 0,
+      "description": "최대 체력 +20. 출전 시 증가분도 채워집니다."
+    },
+    {
+      "id": "relic_02",
+      "name": "산들 날개",
+      "effect": "MoveSpeed",
+      "value": 0.2,
+      "price": 160,
+      "sheet": 1,
+      "cell": 1,
+      "description": "이동 속도 기본 수치 +0.2."
+    },
+    {
+      "id": "warm_bottle",
+      "name": "온든 약병",
+      "effect": "HealingPickup",
+      "value": 0.25,
+      "price": 160,
+      "sheet": 1,
+      "cell": 2,
+      "description": "회복 아이템의 체력 회복량 +25%. 자동 회복·흡혈에는 미적용."
+    },
+    {
+      "id": "clear_dew",
+      "name": "맑은 이슬",
+      "effect": "DebuffResistance",
+      "value": 0.25,
+      "price": 180,
+      "sheet": 1,
+      "cell": 3,
+      "description": "기절·이동 반전·장판 이탈 후 둔화 지속시간 -25%. 장판 내부와 함정 탈출 조건은 유지."
+    },
+    {
+      "id": "life_sprout",
+      "name": "새싹 생명",
+      "effect": "Regeneration",
+      "value": 0.3,
+      "price": 220,
+      "sheet": 1,
+      "cell": 4,
+      "description": "초당 체력 0.3 회복. 일시정지·사망 중에는 회복하지 않습니다."
+    },
+    {
+      "id": "lightning_beat",
+      "name": "번개 박동",
+      "effect": "AttackSpeed",
+      "value": 0.1,
+      "price": 220,
+      "sheet": 1,
+      "cell": 5,
+      "description": "공격 속도 +10%. 액티브 재사용 시간은 바뀌지 않습니다."
+    },
+    {
+      "id": "firm_shield",
+      "name": "단단 방패",
+      "effect": "DamageReduction",
+      "value": 0.08,
+      "price": 180,
+      "sheet": 2,
+      "cell": 0,
+      "description": "받는 피해 -8%p. 다른 피해 감소와 합산하며 최대 80%."
+    },
+    {
+      "id": "relic_03",
+      "name": "반짝 급소",
+      "effect": "CritChance",
+      "value": 0.05,
+      "price": 160,
+      "sheet": 2,
+      "cell": 1,
+      "description": "치명타 확률 +5%p. 최대 100%."
+    },
+    {
+      "id": "magnet",
+      "name": "쏙쏙 자석",
+      "effect": "PickupRange",
+      "value": 0.3,
+      "price": 140,
+      "sheet": 2,
+      "cell": 2,
+      "description": "아이템 자동 획득 반경 +30%."
+    },
+    {
+      "id": "beads",
+      "name": "팡팡 구슬",
+      "effect": "ProjectileCount",
+      "value": 1,
+      "price": 450,
+      "sheet": 2,
+      "cell": 3,
+      "description": "발사체 수 +1. 발사체 수를 지원하는 공격에 적용."
+    },
+    {
+      "id": "learning_scroll",
+      "name": "배움 두루마리",
+      "effect": "Experience",
+      "value": 0.1,
+      "price": 220,
+      "sheet": 2,
+      "cell": 4,
+      "description": "경험치 획득량 +10%."
+    },
+    {
+      "id": "fortune_pouch",
+      "name": "복복 주머니",
+      "effect": "Gold",
+      "value": 0.15,
+      "price": 180,
+      "sheet": 2,
+      "cell": 5,
+      "description": "런 골드 획득량 +15%. 소수점은 누적하며 로비 실버에는 미적용."
+    },
+    {
+      "id": "strong_hammer",
+      "name": "힘찬 망치",
+      "effect": "Damage",
+      "value": 0.12,
+      "price": 220,
+      "sheet": 3,
+      "cell": 0,
+      "description": "공격력 +12%. 플레이어 공격력 배율을 사용하는 피해에 적용."
+    },
+    {
+      "id": "piercing_arrow",
+      "name": "꿰뚫는 화살",
+      "effect": "Pierce",
+      "value": 1,
+      "price": 300,
+      "sheet": 3,
+      "cell": 1,
+      "description": "침의 일반 몬스터 관통 +1. 관통 증강 없이도 적용. 보스 파츠 관통은 별도."
+    },
+    {
+      "id": "bouncy_acorn",
+      "name": "통통 도토리",
+      "effect": "Bounce",
+      "value": 1,
+      "price": 350,
+      "sheet": 3,
+      "cell": 2,
+      "description": "침이 적중한 뒤 도탄 +1. 가까운 아직 맞지 않은 적을 우선 추적."
+    },
+    {
+      "id": "open_fan",
+      "name": "활짝 부채",
+      "effect": "Area",
+      "value": 0.15,
+      "price": 220,
+      "sheet": 3,
+      "cell": 3,
+      "description": "공격 범위·침 크기 +15%. 침의 폭발·위산 장판 반경에도 적용."
+    },
+    {
+      "id": "hourglass",
+      "name": "오래 모래시계",
+      "effect": "Duration",
+      "value": 0.2,
+      "price": 220,
+      "sheet": 3,
+      "cell": 4,
+      "description": "침이 남기는 상태이상·잔류 공격 지속시간 +20%. 액티브·무적 시간에는 미적용."
+    },
+    {
+      "id": "bell",
+      "name": "콩콩 방울",
+      "effect": "Knockback",
+      "value": 0.25,
+      "price": 140,
+      "sheet": 3,
+      "cell": 5,
+      "description": "침의 적 밀치기 +25%. 보스의 밀치기 면역은 유지."
+    },
+    {
+      "id": "feather",
+      "name": "살랑 깃털",
+      "effect": "Evasion",
+      "value": 0.06,
+      "price": 200,
+      "sheet": 4,
+      "cell": 0,
+      "description": "회피 확률 +6%p. 다른 회피와 합산하며 최대 80%."
+    },
+    {
+      "id": "umbrella",
+      "name": "포근 우산",
+      "effect": "HitInvincibility",
+      "value": 0.2,
+      "price": 220,
+      "sheet": 4,
+      "cell": 1,
+      "description": "피격 후 무적 +0.2초. 기본 0.5초에서 0.7초로 증가."
+    },
+    {
+      "id": "bandage",
+      "name": "도톰 붕대",
+      "effect": "Barrier",
+      "value": 20,
+      "price": 260,
+      "sheet": 4,
+      "cell": 2,
+      "description": "피해 흡수 보호막 최대 +20. 출전 시 충전. 8초간 피격하지 않으면 초당 5 재충전."
+    },
+    {
+      "id": "revival_bud",
+      "name": "다시 꽃봉오리",
+      "effect": "Revival",
+      "value": 1,
+      "price": 600,
+      "sheet": 4,
+      "cell": 3,
+      "description": "한 판에 한 번 쓰러질 때 최대 체력 50%로 부활. 씬 이동으로 재충전되지 않음."
+    },
+    {
+      "id": "chestnut",
+      "name": "따끔 밤송이",
+      "effect": "Thorns",
+      "value": 0.5,
+      "price": 220,
+      "sheet": 4,
+      "cell": 4,
+      "description": "실제 잃은 체력의 50%를 반경 2.5 안의 적에게 반사. 0.5초 간격·1회 최대 50."
+    },
+    {
+      "id": "pillow",
+      "name": "꿀잠 베개",
+      "effect": "IdleRecovery",
+      "value": 0.01,
+      "price": 220,
+      "sheet": 4,
+      "cell": 5,
+      "description": "1.5초간 자발적으로 정지하면 초당 최대 체력 1% 회복. 속박·기절 중에는 미적용."
+    },
+    {
+      "id": "needle_case",
+      "name": "반짝 침통",
+      "effect": "Pierce",
+      "value": 2,
+      "price": 450,
+      "sheet": 5,
+      "cell": 0,
+      "description": "침의 일반 몬스터 관통 +2. 관통 증강 없이도 적용. 보스 파츠 관통은 별도."
+    },
+    {
+      "id": "scales",
+      "name": "정갈 약저울",
+      "effect": "ShopDiscount",
+      "value": 0.15,
+      "price": 240,
+      "sheet": 5,
+      "cell": 1,
+      "description": "런 상점 아이템 가격 -15% (올림). 실버 해금·출전 아이템·새로고침 비용은 유지."
+    },
+    {
+      "id": "ginseng_jelly",
+      "name": "탱글 홍삼젤리",
+      "effect": "MaxHealthPercent",
+      "value": 0.25,
+      "price": 240,
+      "sheet": 6,
+      "cell": 0,
+      "description": "캐릭터 기본 최대 체력 +25%. 출전 시 증가분도 채워집니다."
+    },
+    {
+      "id": "citrus",
+      "name": "상큼 귤조각",
+      "effect": "MoveSpeedPercent",
+      "value": 0.12,
+      "price": 140,
+      "sheet": 6,
+      "cell": 1,
+      "description": "캐릭터 기본 이동 속도 수치 +12%."
+    },
+    {
+      "id": "walnut",
+      "name": "고소 호두",
+      "effect": "DamageReduction",
+      "value": 0.06,
+      "price": 120,
+      "sheet": 6,
+      "cell": 2,
+      "description": "받는 피해 -6%p. 다른 피해 감소와 합산하며 최대 80%."
+    },
+    {
+      "id": "honey_rice",
+      "name": "달콤 꿀떡",
+      "effect": "Barrier",
+      "value": 15,
+      "price": 180,
+      "sheet": 6,
+      "cell": 3,
+      "description": "피해 흡수 보호막 최대 +15. 출전 시 충전. 8초간 피격하지 않으면 초당 5 재충전."
+    },
+    {
+      "id": "lotus_chips",
+      "name": "바삭 연근칩",
+      "effect": "ProjectileCount",
+      "value": 1,
+      "price": 450,
+      "sheet": 6,
+      "cell": 4,
+      "description": "발사체 수 +1. 발사체 수를 지원하는 공격에 적용."
+    },
+    {
+      "id": "mint_candy",
+      "name": "시원 박하캔디",
+      "effect": "SlowChance",
+      "value": 0.15,
+      "price": 180,
+      "sheet": 6,
+      "cell": 5,
+      "description": "침 적중 시 둔화 확률 +15%p. 3초 동안 40% 감속. 빙결과 별도."
+    },
+    {
+      "id": "omija",
+      "name": "톡톡 오미자",
+      "effect": "CritChance",
+      "value": 0.04,
+      "price": 120,
+      "sheet": 6,
+      "cell": 6,
+      "description": "치명타 확률 +4%p. 최대 100%."
+    },
+    {
+      "id": "ginger_tea",
+      "name": "따끈 생강차",
+      "effect": "DebuffResistance",
+      "value": 0.2,
+      "price": 120,
+      "sheet": 6,
+      "cell": 7,
+      "description": "기절·이동 반전·장판 이탈 후 둔화 지속시간 -20%. 장판 내부와 함정 탈출 조건은 유지."
+    }
+  ]
+}

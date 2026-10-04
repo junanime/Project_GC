@@ -289,6 +289,13 @@ namespace Vampire
                 return null;
             }
 
+            if (monsterBlueprint is SniperMonsterBlueprint)
+            {
+                int snipers=0;
+                foreach (var monster in livingMonsters)
+                    if (monster is SniperMonster && monster.IsMiniStageOwned==allowDuringMiniStage && monster.HP>0 && monster.gameObject.activeInHierarchy) snipers++;
+                if (snipers>=5) return null;
+            }
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
 
             // 중요:
@@ -305,8 +312,12 @@ namespace Vampire
                 monsterBlueprint,
                 hpBuff
             );
+            newMonster.ConfigureGroundShadow(monsterBlueprint);
 
             grid.InsertClient(newMonster);
+
+            if (!allowDuringMiniStage)
+                TutorialGuide.QueueMonster(monsterBlueprint);
 
             return newMonster;
         }

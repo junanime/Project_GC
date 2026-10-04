@@ -15,7 +15,7 @@ namespace Vampire
 
         public void SetTime(float t)
         {
-            System.TimeSpan timeSpan = System.TimeSpan.FromSeconds(t);
+            System.TimeSpan timeSpan = System.TimeSpan.FromSeconds(Mathf.CeilToInt(Mathf.Max(0,t)));
             timerText.text = timeSpan.ToString(@"mm\:ss");
         }
     }

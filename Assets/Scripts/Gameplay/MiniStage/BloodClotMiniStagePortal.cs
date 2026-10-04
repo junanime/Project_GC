@@ -26,7 +26,8 @@ namespace Vampire
         private bool playerInside => playerColliders.Count > 0;
         private bool consumed = false;
         public bool CanInteract => isActiveAndEnabled && !consumed && playerInside &&
-            miniStageDirector != null && miniStageDirector.CanEnterFromPortal;
+            miniStageDirector != null && miniStageDirector.CanEnterFromPortal && !ChallengeInProgress;
+        public bool ChallengeInProgress => GetComponent<BloodClotOvercharge>() is BloodClotOvercharge charge && charge.Started && !charge.Enhanced;
 
         private void RefreshGuide()
         {

@@ -177,7 +177,7 @@ namespace Vampire
             public float puddleLifeTime = 6f;
 
             [Tooltip("위산 바닥이 틱마다 주는 데미지입니다.")]
-            public float puddleDamagePerTick = 3f;
+            public float puddleDamagePerTick = 4.5f;
 
             [Tooltip("위산 바닥 데미지 틱 간격입니다.")]
             public float puddleTickInterval = 0.5f;
@@ -493,6 +493,7 @@ namespace Vampire
                 surgeEvent.spawnAccumulator = 0f;
 
                 ShowEventStartedUI(surgeEvent.eventName);
+                TutorialGuide.QueueStageEvent("monster-surge");
 
                 
 
@@ -566,6 +567,7 @@ namespace Vampire
                 goldRushEvent.started = true;
 
                 ShowEventStartedUI(goldRushEvent.eventName);
+                TutorialGuide.QueueStageEvent("gold-rush");
 
                 
                 if (logEventState)
@@ -619,6 +621,7 @@ namespace Vampire
                 PlayAcidRainVFX();
 
                 ShowEventStartedUI(acidEvent.eventName);
+                TutorialGuide.QueueStageEvent("acid-secretion");
 
                
 

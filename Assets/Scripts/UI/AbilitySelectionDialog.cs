@@ -104,6 +104,15 @@ namespace Vampire
             get => menuOpen;
         }
 
+        CanvasGroup runBookCover;
+        public void SetCoveredByRunBook(bool covered)
+        {
+            if(runBookCover==null)runBookCover=GetComponent<CanvasGroup>();
+            if(runBookCover==null)runBookCover=gameObject.AddComponent<CanvasGroup>();
+            runBookCover.alpha=covered?0f:1f;
+            runBookCover.interactable=runBookCover.blocksRaycasts=!covered;
+        }
+
         public void Init(AbilityManager abilityManager, EntityManager entityManager, Character playerCharacter)
         {
             this.abilityManager = abilityManager;

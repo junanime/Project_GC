@@ -45,6 +45,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8570104ce0a1428ba9d594c319d56f3d, type: 3}
   - {fileID: 21300000, guid: d70e8831a3c642349046c441ad5a7fbf, type: 3}
   walkFrameTime: 0.15
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.16}
+  groundShadowSizeUV: {x: 0.56, y: 0.15}
+  preserveGroundShadowHeight: 0
   description: "\uC601\uC591\uC81C?"
   resultSprite: {fileID: 0}
   meleeLayer:

@@ -9,7 +9,7 @@ namespace Vampire
         [SerializeField] private float lifeTime = 6f;
 
         [Tooltip("위산 장판이 한 번 틱 데미지를 줄 때의 피해량입니다.")]
-        [SerializeField] private float damagePerTick = 3f;
+        [SerializeField] private float damagePerTick = 4.5f;
 
         [Tooltip("위산 장판 데미지가 반복되는 간격입니다.")]
         [SerializeField] private float tickInterval = 0.5f;

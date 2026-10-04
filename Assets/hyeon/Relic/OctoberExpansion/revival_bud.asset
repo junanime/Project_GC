@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: revival_bud
+  m_EditorClassIdentifier: 
+  relicId: revival_bud
+  relicName: "\uB2E4\uC2DC \uAF43\uBD09\uC624\uB9AC"
+  price: 600
+  icon: {fileID: -5913153302964189299, guid: 1fe1810a208b04e48a4a8e906f346b8e, type: 3}
+  effectType: 21
+  effectValue: 1
+  effectDescription: "\uD55C \uD310\uC5D0 \uD55C \uBC88 \uC4F0\uB7EC\uC9C8 \uB54C
+    \uCD5C\uB300 \uCCB4\uB825 50%\uB85C \uBD80\uD65C. \uC52C \uC774\uB3D9\uC73C\uB85C
+    \uC7AC\uCDA9\uC804\uB418\uC9C0 \uC54A\uC74C."

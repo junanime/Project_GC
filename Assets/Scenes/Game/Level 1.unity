@@ -23162,7 +23162,7 @@ MonoBehaviour:
       minSpawnDistanceFromPlayer: 1.5
       maxSpawnDistanceFromPlayer: 6
       puddleLifeTime: 5
-      puddleDamagePerTick: 3
+    puddleDamagePerTick: 4.5
       puddleTickInterval: 0.5
       puddleScale: 1.5
       puddleWarningDuration: 0.2
@@ -23281,7 +23281,7 @@ MonoBehaviour:
     minDistanceBetweenBubbles: 2.5
     bubbleColor: {r: 1, g: 1, b: 1, a: 0.65}
     outsideDamageTickInterval: 0.5
-    outsideDamagePerTick: 2
+  outsideDamagePerTick: 3
     damageImmediatelyWhenOutside: 0
     debugLog: 0
   useWindowSchedule: 1

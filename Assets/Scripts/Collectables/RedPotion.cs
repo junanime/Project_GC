@@ -37,7 +37,7 @@ namespace Vampire
             {
                 t += Time.deltaTime;
 
-                playerCharacter.GainHealth(
+                playerCharacter.GainPickupHealth(
                     Time.deltaTime * healAmount / healTime
                 );
 

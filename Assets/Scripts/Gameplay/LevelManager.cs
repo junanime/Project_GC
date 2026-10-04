@@ -48,6 +48,7 @@ namespace Vampire
             this.levelBlueprint = levelBlueprint;
 
             levelTime = 0f;
+            if(gameTimer!=null)gameTimer.SetTime(LevelDuration);
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
             fieldSpawns = FindObjectOfType<TimedSpecialMonsterSpawner>();
@@ -94,6 +95,9 @@ namespace Vampire
             entityManager.SpawnChest(levelBlueprint.chestBlueprint);
             infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
             inventory.Init();
+            var tutorial = GetComponent<TutorialGuide>();
+            if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
+            tutorial.Initialize(this);
         }
 
         private void Start()
@@ -117,7 +121,7 @@ namespace Vampire
 
             if (gameTimer != null)
             {
-                gameTimer.SetTime(levelTime);
+                gameTimer.SetTime(Mathf.Max(0f,LevelDuration-levelTime));
             }
 
             HandleNormalMonsterSpawn();

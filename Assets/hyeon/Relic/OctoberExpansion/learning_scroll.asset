@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: learning_scroll
+  m_EditorClassIdentifier: 
+  relicId: learning_scroll
+  relicName: "\uBC30\uC6C0 \uB450\uB8E8\uB9C8\uB9AC"
+  price: 220
+  icon: {fileID: 6787204916305295034, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
+  effectType: 10
+  effectValue: 0.1
+  effectDescription: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9 +10%."
