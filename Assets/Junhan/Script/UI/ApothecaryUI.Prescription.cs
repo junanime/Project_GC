@@ -8,6 +8,7 @@ namespace Vampire
     public sealed partial class ApothecaryUI
     {
         bool prescriptionExpanded;
+        float prescriptionCloseAt;
         RectTransform prescriptionHud;
         PrescriptionScrollView prescriptionScroll;
         readonly Vector3[] prescriptionSafeCorners=new Vector3[4];
@@ -22,7 +23,7 @@ namespace Vampire
             prescriptionHud=Rect("Prescription HUD",content,0,0,1,1);
             prescriptionScroll=AugmentPanelTheme.Rect("Vision scroll dock",prescriptionHud).gameObject.AddComponent<PrescriptionScrollView>();
             prescriptionScroll.Build(runtimeFont!=null?runtimeFont:Config.font,()=>{
-                prescriptionExpanded=!prescriptionExpanded;prescriptionScroll.SetExpanded(prescriptionExpanded);
+                prescriptionExpanded=!prescriptionExpanded;prescriptionCloseAt=Time.unscaledTime+4f;prescriptionScroll.SetExpanded(prescriptionExpanded);
             },()=>Prescription?.TryClaim(FindObjectOfType<EntityManager>()?.AbilitySelectionDialog),prescriptionExpanded);
             prescriptionTitle=prescriptionScroll.Title;
             for(int i=0;i<3;i++)prescriptionRows[i]=prescriptionScroll.Rows[i];
@@ -39,6 +40,8 @@ namespace Vampire
         {
             if(Page=="hud")
             {
+                if(prescriptionExpanded && Time.unscaledTime>=prescriptionCloseAt)
+                {prescriptionExpanded=false;if(prescriptionScroll!=null)prescriptionScroll.SetExpanded(false);}
                 bool rewardOpen=level!=null && level.EntityManager!=null && level.EntityManager.AbilitySelectionDialog.MenuOpen;
                 if(content!=null)content.gameObject.SetActive(!rewardOpen);
                 if(prescriptionHud!=null)prescriptionHud.gameObject.SetActive(!rewardOpen);

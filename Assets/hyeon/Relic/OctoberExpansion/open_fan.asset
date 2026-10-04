@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: open_fan
+  m_EditorClassIdentifier: 
+  relicId: open_fan
+  relicName: "\uD65C\uC9DD \uBD80\uCC44"
+  price: 220
+  icon: {fileID: -4105767664284590755, guid: ef84c63aa89f28042af2806c2001fa95, type: 3}
+  effectType: 15
+  effectValue: 0.15
+  effectDescription: "\uACF5\uACA9 \uBC94\uC704\xB7\uCE68 \uD06C\uAE30 +15%. \uCE68\uC758
+    \uD3ED\uBC1C\xB7\uC704\uC0B0 \uC7A5\uD310 \uBC18\uACBD\uC5D0\uB3C4 \uC801\uC6A9."

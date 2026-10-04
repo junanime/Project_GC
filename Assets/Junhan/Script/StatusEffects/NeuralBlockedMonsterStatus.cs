@@ -104,7 +104,9 @@ namespace Vampire
 
         private void DisableMonsterMovementComponent()
         {
-            if (monster == null)
+            // Traps are stationary. Disabling them invokes OnDisable and releases
+            // their captive while leaving the vine visual in its active state.
+            if (monster == null || monster is TrapMonster)
             {
                 return;
             }

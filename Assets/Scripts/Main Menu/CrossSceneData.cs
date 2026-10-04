@@ -31,6 +31,7 @@ namespace Vampire
 
         public int SkillPassiveLevel = 1, SkillActiveLevel = 1;
         public PrescriptionState Prescription;
+        public RelicRunState Relic;
         public float SkillPassiveRemaining, SkillActiveRemaining, SkillCooldownRemaining;
         public float SkillSleepSeconds, SkillSummonRemaining;
         public int SkillConsumedSleepStacks;

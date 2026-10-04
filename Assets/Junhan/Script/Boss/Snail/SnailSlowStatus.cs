@@ -14,7 +14,7 @@ namespace Vampire
         public void Exit(int id,float tail)
         {
             if(!sources.TryGetValue(id,out var e))return;
-            if(tail<=0)sources.Remove(id); else {e.inside=false;e.until=Time.time+tail;sources[id]=e;}
+            if(tail<=0)sources.Remove(id); else {e.inside=false;e.until=Time.time+(player != null ? player.DebuffDuration(tail) : tail);sources[id]=e;}
             Recompute();
         }
         void Update()

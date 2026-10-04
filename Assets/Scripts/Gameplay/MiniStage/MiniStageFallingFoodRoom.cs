@@ -70,10 +70,10 @@ namespace Vampire
 
         [Header("Spawn Timing")]
         [Tooltip("낙석 웨이브 사이의 최소 간격입니다.")]
-        [SerializeField] private float waveIntervalMin = 0.65f;
+        [SerializeField] private float waveIntervalMin = 0.45f;
 
         [Tooltip("낙석 웨이브 사이의 최대 간격입니다.")]
-        [SerializeField] private float waveIntervalMax = 1.15f;
+        [SerializeField] private float waveIntervalMax = 0.8f;
 
         [Tooltip("한 웨이브 안에서 낙석들이 완전히 동시에 떨어지지 않도록 주는 최소 지연 시간입니다.")]
         [SerializeField] private float delayBetweenStrikesMin = 0f;
@@ -90,10 +90,10 @@ namespace Vampire
 
         [Header("Warning And Hit")]
         [Tooltip("경고 원이 뜬 뒤 낙석이 떨어지기까지의 최소 시간입니다.")]
-        [SerializeField] private float warningTimeMin = 0.85f;
+        [SerializeField] private float warningTimeMin = 0.65f;
 
         [Tooltip("경고 원이 뜬 뒤 낙석이 떨어지기까지의 최대 시간입니다.")]
-        [SerializeField] private float warningTimeMax = 1.25f;
+        [SerializeField] private float warningTimeMax = 0.9f;
 
         [Tooltip("음식물 종류가 비어 있을 때 사용할 기본 피격 판정 반지름의 최소값입니다.")]
         [SerializeField] private float fallbackDamageRadiusMin = 0.8f;

@@ -405,7 +405,7 @@ namespace Vampire
             var player=FindObjectOfType<Character>();
             if(currentInteractingNPC==null||itemToBuy==null||player==null)return;
             if(itemToBuy.octoberId>0&&OctoberItemRuntime.Get(player).Has(itemToBuy.octoberId))return;
-            if (ProcessPayment(itemToBuy.cost))
+            if (ProcessPayment(RelicRuntime.Price(player,itemToBuy.cost)))
             {
                 ShopStatApplier statApplier = FindObjectOfType<ShopStatApplier>();
 

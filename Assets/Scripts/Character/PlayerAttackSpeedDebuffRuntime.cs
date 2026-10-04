@@ -82,7 +82,7 @@ namespace Vampire
             // Repeated hits refresh the timer and never toggle the direction back accidentally.
             character.SetMovementControlsReversed(true);
 
-            remainingTime = Mathf.Max(0.1f, duration);
+            remainingTime = Mathf.Max(0.1f, character.DebuffDuration(duration));
             active = true;
 
             EnsureArrowVisuals();

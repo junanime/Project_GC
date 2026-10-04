@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 652861d122f24d741823f114aa23b102, type: 3}
   m_Name: Elite Dubai Cookie
   m_EditorClassIdentifier:
-  name: "\ub450\ubc14\uc774 \ucab8\ub4dd \ucfe0\ud0a4"
+  name: "\uB450\uBC14\uC774 \uCAB8\uB4DD \uCFE0\uD0A4"
   hp: 50
   atk: 2
   recovery: 0
@@ -32,7 +32,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: bd48e794afb84e9ebd99c830b7bfe803, type: 3}
   - {fileID: 21300000, guid: fec723044e724120bc8bad4c5d31d9a3, type: 3}
   walkFrameTime: 0.1
-  description: "\ud480\uca4d\ud480\uca4d \ub6f0\uc5b4\uc624\ub294 \ub450\ubc14\uc774 \ucab8\ub4dd \ucfe0\ud0a4 \uc5d8\ub9ac\ud2b8"
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.065}
+  groundShadowSizeUV: {x: 0.75, y: 0.13}
+  preserveGroundShadowHeight: 0
+  description: "\uD480\uCA4D\uD480\uCA4D \uB6F0\uC5B4\uC624\uB294 \uB450\uBC14\uC774
+    \uCAB8\uB4DD \uCFE0\uD0A4 \uC5D8\uB9AC\uD2B8"
   resultSprite: {fileID: 21300000, guid: 5581e33708034da59b7c79489a1b999c, type: 3}
   meleeLayer:
     serializedVersion: 2

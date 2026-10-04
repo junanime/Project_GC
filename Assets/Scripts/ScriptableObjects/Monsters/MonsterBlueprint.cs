@@ -22,6 +22,15 @@ namespace Vampire
         public Sprite[] walkSpriteSequence;
         public float walkFrameTime;
 
+        [Header("Ground shadow / 바닥 그림자")]
+        public bool useGroundShadowFootprint;
+        [Tooltip("스프라이트 사각형 기준 착지 중심. 왼쪽 아래가 (0, 0)입니다.")]
+        public Vector2 groundShadowCenterUV = new Vector2(.5f, .05f);
+        [Tooltip("투명 여백/날개가 아닌 실제 몸통의 바닥 그림자 폭과 두께입니다.")]
+        public Vector2 groundShadowSizeUV = new Vector2(.7f, .14f);
+        [Tooltip("공중 몬스터의 기존 바닥 높이를 유지하고 가로 중심과 크기만 보정합니다.")]
+        public bool preserveGroundShadowHeight;
+
         // =========================================================
         // Result Screen
         // =========================================================

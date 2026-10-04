@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: needle_case
+  m_EditorClassIdentifier: 
+  relicId: needle_case
+  relicName: "\uBC18\uC9DD \uCE68\uD1B5"
+  price: 450
+  icon: {fileID: 32993379364343808, guid: a837251d950fc654d83c90a10c43a4e3, type: 3}
+  effectType: 13
+  effectValue: 2
+  effectDescription: "\uCE68\uC758 \uC77C\uBC18 \uBAAC\uC2A4\uD130 \uAD00\uD1B5 +2.
+    \uAD00\uD1B5 \uC99D\uAC15 \uC5C6\uC774\uB3C4 \uC801\uC6A9. \uBCF4\uC2A4 \uD30C\uCE20
+    \uAD00\uD1B5\uC740 \uBCC4\uB3C4."

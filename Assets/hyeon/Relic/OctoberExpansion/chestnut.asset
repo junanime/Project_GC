@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: chestnut
+  m_EditorClassIdentifier: 
+  relicId: chestnut
+  relicName: "\uB530\uB054 \uBC24\uC1A1\uC774"
+  price: 220
+  icon: {fileID: 2513365136883484307, guid: 1fe1810a208b04e48a4a8e906f346b8e, type: 3}
+  effectType: 22
+  effectValue: 0.5
+  effectDescription: "\uC2E4\uC81C \uC783\uC740 \uCCB4\uB825\uC758 50%\uB97C \uBC18\uACBD
+    2.5 \uC548\uC758 \uC801\uC5D0\uAC8C \uBC18\uC0AC. 0.5\uCD08 \uAC04\uACA9\xB71\uD68C
+    \uCD5C\uB300 50."

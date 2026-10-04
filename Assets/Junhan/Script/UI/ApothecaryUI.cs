@@ -132,6 +132,7 @@ namespace Vampire
                 if (frames != null && frames.Length > 0)
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
+            if (TutorialGuide.BlocksMenuInput) return;
             if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
             {
                 if (Page == "hud") OpenRunBook();
@@ -365,11 +366,14 @@ namespace Vampire
         }
         public void OpenRunBook()
         {
-            if(level==null || level.IsLevelEnded || Time.timeScale==0 || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
+            if(level==null || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            if(reward!=null && reward.MenuOpen)reward.SetCoveredByRunBook(true);
             previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("run");
         }
         public void CloseRunBook()
         {
+            level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
             ownsPause=false;Show("hud");
         }
@@ -455,12 +459,7 @@ namespace Vampire
         void Start() {if(prepareOnReturn&&Page=="main"){prepareOnReturn=false;Show("prepare");}}
         public static string RelicDescription(RelicBlueprint r)
         {
-            switch(r.effectType)
-            {
-                case RelicBlueprint.RelicEffectType.MaxHealth:return $"최대 체력 +{r.effectValue:0}";
-                case RelicBlueprint.RelicEffectType.MoveSpeed:return $"이동 속도 +{r.effectValue:0.##}";
-                default:return $"치명타 확률 +{r.effectValue*100:0.#}%";
-            }
+            return r != null ? r.Description : "";
         }
         static RectTransform Rect(string name,Transform parent,float x,float y,float right,float top)
         {

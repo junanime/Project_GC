@@ -86,7 +86,7 @@ namespace Vampire
         [SerializeField] private float outsideDamageTickInterval = 0.5f;
 
         [Tooltip("거품 밖에 있을 때 틱마다 받는 피해량입니다.")]
-        [SerializeField] private float outsideDamagePerTick = 2f;
+        [SerializeField] private float outsideDamagePerTick = 3f;
 
         [Tooltip("체크하면 이벤트 시작 직후 거품 밖에 있을 때 바로 첫 피해를 받을 수 있습니다.")]
         [SerializeField] private bool damageImmediatelyWhenOutside = false;
@@ -182,6 +182,7 @@ namespace Vampire
                 : 0f;
 
             ShowToast($"{eventName} 이벤트가 시작됐습니다!");
+            TutorialGuide.QueueStageEvent("antacid-bubble");
             GameAudioManager.PlaySfx(
     GameAudioManager.GameSfxId.FieldEventStart
 );

@@ -86,14 +86,14 @@ MonoBehaviour:
     rotationMax: 0
   roomDuration: 30
   startDelay: 0.5
-  waveIntervalMin: 0.65
-  waveIntervalMax: 1.15
+  waveIntervalMin: 0.45
+  waveIntervalMax: 0.8
   delayBetweenStrikesMin: 0
   delayBetweenStrikesMax: 0.12
   strikesPerWaveMin: 3
   strikesPerWaveMax: 6
-  warningTimeMin: 0.85
-  warningTimeMax: 1.25
+  warningTimeMin: 0.65
+  warningTimeMax: 0.9
   fallbackDamageRadiusMin: 0.8
   fallbackDamageRadiusMax: 1.3
   damage: 8

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b9b248a2b2b8434f8b8973d2abc0211, type: 3}
+  m_Name: bell
+  m_EditorClassIdentifier: 
+  relicId: bell
+  relicName: "\uCF69\uCF69 \uBC29\uC6B8"
+  price: 140
+  icon: {fileID: 1210468120907054213, guid: ef84c63aa89f28042af2806c2001fa95, type: 3}
+  effectType: 17
+  effectValue: 0.25
+  effectDescription: "\uCE68\uC758 \uC801 \uBC00\uCE58\uAE30 +25%. \uBCF4\uC2A4\uC758
+    \uBC00\uCE58\uAE30 \uBA74\uC5ED\uC740 \uC720\uC9C0."

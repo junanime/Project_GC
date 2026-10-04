@@ -64,7 +64,7 @@ namespace Vampire
                     var oldest=burns[0];oldest.stacks--;burnStacks--;
                     if(oldest.stacks==0) burns.RemoveAt(0); else burns[0]=oldest;
                 }
-                float damage=Ver4HitEffects.MaxHealth(target)*.005f*s.Factor(P.FireNeedle,0,.12f);
+                float damage=Ver4HitEffects.MaxHealth(target)*.008f*s.Factor(P.FireNeedle,0,.12f);
                 if(Ver4HitEffects.IsBoss(target)) damage=Mathf.Min(damage,runtime.ver4HitDamage*.25f);
                 var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,stacks=1};
                 int last=burns.Count-1;

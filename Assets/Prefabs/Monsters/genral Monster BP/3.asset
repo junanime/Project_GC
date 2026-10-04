@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1ae058c390b426495056b39e15d543, type: 3}
   m_Name: 3
   m_EditorClassIdentifier: 
-  name: "\ub0a0\uc544\ub2e4\ub2c8\ub294 \ub3c4\ub11b"
+  name: "\uB0A0\uC544\uB2E4\uB2C8\uB294 \uB3C4\uB11B"
   hp: 120
   atk: 9
   recovery: 0
@@ -47,7 +47,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 32ef559e2970414f91c599b9a5f0b5e5, type: 3}
   - {fileID: 21300000, guid: 29c4b7ae852a49df81f2fabf07e71ee6, type: 3}
   walkFrameTime: 0.1
-  description: "\ub0a0\uac2f\uc9d3\ud558\uba70 \uc811\uadfc\ud558\ub294 \ub3c4\ub11b \ubaac\uc2a4\ud130"
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.035}
+  groundShadowSizeUV: {x: 0.43, y: 0.11}
+  preserveGroundShadowHeight: 1
+  description: "\uB0A0\uAC2F\uC9D3\uD558\uBA70 \uC811\uADFC\uD558\uB294 \uB3C4\uB11B
+    \uBAAC\uC2A4\uD130"
   resultSprite: {fileID: 21300000, guid: a5d01750c29847ecb4583c6941695cbb, type: 3}
   meleeLayer:
     serializedVersion: 2
