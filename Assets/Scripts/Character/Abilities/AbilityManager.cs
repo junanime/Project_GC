@@ -130,6 +130,8 @@ namespace Vampire
             if (ability==null || ability.Owned || !ability.RequirementsMet() || !newAbilities.Remove(ability)) return false;
             ability.Select();
             ownedAbilities.Add(ability);
+            // Starting loadouts acquire outside the offer menu; publish their combat state immediately.
+            if (Ver4 != null) Ver4.RefreshProgress();
             return true;
         }
 

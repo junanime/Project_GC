@@ -23,5 +23,6 @@ MonoBehaviour:
   fastBomberEvery: 4
   fastBomberSpeed: 1.2
   sniperTeleportDelay: 0.2
+  sniperTeleportCooldown: 6
   sniperSafeDistance: 3
   levelUpChest: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}

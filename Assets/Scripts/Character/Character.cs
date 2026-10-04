@@ -248,6 +248,9 @@ namespace Vampire
         public float ProjectileSizeMultiplier => projectileSizeMultiplier;
         public float RangeMultiplier => rangeMultiplier;
         public int CurrentDashCharges => currentDashCharges;
+        private float dashRechargeElapsed;
+        public float DashRechargeProgress => currentDashCharges >= maxDashCharges ? 1f :
+            Mathf.Clamp01(dashRechargeElapsed / Mathf.Max(.01f, EffectiveDashRechargeTime));
         public int MaxDashCharges => maxDashCharges;
         public bool IsDashing => isDashing;
         public float AntibioticBombChance => antibioticBombChance;
@@ -366,6 +369,7 @@ namespace Vampire
             MobileGameplayControls.Ensure(this);
             if (Skills == null) { Skills=gameObject.AddComponent<CharacterSkillRuntime>(); Skills.Initialize(this); }
             if (GetComponent<PrescriptionRuntime>() == null) gameObject.AddComponent<PrescriptionRuntime>().Initialize(this);
+            if (GetComponent<PlayerCombatBars>() == null) gameObject.AddComponent<PlayerCombatBars>().Bind(this,healthBar);
         }
 
         protected virtual void Update()
@@ -396,6 +400,11 @@ namespace Vampire
 
         protected virtual void FixedUpdate()
         {
+            if (IsTrapBound)
+            {
+                if (rb != null) rb.velocity = Vector2.zero;
+                return;
+            }
             if (isDashing)
             {
                 return;
@@ -813,6 +822,7 @@ namespace Vampire
 
         private void StopDashRecharge()
         {
+            dashRechargeElapsed = 0f;
             if (dashRechargeCoroutine != null)
             {
                 StopCoroutine(dashRechargeCoroutine);
@@ -833,7 +843,12 @@ namespace Vampire
         {
             while (currentDashCharges < maxDashCharges)
             {
-                yield return new WaitForSeconds(EffectiveDashRechargeTime);
+                dashRechargeElapsed = 0f;
+                while (dashRechargeElapsed < EffectiveDashRechargeTime && alive)
+                {
+                    yield return null;
+                    dashRechargeElapsed += Time.deltaTime;
+                }
 
                 if (!alive)
                 {
@@ -842,6 +857,7 @@ namespace Vampire
                 }
 
                 currentDashCharges = Mathf.Min(currentDashCharges + 1, maxDashCharges);
+                dashRechargeElapsed = 0f;
 
                 if (debugDashLog)
                 {

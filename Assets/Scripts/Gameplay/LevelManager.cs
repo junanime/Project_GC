@@ -48,6 +48,7 @@ namespace Vampire
             this.levelBlueprint = levelBlueprint;
 
             levelTime = 0f;
+            if(gameTimer!=null)gameTimer.SetTime(LevelDuration);
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
             fieldSpawns = FindObjectOfType<TimedSpecialMonsterSpawner>();
@@ -117,7 +118,7 @@ namespace Vampire
 
             if (gameTimer != null)
             {
-                gameTimer.SetTime(levelTime);
+                gameTimer.SetTime(Mathf.Max(0f,LevelDuration-levelTime));
             }
 
             HandleNormalMonsterSpawn();

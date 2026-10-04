@@ -172,7 +172,7 @@ namespace Vampire
 
         public void EnterMiniStageFromPortal(BloodClotMiniStagePortal portal)
         {
-            if (!CanEnterFromPortal)
+            if (!CanEnterFromPortal || (portal != null && portal.ChallengeInProgress))
             {
                 return;
             }

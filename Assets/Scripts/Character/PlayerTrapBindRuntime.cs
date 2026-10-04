@@ -128,6 +128,11 @@ namespace Vampire
             visualElapsed += Time.deltaTime;
         }
 
+        private void FixedUpdate()
+        {
+            if (isBound) ForceLockNow();
+        }
+
         private void ApplyCapturedVisual()
         {
             if (ownerCharacter != null) ownerCharacter.LookDirection = lockedLook;

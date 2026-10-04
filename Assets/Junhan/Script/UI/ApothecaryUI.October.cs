@@ -101,6 +101,25 @@ namespace Vampire
                 bool unlocked=owned(index);if(!unlocked){a.color=new Color(0,0,0,.65f);DrawLock(v,.38f,.35f,.62f,.65f);}
                 Label(v,unlocked?name(index):"잠김",.03f,.01f,.97f,.22f,15);
                 if(selection==index){var edge=ImageAt(v,null,.04f,.0f,.96f,.025f,false);edge.color=new Color(.12f,.85f,.56f);}
+                if(Tab==1 && index>0 && unlocked)
+                {
+                    var weapon=weapons[index-1];bool enabled=StartingNeedleSelection.Enabled(weapon);
+                    if(!enabled)a.color=new Color(.45f,.45f,.45f,.6f);
+                    var check=ActionButton(b.transform,"",.025f,.70f,.27f,.96f,()=>{
+                        if(!StartingNeedleSelection.SetEnabled(weapon,!StartingNeedleSelection.Enabled(weapon),Config))
+                            message="증강 후보는 최소 1종을 활성화해야 합니다.";
+                        Render();
+                    },enabled);
+                    check.name="Weapon pool toggle "+weapon.Type;
+                    if(enabled)
+                    {
+                        // Geometry avoids a missing checkmark glyph in the Korean display font.
+                        var shortStroke=ImageAt(check.transform,null,.21f,.34f,.48f,.47f,false);
+                        shortStroke.rectTransform.localRotation=Quaternion.Euler(0,0,-42);
+                        var longStroke=ImageAt(check.transform,null,.37f,.43f,.81f,.56f,false);
+                        longStroke.rectTransform.localRotation=Quaternion.Euler(0,0,42);
+                    }
+                }
             }
             if(pages>1)
             {
@@ -127,6 +146,7 @@ namespace Vampire
             {
                 var w=selection==0?null:weapons[selection-1];detail=w!=null?w.Description:"기본 침으로 시작합니다. 전투에서 원하는 침을 획득하세요.";
                 int cost=StartingNeedleSelection.Price(w);need=$"{cost} 실버로 해금";action=has?"무기 장착":$"해금 · {cost}";can=has||SilverWallet.CanSpend(cost);
+                if(has && w!=null && !StartingNeedleSelection.Enabled(w)){action="후보 비활성화";can=false;detail+="\n체크를 켜면 장착·전투 중 증강 후보에 포함됩니다.";}
                 accept=()=>{if(!has&&SilverWallet.TrySpend(cost))LobbyUnlockSave.Unlock("Needle",w.Type.ToString());if(w==null||StartingNeedleSelection.Owned(w))StartingNeedleSelection.Set(w,character);Render();};
             }
             else if(Tab==2)
@@ -148,7 +168,7 @@ namespace Vampire
             // Keep the main-menu button's 3.49:1 footprint at the smaller size.
             var choose=ActionButton(content,action,.718f,.248f,.865f,.323f,()=>accept?.Invoke(),true,can);
             choose.name="Selection action";
-            Label(content,!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"캐릭터별 장착 유지":Tab==3?"아이템은 최대 2개":"선택한 유물로 출전",.718f,.178f,.865f,.239f,13);
+            Label(content,!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"체크한 침만 전투 중 등장":Tab==3?"아이템은 최대 2개":"선택한 유물로 출전",.718f,.178f,.865f,.239f,13);
 
         }
         void OctoberDetails(string title,string description)

@@ -13,6 +13,7 @@ namespace Vampire
         public Sprite[] ariPhoenixIdle, ariPhoenixWalk, ariPhoenixDash, ariPhoenixTransform;
         [Min(.05f)] public float ariTransformTime=.56f;
         [Header("Shini active balance")]
+        [Min(0)] public float shiniEruptionDamage = 35f;
         [Min(1)] public float shiniActiveMoveMultiplier = 1.3f;
         [Min(.1f)] public float shiniActivePoolInterval = 1f;
         public SkillKind kind;

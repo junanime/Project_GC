@@ -365,11 +365,14 @@ namespace Vampire
         }
         public void OpenRunBook()
         {
-            if(level==null || level.IsLevelEnded || Time.timeScale==0 || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
+            if(level==null || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            if(reward!=null && reward.MenuOpen)reward.SetCoveredByRunBook(true);
             previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("run");
         }
         public void CloseRunBook()
         {
+            level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
             ownsPause=false;Show("hud");
         }

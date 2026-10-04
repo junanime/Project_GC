@@ -52,6 +52,8 @@ namespace Vampire
 
 
         private Vector3 originalLocalScale = Vector3.one;
+        private Vector3 originalShadowPosition, originalShadowScale;
+        private bool adjustedSharkShadow;
 
         public bool IsMiniStageOwned => miniStageOwned;
         public bool IsFieldRuntimeSuspended => fieldRuntimeSuspended;
@@ -92,6 +94,7 @@ namespace Vampire
         protected virtual void Awake()
         {
             originalLocalScale = transform.localScale;
+            if(shadow!=null){originalShadowPosition=shadow.transform.localPosition;originalShadowScale=shadow.transform.localScale;}
 
             rb = GetComponent<Rigidbody2D>();
             monsterLegsCollider = GetComponent<CircleCollider2D>();
@@ -377,6 +380,24 @@ namespace Vampire
                      walkSpriteSequence.Length > 0)
             {
                 monsterSpriteRenderer.sprite = walkSpriteSequence[0];
+            }
+
+            if(adjustedSharkShadow && shadow!=null)
+            {shadow.transform.localPosition=originalShadowPosition;shadow.transform.localScale=originalShadowScale;adjustedSharkShadow=false;}
+            if(shadow!=null && monsterSpriteRenderer!=null && walkSpriteSequence!=null && walkSpriteSequence.Length>0 &&
+               walkSpriteSequence[0]!=null && walkSpriteSequence[0].name.StartsWith("SharkIcecream", System.StringComparison.Ordinal))
+            {
+                // This art is foot-pivoted: anchor the shadow to its feet, not the old placeholder centre.
+                var bounds=walkSpriteSequence[0].bounds;
+                adjustedSharkShadow=true;
+                shadow.transform.position=monsterSpriteRenderer.transform.TransformPoint(new Vector3(bounds.center.x,bounds.min.y+bounds.size.y*.06f,0));
+                var shadowRenderer=shadow.GetComponent<SpriteRenderer>();
+                if(shadowRenderer!=null && shadowRenderer.sprite!=null)
+                {
+                    var size=shadowRenderer.sprite.bounds.size;var parentScale=shadow.transform.parent.lossyScale;
+                    shadow.transform.localScale=new Vector3(monsterSpriteRenderer.bounds.size.x*.7f/Mathf.Max(.001f,size.x*Mathf.Abs(parentScale.x)),
+                        monsterSpriteRenderer.bounds.size.y*.13f/Mathf.Max(.001f,size.y*Mathf.Abs(parentScale.y)),1);
+                }
             }
 
             if (monsterHitbox != null && monsterSpriteRenderer != null)
