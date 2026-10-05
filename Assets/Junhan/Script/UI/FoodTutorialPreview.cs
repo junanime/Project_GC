@@ -43,7 +43,7 @@ namespace Vampire
             float t=Mathf.Repeat(Time.unscaledTime-start,3.5f);
             if(mode.StartsWith("item_")){ItemDemo(t);return;}
             if(mode=="toad"){ToadDemo();return;}
-            caption.text=mode=="runner"?(t>1.3f?"눈치채면 빠르게 도망!":"조심스럽게 접근"):(t<1?"볼 팽창 · 경로 경고":"옆으로 피해 산성액 회피");
+            caption.text=mode=="runner"?(t>1.3f?"눈치채면 빠르게 도망!":"조심스럽게 접근"):(t<1?"볼 팽창 · 경로 경고":"옆으로 피해 탄산액 회피");
             if(mode=="wave")
             {
                 bool fire=t>=1&&t<3;actor.sprite=AcidToadArt.Frame("ToadHead",t<1?Mathf.Min(7,(int)(t*8)):t<3?8+Mathf.Min(7,(int)((t-1)*4)):15);
@@ -69,7 +69,7 @@ namespace Vampire
             actor.sprite=AcidToadArt.Frame("ToadAttack",t<1?Mathf.Min(7,(int)(t*8)):8+Mathf.Min(7,(int)((t-1)*4)));
             if(stage==0)
             {
-                caption.text="기본 공격 · 산성 구체 3발";
+                caption.text="기본 공격 · 탄산 구체 3발";
                 for(int i=0;i<3;i++){var e=extras[i];e.gameObject.SetActive(t>=1&&t<3);e.sprite=AcidToadArt.Frame("AcidFx",4+(int)(t*10)%4);e.preserveAspect=true;float f=Mathf.Clamp01((t-1)/2);Place(e,.32f+f*.65f,.45f+(i-1)*f*.24f,.075f,.12f);}
                 Place(player,.73f,Mathf.Lerp(.4f,.7f,Mathf.Clamp01((t-.3f)/.5f)),.13f,.2f);
             }
@@ -84,7 +84,7 @@ namespace Vampire
             }
             else
             {
-                caption.text=t<1?"산성액 발사 · 옆으로 피하기":"발사 중 볼이 서서히 수축";
+                caption.text=t<1?"탄산액 발사 · 옆으로 피하기":"발사 중 볼이 서서히 수축";
                 warning.sprite=null;warning.color=new Color(1,.45f,.05f,.4f);warning.gameObject.SetActive(t<1);Place(warning,.31f,.42f,.68f,.12f);
                 stream.gameObject.SetActive(t>=1&&t<3);stream.sprite=AcidToadArt.Frame("AcidFx",(int)(t*12)%4);Place(stream,.3f,.41f,.69f*Mathf.Clamp01((t-1)/.3f),.15f);
                 Place(player,.73f,Mathf.Lerp(.4f,.72f,Mathf.Clamp01(t/.7f)),.13f,.2f);

@@ -7,7 +7,7 @@ namespace Vampire
     {
         public static IEnumerator Emit(Transform owner,Rect screen,bool left,float warning,float duration,float width,float damage,float cooldown,Character player)
         {
-            var root=new GameObject("위산 두꺼비 · 화면 가장자리 얼굴");root.transform.SetParent(owner,false);
+            var root=new GameObject("환타 두꺼비 · 화면 가장자리 얼굴");root.transform.SetParent(owner,false);
             float y=player!=null?Mathf.Clamp(player.transform.position.y,screen.yMin+2,screen.yMax-2):screen.center.y;
             root.transform.position=new Vector3(left?screen.xMin+.5f:screen.xMax-.5f,y,0);
             var sr=root.AddComponent<SpriteRenderer>();sr.sortingOrder=530;sr.flipX=!left;

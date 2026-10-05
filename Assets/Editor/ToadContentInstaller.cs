@@ -10,6 +10,27 @@ public static class ToadContentInstaller
     const string Root="Assets/Resources/ToadUpdate/";
     public const string PrefabPath="Assets/Junhan/Prefabs/Boss/AcidToad.prefab";
     public const string BlueprintPath="Assets/Resources/ToadUpdate/AcidToadBlueprint.asset";
+    // Keep legacy asset paths and GUIDs: existing levels and saved tutorial IDs remain valid.
+    public static void InstallFanta()
+    {
+        foreach(var sheet in new[]{"ToadLocomotion","ToadAttack","ToadJump","ToadHead","AcidFx"})Import(sheet);
+        var bp=AssetDatabase.LoadAssetAtPath<MiniBossMonsterBlueprint>(BlueprintPath);
+        bp.name="환타 두꺼비";
+        bp.description="볼에 주황색 탄산액을 모아 뿜는 미니보스. 탄산 구체 3발, 점프 착지, 탄산액 발사.";
+        bp.walkSpriteSequence=Sprites("ToadLocomotion").Take(8).ToArray();bp.resultSprite=bp.walkSpriteSequence[0];
+        EditorUtility.SetDirty(bp);
+        var root=PrefabUtility.LoadPrefabContents(PrefabPath);
+        try
+        {
+            root.name="환타 두꺼비";
+            root.GetComponentsInChildren<SpriteRenderer>().First(s=>!s.name.ToLowerInvariant().Contains("shadow")).sprite=bp.resultSprite;
+            PrefabUtility.SaveAsPrefabAsset(root,PrefabPath);
+        }
+        finally{PrefabUtility.UnloadPrefabContents(root);}
+        AssetDatabase.SaveAssets();
+        Vampire.Editor.DiscoveryArtInstaller.Install();
+        Debug.Log("FANTA_INSTALL_PASS");
+    }
     [MenuItem("Tools/Junhan2/Install acid toad and walnut update")]
     public static void Install()
     {
@@ -18,7 +39,7 @@ public static class ToadContentInstaller
         var source=AssetDatabase.LoadAssetAtPath<MiniBossMonsterBlueprint>("Assets/Junhan/Prefabs/Boss/MiniBoss_08min.asset");
         var bp=AssetDatabase.LoadAssetAtPath<MiniBossMonsterBlueprint>(BlueprintPath);
         if(bp==null){bp=UnityEngine.Object.Instantiate(source);AssetDatabase.CreateAsset(bp,BlueprintPath);}
-        bp.name="위산 두꺼비";bp.description="볼에 위산을 모아 뿜는 미니보스. 산성 구체 3발, 점프 착지, 산성액 발사.";
+        bp.name="환타 두꺼비";bp.description="볼에 주황색 탄산액을 모아 뿜는 미니보스. 탄산 구체 3발, 점프 착지, 탄산액 발사.";
         bp.hp=1200;bp.atk=16;bp.movespeed=.75f;bp.visualScaleMultiplier=1;bp.walkFrameTime=.10625f;
         bp.walkSpriteSequence=Sprites("ToadLocomotion").Take(8).ToArray();bp.resultSprite=bp.walkSpriteSequence[0];
         bp.useGroundShadowFootprint=true;bp.groundShadowCenterUV=new Vector2(.5f,.03f);bp.groundShadowSizeUV=new Vector2(.8f,.15f);
@@ -32,7 +53,7 @@ public static class ToadContentInstaller
             UnityEngine.Object.DestroyImmediate(old);
             var monster=root.AddComponent<AcidToadMonster>();var so=new SerializedObject(monster);
             for(int i=0;i<names.Length;i++)so.FindProperty(names[i]).objectReferenceValue=values[i];so.ApplyModifiedPropertiesWithoutUndo();
-            root.name="위산 두꺼비";root.transform.localScale=Vector3.one;
+            root.name="환타 두꺼비";root.transform.localScale=Vector3.one;
             var art=root.GetComponentsInChildren<SpriteRenderer>().First(s=>!s.name.ToLowerInvariant().Contains("shadow"));
             art.sprite=bp.walkSpriteSequence[0];art.transform.localScale=Vector3.one;art.transform.localPosition=Vector3.zero;
             PrefabUtility.SaveAsPrefabAsset(root,PrefabPath);
@@ -57,7 +78,8 @@ public static class ToadContentInstaller
         var importer=(TextureImporter)AssetImporter.GetAtPath(path);
         importer.textureType=TextureImporterType.Sprite;importer.spriteImportMode=SpriteImportMode.Multiple;
         importer.isReadable=true;importer.mipmapEnabled=false;importer.alphaIsTransparency=true;importer.maxTextureSize=2048;
-        importer.textureCompression=TextureImporterCompression.Uncompressed;importer.filterMode=FilterMode.Bilinear;importer.SaveAndReimport();
+        importer.textureCompression=TextureImporterCompression.Uncompressed;
+        importer.filterMode=name.StartsWith("Toad")||name=="AcidFx"?FilterMode.Point:FilterMode.Bilinear;importer.SaveAndReimport();
         var texture=AssetDatabase.LoadAssetAtPath<Texture2D>(path);int columns=4,rows=name=="ToadLocomotion"||name=="ToadAttack"||name=="SquirrelMotion"||name=="ToadHead"?4:2;
         Rect[] rects;
         if(name=="LightWoodUI")

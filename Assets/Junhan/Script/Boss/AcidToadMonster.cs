@@ -33,7 +33,7 @@ namespace Vampire
             rb.drag=0;delay=1.5f;next=0;Busy=false;flash=0;
             motion.Play("ToadLocomotion",8,8,1.2f,true);
             var marker=GetComponent<MapMarker>()??gameObject.AddComponent<MapMarker>();
-            marker.enabled=true;marker.Configure(MapMarkerKind.Boss,"위산 두꺼비",true);
+            marker.enabled=true;marker.Configure(MapMarkerKind.Boss,"환타 두꺼비",true);
         }
         protected override void Update()
         {
@@ -45,7 +45,7 @@ namespace Vampire
                 motion.Play("ToadLocomotion",rb.velocity.sqrMagnitude>.02f?0:8,8,rb.velocity.sqrMagnitude>.02f?.85f:1.2f,true);
                 if(AutoPatterns&&(delay-=Time.deltaTime)<=0)UsePattern((Pattern)(next++%3));
             }
-            mouth.localPosition=new Vector3(monsterSpriteRenderer.flipX?-.85f:.85f,1.5f,0);
+            mouth.localPosition=new Vector3(monsterSpriteRenderer.flipX?-.65f:.65f,1f,0);
             flash=Mathf.Max(0,flash-Time.deltaTime);
             monsterSpriteRenderer.color=Color.Lerp(Color.white,new Color(1,.6f,.5f),flash/.12f);
         }
@@ -66,7 +66,7 @@ namespace Vampire
         IEnumerator Attack(Pattern pattern)
         {
             monsterSpriteRenderer.flipX=playerCharacter.transform.position.x<transform.position.x;
-            mouth.localPosition=new Vector3(monsterSpriteRenderer.flipX?-.85f:.85f,1.5f,0);
+            mouth.localPosition=new Vector3(monsterSpriteRenderer.flipX?-.65f:.65f,1f,0);
             if(pattern==Pattern.Leap)yield return Leap();
             else
             {
@@ -145,7 +145,7 @@ namespace Vampire
     {
         public static LineRenderer Make(Vector2 start,Vector2 direction,float length,float width)
         {
-            var root=new GameObject("산성액 발사 경고");
+            var root=new GameObject("탄산액 발사 경고");
             var r=AcidJet.Line(root.transform,new Color(1,.48f,.08f,.4f),width,480);
             r.transform.SetParent(null);Object.Destroy(root);r.positionCount=2;r.SetPosition(0,start);r.SetPosition(1,start+direction*length);return r;
         }
@@ -161,7 +161,7 @@ namespace Vampire
         LineRenderer line;Vector2 origin;float age,radius;
         public static void Create(Vector2 origin,float radius)
         {var line=AcidJetTelegraph.Circle(origin,radius);var ripple=line.gameObject.AddComponent<AcidLandingRipple>();ripple.line=line;ripple.origin=origin;ripple.radius=radius;}
-        void Update(){if(MiniStageRuntimeState.IsInsideMiniStage)return;age+=Time.deltaTime;float t=age/.35f;if(t>=1){Destroy(gameObject);return;}for(int i=0;i<64;i++){float a=i*Mathf.PI*2/64;line.SetPosition(i,origin+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*radius*(.6f+t*.4f));}line.startColor=line.endColor=new Color(.78f,.9f,.23f,1-t);}
+        void Update(){if(MiniStageRuntimeState.IsInsideMiniStage)return;age+=Time.deltaTime;float t=age/.35f;if(t>=1){Destroy(gameObject);return;}for(int i=0;i<64;i++){float a=i*Mathf.PI*2/64;line.SetPosition(i,origin+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*radius*(.6f+t*.4f));}line.startColor=line.endColor=new Color(1,.58f,.12f,1-t);}
     }
     [DefaultExecutionOrder(10000)]
     public sealed class ToadCameraShake:MonoBehaviour

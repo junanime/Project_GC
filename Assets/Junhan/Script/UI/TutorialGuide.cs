@@ -93,7 +93,8 @@ namespace Vampire
                 case "MonsterDebuffer_AttackSpeed_Blueprint": return "attack-debuffer";
                 case "TreasureRunner Monster Blueprint": return "treasure-runner";
                 case "AcidToadBlueprint": return "acid-toad";
-                case "위산 두꺼비": return "acid-toad";
+                case "위산 두꺼비": // Legacy blueprints and persisted first-discovery key.
+                case "환타 두꺼비": return "acid-toad";
                 case "SugarCube_Elite_Body": return "elite-sugar-cube";
                 case "Trap Monster": return "trap";
                 case "MonsterBuffer_DamageReduction_Blueprint": return "armor-buffer";

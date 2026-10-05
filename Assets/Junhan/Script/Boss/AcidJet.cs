@@ -23,16 +23,18 @@ namespace Vampire
         public float Reach => length * Mathf.Clamp01(age / .3f);
         public static AcidJet Create(Transform mouth, Vector2 direction, float length, float width, float duration, float damage, Character player, bool hitMonsters = false, float cooldown = .65f)
         {
-            var go = new GameObject("산성액 발사 · continuous jet");
+            var go = new GameObject("탄산액 발사 · continuous jet");
             var jet = go.AddComponent<AcidJet>(); jet.source = mouth; jet.direction = direction.normalized;
             jet.length = length; jet.width = width; jet.duration = Mathf.Max(.3f, duration); jet.damage = damage;
             jet.player = player; jet.monsters = hitMonsters; jet.cooldown = Mathf.Max(.2f, cooldown);
-            jet.outline = Line(go.transform, new Color(.2f,.37f,.025f), width, 510);
-            jet.liquid = Line(go.transform, new Color(.62f,.91f,.08f), width * .85f, 511);
-            jet.highlight = Line(go.transform, new Color(.96f,1,.57f), width * .18f, 512);
+            jet.outline = Line(go.transform, new Color(.58f,.19f,.015f), width, 510);
+            jet.liquid = Line(go.transform, new Color(1,.46f,.035f), width * .85f, 511);
+            jet.highlight = Line(go.transform, new Color(1,.95f,.72f), width * .18f, 512);
+            // Flat lip origin avoids the rounded line cap protruding over the toad's eyes.
+            jet.outline.numCapVertices=jet.liquid.numCapVertices=jet.highlight.numCapVertices=0;
             for (int i = 0; i < 10; i++)
             {
-                var sr = new GameObject("Flowing acid foam").AddComponent<SpriteRenderer>(); sr.transform.SetParent(go.transform);
+                var sr = new GameObject("Flowing orange soda foam").AddComponent<SpriteRenderer>(); sr.transform.SetParent(go.transform);
                 sr.sortingOrder = 513; sr.sprite = AcidToadArt.Frame("AcidFx", i % 4); jet.foam.Add(sr);
             }
             jet.visuals=go.GetComponentsInChildren<Renderer>();jet.manager=Object.FindObjectOfType<EntityManager>();return jet;
@@ -95,7 +97,7 @@ namespace Vampire
         Character player; Vector2 velocity; float age, damage; SpriteRenderer art;
         public static void Fire(Vector2 origin,Vector2 direction,float speed,float damage,Character player)
         {
-            var go=new GameObject("Acid coated sphere"); go.transform.position=origin;
+            var go=new GameObject("Orange soda sphere"); go.transform.position=origin;
             var glob=go.AddComponent<AcidGlob>();glob.player=player;glob.velocity=direction*speed;glob.damage=damage;
             glob.art=go.AddComponent<SpriteRenderer>();glob.art.sortingOrder=520;
             OctoberEnemyProjectile.Register(go,true);

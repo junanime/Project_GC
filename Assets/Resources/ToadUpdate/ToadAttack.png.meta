@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 109.28571
+  spritePixelsToUnits: 112.14286
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,10 +113,10 @@ TextureImporter:
       name: ToadAttack_00
       rect:
         serializedVersion: 2
-        x: 48
-        y: 823
-        width: 306
-        height: 191
+        x: 44
+        y: 820
+        width: 314
+        height: 199
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -134,10 +134,10 @@ TextureImporter:
       name: ToadAttack_01
       rect:
         serializedVersion: 2
-        x: 397
-        y: 823
-        width: 304
-        height: 191
+        x: 393
+        y: 820
+        width: 313
+        height: 198
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -155,10 +155,10 @@ TextureImporter:
       name: ToadAttack_02
       rect:
         serializedVersion: 2
-        x: 743
-        y: 822
-        width: 308
-        height: 192
+        x: 740
+        y: 820
+        width: 314
+        height: 198
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -176,10 +176,10 @@ TextureImporter:
       name: ToadAttack_03
       rect:
         serializedVersion: 2
-        x: 1088
-        y: 820
-        width: 312
-        height: 194
+        x: 1089
+        y: 821
+        width: 318
+        height: 197
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -197,10 +197,10 @@ TextureImporter:
       name: ToadAttack_04
       rect:
         serializedVersion: 2
-        x: 43
+        x: 44
         y: 575
         width: 320
-        height: 196
+        height: 197
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -218,10 +218,10 @@ TextureImporter:
       name: ToadAttack_05
       rect:
         serializedVersion: 2
-        x: 389
+        x: 393
         y: 574
-        width: 327
-        height: 200
+        width: 319
+        height: 198
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -239,10 +239,10 @@ TextureImporter:
       name: ToadAttack_06
       rect:
         serializedVersion: 2
-        x: 735
-        y: 574
-        width: 330
-        height: 200
+        x: 739
+        y: 575
+        width: 323
+        height: 197
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -260,10 +260,10 @@ TextureImporter:
       name: ToadAttack_07
       rect:
         serializedVersion: 2
-        x: 1081
-        y: 573
-        width: 332
-        height: 201
+        x: 1088
+        y: 575
+        width: 320
+        height: 197
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -281,10 +281,10 @@ TextureImporter:
       name: ToadAttack_08
       rect:
         serializedVersion: 2
-        x: 45
-        y: 325
-        width: 329
-        height: 201
+        x: 43
+        y: 324
+        width: 314
+        height: 205
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -303,9 +303,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 393
-        y: 325
-        width: 315
-        height: 200
+        y: 324
+        width: 313
+        height: 206
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -323,10 +323,10 @@ TextureImporter:
       name: ToadAttack_10
       rect:
         serializedVersion: 2
-        x: 740
-        y: 325
-        width: 311
-        height: 200
+        x: 739
+        y: 324
+        width: 312
+        height: 203
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -344,10 +344,10 @@ TextureImporter:
       name: ToadAttack_11
       rect:
         serializedVersion: 2
-        x: 1091
-        y: 325
-        width: 304
-        height: 200
+        x: 1088
+        y: 324
+        width: 312
+        height: 203
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -365,10 +365,10 @@ TextureImporter:
       name: ToadAttack_12
       rect:
         serializedVersion: 2
-        x: 44
+        x: 42
         y: 82
-        width: 305
-        height: 200
+        width: 314
+        height: 197
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -386,10 +386,10 @@ TextureImporter:
       name: ToadAttack_13
       rect:
         serializedVersion: 2
-        x: 398
-        y: 84
-        width: 302
-        height: 198
+        x: 394
+        y: 82
+        width: 309
+        height: 196
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -407,10 +407,10 @@ TextureImporter:
       name: ToadAttack_14
       rect:
         serializedVersion: 2
-        x: 745
-        y: 83
-        width: 304
-        height: 197
+        x: 741
+        y: 82
+        width: 309
+        height: 196
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -428,10 +428,10 @@ TextureImporter:
       name: ToadAttack_15
       rect:
         serializedVersion: 2
-        x: 1092
-        y: 87
-        width: 316
-        height: 191
+        x: 1090
+        y: 83
+        width: 318
+        height: 195
       alignment: 9
       pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}

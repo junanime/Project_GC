@@ -34,7 +34,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 125.652176
+  spritePixelsToUnits: 134.34782
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,9 +113,9 @@ TextureImporter:
       name: ToadHead_00
       rect:
         serializedVersion: 2
-        x: 30
+        x: 19
         y: 863
-        width: 289
+        width: 309
         height: 227
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
@@ -134,9 +134,9 @@ TextureImporter:
       name: ToadHead_01
       rect:
         serializedVersion: 2
-        x: 381
+        x: 370
         y: 863
-        width: 289
+        width: 310
         height: 227
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
@@ -155,9 +155,9 @@ TextureImporter:
       name: ToadHead_02
       rect:
         serializedVersion: 2
-        x: 731
+        x: 720
         y: 863
-        width: 294
+        width: 312
         height: 227
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
@@ -176,9 +176,9 @@ TextureImporter:
       name: ToadHead_03
       rect:
         serializedVersion: 2
-        x: 1081
+        x: 1071
         y: 863
-        width: 297
+        width: 313
         height: 227
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
@@ -197,10 +197,10 @@ TextureImporter:
       name: ToadHead_04
       rect:
         serializedVersion: 2
-        x: 30
-        y: 590
-        width: 298
-        height: 228
+        x: 19
+        y: 586
+        width: 315
+        height: 229
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -218,10 +218,10 @@ TextureImporter:
       name: ToadHead_05
       rect:
         serializedVersion: 2
-        x: 381
-        y: 590
-        width: 301
-        height: 228
+        x: 370
+        y: 586
+        width: 317
+        height: 229
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -239,10 +239,10 @@ TextureImporter:
       name: ToadHead_06
       rect:
         serializedVersion: 2
-        x: 731
-        y: 590
-        width: 305
-        height: 228
+        x: 720
+        y: 586
+        width: 320
+        height: 229
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -260,10 +260,10 @@ TextureImporter:
       name: ToadHead_07
       rect:
         serializedVersion: 2
-        x: 1081
-        y: 590
-        width: 308
-        height: 228
+        x: 1071
+        y: 586
+        width: 318
+        height: 229
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -281,10 +281,10 @@ TextureImporter:
       name: ToadHead_08
       rect:
         serializedVersion: 2
-        x: 30
-        y: 312
-        width: 293
-        height: 230
+        x: 19
+        y: 310
+        width: 305
+        height: 232
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -302,10 +302,10 @@ TextureImporter:
       name: ToadHead_09
       rect:
         serializedVersion: 2
-        x: 381
-        y: 312
-        width: 293
-        height: 228
+        x: 370
+        y: 310
+        width: 305
+        height: 232
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -323,10 +323,10 @@ TextureImporter:
       name: ToadHead_10
       rect:
         serializedVersion: 2
-        x: 731
-        y: 312
-        width: 292
-        height: 227
+        x: 720
+        y: 310
+        width: 301
+        height: 232
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -344,10 +344,10 @@ TextureImporter:
       name: ToadHead_11
       rect:
         serializedVersion: 2
-        x: 1081
-        y: 314
-        width: 293
-        height: 225
+        x: 1071
+        y: 310
+        width: 298
+        height: 232
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -365,10 +365,10 @@ TextureImporter:
       name: ToadHead_12
       rect:
         serializedVersion: 2
-        x: 30
-        y: 40
-        width: 293
-        height: 227
+        x: 19
+        y: 35
+        width: 298
+        height: 230
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -386,10 +386,10 @@ TextureImporter:
       name: ToadHead_13
       rect:
         serializedVersion: 2
-        x: 381
-        y: 40
-        width: 293
-        height: 227
+        x: 370
+        y: 35
+        width: 300
+        height: 230
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -407,10 +407,10 @@ TextureImporter:
       name: ToadHead_14
       rect:
         serializedVersion: 2
-        x: 731
-        y: 40
-        width: 296
-        height: 227
+        x: 720
+        y: 36
+        width: 301
+        height: 229
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -428,10 +428,10 @@ TextureImporter:
       name: ToadHead_15
       rect:
         serializedVersion: 2
-        x: 1081
+        x: 1071
         y: 36
-        width: 290
-        height: 228
+        width: 313
+        height: 229
       alignment: 9
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}

@@ -60,7 +60,7 @@ namespace Vampire
             [System.NonSerialized] public float visualDirection = 1f;
             [Header("Event Info")]
             [Tooltip("UI에 표시될 이벤트 이름입니다.")]
-            public string eventName = "산성액 발사";
+            public string eventName = "탄산액 발사";
 
             [Tooltip("체크되어 있으면 이벤트가 발동됩니다.")]
             public bool enabled = true;
@@ -577,7 +577,7 @@ namespace Vampire
 
             if (!waveEvent.started)
             {
-                waveEvent.eventName = "산성액 발사";
+                waveEvent.eventName = "탄산액 발사";
                 waveEvent.started = true;
                 ShowEventStartedUI(waveEvent.eventName);
                 TutorialGuide.QueueStageEvent("acid-reflux");

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3353bb926e4e2c43bdc9d511dbec038, type: 3}
   m_Name: AcidToadBlueprint
   m_EditorClassIdentifier: 
-  name: "\uC704\uC0B0 \uB450\uAEBC\uBE44"
+  name: "\uD658\uD0C0 \uB450\uAEBC\uBE44"
   hp: 1200
   atk: 16
   recovery: 10
@@ -44,9 +44,9 @@ MonoBehaviour:
   groundShadowCenterUV: {x: 0.5, y: 0.03}
   groundShadowSizeUV: {x: 0.8, y: 0.15}
   preserveGroundShadowHeight: 0
-  description: "\uBCFC\uC5D0 \uC704\uC0B0\uC744 \uBAA8\uC544 \uBFDC\uB294 \uBBF8\uB2C8\uBCF4\uC2A4.
-    \uC0B0\uC131 \uAD6C\uCCB4 3\uBC1C, \uC810\uD504 \uCC29\uC9C0, \uC0B0\uC131\uC561
-    \uBC1C\uC0AC."
+  description: "\uBCFC\uC5D0 \uC8FC\uD669\uC0C9 \uD0C4\uC0B0\uC561\uC744 \uBAA8\uC544
+    \uBFDC\uB294 \uBBF8\uB2C8\uBCF4\uC2A4. \uD0C4\uC0B0 \uAD6C\uCCB4 3\uBC1C, \uC810\uD504
+    \uCC29\uC9C0, \uD0C4\uC0B0\uC561 \uBC1C\uC0AC."
   resultSprite: {fileID: 4722148551383178485, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
   meleeLayer:
     serializedVersion: 2
