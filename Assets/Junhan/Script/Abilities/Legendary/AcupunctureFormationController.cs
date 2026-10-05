@@ -197,7 +197,7 @@ namespace Vampire
 
             if (sourceCharacter.IsAlive && !sourceCharacter.IsTrapBound && previousIsDashing && !currentIsDashing &&
                 sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 0) > 0)
-                FireRadialNeedles(sourceCharacter.CenterTransform.position);
+                FireRadialNeedles(sourceCharacter.CenterTransform.position, true);
 
 
             previousIsDashing =
@@ -214,11 +214,13 @@ namespace Vampire
         // =========================================================
 
         private void FireRadialNeedles(
-            Vector3 origin
+            Vector3 origin, bool endpoint = false
         )
         {
             if (!sourceNeedleAbility.HasAcupunctureFormationAugment() || sourceCharacter.IsTrapBound) return;
-            int finalNeedleCount = GetFinalNeedleCount();
+            int finalNeedleCount = endpoint
+                ? OriginalCombatRules.FormationEndpointCount(sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 0))
+                : GetFinalNeedleCount();
             float burstDamage = sourceNeedleAbility.GetAcupunctureFormationDamage() * damageMultiplier;
             int collision = sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 1);
             Emit(origin, finalNeedleCount, burstDamage, collision);

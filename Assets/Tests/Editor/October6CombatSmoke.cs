@@ -102,7 +102,7 @@ namespace Vampire.Tests.Editor
             var syringe = SyringeAbilityResolver.FindOwnedOrFirst(manager); syringe.enabled = false; syringe.StopAllCoroutines();
             var entity = level.EntityManager;
             Check(OriginalAugmentProgress.MaxParentLevel == 9, "Three originals, three levels each retained");
-            Check(Mathf.Approximately(OriginalCombatRules.FormationDamage(3), 1.5f), "Formation damage +50% final");
+            Check(Mathf.Approximately(OriginalCombatRules.FormationDamage(3), 1f) && OriginalCombatRules.FormationEndpointCount(3)==7, "Formation endpoint seven needles replaces damage bonus");
             Check(Mathf.Approximately(OriginalCombatRules.FormationRepeatChance(2), .31f), "Formation repeat stage 2 = 31%");
             Check(Mathf.Approximately(OriginalCombatRules.BipolarDamage(3, 3, true, true), 1.75f), "Cross + alternating bonuses additive, max 1.75x");
             Check(FormationNeedleCollision.Crossed(Vector2.left, Vector2.right, Vector2.down, Vector2.up, .14f), "Swept formation collision catches crossing");
@@ -173,8 +173,15 @@ namespace Vampire.Tests.Editor
             var formation = Object.FindObjectOfType<AcupunctureFormationController>();
             Set(formation, "previousIsDashing", true); Set(player, "isDashing", false);
             Call(formation, "Update");
-            Check(Flying().Length == (int)Call(formation, "GetFinalNeedleCount") && Flying().Length > 0, "End-of-dash formation emits configured needle count after dash gate closes");
+            Check(Flying().Length == 3, "First endpoint formation emits exactly three needles after dash gate closes");
             foreach (var s in Flying()) s.RemoveForItem();
+            for (int stage = 2; stage <= 3; stage++)
+            {
+                Select(runtime, P.AcupunctureFormation, 0, 1);
+                Set(formation, "previousIsDashing", true); Call(formation, "Update");
+                Check(Flying().Length == 1 + stage * 2, "Endpoint formation stage " + stage + " emits " + (1 + stage * 2));
+                foreach (var s in Flying()) s.RemoveForItem();
+            }
 
             var a = (SyringeProjectile)entity.SpawnProjectile((int)Get(syringe, "projectileIndex"), point + Vector2.left, 1, 0, 1, ~0);
             var b = (SyringeProjectile)entity.SpawnProjectile((int)Get(syringe, "projectileIndex"), point + Vector2.right, 1, 0, 1, ~0);
@@ -192,7 +199,7 @@ namespace Vampire.Tests.Editor
             int seed = 0;
             for (; seed < 100; seed++) { UnityEngine.Random.InitState(seed); if (UnityEngine.Random.value < .4f) break; }
             UnityEngine.Random.InitState(seed); int burstBefore = (int)Get(formation, "burstId");
-            Call(formation, "FireRadialNeedles", (Vector3)point);
+            Call(formation, "FireRadialNeedles", (Vector3)point, false);
             yield return new WaitForSeconds(.3f);
             Check((int)Get(formation, "burstId") == burstBefore + 2, "Repeat emits exactly one delayed burst");
             yield return new WaitForSeconds(.3f);

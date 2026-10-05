@@ -8,7 +8,7 @@ namespace Vampire.Editor
     public sealed class StageEventDirectorEditor : UnityEditor.Editor
     {
         private int eventTab;
-        private static readonly string[] Names = { "감염 증식", "골드 러시", "위산 분비", "산성 역류", "연동운동", "커피수혈", "제산 반응" };
+        private static readonly string[] Names = { "감염 증식", "골드 러시", "위산 분비", "산성액 발사", "연동운동", "커피수혈", "제산 반응" };
         private static readonly string[] Groups = { "basicEvents", "basicEvents", "basicEvents", "advancedEvents", "advancedEvents", "advancedEvents", "antacidEvents" };
         private static readonly string[] Lists = { "monsterSurgeEvents", "goldRushEvents", "acidSecretionEvents", "acidRefluxWaveEvents", "peristalsisDriftEvents", "coffeeTransfusionEvents", "" };
         public override void OnInspectorGUI()

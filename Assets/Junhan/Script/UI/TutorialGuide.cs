@@ -148,6 +148,7 @@ namespace Vampire
             SetVertical(tipHeadingText.rectTransform, mechanic ? .485f : .411f, mechanic ? .555f : .487f);
             SetVertical(tipText.rectTransform, mechanic ? .255f : .266f, mechanic ? .47f : .395f);
             preview.texture = activeSheet;
+            (preview.GetComponent<FoodTutorialPreview>() ?? preview.gameObject.AddComponent<FoodTutorialPreview>()).Configure(entry.effect);
             // The first rendered frame can precede Update after pausing the game.
             // Never expose the complete 4x3 atlas in that frame.
             preview.uvRect = new Rect(0f, (ClipRows - 1f) / ClipRows,
@@ -160,7 +161,7 @@ namespace Vampire
             PlayerPrefs.SetInt(SeenKey(entry.id), 1);
             PlayerPrefs.Save();
         }
-        public void Replay() { clipStart = Time.unscaledTime; }
+        public void Replay() { clipStart = Time.unscaledTime; preview?.GetComponent<FoodTutorialPreview>()?.Restart(); }
         public void Close()
         {
             if (!open) return;

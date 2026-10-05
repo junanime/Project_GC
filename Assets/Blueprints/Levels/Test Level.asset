@@ -49,6 +49,9 @@ MonoBehaviour:
   - monstersPrefab: {fileID: 8960830493049914446, guid: f221b6d092ee543038a69c17c526bab0, type: 3}
     monsterBlueprints:
     - {fileID: 11400000, guid: f2518533fe52946a188a4e6a74ecff6e, type: 2}
+  - monstersPrefab: {fileID: 433272990114260795, guid: 27f6fb3e34de1bf4aad5b2bc864171a6, type: 3}
+    monsterBlueprints:
+    - {fileID: 11400000, guid: 2e42af2fb2c78de44b186ea903adf61a, type: 2}
   miniBosses:
   - bossPrefab: {fileID: 8960830493049914446, guid: bf088821f793b4654a2ba39cb4266ae9, type: 3}
     bossBlueprint: {fileID: 11400000, guid: 6aa76d11a438f4bd0aab1e7b138ef8f9, type: 2}

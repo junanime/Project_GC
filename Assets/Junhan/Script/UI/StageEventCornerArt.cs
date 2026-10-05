@@ -42,7 +42,7 @@ namespace Vampire
                 case StageEventVisualKind.Infection: return "몰려오는 적을 돌파하세요";
                 case StageEventVisualKind.Gold: return "적을 처치하고 골드를 모으세요";
                 case StageEventVisualKind.AcidRain: return "위산 장판을 피하세요";
-                case StageEventVisualKind.Reflux: return "밀려오는 산성 파도를 피하세요";
+                case StageEventVisualKind.Reflux: return "두꺼비의 볼이 부풀면 산성액 발사 경로를 피하세요";
                 case StageEventVisualKind.Drift: return "좌우로 바뀌는 기류에 주의하세요";
                 case StageEventVisualKind.Coffee: return "빨라진 몬스터를 조심하세요";
                 default: return "거품 안으로 이동하세요";

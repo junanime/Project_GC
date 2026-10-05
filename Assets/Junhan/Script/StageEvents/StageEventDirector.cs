@@ -41,6 +41,7 @@ namespace Vampire
         }
         protected override void Awake()
         {
+            if (GetComponent<AcidToadSpawn>() == null) gameObject.AddComponent<AcidToadSpawn>();
             if (useWindowSchedule) PrepareWindowSchedule();
             base.Awake();
         }
