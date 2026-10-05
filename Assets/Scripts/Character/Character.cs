@@ -27,6 +27,7 @@ namespace Vampire
         [SerializeField] protected PointBar expBar;
         [SerializeField] protected Collider2D collectableCollider;
         [SerializeField] protected Collider2D meleeHitboxCollider;
+        private bool hurtboxFitApplied;
         [SerializeField] protected ParticleSystem dustParticles;
         [SerializeField] protected Material defaultMaterial, hitMaterial, deathMaterial;
         [SerializeField] protected ParticleSystem deathParticles;
@@ -358,6 +359,12 @@ namespace Vampire
             UpdateLevelDisplay();
 
             StartIdleAnimation();
+
+            if (!hurtboxFitApplied && spriteRenderer != null && spriteRenderer.sprite != null)
+            {
+                CharacterHurtboxFit.Apply(this, spriteRenderer, meleeHitboxCollider);
+                hurtboxFitApplied = true;
+            }
 
             movementSpeed = new UpgradeableMovementSpeed();
             movementSpeed.Value = characterBlueprint.movespeed;

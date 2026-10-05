@@ -17,6 +17,9 @@ namespace Vampire
 
         private SyringeSpecialRuntime specials;
         private int ver4PiercedTargets;
+        private int accelerationTargets;
+        private float launchSpeed;
+        public bool IsFlying => isActiveAndEnabled && !isDespawning;
         private Transform ver4HomingTarget;
         private SyringeAugmentVfx bipolarVisual;
         private bool heavyImpactVisual;
@@ -124,6 +127,7 @@ namespace Vampire
         [SerializeField] private GameObject explosionEffectPrefab;
 
         private static bool hasWarnedHealMethodMissing = false;
+        private float baseTrailTime;
 
         private bool IsReturnMode =>
             flightState == NeedleFlightState.ReturnForwardPass ||
@@ -134,6 +138,7 @@ namespace Vampire
         {
             base.Awake();
             baseMaxDistance = maxDistance;
+            if (trailRenderer != null) baseTrailTime = trailRenderer.time;
         }
 
         float itemScale=1;bool itemSecondary;
@@ -151,6 +156,10 @@ namespace Vampire
 
             ConfigureFlightVfx(false, false);
             specials = default;
+            GetComponent<FormationNeedleCollision>()?.ResetLease();
+            launchSpeed = speed;
+            accelerationTargets = 0;
+            if (trailRenderer != null) trailRenderer.time = baseTrailTime;
             ver4PiercedTargets = 0;
             ver4HomingTarget = null;
             nextHomingVfxTime = 0f;
@@ -206,6 +215,14 @@ namespace Vampire
                 BossPierceRuntime.GetBossPierceCount(
                     playerCharacter
                 );
+        }
+
+        private void AccelerateAfterPierce()
+        {
+            int stage = specials.ver4 != null ? specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce, 1) : 0;
+            if (stage <= 0) return;
+            speed = launchSpeed * OriginalCombatRules.PierceSpeed(stage, ++accelerationTargets);
+            if (trailRenderer != null) trailRenderer.time = Mathf.Lerp(.06f, .16f, Mathf.Min(5, accelerationTargets) / 5f);
         }
 
         public override void Launch(Vector2 direction)
@@ -1022,6 +1039,7 @@ namespace Vampire
                 if (remainingBossPierces > 0)
                 {
                     remainingBossPierces--;
+                    AccelerateAfterPierce();
 
                     if (col != null)
                     {
@@ -1114,6 +1132,7 @@ namespace Vampire
             if (canPierce)
             {
                 remainingPierces--;
+                AccelerateAfterPierce();
                 SyringeAugmentVfx.PlayDirected("Pierce", transform.position, direction, projectileSpriteRenderer);
 
                 if (col != null)
@@ -1686,7 +1705,7 @@ namespace Vampire
             }
             else
             {
-                SyringeAugmentVfx.Play("Explosion", transform.position, SyringeAugmentVfx.FindTarget(originalTarget.transform));
+                SyringeAugmentVfx.PlayRadius("Explosion", transform.position, specials.explosionRadius, SyringeAugmentVfx.FindTarget(originalTarget.transform));
             }
 
             Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");

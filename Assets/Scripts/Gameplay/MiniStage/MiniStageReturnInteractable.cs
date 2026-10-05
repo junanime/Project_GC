@@ -47,6 +47,8 @@ namespace Vampire
         private void Awake()
         {
             BloodClotObstacle.Ensure(gameObject);
+            InteractionFocus.ReduceTrigger(GetComponent<Collider2D>());
+            InteractionFocus.Register(this, () => CanInteract);
             if (miniStageDirector == null)
             {
                 miniStageDirector = FindObjectOfType<MiniStageDirector>();
@@ -71,7 +73,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 if (debugLog)
                 {

@@ -31,6 +31,8 @@ namespace Vampire
                 (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0),source);
             if(s.Has(P.WoodNeedle))
             {
+                var sprout = SyringeAugmentVfx.Play("WoodSprout", transform.position, SyringeAugmentVfx.FindTarget(target));
+                if (sprout != null) sprout.SetWorldSize(Vector2.one * .55f, Vector2.one * .8f);
                 if(Time.time>=seedExpiry) seeds=0;
                 seedExpiry=Time.time+4;
                 if(++seeds>=3)
@@ -39,6 +41,7 @@ namespace Vampire
                     foreach(var other in Ver4HitEffects.Nearby(transform.position,2,layer,source))
                     {
                         if(other==target) continue;
+                        SyringeAugmentVfx.PlayBranch(transform.position, other.transform.position, SyringeAugmentVfx.FindTarget(other));
                         bool killed=Ver4HitEffects.Damage(other,runtime.ver4HitDamage*.4f*s.Factor(P.WoodNeedle,1,.12f),Vector2.zero,source,"목침");
                         int ground=s.Count(P.WoodNeedle,2);
                         if(killed && ground>0 && !runtime.healingBlocked)

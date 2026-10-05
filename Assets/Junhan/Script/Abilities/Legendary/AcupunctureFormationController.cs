@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Vampire
@@ -24,6 +25,7 @@ namespace Vampire
 
         private bool previousIsDashing = false;
         private Vector3 previousPlayerPosition;
+        private int burstId;
 
 
         [Header("Debug")]
@@ -166,7 +168,7 @@ namespace Vampire
 
         private void Update()
         {
-            if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
+            if (Time.timeScale <= 0f) return;
             if (sourceCharacter == null ||
                 entityManager == null ||
                 sourceNeedleAbility == null)
@@ -185,13 +187,17 @@ namespace Vampire
             //
             // previousPlayerPosition은
             // 대쉬 직전 플레이어 위치로 사용한다.
-            if (!previousIsDashing &&
+            if (sourceCharacter.IsAlive && !sourceCharacter.IsTrapBound && !previousIsDashing &&
                 currentIsDashing)
             {
                 FireRadialNeedles(
                     previousPlayerPosition
                 );
             }
+
+            if (sourceCharacter.IsAlive && !sourceCharacter.IsTrapBound && previousIsDashing && !currentIsDashing &&
+                sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 0) > 0)
+                FireRadialNeedles(sourceCharacter.CenterTransform.position);
 
 
             previousIsDashing =
@@ -213,6 +219,23 @@ namespace Vampire
         {
             if (!sourceNeedleAbility.HasAcupunctureFormationAugment() || sourceCharacter.IsTrapBound) return;
             int finalNeedleCount = GetFinalNeedleCount();
+            float burstDamage = sourceNeedleAbility.GetAcupunctureFormationDamage() * damageMultiplier;
+            int collision = sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 1);
+            Emit(origin, finalNeedleCount, burstDamage, collision);
+            float chance = OriginalCombatRules.FormationRepeatChance(sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 2));
+            if (chance > 0 && Random.value < chance) StartCoroutine(Repeat(origin, finalNeedleCount, burstDamage, collision));
+        }
+
+        private IEnumerator Repeat(Vector3 origin, int count, float amount, int collision)
+        {
+            yield return new WaitForSeconds(.2f);
+            if (sourceCharacter != null && sourceCharacter.IsAlive && !sourceCharacter.IsTrapBound && !MiniStageRuntimeState.IsInsideMiniStage)
+                Emit(origin, count, amount, collision);
+        }
+
+        private void Emit(Vector3 origin, int finalNeedleCount, float burstDamage, int collision)
+        {
+            int id = ++burstId;
             bool emitted = false;
 
             if (debugLog)
@@ -247,9 +270,7 @@ namespace Vampire
                     sourceNeedleAbility.SpawnFormationProjectile(
                         projectilePoolIndex,
                         origin,
-                        sourceNeedleAbility
-                            .GetAcupunctureFormationDamage()
-                            * damageMultiplier,
+                        burstDamage,
                         sourceNeedleAbility
                             .GetAcupunctureFormationKnockback(),
                         sourceNeedleAbility
@@ -341,6 +362,9 @@ namespace Vampire
                 projectile.Launch(
                     direction
                 );
+                if (collision > 0 && projectile is SyringeProjectile needle)
+                    (needle.GetComponent<FormationNeedleCollision>() ?? needle.gameObject.AddComponent<FormationNeedleCollision>())
+                        .Initialize(needle, this, id, burstDamage * OriginalCombatRules.FormationCollisionDamage(collision), sourceCharacter, monsterLayer);
                 emitted = true;
             }
             // No cosmetic-only ring on a blocked/ordinary dash. Keep it at the burst origin.

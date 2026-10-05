@@ -135,6 +135,21 @@ namespace Vampire
             return vfx;
         }
 
+        // Diameter is in world units and follows the same radius used by damage queries.
+        public static SyringeAugmentVfx PlayRadius(string effect, Vector3 position, float radius, SpriteRenderer sortingTarget = null)
+        {
+            var vfx = Play(effect, position, sortingTarget);
+            if (vfx != null) vfx.SetWorldSize(Vector2.one * (2f * radius), Vector2.one * (effect == "Explosion" ? .88f : .80f));
+            return vfx;
+        }
+
+        public static void PlayBranch(Vector3 from, Vector3 to, SpriteRenderer sortingTarget)
+        {
+            Vector2 delta = to - from;
+            var vfx = PlayDirected("WoodBranch", (from + to) * .5f, delta, sortingTarget);
+            if (vfx != null) vfx.SetWorldSize(new Vector2(Mathf.Max(.25f, delta.magnitude), .5f), new Vector2(.80f, .70f));
+        }
+
         public static void PlayAbsorption(Component source, Character player)
         {
             if (source == null || player == null || player.CenterTransform == null) return;

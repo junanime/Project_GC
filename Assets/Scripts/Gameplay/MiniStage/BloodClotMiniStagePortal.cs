@@ -56,6 +56,8 @@ namespace Vampire
         private void Awake()
         {
             BloodClotObstacle.Ensure(gameObject);
+            InteractionFocus.ReduceTrigger(GetComponent<Collider2D>());
+            InteractionFocus.Register(this, () => CanInteract);
             RefreshGuide();
         }
 
@@ -74,7 +76,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 TryEnterMiniStage();
             }
@@ -89,7 +91,7 @@ namespace Vampire
 
             Character character = other.GetComponentInParent<Character>();
 
-            if (character == null)
+            if (character == null || other == character.CollectableCollider)
             {
                 return;
             }
