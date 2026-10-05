@@ -127,7 +127,7 @@ namespace Vampire
                 if (GameInput.GetKeyDown(KeyCode.Escape)) Close();
                 return;
             }
-            if (pending.Count == 0 || level.IsLevelEnded || level.IsRunFlowPaused || Time.timeScale <= 0f) return;
+            if (pending.Count == 0 || level.IsLevelEnded || level.IsRunFlowPaused || Time.timeScale <= 0f || (level.PlayerCharacter != null && level.PlayerCharacter.IsPortalTravelling)) return;
             if (level.EntityManager != null && level.EntityManager.AbilitySelectionDialog != null &&
                 level.EntityManager.AbilitySelectionDialog.MenuOpen) return;
             if (ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page != "hud") return;

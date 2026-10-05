@@ -52,6 +52,7 @@ namespace Vampire
 
         public void ApplyStun(float duration)
         {
+            if(GetComponent<Character>()?.IsPortalTravelling==true)return;
             if (duration <= 0f)
             {
                 return;

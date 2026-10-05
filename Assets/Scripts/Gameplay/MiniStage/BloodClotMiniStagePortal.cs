@@ -25,6 +25,14 @@ namespace Vampire
         private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
         private bool playerInside => playerColliders.Count > 0;
         private bool consumed = false;
+        public bool Reserved => consumed;
+        public void Reserve(bool value)
+        {
+            consumed = value;
+            var charge = GetComponent<BloodClotOvercharge>();
+            if (charge != null) charge.SetTravelReserved(value);
+            RefreshGuide();
+        }
         public bool CanInteract => isActiveAndEnabled && !consumed && playerInside &&
             miniStageDirector != null && miniStageDirector.CanEnterFromPortal && !ChallengeInProgress;
         public bool ChallengeInProgress => GetComponent<BloodClotOvercharge>() is BloodClotOvercharge charge && charge.Started && !charge.Enhanced;
