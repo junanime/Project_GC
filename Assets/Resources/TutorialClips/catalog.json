@@ -1,5 +1,9 @@
 {
   "entries": [
+    {"id":"monster/acid-toad","kind":"monster","title":"위산 두꺼비","what":"산성 구체 3발 · 점프 착지 · 긴 산성액 발사로 공격합니다.","tip":"부푼 볼과 착지 원을 확인하세요. 산성액 줄기를 옆으로 피하세요.","effect":"toad"},
+    {"id":"item/health","kind":"item","title":"체력 회복","what":"사용하면 체력을 즉시 회복합니다. 최대 체력을 넘겨 회복하지 않습니다.","tip":"주워 약함에 보관하세요. 체력이 줄었을 때 해당 아이템 칸을 눌러 사용하세요.","effect":"item_health"},
+    {"id":"item/potion","kind":"item","title":"몬스터 증식 물약","what":"30초 동안 일반 몬스터의 기본 스폰량이 50% 증가합니다.","tip":"물약 칸을 눌러 사용하세요. 경험치 수집 기회가 늘지만 포위를 조심하세요. 재사용은 시간만 갱신합니다.","effect":"item_potion"},
+    {"id":"item/magnet","kind":"item","title":"자석","what":"필드에 남은 코인과 경험치 보석을 한꺼번에 끌어옵니다.","tip":"주워 보관한 뒤 자석 칸을 눌러 사용하세요. 수집물이 많이 쌓였을 때 유용합니다.","effect":"item_magnet"},
     {"id":"weapon/Poison","kind":"weapon","title":"독침","what":"침에 맞은 적에게 독이 남아 지속 피해를 줍니다.","tip":"체력이 높은 적에게 여러 번 맞혀 독을 유지하세요.","effect":"poison"},
     {"id":"weapon/Explosion","kind":"weapon","title":"다이너마이트침","what":"침이 적에게 닿으면 주변까지 폭발 피해를 줍니다.","tip":"적이 모인 곳을 겨냥하면 한 번에 여럿을 공격합니다.","effect":"explosion"},
     {"id":"weapon/Homing","kind":"weapon","title":"유도침","what":"발사된 침이 가까운 적을 향해 방향을 틉니다.","tip":"움직이며 쏴도 추적하므로 회피에 집중하세요.","effect":"homing"},

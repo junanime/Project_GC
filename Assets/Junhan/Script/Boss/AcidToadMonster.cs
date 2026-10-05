@@ -32,6 +32,8 @@ namespace Vampire
             if(mouth==null){mouth=new GameObject("Acid mouth").transform;mouth.SetParent(transform,false);}
             rb.drag=0;delay=1.5f;next=0;Busy=false;flash=0;
             motion.Play("ToadLocomotion",8,8,1.2f,true);
+            var marker=GetComponent<MapMarker>()??gameObject.AddComponent<MapMarker>();
+            marker.enabled=true;marker.Configure(MapMarkerKind.Boss,"위산 두꺼비",true);
         }
         protected override void Update()
         {
@@ -132,6 +134,7 @@ namespace Vampire
         {
             if(!alive)yield break;
             Cancel();alive=false;
+            var marker=GetComponent<MapMarker>();if(marker!=null)marker.enabled=false;
             motion.Sample("ToadJump",6,1,0);yield return Wait(.3f);
             yield return base.Killed(killedByPlayer);
         }

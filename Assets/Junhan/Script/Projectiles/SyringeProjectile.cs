@@ -898,6 +898,8 @@ namespace Vampire
                     collider,
                     out monsterTarget
                 );
+            // Solid feet are movement contacts, not projectile anatomy.
+            if (monsterTarget != null && monsterTarget.BodyHitbox != null && collider != monsterTarget.BodyHitbox) return;
 
             if (!isValidMonsterTarget)
             {
@@ -1016,6 +1018,7 @@ namespace Vampire
 
             TryCreateStuckNeedleVisual(
                 damageableComponent,
+                collider,
                 hitPosition,
                 hitRotation,
                 hitScale
@@ -1644,16 +1647,18 @@ namespace Vampire
             hitRuntime.ver4Knockback=finalKnockback;
             Ver4HitEffects.AfterHit(damageableComponent,hitRuntime,playerCharacter,targetLayer,consumedNeedleMark);
         }
-        private void TryCreateStuckNeedleVisual(Component damageableComponent, Vector3 hitPosition, Quaternion hitRotation, Vector3 hitScale)
+        private void TryCreateStuckNeedleVisual(Component damageableComponent, Collider2D hitCollider, Vector3 hitPosition, Quaternion hitRotation, Vector3 hitScale)
         {
             if (!enableStuckNeedleVisual || IsReturnMode || specials.returnNeedleEnabled || specials.pierceEnabled || damageableComponent == null) return;
 
             Monster monster = damageableComponent.GetComponent<Monster>() ?? damageableComponent.GetComponentInParent<Monster>();
-            if (monster == null) return;
+            var snail = damageableComponent.GetComponentInParent<SnailBossRuntime>();
+            var mini = damageableComponent.GetComponentInParent<SnailBossMinion>();
+            if (monster == null && snail == null && mini == null) return;
 
             TrapMonster trapMonster = monster as TrapMonster;
             if (trapMonster != null && !trapMonster.IsActive) return;
-            if (monster.HP <= 0f) return;
+            if ((monster != null && monster.HP <= 0f) || (snail != null && snail.Dead) || (mini != null && mini.Health <= 0)) return;
             if (projectileSpriteRenderer == null || projectileSpriteRenderer.sprite == null) return;
 
             GameObject stuckNeedleObject = new GameObject("Stuck Needle Visual");
@@ -1662,7 +1667,12 @@ namespace Vampire
             stuckTransform.position = hitPosition;
             stuckTransform.rotation = hitRotation;
             stuckTransform.localScale = hitScale * stuckNeedleScaleMultiplier;
-            stuckTransform.SetParent(monster.transform, true);
+            SpriteRenderer targetRenderer = monster != null ? monster.BodyRenderer : snail != null ? snail.Visual.Shell : mini.GetComponentInChildren<SnailMiniVisual>()?.Shell;
+            var miniVisual=damageableComponent.GetComponentInChildren<SnailMiniVisual>();
+            if(miniVisual!=null)targetRenderer=miniVisual.Shell;
+            if(snail!=null&&snail.Visual.Body.enabled&&Vector2.Distance(snail.Visual.Body.bounds.ClosestPoint(hitPosition),hitPosition)<Vector2.Distance(snail.Visual.Shell.bounds.ClosestPoint(hitPosition),hitPosition))targetRenderer=snail.Visual.Body;
+            if (targetRenderer == null) { Destroy(stuckNeedleObject); return; }
+            stuckTransform.SetParent(targetRenderer.transform, true);
 
             SpriteRenderer renderer = stuckNeedleObject.AddComponent<SpriteRenderer>();
             renderer.sprite = projectileSpriteRenderer.sprite;
@@ -1673,20 +1683,27 @@ namespace Vampire
             baseColor.a = stuckNeedleAlpha;
             renderer.color = baseColor;
 
-            SpriteRenderer targetRenderer = monster.GetComponentInChildren<SpriteRenderer>();
-            if (targetRenderer != null)
+            // Put the forward-most visible tip just inside the hit surface. Using centre position
+            // alone leaves long needles hovering in air at first trigger overlap.
+            Vector2 travel = direction.normalized;
+            Vector2 surface = VisibleBodyGeometry.Surface(targetRenderer,hitPosition,travel);
+            var vertices = renderer.sprite.vertices;
+            float tip = float.NegativeInfinity;
+            foreach (var vertex in vertices)
             {
-                renderer.sortingLayerID = targetRenderer.sortingLayerID;
-                renderer.sortingOrder = targetRenderer.sortingOrder + Mathf.Max(5, stuckNeedleSortingOrderBonus);
+                Vector3 local = new Vector3(renderer.flipX ? -vertex.x : vertex.x, renderer.flipY ? -vertex.y : vertex.y);
+                float along = Vector2.Dot(stuckTransform.TransformVector(local), travel);
+                tip = Mathf.Max(tip, along);
             }
-            else
-            {
-                renderer.sortingLayerID = projectileSpriteRenderer.sortingLayerID;
-                renderer.sortingOrder = projectileSpriteRenderer.sortingOrder + Mathf.Max(5, stuckNeedleSortingOrderBonus);
-            }
+            float depth = Mathf.Clamp(Mathf.Max(renderer.bounds.size.x,renderer.bounds.size.y)*.24f,.035f,.18f);
+            Vector3 embedded = surface + travel*(depth-Mathf.Max(0,tip));
+            embedded.z = targetRenderer.transform.position.z;
+            stuckTransform.position = embedded;
+            renderer.sortingLayerID = targetRenderer.sortingLayerID;
+            renderer.sortingOrder = targetRenderer.sortingOrder - 1;
 
             StuckNeedleVisual stuckVisual = stuckNeedleObject.AddComponent<StuckNeedleVisual>();
-            stuckVisual.Init(monster, stuckNeedleLifetime);
+            stuckVisual.Init(monster, stuckNeedleLifetime, targetRenderer, snail, mini);
         }
 
         private IEnumerator ReenableColliderNextFrame()
@@ -1864,9 +1881,13 @@ namespace Vampire
         private Monster ownerMonster;
         private float lifetime = 2.5f;
         private Coroutine lifetimeCoroutine;
+        private SpriteRenderer body, needle;
+        private SnailBossRuntime snail;
+        private SnailBossMinion mini;
 
-        public void Init(Monster ownerMonster, float lifetime)
+        public void Init(Monster ownerMonster, float lifetime, SpriteRenderer body = null, SnailBossRuntime snail = null, SnailBossMinion mini = null)
         {
+            this.body=body; this.snail=snail; this.mini=mini; needle=GetComponent<SpriteRenderer>();
             this.ownerMonster = ownerMonster;
             this.lifetime = Mathf.Max(0.05f, lifetime);
 
@@ -1877,6 +1898,13 @@ namespace Vampire
 
             lifetimeCoroutine = StartCoroutine(LifetimeRoutine());
         }
+        private void LateUpdate()
+        {
+            if (body == null || !body.gameObject.activeInHierarchy || (ownerMonster != null && ownerMonster.HP<=0) || (snail != null && snail.Dead) || (mini != null && mini.Health<=0)) { Destroy(gameObject); return; }
+            needle.enabled=body.enabled;
+            needle.sortingLayerID=body.sortingLayerID; needle.sortingOrder=body.sortingOrder-1;
+        }
+        private void OnDisable() { if (Application.isPlaying) Destroy(gameObject); }
 
         private IEnumerator LifetimeRoutine()
         {

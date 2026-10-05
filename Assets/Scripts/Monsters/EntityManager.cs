@@ -313,11 +313,12 @@ namespace Vampire
                 hpBuff
             );
             newMonster.ConfigureGroundShadow(monsterBlueprint);
+            newMonster.FitVisibleBody();
 
             grid.InsertClient(newMonster);
 
             if (!allowDuringMiniStage)
-                TutorialGuide.QueueMonster(monsterBlueprint);
+                TutorialGuide.QueueMonster(monsterBlueprint, newMonster);
 
             return newMonster;
         }

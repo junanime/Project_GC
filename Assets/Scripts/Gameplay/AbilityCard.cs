@@ -443,6 +443,7 @@ namespace Vampire
 
         public void Selected()
         {
+            if (levelUpMenu != null && !levelUpMenu.CanSelectRevealedCard) { levelUpMenu.RevealScrolls(); return; }
             if (ability == null || levelUpMenu == null || !levelUpMenu.MenuOpen)
             {
                 return;
