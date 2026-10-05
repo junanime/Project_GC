@@ -20,6 +20,7 @@ namespace Vampire.Tests
         IEnumerator Start()
         {
             Application.logMessageReceived+=Log;bool passed=false;var original=GamePreferences.Current.Copy();
+            string selectionKey=null,enabledKey=null;bool hadSelection=false,hadEnabled=false;int previousSelection=0,previousEnabled=0;
             try
             {
                 var preferences=original.Copy();preferences.pauseOnFocusLoss=false;preferences.muteOnFocusLoss=false;GamePreferences.Apply(preferences,false);
@@ -27,6 +28,12 @@ namespace Vampire.Tests
                 var ui=ApothecaryUI.Instance;Check(ui!=null,"main loads");
                 Check(!ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Active skill slot"||b.name=="Passive skill slot"),"main skill slots removed");
                 CrossSceneData.CharacterBlueprint=ui.Config.characters.Single(c=>c.name=="신이");CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();
+                // Select the fixture weapon explicitly; never depend on or overwrite the player's saved loadout.
+                selectionKey=StartingNeedleSelection.SaveKey(CrossSceneData.CharacterBlueprint);
+                enabledKey=StartingNeedleSelection.EnabledKey(SyringeSpecialAugmentAbility.SpecialAugmentType.FireNeedle);
+                hadSelection=PlayerPrefs.HasKey(selectionKey);previousSelection=PlayerPrefs.GetInt(selectionKey);
+                hadEnabled=PlayerPrefs.HasKey(enabledKey);previousEnabled=PlayerPrefs.GetInt(enabledKey);
+                PlayerPrefs.SetInt(selectionKey,(int)SyringeSpecialAugmentAbility.SpecialAugmentType.FireNeedle);PlayerPrefs.SetInt(enabledKey,1);
                 SceneManager.LoadScene(1);yield return new WaitForSecondsRealtime(2);
                 var level=FindObjectOfType<LevelManager>();level.enabled=false;var player=level.PlayerCharacter;var skill=player.Skills;var fire=player.GetComponent<ShiniSkillRuntime>();
                 foreach(var monster in FindObjectsOfType<Monster>())monster.gameObject.SetActive(false);
@@ -61,14 +68,16 @@ namespace Vampire.Tests
                 var runtime=needle.GetCurrentSpecialRuntime();runtime.ver4HitDamage=needle.GetEffectiveDamage();status.ApplyFire(runtime,player,true);status.ApplyFire(runtime,player,true);
                 status.ApplyFire(runtime,player,true);
                 Check(status.BurnStacks==3,"needle and pool share three-stack cap");
-                float max=Ver4HitEffects.MaxHealth(target);float expected=needle.GetEffectiveDamage()*5.5f+max*.005f*9;
-                hp=target.HP;fire.Detonate(target);Check(Mathf.Abs(hp-target.HP-expected)<.1f,"detonation equals base plus all stacks plus remaining ticks");
-                Check(status.BurnStacks==0,"detonation atomically consumes every stack");
-                Check(status.ConsumeBurn(out var consumed)==0&&consumed==0,"spent stacks cannot be cashed out twice");
+                float expected=skill.Definition.shiniEruptionDamage*player.DamageMultiplier*skill.ActivePower;
+                hp=target.HP;fire.Detonate(target);Check(Mathf.Abs(hp-target.HP-expected)<.1f,"eruption uses standalone skill damage");
+                Check(status.BurnStacks==3,"eruption preserves all burn stacks");
+                Check(status.ConsumeBurn(out var consumed)>0&&consumed==3,"preserved stacks retain remaining ticks");
+                hp=target.HP;fire.Detonate(target);Check(Mathf.Abs(hp-target.HP-expected)<.1f,"zero-stack eruption deals the same damage");
+                Check(status.ConsumeBurn(out consumed)==0&&consumed==0,"explicitly removed stacks cannot be consumed twice");
                 var small=level.EntityManager.SpawnMonster(0,(Vector2)anchor+Vector2.up*5,data,25);small.enabled=false;
                 var smallBurn=small.gameObject.AddComponent<Ver4NeedleStatus>();smallBurn.ApplyFire(runtime,player,true);
                 float smallHP=small.HP;yield return new WaitForSeconds(1.05f);
-                Check(Mathf.Abs(smallHP-small.HP-Ver4HitEffects.MaxHealth(small)*.005f)<.001f,"fractional burn damages low-health monster despite integer popup");
+                Check(Mathf.Abs(smallHP-small.HP-Ver4HitEffects.MaxHealth(small)*.008f)<.001f,"fractional burn damages low-health monster despite integer popup");
                 smallBurn.ConsumeBurn(out _);yield return new WaitForEndOfFrame();
                 Check(!small.GetComponent<ShiniBurnVisual>().TintVisible,"orange overlay clears when burn stacks are consumed");
                 small.gameObject.SetActive(false);
@@ -127,7 +136,13 @@ namespace Vampire.Tests
                 skill.Tick(.01f);skill.Tick(10);Check(skill.MovementMultiplier==1,"capped movement buff still expires");
                 Check(!errors,"no native errors");passed=true;
             }
-            finally{Time.timeScale=1;GamePreferences.Apply(original,false);Application.logMessageReceived-=Log;Debug.Log("[ShiniPlayer] FINISHED passed="+passed);Application.Quit(passed?0:1);}
+            finally
+            {
+                if(selectionKey!=null){if(hadSelection)PlayerPrefs.SetInt(selectionKey,previousSelection);else PlayerPrefs.DeleteKey(selectionKey);}
+                if(enabledKey!=null){if(hadEnabled)PlayerPrefs.SetInt(enabledKey,previousEnabled);else PlayerPrefs.DeleteKey(enabledKey);}
+                PlayerPrefs.Save();Time.timeScale=1;GamePreferences.Apply(original,false);Application.logMessageReceived-=Log;
+                Debug.Log("[ShiniPlayer] FINISHED passed="+passed);Application.Quit(passed?0:1);
+            }
         }
         static void Check(bool ok,string message){if(!ok)throw new Exception("[ShiniPlayer] FAIL "+message);Debug.Log("[ShiniPlayer] PASS "+message);}
     }

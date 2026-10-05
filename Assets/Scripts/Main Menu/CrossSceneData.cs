@@ -17,6 +17,7 @@ namespace Vampire
         public List<RunSceneAbilitySnapshot> AbilityStates =
             new List<RunSceneAbilitySnapshot>();
 
+        public OctoberItemState OctoberItems;
         public MerchantOwnershipSnapshot MerchantItems;
         public int CoinsGained;
     }
@@ -30,6 +31,7 @@ namespace Vampire
 
         public int SkillPassiveLevel = 1, SkillActiveLevel = 1;
         public PrescriptionState Prescription;
+        public RelicRunState Relic;
         public float SkillPassiveRemaining, SkillActiveRemaining, SkillCooldownRemaining;
         public float SkillSleepSeconds, SkillSummonRemaining;
         public int SkillConsumedSleepStacks;

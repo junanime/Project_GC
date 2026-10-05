@@ -6,6 +6,17 @@ namespace Vampire
 {
     public class MiniStageFallingFoodRoom : MiniStageRoomBase
     {
+        protected override void OnInitRoom()
+        {
+            fallingFoodVariants=new FallingFoodVariant[6];
+            for(int i=0;i<6;i++)
+            {
+                var sprite=OctoberArt.Get("OctoberContent/Food/Food"+(i+1));
+                float scale=sprite!=null?1.8f/Mathf.Max(sprite.bounds.size.x,sprite.bounds.size.y):.2f;
+                float rotation=i==4?-60:i==5?55:0;
+                fallingFoodVariants[i]=new FallingFoodVariant{foodSprite=sprite,weight=1,visualScaleMin=Vector2.one*scale*.9f,visualScaleMax=Vector2.one*scale*1.1f,damageRadiusMin=.8f,damageRadiusMax=1.05f,rotationMin=rotation-(i<4?18:2),rotationMax=rotation+(i<4?18:2)};
+            }
+        }
         [System.Serializable]
         private class FallingFoodVariant
         {
@@ -59,10 +70,10 @@ namespace Vampire
 
         [Header("Spawn Timing")]
         [Tooltip("낙석 웨이브 사이의 최소 간격입니다.")]
-        [SerializeField] private float waveIntervalMin = 0.65f;
+        [SerializeField] private float waveIntervalMin = 0.45f;
 
         [Tooltip("낙석 웨이브 사이의 최대 간격입니다.")]
-        [SerializeField] private float waveIntervalMax = 1.15f;
+        [SerializeField] private float waveIntervalMax = 0.8f;
 
         [Tooltip("한 웨이브 안에서 낙석들이 완전히 동시에 떨어지지 않도록 주는 최소 지연 시간입니다.")]
         [SerializeField] private float delayBetweenStrikesMin = 0f;
@@ -79,10 +90,10 @@ namespace Vampire
 
         [Header("Warning And Hit")]
         [Tooltip("경고 원이 뜬 뒤 낙석이 떨어지기까지의 최소 시간입니다.")]
-        [SerializeField] private float warningTimeMin = 0.85f;
+        [SerializeField] private float warningTimeMin = 0.65f;
 
         [Tooltip("경고 원이 뜬 뒤 낙석이 떨어지기까지의 최대 시간입니다.")]
-        [SerializeField] private float warningTimeMax = 1.25f;
+        [SerializeField] private float warningTimeMax = 0.9f;
 
         [Tooltip("음식물 종류가 비어 있을 때 사용할 기본 피격 판정 반지름의 최소값입니다.")]
         [SerializeField] private float fallbackDamageRadiusMin = 0.8f;
@@ -416,14 +427,14 @@ namespace Vampire
                 maxY = middleY;
             }
 
-            return new Vector2(
-                Random.Range(minX, maxX),
-                Random.Range(minY, maxY)
-            );
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            return arena!=null?arena.RandomInside(safeRadius+.15f):new Vector2(Random.Range(minX,maxX),Random.Range(minY,maxY));
         }
 
         private Vector2 ClampPositionInsideArena(Vector2 position, float selectedRadius)
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Clamp(position,selectedRadius+.15f);
             Vector2 center = (Vector2)transform.position + roomCenterOffset;
 
             float safeRadius = Mathf.Max(0.1f, selectedRadius);

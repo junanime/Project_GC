@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Relic_03_CritChance
   m_EditorClassIdentifier: 
   relicId: relic_03
-  relicName: "\uCE58\uBA85 \uBD80\uC801"
-  price: 1
-  icon: {fileID: 21300000, guid: b7b9b2759e253c54194dd03cb10e4dd7, type: 3}
+  relicName: "\uBC18\uC9DD \uAE09\uC18C"
+  price: 160
+  icon: {fileID: -3037815551600364481, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
   effectType: 2
   effectValue: 0.05
+  effectDescription: "\uCE58\uBA85\uD0C0 \uD655\uB960 +5%p. \uCD5C\uB300 100%."

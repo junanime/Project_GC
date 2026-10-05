@@ -74,7 +74,7 @@ namespace Vampire
                 StopCoroutine(stunCoroutine);
             }
 
-            stunCoroutine = StartCoroutine(StunRoutine(duration));
+            stunCoroutine = StartCoroutine(StunRoutine(ownerCharacter != null ? ownerCharacter.DebuffDuration(duration) : duration));
         }
 
         private IEnumerator StunRoutine(float duration)

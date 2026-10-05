@@ -97,8 +97,7 @@ namespace Vampire
                 return;
             }
 
-            if (!Vampire.GameInput.GetKeyDown(
-                    interactionKey) && !MobileGameplayInput.ConsumeInteraction())
+            if (!Vampire.GameInput.TryConsumeInteraction(interactionKey))
             {
                 return;
             }

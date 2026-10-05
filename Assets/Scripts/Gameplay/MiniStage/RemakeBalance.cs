@@ -17,6 +17,7 @@ namespace Vampire
         [Min(2)] public int fastBomberEvery = 4;
         [Min(1)] public float fastBomberSpeed = 1.2f;
         [Min(.05f)] public float sniperTeleportDelay = .2f;
+        [Min(1)] public float sniperTeleportCooldown = 6f;
         [Min(1)] public float sniperSafeDistance = 3;
         public ChestBlueprint levelUpChest;
         static RemakeBalance fallback;

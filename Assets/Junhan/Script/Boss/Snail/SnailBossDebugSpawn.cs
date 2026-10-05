@@ -31,7 +31,7 @@ namespace Vampire
             for(int i=0;i<entries.Length;i++)
             {
                 if(entries[i].monstersPrefab==null||entries[i].monstersPrefab.GetComponent<AcidLeechMonster>()==null||entries[i].monsterBlueprints.Length==0)continue;
-                int count=Mathf.Clamp(12-living,0,3);
+                int count=Mathf.Clamp(8-living,0,2);
                 for(int n=0;n<count;n++)
                 {
                     Vector2 pos=(Vector2)level.PlayerCharacter.transform.position+Random.insideUnitCircle.normalized*Random.Range(6f,9f);

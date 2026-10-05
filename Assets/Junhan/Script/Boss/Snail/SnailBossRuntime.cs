@@ -226,6 +226,7 @@ namespace Vampire
         public override void TakeDamage(float damage,Vector2 knockback=default,bool isCritical=false)
         {
             if(!initialized||Dead||Transitioning||Paused||damage<=0||float.IsNaN(damage)||float.IsInfinity(damage))return;
+            var status=GetComponent<OctoberItemTargetStatus>();if(status!=null&&status.VulnerableUntil>Time.time&&!SuppressHitFlash)damage*=1.08f;
             Health=Mathf.Max(0,Health-damage*(Groggy?settings.groggyMultiplier:1));flashTime=.12f;UpdateHud();
             if(Health<=0){CancelAction();Dead=true;ClearEffects();StartCoroutine(Death());}
             else if(!Chocolate&&Health<=settings.maxHealth*settings.phaseThreshold)

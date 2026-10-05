@@ -76,6 +76,7 @@ namespace Vampire
                 int w=current.width>0?current.width:Display.main.systemWidth;
                 int h=current.height>0?current.height:Display.main.systemHeight;
                 if(Screen.width!=w||Screen.height!=h||Screen.fullScreenMode!=mode)Screen.SetResolution(w,h,mode);
+                GamePreferenceLifecycle.StabilizeWindow(w,h,mode);
 #endif
             }
             if(save){PlayerPrefs.SetString(SaveKey,JsonUtility.ToJson(current));PlayerPrefs.Save();}
@@ -85,6 +86,27 @@ namespace Vampire
 
     public sealed class GamePreferenceLifecycle : MonoBehaviour
     {
+        static GamePreferenceLifecycle instance;
+        int windowWidth,windowHeight,windowAttempts;
+        float nextWindowAttempt;
+        void Awake(){instance=this;}
+        void OnDestroy(){if(instance==this)instance=null;}
+        internal static void StabilizeWindow(int width,int height,FullScreenMode mode)
+        {
+            if(instance==null)return;
+            instance.windowWidth=width;instance.windowHeight=height;
+            instance.windowAttempts=mode==FullScreenMode.Windowed?3:0;
+            instance.nextWindowAttempt=Time.realtimeSinceStartup+.25f;
+        }
+        void LateUpdate()
+        {
+            if(windowAttempts<=0||Time.realtimeSinceStartup<nextWindowAttempt)return;
+            if(Screen.fullScreenMode==FullScreenMode.Windowed&&Screen.width==windowWidth&&Screen.height==windowHeight){windowAttempts=0;return;}
+            // Fullscreen transitions can complete before the requested window size is applied.
+            // Reapply only the latest request, with a bounded retry independent of gameplay pause.
+            windowAttempts--;nextWindowAttempt=Time.realtimeSinceStartup+.25f;
+            Screen.SetResolution(windowWidth,windowHeight,FullScreenMode.Windowed);
+        }
         float pausedScale;
         bool ownsPause;
         void OnApplicationFocus(bool focus)

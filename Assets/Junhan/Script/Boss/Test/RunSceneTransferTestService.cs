@@ -98,6 +98,7 @@ namespace Vampire
                         abilityManager
                             .CaptureRunSceneAbilities(),
 
+                    OctoberItems = player.GetComponent<OctoberItemRuntime>()?.Capture(),
                     MerchantItems = Object.FindObjectOfType<SynergyManager>()?.CaptureOwnership(),
 
                     CoinsGained =
@@ -184,6 +185,7 @@ namespace Vampire
             var synergy = Object.FindObjectOfType<SynergyManager>();
             if (synergy == null && snapshot.MerchantItems != null) synergy = player.gameObject.AddComponent<SynergyManager>();
             synergy?.RestoreOwnership(snapshot.MerchantItems);
+            if(snapshot.OctoberItems!=null)OctoberItemRuntime.Get(player).Restore(snapshot.OctoberItems);
 
             // 새 StatsManager는 0부터 시작하므로
             // 이전 Run Coins를 그대로 더해 줍니다.

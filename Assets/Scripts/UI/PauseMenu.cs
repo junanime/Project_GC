@@ -13,8 +13,18 @@ namespace Vampire
 
         public bool TimeIsFrozen { set => timeIsFrozen = value; }
 
+        public void RetireLegacyControls()
+        {
+            if(pauseMenu!=null)pauseMenu.SetActive(false);
+            foreach(var button in FindObjectsOfType<Button>(true))
+                for(int i=0;i<button.onClick.GetPersistentEventCount();i++)
+                    if(button.onClick.GetPersistentTarget(i)==this)button.gameObject.SetActive(false);
+            if(pauseButton!=null)pauseButton.gameObject.SetActive(false);
+        }
+
         public void PlayPause()
         {
+            if(ApothecaryUI.Instance!=null){ApothecaryUI.Instance.Back();return;}
             if (ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == "skillReward") return;
             var skills = FindObjectOfType<CharacterSkillRuntime>();
             if (skills != null && skills.IsCutin) return;

@@ -48,17 +48,19 @@ namespace Vampire
         private readonly List<Monster> spawnedSnipers = new List<Monster>();
         private int remainingSniperCount;
         float teleportAt = -1;
+        float nextTeleportAllowed;
         void OnEnable(){SniperMonster.Fired+=OnSniperFired;}
         void OnDisable(){SniperMonster.Fired-=OnSniperFired;teleportAt=-1;}
         void OnSniperFired(SniperMonster sniper)
         {
-            if(Enhanced && !RoomCleared && spawnedSnipers.Contains(sniper) && teleportAt<0)
+            if(Enhanced && !RoomCleared && Time.time>=nextTeleportAllowed && spawnedSnipers.Contains(sniper) && teleportAt<0)
                 teleportAt=Time.time+RemakeBalance.Current.sniperTeleportDelay;
         }
         void Update()
         {
             if(teleportAt<0 || Time.timeScale<=0 || Time.time<teleportAt)return;
             teleportAt=-1;
+            nextTeleportAllowed=Time.time+RemakeBalance.Current.sniperTeleportCooldown;
             foreach(var monster in spawnedSnipers)
             {
                 if(monster==null || monster.HP<=0 || !monster.gameObject.activeInHierarchy)continue;
@@ -79,6 +81,7 @@ namespace Vampire
 
         protected override void OnBeginRoom()
         {
+            nextTeleportAllowed=Time.time+RemakeBalance.Current.sniperTeleportCooldown;
             SpawnSnipers();
         }
 
@@ -149,19 +152,21 @@ namespace Vampire
         {
             if (sniperSpawnCountOverride > 0)
             {
-                return sniperSpawnCountOverride;
+                return Mathf.Min(5,sniperSpawnCountOverride);
             }
 
             if (useExplicitSniperSpawnPoints && sniperSpawnPoints != null && sniperSpawnPoints.Length > 0)
             {
-                return sniperSpawnPoints.Length;
+                return Mathf.Min(5,sniperSpawnPoints.Length);
             }
 
-            return 10;
+            return 5;
         }
 
         private Vector2 GetSpawnPosition(int index)
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Perimeter((index+.5f)/Mathf.Max(1,GetSpawnCount()));
             if (useExplicitSniperSpawnPoints &&
                 sniperSpawnPoints != null &&
                 sniperSpawnPoints.Length > 0)
@@ -215,6 +220,8 @@ namespace Vampire
 
         private Vector2 GetRandomOuterPositionRaw()
         {
+            var arena=GetComponent<MiniStageArenaGeometry>();
+            if(arena!=null)return arena.Perimeter(Random.value);
             Vector2 center = transform.position;
 
             float minX = center.x - arenaHalfWidth + edgePadding;

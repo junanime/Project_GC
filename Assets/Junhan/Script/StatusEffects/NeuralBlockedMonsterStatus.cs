@@ -20,6 +20,7 @@ namespace Vampire
         private float endTime = -1f;
         private float iceEndTime = -1f;
         public bool IceFrozen => Time.time < iceEndTime;
+        public bool Active => Time.time < Mathf.Max(endTime,iceEndTime);
         public float IceRemaining => Mathf.Max(0,iceEndTime-Time.time);
         public void ApplyIce(float duration)
         {
@@ -103,7 +104,9 @@ namespace Vampire
 
         private void DisableMonsterMovementComponent()
         {
-            if (monster == null)
+            // Traps are stationary. Disabling them invokes OnDisable and releases
+            // their captive while leaving the vine visual in its active state.
+            if (monster == null || monster is TrapMonster)
             {
                 return;
             }

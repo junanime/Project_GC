@@ -42,6 +42,12 @@ MonoBehaviour:
   - {fileID: -2145452190, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
   - {fileID: -59333533, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
   walkFrameTime: 0.2
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.52, y: 0.13}
+  groundShadowSizeUV: {x: 0.7, y: 0.18}
+  preserveGroundShadowHeight: 0
+  description:
+  resultSprite: {fileID: 0}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 512

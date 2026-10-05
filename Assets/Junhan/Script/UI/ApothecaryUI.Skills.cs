@@ -26,11 +26,19 @@ namespace Vampire
                 var b=ActionButton(content,"",x+i*width,y,x+(i+1)*width-.006f,top,()=>ShowSkillDetails(data,active));
                 b.name=active?"Active skill slot":"Passive skill slot";SlotArt(b);
                 var visual=b.transform.Find("Visual");
-                ImageAt(visual,d!=null?(active?d.activeIcon:d.passiveIcon):null,.16f,.29f,.84f,.96f);
+                FramedSkill(visual,data,d!=null?(active?d.activeIcon:d.passiveIcon):null,.03f,.24f,.97f,.99f);
                 if(d==null)Label(visual,"?",.2f,.3f,.8f,.9f,24);
-                var caption=ImageAt(visual,null,.09f,.13f,.91f,.31f,false);caption.color=Paper;
-                Label(visual,d!=null?(active?d.activeName:d.passiveName):(active?"액티브 준비 중":"패시브 준비 중"),.05f,.13f,.95f,.31f,13);
+                Label(visual,active?"액티브":"패시브",.03f,.02f,.97f,.22f,13);
             }
+        }
+        RectTransform FramedSkill(Transform parent,CharacterBlueprint data,Sprite icon,float x,float y,float r,float t)
+        {
+            var bounds=Rect("Skill square bounds",parent,x,y,r,t);
+            var square=Rect("Identity skill frame",bounds,0,0,1,1);
+            var aspect=square.gameObject.AddComponent<AspectRatioFitter>();aspect.aspectMode=AspectRatioFitter.AspectMode.FitInParent;aspect.aspectRatio=1;
+            var frame=square.gameObject.AddComponent<IdentityShape>();frame.frame=true;frame.sparkle=true;frame.radius=8;frame.color=PreparationIdentity.ColorFor(data);frame.raycastTarget=false;
+            ImageAt(square,icon,.105f,.105f,.895f,.895f);
+            return square;
         }
         void ShowSkillDetails(CharacterBlueprint data,bool active)
         {
@@ -56,9 +64,9 @@ namespace Vampire
                 var b=ActionButton(skillHudRoot,"",x,y,x+.065f,y+.115f,()=>{if(active)CurrentSkills?.TryActivate();else ShowSkillDetails(character,false);});
                 b.name=active?"Active skill R":"Passive skill status";SlotArt(b);
                 var visual=b.transform.Find("Visual");
-                ImageAt(visual,d!=null?(active?d.activeIcon:d.passiveIcon):null,.03f,.03f,.97f,.97f);
+                var framed=FramedSkill(visual,character,d!=null?(active?d.activeIcon:d.passiveIcon):null,0,0,1,1);
                 if(d==null)Label(visual,"?",.2f,.15f,.8f,.85f,24);
-                var mask=ImageAt(visual,null,.03f,.03f,.97f,.97f,false);
+                var mask=ImageAt(framed,null,.105f,.105f,.895f,.895f,false);
                 mask.name="Clockwise cooldown cover";mask.color=new Color(0,0,0,.72f);
                 mask.sprite=SkillSquare;mask.type=Image.Type.Filled;mask.fillMethod=Image.FillMethod.Radial360;
                 mask.fillOrigin=(int)Image.Origin360.Top;mask.fillClockwise=false;mask.fillAmount=0;
@@ -93,7 +101,7 @@ namespace Vampire
         }
         void UpdateSkillUI()
         {
-            if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(false);
+            if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(Page=="hud"&&Time.timeScale>0&&!MiniStageRuntimeState.IsInsideMiniStage);
             var skill=CurrentSkills;
             if(activeSkillButton==null)return;
             skillHudRoot.anchoredPosition=new Vector2(0,(Application.isMobilePlatform||MobileGameplayInput.Active)?205:0);

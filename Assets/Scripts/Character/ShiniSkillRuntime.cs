@@ -140,11 +140,14 @@ namespace Vampire
         }
         public void Detonate(Component target)
         {
-            if(needle==null)needle=FindObjectOfType<SyringeDartAbility>();
-            if(needle==null||Ver4HitEffects.Health(target)<=0)return;
-            var status=target.GetComponent<Ver4NeedleStatus>();int stacks=0;
-            float remaining=status!=null?status.ConsumeBurn(out stacks):0;
-            Ver4HitEffects.Damage(target,(NonCriticalDamage(target)*(1+1.5f*stacks)+remaining)*skill.ActivePower,Vector2.zero,owner,"불꽃 토네이도");
+            if(target==null||skill==null||owner==null||Ver4HitEffects.Health(target)<=0)return;
+            // Standalone skill damage: neither weapon damage nor burn stacks are consumed.
+            float damage=skill.Definition.shiniEruptionDamage*owner.DamageMultiplier*skill.ActivePower;
+            var stats=PlayerGeneralStatRuntime.GetOrCreate(owner);
+            if(stats!=null)damage=stats.ApplyBossDamageBonus(target,damage);
+            var corrosion=target.GetComponent<CorrosionStatus>();
+            if(corrosion!=null)damage*=corrosion.GetDamageTakenMultiplier();
+            Ver4HitEffects.Damage(target,damage,Vector2.zero,owner,"불꽃 토네이도");
         }
         void Clear(){foreach(var p in pools){if(p.ground!=null)Destroy(p.ground.gameObject);if(p.tornado!=null)Destroy(p.tornado.gameObject);}pools.Clear();nextBurn.Clear();movedSeconds=0;previous=transform.position;}
         void OnDisable(){Clear();}

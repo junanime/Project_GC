@@ -31,7 +31,7 @@ namespace Vampire
         LevelManager level;
         StatsManager stats;
         readonly List<MerchantItemBlueprint> runItems = new List<MerchantItemBlueprint>();
-        static readonly Color Ink = new Color(.25f,.10f,.08f);
+        static readonly Color Ink = new Color(.025f,.05f,.15f);
         static readonly Color Paper = new Color(1,.91f,.76f,.85f);
         public const int ItemsPerPage = 6;
 
@@ -55,8 +55,9 @@ namespace Vampire
         {
             Instance = this;
             Config = config;
-            if (config.font != null && config.font.sourceFontFile != null)
-                runtimeFont = TMP_FontAsset.CreateFontAsset(config.font.sourceFontFile);
+            var roundSource=Resources.Load<Font>("TrainingUI/Cafe24Ssurround");
+            if (roundSource!=null || config.font != null && config.font.sourceFontFile != null)
+                runtimeFont = TMP_FontAsset.CreateFontAsset(roundSource!=null?roundSource:config.font.sourceFontFile);
             level = FindObjectOfType<LevelManager>();
             stats = FindObjectOfType<StatsManager>();
             character = CrossSceneData.CharacterBlueprint != null ? CrossSceneData.CharacterBlueprint : config.characters.FirstOrDefault();
@@ -73,6 +74,10 @@ namespace Vampire
             {
                 runItems.AddRange(CrossSceneData.StartingLobbyItems ?? Array.Empty<MerchantItemBlueprint>());
                 foreach (MapPanelToggle toggle in FindObjectsOfType<MapPanelToggle>(true)) toggle.enabled = false;
+                foreach (PauseMenu pause in FindObjectsOfType<PauseMenu>(true)) pause.RetireLegacyControls();
+                foreach(var rect in FindObjectsOfType<RectTransform>(true))
+                    if(rect.name=="MiniMapRoot")
+                    {rect.anchorMin=rect.anchorMax=rect.pivot=new Vector2(0,1);rect.anchoredPosition=new Vector2(20,-78);}
                 // Legacy map remains available inside the status page via its live texture.
                 if (ExplorationMapSystem.Instance != null) ExplorationMapSystem.Instance.SetFullMapPanelVisible(false);
             }
@@ -111,6 +116,7 @@ namespace Vampire
         void Update()
         {
             UpdateSkillUI();
+            UpdateBossCompass();
             UpdatePrescriptionUI();
             if (safe == null) return;
             UpdatePreferencesUI();
@@ -126,6 +132,7 @@ namespace Vampire
                 if (frames != null && frames.Length > 0)
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
+            if (TutorialGuide.BlocksMenuInput) return;
             if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
             {
                 if (Page == "hud") OpenRunBook();
@@ -136,11 +143,12 @@ namespace Vampire
         public void Show(string page, int tab = 0)
         {
             if(page=="settings" && Page!="settings")BeginSettings();
-            Page = page; Tab = tab; selection = pageIndex = 0; message = "";
+            Page = page; Tab = tab; selection = page=="prepare"&&tab==0?characterIndex:0;pageIndex=0; message = "";
             Render();
         }
         public void Back()
         {
+            if(Page=="merchant"){merchant?.CloseShop();return;}
             if (starting || Page == "skillReward" || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
             if(Page=="settings"){CancelSettings();return;}
             if (Page == "hud" || Page == "run" || Page == "main" || Page == "prepare") { OpenSettings(); return; }
@@ -150,9 +158,9 @@ namespace Vampire
         {
             if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
             ClearSkillUI();
-            portrait = null; previewCharacter = character; silverLabel = null;
+            portrait = null; previewCharacter = null; silverLabel = null;
             content = Rect("Page " + Page, root,0,0,1,1);
-            fullScreenBackdrop.gameObject.SetActive(Page!="hud");
+            fullScreenBackdrop.gameObject.SetActive(Page!="hud"&&Page!="merchant");
             if (Page == "hud")
             {
                 BuildSkillHud();
@@ -161,17 +169,18 @@ namespace Vampire
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
+            if(Page=="merchant"){OctoberMerchant();return;}
             ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
-            if (Page == "main") { Main(); return; }
+            if (Page == "main") { OctoberMain(); return; }
             if (Page == "skillReward") { BuildSkillReward(); return; }
-            string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "잠금 해제" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "스테이지 클리어!" : "탐험 실패") : Page == "exit" ? "게임 종료" : "설정";
-            Label(content,title,.30f,.865f,.70f,.965f,34);
+            string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "업적 · 해금 도감" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "게임 클리어!" : "아쉽지만 실패!") : Page == "exit" ? "게임 종료" : "설정";
+            OctoberFrame(title);
             if (Page == "prepare" || Page == "unlock")
                 silverLabel = Label(content,$"실버  {SilverWallet.Silver:N0}",.72f,.885f,.90f,.95f,22);
-            if (Page == "prepare") Prepare();
+            if (Page == "prepare") OctoberPrepare();
             else if (Page == "unlock") Unlock();
             else if (Page == "run") RunBook();
-            else if (Page == "result") Result();
+            else if (Page == "result") OctoberResult();
             else if (Page == "settings") Settings();
             else if (Page == "exit")
             {
@@ -180,7 +189,7 @@ namespace Vampire
                 ActionButton(content,"종료",.52f,.25f,.76f,.37f,Application.Quit,true);
             }
         }
-        void Main()
+        void LegacyMain()
         {
             portrait = IdlePreview(character,.41f,.395f,.59f,.665f);
             string[] labels = {"게임 시작","잠금 해제","설정","종료"};
@@ -208,7 +217,7 @@ namespace Vampire
             characterIndex = (characterIndex + direction + Config.characters.Length) % Config.characters.Length;
             character = Config.characters[characterIndex]; Render();
         }
-        void Prepare()
+        void LegacyPrepare()
         {
             character = Config.characters[characterIndex];
             previewCharacter = character;
@@ -247,7 +256,7 @@ namespace Vampire
             Label(visual,kind,.06f,.81f,.94f,.98f,12).color=new Color(1,.97f,.85f);
             Label(visual,name,.06f,.03f,.94f,.23f,12);
         }
-        void SwitchTab(int tab) { Tab=tab; selection=pageIndex=0;message="";Render(); }
+        void SwitchTab(int tab) { Tab=tab; selection=Page=="prepare"&&tab==0?characterIndex:0;pageIndex=0;message="";Render(); }
         void RelicSelection()
         {
             var available=Config.relics.Where(r=>RelicSaveData.IsUnlocked(r.relicId)).ToArray();
@@ -357,11 +366,14 @@ namespace Vampire
         }
         public void OpenRunBook()
         {
-            if(level==null || level.IsLevelEnded || Time.timeScale==0 || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
+            if(level==null || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            if(reward!=null && reward.MenuOpen)reward.SetCoveredByRunBook(true);
             previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("run");
         }
         public void CloseRunBook()
         {
+            level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
             ownsPause=false;Show("hud");
         }
@@ -381,6 +393,8 @@ namespace Vampire
                 {
                     var raw=Rect("Live exploration map",content,.46f,.24f,.83f,.65f).gameObject.AddComponent<RawImage>();raw.texture=map.FullMapTexture;raw.raycastTarget=false;
                     map.CopyBookMarkers(raw.rectTransform);
+                    string[] keys={"Player","Boss","Portal","Merchant","Vending"};string[] labels={"플레이어","보스","혈전","상인","자판기"};
+                    for(int i=0;i<5;i++){float x=.445f+i*.08f;ImageAt(content,OctoberArt.Get("OctoberUI/MapSymbols",keys[i]),x,.17f,x+.03f,.22f);Label(content,labels[i],x+.028f,.175f,x+.083f,.215f,11);}
                 }
                 else Label(content,"지도를 준비하고 있습니다.",.43f,.3f,.86f,.6f,23);
             }
@@ -392,13 +406,23 @@ namespace Vampire
             }
             else if(Tab==2)
             {
-                Label(content,"이번 출전에 가져온 아이템",.22f,.62f,.78f,.7f,27);
-                for(int i=0;i<runItems.Count;i++)
+                var items=OctoberOwnedItems();
+                int pages=Mathf.Max(1,Mathf.CeilToInt(items.Length/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
+                Label(content,$"보유 아이템 {items.Length}종",.22f,.67f,.78f,.73f,24);
+                for(int j=0;j<6;j++)
                 {
-                    float x=.20f+i*.32f;var item=runItems[i];ImageAt(content,item.itemIcon,x,.40f,x+.25f,.60f);
-                    Label(content,item.itemName+"\n"+item.description,x,.24f,x+.27f,.40f,21);
+                    int index=pageIndex*6+j;if(index>=items.Length)break;var item=items[index];
+                    float x=.15f+(j%3)*.235f,y=.43f-(j/3)*.2f;
+                    var b=ActionButton(content,"",x,y,x+.22f,y+.18f,()=>OctoberDetails(item.itemName,item.description));SlotArt(b);
+                    var visual=b.transform.Find("Visual");ImageAt(visual,item.itemIcon,.25f,.27f,.75f,.95f);Label(visual,item.itemName,.03f,.02f,.97f,.25f,17);
                 }
-                if(runItems.Count==0)Label(content,"가져온 아이템이 없습니다.",.25f,.32f,.75f,.52f,25);
+                if(pages>1)
+                {
+                    ActionButton(content,"‹",.38f,.16f,.43f,.218f,()=>{pageIndex--;Render();},false,pageIndex>0);
+                    Label(content,$"{pageIndex+1} / {pages}",.45f,.16f,.55f,.218f,16);
+                    ActionButton(content,"›",.57f,.16f,.62f,.218f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
+                }
+                if(items.Length==0)Label(content,"아직 획득한 아이템이 없습니다.",.25f,.32f,.75f,.52f,25);
             }
             else if(Tab==3)
             {
@@ -415,7 +439,7 @@ namespace Vampire
             if(Instance==null || Instance.level==null)return false;
             Instance.passed=success;Instance.ownsPause=false;Time.timeScale=0;Instance.Show("result");return true;
         }
-        void Result()
+        void LegacyResult()
         {
             bool isAshi=character==Config.characters.FirstOrDefault();
             ImageAt(content,Config.characterStage,.14f,.30f,.47f,.79f);
@@ -435,12 +459,7 @@ namespace Vampire
         void Start() {if(prepareOnReturn&&Page=="main"){prepareOnReturn=false;Show("prepare");}}
         public static string RelicDescription(RelicBlueprint r)
         {
-            switch(r.effectType)
-            {
-                case RelicBlueprint.RelicEffectType.MaxHealth:return $"최대 체력 +{r.effectValue:0}";
-                case RelicBlueprint.RelicEffectType.MoveSpeed:return $"이동 속도 +{r.effectValue:0.##}";
-                default:return $"치명타 확률 +{r.effectValue*100:0.#}%";
-            }
+            return r != null ? r.Description : "";
         }
         static RectTransform Rect(string name,Transform parent,float x,float y,float right,float top)
         {
@@ -463,7 +482,7 @@ namespace Vampire
         }
         void SlotArt(Button button)
         {
-            var body=button.transform.Find("Visual").GetComponent<Image>();body.sprite=Config.inventorySlot;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=16;
+            var body=button.transform.Find("Visual").GetComponent<Image>();body.sprite=Config.inventorySlot;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=8;button.GetComponent<ApothecaryButtonFeedback>().useThemeStates=false;
         }
         TextMeshProUGUI Label(Transform parent,string text,float x,float y,float r,float t,float size)
         {
@@ -477,12 +496,12 @@ namespace Vampire
             var hit=Rect("Button "+text,parent,x,y,r,t);var hitImage=hit.gameObject.AddComponent<Image>();hitImage.color=Color.clear;
             var button=hit.gameObject.AddComponent<Button>();button.targetGraphic=hitImage;button.transition=Selectable.Transition.None;button.interactable=enabled;
             var visual=Rect("Visual",hit,0,0,1,1);
-            var body=visual.gameObject.AddComponent<Image>();body.sprite=primary?Config.primaryButton:Config.buttonBody;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=12;body.raycastTarget=false;
+            var body=visual.gameObject.AddComponent<Image>();body.sprite=primary?Config.primaryButton:Config.buttonBody;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=4;body.raycastTarget=false;
             var surface=Rect("Orbiting edge light",visual,0,0,1,1).gameObject.AddComponent<TitleMenuSurface>();
             surface.button=button;surface.hideIcon=true;surface.decorationOnly=true;surface.raycastTarget=false;
             var label=Label(visual,text,.04f,.04f,.96f,.96f,24);label.fontStyle=FontStyles.Bold;
             if(primary)label.color=new Color(1,.97f,.88f);
-            var feedback=hit.gameObject.AddComponent<ApothecaryButtonFeedback>();feedback.button=button;feedback.visual=visual;feedback.body=body;feedback.sparkle=surface;feedback.primary=primary;feedback.chosen=chosen;
+            var feedback=hit.gameObject.AddComponent<ApothecaryButtonFeedback>();feedback.button=button;feedback.visual=visual;feedback.body=body;feedback.sparkle=surface;feedback.primary=primary;feedback.chosen=chosen;feedback.label=label;
             button.onClick.AddListener(()=>{if(button.IsInteractable()){if(clickSound)GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);action?.Invoke();}});
             return button;
         }

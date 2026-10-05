@@ -89,6 +89,8 @@ namespace Vampire
             }
 
             currentRerollCost = baseRerollCost;
+            var october=Resources.LoadAll<MerchantItemBlueprint>("OctoberContent/Catalog");
+            if(october.Length>0)allAvailableItems=new List<MerchantItemBlueprint>(october);
 
             if (shopUIContainer != null)
             {
@@ -223,7 +225,7 @@ namespace Vampire
         private MerchantItemBlueprint GetRandomItemByRarity(MerchantItemBlueprint.Rarity rarity)
         {
             List<MerchantItemBlueprint> candidates =
-                allAvailableItems.FindAll(item => item.itemRarity == rarity);
+                allAvailableItems.FindAll(item => item!=null && item.itemRarity == rarity && !AlreadyOwned(item));
 
             if (candidates.Count == 0)
             {
@@ -233,13 +235,15 @@ namespace Vampire
             return candidates[Random.Range(0, candidates.Count)];
         }
 
+        bool AlreadyOwned(MerchantItemBlueprint item)
+        {var p=FindObjectOfType<Character>();return item.octoberId>0&&p!=null&&p.GetComponent<OctoberItemRuntime>()?.Has(item.octoberId)==true;}
         private void FillRemainingItemsRandomly(List<MerchantItemBlueprint> targetItems)
         {
             List<MerchantItemBlueprint> remainingItems = new List<MerchantItemBlueprint>();
 
             foreach (MerchantItemBlueprint item in allAvailableItems)
             {
-                if (!targetItems.Contains(item))
+                if (item!=null&&!AlreadyOwned(item)&&!targetItems.Contains(item))
                 {
                     remainingItems.Add(item);
                 }
@@ -271,6 +275,11 @@ namespace Vampire
             }
 
             List<MerchantItemBlueprint> shopItems = currentInteractingNPC.GetShopItems();
+            if(ApothecaryUI.Instance!=null)
+            {
+                if(shopUIContainer!=null)shopUIContainer.SetActive(false);
+                ApothecaryUI.Instance.ShowOctoberShop(shopItems,currentRerollCost,this);return;
+            }
 
             for (int i = 0; i < shopItems.Count; i++)
             {
@@ -372,6 +381,7 @@ namespace Vampire
 
         public void CloseShop()
         {
+            if(ApothecaryUI.Instance!=null&&ApothecaryUI.Instance.Page=="merchant")ApothecaryUI.Instance.Show("hud");
             if (shopUIContainer != null)
             {
                 shopUIContainer.SetActive(false);
@@ -392,14 +402,15 @@ namespace Vampire
 
         public void OnClickPurchaseItem(MerchantItemBlueprint itemToBuy, ShopItemButton clickedButton)
         {
-            if (ProcessPayment(itemToBuy.cost))
+            var player=FindObjectOfType<Character>();
+            if(currentInteractingNPC==null||itemToBuy==null||player==null)return;
+            if(itemToBuy.octoberId>0&&OctoberItemRuntime.Get(player).Has(itemToBuy.octoberId))return;
+            if (ProcessPayment(RelicRuntime.Price(player,itemToBuy.cost)))
             {
                 ShopStatApplier statApplier = FindObjectOfType<ShopStatApplier>();
 
-                if (statApplier != null)
-                {
-                    statApplier.ApplyStats(itemToBuy);
-                }
+                if(itemToBuy.octoberId>0)OctoberItemRuntime.Get(player).Give(itemToBuy);
+                else if(statApplier!=null)statApplier.ApplyStats(itemToBuy);
 
                 if (SynergyManager.Instance != null)
                 {

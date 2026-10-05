@@ -820,8 +820,15 @@ namespace Vampire
             DestroyNeedleShotgunAmmoText();
         }
 
+        float itemEchoScale=1; bool itemEcho;
+        public void FireItemEcho(Vector2 direction,float strength)
+        {
+            itemEcho=true;itemEchoScale=strength;
+            try{LaunchSyringeProjectile(direction);}finally{itemEcho=false;itemEchoScale=1;}
+        }
         protected override void Attack()
         {
+            playerCharacter?.GetComponent<OctoberItemRuntime>()?.Attack(this);
            
             StartCoroutine(LaunchSyringes());
         }
@@ -988,6 +995,7 @@ namespace Vampire
                     BuildSpecialRuntime()
                 );
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
+                syringeProjectile.ConfigureItemAttack(itemEchoScale,itemEcho);
             }
             else
             {
@@ -1262,6 +1270,7 @@ namespace Vampire
 
         private void FireNeedleShotgunVolley(Vector2 baseDirection)
         {
+            playerCharacter?.GetComponent<OctoberItemRuntime>()?.Attack(this);
             if (baseDirection == Vector2.zero)
             {
                 baseDirection = playerCharacter != null && playerCharacter.LookDirection != Vector2.zero
@@ -1364,6 +1373,7 @@ namespace Vampire
             {
                 syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
+                syringeProjectile.ConfigureItemAttack(itemEchoScale,itemEcho);
             }
             else
             {
@@ -1574,6 +1584,7 @@ namespace Vampire
                 return;
             }
 
+            playerCharacter.GetComponent<OctoberItemRuntime>()?.Attack(this);
             HeavySnipeChargeStats stats = CalculateHeavySnipeChargeStats(chargeRatio);
             Vector2 aimDirection = GetAimDirectionFromMouseOrLookDirection();
 
@@ -1611,6 +1622,7 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(runtime);
+                syringeProjectile.ConfigureItemAttack(1,false);
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, true);
             }
 
@@ -2129,8 +2141,8 @@ namespace Vampire
         private SyringeSpecialRuntime BuildSpecialRuntime()
         {
             float additionalPierceFromCharacter = GetPublicFloatProperty(playerCharacter, "AdditionalPierce", 0f);
-            int bonusPierce = pierceEnabled ? Mathf.RoundToInt(additionalPierceFromCharacter) : 0;
-            int totalPierceCount = pierceEnabled ? Mathf.Max(0, pierceCount + bonusPierce) : 0;
+            int bonusPierce = Mathf.RoundToInt(additionalPierceFromCharacter);
+            int totalPierceCount = Mathf.Max(0, (pierceEnabled ? pierceCount : 0) + bonusPierce);
 
             float antibioticBombChance = 0f;
 
@@ -2173,7 +2185,7 @@ namespace Vampire
                 poisonTickDamage = poisonTickDamage * statusDamageMultiplier,
 
                 explosionEnabled = finalExplosionChance > 0f,
-                explosionRadius = explosionRadius,
+                explosionRadius = explosionRadius * (1 + playerCharacter.RelicBonus(RelicBlueprint.RelicEffectType.Area)),
                 explosionDamage = explosionDamage,
                 explosionChance = finalExplosionChance,
 
@@ -2181,9 +2193,8 @@ namespace Vampire
                 homingRange = homingRange,
                 homingLerpSpeed = homingLerpSpeed,
 
-                // 관통침 증강을 먹었을 때만 기본 침이 관통한다.
-                // 기본 pierceCount가 2여도 pierceEnabled가 false면 관통하지 않는다.
-                pierceEnabled = pierceEnabled && totalPierceCount > 0,
+                // 관통 증강이 없으면 기본 관통 수는 제외하되 유물/아이템의 추가 관통은 적용한다.
+                pierceEnabled = totalPierceCount > 0,
                 pierceCount = totalPierceCount,
 
                 honeyEnabled = honeyEnabled,
@@ -2224,7 +2235,7 @@ namespace Vampire
                 markBonusDamageMultiplier = markBonusDamageMultiplier,
                 digestiveAcidSacEnabled = digestiveAcidSacNeedleEnabled,
                 digestiveAcidPuddleLifetime = digestiveAcidPuddleLifetime * statusDurationMultiplier,
-                digestiveAcidPuddleRadius = digestiveAcidPuddleRadius,
+                digestiveAcidPuddleRadius = digestiveAcidPuddleRadius * (1 + playerCharacter.RelicBonus(RelicBlueprint.RelicEffectType.Area)),
                 digestiveAcidPuddleDamagePerSecond = digestiveAcidPuddleDamagePerSecond * statusDamageMultiplier,
                 digestiveAcidPuddleTickInterval = digestiveAcidPuddleTickInterval,
                 digestiveAcidPuddleColor = digestiveAcidPuddleColor,

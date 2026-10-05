@@ -50,7 +50,8 @@ namespace Vampire.Editor
                 d.lavaFrames=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Sprite>().OrderBy(s=>s.name).ToArray();
                 d.passiveName="불닭의 시작";d.activeName="불닭의 끝";d.passiveDuration=6;d.activeDuration=8;d.cooldown=35;
                 d.shiniActiveMoveMultiplier=1.3f;d.shiniActivePoolInterval=1;
-                d.passiveDescription="화염침을 보유하고 시작합니다. 이동 시간 2초마다 6초간 장판을 생성하며 적에게 화상 1스택을 부여합니다(대상당 초당 1회). 대쉬 시 필드의 기존 장판에서 토네이도가 솟아 0.6초 후 화상을 소모합니다. 피해: 침 피해 × (1 + 1.5 × 중첩) + 남은 화상 피해.";
+                d.shiniEruptionDamage=35;
+                d.passiveDescription="화염침을 보유하고 시작합니다. 이동 시간 2초마다 6초간 장판을 생성하며 적에게 화상 1스택을 부여합니다(대상당 초당 1회). 대쉬 시 기존 장판에서 불기둥이 솟아 0.6초 후 기본 35 피해를 줍니다. 일반 피해 배율과 액티브 강화가 적용되며, 침 피해 및 화상 중첩 수에 비례하지 않고 화상을 소모하지 않습니다.";
                 d.activeDescription="8초간 이동속도 30% 증가, 이동 중 장판 생성 간격 2초 → 1초. 기존 장판과 지속 중 생성되는 새 장판에서 토네이도가 발동합니다. 대쉬로도 기존 장판의 토네이도를 발동할 수 있습니다. 재사용 35초. 수치는 ShiniSkills에서 조절할 수 있습니다.";
                 EditorUtility.SetDirty(d);AssetDatabase.SaveAssets();
                 UnityEngine.Object.DestroyImmediate(source);UnityEngine.Object.DestroyImmediate(atlas);

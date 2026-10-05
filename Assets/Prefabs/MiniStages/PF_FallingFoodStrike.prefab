@@ -140,7 +140,7 @@ MonoBehaviour:
   useFallMotion: 1
   fallStartLocalOffset: {x: 0, y: 8}
   fallEndLocalOffset: {x: 0, y: 0}
-  fallMotionDuration: 0.45
+  fallMotionDuration: 0.28
   fallMotionCurve:
     serializedVersion: 2
     m_Curve:
