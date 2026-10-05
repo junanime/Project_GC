@@ -12,6 +12,20 @@ namespace Vampire
     [System.Serializable]
     public class AdvancedStageFieldEventDirector : RuntimeModule
     {
+        public void CollectPresentations(List<StageEventPresentation> result)
+        {
+            if (!isActiveAndEnabled) return;
+            foreach (var e in acidRefluxWaveEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Reflux, e.eventName, e.visualDirection));
+            foreach (var e in peristalsisDriftEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Drift, e.eventName, GetCurrentDriftDirection(e).x));
+            foreach (var e in coffeeTransfusionEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Coffee, e.eventName));
+        }
+
         protected override void OnSuspended()
         {
             if (mainCamera != null && hasOriginalCameraRotation) mainCamera.transform.rotation = originalCameraRotation;
@@ -43,6 +57,7 @@ namespace Vampire
         [System.Serializable]
         public class AcidRefluxWaveEvent
         {
+            [System.NonSerialized] public float visualDirection = 1f;
             [Header("Event Info")]
             [Tooltip("UI에 표시될 이벤트 이름입니다.")]
             public string eventName = "산성 역류 파도";
@@ -582,6 +597,7 @@ namespace Vampire
             for (int i = 0; i < safeWaveCount; i++)
             {
                 bool moveLeftToRight = i % 2 == 0;
+                waveEvent.visualDirection = moveLeftToRight ? 1f : -1f;
 
                 yield return SpawnMovingWave(
                     eventName: waveEvent.eventName,
