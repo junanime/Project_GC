@@ -132,7 +132,7 @@ namespace Vampire
                 if (frames != null && frames.Length > 0)
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
-            if (TutorialGuide.BlocksMenuInput) return;
+            if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading) return;
             if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
             {
                 if (Page == "hud") OpenRunBook();
@@ -290,12 +290,12 @@ namespace Vampire
         }
         public void StartRun()
         {
-            if(starting || !Owned(character)) return;
-            starting=true;
+            if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
             CrossSceneData.CharacterBlueprint=character;
+            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;})) return;
+            starting=true;
             CrossSceneData.StartingLobbyItems=LobbyLoadoutData.ConsumeSelectedCarryItems();
             Time.timeScale=1;
-            SceneManager.LoadScene(1);
         }
         void Unlock()
         {

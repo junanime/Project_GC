@@ -16,6 +16,7 @@ namespace Vampire
         public bool HoldingPose { get; private set; }
         public string CharacterKey { get; private set; }
         public SpriteRenderer Visual { get; private set; }
+        public float ReferenceHeight => height;
         Character owner;
         SpriteRenderer original;
         Rigidbody2D body;
@@ -43,10 +44,17 @@ namespace Vampire
             CharacterKey = OctoberArt.CharacterKey(owner.Blueprint);
             frames = Frames(CharacterKey);
             if (frames.Length == 0 || original == null) throw new System.InvalidOperationException("Missing blood clot travel art: " + CharacterKey);
-            height = original.bounds.size.y;
-            footOffset = new Vector3(original.bounds.center.x - transform.position.x, original.bounds.min.y - transform.position.y, 0);
+            // Renderer.bounds includes the transparent cell around the standing sprite. Travel
+            // sheets are tightly cropped, so matching those rectangles inflated every character.
+            // Use one baked idle silhouette for the whole journey; never renormalize each pose.
+            var idle = owner.Blueprint?.idleSpriteSequence?.FirstOrDefault(s => s != null) ?? original.sprite;
+            var visible = VisibleBodyGeometry.Bounds(idle);
+            height = original.transform.TransformVector(Vector3.up * visible.height).magnitude;
+            var foot = new Vector3(visible.center.x, visible.yMin, 0);
+            if (original.flipX) foot.x = -foot.x;
+            footOffset = original.transform.TransformPoint(foot) - transform.position;
             // Hyuki's fixed compact pose is calibrated to 72% standing height at import.
-            scale = height / frames[0].bounds.size.y;
+            scale = height / Mathf.Max(.001f, frames[0].bounds.size.y);
             if (Visual == null)
             {
                 var go = new GameObject("Blood clot travel visual");

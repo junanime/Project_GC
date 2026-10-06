@@ -114,7 +114,7 @@ namespace Vampire
 
         private void Update()
         {
-            if (!ready || level == null) return;
+            if (!ready || level == null || StageEntryLoading.IsLoading) return;
             if (open)
             {
                 if (activeSheet != null && preview != null)
