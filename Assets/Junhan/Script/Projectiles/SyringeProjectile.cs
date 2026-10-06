@@ -23,11 +23,15 @@ namespace Vampire
         private Transform ver4HomingTarget;
         private SyringeAugmentVfx bipolarVisual;
         private bool heavyImpactVisual;
+        public Vector2 VisualFlightDirection => direction;
 
         public void ConfigureFlightVfx(bool bipolar, bool heavy)
         {
             SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
             heavyImpactVisual = heavy;
+            if (heavy)
+                (GetComponent<PhoenixHeavyFlightVisual>() ?? gameObject.AddComponent<PhoenixHeavyFlightVisual>()).Bind(this, projectileSpriteRenderer);
+            else GetComponent<PhoenixHeavyFlightVisual>()?.Clear();
             if (bipolar)
             {
                 bipolarVisual = SyringeAugmentVfx.Play("BipolarNeedle", transform.position, projectileSpriteRenderer);

@@ -1601,6 +1601,9 @@ namespace Vampire
 
             Vector2 spawnPosition = GetHeavySnipeChargePreviewPosition(chargeRatio, aimDirection);
 
+            var shed = SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", spawnPosition, aimDirection, SyringeAugmentVfx.FindTarget(playerCharacter));
+            if (shed != null) shed.SetWorldSize(Vector2.one * Mathf.Lerp(.8f,2.4f,chargeRatio),Vector2.one);
+
             // Charged needles normally fire once; character skills add/multiply this final count.
             int shots = GetHeavySnipeSkillProjectileCount();
             for (int shot = 0; shot < shots; shot++)
@@ -1810,7 +1813,7 @@ namespace Vampire
             {
                 heavyChargeVisual.transform.position = previewPosition;
                 heavyChargeVisual.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg);
-                heavyChargeVisual.SetStrength(Mathf.Lerp(0.4f, 1f, chargeRatio));
+                heavyChargeVisual.SetPhoenixCharge(chargeRatio);
             }
             heavyChargePreviewObject.transform.position = previewPosition;
 
@@ -1828,6 +1831,7 @@ namespace Vampire
             Color color = heavyChargePreviewRenderer.color;
             color.a = heavyChargePreviewAlpha;
             heavyChargePreviewRenderer.color = color;
+            heavyChargePreviewRenderer.forceRenderingOff = true;
 
             if (!heavyChargePreviewObject.activeSelf)
             {

@@ -22,7 +22,7 @@ namespace Vampire.Tests.Editor
             var dialog = level.EntityManager.AbilitySelectionDialog;
             var manager = Object.FindObjectOfType<AbilityManager>();
             var abilities = manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.AvailableAsNoble).ToArray();
-            Check(abilities.Select(a=>a.Type).Distinct().Count()==11,"all eleven runtime noble abilities available");
+            Check(abilities.Select(a=>a.Type).Distinct().Count()==10,"ten noble abilities available; scattered feathers withheld");
             var config = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             foreach(var ability in abilities)
             {

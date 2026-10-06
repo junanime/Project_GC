@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace Vampire
 {
-    // Geometry-only cosmetic layer: no textures, colliders, projectiles or gameplay callbacks.
+    // Routes approved phoenix effects to painted radiance atlases, retaining the ink
+    // geometry for OrganCompression. No collisions or damage callbacks live here.
     // A pooled SyringeAugmentVfx still owns lifetime, targeting, size and sorting.
     [DefaultExecutionOrder(1000)]
     public sealed class PhoenixNobleVfx : MonoBehaviour
@@ -16,6 +17,7 @@ namespace Vampire
         string theme;
         float age, duration;
         bool looping, featherOnly;
+        PhoenixRadianceVisual radiance;
         readonly List<Vector3> vertices = new List<Vector3>();
         readonly List<Color> colors = new List<Color>();
         readonly List<int> triangles = new List<int>();
@@ -24,7 +26,7 @@ namespace Vampire
         static readonly Color Paper = new Color(.96f, .92f, .8f, .82f);
         static readonly string[] Prefixes = { "LifeBurn", "Hedgehog", "HeavySnipe", "CursorControl", "NeuralBlock", "OrganCompression", "GastricPeristalsisWave", "MucosalFortress", "HungrySpirit", "NeedleShotgun" };
         public string Theme => theme;
-        public MeshRenderer Drawing => drawing;
+        public MeshRenderer Drawing => radiance != null ? radiance.FirstRenderer : drawing;
 
         public static bool Supports(string key)
         {
@@ -45,6 +47,16 @@ namespace Vampire
             effect.duration = Mathf.Max(.05f, lifetime);
             effect.looping = loop;
             effect.featherOnly = key == "OrbitFeather";
+            if (PhoenixRadianceVisual.Supports(key))
+            {
+                effect.theme = key;
+                if (effect.drawing != null) effect.drawing.enabled = false;
+                effect.radiance = source.GetComponent<PhoenixRadianceVisual>() ?? source.gameObject.AddComponent<PhoenixRadianceVisual>();
+                effect.radiance.Bind(source,key,loop,lifetime);
+                source.forceRenderingOff = true;
+                effect.enabled = true;
+                return effect;
+            }
             if (effect.theme != key || effect.mesh == null) { effect.theme = key; effect.Build(); }
             // Keep sprite bounds/animation available for existing sizing logic, without drawing old art.
             source.forceRenderingOff = true;
@@ -189,6 +201,7 @@ namespace Vampire
         void LateUpdate() { age += Time.deltaTime; Sync(); }
         void Sync()
         {
+            if (radiance != null) return;
             if (carrier == null || drawing == null) return;
             drawing.enabled = carrier.enabled && carrier.gameObject.activeInHierarchy;
             drawing.sortingLayerID = carrier.sortingLayerID; drawing.sortingOrder = carrier.sortingOrder;

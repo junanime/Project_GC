@@ -38,6 +38,10 @@ namespace Vampire
         private ObjectPool<SyringeAugmentVfx> ownerPool;
         private bool leased;
         private float elapsed;
+        public SpriteRenderer Target => target;
+        public void SetPhoenixCharge(float charge) { GetComponent<PhoenixRadianceVisual>()?.SetCharge(charge); }
+        public void SetPhoenixAmount(float amount) { GetComponent<PhoenixRadianceVisual>()?.SetAmount(amount); }
+        public void SetPhoenixStack(int index) { GetComponent<PhoenixRadianceVisual>()?.SetStack(index); }
         private static Transform poolRoot;
         private static readonly Dictionary<string, ObjectPool<SyringeAugmentVfx>> pools = new Dictionary<string, ObjectPool<SyringeAugmentVfx>>();
 

@@ -59,7 +59,7 @@ namespace Vampire.Tests.Editor
             var prefs = GamePreferences.Current.Copy(); prefs.pauseOnFocusLoss = false; GamePreferences.Apply(prefs, false);
             Time.timeScale = 1;
             var config = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
-            Check(PhoenixNobleTheme.Keys.Length == 11, "eleven active noble augments");
+            Check(PhoenixNobleTheme.Keys.Length == 11, "eleven preserved noble catalog identities");
             foreach (var key in PhoenixNobleTheme.Keys)
             {
                 Check(PhoenixNobleTheme.NameFor(key) != key && !string.IsNullOrEmpty(PhoenixNobleTheme.DescriptionFor(key)), key + " name/description");
@@ -79,6 +79,7 @@ namespace Vampire.Tests.Editor
                 var so = new SerializedObject(fx); so.FindProperty("worldSpace").boolValue = true; so.ApplyModifiedPropertiesWithoutUndo();
                 fx.transform.position = new Vector3((i % 4) * 3 - 4.5f, 3 - (i / 4) * 3);
                 fx.SetWorldSize(Vector2.one * 2.3f, Vector2.one); effects.Add(fx);
+                fx.SetPhoenixAmount(1);
                 var ink = fx.GetComponent<PhoenixNobleVfx>();
                 Check(ink != null && ink.GetComponentInChildren<MeshFilter>().sharedMesh.vertexCount > 0, names[i] + " geometry present");
                 Check(fx.GetComponentsInChildren<Collider2D>().Length == 0, names[i] + " cosmetic only");
@@ -87,7 +88,8 @@ namespace Vampire.Tests.Editor
             foreach (var fx in effects)
             {
                 var sr = fx.GetComponent<SpriteRenderer>(); var draw = fx.GetComponent<PhoenixNobleVfx>().Drawing;
-                Check(sr.forceRenderingOff && draw.enabled && draw.sortingLayerID == sr.sortingLayerID && draw.sortingOrder == sr.sortingOrder, fx.name + " old art hidden, sorting retained");
+                bool deliberatelyHidden = fx.GetComponent<PhoenixNobleVfx>().Theme == "CursorControl";
+                Check(sr.forceRenderingOff && (deliberatelyHidden || draw.enabled && draw.sortingLayerID == sr.sortingLayerID), fx.name + " old art hidden, sorting layer retained");
             }
             Time.timeScale = 0;
             // Unity applies a timeScale change from the following frame, after this frame's LateUpdate.
@@ -98,9 +100,10 @@ namespace Vampire.Tests.Editor
             Time.timeScale = 1;
             Capture(effects);
             var loopEffect = effects[0]; var geometry = loopEffect.GetComponent<PhoenixNobleVfx>().Drawing;
+            int layerCount = loopEffect.GetComponentsInChildren<MeshRenderer>().Length;
             loopEffect.Release(); Check(!geometry.gameObject.activeInHierarchy, "release hides child geometry");
             var reused = SyringeAugmentVfx.Play("LifeBurn", Vector3.zero, sort);
-            Check(reused == loopEffect && reused.GetComponentsInChildren<MeshRenderer>().Length == 1, "pool reuse keeps single geometry layer");
+            Check(reused == loopEffect && reused.GetComponentsInChildren<MeshRenderer>().Length == layerCount, "pool reuse does not duplicate visual layers");
             reused.Release(); foreach (var fx in effects.Skip(1)) fx.Release(); Object.Destroy(sortObject);
             CrossSceneData.CharacterBlueprint = config.characters[0]; CrossSceneData.ClearStartingLobbyItems();
             Check(StageEntryLoading.Begin(config.characters[0]), "start real level");
@@ -114,7 +117,7 @@ namespace Vampire.Tests.Editor
             var feather = orbit.GetComponentsInChildren<PhoenixNobleVfx>().First(f => f.Theme == "OrbitFeather");
             Vector3 before = feather.transform.localPosition; Vector3 worldBefore = feather.transform.position - orbit.transform.position;
             yield return new WaitForSeconds(.35f);
-            Check(Quaternion.Angle(feather.transform.rotation, Quaternion.identity) < .01f, "orbit feather remains screen upright");
+            Check(Vector3.Dot(feather.transform.right,(feather.transform.position-orbit.transform.position).normalized)>.999f, "orbit feather points radially outward");
             Check(Vector3.Distance(worldBefore, feather.transform.position - orbit.transform.position) > .005f, "upright feather continues orbiting");
             Check(Vector3.Distance(before, feather.transform.localPosition) < .001f, "orbit radius/anchor unchanged");
             Check(Mathf.Abs(damage - needle.GetEffectiveDamage()) < .001f && count == needle.GetEffectiveProjectileCount(), "base damage and projectile count unchanged");

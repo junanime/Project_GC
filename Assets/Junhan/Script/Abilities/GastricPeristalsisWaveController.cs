@@ -92,6 +92,7 @@ namespace Vampire
         private IEnumerator EmitWaveRoutine()
         {
             isEmitting = true;
+            PhoenixSummonVisual.Play(ownerCharacter, true, Mathf.Max(1f,waveDuration+.3f));
 
             GameObject visualObject = CreateWaveVisualObject();
 
@@ -133,13 +134,13 @@ namespace Vampire
             augmentVisual = SyringeAugmentVfx.Play("GastricPeristalsisWave", ownerCharacter.transform.position);
             if (augmentVisual == null) return null;
             augmentVisual.SetStrength(waveColor.a);
-            augmentVisual.SetGroundRadius(0.15f, 0.82f);
+            augmentVisual.SetGroundRadius(0.15f, 0.92f);
             return augmentVisual.gameObject;
         }
 
         private void UpdateRingVisual(float radius)
         {
-            if (augmentVisual != null) augmentVisual.SetGroundRadius(radius, 0.82f);
+            if (augmentVisual != null) augmentVisual.SetGroundRadius(radius, 0.92f);
         }
 
         private void OnDisable()
