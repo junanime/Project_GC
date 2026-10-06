@@ -45,7 +45,7 @@ namespace Vampire
         }
         void ApplySettings()
         {
-            bool display=!Application.isMobilePlatform&&(settingsDraft.width!=settingsOriginal.width||settingsDraft.height!=settingsOriginal.height||settingsDraft.displayMode!=settingsOriginal.displayMode);
+            bool display=!Application.isMobilePlatform&&Application.platform!=RuntimePlatform.WebGLPlayer&&(settingsDraft.width!=settingsOriginal.width||settingsDraft.height!=settingsOriginal.height||settingsDraft.displayMode!=settingsOriginal.displayMode);
             GamePreferences.Apply(settingsDraft,!display);
             if(display){confirmingDisplay=true;displayDeadline=Time.unscaledTime+15;Render();}
             else {settingsOriginal=settingsDraft.Copy();message="설정을 저장했습니다.";Render();}
@@ -84,7 +84,7 @@ namespace Vampire
                 SettingChoice("그래픽 품질",new[]{"낮음","보통","높음"}[settingsDraft.quality],0,()=>settingsDraft.quality=(settingsDraft.quality+1)%3);
                 int[] limits={30,60,120,-1};
                 SettingChoice("프레임 제한",settingsDraft.frameLimit<0?"제한 없음":settingsDraft.frameLimit+" FPS",1,()=>settingsDraft.frameLimit=limits[(Array.IndexOf(limits,settingsDraft.frameLimit)+1)%limits.Length]);
-                if(!Application.isMobilePlatform)
+                if(!Application.isMobilePlatform&&Application.platform!=RuntimePlatform.WebGLPlayer)
                 {
                     SettingChoice("수직 동기화",OnOff(settingsDraft.vSync),2,()=>settingsDraft.vSync=!settingsDraft.vSync);
                     SettingChoice("화면 모드",settingsDraft.displayMode==0?"전체 화면":"창 모드",3,()=>settingsDraft.displayMode=1-settingsDraft.displayMode);
@@ -94,7 +94,7 @@ namespace Vampire
                         int index=Array.IndexOf(sizes,new Vector2Int(settingsDraft.width,settingsDraft.height));var size=sizes[(index+1)%sizes.Length];settingsDraft.width=size.x;settingsDraft.height=size.y;
                     });
                 }
-                Label(content,Application.isMobilePlatform?"화면 크기는 기기에 맞춰 자동으로 조절됩니다.":"수직 동기화가 켜지면 모니터 주사율을 따릅니다.",.20f,.218f,.80f,.265f,16);
+                Label(content,Application.platform==RuntimePlatform.WebGLPlayer?"화면 크기는 브라우저에 맞춰 조절됩니다. 전체화면은 페이지 아래 버튼을 사용하세요.":Application.isMobilePlatform?"화면 크기는 기기에 맞춰 자동으로 조절됩니다.":"수직 동기화가 켜지면 모니터 주사율을 따릅니다.",.20f,.218f,.80f,.265f,16);
             }
             else if(Tab==1)
             {
@@ -152,6 +152,13 @@ namespace Vampire
         {
             string action=pendingSessionAction;
             if(action==null || starting)return;
+            if(action=="quit"&&Application.platform==RuntimePlatform.WebGLPlayer)
+            {
+                pendingSessionAction=null;
+                PlayerPrefs.Save();
+                message="웹 데모를 종료하려면 브라우저 탭을 닫아 주세요.";
+                Render();return;
+            }
             starting=true;pendingSessionAction=null;
             GamePreferences.Apply(settingsOriginal,false);
             if(level!=null)level.AbandonRun();

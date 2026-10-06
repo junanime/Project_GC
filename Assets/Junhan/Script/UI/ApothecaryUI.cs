@@ -184,9 +184,10 @@ namespace Vampire
             else if (Page == "settings") Settings();
             else if (Page == "exit")
             {
-                Label(content,"게임을 종료할까요?",.2f,.45f,.8f,.65f,32);
+                bool browser = Application.platform == RuntimePlatform.WebGLPlayer;
+                Label(content,browser?"종료하려면 브라우저 탭을 닫아 주세요.":"게임을 종료할까요?",.2f,.45f,.8f,.65f,32);
                 ActionButton(content,"돌아가기",.24f,.25f,.48f,.37f,()=>Show("main"));
-                ActionButton(content,"종료",.52f,.25f,.76f,.37f,Application.Quit,true);
+                if(!browser) ActionButton(content,"종료",.52f,.25f,.76f,.37f,Application.Quit,true);
             }
         }
         void LegacyMain()

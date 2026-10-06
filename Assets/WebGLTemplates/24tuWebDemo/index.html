@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>24시간의사투 · 웹 테스트판</title>
+  <link rel="icon" href="game-icon.png">
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,"Malgun Gothic",sans-serif;background:#171521;color:#f5eddb}
+    *{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;padding:16px}
+    main{width:min(1280px,100%,calc((100svh - 136px)*1.7778))}header,footer{display:flex;justify-content:space-between;align-items:center;gap:14px}
+    h1{font-size:20px;margin:0}header{padding:0 2px 12px}header span{font-size:12px;color:#d4c1a8}
+    #game{position:relative;width:100%;aspect-ratio:16/9;border:1px solid #77634d;border-radius:12px;overflow:hidden;background:#171521;box-shadow:0 12px 48px #0006}
+    canvas{display:block;width:100%;height:100%;outline:none;background:#171521}
+    #loading{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;background:#211c29;text-align:center;padding:24px}
+    #loading[hidden]{display:none}#loading img{width:64px;height:64px;object-fit:contain;image-rendering:pixelated}
+    #loading strong{font-size:24px}#loading p{margin:0;max-width:560px;font-size:14px;line-height:1.7;color:#d4c1b1}
+    progress{width:min(360px,80%);height:12px;accent-color:#e2b75e}#status{font-size:14px;color:#e2b75e}
+    footer{padding:12px 2px 0;font-size:12px;color:#c8bcae;line-height:1.8}footer p{margin:0}
+    button{border:1px solid #ad8854;border-radius:6px;background:#473622;color:#f5eddb;padding:9px 16px;cursor:pointer;white-space:nowrap}button:disabled{opacity:.45;cursor:wait}
+    #game:fullscreen{border:0;border-radius:0;width:100vw;height:100vh;aspect-ratio:auto}
+    @media(max-width:700px){body{padding:8px}h1{font-size:16px}footer{align-items:start}header span{font-size:11px}}
+  </style>
+</head>
+<body>
+<main>
+  <header><h1>24시간의사투</h1><span>PC 브라우저 테스트판 · 실버 10,000개</span></header>
+  <section id="game" aria-label="게임 화면">
+    <canvas id="unity-canvas" width="1280" height="720" tabindex="0" aria-label="24시간의사투 게임"></canvas>
+    <div id="loading" role="status" aria-live="polite">
+      <img src="game-icon.png" alt="혁이">
+      <strong>모험을 준비하고 있어요</strong>
+      <p>처음 접속할 때 게임 파일을 내려받습니다.<br>실버가 10,000개 미만이면 보충됩니다. 원하는 콘텐츠를 직접 해금하세요.</p>
+      <progress id="progress" max="1" value="0"></progress>
+      <span id="status">게임 불러오는 중…</span>
+    </div>
+  </section>
+  <footer>
+    <div><p>이동 WASD / 방향키 · 대쉬 Shift · 스킬 R · 상호작용 E · 정보 Tab · 설정 Esc · 아이템 1–4 / ZXCV</p>
+    <p>저장은 현재 브라우저에만 남습니다. 첫 소리가 나지 않으면 게임 화면을 클릭하세요. 종료는 탭 닫기.</p></div>
+    <button id="fullscreen" disabled>전체화면</button>
+  </footer>
+</main>
+<script>
+  const canvas = document.getElementById('unity-canvas');
+  const status = document.getElementById('status');
+  const progress = document.getElementById('progress');
+  const loading = document.getElementById('loading');
+  const fullscreen = document.getElementById('fullscreen');
+  let unityInstance;
+  function fail(message) {
+    loading.hidden = false;
+    loading.querySelector('strong').textContent = '게임을 불러오지 못했어요';
+    loading.querySelector('p').textContent = message;
+    progress.hidden = true;
+    status.textContent = '연결을 확인한 뒤 새로고침해 주세요.';
+    console.error(message);
+  }
+  canvas.addEventListener('pointerdown', () => canvas.focus());
+  canvas.addEventListener('keydown', event => {
+    if (['Tab','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(event.key)) event.preventDefault();
+  });
+  fullscreen.addEventListener('click', () => { if(unityInstance) { unityInstance.SetFullscreen(1); canvas.focus(); } });
+  if (location.protocol === 'file:') {
+    fail('HTML 파일을 더블클릭해서는 실행할 수 없습니다. 동봉된 로컬 실행 도구 또는 웹 호스팅 주소로 열어 주세요.');
+  } else if (!document.createElement('canvas').getContext('webgl2')) {
+    fail('WebGL 2를 사용할 수 없습니다. PC의 Chrome 또는 Edge에서 하드웨어 가속을 켠 뒤 실행해 주세요.');
+  } else {
+    const buildUrl = 'Build';
+    const config = {
+      dataUrl: buildUrl + '/{{{ DATA_FILENAME }}}',
+      frameworkUrl: buildUrl + '/{{{ FRAMEWORK_FILENAME }}}',
+      codeUrl: buildUrl + '/{{{ CODE_FILENAME }}}',
+      streamingAssetsUrl: 'StreamingAssets',
+      companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
+      productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
+      productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
+      showBanner: (message, type) => { if(type === 'error') fail(message); else console.warn(message); }
+    };
+    const loader = document.createElement('script');
+    loader.src = buildUrl + '/{{{ LOADER_FILENAME }}}';
+    loader.onerror = () => fail('게임 실행 파일을 찾을 수 없습니다. Build 폴더를 포함한 모든 파일이 함께 있어야 합니다.');
+    loader.onload = () => createUnityInstance(canvas, config, value => {
+      progress.value = value;
+      status.textContent = value >= .9 ? '게임을 시작하고 있어요…' : '게임 불러오는 중… ' + Math.round(value * 100) + '%';
+    }).then(instance => {
+      unityInstance = instance;
+      loading.hidden = true;
+      fullscreen.disabled = false;
+      canvas.focus();
+    }).catch(error => fail(String(error)));
+    document.body.appendChild(loader);
+  }
+</script>
+</body>
+</html>
