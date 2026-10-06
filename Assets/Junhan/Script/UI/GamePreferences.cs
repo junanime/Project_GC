@@ -21,7 +21,8 @@ namespace Vampire
         static GamePreferenceValues current;
         public static event Action Changed;
         public static GamePreferenceValues Current => current ?? (current = Read());
-        public static GamePreferenceValues Defaults() => new GamePreferenceValues {vSync=!Application.isMobilePlatform};
+        public static GamePreferenceValues Defaults() => new GamePreferenceValues
+        {vSync=!GamePlatform.UsesTouchControls, frameLimit=GamePlatform.IsMobileWeb?30:60};
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset() { current=null; Changed=null; }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -66,7 +67,7 @@ namespace Vampire
             int last=Mathf.Max(0,QualitySettings.names.Length-1);
             int quality=current.quality==0?0:current.quality==1?last/2:last;
             if(QualitySettings.GetQualityLevel()!=quality)QualitySettings.SetQualityLevel(quality,true);
-            QualitySettings.vSyncCount=!Application.isMobilePlatform&&current.vSync?1:0;
+            QualitySettings.vSyncCount=!GamePlatform.UsesTouchControls&&current.vSync?1:0;
             Application.targetFrameRate=current.frameLimit;
             AudioListener.volume=current.muted?0:current.master;
             if(changeDisplay&&!Application.isMobilePlatform)

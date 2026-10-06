@@ -43,6 +43,7 @@ namespace Vampire
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
+        public Inventory PlayerInventory => inventory;
         public bool IsRunFlowPaused => runFlowPaused;
         public bool IsLevelEnded => levelEnded;
 

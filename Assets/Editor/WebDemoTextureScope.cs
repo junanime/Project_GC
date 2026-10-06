@@ -15,9 +15,11 @@ namespace Vampire.Editor
         [Serializable] sealed class Entry { public string path, original; }
         [Serializable] sealed class Backup { public List<Entry> entries = new List<Entry>(); }
         readonly Backup backup = new Backup();
+        readonly bool mobile;
 
-        public WebDemoTextureScope(string[] scenes)
+        public WebDemoTextureScope(string[] scenes, bool mobile = false)
         {
+            this.mobile = mobile;
             if (File.Exists(BackupPath))
                 throw new InvalidOperationException("An interrupted Web texture build has a backup. Run 24투/Restore web build texture imports first.");
             var resources = AssetDatabase.GetAllAssetPaths().Where(p => p.StartsWith("Assets/") && p.Contains("/Resources/") && !p.Contains("/Editor/") && !AssetDatabase.IsValidFolder(p));
@@ -48,9 +50,10 @@ namespace Vampire.Editor
                     settings.name = "WebGL";
                     if (!settings.overridden) settings.maxTextureSize = importer.maxTextureSize;
                     settings.overridden = true;
-                    settings.format = importer.DoesSourceTextureHaveAlpha() ? TextureImporterFormat.DXT5 : TextureImporterFormat.DXT1;
+                    settings.format = mobile ? TextureImporterFormat.ASTC_4x4 :
+                        (importer.DoesSourceTextureHaveAlpha() ? TextureImporterFormat.DXT5 : TextureImporterFormat.DXT1);
                     settings.textureCompression = TextureImporterCompression.CompressedHQ;
-                    settings.compressionQuality = 100;
+                    settings.compressionQuality = mobile ? 50 : 100;
                     settings.crunchedCompression = false;
                     importer.SetPlatformTextureSettings(settings);
                     AssetDatabase.WriteImportSettingsIfDirty(entry.path);

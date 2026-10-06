@@ -28,6 +28,8 @@ namespace Vampire
             return false;
         }
 
+        public void ApplyMobileLayout() => LightWoodHud.InstallMobile(inventorySlots);
+
         public bool TryGetInventorySlot(Collectable item, out InventorySlot inventorySlot)
         {
             if (inventorySlotByType.TryGetValue(item.CollectableType, out inventorySlot))

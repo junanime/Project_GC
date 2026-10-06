@@ -9,15 +9,19 @@ namespace Vampire
     public sealed class MobileGameplayControls : MonoBehaviour
     {
         [SerializeField] private bool simulateInEditor;
-        [SerializeField, Range(.2f, 1f)] private float opacity = .65f;
+        [SerializeField, Range(.2f, 1f)] private float opacity = .42f;
         [Header("Mobile-only HUD placement")]
         [SerializeField] private RectTransform minimapHud, inventoryHud;
         [SerializeField] private Vector2 minimapOffset = new Vector2(32,-130);
-        [SerializeField] private Vector2 inventoryOffset = new Vector2(-50,-150);
+        [SerializeField] private Vector2 inventoryOffset = new Vector2(-220,670);
         private sealed class HudPlacement
         {
             public RectTransform rect;
             public Vector2 min,max,pivot,position;
+            public Vector2 size;
+            public Vector3 scale;
+            public Transform parent;
+            public int sibling;
         }
         private readonly List<HudPlacement> hudPlacements = new List<HudPlacement>();
         private Character character;
@@ -27,37 +31,56 @@ namespace Vampire
         private MobileTouchControl[] controls;
         private PauseMenu pauseMenu;
         private MapPanelToggle map;
+        private GameObject itemPanel;
+        private bool itemPanelWasActive;
 
         public static void Ensure(Character character)
         {
-            if (!Application.isMobilePlatform || character.GetComponent<MobileGameplayControls>() != null) return;
+            if (!GamePlatform.UsesTouchControls || character.GetComponent<MobileGameplayControls>() != null) return;
             character.gameObject.AddComponent<MobileGameplayControls>();
         }
 
         private void Start()
         {
             character = GetComponent<Character>();
-            if (character == null || (!Application.isMobilePlatform && !simulateInEditor)) { enabled = false; return; }
+            if (character == null || (!GamePlatform.UsesTouchControls && !simulateInEditor)) { enabled = false; return; }
             foreach (var old in FindObjectsOfType<TouchJoystick>()) old.gameObject.SetActive(false);
             pauseMenu = FindObjectOfType<PauseMenu>(true);
             map = FindObjectOfType<MapPanelToggle>(true);
             MobileGameplayInput.Active = true;
             Build();
-            PlaceHud(minimapHud!=null ? minimapHud : FindHud("MiniMapRoot"),new Vector2(0,1),minimapOffset);
-            PlaceHud(inventoryHud!=null ? inventoryHud : FindHud("Inventory Buttons"),Vector2.one,inventoryOffset);
+            var minimap = minimapHud!=null ? minimapHud : FindHud("MiniMapRoot");
+            PlaceHud(minimap,new Vector2(0,1),minimapOffset);
+            if(minimap!=null)minimap.localScale*=.70f;
+            var level=FindObjectOfType<LevelManager>();
+            var inventory = inventoryHud!=null ? inventoryHud :
+                (level!=null&&level.PlayerInventory!=null ? level.PlayerInventory.transform as RectTransform : FindHud("Inventory Buttons"));
+            PlaceHud(inventory, Vector2.right, inventoryOffset);
+            if(inventory!=null)
+            {
+                // Keep the serialized inventory in its own scene canvas/safe area.
+                // Reparenting it during scene unload can leave stale canvas batches behind on WebGL.
+                itemPanel=inventory.gameObject;itemPanelWasActive=itemPanel.activeSelf;
+                inventory.anchorMin=inventory.anchorMax=Vector2.right;
+                inventory.pivot=new Vector2(.5f,.5f);
+                inventory.anchoredPosition=inventoryOffset;
+                inventory.localScale=Vector3.one;
+                inventory.GetComponent<Inventory>()?.ApplyMobileLayout();
+            }
         }
 
-        private static RectTransform FindHud(string name)
+        private RectTransform FindHud(string name)
         {
             foreach(var rect in FindObjectsOfType<RectTransform>(true))
-                if(rect.name==name) return rect;
+                if(rect.name==name&&rect.gameObject.scene==gameObject.scene) return rect;
             return null;
         }
 
         private void PlaceHud(RectTransform rect,Vector2 anchor,Vector2 offset)
         {
             if(rect==null)return;
-            hudPlacements.Add(new HudPlacement {rect=rect,min=rect.anchorMin,max=rect.anchorMax,pivot=rect.pivot,position=rect.anchoredPosition});
+            hudPlacements.Add(new HudPlacement {rect=rect,min=rect.anchorMin,max=rect.anchorMax,pivot=rect.pivot,position=rect.anchoredPosition,
+                size=rect.sizeDelta,scale=rect.localScale,parent=rect.parent,sibling=rect.GetSiblingIndex()});
             rect.anchorMin=rect.anchorMax=rect.pivot=anchor;
             rect.anchoredPosition=offset;
         }
@@ -76,11 +99,12 @@ namespace Vampire
         private MobileTouchControl Control(string label, Transform parent, Vector2 anchor, Vector2 position, Vector2 size, bool stick = false)
         {
             var rect = Rect(label, parent, anchor, position, size);
-            var background = rect.gameObject.AddComponent<Image>();
-            background.color = new Color(.07f, .11f, .18f, opacity);
+            var background = rect.gameObject.AddComponent<MobileControlDisc>();
+            background.color = new Color(.10f, .16f, .19f, opacity);
             var textRect = Rect("Label", rect, new Vector2(.5f,.5f), Vector2.zero, size - Vector2.one * 10);
             var text = textRect.gameObject.AddComponent<TextMeshProUGUI>();
-            text.text = label;
+            text.font = TrainingUITheme.Font;
+            text.text = stick ? "" : label;
             text.fontSize = 24;
             text.alignment = TextAlignmentOptions.Center;
             text.raycastTarget = false;
@@ -88,11 +112,17 @@ namespace Vampire
             input.Joystick = stick;
             if (stick)
             {
-                input.Radius = size.x * .34f;
-                input.Knob = Rect("Knob", rect, new Vector2(.5f,.5f), Vector2.zero, size * .24f);
-                var image = input.Knob.gameObject.AddComponent<Image>();
-                image.color = new Color(.9f, .94f, 1, .55f);
+                input.Radius = size.x * .30f;
+                input.Knob = Rect("Knob", rect, new Vector2(.5f,.5f), Vector2.zero, size * .36f);
+                var image = input.Knob.gameObject.AddComponent<MobileControlDisc>();
+                image.color = new Color(.92f, .12f, .17f, .58f);
                 image.raycastTarget = false;
+                textRect.anchorMin=textRect.anchorMax=new Vector2(.5f,0);
+                textRect.anchoredPosition=new Vector2(0, -23);
+                textRect.sizeDelta=new Vector2(size.x,36);
+                text.text=label=="MOVE" ? "이동" : "조준 / 충전";
+                text.fontSize=20;
+                text.color=new Color(1,1,1,.78f);
             }
             return input;
         }
@@ -111,6 +141,7 @@ namespace Vampire
             safe.gameObject.AddComponent<SafeArea>().ResetSafeArea();
             var root = Rect("Gameplay", safe, Vector2.zero, Vector2.zero, Vector2.zero);
             root.anchorMax = Vector2.one;
+            root.offsetMin=root.offsetMax=Vector2.zero;
             gameplayRoot = root.gameObject;
             var move = Control("MOVE", root, Vector2.zero, new Vector2(180,180), Vector2.one * 260, true);
             move.Changed = value => character.Move(value);
@@ -118,8 +149,8 @@ namespace Vampire
             aim.Changed = value => { if (value != Vector2.zero) MobileGameplayInput.Aim = value.normalized; };
             aim.Pressed = () => MobileGameplayInput.ChargeHeld = true;
             aim.Released = () => MobileGameplayInput.ChargeHeld = false;
-            Control("DASH", root, Vector2.right, new Vector2(-410,150), Vector2.one * 150).Pressed = () => character.TryDash();
-            Control("USE", root, Vector2.right, new Vector2(-180,420), Vector2.one * 140).Pressed = MobileGameplayInput.RequestInteraction;
+            Control("대쉬", root, Vector2.right, new Vector2(-410,150), Vector2.one * 140).Pressed = () => character.TryDash();
+            Control("상호작용", root, Vector2.right, new Vector2(-180,405), Vector2.one * 120).Pressed = MobileGameplayInput.RequestInteraction;
 
             var arrows = Rect("Trap Escape", root, new Vector2(.5f,0), new Vector2(0,195), new Vector2(400,300));
             arrowRoot = arrows.gameObject;
@@ -157,6 +188,7 @@ namespace Vampire
             bool canPlay = Time.timeScale > 0 && character.CurrentHealth > 0 && !mapOpen;
             if (!canPlay) ResetGestures();
             gameplayRoot.SetActive(canPlay);
+            if(itemPanel!=null)itemPanel.SetActive(canPlay);
             arrowRoot.SetActive(canPlay && character.IsTrapBound);
         }
 
@@ -184,8 +216,10 @@ namespace Vampire
                 {
                     placement.rect.anchorMin=placement.min;placement.rect.anchorMax=placement.max;
                     placement.rect.pivot=placement.pivot;placement.rect.anchoredPosition=placement.position;
+                    placement.rect.sizeDelta=placement.size;placement.rect.localScale=placement.scale;
                 }
             hudPlacements.Clear();
+            if(itemPanel!=null)itemPanel.SetActive(itemPanelWasActive);
             if (canvasObject != null) Destroy(canvasObject);
         }
     }

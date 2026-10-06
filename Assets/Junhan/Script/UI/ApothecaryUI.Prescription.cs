@@ -85,7 +85,7 @@ namespace Vampire
         }
         void BuildMobileHudNavigation()
         {
-            if(!Application.isMobilePlatform&&!MobileGameplayInput.Active)return;
+            if(!GamePlatform.UsesTouchControls&&!MobileGameplayInput.Active)return;
             ActionButton(content,"상태",.60f,.805f,.715f,.875f,OpenRunBook).name="Mobile status";
             ActionButton(content,"설정",.60f,.72f,.715f,.79f,OpenSettings).name="Mobile settings";
         }

@@ -104,11 +104,11 @@ namespace Vampire
             if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(Page=="hud"&&Time.timeScale>0&&!MiniStageRuntimeState.IsInsideMiniStage);
             var skill=CurrentSkills;
             if(activeSkillButton==null)return;
-            skillHudRoot.anchoredPosition=new Vector2(0,(Application.isMobilePlatform||MobileGameplayInput.Active)?205:0);
+            skillHudRoot.anchoredPosition=new Vector2(0,(GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?330:0);
             var d=skill!=null?skill.Definition:null;
             activeSkillButton.interactable=skill!=null&&skill.CanActivate;
             if(passiveLevelLabel!=null)passiveLevelLabel.text=$"패시브 Lv.{(skill!=null?skill.PassiveLevel:1)}";
-            if(activeLevelLabel!=null)activeLevelLabel.text=$"R · 액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
+            if(activeLevelLabel!=null)activeLevelLabel.text=$"{((GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?"":"R · ")}액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
             activeCooldown.fillAmount=d!=null?skill.CooldownRemaining/skill.EffectiveCooldown:0;
             activeSeconds.text=skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
             // Marathon has no separate cooldown: its countdown is the remaining buff duration.

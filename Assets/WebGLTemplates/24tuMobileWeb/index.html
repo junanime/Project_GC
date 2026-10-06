@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#171521">
+  <title>24시간의사투 · 모바일 웹 QA</title>
+  <link rel="icon" href="game-icon.png">
+  <link rel="apple-touch-icon" href="game-icon.png">
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,"Malgun Gothic",sans-serif;background:#171521;color:#f5eddb;--vh:100vh}
+    *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+    body{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+    #game{position:relative;width:min(100%,calc((var(--vh) - env(safe-area-inset-top) - env(safe-area-inset-bottom))*16/9));aspect-ratio:16/9;max-height:100%;overflow:hidden;background:#171521;touch-action:none}
+    canvas{display:block;width:100%;height:100%;outline:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+    .overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:16px;background:#211c29;z-index:2}
+    [hidden]{display:none!important}.overlay img{width:48px;height:48px;object-fit:contain;image-rendering:pixelated}
+    h1{font-size:clamp(18px,3vw,26px);margin:0}p{font-size:clamp(12px,1.9vw,16px);line-height:1.6;max-width:650px;margin:0;color:#d4c1b1}
+    small{color:#b9b0aa;font-size:11px}button{border:1px solid #ad8854;border-radius:8px;background:#473622;color:#fff0d0;padding:11px 24px;font:inherit;font-weight:600;cursor:pointer;touch-action:manipulation}
+    button:disabled{opacity:.5}progress{width:min(360px,75%);height:12px;accent-color:#e2b75e}#status{font-size:13px;color:#e2b75e}
+    #rotate{position:fixed;inset:0;z-index:5;padding:32px;background:#171521f5}#rotate strong{font-size:24px}
+    #resume{background:#171521dc}#resume strong{font-size:22px}
+    @media(max-height:390px){.overlay{gap:8px}.overlay img{width:32px;height:32px}small{font-size:10px}}
+  </style>
+</head>
+<body>
+<main id="game" aria-label="24시간의사투 모바일 게임">
+  <canvas id="unity-canvas" width="1280" height="720" tabindex="0" aria-label="게임 화면"></canvas>
+  <div class="overlay" id="loading" role="status" aria-live="polite">
+    <img src="game-icon.png" alt="혁이">
+    <h1>24시간의사투 · 모바일 웹 QA</h1>
+    <p id="instructions">설치 없이 가로 화면으로 플레이하세요.<br>아이폰은 Safari, 안드로이드는 Chrome으로 열어주세요.<br>첫 다운로드 약 500MB · Wi-Fi 권장 · 실버 10,000개 미만이면 보충</p>
+    <small>모바일 웹 실험판 · 기종에 따라 느리거나 재로딩될 수 있어요 · 저장은 현재 브라우저에만 유지</small>
+    <progress id="progress" max="1" value="0" hidden></progress>
+    <span id="status">왼쪽 이동 · 오른쪽 조준/충전 · 대쉬/상호작용/아이템 터치</span>
+    <button id="start">게임 불러오기</button>
+  </div>
+  <div class="overlay" id="resume" hidden>
+    <strong>모험을 시작할까요?</strong>
+    <p>소리가 나오도록 아래 버튼을 눌러주세요.<br>게임 중 화면의 ‘설정’에서 언제든 일시정지할 수 있어요.</p>
+    <button id="play">터치하여 시작</button>
+  </div>
+</main>
+<div class="overlay" id="rotate" hidden><strong>휴대폰을 가로로 돌려주세요</strong><p>화면 회전 잠금을 해제해 주세요.<br>가로 화면으로 돌아오면 계속할 수 있어요.</p></div>
+<script>
+  'use strict';
+  const canvas=document.getElementById('unity-canvas'), loading=document.getElementById('loading');
+  const status=document.getElementById('status'), progress=document.getElementById('progress');
+  const start=document.getElementById('start'), resume=document.getElementById('resume'), rotate=document.getElementById('rotate');
+  const android=/Android/i.test(navigator.userAgent);
+  const browserName=android?'Chrome':'Safari';
+  document.querySelector('h1').textContent='24시간의사투 · '+(android?'안드로이드':'아이폰')+' 웹 QA';
+  document.getElementById('instructions').innerHTML='설치 없이 '+browserName+'에서 가로 화면으로 플레이하세요.<br>첫 다운로드 약 500MB · Wi-Fi 권장<br>실버가 10,000개 미만이면 보충됩니다.';
+  let unityInstance, started=false, failed=false;
+  function syncViewport() {
+    document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
+    rotate.hidden=window.innerWidth>=window.innerHeight;
+    if(unityInstance) unityInstance.SendMessage('Mobile web lifecycle','SetBrowserBlocked',document.hidden||!rotate.hidden||!resume.hidden?'1':'0');
+  }
+  window.addEventListener('resize',syncViewport);
+  document.addEventListener('visibilitychange',syncViewport);
+  window.addEventListener('pagehide',()=>{if(unityInstance)unityInstance.SendMessage('Mobile web lifecycle','SetBrowserBlocked','1');});
+  window.addEventListener('pageshow',syncViewport);
+  syncViewport();
+  canvas.addEventListener('contextmenu',event=>event.preventDefault());
+  canvas.addEventListener('touchmove',event=>event.preventDefault(),{passive:false});
+  canvas.addEventListener('pointerdown',()=>canvas.focus());
+  canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();fail('브라우저가 그래픽 메모리를 회수했어요. 다른 탭과 앱을 닫고 다시 시도해 주세요.');});
+  function fail(message) {
+    failed=true;loading.hidden=false;resume.hidden=true;
+    loading.querySelector('h1').textContent='게임을 불러오지 못했어요';
+    document.getElementById('instructions').textContent=message;
+    progress.hidden=true;status.textContent='카카오톡 안의 브라우저가 아닌 '+browserName+'에서 열어 주세요.';
+    start.hidden=false;start.disabled=false;start.textContent='다시 시도';
+    console.error(message);
+  }
+  document.getElementById('play').addEventListener('click',()=>{
+    resume.hidden=true;canvas.focus();syncViewport();
+  });
+  start.addEventListener('click',()=>{
+    if(failed){location.reload();return;}
+    if(started)return;
+    if(location.protocol==='file:'){fail('파일을 직접 여는 대신 공유받은 https 링크로 접속해 주세요.');return;}
+    const probe=document.createElement('canvas'),gl=probe.getContext('webgl2');
+    const astc=gl&&gl.getExtension('WEBGL_compressed_texture_astc');
+    if(gl){const release=gl.getExtension('WEBGL_lose_context');if(release)release.loseContext();}
+    if(!gl){fail('이 브라우저에서 WebGL 2를 사용할 수 없어요. 운영체제와 '+browserName+'를 업데이트한 후 다시 시도해 주세요.');return;}
+    if(!astc){fail('이 기기는 모바일용 ASTC 그래픽을 지원하지 않아요. PC에서는 기존 PC 웹 링크를 이용해 주세요.');return;}
+    started=true;start.hidden=true;progress.hidden=false;status.textContent='게임 파일 다운로드를 시작합니다…';
+    const buildUrl='Build';
+    const config={
+      dataUrl:buildUrl + '/{{{ DATA_FILENAME }}}',
+      frameworkUrl:buildUrl + '/{{{ FRAMEWORK_FILENAME }}}',
+      codeUrl:buildUrl + '/{{{ CODE_FILENAME }}}',
+      streamingAssetsUrl:'StreamingAssets',
+      companyName:{{{ JSON.stringify(COMPANY_NAME) }}},
+      productName:{{{ JSON.stringify(PRODUCT_NAME) }}},
+      productVersion:{{{ JSON.stringify(PRODUCT_VERSION) }}},
+      devicePixelRatio:Math.min(window.devicePixelRatio||1,1.5,1280/Math.max(1,canvas.clientWidth)),
+      showBanner:(message,type)=>{if(type==='error')fail(message);else console.warn(message);}
+    };
+    const loader=document.createElement('script');
+    loader.src=buildUrl + '/{{{ LOADER_FILENAME }}}';
+    loader.onerror=()=>fail('게임 서버에 연결하지 못했어요. 네트워크와 공유 서버가 켜져 있는지 확인해 주세요.');
+    loader.onload=()=>createUnityInstance(canvas,config,value=>{
+      progress.value=value;status.textContent=value>=.9?'게임을 준비하고 있어요…':'게임 불러오는 중… '+Math.round(value*100)+'%';
+    }).then(instance=>{
+      unityInstance=instance;
+      if(failed)return;
+      loading.hidden=true;resume.hidden=false;syncViewport();
+    }).catch(error=>fail(String(error)));
+    document.body.appendChild(loader);
+  });
+</script>
+</body>
+</html>

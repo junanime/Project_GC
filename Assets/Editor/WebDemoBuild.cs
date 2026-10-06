@@ -21,6 +21,8 @@ namespace Vampire.Editor
             int oldWidth = PlayerSettings.defaultWebScreenWidth;
             int oldHeight = PlayerSettings.defaultWebScreenHeight;
             int oldMemory = PlayerSettings.WebGL.initialMemorySize;
+            var oldSubtarget = EditorUserBuildSettings.webGLBuildSubtarget;
+            bool mobile = Environment.GetEnvironmentVariable("PROJECT_GC_WEB_MOBILE") == "1";
             WebDemoTextureScope textures = null;
             try
             {
@@ -32,9 +34,10 @@ namespace Vampire.Editor
                 if (scenes.Length != 2 || !scenes[0].EndsWith("Main Menu.unity") || scenes[1] != "Assets/Scenes/Game/Level 1.unity")
                     throw new InvalidOperationException("Expected the current lobby and Level 1 in that order.");
 
-                textures = new WebDemoTextureScope(scenes);
+                EditorUserBuildSettings.webGLBuildSubtarget = mobile ? WebGLTextureSubtarget.ASTC : WebGLTextureSubtarget.DXT;
+                textures = new WebDemoTextureScope(scenes, mobile);
 
-                PlayerSettings.WebGL.template = "PROJECT:24tuWebDemo";
+                PlayerSettings.WebGL.template = mobile ? "PROJECT:24tuMobileWeb" : "PROJECT:24tuWebDemo";
                 PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
                 // Works on static hosts without special Content-Encoding configuration.
                 PlayerSettings.WebGL.decompressionFallback = true;
@@ -52,7 +55,7 @@ namespace Vampire.Editor
                     scenes = scenes,
                     locationPathName = folder,
                     target = BuildTarget.WebGL,
-                    extraScriptingDefines = new[] { "PROJECT_GC_WEB_DEMO" },
+                    extraScriptingDefines = mobile ? new[] { "PROJECT_GC_WEB_DEMO", "PROJECT_GC_MOBILE_WEB" } : new[] { "PROJECT_GC_WEB_DEMO" },
                     options = BuildOptions.CompressWithLz4HC
                 });
                 if (report == null || report.summary.result != BuildResult.Succeeded)
@@ -62,7 +65,7 @@ namespace Vampire.Editor
                 File.Copy("Documentation/WebDemo.md", Path.Combine(folder, "WEB_DEMO_GUIDE.md"), true);
                 File.Copy("Tools/Distribution/Launch-WebDemo.ps1", Path.Combine(folder, "Launch-WebDemo.ps1"), true);
                 File.Copy("Tools/Distribution/Launch-WebDemo.cmd", Path.Combine(folder, "Launch-WebDemo.cmd"), true);
-                File.Copy("Tools/Distribution/WebDemo-Readme.txt", Path.Combine(folder, "시작방법.txt"), true);
+                File.Copy(mobile ? "Tools/Distribution/MobileWebDemo-Readme.txt" : "Tools/Distribution/WebDemo-Readme.txt", Path.Combine(folder, "시작방법.txt"), true);
                 File.Copy("Assets/Junhan/Art/PhoenixSkills/HyukiActive.png", Path.Combine(folder, "game-icon.png"), true);
                 File.WriteAllText(Path.Combine(folder, "web-build.json"), JsonUtility.ToJson(new BuildInfo
                 {
@@ -70,7 +73,8 @@ namespace Vampire.Editor
                     product = PlayerSettings.productName, version = PlayerSettings.bundleVersion,
                     bytes = report.summary.totalSize, scenes = scenes,
                     sourceCommit = Environment.GetEnvironmentVariable("PROJECT_GC_SOURCE_COMMIT") ?? "unknown",
-                    localChangesIncluded = true, sessionMinimumSilver = WebDemoStartup.StartingSilver
+                    localChangesIncluded = true, sessionMinimumSilver = WebDemoStartup.StartingSilver,
+                    profile = mobile ? "mobile-web-astc-qa" : "desktop-web-dxt", textureCompression = mobile ? "ASTC 4x4" : "DXT"
                 }, true));
                 Debug.Log("[WebDemoBuild] PASS bytes=" + report.summary.totalSize + " path=" + folder);
                 exitCode = 0;
@@ -86,6 +90,7 @@ namespace Vampire.Editor
                 PlayerSettings.WebGL.initialMemorySize = oldMemory;
                 PlayerSettings.defaultWebScreenWidth = oldWidth;
                 PlayerSettings.defaultWebScreenHeight = oldHeight;
+                EditorUserBuildSettings.webGLBuildSubtarget = oldSubtarget;
                 AssetDatabase.SaveAssets();
                 if (textures != null) textures.Dispose();
             }
@@ -95,7 +100,7 @@ namespace Vampire.Editor
         [Serializable]
         sealed class BuildInfo
         {
-            public string utc, unity, product, version, sourceCommit;
+            public string utc, unity, product, version, sourceCommit, profile, textureCompression;
             public string[] scenes;
             public ulong bytes;
             public bool localChangesIncluded;
