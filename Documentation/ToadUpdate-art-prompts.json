@@ -1,0 +1,41 @@
+{
+  "method": "Built-in image generation, transparent sprite atlases",
+  "definitions": [
+    [
+      "ToadLocomotion",
+      "D:/Project_GC/work/DesignPreviews/toad-squirrel-scroll-hud-concepts/01-concept.png",
+      "EXACT 4 columns by 4 rows, 16 equally sized cells. Row1 and row2 = 8-frame seamless four-legged waddling WALK cycle, read left to right top row then second row. Alternate near/far legs, shoulders and head rock a little, belly sways, no sliding rigid pose. Row3 and row4 = 8-frame IDLE breathing cycle with blink and little liquid slosh. Same full-body front-three-quarter view facing slightly RIGHT in ALL 16 cells. All feet visible, SAME SCALE and ground baseline inside every cell. Cheek sacs modest half full in idle/walk."
+    ],
+    [
+      "ToadAttack",
+      "D:/Project_GC/work/DesignPreviews/toad-squirrel-scroll-hud-concepts/01-concept.png",
+      "EXACT 4 columns by 4 rows 16 equally sized cells. First 8 cells (row1 then row2): INFLATE cheeks gradually from neutral modest sacs to fully swollen translucent sacs, bright acid liquid visibly filling. Mouth closed. Last 8 cells (row3 then row4): SUSTAINED SPIT and DEFLATE: mouth open pointing RIGHT, cheeks initially full then acid level drops frame by frame to empty, cheeks contract gradually. Last cell closes mouth resting. NO external stream (engine adds stream separately), only tiny drop at lip. FULL BODY same 3/4 front view facing RIGHT all cells. SAME body size and baseline as walk, no camera movement."
+    ],
+    [
+      "ToadJump",
+      "D:/Project_GC/work/DesignPreviews/toad-squirrel-scroll-hud-concepts/01-concept.png",
+      "EXACT 4 columns by 2 rows 8 equally sized cells, left to right then second row. 8-frame ANTICIPATION JUMP LAND RECOVERY sequence: neutral, deep squat lowering belly, coiled limbs, powerful takeoff legs extended back, airborne gathered limbs, reaching landing feet forward/down, heavy squash on landing, recovered neutral. Four legs anatomically stable, full body same front-three-quarter view facing RIGHT. Keep body CENTER position consistent across cells; engine provides vertical jump offset. No ground shadow or dust, no floating symbols. Same modest cheek liquid level as idle."
+    ],
+    [
+      "SquirrelMotion",
+      "D:/Project_GC/work/DesignPreviews/toad-squirrel-scroll-hud-concepts/03-concept.png",
+      "EXACT 4 columns by 4 rows 16 equally sized cells. Row1+row2 = 8-frame cautious sneak/APPROACH walk cycle, small steps, head checks ahead, sack sways subtly. Row3+row4 = 8-frame energetic FLEE running loop, both arms raised like cheering, huge alternating strides, long airborne steps, lively tail/sack follow through, fearful cute expression. Same full body 3/4 facing RIGHT all cells. Walnut cheeks, curled walnut-textured tail, cream coin sack with mint tied knot and red tag MUST remain identical. SAME SCALE and ground baseline each cell. NO floor shadow or dust."
+    ],
+    [
+      "SquirrelReact",
+      "D:/Project_GC/work/DesignPreviews/toad-squirrel-scroll-hud-concepts/03-concept.png",
+      "EXACT 4 columns by 2 rows 8 equally sized cells. First4: startled transition from cautious walk to arms raised run, head turns, squash, raise hands, takeoff. Last4: hit recoil and defeated tumble, recoil eyes squeezed, lose balance, tip to side, lying on side with bag still attached. Full body 3/4 facing RIGHT, identical walnut cheeks and tail cream mint tied coin sack. Same scale every frame, no extra detached coins or effects, no shadow."
+    ],
+    [
+      "LightWoodUI",
+      "D:/Project_GC/work/DesignPreviews/toad-squirrel-scroll-hud-concepts/05-concept.png",
+      "Production UI asset atlas, NOT mockup. Transparent background, NO TEXT NO ICONS NO NUMBERS anywhere. Exactly 2 columns x2 rows equal square cells. Top left: horizontal honey/lightwood medicine tray with EXACT 4 recessed cream-lined squares, mint jade rounded endcaps and tiny red cords, blank key labels beneath 4slots. Top right: CLOSED compact horizontal wooden vision scroll holder, mint endcaps, blank cream nameplate. Bottom left: OPEN vision scroll with SAME closed wooden holder at top, long blank cream paper below for three quests, understated pink corner motif, no written content. Bottom right: single lightwood cream lined square slot matching tray, mint/gold tiny corner accent. Generous transparent margins between 4 assets. Faithfully match A light wood reference texture palette. Crisp game pixel edges."
+    ]
+  ],
+  "acidFx": "Use case: stylized-concept. Production Unity transparent VFX atlas. Exact grid 4 columns 2 rows, 8 equal square cells, no borders no text. Top row four looping frames of horizontally flowing lime green acid jet from left edge to right edge, rounded irregular foamy cream edge, lime liquid with shiny yellow bubbles, identical silhouette width and same height. Stream is thin continuous horizontal fluid strip, not a wave crest. Bottom row four looping frames of single small round acid-covered sphere, glossy dark olive core coated bright bubbling lime goo and cream rim highlights, centered fixed size. Cute detailed pixel sprite style matching reference toad acid cheek liquid. Genuine transparent background, generous cell margins, no toads, no labels no shadow.",
+  "toadHead": "Use case: stylized-concept. Production sprite atlas of ONLY THE HEAD of the exact approved acid toad in reference, for face peeking in from screen edge. Preserve bulging amber eyes, bumpy lime green skin, cream lower jaw, translucent acid cheek sacs. NO BODY NO LEGS NO NECK, complete naturally rounded lower jaw outline (not flat cropped edge), no background. Exact 4columns x4rows equal cells, 16 individual full head cutouts with wide transparent gutters. ALL heads facing RIGHT three-quarter. First8 frames: neutral cheek sacs gradually inflate with rising lime liquid level until fully inflated. Last8 frames: mouth open spitting toward RIGHT, cheek liquid decreases and sacs shrink frame by frame, final frame mouth closed neutral. No exterior projectile or liquid stream, only liquid INSIDE cheeks. Same size head skull and same position eachcell, only cheeks change. Genuine transparent alpha, crisp detailed pixel art thin darkoutline. No text, numbers, floor, labels.",
+  "revisions": [
+    "Locomotion regenerated to retain the approved green four-legged silhouette and consistent cell baselines.",
+    "Alpha-connected component slicing isolates each creature frame; common grounded pivot and calibrated pixels-per-unit preserve motion scale."
+  ]
+}

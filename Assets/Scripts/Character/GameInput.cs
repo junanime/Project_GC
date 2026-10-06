@@ -22,6 +22,8 @@ namespace Vampire
             if(!GetKeyDown(key)&&!MobileGameplayInput.ConsumeInteraction())return false;
             interactionFrame=Time.frameCount;return true;
         }
+        public static bool TryConsumeInteraction(KeyCode key, Component owner)
+            => InteractionFocus.IsFocused(owner) && TryConsumeInteraction(key);
         public static bool GetKeyDown(KeyCode code)
         {
             var keyboard=Keyboard.current;

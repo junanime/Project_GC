@@ -33,6 +33,20 @@ namespace Vampire
         [SerializeField] private SpriteRenderer portalRenderer;
         [SerializeField] private Sprite lockedSprite;
         [SerializeField] private Sprite unlockedSprite;
+        private bool travelOpen;
+        private bool enhanced;
+        public void SetTravelVisual(bool open, bool overcharged)
+        {
+            travelOpen=open; enhanced=overcharged;
+            RefreshSprite();
+        }
+        private void RefreshSprite()
+        {
+            if(portalRenderer==null)portalRenderer=GetComponentInChildren<SpriteRenderer>(true);
+            var sprite=(unlocked || travelOpen)?unlockedSprite:lockedSprite;
+            if(portalRenderer!=null && sprite!=null)portalRenderer.sprite=sprite;
+            if(enhanced)BloodClotOverchargedArt.Apply(gameObject);
+        }
 
         public bool IsUnlocked => unlocked;
         public bool CanInteract => isActiveAndEnabled && unlocked && playerInside &&
@@ -47,6 +61,8 @@ namespace Vampire
         private void Awake()
         {
             BloodClotObstacle.Ensure(gameObject);
+            InteractionFocus.ReduceTrigger(GetComponent<Collider2D>());
+            InteractionFocus.Register(this, () => CanInteract);
             if (miniStageDirector == null)
             {
                 miniStageDirector = FindObjectOfType<MiniStageDirector>();
@@ -71,7 +87,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 if (debugLog)
                 {
@@ -88,9 +104,7 @@ namespace Vampire
         public void SetUnlocked(bool value)
         {
             unlocked = value;
-            if (portalRenderer == null) portalRenderer = GetComponentInChildren<SpriteRenderer>(true);
-            Sprite sprite = unlocked ? unlockedSprite : lockedSprite;
-            if (portalRenderer != null && sprite != null) portalRenderer.sprite = sprite;
+            RefreshSprite();
 
             if (debugLog)
             {

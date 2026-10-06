@@ -71,7 +71,7 @@ namespace Vampire
             AudioListener.volume=current.muted?0:current.master;
             if(changeDisplay&&!Application.isMobilePlatform)
             {
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && !UNITY_WEBGL
                 var mode=current.displayMode==0?FullScreenMode.FullScreenWindow:FullScreenMode.Windowed;
                 int w=current.width>0?current.width:Display.main.systemWidth;
                 int h=current.height>0?current.height:Display.main.systemHeight;

@@ -347,7 +347,7 @@ namespace Vampire
 
             // 가장 피해를 많이 준 증강 이름 / 피해량
             string topAugmentName =
-                AugmentDamageTracker.Instance.GetTopDamageAugmentName();
+                PhoenixNobleTheme.DisplayLabel(AugmentDamageTracker.Instance.GetTopDamageAugmentName());
 
             float topDamage =
                 AugmentDamageTracker.Instance.GetTopDamageAmount();

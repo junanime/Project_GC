@@ -15,8 +15,33 @@ namespace Vampire
         [SerializeField] private List<StageEventSchedule> basicEvents = new List<StageEventSchedule>();
         [SerializeField] private List<AdvancedStageFieldEventDirector> advancedEvents = new List<AdvancedStageFieldEventDirector>();
         [SerializeField] private List<AntacidBubbleSurgeEventController> antacidEvents = new List<AntacidBubbleSurgeEventController>();
+        private readonly List<StageEventPresentation> presentations = new List<StageEventPresentation>();
+        private StageEventCornerUI cornerUI;
+        private LevelManager presentationLevel;
+
+        protected override void LateUpdate()
+        {
+            base.LateUpdate();
+            if (presentationLevel == null) presentationLevel = FindObjectOfType<LevelManager>();
+            presentations.Clear();
+            if (presentationLevel == null || !presentationLevel.IsLevelEnded)
+            {
+                foreach (var e in basicEvents) e?.CollectPresentations(presentations);
+                foreach (var e in advancedEvents) e?.CollectPresentations(presentations);
+                foreach (var e in antacidEvents) e?.CollectPresentations(presentations);
+            }
+            if (cornerUI == null && presentations.Count > 0) cornerUI = gameObject.AddComponent<StageEventCornerUI>();
+            if (cornerUI != null) cornerUI.Sync(presentations, MiniStageRuntimeState.IsInsideMiniStage, SchedulesPaused);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            if (cornerUI != null) cornerUI.Hide();
+        }
         protected override void Awake()
         {
+            if (GetComponent<AcidToadSpawn>() == null) gameObject.AddComponent<AcidToadSpawn>();
             if (useWindowSchedule) PrepareWindowSchedule();
             base.Awake();
         }

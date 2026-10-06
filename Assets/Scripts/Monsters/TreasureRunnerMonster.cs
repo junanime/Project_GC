@@ -69,6 +69,10 @@ namespace Vampire
         private float spawnTime;
         private bool deathHandled;
         private bool hasStartedFleeing;
+        [SerializeField] private float walnutBodyWidth = 1.2f;
+        private FoodAtlasMotion walnutMotion;
+        private float startledUntil, walnutHitUntil;
+        public bool IsFleeing => hasStartedFleeing;
         // MiniStage 진입으로 필드 런타임이 정지된 시점을 저장합니다.
         // 풀에서 재사용될 때 Setup()에서 반드시 초기화합니다.
         private float fieldSuspendStartTime = -1f;
@@ -84,6 +88,21 @@ namespace Vampire
             deathHandled = false;
             hasStartedFleeing = false;
             fieldSuspendStartTime = -1f;
+            if (monsterSpriteAnimator != null) monsterSpriteAnimator.enabled = false;
+            walnutMotion = GetComponent<FoodAtlasMotion>() ?? gameObject.AddComponent<FoodAtlasMotion>();
+            walnutMotion.Configure(monsterSpriteRenderer);
+            monsterSpriteRenderer.sprite = AcidToadArt.Frame("SquirrelMotion", 0);
+            if (monsterSpriteRenderer.sprite != null)
+                monsterSpriteRenderer.transform.localScale = Vector3.one * (walnutBodyWidth / monsterSpriteRenderer.sprite.bounds.size.x);
+            monsterSpriteRenderer.transform.localPosition = Vector3.zero;
+            // The hitbox lives on the sprite child and inherits its calibrated visual scale.
+            if (monsterSpriteRenderer.sprite != null)
+                monsterHitbox.size = new Vector2(monsterSpriteRenderer.sprite.bounds.size.x * .72f, monsterSpriteRenderer.sprite.bounds.size.y * .8f);
+            monsterHitbox.offset = Vector2.up * monsterHitbox.size.y * .5f;
+            monsterLegsCollider.radius = walnutBodyWidth * .25f;
+            centerTransform.localPosition = Vector3.up * walnutBodyWidth * .35f;
+            startledUntil = walnutHitUntil = 0;
+            walnutMotion.Play("SquirrelMotion", 0, 8, 1.15f, true);
 
             GameAudioManager.PlaySfx(
     GameAudioManager.GameSfxId.TreasureRunnerSpawn
@@ -116,6 +135,13 @@ namespace Vampire
 
                 StartCoroutine(Killed(false));
             }
+            if (walnutMotion != null && !deathHandled)
+            {
+                if (Time.time < walnutHitUntil) walnutMotion.Sample("SquirrelReact", 4, 2, 1-(walnutHitUntil-Time.time)/.18f);
+                else if (Time.time < startledUntil) walnutMotion.Sample("SquirrelReact", 0, 4, 1-(startledUntil-Time.time)/.24f);
+                else walnutMotion.Play("SquirrelMotion", hasStartedFleeing ? 8 : 0, 8, hasStartedFleeing ? .48f : 1.15f, true);
+                if (rb.velocity.sqrMagnitude > .01f) monsterSpriteRenderer.flipX = rb.velocity.x < 0;
+            }
         }
 
         protected override void FixedUpdate()
@@ -146,6 +172,7 @@ namespace Vampire
                         this);
                 }
 
+                if (!hasStartedFleeing) startledUntil = Time.time + .24f;
                 hasStartedFleeing = true;
             }
 
@@ -156,6 +183,7 @@ namespace Vampire
             }
 
             FleeFromPlayer(toPlayer, distanceToPlayer);
+            if (entityManager?.Grid != null) entityManager.Grid.UpdateClient(this);
         }
 
         protected override void OnFieldRuntimeSuspended()
@@ -197,6 +225,14 @@ namespace Vampire
             }
 
             deathHandled = true;
+            alive = false;
+            if (rb != null) rb.velocity = Vector2.zero;
+            if (monsterHitbox != null) monsterHitbox.enabled = false;
+            if (walnutMotion != null)
+            {
+                walnutMotion.Play("SquirrelReact", 4, 4, .4f);
+                yield return new WaitForSeconds(.4f);
+            }
 
             if (killedByPlayer)
             {
@@ -223,6 +259,13 @@ namespace Vampire
                 * approachSideNoiseStrength;
 
             rb.velocity = (direction + sideNoise).normalized * approachMoveSpeed * IceMoveMultiplier;
+            if (entityManager?.Grid != null) entityManager.Grid.UpdateClient(this);
+        }
+
+        public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
+        {
+            if (alive && !IsFieldRuntimeSuspended && damage > 0) walnutHitUntil = Time.time + .18f;
+            base.TakeDamage(damage, knockback, isCritical);
         }
 
         private void FleeFromPlayer(Vector2 toPlayer, float distanceToPlayer)

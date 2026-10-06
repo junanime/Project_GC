@@ -18,6 +18,7 @@ namespace Vampire
                 inventorySlot.Init();
                 inventorySlotByType[inventorySlot.CollectableType] = inventorySlot;
             }
+            LightWoodHud.Install(inventorySlots);
         }
 
         public bool RoomInInventory(Collectable item)

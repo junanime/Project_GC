@@ -35,11 +35,11 @@ namespace Vampire
         {
             if (startingGame || characterBlueprint == null ||
                 !LobbyUnlockSave.IsUnlocked("Character", characterBlueprint.name, characterBlueprint.owned)) return;
-            startingGame = true;
             CrossSceneData.CharacterBlueprint = characterBlueprint;
+            if (!StageEntryLoading.Begin(characterBlueprint, () => startingGame = false)) return;
+            startingGame = true;
             CrossSceneData.StartingLobbyItems = LobbyLoadoutData.ConsumeSelectedCarryItems();
-
-            SceneManager.LoadScene(1);
+            Time.timeScale = 1;
         }
     }
 }

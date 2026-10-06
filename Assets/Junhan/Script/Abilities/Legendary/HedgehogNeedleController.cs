@@ -349,6 +349,14 @@ namespace Vampire
             }
 
 
+            // Cogwheel teeth: pointed ends remain radial as the entire orbit rotates.
+            foreach (var feather in orbitNeedleVisuals)
+                if (feather != null)
+                {
+                    Vector3 outward = feather.position - visualRoot.position;
+                    feather.rotation = Quaternion.Euler(0,0,Mathf.Atan2(outward.y,outward.x)*Mathf.Rad2Deg);
+                }
+
             DetectEnemiesTouchingOrbitNeedles();
 
             CleanupExpiredCooldowns();
@@ -658,6 +666,9 @@ namespace Vampire
 
                 visualObject.transform.localScale =
                     GetOrbitVisualScale();
+
+                visualObject.transform.localRotation = Quaternion.Euler(0,0,angle);
+                PhoenixNobleVfx.Attach(visualRenderer, "OrbitFeather", true, 1f);
 
 
                 orbitNeedleVisuals.Add(

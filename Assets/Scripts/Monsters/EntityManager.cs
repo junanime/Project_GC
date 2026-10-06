@@ -313,11 +313,12 @@ namespace Vampire
                 hpBuff
             );
             newMonster.ConfigureGroundShadow(monsterBlueprint);
+            newMonster.FitVisibleBody();
 
             grid.InsertClient(newMonster);
 
             if (!allowDuringMiniStage)
-                TutorialGuide.QueueMonster(monsterBlueprint);
+                TutorialGuide.QueueMonster(monsterBlueprint, newMonster);
 
             return newMonster;
         }
@@ -328,7 +329,7 @@ namespace Vampire
                 return false;
             }
 
-            return MiniStageRuntimeState.IsInsideMiniStage;
+            return MiniStageRuntimeState.IsInsideMiniStage || (playerCharacter != null && playerCharacter.IsPortalTravelling && FindObjectOfType<LevelManager>()?.IsRunFlowPaused == true);
         }
         /// <summary>
         /// 현재 살아있는 메인 필드 몬스터들의 행동을

@@ -98,19 +98,25 @@ namespace Vampire
         void BuildSkillReward()
         {
             Label(content,"처방 강화",.25f,.84f,.75f,.94f,34);
-            Label(content,"패시브 또는 액티브 하나를 강화하세요 · 최대 Lv.5",.15f,.75f,.85f,.82f,23);
+            Label(content,"패시브 · 액티브 · 대쉬 중 하나를 선택하세요",.15f,.75f,.85f,.82f,23);
             var skills=CurrentSkills;
             if(skills==null)return;
             for(int i=0;i<2;i++)
             {
-                bool active=i==1;float x=.16f+i*.36f;
-                Panel(content,x,.20f,x+.32f,.72f);
+                bool active=i==1;float x=.055f+i*.30f;
+                Panel(content,x,.20f,x+.28f,.72f);
                 var d=skills.Definition;int current=active?skills.ActiveLevel:skills.PassiveLevel;
-                ImageAt(content,active?d.activeIcon:d.passiveIcon,x+.08f,.49f,x+.24f,.68f);
-                Label(content,active?"액티브 강화":"패시브 강화",x+.02f,.425f,x+.30f,.49f,25);
-                Label(content,skills.UpgradeDescription(active),x+.025f,.30f,x+.295f,.425f,19);
-                ActionButton(content,current>=5?"최대 레벨":$"Lv.{current} → Lv.{current+1}",x+.04f,.22f,x+.28f,.295f,()=>FinishSkillReward(active),true,current<5);
+                ImageAt(content,active?d.activeIcon:d.passiveIcon,x+.06f,.49f,x+.22f,.68f);
+                Label(content,active?"액티브 강화":"패시브 강화",x+.02f,.425f,x+.26f,.49f,23);
+                Label(content,skills.UpgradeDescription(active),x+.025f,.30f,x+.255f,.425f,17);
+                ActionButton(content,current>=5?"최대 레벨":$"Lv.{current} → Lv.{current+1}",x+.04f,.22f,x+.24f,.295f,()=>FinishSkillReward(active),true,current<5);
             }
+            Panel(content,.655f,.20f,.935f,.72f);
+            var dash=Rect("Shared dash reward icon",content,.725f,.49f,.865f,.68f).gameObject.AddComponent<SharedDashIcon>();
+            dash.color=new Color(.12f,.65f,.63f);dash.raycastTarget=false;
+            Label(content,"대쉬 +1",.675f,.425f,.915f,.49f,25);
+            Label(content,"최대 대쉬 횟수 +1\n대쉬 충전 1회 즉시 획득",.68f,.30f,.91f,.425f,18);
+            ActionButton(content,"대쉬 횟수 증가",.695f,.22f,.895f,.295f,FinishDashReward,true);
             if(skills.PassiveLevel>=5 && skills.ActiveLevel>=5)
             {
                 Label(content,"두 스킬 모두 최대 레벨 · 최대 체력의 20% 회복으로 대체",.12f,.12f,.88f,.185f,20);
@@ -125,6 +131,12 @@ namespace Vampire
             skillRewardQueued=false;var callback=skillRewardCallback;skillRewardCallback=null;
             CloseRunBook();
             callback?.Invoke();
+        }
+        void FinishDashReward()
+        {
+            if(!skillRewardQueued||level==null||level.PlayerCharacter==null)return;
+            skillRewardQueued=false;level.PlayerCharacter.AddDashCharge(1);
+            var callback=skillRewardCallback;skillRewardCallback=null;CloseRunBook();callback?.Invoke();
         }
     }
 }

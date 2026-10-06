@@ -46,6 +46,7 @@ namespace Vampire
         private bool awaitingSkillReward;
         public bool Enhanced => director != null && director.CurrentEnhanced;
 
+        public bool RoomStarted => roomStarted;
         public Transform PlayerStartPoint
         {
             get

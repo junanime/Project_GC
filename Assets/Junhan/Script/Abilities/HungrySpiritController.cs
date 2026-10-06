@@ -43,6 +43,13 @@ namespace Vampire
             float attackSpeedBonusPerStack,
             bool debugLog)
         {
+            // Repeated runtime configuration must not erase the accumulation timer.
+            if (this.playerCharacter == playerCharacter && subscribed &&
+                Mathf.Approximately(this.stackInterval, Mathf.Max(.1f,stackInterval)) &&
+                this.maxStacks == Mathf.Max(1,maxStacks) &&
+                Mathf.Approximately(this.damageBonusPerStack,Mathf.Max(0,damageBonusPerStack)) &&
+                Mathf.Approximately(this.rangeBonusPerStack,Mathf.Max(0,rangeBonusPerStack)) &&
+                Mathf.Approximately(this.attackSpeedBonusPerStack,Mathf.Max(0,attackSpeedBonusPerStack))) return;
             RemoveAllAppliedBonuses();
 
             this.playerCharacter = playerCharacter;
@@ -129,7 +136,7 @@ namespace Vampire
             {
                 if (augmentVisual == null && playerCharacter != null)
                     augmentVisual = SyringeAugmentVfx.Play("HungrySpirit", playerCharacter.transform.position, SyringeAugmentVfx.FindTarget(playerCharacter));
-                if (augmentVisual != null) augmentVisual.SetStrength(Mathf.Lerp(0.25f, 1f, currentStacks / (float)maxStacks));
+                if (augmentVisual != null) augmentVisual.SetPhoenixAmount(currentStacks / (float)maxStacks);
             }
 
             if (debugLog)

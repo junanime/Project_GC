@@ -63,6 +63,17 @@ namespace Vampire
 
         public float IceMoveMultiplier => GetComponent<IceChillStatus>()?.SpeedMultiplier ?? 1f;
         public float HP => currentHealth;
+        public SpriteRenderer BodyRenderer => monsterSpriteRenderer;
+        public BoxCollider2D BodyHitbox => monsterHitbox;
+
+        public void FitVisibleBody()
+        {
+            if (monsterSpriteRenderer == null || monsterHitbox == null) SetupHitboxReference();
+            var mini=GetComponentInChildren<SnailMiniVisual>();
+            var fit=GetComponent<MonsterBodyFit>() ?? gameObject.AddComponent<MonsterBodyFit>();
+            if(mini!=null)fit.Configure(monsterHitbox,mini.Body,mini.Shell);
+            else fit.Configure(monsterHitbox, monsterSpriteRenderer);
+        }
         public float SpawnMaxHealth { get; private set; }
         public bool WasKilledByPlayer { get; private set; }
 
@@ -384,8 +395,7 @@ namespace Vampire
             if (monsterHitbox != null && monsterSpriteRenderer != null)
             {
                 monsterHitbox.enabled = true;
-                monsterHitbox.size = monsterSpriteRenderer.bounds.size;
-                monsterHitbox.offset = Vector2.up * monsterHitbox.size.y / 2f;
+                VisibleBodyGeometry.Fit(monsterHitbox, monsterSpriteRenderer);
             }
 
             if (monsterLegsCollider != null && monsterHitbox != null)
@@ -402,7 +412,7 @@ namespace Vampire
             if (monsterHitbox != null)
             {
                 centerTransform.position =
-                    transform.position + (Vector3)monsterHitbox.offset;
+                    monsterHitbox.transform.TransformPoint(monsterHitbox.offset);
             }
             else
             {

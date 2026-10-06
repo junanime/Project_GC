@@ -440,6 +440,7 @@ float maxHitRadiusBonusFromSpecial)
             cursorNeedleRenderer.sortingLayerID = projectileSortingLayerId;
             cursorNeedleRenderer.sortingOrder = projectileSortingOrder + 10;
             cursorNeedleRenderer.color = new Color(1f, 1f, 1f, 0.95f);
+            cursorNeedleRenderer.forceRenderingOff = true;
         }
 
         private void CreateBackDisplayRoot()
@@ -532,7 +533,7 @@ float maxHitRadiusBonusFromSpecial)
             }
 
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-            cursorNeedleTransform.rotation = Quaternion.Euler(0f, 0f, angle + orbitVisualAngleOffset);
+            cursorNeedleTransform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
 
         private float GetSpecialDamageMultiplier()
@@ -608,22 +609,8 @@ float maxHitRadiusBonusFromSpecial)
 
         private void UpdateBackDisplay(bool forceRebuild)
         {
-            if (backDisplayRoot == null || sourceNeedleAbility == null)
-            {
-                return;
-            }
-
-            backDisplayRoot.localPosition = backDisplayOffset;
-
-            int specialCount = sourceNeedleAbility.GetActiveSpecialAugmentCount();
-
-            if (!forceRebuild && specialCount == lastDisplayedSpecialCount)
-            {
-                return;
-            }
-
-            lastDisplayedSpecialCount = specialCount;
-            RebuildBackDisplay(specialCount);
+            // Reinforcement is now on the flying quill, not the player's back.
+            if (backDisplayRoot != null) backDisplayRoot.gameObject.SetActive(false);
         }
 
         private void RebuildBackDisplay(int specialCount)
@@ -1288,13 +1275,7 @@ float maxHitRadiusBonusFromSpecial)
 
         private void UpdateAugmentVisuals()
         {
-            if (orbitVisual == null)
-                orbitVisual = SyringeAugmentVfx.Play("CursorControl", GetOrbitCenter(), SyringeAugmentVfx.FindTarget(sourceCharacter));
-            if (orbitVisual != null)
-            {
-                orbitVisual.transform.position = GetOrbitCenter();
-                SizeOrbitVisual(orbitVisual);
-            }
+            SyringeAugmentVfx.ReleaseOwned(ref orbitVisual);
             if (needleGlow == null && cursorNeedleTransform != null)
             {
                 needleGlow = SyringeAugmentVfx.Play("CursorControlGlow", cursorNeedleTransform.position, cursorNeedleRenderer);
@@ -1304,6 +1285,12 @@ float maxHitRadiusBonusFromSpecial)
                     needleGlow.SetWorldSize(new Vector2(0.32f, 0.14f), new Vector2(0.9f, 0.4f));
                 }
             }
+        }
+
+        private void LateUpdate()
+        {
+            if (needleGlow != null && sourceNeedleAbility != null)
+                needleGlow.SetPhoenixAmount(Mathf.Clamp(sourceNeedleAbility.GetActiveSpecialAugmentCount(),0,7));
         }
 
         private void OnDisable()

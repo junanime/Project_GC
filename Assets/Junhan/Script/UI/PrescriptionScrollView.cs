@@ -34,7 +34,7 @@ namespace Vampire
             paper.anchorMin=paper.anchorMax=new Vector2(.5f,1);paper.pivot=new Vector2(.5f,1);
             paper.sizeDelta=new Vector2(252,SheetHeight);paper.anchoredPosition=Vector2.zero;
             var art=paper.gameObject.AddComponent<Image>();
-            art.sprite=OctoberArt.Get("OctoberUI/Panel");art.type=Image.Type.Sliced;art.pixelsPerUnitMultiplier=7;art.raycastTarget=true;
+            art.sprite=LightWoodHud.Art(2);art.type=Image.Type.Simple;art.raycastTarget=true;
             sheetInteraction=paper.gameObject.AddComponent<CanvasGroup>();
             Tag=Text("Scroll tag",paper,font,14,.09f,.83f,.91f,.92f);
             Rows=new TextMeshProUGUI[3];
@@ -55,7 +55,7 @@ namespace Vampire
             foot=footImage.rectTransform;TopBox(foot,new Vector2(180,-76),new Vector2(260,14));
             var header=AugmentPanelTheme.Rect("Prescription toggle",transform);
             AugmentPanelTheme.Anchors(header,Vector2.zero,Vector2.one);
-            var headerArt=header.gameObject.AddComponent<Image>();headerArt.sprite=OctoberArt.Get("OctoberUI/PrescriptionCase");headerArt.preserveAspect=true;
+            var headerArt=header.gameObject.AddComponent<Image>();headerArt.sprite=LightWoodHud.Art(1);headerArt.preserveAspect=true;
             headerArt.raycastTarget=true;
             Toggle=header.gameObject.AddComponent<Button>();Toggle.targetGraphic=headerArt;
             Toggle.onClick.AddListener(()=>{GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);toggle?.Invoke();});

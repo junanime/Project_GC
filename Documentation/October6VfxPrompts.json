@@ -1,0 +1,25 @@
+{
+  "tool": "Built-in image_gen (transparent backgrounds)",
+  "assets": [
+    "WoodSprout",
+    "WoodBranch",
+    "VibrationShockwave",
+    "PolarityMark"
+  ],
+  "subjects": [
+    {
+      "name": "WoodSprout",
+      "subject": "A magical WOOD SEED GERMINATING hit effect. Frame1 tiny golden seed spark; frame2 green seed cracks; frames3-4 two bright mint leaves and a short brown woody root sprout outward, frames5-6 leaf burst and green glints, frames7-8 fragments fade away. Compact radial effect centered in each cell, no ground or pot."
+    },
+    {
+      "name": "WoodBranch",
+      "subject": "A magical WOODY BRANCH THRUST traveling LEFT TO RIGHT. Small green-white impact at left extends a thin brown forked branch with vibrant lime/mint leaves toward right over frames1-4; frames5-6 full extension with golden spark at tip; frames7-8 fading small leaves and twig fragments. Horizontal silhouette occupies max 80% of cell width, branches never spill cells. Consistent left root x position at 10% cell width, branch midline at cell center."
+    },
+    {
+      "name": "VibrationShockwave",
+      "subject": "A circular VIBRATION SHOCKWAVE, top-down perfect CIRCLES, NOT ellipses. Ivory/pale gold core with cyan-teal circular ripples, faceted translucent energy and sparse square dust pixels. Frames1-4 expand from tiny central pulse to concentric rings; frame4 full outer circular ring diameter exactly 80% cell width; frames5-8 keep the same maximum 80% diameter while fading to sparse ring fragments. Transparent empty center; clear outer radius boundary at peak. No explosions or fire."
+    }
+  ],
+  "polarityFinalEditPrompt": "Use case: precise-object-edit. Edit target: provided pixel-art 4 columns x 2 rows sprite sheet. Change the round complete yin-yang emblems to ONLY ONE isolated HALF of the yin-yang symbol in each frame. TOP ROW: retain ONLY the WHITE yang half, with its single black small circular dot in the rounded head. Delete the entire black complementary half and the outer circular medallion border, leaving real transparent empty space where deleted. BOTTOM ROW: retain ONLY the BLACK yin half with its single white small circular dot. Delete its white complementary half and outer circular medallion border, leaving transparent empty space. Each isolated shape must be the classic curved comma/fish shape of exactly HALF a taijitu: rounded bulbous head tapering into a curved pointed tail along an S-curve, NOT a generic water drop, NOT a full circular symbol, NOT an outlined circle enclosing two halves. Same orientation as upper-right half of original respective row; rounded head at top, curved tapered tail down. Thin contrasting edge around the retained SHAPE ONLY for visibility in game, no ring. Preserve crisp pixel texture, uniform placement, original 4x2 equal square cell layout, 4 subtle pulsing frames for each color. No additional dots, no text, no background, no plate, no surrounding circles. Transparent background. Intended as tiny monster overhead status marker.",
+  "references": "Existing SyringeVfx pixel texture; earlier complete circular PolarityMark sheet was replaced by isolated halves at user request."
+}

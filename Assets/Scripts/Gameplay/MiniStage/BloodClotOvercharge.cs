@@ -17,6 +17,13 @@ namespace Vampire
         LineRenderer ring;
         TextMeshPro label;
         Material ringMaterial;
+        bool travelReserved;
+        public void SetTravelReserved(bool value)
+        {
+            travelReserved=value;
+            if(ring!=null)ring.enabled=!value;
+            if(label!=null)label.gameObject.SetActive(!value);
+        }
         void Awake()
         {
             player=FindObjectOfType<LevelManager>()?.PlayerCharacter;
@@ -36,13 +43,14 @@ namespace Vampire
         void OnDestroy(){if(ringMaterial!=null)Destroy(ringMaterial);}
         public bool Begin()
         {
-            if(Started || !PlayerInside || !player.IsAlive || Time.timeScale<=0 || MiniStageRuntimeState.IsInsideMiniStage)return false;
+            if(travelReserved || Started || !PlayerInside || !player.IsAlive || Time.timeScale<=0 || MiniStageRuntimeState.IsInsideMiniStage)return false;
             Started=true;
             FindObjectOfType<EntityManager>()?.SpawnOverchargeElite((Vector2)transform.position+Vector2.up*(RemakeBalance.Current.overchargeRadius+2));
             return true;
         }
         void Update()
         {
+            if(travelReserved)return;
             if(player==null)player=FindObjectOfType<LevelManager>()?.PlayerCharacter;
             if(PlayerInside && GameInput.GetKeyDown(KeyCode.Q))Begin();
             if(CanProgress && Kind==Challenge.Stay)Advance(Time.deltaTime);
@@ -62,6 +70,7 @@ namespace Vampire
             if(Progress>=Target)
             {
                 Enhanced=true;
+                BloodClotOverchargedArt.Apply(gameObject);
                 player.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.Overcharge);
                 GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.MiniStageClear);
             }

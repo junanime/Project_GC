@@ -121,7 +121,7 @@ namespace Vampire
 
                 return
                     $"[{GetLegendaryDisplayName(previewDefinition.requiredLegendary)} 연계 특수증강]\n" +
-                    previewDefinition.effectText;
+                    PhoenixNobleTheme.RefreshText(previewDefinition.effectText);
             }
         }
 
@@ -420,6 +420,8 @@ namespace Vampire
 
         private string GetLegendaryDisplayName(LegendaryType legendaryType)
         {
+            string phoenixName = PhoenixNobleTheme.NameFor(legendaryType.ToString());
+            if (phoenixName != legendaryType.ToString()) return phoenixName;
             switch (legendaryType)
             {
                 case LegendaryType.LifeBurn:

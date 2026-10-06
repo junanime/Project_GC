@@ -24,6 +24,12 @@ namespace Vampire
         {
             var snapshot=runtime.ver4;
             if(snapshot==null || target==null || source==null) return;
+            int polarityStage = snapshot.Count(P.BipolarNeedle, 2);
+            if (polarityStage > 0 && runtime.bipolarPolarity != 0 && Health(target) > 0)
+            {
+                var polarity = target.GetComponent<BipolarMarkStatus>() ?? target.gameObject.AddComponent<BipolarMarkStatus>();
+                polarity.Hit(target, runtime.bipolarPolarity, polarityStage, runtime.ver4HitDamage, source);
+            }
             var bacteria=target.GetComponent<GutBacteriaStatus>();
             if(runtime.gutBacteriaEnabled && bacteria!=null)
             {
@@ -43,9 +49,14 @@ namespace Vampire
             if(snapshot.Has(P.VibrationNeedle))
             {
                 var clock=source.GetComponent<Ver4EffectClock>()??source.gameObject.AddComponent<Ver4EffectClock>();
-                if(clock.TryShock()) AreaDamage(target.transform.position,snapshot.Factor(P.VibrationNeedle,0,.12f),
-                    runtime.ver4HitDamage*.35f*snapshot.Factor(P.VibrationNeedle,1,.12f),
-                    runtime.ver4Knockback*snapshot.Factor(P.VibrationNeedle,2,.15f),source,layer,"진동침");
+                if(clock.TryShock())
+                {
+                    float radius = snapshot.Factor(P.VibrationNeedle,0,.12f);
+                    SyringeAugmentVfx.PlayRadius("VibrationShockwave", target.transform.position, radius, SyringeAugmentVfx.FindTarget(target));
+                    AreaDamage(target.transform.position, radius,
+                        runtime.ver4HitDamage*.35f*snapshot.Factor(P.VibrationNeedle,1,.12f),
+                        runtime.ver4Knockback*snapshot.Factor(P.VibrationNeedle,2,.15f),source,layer,"진동침");
+                }
             }
         }
         public static float Health(Component target)
