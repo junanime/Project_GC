@@ -223,6 +223,7 @@ namespace Vampire
                 spawnInvincibleDuration;
 
             visualReadyAt = Time.time + 0.24f;
+            UpdateVisual();
             var spawn = SyringeAugmentVfx.Play("CloneSpawn", transform.position, spriteRenderer);
             if (spawn != null) spawn.BindTo(transform);
 
@@ -348,6 +349,7 @@ namespace Vampire
                 );
 
 
+            targetPosition += Vector3.up * (0.28f + (GamePreferences.Current.reducedMotion ? 0f : Mathf.Sin(Time.time * 5f) * 0.07f));
             transform.position =
                 Vector3.Lerp(
                     transform.position,
@@ -388,6 +390,9 @@ namespace Vampire
 
                 spriteRenderer.flipX =
                     sourceRenderer.flipX;
+
+                transform.localScale = new Vector3(Mathf.Abs(sourceRenderer.transform.lossyScale.x) / 3f,
+                    Mathf.Abs(sourceRenderer.transform.lossyScale.y) / 3f, 1f);
 
 
                 if (spawnInvincibleTimer > 0f)

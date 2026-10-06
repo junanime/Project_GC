@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f1ae058c390b426495056b39e15d543, type: 3}
   m_Name: TreasureRunner Monster Blueprint
   m_EditorClassIdentifier: 
-  name: "\uD1B5\uB2ED"
+  name: "\uD638\uB450 \uB2E4\uB78C\uC950 \uB3C4\uB451"
   hp: 55
   atk: 5
   recovery: 0
@@ -37,17 +37,21 @@ MonoBehaviour:
       dropChance: 0.01
       coinType: 1
   walkSpriteSequence:
-  - {fileID: -1401065725, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
-  - {fileID: 1041429606, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
-  - {fileID: -2145452190, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
-  - {fileID: -59333533, guid: ce8962dfbab04e545ba275ed3bb55da6, type: 3}
-  walkFrameTime: 0.2
+  - {fileID: 6637451494770360217, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: -6873149112316914754, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: -8737222878786485567, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: -7407416536646135751, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: -228485416674845838, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: -6769172072092331534, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: 2294328478479757932, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  - {fileID: -656710627587856465, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
+  walkFrameTime: 0.14375
   useGroundShadowFootprint: 1
-  groundShadowCenterUV: {x: 0.52, y: 0.13}
-  groundShadowSizeUV: {x: 0.7, y: 0.18}
+  groundShadowCenterUV: {x: 0.53, y: 0.035}
+  groundShadowSizeUV: {x: 0.65, y: 0.15}
   preserveGroundShadowHeight: 0
-  description:
-  resultSprite: {fileID: 0}
+  description: 
+  resultSprite: {fileID: 6637451494770360217, guid: a0c0c09ad4e472842ab51d2fe0753c69, type: 3}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 512

@@ -41,9 +41,8 @@ namespace Vampire
         {
             if(!initialized||Visual==null||settings==null)return;
             var box=GetComponent<BoxCollider2D>();if(box==null)return;
-            bool rolling=Visual.Action==SnailAction.Roll;
-            box.size=rolling?new Vector2(settings.bodyWidth*.77f,settings.bodyWidth*.71f):new Vector2(settings.bodyWidth*.95f,settings.bodyWidth*.77f);
-            box.offset=rolling?(Vector2)transform.InverseTransformPoint(Visual.Shell.transform.position):Vector2.up*(settings.bodyWidth*.385f);
+            // Decorations float independently during a roll and are not damageable anatomy.
+            VisibleBodyGeometry.Fit(box,Visual.Body,Visual.Shell);
         }
         void Update()
         {

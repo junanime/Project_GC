@@ -14,6 +14,12 @@ namespace Vampire
     [System.Serializable]
     public class AntacidBubbleSurgeEventController : RuntimeModule
     {
+        public void CollectPresentations(List<StageEventPresentation> result)
+        {
+            if (isActiveAndEnabled && eventEnabled && started && !finished)
+                result.Add(new StageEventPresentation(this, StageEventVisualKind.Antacid, eventName));
+        }
+
         protected override void OnSuspended() { SetWarningEdgeAlpha(0f); }
         protected override void OnModuleDestroy()
         {

@@ -132,7 +132,7 @@ namespace Vampire
                 if (frames != null && frames.Length > 0)
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
-            if (TutorialGuide.BlocksMenuInput) return;
+            if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading) return;
             if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
             {
                 if (Page == "hud") OpenRunBook();
@@ -184,9 +184,10 @@ namespace Vampire
             else if (Page == "settings") Settings();
             else if (Page == "exit")
             {
-                Label(content,"게임을 종료할까요?",.2f,.45f,.8f,.65f,32);
+                bool browser = Application.platform == RuntimePlatform.WebGLPlayer;
+                Label(content,browser?"종료하려면 브라우저 탭을 닫아 주세요.":"게임을 종료할까요?",.2f,.45f,.8f,.65f,32);
                 ActionButton(content,"돌아가기",.24f,.25f,.48f,.37f,()=>Show("main"));
-                ActionButton(content,"종료",.52f,.25f,.76f,.37f,Application.Quit,true);
+                if(!browser) ActionButton(content,"종료",.52f,.25f,.76f,.37f,Application.Quit,true);
             }
         }
         void LegacyMain()
@@ -290,12 +291,12 @@ namespace Vampire
         }
         public void StartRun()
         {
-            if(starting || !Owned(character)) return;
-            starting=true;
+            if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
             CrossSceneData.CharacterBlueprint=character;
+            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;})) return;
+            starting=true;
             CrossSceneData.StartingLobbyItems=LobbyLoadoutData.ConsumeSelectedCarryItems();
             Time.timeScale=1;
-            SceneManager.LoadScene(1);
         }
         void Unlock()
         {

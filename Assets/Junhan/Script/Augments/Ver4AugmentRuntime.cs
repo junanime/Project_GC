@@ -114,8 +114,7 @@ namespace Vampire
                     int originalLevel=Progress.Level(candidate.parent.Type.ToString());
                     result.Add(Offer(Ver4RewardKind.Original,grade,candidate.parent,candidate.option,0,
                         ParentName(candidate.parent)+" · 오리지널 강화",
-                        Ver4AugmentCatalog.OriginalNames[index]+"\n"+Ver4AugmentCatalog.OriginalDescriptions[index]+
-                        $"\n이 항목 {count} → {count+1}/3\n오리지널 Lv.{originalLevel} → {originalLevel+1}/9"));
+                        OriginalAugmentDescription.Card(index, count, originalLevel)));
                 }
                 else
                 {

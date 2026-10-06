@@ -9,6 +9,7 @@ namespace Vampire
         bool themedCard;
         public bool UsesNoblePanel { get; private set; }
         TextMeshProUGUI gradeLabel;
+        TextMeshProUGUI nobleHeading, nobleChoice;
         Image gradeBorder, gradeBody, titleRule, opaqueBacking;
         Image legacyDescriptionPaper;
         Sprite legacyPanelSprite;
@@ -21,7 +22,7 @@ namespace Vampire
             // independent of the numeric Legendary upgrade grade.
             bool noble = offer != null ? offer.Kind == Ver4RewardKind.LegendaryAbility : ability.Tier == Ability.AugmentTier.Legendary;
             var nobleSource = (offer != null ? offer.Source : ability) as SyringeLegendaryAugmentAbility;
-            var nobleArt = noble && nobleSource != null ? Resources.Load<Sprite>("NoblePanels/" + nobleSource.Type) : null;
+            var nobleArt = noble && nobleSource != null && PhoenixNobleArt.Get(nobleSource.Type.ToString()) != null ? PhoenixNobleArt.Get("Scroll") : null;
             UsesNoblePanel = nobleArt != null;
             var frame = UsesNoblePanel ? nobleArt : noble ? null : AugmentPanelTheme.Frame(grade);
             themedCard = frame != null;
@@ -33,7 +34,7 @@ namespace Vampire
                 legacyPanelSprite.name="Existing legendary frame";
             }
             var root = (RectTransform)transform;
-            root.sizeDelta = UsesNoblePanel ? new Vector2(360,510) : new Vector2(282,454);
+            root.sizeDelta = UsesNoblePanel ? new Vector2(360,540) : new Vector2(282,454);
             var rootImage = GetComponent<Image>(); if (rootImage != null) rootImage.enabled = false;
             if (iconFrameImage != null) iconFrameImage.enabled = false;
             if (bottomEmblemImage != null) bottomEmblemImage.enabled = false;
@@ -88,23 +89,43 @@ namespace Vampire
             abilityImage.transform.SetParent(abilityImageRect,false);
             AugmentPanelTheme.Box(abilityImage.rectTransform,Vector2.zero,Vector2.one*160);
             abilityImage.preserveAspect=true; abilityImage.raycastTarget=false;
-            nameText.color=UsesNoblePanel ? AugmentPanelTheme.Paper : OctoberArt.Ink;
+            nameText.color=OctoberArt.Ink;
             nameText.fontStyle=FontStyles.Bold; nameText.raycastTarget=false;
             descriptionText.color=nameText.color; descriptionText.raycastTarget=false;
             gradeLabel.text = noble ? "고귀" : offer != null && offer.Kind == Ver4RewardKind.NewSpecial ? "특수" : AugmentUpgradeOdds.DisplayName(grade);
             gradeBorder.color=AugmentPanelTheme.Accent(grade);gradeBody.color=AugmentPanelTheme.Accent(grade);gradeLabel.color=OctoberArt.Ink;
             if (UsesNoblePanel)
             {
-                // The approved composite already contains its icon, liquid overframe and backdrop.
-                // Never add an icon mask, top seal, rarity plaque or duplicate icon over it.
+                // One shared scroll/layout, separate transparent ink illustration and live text.
                 opaqueBacking.gameObject.SetActive(false);
                 gradeBorder.gameObject.SetActive(false);
-                titleRule.gameObject.SetActive(false);
+                titleRule.gameObject.SetActive(true);
+                titleRule.color = new Color(.20f,.17f,.14f,.4f);
+                AugmentPanelTheme.Anchors(titleRule.rectTransform,new Vector2(.25f,.33f),new Vector2(.75f,.33f));
+                titleRule.rectTransform.sizeDelta = new Vector2(0,1);
+                AugmentPanelTheme.Anchors(abilityImageRect,new Vector2(.205f,.415f),new Vector2(.795f,.835f));
+                if (nobleHeading == null)
+                {
+                    nobleHeading = AugmentPanelTheme.Label("Phoenix heading",transform,nameText.font,"고귀 증강",16);
+                    AugmentPanelTheme.Anchors(nobleHeading.rectTransform,new Vector2(.25f,.84f),new Vector2(.75f,.88f));
+                    nobleChoice = AugmentPanelTheme.Label("Phoenix select hint",transform,nameText.font,"― 선택 ―",16);
+                    AugmentPanelTheme.Anchors(nobleChoice.rectTransform,new Vector2(.25f,.105f),new Vector2(.75f,.145f));
+                    nobleHeading.color = nobleChoice.color = OctoberArt.Ink;
+                    nobleHeading.raycastTarget = nobleChoice.raycastTarget = false;
+                }
                 cardBackgroundImage.preserveAspect = true;
                 nameText.transform.SetAsLastSibling();
                 descriptionText.transform.SetAsLastSibling();
             }
             else if (cardBackgroundImage != null) cardBackgroundImage.preserveAspect = false;
+            if (nobleHeading != null) nobleHeading.gameObject.SetActive(UsesNoblePanel);
+            if (nobleChoice != null) nobleChoice.gameObject.SetActive(UsesNoblePanel);
+            if (!UsesNoblePanel)
+            {
+                titleRule.color = new Color(.7f,.75f,.65f,.7f);
+                AugmentPanelTheme.Anchors(titleRule.rectTransform,new Vector2(.14f,.362f),new Vector2(.86f,.362f));
+                titleRule.rectTransform.sizeDelta = new Vector2(0,1);
+            }
             InstallTrainingDecoration(grade);
         }
 

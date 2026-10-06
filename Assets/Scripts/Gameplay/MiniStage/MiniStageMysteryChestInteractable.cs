@@ -85,6 +85,7 @@ namespace Vampire
         private void Awake()
         {
             ResolveReferences();
+            InteractionFocus.Register(this, () => CanInteract);
             SetGuideVisible(false);
         }
 
@@ -113,7 +114,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 if (debugLog)
                 {

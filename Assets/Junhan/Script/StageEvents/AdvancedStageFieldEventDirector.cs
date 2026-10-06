@@ -12,6 +12,20 @@ namespace Vampire
     [System.Serializable]
     public class AdvancedStageFieldEventDirector : RuntimeModule
     {
+        public void CollectPresentations(List<StageEventPresentation> result)
+        {
+            if (!isActiveAndEnabled) return;
+            foreach (var e in acidRefluxWaveEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Reflux, e.eventName, e.visualDirection));
+            foreach (var e in peristalsisDriftEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Drift, e.eventName, GetCurrentDriftDirection(e).x));
+            foreach (var e in coffeeTransfusionEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Coffee, e.eventName));
+        }
+
         protected override void OnSuspended()
         {
             if (mainCamera != null && hasOriginalCameraRotation) mainCamera.transform.rotation = originalCameraRotation;
@@ -43,9 +57,10 @@ namespace Vampire
         [System.Serializable]
         public class AcidRefluxWaveEvent
         {
+            [System.NonSerialized] public float visualDirection = 1f;
             [Header("Event Info")]
             [Tooltip("UI에 표시될 이벤트 이름입니다.")]
-            public string eventName = "산성 역류 파도";
+            public string eventName = "탄산액 발사";
 
             [Tooltip("체크되어 있으면 이벤트가 발동됩니다.")]
             public bool enabled = true;
@@ -562,6 +577,7 @@ namespace Vampire
 
             if (!waveEvent.started)
             {
+                waveEvent.eventName = "탄산액 발사";
                 waveEvent.started = true;
                 ShowEventStartedUI(waveEvent.eventName);
                 TutorialGuide.QueueStageEvent("acid-reflux");
@@ -582,23 +598,12 @@ namespace Vampire
             for (int i = 0; i < safeWaveCount; i++)
             {
                 bool moveLeftToRight = i % 2 == 0;
+                waveEvent.visualDirection = moveLeftToRight ? 1f : -1f;
 
-                yield return SpawnMovingWave(
-                    eventName: waveEvent.eventName,
-                    moveLeftToRight: moveLeftToRight,
-                    warningDuration: waveEvent.warningDuration,
-                    travelDuration: waveEvent.travelDuration,
-                    waveHeight: waveEvent.waveHeight,
-                    screenPadding: waveEvent.screenPadding,
-                    damage: waveEvent.damage,
-                    damageCooldownPerTarget: waveEvent.damageCooldownPerTarget,
-                    knockbackPower: waveEvent.knockbackPower,
-                    affectPlayer: true,
-                    affectMonsters: true,
-                    waveColor: waveEvent.waveColor,
-                    warningColor: waveEvent.warningColor,
-                    visualOnly: false,
-                    travelStartSfxId: GameAudioManager.GameSfxId.AcidRefluxWavePass);
+                yield return AcidToadEvent.Emit(transform, GetCameraWorldRect(0), moveLeftToRight,
+                    waveEvent.warningDuration, waveEvent.travelDuration, waveEvent.waveHeight,
+                    waveEvent.damage, waveEvent.damageCooldownPerTarget,
+                    levelManager != null ? levelManager.PlayerCharacter : null);
 
                 if (i < safeWaveCount - 1)
                 {

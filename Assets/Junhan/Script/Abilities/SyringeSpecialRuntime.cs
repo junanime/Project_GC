@@ -9,6 +9,8 @@ namespace Vampire
         public Ver4CombatSnapshot ver4;
         public float ver4HitDamage;
         public float ver4Knockback;
+        // +1 = yang (front/left), -1 = yin (rear/right), 0 = not a polarity shot.
+        public int bipolarPolarity;
         // Poison
         public bool poisonEnabled;
         public float poisonDuration;

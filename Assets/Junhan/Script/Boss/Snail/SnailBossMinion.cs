@@ -10,11 +10,13 @@ namespace Vampire
             var go=new GameObject(absorb?"Absorb mini roll cake":"Summoned mini roll cake");go.layer=LayerMask.NameToLayer("Monster Full");
             go.transform.SetParent(owner.EffectsRoot);go.transform.position=pos;
             var rb=go.AddComponent<Rigidbody2D>();rb.bodyType=RigidbodyType2D.Kinematic;
-            var col=go.AddComponent<CircleCollider2D>();col.isTrigger=true;col.radius=.35f;
+            var col=go.AddComponent<BoxCollider2D>();col.isTrigger=true;
             var m=go.AddComponent<SnailBossMinion>();m.owner=owner;m.absorb=absorb;m.ingredient=ingredient;
             m.hp=owner.settings.summonHealth*(owner.Chocolate?1.3f:1);
             m.speed=absorb?(owner.Chocolate?owner.settings.chocolateAbsorbSpeed:owner.settings.vanillaAbsorbSpeed):owner.settings.summonSpeed;
             MakeArt(go.transform,owner.Chocolate,ingredient);
+            var visual=go.GetComponentInChildren<SnailMiniVisual>();
+            go.AddComponent<MonsterBodyFit>().Configure(col,visual.Body,visual.Shell);
             return m;
         }
         public static void MakeArt(Transform root,bool chocolate,int ingredient)

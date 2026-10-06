@@ -75,6 +75,7 @@ namespace Vampire
 
         private void Awake()
         {
+            InteractionFocus.Register(this, () => isActiveAndEnabled && interactionEnabled && !transitionStarted && IsPlayerInside);
             SetGuideVisible(false);
             ValidateTriggerSetup();
         }
@@ -97,7 +98,7 @@ namespace Vampire
                 return;
             }
 
-            if (!Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (!Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 return;
             }

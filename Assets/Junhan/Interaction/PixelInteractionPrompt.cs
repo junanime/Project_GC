@@ -10,15 +10,20 @@ namespace Vampire
         private SpriteRenderer[] bodyRenderers;
         private Transform legacyRoot;
         private bool requestedVisible;
+        private Component focusOwner;
+        private bool wasFocused;
+        private LineRenderer activeBorder;
+        private Material borderMaterial;
         private float shownAt;
         private const float WorldWidth = 0.48f;
 
-        public static void Show(Component owner, bool visible, GameObject oldGuide = null)
+        public static void Show(Component owner, bool visible, GameObject oldGuide = null, Component interactionOwner = null)
         {
             if (oldGuide != null && oldGuide != owner.gameObject) oldGuide.SetActive(false);
             var prompt = owner.GetComponent<PixelInteractionPrompt>();
             if (prompt == null && !visible) return;
             if (prompt == null) prompt = owner.gameObject.AddComponent<PixelInteractionPrompt>();
+            prompt.focusOwner = interactionOwner != null ? interactionOwner : owner;
             if (oldGuide != null) prompt.legacyRoot = oldGuide.transform;
             if (visible && !prompt.requestedVisible) prompt.shownAt = Time.unscaledTime;
             prompt.requestedVisible = visible;
@@ -31,6 +36,8 @@ namespace Vampire
             if (!visible)
             {
                 if (keyRenderer != null) keyRenderer.enabled = false;
+                if (activeBorder != null) activeBorder.enabled = false;
+                wasFocused = false;
                 return;
             }
             if (keyRenderer == null)
@@ -50,6 +57,12 @@ namespace Vampire
                 keyRenderer.sortingOrder = 32760;
             }
             keyRenderer.enabled = true;
+            bool focused = InteractionFocus.IsFocused(focusOwner);
+            if (focused && !wasFocused) shownAt = Time.unscaledTime;
+            wasFocused = focused;
+            keyRenderer.color = focused ? Color.white : new Color(.65f, .65f, .65f, .7f);
+            if (activeBorder == null) CreateBorder();
+            activeBorder.enabled = focused;
             float top = transform.position.y;
             foreach (var body in bodyRenderers)
             {
@@ -60,7 +73,7 @@ namespace Vampire
                     body.name.ToLowerInvariant().Contains("shadow")) continue;
                 top = Mathf.Max(top, body.bounds.max.y);
             }
-            float press = EvaluatePress(Time.unscaledTime - shownAt);
+            float press = focused ? EvaluatePress(Time.unscaledTime - shownAt) : 0f;
             keyRenderer.transform.position = new Vector3(transform.position.x,
                 top + 0.12f + WorldWidth * 0.5f - press * 0.035f, transform.position.z);
             keyRenderer.transform.rotation = Quaternion.identity;
@@ -70,6 +83,29 @@ namespace Vampire
             keyRenderer.transform.localScale = new Vector3(
                 Mathf.Abs(parentScale.x) > 0.001f ? scale / parentScale.x : scale,
                 Mathf.Abs(parentScale.y) > 0.001f ? verticalScale / parentScale.y : verticalScale, 1f);
+        }
+
+        private void CreateBorder()
+        {
+            var go = new GameObject("Active E golden border");
+            go.transform.SetParent(keyRenderer.transform, false);
+            activeBorder = go.AddComponent<LineRenderer>();
+            activeBorder.useWorldSpace = false; activeBorder.loop = true;
+            activeBorder.sortingLayerID = keyRenderer.sortingLayerID;
+            activeBorder.sortingOrder = keyRenderer.sortingOrder + 1;
+            borderMaterial = new Material(Shader.Find("Sprites/Default"));
+            activeBorder.sharedMaterial = borderMaterial;
+            activeBorder.startColor = activeBorder.endColor = new Color(.78f, .52f, .035f, 1f);
+            Vector2 ext = keyRenderer.sprite.bounds.extents * .90f;
+            float bevel = Mathf.Min(ext.x, ext.y) * .18f;
+            // LineRenderer width is measured in world units, even with local-space vertices.
+            activeBorder.startWidth = activeBorder.endWidth = WorldWidth * .025f;
+            activeBorder.positionCount = 8;
+            activeBorder.SetPositions(new[] {
+                new Vector3(-ext.x + bevel, ext.y), new Vector3(ext.x - bevel, ext.y),
+                new Vector3(ext.x, ext.y - bevel), new Vector3(ext.x, -ext.y + bevel),
+                new Vector3(ext.x - bevel, -ext.y), new Vector3(-ext.x + bevel, -ext.y),
+                new Vector3(-ext.x, -ext.y + bevel), new Vector3(-ext.x, ext.y - bevel) });
         }
 
         // Rest, short downstroke, brief hold, then a soft release. No changes to input timing.
@@ -88,6 +124,8 @@ namespace Vampire
         {
             requestedVisible = false;
             if (keyRenderer != null) keyRenderer.enabled = false;
+            if (activeBorder != null) activeBorder.enabled = false;
         }
+        private void OnDestroy() { if (borderMaterial != null) Destroy(borderMaterial); }
     }
 }

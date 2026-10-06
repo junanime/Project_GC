@@ -560,7 +560,7 @@ namespace Vampire
             LayerMask damageableLayer,
             GameObject originalTarget)
         {
-            SyringeAugmentVfx.Play("Explosion", hitPosition,
+            SyringeAugmentVfx.PlayRadius("Explosion", hitPosition, runtime.explosionRadius,
                 originalTarget != null ? SyringeAugmentVfx.FindTarget(originalTarget.transform) : null);
             Collider2D[] hits = Physics2D.OverlapCircleAll(
                 hitPosition,
