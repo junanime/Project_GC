@@ -187,7 +187,7 @@ namespace Vampire
                 FitCardText(nameText, new Vector2(themedCard ? .10f : .12f,themedCard ? .385f : .45f), new Vector2(themedCard ? .90f : .88f,themedCard ? .48f : .51f), themedCard ? 27 : 20, TextAlignmentOptions.Center);
                 if (UsesNoblePanel)
                 {
-                    FitCardText(nameText,new Vector2(.215f,.345f),new Vector2(.785f,.415f),24,TextAlignmentOptions.Center);
+                    FitCardText(nameText,new Vector2(.205f,.345f),new Vector2(.795f,.405f),24,TextAlignmentOptions.Center);
                     nameText.enableAutoSizing=false; nameText.fontSize=24; nameText.enableWordWrapping=false;
                 }
             }
@@ -197,7 +197,10 @@ namespace Vampire
                 descriptionText.text = PanelDescription();
                 FitCardText(descriptionText, new Vector2(themedCard ? .105f : .13f,themedCard ? .07f : .11f), new Vector2(themedCard ? .895f : .87f,themedCard ? .34f : .42f), themedCard ? 18 : 16, TextAlignmentOptions.TopLeft);
                 if (UsesNoblePanel)
-                    FitCardText(descriptionText,new Vector2(.235f,.155f),new Vector2(.765f,.325f),15,TextAlignmentOptions.TopLeft);
+                {
+                    FitCardText(descriptionText,new Vector2(.215f,.15f),new Vector2(.785f,.315f),14,TextAlignmentOptions.TopLeft);
+                    descriptionText.enableAutoSizing=false; descriptionText.fontSize=14;
+                }
             }
 
             SetTrainingText();
@@ -391,7 +394,6 @@ namespace Vampire
         private void ApplyAbilityIcon()
         {
             if (abilityImage == null) return;
-            if (UsesNoblePanel) { abilityImage.enabled=false; return; }
             if (ability == null || ability.Image == null)
             {
                 abilityImage.sprite = null;

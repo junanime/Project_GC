@@ -349,6 +349,10 @@ namespace Vampire
             }
 
 
+            // Orbit position rotates, but each feather remains upright in world space.
+            foreach (var feather in orbitNeedleVisuals)
+                if (feather != null) feather.rotation = Quaternion.identity;
+
             DetectEnemiesTouchingOrbitNeedles();
 
             CleanupExpiredCooldowns();
@@ -658,6 +662,9 @@ namespace Vampire
 
                 visualObject.transform.localScale =
                     GetOrbitVisualScale();
+
+                visualObject.transform.rotation = Quaternion.identity;
+                PhoenixNobleVfx.Attach(visualRenderer, "OrbitFeather", true, 1f);
 
 
                 orbitNeedleVisuals.Add(

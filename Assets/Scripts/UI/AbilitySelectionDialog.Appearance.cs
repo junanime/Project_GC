@@ -83,8 +83,8 @@ namespace Vampire
                 if (child.gameObject.activeSelf && card != null && card.UsesNoblePanel) { noble=true; break; }
             }
             AugmentPanelTheme.Box((RectTransform)abilityCardsParent,
-                noble ? new Vector2(0,-38) : new Vector2(0,-14),
-                noble ? new Vector2(1124,510) : new Vector2(890,454));
+                noble ? new Vector2(0,-48) : new Vector2(0,-14),
+                noble ? new Vector2(1124,540) : new Vector2(890,454));
             var root = (RectTransform)transform;
             float scale = Mathf.Min(root.rect.width/1280f, root.rect.height/720f);
             panelContent.localScale = Vector3.one * Mathf.Max(.01f,scale);

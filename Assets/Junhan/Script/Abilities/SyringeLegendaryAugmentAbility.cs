@@ -45,6 +45,9 @@ namespace Vampire
         [Tooltip("이 Ability가 적용할 전설증강 종류입니다.")]
         [SerializeField] private LegendaryAugmentType augmentType;
         public LegendaryAugmentType Type => augmentType;
+        public override string Name => AvailableAsNoble ? PhoenixNobleTheme.NameFor(augmentType.ToString()) : base.Name;
+        public override string Description => AvailableAsNoble ? PhoenixNobleTheme.DescriptionFor(augmentType.ToString()) : base.Description;
+        public override Sprite Image => AvailableAsNoble ? PhoenixNobleArt.Get(augmentType.ToString()) ?? base.Image : base.Image;
         // Keep the serialized ID and implementation for a future reward category.
         public bool AvailableAsNoble => augmentType != LegendaryAugmentType.PoisonContagion;
 

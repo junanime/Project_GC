@@ -93,6 +93,7 @@ namespace Vampire
             instance.animator.Init(instance.frames, instance.frameTime, false);
             instance.animator.StartAnimation(true);
             instance.FollowTarget();
+            PhoenixNobleVfx.Attach(instance.visual, effect, instance.loop, instance.frames.Length * instance.frameTime);
             return instance;
         }
 
