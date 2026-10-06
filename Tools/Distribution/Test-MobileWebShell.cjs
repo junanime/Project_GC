@@ -14,7 +14,7 @@ const source=fs.readFileSync(file,'utf8').replace(/\{\{\{\s*(\w+_FILENAME)\s*\}\
     let loaders=0;
     await page.route('**/*',route=>{
       if(route.request().url().includes('LOADER_FILENAME')){
-        loaders++;return route.fulfill({contentType:'application/javascript',body:'window.messages=[];window.createUnityInstance=(c,o,p)=>{p(1);return Promise.resolve({SendMessage:(...m)=>messages.push(m)});};'});
+        loaders++;return route.fulfill({contentType:'application/javascript',body:'window.messages=[];window.createUnityInstance=(c,o,p)=>{window.qaConfig=o;p(1);return Promise.resolve({SendMessage:(...m)=>messages.push(m)});};'});
       }
       if(route.request().url().endsWith('.png'))return route.fulfill({status:204,body:''});
       return route.fulfill({contentType:'text/html',body:source});
@@ -24,6 +24,8 @@ const source=fs.readFileSync(file,'utf8').replace(/\{\{\{\s*(\w+_FILENAME)\s*\}\
     check(!await page.locator('#rotate').isVisible(),'landscape accepted');
     await page.locator('#start').tap();await page.locator('#resume').waitFor();
     check(loaders===1,'single Unity loader started');
+    check(await page.evaluate(()=>qaConfig.cacheControl('Build/game.data')==='no-store'),'Unity cache does not clone large game download');
+    check(await page.evaluate(()=>sessionStorage.getItem('24tu-mobile-startup')===null),'successful startup clears interrupted-load marker');
     check(await page.evaluate(()=>messages.at(-1)[2]==='1'),'tap-to-play overlay pauses Unity');
     await page.locator('#play').tap();
     check(await page.evaluate(()=>messages.at(-1)[2]==='0'),'play tap unblocks Unity');
@@ -41,6 +43,14 @@ const source=fs.readFileSync(file,'utf8').replace(/\{\{\{\s*(\w+_FILENAME)\s*\}\
     await unavailable.goto('http://127.0.0.1:19999/');await unavailable.locator('#start').tap();
     check((await unavailable.locator('#instructions').textContent()).includes('WebGL 2'),'unsupported browser receives actionable warning');
     check(await unavailable.locator('#start').textContent()==='다시 시도','failed load is retryable');
+    await page.evaluate(()=>sessionStorage.setItem('24tu-mobile-startup',JSON.stringify({build:mobileBuildRevision,phase:'initializing',percent:90,at:Date.now()})));
+    await page.reload();
+    check((await page.locator('#instructions').textContent()).includes('이전 게임 로딩'),'interrupted startup is explained after reload');
+    check((await page.locator('#status').textContent()).includes('게임 시작 준비'),'last startup stage is shown');
+    check(loaders===1,'reload never automatically retries the large download');
+    await page.evaluate(()=>sessionStorage.setItem('24tu-mobile-startup',JSON.stringify({build:'previous-build',phase:'initializing',percent:90,at:Date.now()})));
+    await page.reload();
+    check(!(await page.locator('#instructions').textContent()).includes('이전 게임 로딩'),'new build ignores stale interrupted-load warning');
     console.log('FINISHED shell checks='+count);
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

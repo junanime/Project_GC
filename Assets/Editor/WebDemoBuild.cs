@@ -74,6 +74,7 @@ namespace Vampire.Editor
                     bytes = report.summary.totalSize, scenes = scenes,
                     sourceCommit = Environment.GetEnvironmentVariable("PROJECT_GC_SOURCE_COMMIT") ?? "unknown",
                     localChangesIncluded = true, sessionMinimumSilver = WebDemoStartup.StartingSilver,
+                    compressedTextureCount = textures.TextureCount, nonBlockAlignedTextureCount = textures.NonBlockAlignedCount,
                     profile = mobile ? "mobile-web-astc-qa" : "desktop-web-dxt", textureCompression = mobile ? "ASTC 4x4" : "DXT"
                 }, true));
                 Debug.Log("[WebDemoBuild] PASS bytes=" + report.summary.totalSize + " path=" + folder);
@@ -105,6 +106,7 @@ namespace Vampire.Editor
             public ulong bytes;
             public bool localChangesIncluded;
             public int sessionMinimumSilver;
+            public int compressedTextureCount, nonBlockAlignedTextureCount;
         }
     }
 }

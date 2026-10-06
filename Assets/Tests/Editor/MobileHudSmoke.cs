@@ -84,31 +84,47 @@ namespace Vampire.Tests.Editor
             ApothecaryUI.Instance.Show("hud");Time.timeScale=1;
             yield return new WaitForSecondsRealtime(.4f);
             var controls=Object.FindObjectsOfType<MobileTouchControl>();
-            var move=controls.Single(c=>c.name=="MOVE");var aim=controls.Single(c=>c.name=="AIM / CHARGE");
+            var move=controls.Single(c=>c.name=="MOVE");
+            Check(controls.Count(c=>c.Joystick)==1&&!controls.Any(c=>c.name=="AIM / CHARGE"),"one left joystick, no right joystick");
             var knob=move.Knob.GetComponent<MobileControlDisc>();
             Check(knob!=null&&knob.color.r>.8f&&knob.color.g<.2f&&knob.color.a<.7f,"red translucent round joystick handle");
             move.OnPointerDown(Touch(move,11,new Vector2(move.Radius,0)));
             Check(move.Knob.anchoredPosition.x>move.Radius*.99f,"handle follows right drag");
-            aim.OnPointerDown(Touch(aim,22,new Vector2(0,aim.Radius)));
-            Check(MobileGameplayInput.ChargeHeld&&move.Knob.anchoredPosition.x>0,"move and aim support independent fingers");
+            Check(MobileGameplayInput.ChargeHeld&&MobileGameplayInput.Aim.x>.99f,"single stick preserves charge and movement aim");
+            var dash=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD dash");
+            Check(dash.GetComponentInChildren<SharedDashIcon>()!=null,"dash uses same glyph as reward panel");
+            dash.onClick.Invoke();
+            Check(move.Knob.anchoredPosition.x>0&&MobileGameplayInput.ChargeHeld,"dash does not release movement or charge");
             move.OnDrag(Touch(move,22,new Vector2(-move.Radius,0)));
             Check(move.Knob.anchoredPosition.x>0,"second finger cannot steal movement");
             move.OnDrag(Touch(move,11,new Vector2(-move.Radius,move.Radius)));
             Check(move.Knob.anchoredPosition.x<0&&move.Knob.anchoredPosition.y>0&&move.Knob.anchoredPosition.magnitude<=move.Radius+.1f,"diagonal follows and clamps inside rim");
             Capture("joystick-drag");
-            move.OnPointerUp(Touch(move,11,Vector2.zero));aim.OnPointerUp(Touch(aim,22,Vector2.zero));
+            move.OnPointerUp(Touch(move,11,Vector2.zero));
             Check(move.Knob.anchoredPosition==Vector2.zero&&!MobileGameplayInput.ChargeHeld,"release centers handle and clears charge");
             var slots=Object.FindObjectsOfType<InventorySlot>();
-            Check(slots.Length==4&&slots.All(s=>s.GetComponent<RectTransform>().sizeDelta==Vector2.one*112),"four original item slots sized for mobile");
+            Check(slots.Length==4,"four original item slots retained");
             Check(slots.All(s=>s.GetComponent<Button>().onClick.GetPersistentMethodName(0)=="UseItem"),"existing item tap bindings retained");
-            Check(slots.All(s=>s.GetComponent<CanvasGroup>().alpha<1),"item controls translucent");
             var inventory=(RectTransform)slots[0].transform.parent;
+            Check(inventory.Find("Light wood medicine tray")!=null&&inventory.anchorMin==new Vector2(.5f,0),"wooden item tray at bottom center");
+            var interact=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD interact");
+            interact.onClick.Invoke();
+            Check(MobileGameplayInput.ConsumeInteraction()&&!MobileGameplayInput.ConsumeInteraction(),"HUD interaction consumed once");
             foreach(var size in new[]{new Vector2(1280,720),new Vector2(1560,720),new Vector2(1024,768)})
             {
                 Resize((int)size.x,(int)size.y);yield return new WaitForSecondsRealtime(.35f);Canvas.ForceUpdateCanvases();
                 var bounds=Bounds(inventory);
                 Check(bounds.xMin>=Screen.safeArea.xMin&&bounds.xMax<=Screen.safeArea.xMax&&bounds.yMin>=Screen.safeArea.yMin&&bounds.yMax<=Screen.safeArea.yMax,"items inside safe area "+Screen.width);
-                Check(!bounds.Overlaps(Bounds((RectTransform)aim.transform))&&!bounds.Overlaps(Bounds((RectTransform)controls.Single(c=>c.name=="상호작용").transform)),"items do not overlap aim or interact "+Screen.width);
+                Check(!bounds.Overlaps(Bounds((RectTransform)move.transform))&&!bounds.Overlaps(Bounds((RectTransform)interact.transform)),"items do not overlap movement or actions "+Screen.width);
+                foreach(var button in new[]{dash,interact,Object.FindObjectsOfType<Button>().Single(b=>b.name=="Active skill R"),Object.FindObjectsOfType<Button>().Single(b=>b.name=="Passive skill status")})
+                {
+                    var b=Bounds((RectTransform)button.transform);
+                    Check(b.xMin>=Screen.safeArea.xMin&&b.xMax<=Screen.safeArea.xMax&&b.yMin>=Screen.safeArea.yMin&&b.yMax<=Screen.safeArea.yMax,"action inside safe area "+button.name+" "+Screen.width);
+                    Check(!bounds.Overlaps(b),"tray clears "+button.name);
+                }
+                var scroll=Object.FindObjectOfType<PrescriptionScrollView>();
+                var status=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD status");
+                Check(Bounds((RectTransform)status.transform).yMax<=Bounds(scroll.Dock).yMin,"status below prescription");
                 var mini=Object.FindObjectsOfType<RectTransform>().FirstOrDefault(r=>r.name=="MiniMapRoot");
                 if(mini!=null)
                     Check(!Bounds(mini).Overlaps(Bounds((RectTransform)Object.FindObjectsOfType<Button>().Single(b=>b.name=="Active skill R").transform)),"minimap does not overlap skill button "+Screen.width);

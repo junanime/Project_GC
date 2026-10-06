@@ -26,7 +26,10 @@ let count=0;function check(value,label){assert(value,label);console.log('PASS '+
    if(kind==='inapp'){
     check(await page.locator('iframe').count()===0&&(await page.locator('#message').textContent()).includes('Safari'),'in-app Safari guidance');
    }else{
-    const frame=await (await page.locator('#game-frame').elementHandle()).contentFrame();await frame.waitForLoadState();
+    let frame;
+    if(mobile){await page.waitForURL('**/mobile/?device='+selected);frame=page;check(await page.locator('iframe').count()===0,kind+' mobile is a top-level page');}
+    else frame=await (await page.locator('#game-frame').elementHandle()).contentFrame();
+    await frame.waitForLoadState();
     if(mobile){
      check(await frame.locator('#rotate').isVisible(),kind+' portrait instruction');
      await page.setViewportSize({width:844,height:390});await frame.locator('#start').click();await frame.locator('#resume').waitFor();

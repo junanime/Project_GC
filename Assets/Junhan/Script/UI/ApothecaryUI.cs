@@ -164,8 +164,8 @@ namespace Vampire
             if (Page == "hud")
             {
                 BuildSkillHud();
-                BuildMobileHudNavigation();
                 BuildPrescriptionHud();
+                BuildHudNavigation();
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;

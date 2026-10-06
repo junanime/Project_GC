@@ -34,7 +34,7 @@
     <p id="instructions">설치 없이 가로 화면으로 플레이하세요.<br>아이폰은 Safari, 안드로이드는 Chrome으로 열어주세요.<br>첫 다운로드 약 500MB · Wi-Fi 권장 · 실버 10,000개 미만이면 보충</p>
     <small>모바일 웹 실험판 · 기종에 따라 느리거나 재로딩될 수 있어요 · 저장은 현재 브라우저에만 유지</small>
     <progress id="progress" max="1" value="0" hidden></progress>
-    <span id="status">왼쪽 이동 · 오른쪽 조준/충전 · 대쉬/상호작용/아이템 터치</span>
+    <span id="status">왼쪽 이동·조준 / 누르는 동안 충전 · 오른쪽 스킬·대쉬 · 하단 목함 아이템</span>
     <button id="start">게임 불러오기</button>
   </div>
   <div class="overlay" id="resume" hidden>
@@ -51,9 +51,70 @@
   const start=document.getElementById('start'), resume=document.getElementById('resume'), rotate=document.getElementById('rotate');
   const android=/Android/i.test(navigator.userAgent);
   const browserName=android?'Chrome':'Safari';
+  const mobileDownloadMegabytes=500;
+  const mobileBuildRevision='{{{ DATA_FILENAME }}}';
   document.querySelector('h1').textContent='24시간의사투 · '+(android?'안드로이드':'아이폰')+' 웹 QA';
-  document.getElementById('instructions').innerHTML='설치 없이 '+browserName+'에서 가로 화면으로 플레이하세요.<br>첫 다운로드 약 500MB · Wi-Fi 권장<br>실버가 10,000개 미만이면 보충됩니다.';
+  document.getElementById('instructions').innerHTML='설치 없이 '+browserName+'에서 가로 화면으로 플레이하세요.<br>첫 다운로드 약 '+mobileDownloadMegabytes+'MB · Wi-Fi 권장<br>실버가 10,000개 미만이면 보충됩니다.';
   let unityInstance, started=false, failed=false;
+  // Filled by Prepare-MobileWebMemory.cjs from the actual gzip payloads.
+  const mobileBuildDecodedSizes=null;
+  const startupKey='24tu-mobile-startup';
+  function rememberStartup(phase,percent){try{sessionStorage.setItem(startupKey,JSON.stringify({build:mobileBuildRevision,phase,percent,at:Date.now()}));}catch{}}
+  function clearStartup(){try{sessionStorage.removeItem(startupKey);}catch{}}
+  try{
+    const previous=JSON.parse(sessionStorage.getItem(startupKey)||'null');
+    if(previous&&previous.build===mobileBuildRevision&&Date.now()-previous.at<6*60*60*1000){
+      document.getElementById('instructions').textContent='이전 게임 로딩이 끝나기 전에 페이지가 다시 열렸어요. 다른 탭과 앱을 닫고 다시 시도해 주세요.';
+      status.textContent='이전 진행: '+(previous.phase==='initializing'?'게임 시작 준비':Math.round(previous.percent||0)+'% 다운로드')+' · 반복되면 이 문구를 알려주세요.';
+      start.textContent='게임 다시 불러오기';
+    }
+  }catch{}
+  // Keep one exact-size destination. Unity's default reader accumulates chunks and
+  // copies the full payload at EOF; its cache also clones the download response.
+  function createMobileDownloadReader(sizes,onFailure){
+    if(!sizes)return undefined;
+    return async function(response,onProgress){
+      let reader;
+      try{
+        if(!response.ok)throw Error('게임 파일을 받지 못했어요 (HTTP '+response.status+'). 잠시 후 다시 시도해 주세요.');
+        const name=new URL(response.url,location.href).pathname.split('/').pop();
+        const size=sizes[name];
+        if(!Number.isSafeInteger(size)||size<=0||size>1073741824)throw Error('게임 파일 정보가 맞지 않아요. 페이지를 새로 열어 주세요.');
+        if(!response.body)throw Error('이 브라우저에서 게임 파일을 나누어 받을 수 없어요. 브라우저를 업데이트해 주세요.');
+        reader=response.body.getReader();
+        let first=await reader.read();
+        if(!first.done&&first.value.byteLength===1){
+          const next=await reader.read();
+          if(!next.done){const prefix=new Uint8Array(1+next.value.byteLength);prefix.set(first.value);prefix.set(next.value,1);first={done:false,value:prefix};}
+        }
+        // Static hosts without Content-Encoding can still stream native gzip.
+        if(!first.done&&first.value[0]===31&&first.value[1]===139){
+          if(typeof DecompressionStream==='undefined')throw Error('게임 압축 파일을 열 수 없어요. Safari 또는 Chrome을 업데이트해 주세요.');
+          const compressedReader=reader;
+          const stream=new ReadableStream({
+            start(controller){controller.enqueue(first.value);},
+            async pull(controller){try{const chunk=await compressedReader.read();if(chunk.done)controller.close();else controller.enqueue(chunk.value);}catch(error){controller.error(error);}},
+            cancel(reason){return compressedReader.cancel(reason);}
+          });
+          reader=stream.pipeThrough(new DecompressionStream('gzip')).getReader();
+          first=await reader.read();
+        }
+        const bytes=new Uint8Array(size);
+        let loaded=0,chunk=first;
+        while(!chunk.done){
+          if(loaded+chunk.value.byteLength>size)throw Error('게임 파일 크기가 맞지 않아요. 페이지를 새로 열어 주세요.');
+          bytes.set(chunk.value,loaded);loaded+=chunk.value.byteLength;
+          onProgress({type:'progress',response,total:size,loaded,lengthComputable:true,chunk:null});
+          chunk=await reader.read();
+        }
+        if(loaded!==size)throw Error('게임 파일 다운로드가 중단됐어요. 네트워크를 확인하고 다시 시도해 주세요.');
+        response.parsedBody=bytes;
+        onProgress({type:'load',response,total:size,loaded,lengthComputable:true,chunk:null});
+        return response;
+      }catch(error){if(reader)try{await reader.cancel(error);}catch{}onFailure(String(error.message||error));throw error;}
+      finally{if(reader)reader.releaseLock();}
+    };
+  }
   function syncViewport() {
     document.documentElement.style.setProperty('--vh',window.innerHeight+'px');
     rotate.hidden=window.innerWidth>=window.innerHeight;
@@ -69,6 +130,7 @@
   canvas.addEventListener('pointerdown',()=>canvas.focus());
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();fail('브라우저가 그래픽 메모리를 회수했어요. 다른 탭과 앱을 닫고 다시 시도해 주세요.');});
   function fail(message) {
+    clearStartup();
     failed=true;loading.hidden=false;resume.hidden=true;
     loading.querySelector('h1').textContent='게임을 불러오지 못했어요';
     document.getElementById('instructions').textContent=message;
@@ -88,7 +150,7 @@
     if(gl){const release=gl.getExtension('WEBGL_lose_context');if(release)release.loseContext();}
     if(!gl){fail('이 브라우저에서 WebGL 2를 사용할 수 없어요. 운영체제와 '+browserName+'를 업데이트한 후 다시 시도해 주세요.');return;}
     if(!astc){fail('이 기기는 모바일용 ASTC 그래픽을 지원하지 않아요. PC에서는 기존 PC 웹 링크를 이용해 주세요.');return;}
-    started=true;start.hidden=true;progress.hidden=false;status.textContent='게임 파일 다운로드를 시작합니다…';
+    started=true;rememberStartup('download',0);start.hidden=true;progress.hidden=false;status.textContent='게임 파일 다운로드를 시작합니다…';
     const buildUrl='Build';
     const config={
       dataUrl:buildUrl + '/{{{ DATA_FILENAME }}}',
@@ -98,6 +160,9 @@
       companyName:{{{ JSON.stringify(COMPANY_NAME) }}},
       productName:{{{ JSON.stringify(PRODUCT_NAME) }}},
       productVersion:{{{ JSON.stringify(PRODUCT_VERSION) }}},
+      cacheControl:()=> 'no-store',
+      mobileDecodedFiles:mobileBuildDecodedSizes,
+      mobileReadBodyWithProgress:createMobileDownloadReader(mobileBuildDecodedSizes,fail),
       devicePixelRatio:Math.min(window.devicePixelRatio||1,1.5,1280/Math.max(1,canvas.clientWidth)),
       showBanner:(message,type)=>{if(type==='error')fail(message);else console.warn(message);}
     };
@@ -105,11 +170,14 @@
     loader.src=buildUrl + '/{{{ LOADER_FILENAME }}}';
     loader.onerror=()=>fail('게임 서버에 연결하지 못했어요. 네트워크와 공유 서버가 켜져 있는지 확인해 주세요.');
     loader.onload=()=>createUnityInstance(canvas,config,value=>{
+      if(failed)return;
       progress.value=value;status.textContent=value>=.9?'게임을 준비하고 있어요…':'게임 불러오는 중… '+Math.round(value*100)+'%';
+      const bucket=Math.floor(value*10);
+      if(bucket!==loader.lastProgressBucket){loader.lastProgressBucket=bucket;rememberStartup(value>=.9?'initializing':'download',Math.round(value*100));}
     }).then(instance=>{
       unityInstance=instance;
       if(failed)return;
-      loading.hidden=true;resume.hidden=false;syncViewport();
+      clearStartup();loading.hidden=true;resume.hidden=false;syncViewport();
     }).catch(error=>fail(String(error)));
     document.body.appendChild(loader);
   });

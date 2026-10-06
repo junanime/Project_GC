@@ -20,7 +20,7 @@ let template=fs.readFileSync(path.resolve(__dirname,'../../Assets/WebGLTemplates
 const names={DATA_FILENAME:/dataUrl:buildUrl \+ '\/([^']+)'/,FRAMEWORK_FILENAME:/frameworkUrl:buildUrl \+ '\/([^']+)'/,CODE_FILENAME:/codeUrl:buildUrl \+ '\/([^']+)'/,LOADER_FILENAME:/loader.src=buildUrl \+ '\/([^']+)'/};
 for(const [key,re] of Object.entries(names)){
  const value=existing.match(re)?.[1];assert(value,'Missing compiled '+key);
- template=template.replace('{{{ '+key+' }}}',value);
+ template=template.replaceAll('{{{ '+key+' }}}',value);
 }
 for(const [key,field] of Object.entries({COMPANY_NAME:'companyName',PRODUCT_NAME:'productName',PRODUCT_VERSION:'productVersion'})){
  const value=existing.match(new RegExp(field+':("[^"\\r\\n]*")'))?.[1];assert(value,'Missing compiled '+field);
@@ -28,5 +28,6 @@ for(const [key,field] of Object.entries({COMPANY_NAME:'companyName',PRODUCT_NAME
 }
 assert(!template.includes('{{{'),'Unresolved Unity template field');
 fs.writeFileSync(pcFile,pc);fs.writeFileSync(mobileFile,template);
+require('./Prepare-MobileWebMemory.cjs').prepare(mobile);
 fs.copyFileSync(path.join(__dirname,'WebPortal/index.html'),path.join(portal,'index.html'));
 console.log('Prepared chooser and refreshed existing player HTML; game data unchanged.');

@@ -13,7 +13,6 @@ namespace Vampire
         [Header("Mobile-only HUD placement")]
         [SerializeField] private RectTransform minimapHud, inventoryHud;
         [SerializeField] private Vector2 minimapOffset = new Vector2(32,-130);
-        [SerializeField] private Vector2 inventoryOffset = new Vector2(-220,670);
         private sealed class HudPlacement
         {
             public RectTransform rect;
@@ -55,16 +54,11 @@ namespace Vampire
             var level=FindObjectOfType<LevelManager>();
             var inventory = inventoryHud!=null ? inventoryHud :
                 (level!=null&&level.PlayerInventory!=null ? level.PlayerInventory.transform as RectTransform : FindHud("Inventory Buttons"));
-            PlaceHud(inventory, Vector2.right, inventoryOffset);
             if(inventory!=null)
             {
                 // Keep the serialized inventory in its own scene canvas/safe area.
                 // Reparenting it during scene unload can leave stale canvas batches behind on WebGL.
                 itemPanel=inventory.gameObject;itemPanelWasActive=itemPanel.activeSelf;
-                inventory.anchorMin=inventory.anchorMax=Vector2.right;
-                inventory.pivot=new Vector2(.5f,.5f);
-                inventory.anchoredPosition=inventoryOffset;
-                inventory.localScale=Vector3.one;
                 inventory.GetComponent<Inventory>()?.ApplyMobileLayout();
             }
         }
@@ -144,15 +138,15 @@ namespace Vampire
             root.offsetMin=root.offsetMax=Vector2.zero;
             gameplayRoot = root.gameObject;
             var move = Control("MOVE", root, Vector2.zero, new Vector2(180,180), Vector2.one * 260, true);
-            move.Changed = value => character.Move(value);
-            var aim = Control("AIM / CHARGE", root, Vector2.right, new Vector2(-180,180), Vector2.one * 260, true);
-            aim.Changed = value => { if (value != Vector2.zero) MobileGameplayInput.Aim = value.normalized; };
-            aim.Pressed = () => MobileGameplayInput.ChargeHeld = true;
-            aim.Released = () => MobileGameplayInput.ChargeHeld = false;
-            Control("대쉬", root, Vector2.right, new Vector2(-410,150), Vector2.one * 140).Pressed = () => character.TryDash();
-            Control("상호작용", root, Vector2.right, new Vector2(-180,405), Vector2.one * 120).Pressed = MobileGameplayInput.RequestInteraction;
+            move.Changed = value => {
+                character.Move(value);
+                if(value!=Vector2.zero)MobileGameplayInput.Aim=value.normalized;
+            };
+            // One stick: hold to charge the syringe and release to fire along the last movement direction.
+            move.Pressed = () => MobileGameplayInput.ChargeHeld = true;
+            move.Released = () => MobileGameplayInput.ChargeHeld = false;
 
-            var arrows = Rect("Trap Escape", root, new Vector2(.5f,0), new Vector2(0,195), new Vector2(400,300));
+            var arrows = Rect("Trap Escape", root, new Vector2(.5f,0), new Vector2(0,440), new Vector2(400,300));
             arrowRoot = arrows.gameObject;
             string[] labels = { "↑", "↓", "←", "→" };
             Vector2[] positions = { new Vector2(0,95), new Vector2(0,-95), new Vector2(-130,0), new Vector2(130,0) };

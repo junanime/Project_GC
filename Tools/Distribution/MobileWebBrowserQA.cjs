@@ -33,21 +33,29 @@ fs.mkdirSync(output,{recursive:true});
     await page.touchscreen.tap(671,72);await page.waitForTimeout(200);
     await page.touchscreen.tap(638,132);await page.waitForTimeout(200);await state();
     let before=entered;await page.touchscreen.tap(622,367);await awaitRun(before);await state();
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:140,y:325,id:1},{x:704,y:325,id:2}]});
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:169,y:325,id:1},{x:704,y:298,id:2}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:140,y:325,id:1},{x:729,y:340,id:2}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:169,y:325,id:1},{x:729,y:340,id:2}]});
     await page.waitForTimeout(800);await state();
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-    await page.touchscreen.tap(620,336);
-    await page.waitForTimeout(300);await page.touchscreen.tap(531,94);await page.waitForTimeout(200);await state();
+    await page.touchscreen.tap(729,340);
+    await page.waitForTimeout(300);await page.touchscreen.tap(731,92);await page.waitForTimeout(200);await state();
     await page.setViewportSize({width:390,height:844});await page.waitForTimeout(300);await state();
     await page.setViewportSize({width:844,height:390});await page.waitForTimeout(300);await state();
     await page.touchscreen.tap(422,173);await page.waitForTimeout(200);await state();
     await page.touchscreen.tap(505,255);await page.waitForTimeout(2500);await state();
     before=entered;await page.touchscreen.tap(622,367);await awaitRun(before);await state();
-    await page.touchscreen.tap(531,94);await page.waitForTimeout(200);await state();
+    await page.touchscreen.tap(731,92);await page.waitForTimeout(200);await state();
     console.log('SMOKE_FLOW_COMPLETE: inspect screenshots for UI and the second run');
   }
   await state();console.log('READY: JSON actions state, start, play, smoke, tap(x,y), touch(type,points), resize(width,height), reload, close');
+  if(process.argv.includes('--smoke')){
+    try{
+      await page.locator('#start').tap();await page.locator('#resume').waitFor({timeout:180000});
+      await page.locator('#play').tap();await page.waitForTimeout(5000);await state();
+      await smoke();
+    }finally{await browser.close();}
+    return;
+  }
   let queue=Promise.resolve();const rl=readline.createInterface({input:process.stdin});
   rl.on('line',line=>queue=queue.then(async()=>{
     const cmd=JSON.parse(line);

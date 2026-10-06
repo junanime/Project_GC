@@ -36,12 +36,12 @@ body.mobile-playing{padding:0;overflow:hidden;height:100%;position:fixed;inset:0
 <button class="device" data-device="iphone"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="16" y="5" width="32" height="54" rx="7" fill="#292633"/><path d="M27 10h10M28 53h8"/><circle cx="32" cy="31" r="12"/><path d="m37 23-3 11-7 5 3-11z" fill="#d1aa5f"/><path d="M32 16v2m0 26v2M17 31h2m26 0h2"/></svg><strong>아이폰 버전</strong><small>터치 조작 · Safari로 열기</small></button>
 </div>
 <p id="message" role="status" aria-live="polite"></p>
-<p class="notice"><strong>아이폰은 Safari로 열어주세요.</strong> 카카오톡 내부 브라우저·다른 브라우저에서는 정상 동작을 보장하지 않습니다.<br>모바일은 가로 화면 · 첫 다운로드 약 500MB로 Wi-Fi 권장 · 기종에 따라 실행이 제한될 수 있어요.</p>
+<p class="notice"><strong>아이폰은 Safari로 열어주세요.</strong> 카카오톡 내부 브라우저·다른 브라우저에서는 정상 동작을 보장하지 않습니다.<br>모바일은 가로 화면 · 첫 다운로드는 Wi-Fi 권장 · 기종에 따라 실행이 제한될 수 있어요.</p>
 </section>
 </main>
 <aside class="paper" aria-label="게임 조작법"><span class="seal">안내</span><h2>모험가의 수첩</h2><p class="sub" id="guide-label">PC 조작법</p>
 <dl id="pc-guide"><div class="row"><dt>이동</dt><dd><kbd>W A S D</kbd> / 방향키</dd></div><div class="row"><dt>대쉬</dt><dd><kbd>Shift</kbd></dd></div><div class="row"><dt>액티브 스킬</dt><dd><kbd>R</kbd></dd></div><div class="row"><dt>상호작용</dt><dd><kbd>E</kbd></dd></div><div class="row"><dt>능력치 · 미니맵</dt><dd><kbd>Tab</kbd></dd></div><div class="row"><dt>설정 · 뒤로</dt><dd><kbd>Esc</kbd></dd></div><div class="row"><dt>아이템</dt><dd><kbd>1 2 3 4</kbd><br>또는 <kbd>Z X C V</kbd></dd></div><div class="row"><dt>메뉴 · 강화 선택</dt><dd>마우스 클릭</dd></div></dl>
-<dl id="mobile-guide" hidden><div class="row"><dt>이동</dt><dd>왼쪽 조이스틱</dd></div><div class="row"><dt>조준 · 충전</dt><dd>오른쪽 조이스틱</dd></div><div class="row"><dt>대쉬 · 상호작용</dt><dd>화면 버튼 터치</dd></div><div class="row"><dt>액티브 스킬</dt><dd>스킬 아이콘 터치</dd></div><div class="row"><dt>아이템</dt><dd>아이템 슬롯 터치</dd></div><div class="row"><dt>기록 · 설정</dt><dd>상태 / 설정 버튼</dd></div></dl>
+<dl id="mobile-guide" hidden><div class="row"><dt>이동 · 조준</dt><dd>왼쪽 조이스틱 방향</dd></div><div class="row"><dt>충전 공격</dt><dd>조이스틱을 누르고 충전, 떼면 발사</dd></div><div class="row"><dt>대쉬 · 상호작용</dt><dd>오른쪽 하단 아이콘</dd></div><div class="row"><dt>액티브 · 패시브</dt><dd>오른쪽 스킬 아이콘</dd></div><div class="row"><dt>아이템</dt><dd>중앙 하단 목함 터치</dd></div><div class="row"><dt>기록 · 설정</dt><dd>비전서 아래 상태 / 설정</dd></div></dl>
 <p class="tip"><strong>기본 무기 공격은 자동으로!</strong><br>적을 피하며 경험치를 모으고<br>강화할 능력을 선택하세요.</p><p class="tip" id="fullscreen-tip">전체화면에서 첫 Esc는 화면 크기를 되돌릴 수 있어요. 설정은 한 번 더 눌러주세요.</p>
 </aside>
 </div>
@@ -68,6 +68,7 @@ document.querySelectorAll('[data-device]').forEach(button=>button.addEventListen
  const selected=button.dataset.device;
  if(selected!==device){message.textContent=`현재 기기에서는 ${labels[device]}을 선택해 주세요. 선택한 버전은 다른 기기용입니다.`;return;}
  if(inApp){message.textContent=`카카오톡 등 앱 내부 브라우저에서는 실행을 권장하지 않아요. 이 링크를 복사하여 ${device==='iphone'?'Safari':'Chrome'}에서 열어주세요.`;return;}
+ if(selected!=='pc'){location.assign(`/mobile/?device=${selected}`);return;}
  const frame=document.createElement('iframe');frame.id='game-frame';frame.title='24시간의사투 '+labels[selected];frame.allow='autoplay; fullscreen';frame.allowFullscreen=true;
  frame.src=selected==='pc'?'/play-pc.html?embed=1':`/mobile/?device=${selected}`;
  chooser.hidden=true;screen.appendChild(frame);
