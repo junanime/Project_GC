@@ -33,8 +33,27 @@ namespace Vampire
                 // Retain slot order, inventory counts, UseItem callbacks and desktop hotkeys.
                 AugmentPanelTheme.Anchors(rect,new Vector2(.16f+i*.178f,.08f),new Vector2(.318f+i*.178f,.79f));
                 var background=slots[i].GetComponent<Image>();if(background!=null)background.color=Color.clear;
-                var icon=rect.Find("Image") as RectTransform;
-                if(icon!=null){AugmentPanelTheme.Anchors(icon,new Vector2(.12f,.27f),new Vector2(.88f,.98f));icon.GetComponent<Image>().preserveAspect=true;}
+                var icon=slots[i].IconImage;
+                if(icon!=null)
+                {
+                    // Equal square sockets keep tall potions and wide magnets centered.
+                    var ir=icon.rectTransform;ir.anchorMin=ir.anchorMax=ir.pivot=new Vector2(.5f,.5f);
+                    ir.anchoredPosition=new Vector2(0,18);ir.sizeDelta=new Vector2(76,76);ir.localScale=Vector3.one;
+                    icon.preserveAspect=true;icon.raycastTarget=false;
+                }
+                var count=slots[i].CountRect;
+                if(count!=null)
+                {
+                    count.anchorMin=count.anchorMax=count.pivot=new Vector2(1,1);
+                    count.anchoredPosition=new Vector2(-2,-4);count.sizeDelta=new Vector2(30,28);count.localScale=Vector3.one;
+                    foreach(var child in count.GetComponentsInChildren<RectTransform>(true))
+                        if(child!=count)AugmentPanelTheme.Anchors(child,Vector2.zero,Vector2.one);
+                    foreach(var text in count.GetComponentsInChildren<TextMeshProUGUI>(true))
+                    {text.fontSize=text.fontSizeMax=18;text.fontSizeMin=13;text.enableAutoSizing=true;text.alignment=TextAlignmentOptions.Center;}
+                    foreach(var graphic in count.GetComponentsInChildren<Graphic>(true))graphic.raycastTarget=false;
+                }
+                var slot=slots[i];int index=i;
+                HudTooltip.Bind(slot.gameObject,()=>ConsumableHelp.Title(slot),()=>ConsumableHelp.Body(slot,index));
                 var group=rect.GetComponent<CanvasGroup>();if(group!=null)group.alpha=1;
                 var oldSocket=rect.Find("Mobile translucent socket");if(oldSocket!=null)oldSocket.gameObject.SetActive(false);
                 var button=rect.GetComponent<Button>();if(button!=null)button.targetGraphic=background;
@@ -43,7 +62,7 @@ namespace Vampire
                 label.fontSize=label.fontSizeMax=mobile?20:13;label.fontSizeMin=mobile?15:10;
                 string type=slots[i].CollectableType!=null?slots[i].CollectableType.name.ToLowerInvariant():"";
                 string name=type.Contains("bomb")?"폭탄":type.Contains("magnet")?"자석":type.Contains("health")||type.Contains("heart")?"회복":"물약";
-                label.text=mobile?name:$"{i+1} · {name}";
+                label.text=mobile?name:$"{ConsumableHelp.Keys(i)}\n{name}";
                 AugmentPanelTheme.Anchors(label.rectTransform,new Vector2(-.02f,0),new Vector2(1.02f,.24f));
                 label.color=OctoberArt.Ink;label.fontStyle=FontStyles.Bold;
             }

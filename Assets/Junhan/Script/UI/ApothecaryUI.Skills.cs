@@ -26,6 +26,7 @@ namespace Vampire
                 bool active=i==1;
                 var b=ActionButton(content,"",x+i*width,y,x+(i+1)*width-.006f,top,()=>ShowSkillDetails(data,active));
                 b.name=active?"Active skill slot":"Passive skill slot";SlotArt(b);
+                HudTooltip.Bind(b.gameObject,()=>SkillTitle(data,active),()=>SkillHelp(data,active));
                 var visual=b.transform.Find("Visual");
                 FramedSkill(visual,data,d!=null?(active?d.activeIcon:d.passiveIcon):null,.03f,.24f,.97f,.99f);
                 if(d==null)Label(visual,"?",.2f,.3f,.8f,.9f,24);
@@ -45,13 +46,14 @@ namespace Vampire
         {
             if(CurrentSkills!=null && CurrentSkills.IsCutin)return;
             if(skillDetails!=null){Destroy(skillDetails);skillDetails=null;}
-            var overlay=Rect("Skill details",content,.2f,.32f,.8f,.7f);skillDetails=overlay.gameObject;
+            var overlay=Rect("Skill details",content,.17f,.20f,.83f,.78f);skillDetails=overlay.gameObject;
+            overlay.gameObject.AddComponent<Image>().color=Color.clear;
             Panel(overlay,0,0,1,1);
             var d=data!=null?data.skills:null;
             var icon=ImageAt(overlay,d!=null?(active?d.activeIcon:d.passiveIcon):null,.05f,.32f,.29f,.88f); icon.name="Skill detail icon";
             Label(overlay,d!=null?(active?d.activeName:d.passiveName):"스킬 준비 중",.34f,.70f,.94f,.93f,27);
-            Label(overlay,d!=null?(active?d.activeDescription:d.passiveDescription):"이 캐릭터의 스킬은 추후 추가됩니다.",.34f,.30f,.94f,.69f,21);
-            ActionButton(overlay,"닫기",.34f,.06f,.66f,.27f,()=>{Destroy(skillDetails);skillDetails=null;});
+            Label(overlay,SkillHelp(data,active),.34f,.23f,.94f,.69f,21);
+            ActionButton(overlay,"닫기",.34f,.04f,.66f,.19f,()=>{Destroy(skillDetails);skillDetails=null;});
         }
         void BuildSkillHud()
         {
@@ -62,8 +64,9 @@ namespace Vampire
             for(int i=0;i<2;i++)
             {
                 bool active=i==1;float x=i*.54f;
-                var b=HudIconButton("",x,.54f,()=>{if(Time.timeScale<=0)return;if(active)CurrentSkills?.TryActivate();else ShowSkillDetails(character,false);});
+                var b=HudIconButton("",x,.54f,()=>{if(Time.timeScale<=0)return;if(active)CurrentSkills?.TryActivate();else {OpenSkillHelp();if(Page=="run")ShowSkillDetails(character,false);}});
                 b.name=active?"Active skill R":"Passive skill status";
+                HudTooltip.Bind(b.gameObject,()=>SkillTitle(character,active),()=>SkillHelp(character,active)+"\n\n설명만 보기: 상태 → 스킬 아이콘");
                 var visual=b.transform.Find("Visual");
                 var framed=Rect("Skill icon",visual,.13f,.25f,.87f,.90f);
                 ImageAt(framed,d!=null?(active?d.activeIcon:d.passiveIcon):null,0,0,1,1);
@@ -84,6 +87,8 @@ namespace Vampire
                 else {passiveDuration=mask;passiveSeconds=seconds;}
             }
             bool touch=GamePlatform.UsesTouchControls||MobileGameplayInput.Active;
+            var help=ActionButton(skillHudRoot,"스킬 설명",0,1.02f,1,1.19f,OpenSkillHelp);
+            help.name="Skill help without casting";
             interactionHudButton=HudIconButton(touch?"상호작용":"E · 상호작용",0,0,()=>{if(Time.timeScale>0)MobileGameplayInput.RequestInteraction();});
             interactionHudButton.name="HUD interact";
             Rect("Interaction hand",interactionHudButton.transform.Find("Visual"),.26f,.28f,.74f,.87f).gameObject.AddComponent<HudInteractionIcon>().raycastTarget=false;

@@ -29,6 +29,13 @@ namespace Vampire
         private readonly Queue<Entry> pending = new Queue<Entry>();
         private readonly HashSet<string> pendingIds = new HashSet<string>();
         private readonly Dictionary<string, Entry> entries = new Dictionary<string, Entry>();
+        public IEnumerable<Entry> Entries => entries.Values;
+        public bool Review(string id)
+        {
+            if (!ready || open || !entries.TryGetValue(id, out var entry)) return false;
+            Show(entry, false);
+            return open;
+        }
         private LevelManager level;
         private bool ready;
         private bool open;
@@ -52,6 +59,7 @@ namespace Vampire
             ready = false;
             pending.Clear();
             pendingIds.Clear();
+            entries.Clear();
             if (canvasObject != null) Destroy(canvasObject);
             Instance = this;
             level = owner;
@@ -134,9 +142,9 @@ namespace Vampire
             Show(pending.Dequeue());
         }
 
-        private void Show(Entry entry)
+        private void Show(Entry entry, bool discovery = true)
         {
-            pendingIds.Remove(entry.id);
+            if (discovery) pendingIds.Remove(entry.id);
             activeSheet = Resources.Load<Texture2D>("TutorialClips/Sheets/" + entry.effect);
             if (activeSheet == null && !FoodTutorialPreview.Supports(entry.effect))
             {
@@ -146,6 +154,7 @@ namespace Vampire
             titleText.text = entry.title;
             kindText.text = entry.kind == "weapon" ? "새 무기" : entry.kind == "event" ? "스테이지 이벤트" :
                 entry.kind == "mechanic" ? "필드 기믹" : entry.kind == "item" ? "사용 아이템" : entry.id == "monster/acid-toad" ? "미니보스" : "특수 몬스터";
+            if (!discovery && entry.kind == "weapon") kindText.text = "무기 안내";
             whatText.text = entry.what;
             tipText.text = entry.tip;
             tipHeadingText.text = entry.kind == "mechanic" ? "혈전 과충전" : entry.kind == "item" ? "사용 방법" : "혁이의 대응";
@@ -169,8 +178,11 @@ namespace Vampire
             Time.timeScale = 0f;
             open = true;
             canvasObject.SetActive(true);
-            PlayerPrefs.SetInt(SeenKey(entry.id), 1);
-            PlayerPrefs.Save();
+            if (discovery)
+            {
+                PlayerPrefs.SetInt(SeenKey(entry.id), 1);
+                PlayerPrefs.Save();
+            }
         }
         public void Replay() { clipStart = Time.unscaledTime; preview?.GetComponent<FoodTutorialPreview>()?.Restart(); }
         public void Close()

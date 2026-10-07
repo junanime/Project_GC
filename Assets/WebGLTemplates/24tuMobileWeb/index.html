@@ -56,6 +56,13 @@
   document.querySelector('h1').textContent='24시간의사투 · '+(android?'안드로이드':'아이폰')+' 웹 QA';
   document.getElementById('instructions').innerHTML='설치 없이 '+browserName+'에서 가로 화면으로 플레이하세요.<br>첫 다운로드 약 '+mobileDownloadMegabytes+'MB · Wi-Fi 권장<br>실버가 10,000개 미만이면 보충됩니다.';
   let unityInstance, started=false, failed=false;
+  let browserTouchCount=0;
+  function reportBrowserTouches(event){
+    browserTouchCount=event.touches.length;
+    if(unityInstance)unityInstance.SendMessage('Mobile web lifecycle','SetBrowserTouchCount',String(browserTouchCount));
+  }
+  for(const type of ['touchstart','touchend','touchcancel'])
+    window.addEventListener(type,reportBrowserTouches,{capture:true,passive:true});
   // Filled by Prepare-MobileWebMemory.cjs from the actual gzip payloads.
   const mobileBuildDecodedSizes=null;
   const startupKey='24tu-mobile-startup';
@@ -176,6 +183,7 @@
       if(bucket!==loader.lastProgressBucket){loader.lastProgressBucket=bucket;rememberStartup(value>=.9?'initializing':'download',Math.round(value*100));}
     }).then(instance=>{
       unityInstance=instance;
+      unityInstance.SendMessage('Mobile web lifecycle','SetBrowserTouchCount',String(browserTouchCount));
       if(failed)return;
       clearStartup();loading.hidden=true;resume.hidden=false;syncViewport();
     }).catch(error=>fail(String(error)));

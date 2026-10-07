@@ -380,14 +380,15 @@ namespace Vampire
         }
         void RunBook()
         {
-            string[] tabs={"상태","유물","아이템","도감"};
-            for(int i=0;i<4;i++){int t=i;ActionButton(content,tabs[i],.12f+i*.195f,.745f,.30f+i*.195f,.825f,()=>SwitchTab(t),false,true,Tab==i);}
+            string[] tabs={"상태","유물","아이템","증강","소모품","안내"};
+            for(int i=0;i<tabs.Length;i++){int t=i;ActionButton(content,tabs[i],.12f+i*.13f,.745f,.243f+i*.13f,.825f,()=>SwitchTab(t),false,true,Tab==i);}
             var player=level != null ? level.PlayerCharacter : null;
             if(Tab==0 && player!=null)
             {
                 portrait=ImageAt(content,CharacterSprite(character),.18f,.59f,.30f,.73f);
                 Label(content,$"{player.DisplayName}  Lv.{player.CurrentLevel}\nHP {player.CurrentHealth:0} / {player.MaxHealth:0}\n공격 x{player.DamageMultiplier:0.00}\n방어 {player.CurrentArmor:0} · 이동 {player.CurrentMoveSpeed:0.##}\n치명타 {player.CritChance*100:0}%",.13f,.20f,.37f,.44f,23);
                 ProfileSkills(player.Blueprint,.14f,.455f,.36f,.60f);
+                Label(content,"스킬 아이콘을 눌러 설명 보기",.125f,.435f,.375f,.461f,12);
                 Label(content,"탐험 지도",.45f,.65f,.85f,.72f,26);
                 var map=ExplorationMapSystem.Instance;
                 if(map!=null && map.FullMapTexture!=null)
@@ -415,6 +416,7 @@ namespace Vampire
                     int index=pageIndex*6+j;if(index>=items.Length)break;var item=items[index];
                     float x=.15f+(j%3)*.235f,y=.43f-(j/3)*.2f;
                     var b=ActionButton(content,"",x,y,x+.22f,y+.18f,()=>OctoberDetails(item.itemName,item.description));SlotArt(b);
+                    HudTooltip.Bind(b.gameObject,()=>item.itemName,()=>item.description);
                     var visual=b.transform.Find("Visual");ImageAt(visual,item.itemIcon,.25f,.27f,.75f,.95f);Label(visual,item.itemName,.03f,.02f,.97f,.25f,17);
                 }
                 if(pages>1)
@@ -431,6 +433,8 @@ namespace Vampire
                 if(entries!=null&&entries.Count>0)Grid(entries.Count,i=>entries[i].icon,i=>entries[i].displayName+" Lv."+entries[i].level,.15f,.24f,.85f,.70f);
                 else Label(content,"획득한 증강이 없습니다.",.23f,.35f,.77f,.60f,27);
             }
+            else if(Tab==4) ConsumableBook();
+            else if(Tab==5) GuideBook();
             Label(content,$"이번 탐험 골드  {(stats!=null?stats.CoinsGained:0):N0}",.55f,.08f,.85f,.15f,21);
             ActionButton(content,"닫기 / TAB",.12f,.07f,.32f,.15f,CloseRunBook);
             ActionButton(content,"설정",.35f,.07f,.49f,.15f,()=>Show("settings"));

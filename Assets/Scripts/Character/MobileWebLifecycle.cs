@@ -10,6 +10,7 @@ namespace Vampire
         bool ownsPause;
         bool browserBlocked;
         float savedScale;
+        bool releaseBrowserPointers;
 
 #if UNITY_WEBGL && PROJECT_GC_MOBILE_WEB && !UNITY_EDITOR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -19,6 +20,18 @@ namespace Vampire
             DontDestroyOnLoad(go);go.AddComponent<MobileWebLifecycle>();
         }
 #endif
+        // Safari can cancel a browser gesture without delivering a UI pointer-up.
+        // Process after the UI update; do not pause or clear queued interaction taps.
+        [Preserve]
+        public void SetBrowserTouchCount(string value) => releaseBrowserPointers = value == "0";
+
+        void LateUpdate()
+        {
+            if (!releaseBrowserPointers) return;
+            releaseBrowserPointers = false;
+            foreach (var control in FindObjectsOfType<MobileTouchControl>(true)) control.Cancel();
+        }
+
         [Preserve]
         public void SetBrowserBlocked(string value)
         {

@@ -14,6 +14,9 @@ namespace Vampire
         [SerializeField] private Image itemImage;
         private List<Collectable> items;
         private FastList<Collectable> itemsBeingAdded;
+        public int Count => items != null ? items.Count : 0;
+        public Image IconImage => itemImage;
+        public RectTransform CountRect => countObject != null ? countObject.transform as RectTransform : null;
 
         public void Init()
         {
