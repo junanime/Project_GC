@@ -46,12 +46,13 @@ namespace Vampire
         public float SpawnAt {get;private set;}
         public bool Spawned {get;private set;}
         LevelManager level;
-        void Awake(){SpawnAt=Random.Range(420f,450f);}
+        void Awake(){ResetForStage();}
+        public void ResetForStage(){Spawned=false;SpawnAt=Random.Range(420f,450f);}
         void Update()
         {
             if(Spawned||Time.timeScale<=0||MiniStageRuntimeState.IsInsideMiniStage)return;
             if(level==null)level=FindObjectOfType<LevelManager>();
-            if(level==null||level.IsLevelEnded||level.CurrentLevelTime<SpawnAt||level.PlayerCharacter==null||level.EntityManager==null)return;
+            if(level==null||level.IsRunFlowPaused||level.IsLevelEnded||level.CurrentLevelTime<SpawnAt||level.PlayerCharacter==null||level.EntityManager==null)return;
             var containers=level.CurrentLevelBlueprint.monsters;
             for(int i=0;i<containers.Length;i++)
                 if(containers[i].monstersPrefab!=null && containers[i].monstersPrefab.GetComponent<AcidToadMonster>()!=null)

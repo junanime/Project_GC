@@ -1,0 +1,77 @@
+[
+  {
+    "key": "00-cinnamon",
+    "reference": "C:/Users/junan/.codex/generated_images/01a11298-af1c-74a2-a4c9-e15585b3abaa/exec-16b1c32f-491d-41cf-b224-948cd558d3f1.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 시나몬롤 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/00-cinnamon.png"
+  },
+  {
+    "key": "01-strawberry-donut",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/01-strawberry-donut.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 딸기 도넛 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/01-strawberry-donut.png"
+  },
+  {
+    "key": "02-pistachio-macaron",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/02-pistachio-macaron.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 피스타치오 마카롱 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/02-pistachio-macaron.png"
+  },
+  {
+    "key": "03-honey-waffle",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/03-honey-waffle.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 꿀버터 와플 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/03-honey-waffle.png"
+  },
+  {
+    "key": "04-kimbap",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/04-kimbap.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 김밥 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/04-kimbap.png"
+  },
+  {
+    "key": "05-steamed-dumpling",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/05-steamed-dumpling.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 찐만두 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/05-steamed-dumpling.png"
+  },
+  {
+    "key": "06-cheeseburger",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/06-cheeseburger.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 치즈버거 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/06-cheeseburger.png"
+  },
+  {
+    "key": "07-watermelon",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/07-watermelon.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 수박 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/07-watermelon.png"
+  },
+  {
+    "key": "08-caramel-pudding",
+    "reference": "C:/Users/junan/Documents/Codex/2026-10-07/24tu-junhan2-continuation/outputs/snail-food-shells/08-caramel-pudding.png",
+    "prompt": "Edit the attached approved snail design into a game sprite SHELL LAYER ONLY. Extract and retain the exact 캐러멜 푸딩 food shell with the same shape, colors, toppings, pixel details, viewing angle and chunky outline. Remove ALL snail flesh, head, eye stalks, body, foot, tail, ground, syrup trail, ground shadow and background. Complete the small hidden lower edge of the edible shell naturally so it is a whole isolated shell ready to attach to a separate snail body. Do not redesign the food, do not add anything. Center this single upright food shell with small transparent padding. Match the supplied pixel-art texture. Genuine transparent background. No text, no plate, no other objects.",
+    "output": "Assets/Resources/Stage2Snails/08-caramel-pudding.png"
+  },
+  {
+    "key": "Stage2Body",
+    "prompt": "Edit the reference snail into a game-ready isolated BODY layer. Remove the cinnamon-roll shell completely. Keep ONLY the exact buttercream snail body, long low crawling foot and tail, two tall eyestalks, same brown pupils, pink cheeks and small smile from the reference. Complete the hidden upper back as a simple smooth low cream curve for attaching different shells. Full body facing LEFT, same 3/4 view. No ground, syrup trail, shadow, shell, prop or text. Crisp medium-density pixel art, dark stepped outlines. Genuine transparent background, tightly centered full body with modest margin. This is a reusable character body sprite, not a full illustration.",
+    "references": [
+      "C:/Users/junan/.codex/generated_images/01a11298-af1c-74a2-a4c9-e15585b3abaa/exec-16b1c32f-491d-41cf-b224-948cd558d3f1.png"
+    ],
+    "output": "Assets/Resources/Stage2Snails/Body.png"
+  },
+  {
+    "key": "Stage2Crater",
+    "prompt": "Create a game-ready transparent isolated stage-exit crater sprite for a cute pixel-art food roguelike, matching the attached tiny blood-clot portal's organic pixel texture. Same overhead 3/4 game camera. A much wider volcano-caldera-like organic hole: very dark deep burgundy oval center, thick reddish-pink fleshy ring rim, irregular broad melted chocolate and cream cake residue flowing down outer rim, slightly collapsed lip as if a giant roll-cake snail dissolved into a hole. The hole must look open and enterable, not a filled pool. No lava/fire/rocks, no monsters, no UI, no lettering, no ground plane or shadow beyond footprint. Chunky clear dark pixel outlines, warm pixel highlights, readable small sprite. Wide low footprint, roughly width 1.6 times height, real transparent background.",
+    "references": [
+      "D:/Project_GC/Project_GC/Assets/Junhan/Art/mini_open.png"
+    ],
+    "output": "Assets/Resources/Stage2Snails/Crater.png"
+  },
+  {
+    "key": "Stage2Cream",
+    "prompt": "Create one SEAMLESS TILEABLE square top-down ground texture for a cute food-themed 2D pixel-art roguelike Stage 2. The ground is thick sticky WHIPPED CREAM: pale warm ivory and vanilla cream, shallow smoothly curving whipped ridges and creamy folds, occasional glossy sticky patches and small soft air pockets. Surface only viewed vertically from above, no horizon/perspective objects. Restrained warm beige shadows, low contrast so small colorful enemy sprites stand out. Recognizable medium-coarse pixel-art texture with stepped shade clusters and subtle highlights, no photorealism. Organic irregular terrain distributed evenly across all edges and corners with exactly seamless repeated edges. No giant central motif, no individual desserts, toppings, fruit, utensils, characters, text, border or vignette. Opaque square tile.",
+    "output": "Assets/Resources/Stage2Snails/Cream.png"
+  }
+]

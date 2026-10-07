@@ -34,7 +34,7 @@ namespace Vampire.Editor
             foreach (var guid in AssetDatabase.FindAssets("t:MonsterBlueprint"))
                 foreach (var path in AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(guid), true))
                     if (path.EndsWith(".png")) paths.Add(path);
-            foreach (var folder in new[]{"Assets/Resources/ToadUpdate", "Assets/Resources/SnailBoss"})
+            foreach (var folder in new[]{"Assets/Resources/ToadUpdate", "Assets/Resources/SnailBoss", "Assets/Resources/Stage2Snails"})
                 if (AssetDatabase.IsValidFolder(folder)) foreach (var guid in AssetDatabase.FindAssets("t:Texture2D",new[]{folder})) paths.Add(AssetDatabase.GUIDToAssetPath(guid));
             var entries = new List<VisibleBodyGeometry.Entry>();
             foreach (var path in paths)

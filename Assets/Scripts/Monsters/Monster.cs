@@ -70,9 +70,22 @@ namespace Vampire
         {
             if (monsterSpriteRenderer == null || monsterHitbox == null) SetupHitboxReference();
             var mini=GetComponentInChildren<SnailMiniVisual>();
+            var food=GetComponent<FoodSnailMonster>();
             var fit=GetComponent<MonsterBodyFit>() ?? gameObject.AddComponent<MonsterBodyFit>();
-            if(mini!=null)fit.Configure(monsterHitbox,mini.Body,mini.Shell);
+            if(food!=null && food.Shell!=null)fit.Configure(monsterHitbox,monsterSpriteRenderer,food.Shell);
+            else if(mini!=null)fit.Configure(monsterHitbox,mini.Body,mini.Shell);
             else fit.Configure(monsterHitbox, monsterSpriteRenderer);
+        }
+        public void DespawnForStageTransfer()
+        {
+            StopAllCoroutines();
+            alive = false;
+            OnKilled.RemoveAllListeners();
+            if (entityManager != null)
+            {
+                entityManager.LivingMonsters.Remove(this);
+                entityManager.DespawnMonster(monsterIndex, this, false);
+            }
         }
         public float SpawnMaxHealth { get; private set; }
         public bool WasKilledByPlayer { get; private set; }

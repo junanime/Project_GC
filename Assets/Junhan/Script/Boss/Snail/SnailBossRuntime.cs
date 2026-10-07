@@ -23,6 +23,8 @@ namespace Vampire
         public static bool Paused=>Time.timeScale<=0||MiniStageRuntimeState.IsInsideMiniStage;
         Rigidbody2D rb; Coroutine routine; float timer=2,groggyTime,contactTime,flashTime; int nextPattern; bool initialized,wasPaused;
         Image hpFill; Text hpText; GameObject hud;
+        float combatSeconds, actualDamage;
+        public float MeasuredDps => actualDamage / Mathf.Max(20, combatSeconds);
         public void Initialize(Character player)
         {
             if(initialized)return;initialized=true;Player=player;
@@ -57,6 +59,7 @@ namespace Vampire
             if(!Busy&&!Transitioning&&Health<=settings.maxHealth*settings.phaseThreshold+.01f&&!Chocolate)
             {groggyTime=0;routine=StartCoroutine(PhaseTransition());return;}
             if(Transitioning)return;
+            combatSeconds += Time.deltaTime;
             if(groggyTime>0)
             {
                 groggyTime-=Time.deltaTime;Visual.Pose(SnailAction.Groggy);rb.velocity=Vector2.zero;return;
@@ -226,7 +229,9 @@ namespace Vampire
         {
             if(!initialized||Dead||Transitioning||Paused||damage<=0||float.IsNaN(damage)||float.IsInfinity(damage))return;
             var status=GetComponent<OctoberItemTargetStatus>();if(status!=null&&status.VulnerableUntil>Time.time&&!SuppressHitFlash)damage*=1.08f;
-            Health=Mathf.Max(0,Health-damage*(Groggy?settings.groggyMultiplier:1));flashTime=.12f;UpdateHud();
+            float previousHealth=Health;
+            Health=Mathf.Max(0,Health-damage*(Groggy?settings.groggyMultiplier:1));
+            actualDamage+=previousHealth-Health;flashTime=.12f;UpdateHud();
             if(Health<=0){CancelAction();Dead=true;ClearEffects();StartCoroutine(Death());}
             else if(!Chocolate&&Health<=settings.maxHealth*settings.phaseThreshold)
             {CancelAction();groggyTime=0;routine=StartCoroutine(PhaseTransition());}
@@ -235,7 +240,22 @@ namespace Vampire
         IEnumerator Death()
         {
             Visual.Pose(SnailAction.Dead);SnailBossVfx.Burst(this,transform.position,Chocolate?"ChocolateSplash":"CreamSplash",24,1);
-            yield return Wait(1.5f);FindObjectOfType<LevelManager>()?.LevelPassed(null);
+            if (hud != null) hud.SetActive(false);
+            var originalScale=Visual.transform.localScale;
+            for(float t=0;t<1.5f;t+=Time.deltaTime)
+            {
+                float u=t/1.5f;
+                Visual.transform.localScale=new Vector3(originalScale.x*(1+u*.35f),originalScale.y*(1-u*.9f),originalScale.z);
+                foreach(var renderer in Visual.GetComponentsInChildren<SpriteRenderer>())
+                    renderer.color=new Color(1,1,1,1-u);
+                yield return null;
+            }
+            var level=FindObjectOfType<LevelManager>();
+            if(level!=null && !level.IsLevelEnded)
+            {
+                if(!StageProgression.Ensure(level).FinalBossDefeated(transform.position,MeasuredDps)) level.LevelPassed(null);
+            }
+            Destroy(gameObject);
         }
         void OnTriggerStay2D(Collider2D other)
         {

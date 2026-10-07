@@ -104,6 +104,23 @@ namespace Vampire
             var tutorial = GetComponent<TutorialGuide>();
             if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
             tutorial.Initialize(this);
+            StageProgression.Ensure(this);
+        }
+
+        // Preserve the actual player, abilities, inventory, relic runtimes, stats and loot pools.
+        public void BeginNextStage(LevelBlueprint next)
+        {
+            entityManager.ContinueInStage(next);
+            levelBlueprint = next;
+            levelTime = 0f;
+            timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
+            if (gameTimer != null) gameTimer.SetTime(next.levelTime);
+            infiniteBackground.SetStageTexture(next.backgroundTexture);
+            if (fieldSpawns != null) fieldSpawns.RestartForStage(this);
+            foreach (var director in FindObjectsOfType<StageEventDirector>()) director.RestartForStage();
+            foreach (var toad in FindObjectsOfType<AcidToadSpawn>()) toad.ResetForStage();
+            foreach (var minis in FindObjectsOfType<SnailBossDebugSpawn>()) minis.ResetForStage();
+            foreach (var altar in FindObjectsOfType<FinalBossSummonInteractable>()) altar.ResetForNextStage();
         }
 
         private void Start()
