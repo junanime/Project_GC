@@ -554,8 +554,8 @@ namespace Vampire
             }
 
             float travelledDistance = Vector2.Distance(pressureLaunchPosition, transform.position);
-            float bonus = travelledDistance * Mathf.Max(0f, specials.pressureDamageBonusPerDistance);
-            bonus = Mathf.Min(bonus, Mathf.Max(0f, specials.pressureMaxDamageBonus));
+            int rank = specials.ver4 != null ? specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.PressureNeedle, 2) : 0;
+            float bonus = OriginalCombatRules.PressureBonus(rank, travelledDistance, specials.pressureDamageBonusPerDistance, specials.pressureMaxDamageBonus);
 
             return rawDamage * (1f + bonus);
         }
@@ -715,6 +715,7 @@ namespace Vampire
                 status = monster.gameObject.AddComponent<GutBacteriaStatus>();
             }
 
+            status.HarvestRank = specials.ver4 != null ? specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.GutBacteriaNeedle, 2) : 0;
             status.Apply(
                 specials.gutBacteriaStackDuration,
                 specials.gutBacteriaRequiredStacks,
@@ -1403,7 +1404,7 @@ namespace Vampire
             if (specials.ver4 != null)
             {
                 if (specials.pierceEnabled && !IsReturnMode)
-                    rawDamage *= 1f + .06f * specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce,2) * ver4PiercedTargets++;
+                    rawDamage *= OriginalCombatRules.PierceDamage(specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce,2), ver4PiercedTargets++);
                 if (specials.homingEnabled && ver4HomingTarget != null &&
                     (ver4HomingTarget == damageableComponent.transform || ver4HomingTarget.IsChildOf(damageableComponent.transform)))
                     rawDamage *= specials.ver4.Factor(SyringeSpecialAugmentAbility.SpecialAugmentType.Homing,2,.08f);
@@ -1459,9 +1460,6 @@ namespace Vampire
 
             float finalKnockback =
                 knockback;
-            if (specials.ver4 != null && specials.pressureEnabled &&
-                Vector2.Distance(pressureLaunchPosition,transform.position)*specials.pressureDamageBonusPerDistance >= specials.pressureMaxDamageBonus)
-                finalKnockback *= specials.ver4.Factor(SyringeSpecialAugmentAbility.SpecialAugmentType.PressureNeedle,2,.15f);
 
             if (statRuntime != null)
             {

@@ -33,7 +33,7 @@ namespace Vampire.Tests.Editor
             Assert.AreEqual("좌우 침 피해 +25%",OriginalAugmentDescription.Effect(36,2));
             StringAssert.DoesNotContain("대쉬",OriginalAugmentDescription.Effect(21,2));
             StringAssert.Contains("31% → 40%",OriginalAugmentDescription.Effect(23,2));
-            Assert.AreEqual("화상 최대 중첩 상한 해제",OriginalAugmentDescription.Effect(53,2));
+            StringAssert.Contains("5 → 6",OriginalAugmentDescription.Effect(53,2));
             Assert.Throws<ArgumentOutOfRangeException>(() => OriginalAugmentDescription.Effect(1,3));
         }
         [Test] public void ArtUsesRealGameplayBubbleFramesAndAllSevenStylesExist()

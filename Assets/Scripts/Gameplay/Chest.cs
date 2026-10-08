@@ -14,6 +14,7 @@ namespace Vampire
         protected Transform chestItemsParent;
         protected SpriteRenderer spriteRenderer;
         protected bool opened = false;
+        public bool GuaranteesOriginal { get; set; }
         public bool CanInteract => !opened && chestBlueprint!=null && GetComponent<Collider2D>().enabled;
 
         public void Init(EntityManager entityManager, Character playerCharacter, Transform chestItemsParent)
@@ -28,6 +29,7 @@ namespace Vampire
         public void Setup(ChestBlueprint chestBlueprint)
         {
             this.chestBlueprint = chestBlueprint;
+            GuaranteesOriginal = false;
             transform.localScale = Vector3.one;
             spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.closedChest);
             opened = false;
@@ -92,6 +94,7 @@ namespace Vampire
                     : entityManager.AbilitySelectionDialog.HasAvailableAbilities();
                 if (!stillAvailable) SpawnLoot(chestBlueprint.lootTable.DropLootObject(),openedByPlayer);
                 else if (chestBlueprint.legendaryAugmentChest) entityManager.AbilitySelectionDialog.OpenLegendary();
+                else if (GuaranteesOriginal) entityManager.AbilitySelectionDialog.OpenOvercharge();
                 else entityManager.AbilitySelectionDialog.Open(false);
             }
             yield return new WaitForSeconds(0.15f);

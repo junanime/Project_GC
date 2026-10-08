@@ -227,6 +227,7 @@ namespace Vampire
 
         private void Populate(List<Ability> abilities)
         {
+            UpdateOriginalRewardNotice();
             if (abilityCards == null)
             {
                 abilityCards = new List<AbilityCard>();
@@ -450,7 +451,8 @@ namespace Vampire
             RestoreMinimapLayer();
 
             menuOpen = false;
-            if (abilityManager != null) abilityManager.LegendaryRewardContext = false;
+            if (abilityManager != null) { abilityManager.LegendaryRewardContext = false; abilityManager.OriginalRewardContext = false; }
+            UpdateOriginalRewardNotice();
             Time.timeScale = 1;
 
             if (pauseMenu != null)
@@ -488,10 +490,19 @@ namespace Vampire
             return result;
         }
 
+        public void OpenOvercharge()
+        {
+            if (menuOpen || abilityManager == null) return;
+            abilityManager.LegendaryRewardContext=false;
+            abilityManager.OriginalRewardContext=true;
+            Open(false);
+        }
+
         public void OpenLegendary()
         {
             if (menuOpen || abilityManager == null) return;
             abilityManager.LegendaryRewardContext=true;
+            abilityManager.OriginalRewardContext=false;
             Open(false);
         }
 

@@ -57,9 +57,9 @@ namespace Vampire.Tests.Editor
                 {
                     var manager=UnityEngine.Object.FindObjectOfType<AbilityManager>();
                     Check(!CrossSceneData.HasPendingRunSceneTransfer,"Real scene transfer consumed snapshot");
-                    Check(manager.Ver4.CaptureRunSceneConditionalAugmentIds().SequenceEqual(expectedAcquisitions),"All 189 originals and numeric acquisitions survive scene reload");
+                    Check(manager.Ver4.CaptureRunSceneConditionalAugmentIds().SequenceEqual(expectedAcquisitions),"All 171 active originals and numeric acquisitions survive scene reload");
                     Check(Mathf.Abs(level.PlayerCharacter.DamageMultiplier-expectedDamage)<.001f && Mathf.Abs(level.PlayerCharacter.MaxHealth-expectedHealth)<.001f,"Final character stats restored once, without duplication");
-                    Check(manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).Count(a=>a.Owned)==21,"All 21 parent states restored");
+                    Check(manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).Count(a=>a.Owned)==19,"All 19 active parent states restored");
                     Check(!SyringeAbilityResolver.FindOwnedOrFirst(manager).HasCursorControlLegendary(),"Unselected CursorControl remains disabled after reload");
                 }
                 catch(Exception e){Debug.LogException(e);}
@@ -183,11 +183,14 @@ namespace Vampire.Tests.Editor
             UnityEngine.Object.Destroy(mobile);yield return null;
 
             var initial=manager.SelectAbilities();
-            Check(initial.Count==3&&initial.Cast<Ver4AugmentOffer>().All(x=>x.Kind==Ver4RewardKind.NewSpecial),"First reward offers three acquisitions, no parentless original");
+            Check(initial.Count==3&&initial.Cast<Ver4AugmentOffer>().All(x=>x.RequirementsMet()),"First reward offers three eligible choices");
             manager.ReturnAbilities(initial);
             var parents=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).OrderBy(p=>(int)p.Type).ToArray();
             Check(parents.Length==21,"Exactly 21 special sources, actual="+parents.Length+": "+string.Join(",",parents.Select(p=>p.Type.ToString())));
-            foreach(var parent in parents) Check(manager.AcquireVer4Ability(parent),"Acquire parent "+parent.Type);
+            foreach(var retired in parents.Where(p=>!StartingNeedleSelection.Available(p.Type)))
+                Check(!manager.AcquireVer4Ability(retired),"Remake parent cannot be acquired: "+retired.Type);
+            parents=parents.Where(p=>StartingNeedleSelection.Available(p.Type)).ToArray();
+            foreach(var parent in parents) Check(parent.Owned || manager.AcquireVer4Ability(parent),"Acquire parent "+parent.Type);
             var refresh=manager.SelectAbilities();manager.ReturnAbilities(refresh);
             Check(!syringe.HasCursorControlLegendary(),"Acquiring all specials does not enable CursorControl");
             if(SystemInfo.graphicsDeviceType!=UnityEngine.Rendering.GraphicsDeviceType.Null)
@@ -226,7 +229,7 @@ namespace Vampire.Tests.Editor
                 Check(runtime.Apply(numeric),"Numeric shared stat "+stat);UnityEngine.Object.Destroy(numeric.gameObject);
             }
             var capped=runtime.CreateOffers(false,3);
-            Check(capped.Cast<Ver4AugmentOffer>().All(c=>c.Kind==Ver4RewardKind.Numeric&&c.Grade==AugmentUpgradeGrade.Supreme),"All capped parents offer Supreme numeric upgrades only");manager.ReturnAbilities(capped);
+            Check(capped.Cast<Ver4AugmentOffer>().All(c=>c.Kind==Ver4RewardKind.Numeric&&(c.Grade==AugmentUpgradeGrade.Legendary||c.Grade==AugmentUpgradeGrade.Supreme)),"Completed parents offer Legendary or Supreme numeric upgrades");manager.ReturnAbilities(capped);
             var saved=runtime.CaptureRunSceneConditionalAugmentIds();float damage=player.DamageMultiplier;
             Check(runtime.RestoreRunSceneConditionalAugments(saved)&&player.DamageMultiplier==damage,"Same-run restore is idempotent");
             // Real target tests use isolated snapshots so collateral effects cannot hide failures.
@@ -264,7 +267,7 @@ namespace Vampire.Tests.Editor
             var combat=new SyringeSpecialRuntime {ver4=new Ver4CombatSnapshot(prog),ver4HitDamage=100,ver4Knockback=1};
             float before=nearby.HP;
             for(int hit=0;hit<3;hit++)Ver4HitEffects.AfterHit(target,combat,player,~0,false);
-            Check(nearby.HP<before,"Third wood hit launches actual branch damage");
+            Check(nearby.HP==before,"Retired wood history cannot launch branch damage");
             prog=new OriginalAugmentProgress();prog.RegisterOwnedParent("VibrationNeedle");combat.ver4=new Ver4CombatSnapshot(prog);
             before=nearby.HP;Ver4HitEffects.AfterHit(target,combat,player,~0,false);
             Check(nearby.HP<before,"Vibration shockwave damages nearby target");

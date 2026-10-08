@@ -2348,7 +2348,7 @@ namespace Vampire
             return speed.Value * multiplier;
         }
 
-        public float GetEffectiveCooldown()
+        public override float GetEffectiveCooldown()
         {
             float attackSpeedMultiplier = 1f;
 

@@ -20,7 +20,8 @@ namespace Vampire
         private int requiredStacks = 3;
         private int maxStacks = 5;
         private int bonusGemCount = 1;
-        public float ExtraGemChance { get; set; }
+        public int HarvestRank { get; set; }
+        public float ExtraGemChance => OriginalCombatRules.BacteriaHarvestChance(HarvestRank, CurrentStacks);
         private GemType bonusGemType = GemType.White1;
         private float bonusGemSpawnRadius = 0.35f;
         private bool debugLog = false;
@@ -175,7 +176,7 @@ namespace Vampire
 
         private void OnDisable()
         {
-            ExtraGemChance = 0;
+            HarvestRank = 0;
             SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             stackExpireTimes.Clear();
             rewardGiven = false;

@@ -64,7 +64,7 @@ namespace Vampire.Tests.Editor
             var balance=ScriptableObject.CreateInstance<Ver4AugmentBalance>();
             try
             {
-                float[] expected={.16f,.15f,.25f,.12f,.12f,.15f,.10f,.12f,2};
+                float[] expected={.15f,.14f,.23f,.11f,.12f,.15f,.10f,.12f,2};
                 for(int i=0;i<9;i++) Assert.AreEqual(expected[i],balance.NumericValue(AugmentUpgradeGrade.Epic,i));
                 Assert.Throws<ArgumentException>(()=>balance.NumericValue(AugmentUpgradeGrade.Original,0));
                 for(int i=0;i<9;i++)

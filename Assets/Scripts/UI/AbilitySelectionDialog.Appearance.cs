@@ -7,6 +7,7 @@ namespace Vampire
     public partial class AbilitySelectionDialog
     {
         RectTransform panelContent, panelDimmer;
+        TextMeshProUGUI originalRewardNotice;
         readonly Vector3[] panelScreenCorners = new Vector3[4];
 
         void InstallPanelTheme()
@@ -70,6 +71,23 @@ namespace Vampire
 
             }
             UpdatePanelLayout();
+        }
+
+        void UpdateOriginalRewardNotice()
+        {
+            bool show=abilityManager!=null && abilityManager.OriginalRewardContext;
+            if(originalRewardNotice==null && show && panelContent!=null)
+            {
+                originalRewardNotice=AugmentPanelTheme.Label("Overcharge reward notice",panelContent,TrainingUITheme.Font,"",18);
+                AugmentPanelTheme.Box(originalRewardNotice.rectTransform,new Vector2(0,-344),new Vector2(1120,30));
+                originalRewardNotice.color=new Color(1f,.92f,.65f);
+                originalRewardNotice.raycastTarget=false;
+            }
+            if(originalRewardNotice==null)return;
+            originalRewardNotice.gameObject.SetActive(show);
+            originalRewardNotice.text=show && abilityManager.Ver4!=null && abilityManager.Ver4.HasEligibleOriginal
+                ? "과충전 추가 보상 · 오리지날 증강 최소 1개 보장 · 새로고침 후에도 유지"
+                : "과충전 추가 보상 · 오리지날 강화 완료 · 일반 보상 3개 중 선택";
         }
 
         void LateUpdate() { if (panelContent != null) UpdatePanelLayout(); }

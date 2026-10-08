@@ -40,7 +40,7 @@ namespace Vampire
                     for(int i=0;i<3;i++)
                     {
                         int count=state.Progress.Count(id,i);if(count==0)continue;
-                        body.Append("\n\n").Append(Ver4AugmentCatalog.OriginalNames[type*3+i]).Append(" ").Append(count).Append("/3\n").Append(Ver4AugmentCatalog.OriginalDescriptions[type*3+i]);
+                        body.Append("\n\n").Append(Ver4AugmentCatalog.OriginalNames[type*3+i]).Append(" ").Append(count).Append("/3\n").Append(OriginalAugmentDescription.Current(type*3+i,count));
                     }
                 var numeric=acquisitions.Where(a=>a.parent==id&&!a.original).ToArray();
                 if(numeric.Length>0)

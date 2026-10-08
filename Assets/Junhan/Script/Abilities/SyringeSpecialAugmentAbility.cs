@@ -86,6 +86,7 @@ namespace Vampire
 
         protected override void Use()
         {
+            if (!StartingNeedleSelection.Available(augmentType)) return;
             base.Use();
 
             RefreshSyringeDartAbilityReference();

@@ -9,6 +9,8 @@ namespace Vampire
         {
             if (runtime.ver4 == null || target == null) return 1f;
             float multiplier=1;
+            var bacteria=target.GetComponent<GutBacteriaStatus>() ?? target.GetComponentInParent<GutBacteriaStatus>();
+            if (runtime.gutBacteriaEnabled && bacteria!=null) bacteria.HarvestRank=runtime.ver4.Count(P.GutBacteriaNeedle,2);
             var honey=target.GetComponent<HoneySlowStatus>();
             if (honey!=null && honey.IsActive) multiplier*=runtime.ver4.Factor(P.Honey,2,.08f);
             var status=target.GetComponent<Ver4NeedleStatus>();
@@ -31,9 +33,9 @@ namespace Vampire
                 polarity.Hit(target, runtime.bipolarPolarity, polarityStage, runtime.ver4HitDamage, source);
             }
             var bacteria=target.GetComponent<GutBacteriaStatus>();
-            if(runtime.gutBacteriaEnabled && bacteria!=null)
+            if(runtime.gutBacteriaEnabled && bacteria!=null && Health(target)>0)
             {
-                bacteria.ExtraGemChance=.10f*snapshot.Count(P.GutBacteriaNeedle,2);
+                bacteria.HarvestRank=snapshot.Count(P.GutBacteriaNeedle,2);
                 if(Random.value<.13f*snapshot.Count(P.GutBacteriaNeedle,1))
                     bacteria.Apply(runtime.gutBacteriaStackDuration,runtime.gutBacteriaRequiredStacks,runtime.gutBacteriaMaxStacks,
                         runtime.gutBacteriaBonusGemCount,runtime.gutBacteriaBonusGemType,runtime.gutBacteriaBonusGemSpawnRadius,false);

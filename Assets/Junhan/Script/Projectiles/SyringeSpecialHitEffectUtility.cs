@@ -465,6 +465,7 @@ namespace Vampire
                 status = monster.gameObject.AddComponent<GutBacteriaStatus>();
             }
 
+            status.HarvestRank = runtime.ver4 != null ? runtime.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.GutBacteriaNeedle, 2) : 0;
             status.Apply(
                 runtime.gutBacteriaStackDuration,
                 runtime.gutBacteriaRequiredStacks,

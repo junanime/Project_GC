@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +13,7 @@ namespace Vampire
         [SerializeField] private Ver4AugmentBalance ver4Balance;
         public Ver4AugmentRuntime Ver4 { get; private set; }
         public bool LegendaryRewardContext { get; set; }
+        public bool OriginalRewardContext { get; set; }
 
         [Header("Base Tier Odds")]
         [SerializeField] private float baseGeneralChance = 55f;
@@ -178,7 +179,7 @@ namespace Vampire
         /// </summary>
         public List<Ability> SelectAbilities(IReadOnlyCollection<Ability> rerollExcludedAbilities)
         {
-            if (Ver4 != null) return Ver4.CreateOffers(LegendaryRewardContext, selectionCount);
+            if (Ver4 != null) return Ver4.CreateOffers(LegendaryRewardContext, selectionCount, OriginalRewardContext);
             List<Ability> selectedAbilities = new List<Ability>();
 
             WeightedAbilities availableOwnedAbilities = ExtractAvailableAbilities(ownedAbilities);
@@ -691,6 +692,8 @@ namespace Vampire
 
                         continue;
                     }
+
+                    if (ability is SyringeSpecialAugmentAbility retired && !StartingNeedleSelection.Available(retired.Type)) continue;
 
                     bool isConditional =
                         ability is IRunSceneConditionalAugmentState;

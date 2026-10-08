@@ -61,7 +61,7 @@ namespace Vampire
             if(s==null || target==null || Ver4HitEffects.Health(target)<=0)return;
             if(s.Has(P.FireNeedle) && (guaranteed || Random.value<.25f))
             {
-                int cap=s.Count(P.FireNeedle,2)==3 ? int.MaxValue : 3+s.Count(P.FireNeedle,2);
+                int cap=3+s.Count(P.FireNeedle,2);
                 if(burnStacks>=cap && burns.Count>0)
                 {
                     var oldest=burns[0];oldest.stacks--;burnStacks--;

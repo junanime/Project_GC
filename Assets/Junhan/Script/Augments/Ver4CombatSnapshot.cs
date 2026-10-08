@@ -13,8 +13,8 @@ namespace Vampire
             for(int parent=0;parent<21;parent++)
             {
                 string id=((ParentType)parent).ToString();
-                owned[parent]=progress.IsOwned(id);
-                for(int option=0;option<3;option++) counts[parent,option]=progress.Count(id,option);
+                owned[parent]=StartingNeedleSelection.Available((ParentType)parent) && progress.IsOwned(id);
+                for(int option=0;option<3;option++) counts[parent,option]=owned[parent] ? progress.Count(id,option) : 0;
             }
         }
         public bool Has(ParentType parent) => owned[(int)parent];
@@ -44,7 +44,7 @@ namespace Vampire
             runtime.corrosionMaxStacks+=Count(ParentType.CorrosionNeedle,2);
             runtime.pressureDamageBonusPerDistance*=Factor(ParentType.PressureNeedle,0,.12f);
             runtime.pressureMaxDamageBonus*=Factor(ParentType.PressureNeedle,1,.10f);
-            runtime.markDuration*=Factor(ParentType.MarkNeedle,0,.12f);
+            runtime.markDuration*=Factor(ParentType.MarkNeedle,0,.20f);
             runtime.markBonusDamageMultiplier*=Factor(ParentType.MarkNeedle,1,.12f);
             runtime.digestiveAcidPuddleLifetime*=Factor(ParentType.DigestiveAcidSacNeedle,0,.12f);
             runtime.digestiveAcidPuddleRadius*=Factor(ParentType.DigestiveAcidSacNeedle,1,.12f);
@@ -52,7 +52,7 @@ namespace Vampire
             runtime.hungerStackDuration*=Factor(ParentType.HungerNeedle,0,.12f);
             runtime.hungerAttackSpeedBonusPerStack*=Factor(ParentType.HungerNeedle,1,.10f);
             runtime.hungerMaxStacks+=Count(ParentType.HungerNeedle,2);
-            runtime.gutBacteriaStackDuration*=Factor(ParentType.GutBacteriaNeedle,0,.12f);
+            runtime.gutBacteriaMaxStacks+=Count(ParentType.GutBacteriaNeedle,0);
         }
     }
 }

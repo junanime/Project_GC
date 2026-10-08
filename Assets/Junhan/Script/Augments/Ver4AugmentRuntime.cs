@@ -52,11 +52,14 @@ namespace Vampire
         public void RefreshProgress()
         {
             foreach(var parent in parents)
-                if(parent.Owned) Progress.RegisterOwnedParent(parent.Type.ToString());
+                if(parent.Owned && StartingNeedleSelection.Available(parent.Type)) Progress.RegisterOwnedParent(parent.Type.ToString());
             Combat=new Ver4CombatSnapshot(Progress);
         }
 
-        public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount)
+        public bool HasEligibleOriginal => parents != null && parents.Any(p=>p.Owned && StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p)
+            && Enumerable.Range(0,3).Any(option=>Progress.CanSelect(p.Type.ToString(),option)));
+
+        public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount, bool guaranteeOriginal = false)
         {
             RefreshProgress();
             var result=new List<Ability>();
@@ -84,7 +87,8 @@ namespace Vampire
             {
                 // Acquisition is a reward type decision, never a seventh grade.
                 // With no parent yet, expose three distinct acquisition choices.
-                if(newParents.Count>0 && (ownedParents.Count==0 || UnityEngine.Random.value<Balance.newSpecialChance))
+                bool forceOriginal = guaranteeOriginal && slot==0 && originals.Count>0;
+                if(!forceOriginal && newParents.Count>0 && (ownedParents.Count==0 || UnityEngine.Random.value<Balance.newSpecialChance))
                 {
                     int index=UnityEngine.Random.Range(0,newParents.Count); var parent=newParents[index]; newParents.RemoveAt(index);
                     result.Add(Offer(Ver4RewardKind.NewSpecial,AugmentUpgradeGrade.Common,parent,0,0,
@@ -101,14 +105,16 @@ namespace Vampire
                 }
                 // Random.value includes 1; TryRoll deliberately uses [0,1).
                 double sample=Math.Min(UnityEngine.Random.value,.999999999);
-                if(!Balance.odds.TryRoll(sample,g=>g!=AugmentUpgradeGrade.Original || originals.Count>0,out var grade))
+                var grade=AugmentUpgradeGrade.Original;
+                if(!forceOriginal && !Balance.odds.TryRoll(sample,g=>g!=AugmentUpgradeGrade.Original || originals.Count>0,out grade))
                 {
                     if(!TryAddNumericFallback(result,ownedParents)) break;
                     continue;
                 }
                 if(grade==AugmentUpgradeGrade.Original)
                 {
-                    var candidate=originals[UnityEngine.Random.Range(0,originals.Count)];
+                    int selected=UnityEngine.Random.Range(0,originals.Count);
+                    var candidate=originals[selected]; originals.RemoveAt(selected);
                     int index=(int)candidate.parent.Type*3+candidate.option;
                     int count=Progress.Count(candidate.parent.Type.ToString(),candidate.option);
                     int originalLevel=Progress.Level(candidate.parent.Type.ToString());
@@ -131,7 +137,7 @@ namespace Vampire
                     if(option==1) amount=Mathf.Min(amount,Mathf.Max(0,1f-playerCharacter.CritChance));
                     result.Add(Offer(Ver4RewardKind.Numeric,grade,parent,option,amount,ParentName(parent)+" · 수치 강화",
                         "강화 등급: "+AugmentUpgradeOdds.DisplayName(grade)+"\n"+Ver4AugmentCatalog.NumericDescription(option,amount)+
-                        (Progress.Level(parent.Type.ToString())==9 ? "\n지존 승급 완료" : "")));
+                        (Progress.Level(parent.Type.ToString())==9 ? "\n오리지날 완성 · 전설 70% / 지존 30%" : "")));
                 }
             }
 
@@ -152,14 +158,14 @@ namespace Vampire
             var options=Enumerable.Range(0,9).Where(i=>NumericEligible(i)).ToList();
             if(options.Count==0) return false;
             int option=options[UnityEngine.Random.Range(0,options.Count)];
-            const AugmentUpgradeGrade fallbackGrade=AugmentUpgradeGrade.Common;
+            var fallbackGrade=Progress.ResolveNumericGrade(parent.Type.ToString(),AugmentUpgradeGrade.Common);
             float amount=Balance.NumericValue(fallbackGrade,option);
             if(option==1) amount=Mathf.Min(amount,Mathf.Max(0,1f-playerCharacter.CritChance));
             result.Add(Offer(Ver4RewardKind.Numeric,fallbackGrade,parent,option,amount,
                 ParentName(parent)+" · 수치 강화",
                 "강화 등급: "+AugmentUpgradeOdds.DisplayName(fallbackGrade)+"\n"+
                 Ver4AugmentCatalog.NumericDescription(option,amount)+
-                (Progress.Level(parent.Type.ToString())==9 ? "\n지존 승급 완료" : "")));
+                (Progress.Level(parent.Type.ToString())==9 ? "\n오리지날 완성 · 전설 70% / 지존 30%" : "")));
             return true;
         }
 
@@ -207,6 +213,7 @@ namespace Vampire
         {
             if(acquisition.original)
             {
+                if (Enum.TryParse(acquisition.parent,out ParentType parent) && !StartingNeedleSelection.Available(parent)) return;
                 Progress.TrySelect(acquisition.parent,acquisition.option);
                 if(acquisition.parent==nameof(ParentType.Mosquito))
                 {
@@ -240,7 +247,9 @@ namespace Vampire
             RefreshProgress();
             var validated=new List<Acquisition>();
             var validationProgress=new OriginalAugmentProgress();
-            foreach(var parent in parents.Where(p=>p.Owned)) validationProgress.RegisterOwnedParent(parent.Type.ToString());
+            foreach(var parent in parents.Where(p=>p.Owned || !StartingNeedleSelection.Available(p.Type))) validationProgress.RegisterOwnedParent(parent.Type.ToString());
+            // Retired parent history remains serializable. Shared numeric gains are
+            // restored at their saved amounts; retired originals never enable combat.
             try
             {
                 foreach(string json in ids)
