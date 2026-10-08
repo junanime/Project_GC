@@ -13,6 +13,20 @@ namespace Vampire
         public static readonly string[] Names = { "꾸룩 · 위산연동 카멜레온", "보글 · 제산거품 카멜레온", "톡톡 · 환타 카멜레온", "라떼 · 커피수혈 카멜레온" };
         static readonly Dictionary<string, Sprite[]> cache = new Dictionary<string, Sprite[]>();
         static readonly Dictionary<Sprite, Sprite> portraits = new Dictionary<Sprite, Sprite>();
+        [Serializable] public sealed class BodyMesh
+        {
+            public string name; public Vector2[] vertices; public int[] triangles;
+            public int width, height; public string hitMask;
+            [NonSerialized] byte[] decodedMask;
+            public bool Contains(int x,int y)
+            {
+                if(x<0||y<0||x>=width||y>=height)return false;
+                if(decodedMask==null)decodedMask=Convert.FromBase64String(hitMask);
+                int index=y*width+x;return (decodedMask[index>>3]&(1<<(index&7)))!=0;
+            }
+        }
+        [Serializable] public sealed class BodyMeshBank { public BodyMesh[] entries; }
+        static Dictionary<string,BodyMesh> bodyMeshes;
         public static ChameleonKind Kind(MonsterBlueprint bp)
         {
             if (bp != null) for (int i = 0; i < Names.Length; i++) if (bp.name == Names[i]) return (ChameleonKind)i;
@@ -21,20 +35,38 @@ namespace Vampire
         public static Sprite[] Frames(string name)
         {
             if (cache.TryGetValue(name, out var result)) return result;
-            Color32[] pixels=null;
+            if(name!="Projectiles"&&bodyMeshes==null)
+            {
+                var data=Resources.Load<TextAsset>("Chameleons/BodyMeshes");
+                if(data==null)throw new InvalidOperationException("Missing baked chameleon body meshes.");
+                bodyMeshes=JsonUtility.FromJson<BodyMeshBank>(data.text).entries.ToDictionary(e=>e.name);
+            }
             result = Resources.LoadAll<Sprite>("Chameleons/" + name).OrderBy(s => s.name, StringComparer.Ordinal).Select(source =>
             {
                 // Equal physical width, one grounded pivot, no per-animation transform scale changes.
-                var s = Sprite.Create(source.texture, source.rect, new Vector2(.5f, 0), source.rect.width / Width, 0, name=="Projectiles"?SpriteMeshType.FullRect:SpriteMeshType.Tight);
+                var s = Sprite.Create(source.texture, source.rect, new Vector2(.5f, 0), source.rect.width / Width, 0, SpriteMeshType.FullRect);
                 s.name = source.name;
-                if(name!="Projectiles"){if(pixels==null)pixels=source.texture.GetPixels32();IsolateBodyMesh(s,pixels);}
+                if(name!="Projectiles")
+                {
+                    if(!bodyMeshes.TryGetValue(source.name,out var mesh))throw new InvalidOperationException("Missing chameleon mesh: "+source.name);
+                    ChameleonMeshPump.Schedule(s,mesh.vertices,Array.ConvertAll(mesh.triangles,n=>checked((ushort)n)));
+                }
                 return s;
             }).ToArray();
             cache[name] = result; return result;
         }
         // Sprite geometry only: preserve the source PNG and discard detached bits from adjacent poses.
         // Horizontal one-pixel runs retain the original contour without reprocessing texture pixels.
-        static void IsolateBodyMesh(Sprite sprite,Color32[] pixels)
+        public static bool OccupiesSilhouette(Sprite sprite,Vector2 pixel)
+        {
+            if(sprite==null||pixel.x<0||pixel.y<0||pixel.x>=sprite.rect.width||pixel.y>=sprite.rect.height)return false;
+            if(bodyMeshes==null||!bodyMeshes.TryGetValue(sprite.name,out var mesh))
+                throw new InvalidOperationException("Missing chameleon hit mask: "+sprite.name);
+            return mesh.Contains((int)pixel.x,(int)pixel.y);
+        }
+#if UNITY_EDITOR
+        // Baking reads the lossless source once in the editor, never compressed/CPU-unreadable player textures.
+        public static BodyMesh BakeBodyMesh(Sprite sprite,Color32[] pixels)
         {
             int w=(int)sprite.rect.width,h=(int)sprite.rect.height,tw=sprite.texture.width,ox=(int)sprite.rect.x,oy=(int)sprite.rect.y;
             var visited=new bool[w*h];var queue=new Queue<int>();var largest=new List<int>();
@@ -58,8 +90,12 @@ namespace Vampire
                 ushort n=(ushort)vertices.Count;vertices.Add(new Vector2(first,y));vertices.Add(new Vector2(x,y));vertices.Add(new Vector2(x,y+1));vertices.Add(new Vector2(first,y+1));
                 triangles.Add(n);triangles.Add((ushort)(n+1));triangles.Add((ushort)(n+2));triangles.Add(n);triangles.Add((ushort)(n+2));triangles.Add((ushort)(n+3));
             }
-            ChameleonMeshPump.Schedule(sprite,vertices.ToArray(),triangles.ToArray());
+            // Preserve the old GetPixel().a > .2f hit test exactly, independently of the visual contour.
+            var hitMask=new byte[(w*h+7)/8];
+            for(int p=0;p<w*h;p++)if(pixels[(oy+p/w)*tw+ox+p%w].a>51)hitMask[p>>3]|=(byte)(1<<(p&7));
+            return new BodyMesh{name=sprite.name,vertices=vertices.ToArray(),triangles=triangles.Select(n=>(int)n).ToArray(),width=w,height=h,hitMask=Convert.ToBase64String(hitMask)};
         }
+#endif
         public static Sprite Frame(ChameleonKind kind, int index)
         {
             var list = Frames(kind.ToString());

@@ -23,7 +23,9 @@ namespace Vampire.Editor
             int oldMemory = PlayerSettings.WebGL.initialMemorySize;
             var oldSubtarget = EditorUserBuildSettings.webGLBuildSubtarget;
             bool mobile = Environment.GetEnvironmentVariable("PROJECT_GC_WEB_MOBILE") == "1";
+            bool stageOneOnly = Environment.GetEnvironmentVariable("PROJECT_GC_STAGE_ONE_ONLY") == "1";
             WebDemoTextureScope textures = null;
+            WebDemoStageScope stages = null;
             try
             {
                 if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
@@ -35,7 +37,12 @@ namespace Vampire.Editor
                     throw new InvalidOperationException("Expected the current lobby and Level 1 in that order.");
 
                 EditorUserBuildSettings.webGLBuildSubtarget = mobile ? WebGLTextureSubtarget.ASTC : WebGLTextureSubtarget.DXT;
+                ChameleonMeshBake.Bake();
+                if(stageOneOnly) stages = new WebDemoStageScope();
                 textures = new WebDemoTextureScope(scenes, mobile);
+                var defines = new System.Collections.Generic.List<string> { "PROJECT_GC_WEB_DEMO" };
+                if(mobile) defines.Add("PROJECT_GC_MOBILE_WEB");
+                if(stageOneOnly) defines.Add("PROJECT_GC_STAGE_ONE_ONLY");
 
                 PlayerSettings.WebGL.template = mobile ? "PROJECT:24tuMobileWeb" : "PROJECT:24tuWebDemo";
                 PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
@@ -55,11 +62,12 @@ namespace Vampire.Editor
                     scenes = scenes,
                     locationPathName = folder,
                     target = BuildTarget.WebGL,
-                    extraScriptingDefines = mobile ? new[] { "PROJECT_GC_WEB_DEMO", "PROJECT_GC_MOBILE_WEB" } : new[] { "PROJECT_GC_WEB_DEMO" },
+                    extraScriptingDefines = defines.ToArray(),
                     options = BuildOptions.CompressWithLz4HC
                 });
                 if (report == null || report.summary.result != BuildResult.Succeeded)
                     throw new InvalidOperationException("Web build failed; inspect the Unity build log.");
+                if(stageOneOnly) WebDemoStageScope.Verify(report);
                 File.Copy("LICENSE", Path.Combine(folder, "LICENSE.txt"), true);
                 File.Copy("Tools/Distribution/ThirdPartyNotices.md", Path.Combine(folder, "ThirdPartyNotices.md"), true);
                 File.Copy("Documentation/WebDemo.md", Path.Combine(folder, "WEB_DEMO_GUIDE.md"), true);
@@ -75,7 +83,8 @@ namespace Vampire.Editor
                     sourceCommit = Environment.GetEnvironmentVariable("PROJECT_GC_SOURCE_COMMIT") ?? "unknown",
                     localChangesIncluded = true, sessionMinimumSilver = WebDemoStartup.StartingSilver,
                     compressedTextureCount = textures.TextureCount, nonBlockAlignedTextureCount = textures.NonBlockAlignedCount,
-                    profile = mobile ? "mobile-web-astc-qa" : "desktop-web-dxt", textureCompression = mobile ? "ASTC 4x4" : "DXT"
+                    profile = mobile ? "mobile-web-astc-qa" : "desktop-web-dxt", textureCompression = mobile ? "ASTC 4x4" : "DXT",
+                    stageCount = stageOneOnly ? 1 : 2, stageTwoAssetsExcluded = stageOneOnly
                 }, true));
                 Debug.Log("[WebDemoBuild] PASS bytes=" + report.summary.totalSize + " path=" + folder);
                 exitCode = 0;
@@ -93,7 +102,8 @@ namespace Vampire.Editor
                 PlayerSettings.defaultWebScreenHeight = oldHeight;
                 EditorUserBuildSettings.webGLBuildSubtarget = oldSubtarget;
                 AssetDatabase.SaveAssets();
-                if (textures != null) textures.Dispose();
+                try { if (textures != null) textures.Dispose(); }
+                finally { if (stages != null) stages.Dispose(); }
             }
             if (Application.isBatchMode) EditorApplication.Exit(exitCode);
         }
@@ -105,6 +115,8 @@ namespace Vampire.Editor
             public string[] scenes;
             public ulong bytes;
             public bool localChangesIncluded;
+            public bool stageTwoAssetsExcluded;
+            public int stageCount;
             public int sessionMinimumSilver;
             public int compressedTextureCount, nonBlockAlignedTextureCount;
         }

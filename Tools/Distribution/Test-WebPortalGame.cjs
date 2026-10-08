@@ -4,7 +4,7 @@ const url=process.argv[2],out=process.argv[3];assert(['localhost','127.0.0.1'].i
 (async()=>{
  const browser=await chromium.launch({channel:'chrome',headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
  try{
-  for(const mode of ['pc','android','iphone']){
+  for(const mode of (process.env.PROJECT_GC_QA_MODES||'pc,android,iphone').split(',')){
    const options=mode==='pc'?{viewport:{width:1366,height:768}}:{viewport:{width:844,height:390},isMobile:true,hasTouch:true,userAgent:mode==='android'?'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Mobile Safari/537.36':'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1'};
    const context=await browser.newContext(options),page=await context.newPage(),logs=[];
    let entered=0;
@@ -21,7 +21,7 @@ const url=process.argv[2],out=process.argv[3];assert(['localhost','127.0.0.1'].i
    const state=await frame.evaluate(()=>({memory:unityInstance.GetMemoryInfo(),canvas:(()=>{const r=document.querySelector('canvas').getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height};})()}));
    assert(state.memory&&state.canvas.width>100);assert(!logs.some(x=>x.type==='pageerror'));
    if(mode==='pc'){await page.locator('#fullscreen').click();await page.waitForTimeout(400);await page.screenshot({path:path.join(out,'pc-fullscreen.png')});await page.evaluate(()=>document.exitFullscreen());}
-   async function tapGame(x,y){const r=await frame.locator('canvas').boundingBox();await page.mouse.click(r.x+r.width*x,r.y+r.height*y);}
+   async function tapGame(x,y){const r=await frame.locator('canvas').boundingBox();if(mode==='pc')await page.mouse.click(r.x+r.width*x,r.y+r.height*y);else await page.touchscreen.tap(r.x+r.width*x,r.y+r.height*y);}
    await tapGame(.86,.183);await page.waitForTimeout(350);
    await tapGame(.812,.338);await page.waitForTimeout(250);
    await page.screenshot({path:path.join(out,mode+'-prepare.png')});
@@ -33,7 +33,7 @@ const url=process.argv[2],out=process.argv[3];assert(['localhost','127.0.0.1'].i
    else await tapGame(.94,.88);
    await tapGame(.948,.235);await page.waitForTimeout(400);
    await page.screenshot({path:path.join(out,mode+'-settings.png')});
-   assert(!logs.some(x=>x.type==='pageerror'),'No browser exceptions in '+mode+' battle');
+   assert(!logs.some(x=>x.type==='pageerror'||x.type==='error'&&/Exception|abort|Unable to|not readable/i.test(x.text)),'No browser or Unity exceptions in '+mode+' battle');
    fs.writeFileSync(path.join(out,mode+'-evidence.json'),JSON.stringify({state,logs,actualPhoneTest:false},null,2));console.log('PASS real '+mode+' compiled build ready');await context.close();
   }
  }finally{await browser.close();}

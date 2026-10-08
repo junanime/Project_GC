@@ -5,6 +5,17 @@ namespace Vampire
     [DisallowMultipleComponent]
     public sealed class StageProgression : MonoBehaviour
     {
+        public static bool StageTwoEnabled
+        {
+            get
+            {
+#if PROJECT_GC_STAGE_ONE_ONLY
+                return false;
+#else
+                return true;
+#endif
+            }
+        }
         public int StageNumber { get; private set; } = 1;
         public bool FirstBossDefeated { get; private set; }
         public bool Travelling { get; private set; }
@@ -20,9 +31,10 @@ namespace Vampire
             var result = level.GetComponent<StageProgression>() ?? level.gameObject.AddComponent<StageProgression>();
             result.level = level; return result;
         }
-        void Awake() { level = GetComponent<LevelManager>(); definition = Resources.Load<StageTwoDefinition>("StageTwoDefinition"); }
+        void Awake() { level = GetComponent<LevelManager>(); if(StageTwoEnabled) definition = Resources.Load<StageTwoDefinition>("StageTwoDefinition"); }
         public bool FinalBossDefeated(Vector3 position, float measuredDps)
         {
+            if (!StageTwoEnabled) return false; // Existing boss caller opens the victory result.
             if (StageNumber != 1) return false;
             if (FirstBossDefeated || level == null || level.IsLevelEnded) return true;
             if (definition == null || !definition.IsReady)
@@ -44,7 +56,7 @@ namespace Vampire
             GameAudioManager.FinishStageBossAudio(); return true;
         }
         static float Power(Character p) => p == null ? 1 : Mathf.Max(.01f, p.DamageMultiplier * p.AttackSpeedMultiplier);
-        public bool CanEnter(Character p) => FirstBossDefeated && StageNumber == 1 && !Travelling &&
+        public bool CanEnter(Character p) => StageTwoEnabled && FirstBossDefeated && StageNumber == 1 && !Travelling &&
             level != null && !level.IsLevelEnded && !level.IsRunFlowPaused && !MiniStageRuntimeState.IsInsideMiniStage &&
             BloodClotTravel.CanTravel(p) && Time.timeScale > 0;
         public bool TryEnter(Character player, StageExitPortal portal)

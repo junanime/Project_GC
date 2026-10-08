@@ -146,7 +146,7 @@ namespace Vampire
             var s=monsterSpriteRenderer.sprite;if(s==null)return false;Vector3 local=monsterSpriteRenderer.transform.InverseTransformPoint(point);if(monsterSpriteRenderer.flipX)local.x=-local.x;
             Vector2 pixel=(Vector2)local*s.pixelsPerUnit+s.pivot;
             if(pixel.x<0||pixel.y<0||pixel.x>=s.rect.width||pixel.y>=s.rect.height)return false;
-            return s.texture.GetPixel((int)(s.rect.x+pixel.x),(int)(s.rect.y+pixel.y)).a>.2f;
+            return ChameleonArt.OccupiesSilhouette(s,pixel);
         }
         void SetAlpha(float alpha){bodyAlpha=Mathf.Clamp01(alpha);if(monsterSpriteRenderer!=null){var c=monsterSpriteRenderer.color;c.a=bodyAlpha;monsterSpriteRenderer.color=c;}}
         public override void TakeDamage(float damage,Vector2 knockback=default(Vector2),bool isCritical=false)
