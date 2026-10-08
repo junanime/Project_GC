@@ -183,7 +183,8 @@ namespace Vampire
             if (!canPlay) ResetGestures();
             gameplayRoot.SetActive(canPlay);
             if(itemPanel!=null)itemPanel.SetActive(canPlay);
-            arrowRoot.SetActive(canPlay && character.IsTrapBound);
+            // TrapMonster owns the large, highlighted touch targets and their lifetime.
+            arrowRoot.SetActive(false);
         }
 
         private void ResetGestures()

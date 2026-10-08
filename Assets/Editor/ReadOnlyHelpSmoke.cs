@@ -92,10 +92,10 @@ namespace Vampire.Editor
                         if(level.EntityManager.AbilitySelectionDialog.MenuOpen)level.EntityManager.AbilitySelectionDialog.Close();
                         Time.timeScale=0;
                         foreach(var slot in level.PlayerInventory.Slots)
-                            for(int i=0;i<3;i++)slot.AddItem(new GameObject("Read-only help sample").AddComponent<HelpSampleItem>());
+                            for(int i=0;i<slot.Capacity;i++)slot.AddItem(new GameObject("Read-only help sample").AddComponent<HelpSampleItem>());
                         counts=level.PlayerInventory.Slots.Select(s=>s.Count).ToArray();cooldown=level.PlayerCharacter.Skills.CooldownRemaining;
                         Check(level.PlayerInventory.Slots.All(s=>s.IconImage.rectTransform.sizeDelta==new Vector2(76,76)),"four icons use equal centered square bounds");
-                        Check(level.PlayerInventory.Slots.All(s=>s.CountRect.sizeDelta==new Vector2(30,28)),"counts stay within their slots");
+                        Check(level.PlayerInventory.Slots.All(s=>s.CountRect.sizeDelta==new Vector2(58,28)),"counts stay within their slots");
                         tooltip=Named("Active skill R").GetComponent<HudTooltip>();
                         tooltip.OnPointerEnter(new ExtendedPointerEventData(EventSystem.current){pointerType=UIPointerType.Touch});break;
                     case 2:
@@ -147,7 +147,10 @@ namespace Vampire.Editor
                         Check(GameObject.Find("Read only HUD help")!=null,"consumable hover is available");
                         Check(counts.SequenceEqual(level.PlayerInventory.Slots.Select(s=>s.Count)),"consumable hover does not use items");Capture("07-item-hover");
                         Check(HelpSampleItem.Uses==0,"no consumable effect fired while reading");
-                        tooltip.OnPointerExit(null);done=true;break;
+                        tooltip.OnPointerExit(null);
+                        if(Environment.GetEnvironmentVariable("PROJECT_GC_MINI_QA")=="1")level.StartCoroutine(MiniQaChecks.Run(level,()=>done=true));
+                        else done=true;
+                        break;
                 }
             }
             catch(Exception e){Debug.LogException(e);failed=true;}

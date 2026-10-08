@@ -45,7 +45,7 @@ namespace Vampire
                 if(count!=null)
                 {
                     count.anchorMin=count.anchorMax=count.pivot=new Vector2(1,1);
-                    count.anchoredPosition=new Vector2(-2,-4);count.sizeDelta=new Vector2(30,28);count.localScale=Vector3.one;
+                    count.anchoredPosition=new Vector2(-2,-4);count.sizeDelta=new Vector2(58,28);count.localScale=Vector3.one;
                     foreach(var child in count.GetComponentsInChildren<RectTransform>(true))
                         if(child!=count)AugmentPanelTheme.Anchors(child,Vector2.zero,Vector2.one);
                     foreach(var text in count.GetComponentsInChildren<TextMeshProUGUI>(true))

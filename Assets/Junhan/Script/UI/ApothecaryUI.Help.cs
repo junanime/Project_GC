@@ -23,7 +23,7 @@ namespace Vampire
                 var b = ActionButton(content,"",x,y,x+.34f,y+.19f,()=>OctoberDetails(ConsumableHelp.Title(slot),ConsumableHelp.Body(slot,index)));
                 SlotArt(b); var visual = b.transform.Find("Visual");
                 ImageAt(visual,slot.IconImage != null ? slot.IconImage.sprite : null,.03f,.15f,.26f,.85f);
-                Label(visual,ConsumableHelp.Title(slot)+$"  ×{slot.Count}\n"+ConsumableHelp.Keys(index),.28f,.08f,.97f,.92f,21);
+                Label(visual,ConsumableHelp.Title(slot)+"\n"+slot.CapacityDescription+"\n"+ConsumableHelp.Keys(index),.28f,.08f,.97f,.92f,21);
                 HudTooltip.Bind(b.gameObject,()=>ConsumableHelp.Title(slot),()=>ConsumableHelp.Body(slot,index));
             }
             Label(content,"PC: 1~4 또는 Z·X·C·V / 모바일: 하단 약함 터치",.16f,.155f,.84f,.205f,18);
@@ -76,7 +76,7 @@ namespace Vampire
         {
             string description=Entry(slot)?.what;
             if(string.IsNullOrEmpty(description)) description=Id(slot)=="bomb"?"화면 안의 적에게 피해를 줍니다.":Id(slot)=="health"?"체력을 즉시 회복합니다. 최대 체력을 넘겨 회복하지 않습니다.":Id(slot)=="magnet"?"필드의 코인과 경험치 보석을 한꺼번에 끌어옵니다.":"일정 시간 일반 몬스터의 스폰량을 늘립니다.";
-            return description+$"\n\n보유 {slot.Count}개\n사용: {Keys(index)} 또는 하단 약함 터치";
+            return description+$"\n\n{slot.CapacityDescription}\n사용: {Keys(index)} 또는 하단 약함 터치";
         }
     }
 }

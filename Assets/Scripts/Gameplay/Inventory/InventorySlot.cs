@@ -15,6 +15,9 @@ namespace Vampire
         private List<Collectable> items;
         private FastList<Collectable> itemsBeingAdded;
         public int Count => items != null ? items.Count : 0;
+        public int Capacity => CollectableType != null ? Mathf.Max(0, CollectableType.inventoryStackSize) : 0;
+        public string CountLabel => $"{Count}/{Capacity}";
+        public string CapacityDescription => $"보유 {Count} / 최대 {Capacity}개" + (Capacity > 0 && Count >= Capacity ? " · 최대 보유량" : "");
         public Image IconImage => itemImage;
         public RectTransform CountRect => countObject != null ? countObject.transform as RectTransform : null;
 
@@ -23,6 +26,7 @@ namespace Vampire
             items = new List<Collectable>();
             itemsBeingAdded = new FastList<Collectable>();
             countObject.SetActive(false);
+            countText.text = CountLabel;
             itemImage.color = new Color(1, 1, 1, 0.5f);
         }
 
@@ -41,7 +45,7 @@ namespace Vampire
         public void AddItem(Collectable item)
         {
             items.Add(item);
-            countText.text = items.Count.ToString();
+            countText.text = CountLabel;
             if (!countObject.activeInHierarchy)
             {
                 countObject.SetActive(true);
@@ -55,7 +59,7 @@ namespace Vampire
             {
                 items[0].Use();
                 items.RemoveAt(0);
-                countText.text = items.Count.ToString();
+                countText.text = CountLabel;
 
                 if (items.Count == 0)
                 {

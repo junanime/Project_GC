@@ -40,7 +40,7 @@
     {"id":"monster/attack-debuffer","kind":"monster","title":"후추 디버프 몬스터","what":"혁이의 공격을 방해하는 효과를 겁니다.","tip":"영향 범위에서 벗어나 후추 몬스터를 우선 처치하세요.","effect":"pepper"},
     {"id":"monster/treasure-runner","kind":"monster","title":"호두 다람쥐 도둑","what":"조심스럽게 다가오다가 가까워지면 양팔을 들고 빠르게 도망칩니다.","tip":"탈출하기 전에 길을 가로막고 공격하세요.","effect":"runner"},
     {"id":"monster/elite-sugar-cube","kind":"monster","title":"정예 각설탕","what":"일반 각설탕보다 강한 몸으로 밀고 들어옵니다.","tip":"거리를 유지하며 집중 공격하세요.","effect":"elite_sugar"},
-    {"id":"monster/trap","kind":"monster","title":"함정 몬스터","what":"혁이를 붙잡아 움직임을 제한합니다.","tip":"속박 조건을 확인하고 위험 구역을 피하세요.","effect":"trap"},
+    {"id":"monster/trap","kind":"monster","title":"함정 몬스터","what":"캐릭터를 붙잡아 움직임을 제한합니다.","tip":"PC: 표시된 방향키를 순서대로 입력하세요. 모바일: 오른쪽 4개 매듭 중 빛나는 곳을 차례로 터치하세요. 4번 성공하면 탈출하며, 틀리면 처음부터 다시 시작합니다.","effect":"trap"},
     {"id":"monster/armor-buffer","kind":"monster","title":"방어 버프 몬스터","what":"주변 몬스터가 받는 피해를 줄여줍니다.","tip":"보호 효과를 주는 몬스터부터 처치하세요.","effect":"armor"},
     {"id":"mechanic/blood-clot","kind":"mechanic","title":"혈전과 미니스테이지","what":"혈전 처치 → 입구 출현. 가까이서 E를 누르면 일반 미니스테이지에 입장합니다.","tip":"Q/과충전 버튼으로 시작.\n범위 안에서 처치·체류 목표 완료.\n진행 중 E 입장 불가.\n완료 후 E로 격화 난이도에 도전!\n스킬 강화·레벨업 상자 보상.","effect":"blood_clot"}
   ]
