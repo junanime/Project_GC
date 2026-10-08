@@ -161,6 +161,7 @@ namespace Vampire
             portrait = null; previewCharacter = null; silverLabel = null;
             content = Rect("Page " + Page, root,0,0,1,1);
             fullScreenBackdrop.gameObject.SetActive(Page!="hud"&&Page!="merchant");
+            fullScreenBackdrop.color=Page=="run"?new Color(0,0,0,.68f):new Color(.19f,.08f,.07f);
             if (Page == "hud")
             {
                 BuildSkillHud();
@@ -170,6 +171,7 @@ namespace Vampire
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
             if(Page=="merchant"){OctoberMerchant();return;}
+            if(Page=="run" && Tab<4){ExplorationRecord();return;}
             ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { OctoberMain(); return; }
             if (Page == "skillReward") { BuildSkillReward(); return; }
@@ -380,60 +382,10 @@ namespace Vampire
         }
         void RunBook()
         {
-            string[] tabs={"상태","유물","아이템","증강","소모품","안내"};
-            for(int i=0;i<tabs.Length;i++){int t=i;ActionButton(content,tabs[i],.12f+i*.13f,.745f,.243f+i*.13f,.825f,()=>SwitchTab(t),false,true,Tab==i);}
-            var player=level != null ? level.PlayerCharacter : null;
-            if(Tab==0 && player!=null)
-            {
-                portrait=ImageAt(content,CharacterSprite(character),.18f,.59f,.30f,.73f);
-                Label(content,$"{player.DisplayName}  Lv.{player.CurrentLevel}\nHP {player.CurrentHealth:0} / {player.MaxHealth:0}\n공격 x{player.DamageMultiplier:0.00}\n방어 {player.CurrentArmor:0} · 이동 {player.CurrentMoveSpeed:0.##}\n치명타 {player.CritChance*100:0}%",.13f,.20f,.37f,.44f,23);
-                ProfileSkills(player.Blueprint,.14f,.455f,.36f,.60f);
-                Label(content,"스킬 아이콘을 눌러 설명 보기",.125f,.435f,.375f,.461f,12);
-                Label(content,"탐험 지도",.45f,.65f,.85f,.72f,26);
-                var map=ExplorationMapSystem.Instance;
-                if(map!=null && map.FullMapTexture!=null)
-                {
-                    var raw=Rect("Live exploration map",content,.46f,.24f,.83f,.65f).gameObject.AddComponent<RawImage>();raw.texture=map.FullMapTexture;raw.raycastTarget=false;
-                    map.CopyBookMarkers(raw.rectTransform);
-                    string[] keys={"Player","Boss","Portal","Merchant","Vending"};string[] labels={"플레이어","보스","혈전","상인","자판기"};
-                    for(int i=0;i<5;i++){float x=.445f+i*.08f;ImageAt(content,OctoberArt.Get("OctoberUI/MapSymbols",keys[i]),x,.17f,x+.03f,.22f);Label(content,labels[i],x+.028f,.175f,x+.083f,.215f,11);}
-                }
-                else Label(content,"지도를 준비하고 있습니다.",.43f,.3f,.86f,.6f,23);
-            }
-            else if(Tab==1)
-            {
-                var relic=Config.relics.FirstOrDefault(r=>RelicSaveData.IsEquipped(r.relicId));
-                ImageAt(content,relic!=null?relic.icon:null,.40f,.43f,.60f,.69f);
-                Label(content,relic!=null?relic.relicName+"\n"+RelicDescription(relic):"장착한 유물이 없습니다.",.23f,.24f,.77f,.43f,28);
-            }
-            else if(Tab==2)
-            {
-                var items=OctoberOwnedItems();
-                int pages=Mathf.Max(1,Mathf.CeilToInt(items.Length/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
-                Label(content,$"보유 아이템 {items.Length}종",.22f,.67f,.78f,.73f,24);
-                for(int j=0;j<6;j++)
-                {
-                    int index=pageIndex*6+j;if(index>=items.Length)break;var item=items[index];
-                    float x=.15f+(j%3)*.235f,y=.43f-(j/3)*.2f;
-                    var b=ActionButton(content,"",x,y,x+.22f,y+.18f,()=>OctoberDetails(item.itemName,item.description));SlotArt(b);
-                    HudTooltip.Bind(b.gameObject,()=>item.itemName,()=>item.description);
-                    var visual=b.transform.Find("Visual");ImageAt(visual,item.itemIcon,.25f,.27f,.75f,.95f);Label(visual,item.itemName,.03f,.02f,.97f,.25f,17);
-                }
-                if(pages>1)
-                {
-                    ActionButton(content,"‹",.38f,.16f,.43f,.218f,()=>{pageIndex--;Render();},false,pageIndex>0);
-                    Label(content,$"{pageIndex+1} / {pages}",.45f,.16f,.55f,.218f,16);
-                    ActionButton(content,"›",.57f,.16f,.62f,.218f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
-                }
-                if(items.Length==0)Label(content,"아직 획득한 아이템이 없습니다.",.25f,.32f,.75f,.52f,25);
-            }
-            else if(Tab==3)
-            {
-                var entries=AugmentHistoryManager.Instance != null ? AugmentHistoryManager.Instance.Entries : null;
-                if(entries!=null&&entries.Count>0)Grid(entries.Count,i=>entries[i].icon,i=>entries[i].displayName+" Lv."+entries[i].level,.15f,.24f,.85f,.70f);
-                else Label(content,"획득한 증강이 없습니다.",.23f,.35f,.77f,.60f,27);
-            }
-            else if(Tab==4) ConsumableBook();
+            string[] tabs={"탐험 기록","소모품","안내"};
+            int[] indices={0,4,5};
+            for(int i=0;i<tabs.Length;i++){int t=indices[i];ActionButton(content,tabs[i],.17f+i*.225f,.745f,.375f+i*.225f,.825f,()=>SwitchTab(t),false,true,Tab==t);}
+            if(Tab==4) ConsumableBook();
             else if(Tab==5) GuideBook();
             Label(content,$"이번 탐험 골드  {(stats!=null?stats.CoinsGained:0):N0}",.55f,.08f,.85f,.15f,21);
             ActionButton(content,"닫기 / TAB",.12f,.07f,.32f,.15f,CloseRunBook);

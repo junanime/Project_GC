@@ -27,6 +27,13 @@ namespace Vampire
     {
         public static ExplorationMapSystem Instance { get; private set; }
         public Texture FullMapTexture => fullMapImage != null ? fullMapImage.texture : null;
+        public Rect BookMapUV => fullMapImage != null ? fullMapImage.uvRect : new Rect(0,0,1,1);
+        public bool TryBookPoint(Vector2 world,out Vector2 point)
+        {
+            var uv=BookMapUV;var normalized=WorldToMapNormalized(world);
+            point=new Vector2((normalized.x-uv.x)/Mathf.Max(.0001f,uv.width),(normalized.y-uv.y)/Mathf.Max(.0001f,uv.height));
+            return IsWorldPositionExplored(world)&&point.x>=0&&point.x<=1&&point.y>=0&&point.y<=1;
+        }
         // Snapshot only visible discovered markers while the run is paused; keep the live map texture.
         public void CopyBookMarkers(RectTransform parent)
         {
@@ -40,7 +47,7 @@ namespace Vampire
                 Vector2 size = fullMapMarkerRoot.rect.size;
                 var clone = new GameObject(child.name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
                 clone.transform.SetParent(parent, false);
-                var image = clone.GetComponent<Image>();image.sprite=source.sprite;image.color=source.color;image.raycastTarget=false;
+                var image = clone.GetComponent<Image>();image.sprite=source.sprite;image.color=source.color;image.raycastTarget=false;image.preserveAspect=true;
                 var target=image.rectTransform;
                 target.anchorMin=target.anchorMax=new Vector2(.5f+rect.anchoredPosition.x/Mathf.Max(1,size.x),.5f+rect.anchoredPosition.y/Mathf.Max(1,size.y));
                 target.sizeDelta=Vector2.one*24;
