@@ -80,7 +80,8 @@ namespace Vampire
         public static void QueueMonster(MonsterBlueprint blueprint, Monster monster = null)
         {
             if (blueprint == null) return;
-            string id = monster is AcidToadMonster ? "acid-toad" : monster is TreasureRunnerMonster ? "treasure-runner" : MonsterId(((UnityEngine.Object)blueprint).name);
+            var kind=ChameleonArt.Kind(blueprint);
+            string id = monster is AcidToadMonster ? (kind==ChameleonKind.Fanta?"acid-toad":"chameleon-"+kind.ToString().ToLowerInvariant()) : monster is TreasureRunnerMonster ? "treasure-runner" : MonsterId(((UnityEngine.Object)blueprint).name);
             if (id != null) Queue("monster/" + id);
         }
         public static string ItemId(Collectable item) => item is Health ? "health" : item is RedPotion ? "potion" : item is Magnet ? "magnet" : null;

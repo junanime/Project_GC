@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9341b30cada043b4b816c29b995a4e08, type: 3}
+  m_Name: Settings
+  m_EditorClassIdentifier:
+  foamPrefab: {fileID: 4965823543100547824, guid: 5f2ebd00d87e34348bde92116d7e2235, type: 3}
+  bodyWidth: 3.36
+  spawnMin: 420
+  spawnMax: 450
+  projectileDamage: 8
+  projectileSpeed: 3.2
+  teleportDamage: 16
+  invisibleSeconds: 3
+  outlineSeconds: 1
+  coffeeSeconds: 8

@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3353bb926e4e2c43bdc9d511dbec038, type: 3}
-  m_Name: AcidToadBlueprint
-  m_EditorClassIdentifier: 
-  name: "\uD1A1\uD1A1 \xB7 \uD658\uD0C0 \uCE74\uBA5C\uB808\uC628"
+  m_Name: LatteBlueprint
+  m_EditorClassIdentifier:
+  name: "\uB77C\uB5BC \xB7 \uCEE4\uD53C\uC218\uD608 \uCE74\uBA5C\uB808\uC628"
   hp: 1200
   atk: 16
   recovery: 10
@@ -31,10 +31,10 @@ MonoBehaviour:
       dropChance: 1
       coinType: 0
   walkSpriteSequence:
-  - {fileID: 3154336412693049845, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
-  - {fileID: 519097903293497760, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
-  - {fileID: 7434211530209592556, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
-  - {fileID: 9147890197635069419, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
+  - {fileID: 413393951796194920, guid: a0b01e51aa8441649a493bb80c3b272e, type: 3}
+  - {fileID: -2411039886669211900, guid: a0b01e51aa8441649a493bb80c3b272e, type: 3}
+  - {fileID: 3256730530592546322, guid: a0b01e51aa8441649a493bb80c3b272e, type: 3}
+  - {fileID: 3311455283409534096, guid: a0b01e51aa8441649a493bb80c3b272e, type: 3}
   walkFrameTime: 0.175
   useGroundShadowFootprint: 1
   groundShadowCenterUV: {x: 0.5, y: 0.035}
@@ -43,7 +43,7 @@ MonoBehaviour:
   description: "\uACE0\uC720 \uD0C4\uB9C9 3\uBC1C \xB7 3\uCD08 \uC740\uC2E0 \uD6C4
     \uC678\uACFD \uACBD\uACE0 1\uCD08 \uC21C\uAC04\uC774\uB3D9 \xB7 \uACE0\uC720
     \uD544\uB4DC \uC2A4\uD0AC"
-  resultSprite: {fileID: 4522584740898501104, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
+  resultSprite: {fileID: 6102487614730298278, guid: a0b01e51aa8441649a493bb80c3b272e, type: 3}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 0
