@@ -5,8 +5,10 @@ namespace Vampire
 {
     // 꿀침 상태이상
     // 몬스터의 Rigidbody2D.drag를 일정 시간 증가시켜 이동 체감 속도를 낮춘다.
-    public class HoneySlowStatus : MonoBehaviour
+    public class HoneySlowStatus : MonoBehaviour, ICombatStatus
     {
+        private float statusExpires;
+        public CombatStatusTag ActiveStatusTags => IsActive && Time.time < statusExpires ? CombatStatusTag.Slow : CombatStatusTag.None;
         private SyringeAugmentVfx augmentVisual;
         private void EnsureAugmentVisual()
         {
@@ -76,6 +78,7 @@ namespace Vampire
                 StopCoroutine(slowCoroutine);
             }
 
+            statusExpires = Time.time + Mathf.Max(0, duration);
             slowCoroutine = StartCoroutine(SlowRoutine(duration));
             EnsureAugmentVisual();
         }

@@ -201,7 +201,7 @@ namespace Vampire
                 // 기존 위산 연동파 피해 계산을 그대로 사용한다.
                 // 실제 TakeDamage에 넘기는 이 값을 최종 계산 피해량으로 기록한다.
                 float finalDamage =
-                    sourceAbility.GetGastricPeristalsisWaveDamage();
+                    sourceAbility.GetGastricPeristalsisWaveDamage() * CombatStatusRules.DamageMultiplier(ownerCharacter,damageableBehaviour);
 
                 float knockbackPower =
                     sourceAbility.GetGastricPeristalsisWaveKnockback();

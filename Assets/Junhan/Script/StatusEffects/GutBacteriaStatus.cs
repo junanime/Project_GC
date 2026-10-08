@@ -8,8 +8,9 @@ namespace Vampire
     /// 침에 맞을 때마다 장내균 스택을 쌓고,
     /// 일정 중첩 이상인 상태에서 몬스터가 죽으면 추가 경험치 구슬을 생성합니다.
     /// </summary>
-    public class GutBacteriaStatus : MonoBehaviour
+    public class GutBacteriaStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => CurrentStacks > 0 ? CombatStatusTag.Infection : CombatStatusTag.None;
         private readonly List<float> stackExpireTimes = new List<float>();
 
         private SyringeAugmentVfx augmentVisual;

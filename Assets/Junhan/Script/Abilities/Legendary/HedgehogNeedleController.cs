@@ -987,6 +987,7 @@ namespace Vampire
                     .GetCurrentSpecialRuntime();
 
 
+            float debuffMultiplier = CombatStatusRules.DamageMultiplier(sourceCharacter,targetComponent);
             bool consumedNeedleMark;
 
 
@@ -1041,6 +1042,7 @@ namespace Vampire
             // =====================================================
 
             // 고슴도침은 넉백 없음.
+            finalDamage *= debuffMultiplier;
             damageable.TakeDamage(
                 finalDamage,
                 Vector2.zero
@@ -1075,7 +1077,7 @@ namespace Vampire
                     monsterLayer,
                     targetComponent.gameObject,
                     consumedNeedleMark,
-                    finalDamage
+                    finalDamage / debuffMultiplier
                 );
 
 

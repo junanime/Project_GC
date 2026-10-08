@@ -3,9 +3,12 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public class BurnStatus : MonoBehaviour
+    public class BurnStatus : MonoBehaviour, ICombatStatus
     {
+        private float statusExpires;
+        public CombatStatusTag ActiveStatusTags => isBurning && Time.time < statusExpires ? CombatStatusTag.Burn : CombatStatusTag.None;
         private Monster monster;
+        private Character sourceCharacter;
         private Coroutine burnCoroutine;
         private bool isBurning = false;
 
@@ -14,8 +17,9 @@ namespace Vampire
             monster = GetComponent<Monster>();
         }
 
-        public void Apply(float duration, float interval, float damagePerTick)
+        public void Apply(float duration, float interval, float damagePerTick, Character source = null)
         {
+            sourceCharacter = source;
             if (monster == null) return;
 
             // 이미 화상 상태라면 기존 화상 루프를 종료하고 새로 리프레시(시간 초기화)
@@ -29,6 +33,7 @@ namespace Vampire
 
         private IEnumerator BurnRoutine(float duration, float interval, float damagePerTick)
         {
+            statusExpires = Time.time + Mathf.Max(0, duration);
             isBurning = true;
             float elapsed = 0f;
 
@@ -41,7 +46,7 @@ namespace Vampire
                 if (monster != null && monster.HP > 0)
                 {
                     //  데미지 텍스트와 물리 넉백 계산을 위해 Monster.cs에 구현된 TakeDamage를 호출합니다.
-                    monster.TakePeriodicDamage(damagePerTick, Vector2.zero);
+                    monster.TakePeriodicDamage(damagePerTick * CombatStatusRules.DamageMultiplier(sourceCharacter,monster), Vector2.zero);
                 }
                 else
                 {

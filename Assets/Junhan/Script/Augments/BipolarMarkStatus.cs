@@ -3,8 +3,9 @@ using UnityEngine;
 namespace Vampire
 {
     // One pooled enemy owns one mark. Consuming a mark never dispatches another needle hit.
-    public sealed class BipolarMarkStatus : MonoBehaviour
+    public sealed class BipolarMarkStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => Polarity != 0 && Time.time < expires ? CombatStatusTag.Mark : CombatStatusTag.None;
         public const float Duration = 4f;
         public int Polarity { get; private set; }
         private float expires;
@@ -23,8 +24,9 @@ namespace Vampire
             incoming = incoming > 0 ? 1 : -1;
             if (Polarity != 0 && Polarity != incoming)
             {
+                var tags=CombatStatusRules.ActiveTags(victim);
                 Clear();
-                Ver4HitEffects.Damage(victim, hitDamage * Bonus(stage), Vector2.zero, owner, "양극침 — 반극 낙인");
+                Ver4HitEffects.Damage(victim, hitDamage * Bonus(stage), Vector2.zero, owner, "양극침 — 반극 낙인",statusBeforeHit:tags);
                 return;
             }
             Polarity = incoming;

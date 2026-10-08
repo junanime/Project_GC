@@ -57,6 +57,7 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 13d18e2549d2bd04dbaa5cd3e8ad273c, type: 3}
   - {fileID: 21300000, guid: 6c6bf374077522449ba44457f9a46fe9, type: 3}
   ariTransformTime: 0.56
+  shiniEruptionDamage: 35
   shiniActiveMoveMultiplier: 1.3
   shiniActivePoolInterval: 1
   kind: 3
@@ -79,12 +80,10 @@ MonoBehaviour:
     10 \uD53C\uD574\uB97C \uC8FC\uACE0 0.3\uB9CC\uD07C \uBC00\uCE69\uB2C8\uB2E4.
     \uAC19\uC740 \uC801\uC740 \uB300\uC26C\uB2F9 1\uD68C \uC801\uC911. \uBCF4\uC2A4\xB7\uACE0\uC815\uD615
     \uC801\uC740 \uBC00\uB9AC\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
-  activeDescription: "8\uCD08\uAC04 \uC554\uC11D \uBD09\uD669\uC73C\uB85C \uBCC0\uC2E0\uD569\uB2C8\uB2E4.
-    \uB300\uC26C 1\uD68C \uC989\uC2DC \uCDA9\uC804, \uCDA9\uC804\uC2DC\uAC04 0.5\uCD08.
-    \uC131\uCCB4 \uBAB8 \uD06C\uAE30 1.3\uBC30 \uBC94\uC704\uC5D0 35 \uD53C\uD574,
-    \uBC00\uCE58\uAE30 \uAC70\uB9AC 0.6. \uCCB4\uB825\xB7\uD53C\uACA9 \uD310\uC815
-    \uC720\uC9C0. \uC9C4\uD589 \uC911\uC778 \uAC15\uD654 \uB300\uC26C \uD6C4 \uC678\uD615
-    \uBCF5\uADC0. \uC7AC\uC0AC\uC6A9 35\uCD08."
+  activeDescription: "\uC554\uC11D \uBD09\uD669\uC73C\uB85C \uBCC0\uC2E0\uD569\uB2C8\uB2E4.
+    \uB300\uC26C 1\uD68C \uC989\uC2DC \uCDA9\uC804, \uCDA9\uC804\uC2DC\uAC04 0.5\uCD08.\n\uC811\uCD09
+    \uD53C\uD574 35, \uBC00\uCE58\uAE30 0.6. \uC9C0\uC18D 8 \u2192 10 \u2192 12 \u2192
+    14 \u2192 16\uCD08. \uC7AC\uC0AC\uC6A9 35\uCD08."
   passiveIcon: {fileID: 21300000, guid: 5c92423cd01cd8c4b9b3f5633c011664, type: 3}
   activeIcon: {fileID: 21300000, guid: ad57b7ab433d7e84e942eaccde2010a2, type: 3}
   cutin: []

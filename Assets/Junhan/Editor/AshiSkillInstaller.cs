@@ -50,6 +50,15 @@ namespace Vampire.Editor
             EditorUtility.SetDirty(ashi);EditorUtility.SetDirty(data);AssetDatabase.SaveAssets();
             Debug.Log("[AshiSkills] Assets installed, 8 frames per animation.");
         }
+        public static void InstallWindPhoenix()
+        {
+            var ashi=AssetDatabase.LoadAssetAtPath<CharacterSkillDefinition>("Assets/Junhan/Resources/AshiSkills.asset");
+            var hyuki=AssetDatabase.LoadAssetAtPath<CharacterSkillDefinition>("Assets/Junhan/Resources/HyukiSkills.asset");
+            if(ashi==null||hyuki==null||hyuki.phoenixFrames.Length==0)throw new InvalidOperationException("Phoenix source missing");
+            ashi.phoenixFrames=(Sprite[])hyuki.phoenixFrames.Clone();
+            EditorUtility.SetDirty(ashi);AssetDatabase.SaveAssetIfDirty(ashi);
+        }
+        public static void UpdateWindPhoenix(){try{InstallWindPhoenix();Debug.Log("WIND_ASSET_SAVED");EditorApplication.Exit(0);}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}
         public static void Run(){try{Install();EditorApplication.Exit(0);}catch(Exception e){Debug.LogException(e);EditorApplication.Exit(1);}}
     }
 }

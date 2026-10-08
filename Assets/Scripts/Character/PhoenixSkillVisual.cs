@@ -20,14 +20,14 @@ namespace Vampire
         public void Bind(Character character,CharacterSkillRuntime runtime)
         {
             owner=character;skill=runtime;
-            if(!skill.IsShini&&!skill.IsHyuki)return;
+            if(skill.Definition==null||skill.IsAri||skill.IsShini)return;
             body=GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
             first=Make("Phoenix current pose");second=Make("Phoenix next pose");
             if(skill.IsShini)
             {
                 gameObject.AddComponent<ShiniPhoenixWrapVisual>().Bind(character,runtime);
             }
-            else
+            else if(skill.IsHyuki)
             {
                 gameObject.AddComponent<HyukiSnowVisual>().Bind(character,runtime);
                 fireMaterial=new Material(Shader.Find("Vampire/PhoenixIce"));first.sharedMaterial=second.sharedMaterial=fireMaterial;
@@ -36,6 +36,12 @@ namespace Vampire
                 blizzardMaterial.mainTexture=skill.Definition.blizzardTexture;
                 blizzardMesh=new Mesh {vertices=new[]{new Vector3(-1,-1),new Vector3(1,-1),new Vector3(-1,1),new Vector3(1,1)},uv=new[]{Vector2.zero,Vector2.right,Vector2.up,Vector2.one},triangles=new[]{0,2,1,1,2,3}};
                 go.GetComponent<MeshFilter>().sharedMesh=blizzardMesh;blizzard.enabled=false;
+            }
+            else
+            {
+                fireMaterial=new Material(Shader.Find("Vampire/PhoenixIce"));
+                fireMaterial.SetFloat("_WindPalette",1);first.sharedMaterial=second.sharedMaterial=fireMaterial;
+                gameObject.AddComponent<AshiPhoenixWindVisual>().Bind(character,runtime);
             }
         }
         SpriteRenderer Make(string label)
@@ -49,7 +55,9 @@ namespace Vampire
         {
             if(first==null)return;
             if(!owner.IsAlive){Hide();return;}
-            float delta=Time.deltaTime;phase+=delta;elapsed+=delta;
+            bool ashi=skill.Definition.kind==CharacterSkillDefinition.SkillKind.Ashi;
+            float delta=ashi&&skill.IsCutin?Time.unscaledDeltaTime:Time.deltaTime;phase+=delta;elapsed+=delta;
+            if(ashi)elapsed=skill.IsCutin?skill.CutinElapsed:Duration;
             if(skill.IsShini)elapsed=skill.IsSummoning?Duration-skill.SummonRemaining:Mathf.Max(Duration,elapsed);
             else if(skill.IsHyuki&&skill.IsSummoning)elapsed=IceSkillRules.BlizzardFreezeDelay-skill.SummonRemaining;
             UpdateCrystals();
@@ -58,7 +66,7 @@ namespace Vampire
             first.enabled=second.enabled=show;
             if(show)
             {
-                float t=elapsed/Duration,index=t*(frames.Length-1);
+                float t=Mathf.Clamp01(elapsed/(ashi?skill.Definition.cutinDuration:Duration)),index=t*(frames.Length-1);
                 int i=Mathf.Min((int)index,frames.Length-1);float blend=index-i;
                 first.sprite=frames[i];second.sprite=frames[Mathf.Min(i+1,frames.Length-1)];
                 float opacity=Mathf.SmoothStep(0,1,t/.12f)*(1-Mathf.SmoothStep(0,1,(t-.85f)/.15f));

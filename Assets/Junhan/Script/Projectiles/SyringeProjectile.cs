@@ -458,7 +458,7 @@ namespace Vampire
                 burnStatus = monster.gameObject.AddComponent<BurnStatus>();
             }
 
-            burnStatus.Apply(3f, 0.5f, 3f);
+            burnStatus.Apply(3f, 0.5f, 3f, playerCharacter);
         }
 
         private void ApplyPoison(Component damageableComponent)
@@ -1399,6 +1399,7 @@ namespace Vampire
 
             bool isCritical = false;
 
+            float debuffMultiplier = CombatStatusRules.DamageMultiplier(playerCharacter,damageableComponent);
             rawDamage *= itemScale;
             rawDamage *= Ver4HitEffects.BeforeHit(damageableComponent,specials);
             if (specials.ver4 != null)
@@ -1486,6 +1487,7 @@ namespace Vampire
 
             var items=playerCharacter!=null?playerCharacter.GetComponent<OctoberItemRuntime>():null;
             if(items!=null)finalDamage=items.BeforeHit(damageableComponent,finalDamage,itemSecondary,ref isCritical,ref finalKnockback);
+            finalDamage *= debuffMultiplier;
             float hpBefore=Ver4HitEffects.Health(damageableComponent);
             float actualReportedDamage =
                 finalDamage;
@@ -1645,7 +1647,8 @@ namespace Vampire
                 );
             }
             var hitRuntime=specials;
-            hitRuntime.ver4HitDamage=finalDamage;
+            // Secondary effects evaluate their own target at damage time, without inheriting this bonus twice.
+            hitRuntime.ver4HitDamage=finalDamage/debuffMultiplier;
             hitRuntime.ver4Knockback=finalKnockback;
             Ver4HitEffects.AfterHit(damageableComponent,hitRuntime,playerCharacter,targetLayer,consumedNeedleMark);
         }
@@ -1756,6 +1759,7 @@ namespace Vampire
                     splashDamage = statRuntime.CalculateOffensiveDamage(playerCharacter, splashComponent, splashDamage, out isCritical);
                 }
 
+                splashDamage *= CombatStatusRules.DamageMultiplier(playerCharacter,splashComponent);
                 splashDamageable.TakeDamage(splashDamage, Vector2.zero);
 
                 // 폭발침 스플래시는 OnHitDamageable을 거치지 않는 독립 피해이므로

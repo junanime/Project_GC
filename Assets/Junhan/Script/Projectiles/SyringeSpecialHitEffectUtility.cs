@@ -609,7 +609,7 @@ namespace Vampire
                     continue;
                 }
 
-                float finalDamage = runtime.explosionDamage * Ver4HitEffects.ExplosionCenterMultiplier(splashComponent,hitPosition,runtime);
+                float finalDamage = CombatStatusRules.DamageMultiplier(sourceCharacter,splashComponent) * runtime.explosionDamage * Ver4HitEffects.ExplosionCenterMultiplier(splashComponent,hitPosition,runtime);
 
                 splashDamageable.TakeDamage(
                     finalDamage,

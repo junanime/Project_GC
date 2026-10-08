@@ -64,7 +64,7 @@ namespace Vampire
             for(int i=0;i<2;i++)
             {
                 bool active=i==1;float x=i*.54f;
-                var b=HudIconButton("",x,.54f,()=>{if(Time.timeScale<=0)return;if(active)CurrentSkills?.TryActivate();else {OpenSkillHelp();if(Page=="run")ShowSkillDetails(character,false);}});
+                var b=HudIconButton("",x,.54f,()=>{if(Time.timeScale<=0)return;if(active){if(CurrentSkills!=null&&!CurrentSkills.IsShini)CurrentSkills.TryActivate();}else {OpenSkillHelp();if(Page=="run")ShowSkillDetails(character,false);}});
                 b.name=active?"Active skill R":"Passive skill status";
                 HudTooltip.Bind(b.gameObject,()=>SkillTitle(character,active),()=>SkillHelp(character,active)+"\n\n설명만 보기: 상태 → 스킬 아이콘");
                 var visual=b.transform.Find("Visual");
@@ -81,6 +81,7 @@ namespace Vampire
                 if(active)
                 {
                     activeCooldown=mask;activeSeconds=seconds;activeSkillButton=b;
+                    b.gameObject.AddComponent<ShiniSkillButton>().Resolve=()=>CurrentSkills;
                     activeDurationBar=ImageAt(visual,SkillSquare,.13f,.23f,.87f,.27f,false);
                     activeDurationBar.color=new Color(.5f,1,.83f);activeDurationBar.type=Image.Type.Filled;activeDurationBar.fillMethod=Image.FillMethod.Horizontal;
                 }
@@ -131,18 +132,19 @@ namespace Vampire
             if(activeSkillButton==null)return;
             var d=skill!=null?skill.Definition:null;
             bool playing=Time.timeScale>0&&level!=null&&level.PlayerCharacter!=null&&level.PlayerCharacter.CurrentHealth>0;
-            activeSkillButton.interactable=playing&&skill!=null&&skill.CanActivate;
+            activeSkillButton.interactable=playing&&skill!=null&&(skill.CanActivate||skill.IsShini&&skill.Breath!=null&&skill.Breath.Busy);
+            var feedback=activeSkillButton.GetComponent<ApothecaryButtonFeedback>();if(feedback!=null)feedback.chosen=skill!=null&&skill.Active;
             if(dashHudButton!=null)dashHudButton.interactable=playing;
             if(interactionHudButton!=null)interactionHudButton.interactable=playing;
             if(passiveLevelLabel!=null)passiveLevelLabel.text=$"패시브 Lv.{(skill!=null?skill.PassiveLevel:1)}";
             if(activeLevelLabel!=null)activeLevelLabel.text=$"{((GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?"":"R · ")}액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
-            activeCooldown.fillAmount=d!=null?skill.CooldownRemaining/skill.EffectiveCooldown:0;
-            activeSeconds.text=skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
+            activeCooldown.fillAmount=d!=null&&skill.EffectiveCooldown>0?skill.CooldownRemaining/skill.EffectiveCooldown:0;
+            activeSeconds.text=skill!=null&&skill.IsShini?(skill.Breath!=null&&skill.Breath.Busy?"분사":"6개"):skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
             // Marathon has no separate cooldown: its countdown is the remaining buff duration.
             passiveDuration.fillAmount=0;
-            passiveSeconds.text=d!=null&&skill.IsHyuki?Mathf.RoundToInt(skill.IceProcChance*100)+"%":d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
-            activeDurationBar.fillAmount=d!=null?skill.ActiveRemaining/skill.EffectiveActiveDuration:0;
-            cutinPanel.SetActive(skill!=null&&skill.IsCutin);
+            passiveSeconds.text=d!=null&&skill.IsShini&&skill.Breath!=null?$"{skill.Breath.Fuel}/{skill.Breath.Capacity}":d!=null&&skill.IsHyuki?Mathf.RoundToInt(skill.StatusDamageBonus*100)+"%":d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
+            activeDurationBar.fillAmount=d!=null&&skill.IsShini&&skill.Breath!=null?(float)skill.Breath.Fuel/skill.Breath.Capacity:d!=null?skill.ActiveRemaining/skill.EffectiveActiveDuration:0;
+            cutinPanel.SetActive(false); // The wind phoenix now plays in the scene during the existing pause.
             if(skill!=null&&skill.IsCutin&&d.cutin!=null&&d.cutin.Length>0)
             {
                 float progress=Mathf.Clamp01(skill.CutinElapsed/d.cutinDuration);

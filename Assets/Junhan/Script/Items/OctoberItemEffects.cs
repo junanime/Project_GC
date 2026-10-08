@@ -4,9 +4,13 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public sealed class OctoberItemTargetStatus : MonoBehaviour
+    public sealed class OctoberItemTargetStatus : MonoBehaviour, ICombatStatus
     {
         public float VulnerableUntil,PoisonUntil,BurnUntil;
+        public CombatStatusTag ActiveStatusTags =>
+            (Time.time<VulnerableUntil?CombatStatusTag.Vulnerability:CombatStatusTag.None) |
+            (Time.time<PoisonUntil?CombatStatusTag.Poison:CombatStatusTag.None) |
+            (Time.time<BurnUntil?CombatStatusTag.Burn:CombatStatusTag.None);
         float poisonDamage,burnDamage,nextTick;
         OctoberItemRuntime owner;
         Component target;

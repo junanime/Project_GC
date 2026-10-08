@@ -11,13 +11,59 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7eb3fc082d9979349b9ab3b19b6ef4b9, type: 3}
   m_Name: AshiSkills
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
+  ariRollDamage: 10
+  ariPhoenixDamage: 35
+  ariRollPush: 0.3
+  ariPhoenixPush: 0.6
+  ariRollWidth: 1.1
+  ariPhoenixRange: 1.3
+  ariDashCooldown: 0.5
+  ariVisualScale: 1.5
+  ariPhoenixIdle: []
+  ariPhoenixWalk: []
+  ariPhoenixDash: []
+  ariPhoenixTransform: []
+  ariTransformTime: 0.56
+  shiniEruptionDamage: 35
+  shiniActiveMoveMultiplier: 1.3
+  shiniActivePoolInterval: 1
+  kind: 0
+  phoenixFrames:
+  - {fileID: 1488946362246943561, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 3279694345997912015, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -1117855734878877689, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 1708046754114088260, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 3432003402589100604, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 6352629312206144851, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -399989362925692927, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 1229537252267568440, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -1947663999563379604, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -518585903760920052, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -5205888776032819701, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -9048980336913810837, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: -5523671141328862482, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 950018906635648054, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 4852020740576616317, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  - {fileID: 6343134530017622940, guid: d3530a70f4505ed4cbcb2fc055d6c36a, type: 3}
+  verticalFireTrail: []
+  icePrison: []
+  iceComponents: []
+  fireWrapParts: []
+  lavaFrames: []
+  blizzardTexture: {fileID: 0}
+  burningIdle: []
+  burningWalk: []
+  burningDash: []
+  fireTrail: []
+  burnVfx: []
   passiveName: "\uB9C8\uB77C\uD1A4"
   activeName: "\uB2E8\uAC70\uB9AC \uACBD\uC8FC"
   passiveDescription: "\uB300\uC26C \uD6C4 3\uCD08\uAC04 \uBC1C\uC0AC\uCCB4 +2, \uACF5\uACA9\uC18D\uB3C4
     \xD71.2"
   activeDescription: "12\uCD08\uAC04 \uBC1C\uC0AC\uCCB4 \uC218\xB7\uC774\uB3D9\uC18D\uB3C4\xB7\uBC1C\uC0AC\uCCB4
-    \uC18D\uB3C4 \xD72 \xB7 \uC7AC\uC0AC\uC6A9 45\uCD08"
+    \uC18D\uB3C4 \xD72.\n\uC7AC\uC0AC\uC6A9 45 \u2192 41 \u2192 37 \u2192 33 \u2192
+    29\uCD08."
   passiveIcon: {fileID: 21300000, guid: c25ce4b69d1855c43bbd507c5f38abc8, type: 3}
   activeIcon: {fileID: 21300000, guid: db88629a1adc102458778bc3f878461f, type: 3}
   cutin:

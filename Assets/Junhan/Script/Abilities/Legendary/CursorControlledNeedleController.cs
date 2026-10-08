@@ -868,6 +868,7 @@ float maxHitRadiusBonusFromSpecial)
             float heavyKnockbackMultiplier = sourceNeedleAbility.GetCursorNeedleHeavyKnockbackMultiplier();
             float specialDamageMultiplier = GetSpecialDamageMultiplier();
 
+            float debuffMultiplier = CombatStatusRules.DamageMultiplier(sourceCharacter,damageableComponent);
             bool consumedNeedleMark;
             float statusDamageMultiplier = SyringeSpecialHitEffectUtility.GetPreDamageMultiplier(
                 damageableComponent,
@@ -903,6 +904,7 @@ float maxHitRadiusBonusFromSpecial)
 
             var items=sourceCharacter!=null?sourceCharacter.GetComponent<OctoberItemRuntime>():null;
             if(items!=null)finalDamage=items.BeforeHit(damageableComponent,finalDamage,false,ref isCritical,ref knockback);
+            finalDamage *= debuffMultiplier;
             float before=Ver4HitEffects.Health(damageableComponent);
             damageable.TakeDamage(finalDamage, knockbackDirection * knockback, isCritical);
             if(before>Ver4HitEffects.Health(damageableComponent))items?.AfterHit(damageableComponent,finalDamage,isCritical,false,before);
@@ -922,7 +924,7 @@ float maxHitRadiusBonusFromSpecial)
                 monsterLayer,
                 damageableComponent.gameObject,
                 consumedNeedleMark,
-                finalDamage
+                finalDamage / debuffMultiplier
             );
         }
         // =========================================================
@@ -1255,7 +1257,7 @@ float maxHitRadiusBonusFromSpecial)
                 }
 
                 damagedIds.Add(splashId);
-                splashDamageable.TakeDamage(runtime.explosionDamage, Vector2.zero, false);
+                splashDamageable.TakeDamage(runtime.explosionDamage * CombatStatusRules.DamageMultiplier(sourceCharacter,splashComponent), Vector2.zero, false);
             }
         }
 

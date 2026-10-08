@@ -3,8 +3,9 @@ namespace Vampire
 {
     // Own only our drag multiplier, leaving other slow effects and buffs intact.
     [DefaultExecutionOrder(900)]
-    public sealed class IceChillStatus : MonoBehaviour
+    public sealed class IceChillStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => Stacks > 0 ? CombatStatusTag.Chill | CombatStatusTag.Slow : CombatStatusTag.None;
         public const int FreezeStacks=4;
         public int Stacks {get;private set;}
         public float SpeedMultiplier {get;private set;}=1;
@@ -18,7 +19,7 @@ namespace Vampire
             if(frozen!=null&&frozen.IceFrozen)return;
             Stacks++;SpeedMultiplier=Multiplier(Stacks,upgrades);
             var items=source!=null?source.GetComponent<OctoberItemRuntime>():null;if(items!=null)SpeedMultiplier=items.SlowMultiplier(SpeedMultiplier);
-            // Roll even on the fourth hit. A failed roll grows Hyuki's chance while the
+            // Roll even on the fourth hit. A failed roll grows the Ice Needle chance for every character while the
             // independent four-stack guarantee still freezes; only a successful roll resets it.
             float roll=Random.value;
             bool instant=source!=null && source.IsAlive && source.Skills!=null

@@ -85,9 +85,10 @@ namespace Vampire
             result.Sort((a,b)=>((Vector2)a.transform.position-center).sqrMagnitude.CompareTo(((Vector2)b.transform.position-center).sqrMagnitude));
             return result;
         }
-        public static bool Damage(Component target,float amount,Vector2 knockback,Character source,string label,bool periodic=false)
+        public static bool Damage(Component target,float amount,Vector2 knockback,Character source,string label,bool periodic=false,CombatStatusTag? statusBeforeHit=null)
         {
             if(target==null || !(target is IDamageable damageable) || Health(target)<=0) return false;
+            amount*=statusBeforeHit.HasValue ? CombatStatusRules.DamageMultiplier(source,statusBeforeHit.Value) : CombatStatusRules.DamageMultiplier(source,target);
             float before=Health(target);
             if(periodic) damageable.TakePeriodicDamage(amount,knockback);
             else damageable.TakeDamage(amount,knockback);

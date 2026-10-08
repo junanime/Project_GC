@@ -3,8 +3,17 @@ using UnityEngine;
 using P = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 namespace Vampire
 {
-    public sealed class Ver4NeedleStatus : MonoBehaviour
+    public sealed class Ver4NeedleStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags
+        {
+            get
+            {
+                var tags=seeds>0 && Time.time<seedExpiry ? CombatStatusTag.Seed : CombatStatusTag.None;
+                foreach(var burn in burns) if(burn.stacks>0 && Time.time<=burn.end) {tags|=CombatStatusTag.Burn;break;}
+                return tags;
+            }
+        }
         private struct Burn { public float end, nextTick, damage; public Character source; public int stacks; }
         private readonly List<Burn> burns=new List<Burn>();
         private int burnStacks;

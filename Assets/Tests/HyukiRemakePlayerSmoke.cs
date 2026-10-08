@@ -51,9 +51,9 @@ namespace Vampire.Tests
                 Check(skill.PassiveLevel==1&&skill.ActiveLevel==1,"new run starts both skills at level one");
                 Check(Mathf.Approximately(skill.IceProcChance,.10f),"base instant chance ten percent");
                 for(int n=0;n<4;n++){skill.TryUpgrade(false);skill.TryUpgrade(true);}
-                Check(Mathf.Abs(skill.IceProcChance-.28561f)<.0001f,"level five passive raises base freeze chance to 28.561 percent");
+                Check(Mathf.Abs(skill.IceProcChance-.1f)<.0001f && skill.PassiveLevel==5 && skill.StatusDamageBonus==.5f,"passive caps at five and cannot alter Ice Needle base chance");
                 Check(Mathf.Abs(skill.EffectiveCooldown-skill.Definition.cooldown/2.8561f)<.001f,"level five active reduces cooldown by compound power");
-                Check(!skill.TryUpgrade(false)&&!skill.TryUpgrade(true),"both upgrades stop at level five");
+                Check(!skill.TryUpgrade(false)&&!skill.TryUpgrade(true),"passive stops at five and active at five");
                 skill.RestoreLevels(1,1);
                 var data=level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];
                 var a=level.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);a.enabled=false;
@@ -86,7 +86,7 @@ namespace Vampire.Tests
                 skill.enabled=false;skill.enabled=true;Check(skill.IceProcFailures==0,"disable clears counter");
                 CrossSceneData.CharacterBlueprint=ApothecaryUI.Instance.Config.characters.Single(c=>c.name=="아시");SceneManager.LoadScene(1);yield return new WaitForSecondsRealtime(2);
                 var other=FindObjectOfType<LevelManager>().PlayerCharacter.Skills;
-                Check(!other.RollInstantFreeze(.99f)&&other.IceProcFailures==0&&Mathf.Approximately(other.IceProcChance,.1f),"other characters do not accumulate Hyuki failures");
+                Check(!other.RollInstantFreeze(.99f)&&other.IceProcFailures==1&&Mathf.Approximately(other.IceProcChance,.11f),"all characters accumulate Ice Needle failures");
                 Check(!errors,"native run has no runtime errors");passed=true;
             }
             finally{Time.timeScale=1;UnityEngine.Random.state=random;GamePreferences.Apply(prefs,false);Application.logMessageReceived-=Log;Debug.Log("[HyukiRemake] FINISHED passed="+passed);Application.Quit(passed?0:1);}

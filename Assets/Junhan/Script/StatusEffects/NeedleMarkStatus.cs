@@ -7,8 +7,9 @@ namespace Vampire
     /// 첫 피격 시 머리 위에 X 표식을 남기고,
     /// 다음 침 피격 시 표식을 소모하면서 사선 베기 연출 후 제거합니다.
     /// </summary>
-    public class NeedleMarkStatus : MonoBehaviour
+    public class NeedleMarkStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => IsMarked() ? CombatStatusTag.Mark : CombatStatusTag.None;
         private SyringeAugmentVfx augmentVisual;
         private void EnsureAugmentVisual()
         {

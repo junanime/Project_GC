@@ -58,7 +58,8 @@ namespace Vampire
             string text=active?d.activeDescription:d.passiveDescription;
             text=text.Replace(" 수치는 ShiniSkills에서 조절할 수 있습니다.","");
             if(CurrentSkills!=null&&data==character)
-                text+=$"\n\n현재 Lv.{(active?CurrentSkills.ActiveLevel:CurrentSkills.PassiveLevel)}"+(active?$" · 재사용 {CurrentSkills.EffectiveCooldown:0.#}초":"");
+                text+=$"\n\n현재 Lv.{(active?CurrentSkills.ActiveLevel:CurrentSkills.PassiveLevel)}"+(active?(CurrentSkills.IsShini?" · 불씨 소모형":$" · 재사용 {CurrentSkills.EffectiveCooldown:0.#}초"):"");
+            if(CurrentSkills!=null&&data==character)text+="\n"+CurrentSkills.UpgradeDescription(active).Split('\n')[0]+": "+CurrentSkills.UpgradeDescription(active).Split('\n')[1].Split('→')[0].Trim();
             return text;
         }
     }

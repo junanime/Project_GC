@@ -146,6 +146,7 @@ namespace Vampire
                 float finalDamage =
                     damagePerSecond * tickInterval;
 
+                finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,monster);
                 if (finalDamage > 0f)
                 {
                     monster.TakePeriodicDamage(

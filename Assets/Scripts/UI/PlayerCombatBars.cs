@@ -127,6 +127,15 @@ namespace Vampire
                 meter.cells.Add(cell.gameObject);meter.fills.Add(fill);
             }
         }
+        public Vector3 FuelAnchor(float worldHeight)
+        {
+            var camera=Camera.main;if(camera==null||health==null)return owner.transform.position+Vector3.up;
+            var screen=health.root.position;
+            float pixelsPerWorld=Screen.height/(camera.orthographicSize*2);
+            screen.y+=(Height*.5f+3)*canvas.scaleFactor+worldHeight*pixelsPerWorld*.5f;
+            screen.z=camera.WorldToScreenPoint(owner.transform.position).z;
+            return camera.ScreenToWorldPoint(screen);
+        }
         public static float SegmentFill(int index,int available,float progress)=>index<available?1f:index==available?Mathf.Clamp01(progress):0f;
         static void Fill(Meter meter,int index,float value)
         {meter.fills[index].anchorMax=new Vector2(Mathf.Clamp01(value),1);}
@@ -144,7 +153,7 @@ namespace Vampire
             for(int i=0;i<dash.segments;i++)Fill(dash,i,SegmentFill(i,owner.CurrentDashCharges,owner.DashRechargeProgress));
             var skill=owner.Skills;
             active.root.gameObject.SetActive(skill?.Definition!=null);
-            if(skill?.Definition!=null)Fill(active,0,1-skill.CooldownRemaining/Mathf.Max(.01f,skill.EffectiveCooldown));
+            if(skill?.Definition!=null)Fill(active,0,skill.IsShini&&skill.Breath!=null?(float)skill.Breath.Fuel/skill.Breath.Capacity:1-skill.CooldownRemaining/Mathf.Max(.01f,skill.EffectiveCooldown));
             Vector2 head,feet;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)),null,out head);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)),null,out feet);

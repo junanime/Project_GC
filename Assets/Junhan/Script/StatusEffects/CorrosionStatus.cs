@@ -8,8 +8,9 @@ namespace Vampire
     /// 대상에게 받는 피해 증가 스택을 부여하고,
     /// 상태가 유지되는 동안 몬스터 머리 위에 보라색 소용돌이 표시를 생성합니다.
     /// </summary>
-    public class CorrosionStatus : MonoBehaviour
+    public class CorrosionStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => CurrentStacks > 0 ? CombatStatusTag.Corrosion : CombatStatusTag.None;
         private SyringeAugmentVfx augmentVisual;
         private void EnsureAugmentVisual()
         {
