@@ -21,9 +21,14 @@ namespace Vampire.Tests.Editor
         static BloodClotTravelSmoke(){if(SessionState.GetBool(Key,false))Attach();}
         public static void Run()
         {
-            RestorePrefs();
             Vampire.Editor.BloodClotTravelInstaller.Install();
             BloodClotTravelPreview.Render();
+            RunGameplay();
+        }
+        public static void RunGameplay()
+        {
+            RestorePrefs();
+            Directory.CreateDirectory(Output);
             var catalog=JsonUtility.FromJson<Catalog>(Resources.Load<TextAsset>("TutorialClips/catalog").text);
             var keys=catalog.entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{"Coins","LobbySilverCoins"});
             File.WriteAllText(Output+"/prefs-backup.json",JsonUtility.ToJson(new Backup{values=keys.Select(k=>new Saved{key=k,exists=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
@@ -56,6 +61,14 @@ namespace Vampire.Tests.Editor
         }
         static FieldInfo Field(object o,string n){for(var t=o.GetType();t!=null;t=t.BaseType){var f=t.GetField(n,BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public);if(f!=null)return f;}throw new Exception(n);}
         static void Set(object o,string n,object v)=>Field(o,n).SetValue(o,v);
+        static void Protected(Character player,string label)
+        {
+            var body=player.GetComponent<Rigidbody2D>();float hp=player.CurrentHealth;var velocity=body.velocity;
+            bool shield=(bool)Field(player,"hasShield").GetValue(player);Set(player,"hasShield",true);
+            player.TakeDamageFromMonster(10,Vector2.right*10,null);player.Knockback(Vector2.right*10);
+            Check(player.IsPortalDamageProtected&&player.CurrentHealth==hp&&(bool)Field(player,"hasShield").GetValue(player)&&body.velocity==velocity,label+" ignores damage/knockback without spending shield");
+            Set(player,"hasShield",shield);
+        }
         static void Capture(string key)
         {
             var camera=Camera.main;if(camera==null)return;
@@ -89,17 +102,29 @@ namespace Vampire.Tests.Editor
                 yield return null;
                 Check(travel.Busy&&!body.simulated&&Time.timeScale==1,key+" actor-only lock");
                 Check(!player.TryDash()&&!player.Skills.CanActivate,key+" input blocked during travel");
-                var damage=player.CurrentHealth;player.TakeDamage(10);Check(player.CurrentHealth==damage,key+" travel damage immunity");
+                Protected(player,key+" dive immunity");
                 yield return dive;
                 Check(Time.time-begin>=1.8f&&Time.time-begin<2.05f,key+" dive timing");
-                begin=Time.time;yield return travel.Eject(portal.transform,origin);
+                begin=Time.time;var eject=level.StartCoroutine(travel.Eject(portal.transform,origin));
+                yield return new WaitForSeconds(.9f);Protected(player,key+" eject immunity");yield return eject;
                 Check(Time.time-begin>=1.8f&&Time.time-begin<2.05f,key+" eject timing");
                 Check(!travel.Busy&&travel.HoldingPose&&body.simulated,key+" final pose and restored physics");
+                Protected(player,key+" landing immunity");
                 var finalSprite=travel.Visual.sprite;yield return new WaitForSeconds(.12f);
                 Check(travel.HoldingPose&&travel.Visual.sprite==finalSprite,key+" stationary pose retained");
                 Capture(key);
                 player.Move(Vector2.left);yield return null;yield return null;
                 Check(!travel.HoldingPose,key+" movement releases pose");player.Move(Vector2.zero);
+                if(key=="Shini")
+                {
+                    Time.timeScale=0;yield return new WaitForSecondsRealtime(.6f);
+                    Protected(player,"pause preserves landing grace");Time.timeScale=1;
+                }
+                yield return new WaitForSeconds(.20f);Protected(player,key+" moving after landing keeps grace");
+                yield return new WaitForSeconds(.22f);
+                Check(!player.IsPortalDamageProtected,key+" immunity expires after 0.5 gameplay seconds");
+                Set(player,"hasShield",false);Set(player,"isInvincible",false);
+                float hp=player.CurrentHealth;player.TakeDamage(1);Check(player.CurrentHealth<hp,key+" damage resumes after grace");
                 Set(player,"characterBlueprint",blueprint);Object.Destroy(bp);
             }
             Object.Destroy(portal);
@@ -137,6 +162,7 @@ namespace Vampire.Tests.Editor
             limit=Time.realtimeSinceStartup+8;
             while(director.IsTransitioning&&Time.realtimeSinceStartup<limit)yield return null;
             Check(director.CurrentRoom.RoomStarted&&director.IsInsideMiniStage,"Room begins only after eject");
+            Protected(player,"real mini-stage entry landing");
             Check(player.transform.position.x<director.CurrentRoom.ReturnInteractable.transform.position.x,"Mini stage spawn left of clot");
             var room=director.CurrentRoom;Set(room,"optionalReturnUnlocked",true);room.ReturnInteractable.SetUnlocked(true);
             director.ReturnToFieldFromInteractable(room.ReturnInteractable);
@@ -147,12 +173,17 @@ namespace Vampire.Tests.Editor
             limit=Time.realtimeSinceStartup+8;
             while(director.IsTransitioning&&Time.realtimeSinceStartup<limit)yield return null;
             Check(!MiniStageRuntimeState.IsInsideMiniStage&&!level.IsRunFlowPaused&&body.simulated,"Round trip releases state");
+            Protected(player,"real mini-stage exit landing");
             Check(player.transform.position.x<origin.x+1,"Return spawn left of original clot");
             director.OpenEntrancePortal(player.transform.position+Vector3.right);
             entry=Object.FindObjectsOfType<BloodClotMiniStagePortal>().First(p=>!p.Reserved);
             director.EnterMiniStageFromPortal(entry);yield return new WaitForSeconds(.15f);
             director.enabled=false;yield return null;
             Check(!travel.Busy&&body.simulated&&!director.IsTransitioning&&!entry.Reserved,"Cancel restores physics, portal and transition");
+            Protected(player,"interrupted travel grants finite grace");yield return new WaitForSeconds(.55f);
+            Check(!player.IsPortalDamageProtected,"interrupted travel immunity expires");
+            travel.Begin();travel.enabled=false;
+            Check(!player.IsPortalDamageProtected&&!travel.Busy&&body.simulated,"disabled travel clears protection and lock");
             SessionState.SetBool(Key+"Done",true);
         }
     }

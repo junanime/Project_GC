@@ -162,6 +162,7 @@ namespace Vampire
         private bool movementControlsReversed;
         public bool IsTrapBound => TryGetComponent<PlayerTrapBindRuntime>(out var bind) && bind.IsBound;
         public bool IsPortalTravelling => TryGetComponent<BloodClotTravel>(out var travel) && travel.Busy;
+        public bool IsPortalDamageProtected => TryGetComponent<BloodClotTravel>(out var travel) && travel.IsDamageProtected;
         public bool IsPortalPoseHeld => TryGetComponent<BloodClotTravel>(out var travel) && travel.HoldingPose;
         public Vector2 EffectiveMoveDirection => IsTrapBound ? Vector2.zero :
             (movementControlsReversed ? -moveDirection : moveDirection);
@@ -969,7 +970,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (IsDashInvincibilityActive())
+            if (IsPortalDamageProtected || IsDashInvincibilityActive())
             {
                 return;
             }
@@ -1001,7 +1002,7 @@ namespace Vampire
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
-            if (IsPortalTravelling) return;
+            if (IsPortalDamageProtected) return;
             if (!alive)
             {
                 return;

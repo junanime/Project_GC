@@ -7,6 +7,7 @@ namespace Vampire
     public sealed class AcidToadMonster : MiniBossMonster
     {
         public enum Pattern { Basic, Leap, Jet }
+        static readonly Pattern[] AttackCycle = { Pattern.Basic, Pattern.Leap, Pattern.Basic, Pattern.Jet };
         public Pattern CurrentPattern { get; private set; }
         public ChameleonKind Kind { get; private set; }
         public bool Busy { get; private set; }
@@ -39,7 +40,10 @@ namespace Vampire
             {
                 monsterSpriteRenderer.flipX=playerCharacter.transform.position.x<transform.position.x;
                 motion.Play(rb.velocity.sqrMagnitude>.02f?2:0,rb.velocity.sqrMagnitude>.02f?4:2,rb.velocity.sqrMagnitude>.02f?.7f:1.2f,true);
-                if(AutoPatterns&&(delay-=Time.deltaTime)<=0)UsePattern((Pattern)(next++%3));
+                if(AutoPatterns&&(delay-=Time.deltaTime)<=0)
+                {
+                    if(UsePattern(AttackCycle[next]))next=(next+1)%AttackCycle.Length;
+                }
             }
             UpdateMouth();
             flash=Mathf.Max(0,flash-Time.deltaTime);var color=Color.Lerp(Color.white,new Color(1,.65f,.6f),flash/.12f);color.a=bodyAlpha;monsterSpriteRenderer.color=color;
@@ -48,7 +52,7 @@ namespace Vampire
         protected override void FixedUpdate()
         {
             if(!alive||IsFieldRuntimeSuspended||ChameleonTime.Paused||playerCharacter==null){if(rb!=null)rb.velocity=Vector2.zero;return;}
-            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*.75f*IceMoveMultiplier:Vector2.zero;
+            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*Blueprint.movespeed*IceMoveMultiplier:Vector2.zero;
             if(entityManager?.Grid!=null)entityManager.Grid.UpdateClient(this);
         }
         public bool UsePattern(Pattern pattern)

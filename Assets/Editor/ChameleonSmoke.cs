@@ -60,6 +60,7 @@ namespace Vampire.Editor
             foreach(var ability in player.GetComponentsInChildren<Ability>())ability.enabled=false;
             ((Collider2D)Get(player,"collectableCollider")).enabled=false;
             Set(player,"nextLevelExp",1000000f);Set(player,"expToNextLevel",1000000f);
+            yield return new WaitForSeconds(.3f);
             for(int k=0;k<4;k++)
             {
                 var kind=(ChameleonKind)k;var frames=ChameleonArt.Frames(kind.ToString());
@@ -84,7 +85,40 @@ namespace Vampire.Editor
             Check(schedule.SpawnAt>=420&&schedule.SpawnAt<=450,"existing 7:00-7:30 spawn window");
             for(int k=0;k<4;k++)
             {
-                var bp=containers[index].monsterBlueprints[k];var boss=(AcidToadMonster)level.EntityManager.SpawnMonster(index,(Vector2)player.transform.position+Vector2.right*3,bp,100000,false);boss.AutoPatterns=false;
+                var bp=containers[index].monsterBlueprints[k];var boss=(AcidToadMonster)level.EntityManager.SpawnMonster(index,(Vector2)player.transform.position+Vector2.right*3,bp,0,false);boss.AutoPatterns=false;
+                Check(bp.hp==2500&&boss.HP==2500,boss.Kind+" actual spawn HP 2500");
+                Check(Mathf.Approximately(bp.movespeed,.8f),boss.Kind+" configured move speed 0.8");
+                Set(boss,"currentHealth",100000f);
+                boss.transform.position=player.transform.position+Vector3.right*8;
+                boss.GetComponent<Rigidbody2D>().position=boss.transform.position;
+                yield return new WaitForFixedUpdate();yield return new WaitForFixedUpdate();
+                float approachSpeed=boss.GetComponent<Rigidbody2D>().velocity.magnitude;
+                Check(Mathf.Abs(approachSpeed-.8f)<.01f,boss.Kind+" actual approach speed 0.8 measured="+approachSpeed+" distance="+Vector2.Distance(boss.transform.position,player.transform.position)+" paused="+ChameleonTime.Paused);
+                boss.GetComponent<Rigidbody2D>().position=player.transform.position+Vector3.right*3;
+                if(k==2)
+                {
+                    boss.AutoPatterns=true;Set(boss,"delay",0f);
+                    var expected=new[]{AcidToadMonster.Pattern.Basic,AcidToadMonster.Pattern.Leap,AcidToadMonster.Pattern.Basic,AcidToadMonster.Pattern.Jet,AcidToadMonster.Pattern.Basic};
+                    float lastBasic=-1;
+                    foreach(var pattern in expected)
+                    {
+                        float deadline=Time.time+15;
+                        while(!boss.Busy&&Time.time<deadline)yield return null;
+                        Check(boss.Busy&&boss.CurrentPattern==pattern,"automatic attack cycle "+pattern);
+                        if(pattern==AcidToadMonster.Pattern.Basic)
+                        {
+                            if(lastBasic>=0)Check(Time.time-lastBasic<11.2f,"basic recurs between specials within 11.2 seconds");
+                            lastBasic=Time.time;
+                        }
+                        while(boss.Busy&&Time.time<deadline)yield return null;
+                        Check(!boss.Busy,"automatic pattern completes");
+                    }
+                    boss.AutoPatterns=false;
+                    foreach(var shot in Object.FindObjectsOfType<ChameleonProjectile>())Object.Destroy(shot.gameObject);
+                    yield return null;
+                    boss.transform.position=player.transform.position+Vector3.right*3;
+                    boss.GetComponent<Rigidbody2D>().position=boss.transform.position;
+                }
                 yield return new WaitForSeconds(.15f);Vector3 scale=boss.transform.localScale;
                 Check(boss.Kind==(ChameleonKind)k&&boss.Motion.Art.sprite!=null,"live "+boss.Kind+" identity");
                 Check(boss.Motion.Art.sprite.vertices.Length>4,boss.Kind+" isolated body geometry applied in player loop");Capture(boss.Kind+"-idle");

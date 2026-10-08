@@ -10,10 +10,14 @@ namespace Vampire
     public sealed class BloodClotTravel : MonoBehaviour
     {
         public const float Duration = 1.8f;
+        public const float ExitInvincibilityDuration = .5f;
         public const float HyukiWalkEnd = .42f, HyukiLaunch = .54f, HyukiApex = .74f;
         public const int HyukiCurledFrame = 4;
         public bool Busy { get; private set; }
         public bool HoldingPose { get; private set; }
+        // Separate from the movement lock: landing protection must not prevent movement.
+        public bool IsDamageProtected => isActiveAndEnabled && (Busy || Time.time < protectedUntil);
+        float protectedUntil = -1f;
         public string CharacterKey { get; private set; }
         public SpriteRenderer Visual { get; private set; }
         public float ReferenceHeight => height;
@@ -86,6 +90,7 @@ namespace Vampire
             if(!Busy)yield break;
             SetPosition(landing);
             RestorePhysics();
+            protectedUntil = Time.time + ExitInvincibilityDuration;
             Busy = false;
             HoldingPose = true;
         }
@@ -250,10 +255,10 @@ namespace Vampire
         public void Cancel()
         {
             StopAllCoroutines(); RestorePortal();
-            if (Busy) RestorePhysics();
+            if (Busy) { RestorePhysics(); protectedUntil = Time.time + ExitInvincibilityDuration; }
             Busy = false; ReleasePose();
         }
-        void OnDisable() { Cancel(); }
+        void OnDisable() { Cancel(); protectedUntil = -1f; }
         void OnDestroy() { if (Visual != null) Destroy(Visual.gameObject); }
 
         public static Vector3 LeftLanding(Transform portal, Character actor)

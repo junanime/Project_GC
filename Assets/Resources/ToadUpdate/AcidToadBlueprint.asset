@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: AcidToadBlueprint
   m_EditorClassIdentifier: 
   name: "\uD1A1\uD1A1 \xB7 \uD658\uD0C0 \uCE74\uBA5C\uB808\uC628"
-  hp: 1200
+  hp: 2500
   atk: 16
   recovery: 10
   armor: 0
   atkspeed: 5
-  movespeed: 0.75
+  movespeed: 0.8
   acceleration: 120
   gemLootTable:
     lootTable:

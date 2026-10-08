@@ -22,6 +22,7 @@ namespace Vampire.Editor
                 var bp=i==2?original:AssetDatabase.LoadAssetAtPath<MiniBossMonsterBlueprint>(path);
                 if(bp==null){bp=UnityEngine.Object.Instantiate(original);AssetDatabase.CreateAsset(bp,path);}
                 bp.name=ChameleonArt.Names[i];bp.description="고유 탄막 3발 · 3초 은신 후 외곽 경고 1초 순간이동 · 고유 필드 스킬";
+                bp.hp=2500;bp.movespeed=.8f;
                 var frames=AssetDatabase.LoadAllAssetsAtPath(Root+kind+".png").OfType<Sprite>().OrderBy(s=>s.name).ToArray();
                 bp.walkSpriteSequence=frames.Skip(2).Take(4).ToArray();bp.resultSprite=frames[0];bp.walkFrameTime=.175f;
                 bp.visualScaleMultiplier=1;bp.useGroundShadowFootprint=true;bp.groundShadowCenterUV=new Vector2(.5f,.035f);bp.groundShadowSizeUV=new Vector2(.8f,.15f);
