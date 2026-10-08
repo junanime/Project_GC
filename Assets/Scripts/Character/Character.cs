@@ -189,6 +189,8 @@ namespace Vampire
 
         public MonsterBlueprint LastDamageMonsterBlueprint => lastDamageMonsterBlueprint;
 
+        public bool IsChoosingAugment => abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen;
+
         public Vector2 LookDirection
         {
             get { return lookDirection; }

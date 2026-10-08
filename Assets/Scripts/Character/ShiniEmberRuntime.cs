@@ -18,6 +18,9 @@ namespace Vampire
         public bool Emitting => Busy && age>=Preparation && stopped<0;
         public int GroundCount => drops.Count;
         public bool CanStart => !Busy && Fuel>=InitialCost;
+        public bool IsRewardPaused => owner!=null && owner.IsChoosingAugment;
+        internal bool IsPointerHeld => pointerHeld;
+        UnityEngine.InputSystem.Controls.ButtonControl heldPointer;
         Character owner;CharacterSkillRuntime skill;ShiniEmberArt art;SpriteRenderer body,pose,fire;
         readonly SpriteRenderer[] numbers=new SpriteRenderer[2];
         sealed class Drop {public SpriteRenderer visual;public Vector3 position;public bool flying;public float born;}
@@ -56,29 +59,36 @@ namespace Vampire
         }
         public bool AddFuel(int amount=1){if(amount<=0||Fuel>=Capacity)return false;Fuel=Mathf.Min(Capacity,Fuel+amount);return true;}
         public void RestoreFuel(int value){Cancel();Fuel=Mathf.Clamp(value,0,Capacity);}
-        public bool Press(bool keyboard=false)
+        public bool Press(bool keyboard=false,UnityEngine.InputSystem.Controls.ButtonControl pointerControl=null)
         {
             if(!skill.CanActivate||!CanStart)return false;
             Fuel-=InitialCost;Busy=true;age=0;stopped=-1;nextHit=Preparation+.2f;nextFuel=Preparation+ShortDuration;
-            keyboardHeld=keyboard;pointerHeld=!keyboard;
+            keyboardHeld=keyboard;pointerHeld=!keyboard;heldPointer=keyboard?null:pointerControl;
             direction=owner.LookDirection.sqrMagnitude>.001f?owner.LookDirection.normalized:Vector2.right;
             owner.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.ActiveUses);return true;
         }
         public bool Tap(){bool ok=Press();pointerHeld=false;return ok;}
-        public void ReleasePointer(){pointerHeld=false;}
-        public void Cancel(){Busy=false;keyboardHeld=pointerHeld=false;stopped=-1;if(body!=null)body.forceRenderingOff=false;if(pose!=null)pose.enabled=false;if(fire!=null)fire.enabled=false;}
+        public void ReleasePointer(){pointerHeld=false;heldPointer=null;}
+        public void Cancel(){Busy=false;keyboardHeld=pointerHeld=false;heldPointer=null;stopped=-1;if(body!=null)body.forceRenderingOff=false;if(pose!=null)pose.enabled=false;if(fire!=null)fire.enabled=false;}
         void Update()
         {
             if(owner==null||!owner.IsAlive){Cancel();return;}
-            if(Time.timeScale<=0||owner.IsPortalTravelling||owner.IsPortalPoseHeld||owner.IsTrapBound||owner.IsDashing
+            if(owner.IsPortalTravelling||owner.IsPortalPoseHeld||owner.IsTrapBound||owner.IsDashing){Cancel();return;}
+            // A reward freezes the existing cast, including its prepaid time and next fuel tick.
+            // Still observe release while paused so dismissing the reward cannot latch the channel.
+            if(keyboardHeld&&(Keyboard.current==null||!Keyboard.current.rKey.isPressed))keyboardHeld=false;
+            if(pointerHeld&&heldPointer!=null&&(!heldPointer.device.added||!heldPointer.isPressed))ReleasePointer();
+            if(IsRewardPaused)return;
+            if(Time.timeScale<=0
                 ||(ApothecaryUI.Instance!=null&&ApothecaryUI.Instance.Page!="hud")){Cancel();return;}
             if(Keyboard.current!=null&&Keyboard.current.rKey.wasPressedThisFrame)Press(true);
-            if(keyboardHeld&&(Keyboard.current==null||!Keyboard.current.rKey.isPressed))keyboardHeld=false;
             Advance(Time.deltaTime);UpdateDrops(Time.deltaTime);
         }
         public void Advance(float dt)
         {
-            if(!Busy||dt<=0)return;
+            if(!Busy||dt<=0||IsRewardPaused)return;
+            // Damage and the visual share this facing; an already detached fading tail stays put.
+            if(stopped<0&&owner.LookDirection.sqrMagnitude>.001f)direction=owner.LookDirection.normalized;
             float end=age+dt;
             // Process charges and damage chronologically so low frame rates cannot provide free flame time.
             while(stopped<0&&Mathf.Min(nextFuel,nextHit)<=end){

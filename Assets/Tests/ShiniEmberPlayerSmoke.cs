@@ -30,7 +30,14 @@ namespace Vampire.Tests
    var e=new PointerEventData(EventSystem.current){pointerId=7,button=PointerEventData.InputButton.Left};input.OnPointerDown(e);yield return new WaitForSeconds(.7f);
    Check(breath.Fuel==18&&breath.Busy,"actual HUD press consumes six and inflates chest");ScreenCapture.CaptureScreenshot(Application.dataPath+"/ember-player-chest.png");
    yield return new WaitForSeconds(.6f);Check(breath.Emitting,"continuous fan renders in player");ScreenCapture.CaptureScreenshot(Application.dataPath+"/ember-player-flame.png");
-   yield return new WaitForSeconds(1.5f);Check(breath.Fuel<18,"hold consumes extra fuel");input.OnPointerUp(e);yield return new WaitForSeconds(.6f);Check(!breath.Busy,"release recovers without stuck input");
+   yield return new WaitForSeconds(1.5f);Check(breath.Fuel<18,"hold consumes extra fuel");
+   var reward=level.EntityManager.AbilitySelectionDialog;reward.Open();int fuel=breath.Fuel;input.OnPointerExit(e);
+   yield return new WaitForSecondsRealtime(.3f);Check(reward.MenuOpen&&breath.Emitting&&breath.Fuel==fuel,"reward freezes ongoing fire and fuel in player");
+   reward.Close();yield return new WaitForSeconds(.27f);Check(breath.Emitting&&breath.Fuel<fuel,"existing hold resumes after reward in player");
+   level.PlayerCharacter.LookDirection=Vector2.left;yield return null;yield return null;
+   var fire=level.PlayerCharacter.GetComponentsInChildren<SpriteRenderer>().Single(x=>x.name=="Shini continuous fan fire");
+   Check(Vector2.Dot(fire.transform.right,Vector2.left)>.999f,"fire turns with player during hold");
+   input.OnPointerUp(e);yield return new WaitForSeconds(.6f);Check(!breath.Busy,"release recovers without stuck input");
    Check(button.GetComponent<ApothecaryButtonFeedback>().sparkle!=null,"original gold highlight component remains");
    breath.RestoreFuel(6);input.OnPointerDown(e);input.OnPointerUp(e);button.onClick.Invoke();Check(breath.Fuel==0,"tap click has no duplicate cost");yield return new WaitForSeconds(3);Check(!breath.Busy,"last-fuel tap completes");
    ui.OpenSkillHelp();yield return null;Check(ui.Page=="run","skill help opens existing run panel");GamePreferences.Apply(prefs,false);
