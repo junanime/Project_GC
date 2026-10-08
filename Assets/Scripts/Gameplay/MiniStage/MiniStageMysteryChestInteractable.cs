@@ -155,6 +155,11 @@ namespace Vampire
                 {
                     chestRenderer.sprite = closedChestSprite;
                 }
+                else
+                {
+                    var reward = RemakeBalance.Current.levelUpChest;
+                    if (reward != null) chestRenderer.sprite = reward.Visual(reward.closedChest);
+                }
 
                 chestRenderer.color = closedColor;
             }

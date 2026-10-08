@@ -1,0 +1,32 @@
+[
+  {
+    "asset": "Projectiles",
+    "generatedSource": "exec-7a176ee2-3a7b-4ed3-9a78-8dacf75c46e0.png",
+    "sha256": "D41807D7642552707D670E99E5BAEB2ED02DE2595DD2498F0D557B7E47ABC8A1",
+    "pngUnchanged": true
+  },
+  {
+    "asset": "Fanta",
+    "generatedSource": "exec-f6c2ca47-c80d-41c1-9017-5b2e2ada2bc4.png",
+    "sha256": "6B6B358C3B510090E8B7A9217C08197DA0001909DB0C912243972519545EEDAA",
+    "pngUnchanged": true
+  },
+  {
+    "asset": "Drift",
+    "generatedSource": "exec-d7920668-0c5c-4002-9b02-d74e556e5d29.png",
+    "sha256": "91AB2E305829AE189BAE8BFB2DC56149FDC23B4058D5C8C3AD46303E41973799",
+    "pngUnchanged": true
+  },
+  {
+    "asset": "Latte",
+    "generatedSource": "exec-a6585653-416d-4839-b8e8-d7f51d536338.png",
+    "sha256": "070277991A6B59375B08143B511AB9D689CE7CF1C73028F80F744E54902C60E2",
+    "pngUnchanged": true
+  },
+  {
+    "asset": "Foam",
+    "generatedSource": "exec-23636f93-ab98-4c85-ad15-d0b98b99368b.png",
+    "sha256": "074CDFD58098426C24B8EDA1844503A95778B8445905611B1DDD56038350FEF3",
+    "pngUnchanged": true
+  }
+]

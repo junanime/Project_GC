@@ -1,6 +1,6 @@
 {
   "entries": [
-    {"id":"monster/acid-toad","kind":"monster","title":"환타 두꺼비","what":"주황색 탄산 구체 3발 · 점프 착지 · 긴 탄산액 발사로 공격합니다.","tip":"부푼 볼과 착지 원을 확인하세요. 탄산액 줄기를 옆으로 피하세요.","effect":"toad"},
+    {"id":"monster/acid-toad","kind":"monster","title":"톡톡 · 환타 카멜레온","what":"환타 구체 3발 · 은신 순간이동 · 단일 환타 파도로 공격합니다.","tip":"은신 3초 뒤 현재 위치에 몸 외곽선이 나타납니다. 1초 안에 피하세요.","effect":"toad"},
     {"id":"item/health","kind":"item","title":"체력 회복","what":"사용하면 체력을 즉시 회복합니다. 최대 체력을 넘겨 회복하지 않습니다.","tip":"주워 약함에 보관하세요. 체력이 줄었을 때 해당 아이템 칸을 눌러 사용하세요.","effect":"item_health"},
     {"id":"item/potion","kind":"item","title":"몬스터 증식 물약","what":"30초 동안 일반 몬스터의 기본 스폰량이 50% 증가합니다.","tip":"물약 칸을 눌러 사용하세요. 경험치 수집 기회가 늘지만 포위를 조심하세요. 재사용은 시간만 갱신합니다.","effect":"item_potion"},
     {"id":"item/magnet","kind":"item","title":"자석","what":"필드에 남은 코인과 경험치 보석을 한꺼번에 끌어옵니다.","tip":"주워 보관한 뒤 자석 칸을 눌러 사용하세요. 수집물이 많이 쌓였을 때 유용합니다.","effect":"item_magnet"},
@@ -28,10 +28,10 @@
     {"id":"event/monster-surge","kind":"event","title":"감염 증식","what":"일정 시간 몬스터가 평소보다 빠르게 밀려옵니다.","tip":"한곳에 갇히지 말고 빈 공간으로 이동하세요.","effect":"surge"},
     {"id":"event/gold-rush","kind":"event","title":"골드 러시","what":"처치한 몬스터에게서 추가 골드가 나옵니다.","tip":"안전한 동선을 유지하며 처치와 수집을 함께 하세요.","effect":"gold"},
     {"id":"event/acid-secretion","kind":"event","title":"위산분비","what":"필드에 위산 장판이 생겨 접촉 시 피해를 입습니다.","tip":"장판 경계를 확인하고 빈 바닥으로 피하세요.","effect":"acid_event"},
-    {"id":"event/acid-reflux","kind":"event","title":"탄산액 발사","what":"화면 옆 환타 두꺼비가 볼에 모은 주황색 탄산액을 길게 뿜습니다.","tip":"볼이 부풀면 경고 경로를 벗어나세요. 발사가 끝날 때까지 줄기에 닿지 마세요.","effect":"wave"},
-    {"id":"event/peristaltic-drift","kind":"event","title":"연동운동 기류","what":"장기의 흐름이 이동 방향에 영향을 줍니다.","tip":"흐름이 바뀔 때 위치를 다시 잡으세요.","effect":"drift"},
-    {"id":"event/coffee-transfusion","kind":"event","title":"커피수혈 타임","what":"커피의 영향으로 필드의 몬스터 행동이 달라집니다.","tip":"새로운 공격 속도와 움직임을 보고 거리를 유지하세요.","effect":"coffee"},
-    {"id":"event/antacid-bubble","kind":"event","title":"제산 거품 폭주","what":"제산 거품이 생기며 안전 구역 밖에서는 피해를 입습니다.","tip":"거품 안쪽을 따라 움직이며 바깥에 오래 머물지 마세요.","effect":"bubble"},
+    {"id":"event/acid-reflux","kind":"event","title":"환타 파도","what":"화면 양옆 패널의 톡톡이 볼을 부풀린 뒤 하나의 환타 파도를 발사합니다.","tip":"좌우 교대로 나타나는 얼굴과 경고 경로를 보고 피하세요.","effect":"wave"},
+    {"id":"event/peristaltic-drift","kind":"event","title":"위산연동파","what":"화면 옆 꾸룩의 박수 뒤 장기의 쏠림이 시작됩니다.","tip":"박수를 칠 때마다 다음 쏠림 방향으로 바뀝니다. 흐름을 보고 자리를 잡으세요.","effect":"drift"},
+    {"id":"event/coffee-transfusion","kind":"event","title":"커피수혈","what":"화면 옆 라떼가 뿜은 커피가 화면을 덮고 지나간 뒤 몬스터에게 커피 버프가 적용됩니다.","tip":"커피가 걷히면 빨라진 몬스터를 조심하세요.","effect":"coffee"},
+    {"id":"event/antacid-bubble","kind":"event","title":"제산 거품 폭주","what":"보글이 앞발을 모아 힘을 준 뒤 제산 거품이 생깁니다. 거품 밖에서는 피해를 입습니다.","tip":"거품 안쪽을 따라 움직이며 바깥에 오래 머물지 마세요.","effect":"bubble"},
     {"id":"monster/sniper","kind":"monster","title":"타코야키 저격수","what":"조준선을 따라 멀리서 탄환을 발사합니다.","tip":"붉은 조준선을 확인하고 옆으로 벗어나세요.","effect":"sniper"},
     {"id":"monster/nutrition-thief","kind":"monster","title":"영양분 도둑","what":"혁이의 성장 자원을 노리고 접근합니다.","tip":"도망가기 전에 우선 처치하세요.","effect":"thief"},
     {"id":"monster/acid-spore","kind":"monster","title":"위산 포자","what":"가까이 오면 붉게 경고한 뒤 폭발합니다.","tip":"깜빡이는 포자에게 거리를 벌리거나 대쉬로 빠져나오세요.","effect":"spore"},
@@ -40,8 +40,11 @@
     {"id":"monster/attack-debuffer","kind":"monster","title":"후추 디버프 몬스터","what":"혁이의 공격을 방해하는 효과를 겁니다.","tip":"영향 범위에서 벗어나 후추 몬스터를 우선 처치하세요.","effect":"pepper"},
     {"id":"monster/treasure-runner","kind":"monster","title":"호두 다람쥐 도둑","what":"조심스럽게 다가오다가 가까워지면 양팔을 들고 빠르게 도망칩니다.","tip":"탈출하기 전에 길을 가로막고 공격하세요.","effect":"runner"},
     {"id":"monster/elite-sugar-cube","kind":"monster","title":"정예 각설탕","what":"일반 각설탕보다 강한 몸으로 밀고 들어옵니다.","tip":"거리를 유지하며 집중 공격하세요.","effect":"elite_sugar"},
-    {"id":"monster/trap","kind":"monster","title":"함정 몬스터","what":"혁이를 붙잡아 움직임을 제한합니다.","tip":"속박 조건을 확인하고 위험 구역을 피하세요.","effect":"trap"},
+    {"id":"monster/trap","kind":"monster","title":"함정 몬스터","what":"캐릭터를 붙잡아 움직임을 제한합니다.","tip":"PC: 표시된 방향키를 순서대로 입력하세요. 모바일: 오른쪽 4개 매듭 중 빛나는 곳을 차례로 터치하세요. 4번 성공하면 탈출하며, 틀리면 처음부터 다시 시작합니다.","effect":"trap"},
     {"id":"monster/armor-buffer","kind":"monster","title":"방어 버프 몬스터","what":"주변 몬스터가 받는 피해를 줄여줍니다.","tip":"보호 효과를 주는 몬스터부터 처치하세요.","effect":"armor"},
-    {"id":"mechanic/blood-clot","kind":"mechanic","title":"혈전과 미니스테이지","what":"혈전 처치 → 입구 출현. 가까이서 E를 누르면 일반 미니스테이지에 입장합니다.","tip":"Q/과충전 버튼으로 시작.\n범위 안에서 처치·체류 목표 완료.\n진행 중 E 입장 불가.\n완료 후 E로 격화 난이도에 도전!\n스킬 강화·레벨업 상자 보상.","effect":"blood_clot"}
+    {"id":"mechanic/blood-clot","kind":"mechanic","title":"혈전과 미니스테이지","what":"혈전 처치 → 입구 출현. 가까이서 E를 누르면 일반 미니스테이지에 입장합니다.","tip":"Q/과충전 버튼으로 시작.\n범위 안에서 처치·체류 목표 완료.\n진행 중 E 입장 불가.\n완료 후 E로 격화 난이도에 도전!\n스킬 강화·레벨업 상자 보상.","effect":"blood_clot"},
+    {"id":"monster/chameleon-drift","kind":"monster","title":"꾸룩 · 위산연동 카멜레온","what":"고유 탄막과 은신 순간이동을 사용합니다. 양발을 쿵쿵 구른 뒤 박수로 연동파를 2회 발동합니다.","tip":"은신 3초 뒤 몸 외곽선 경고가 뜨면 1초 안에 벗어나세요. 미니보스 스킬에는 화면 옆 얼굴 연출이 없습니다.","effect":"chameleon_drift"},
+    {"id":"monster/chameleon-foam","kind":"monster","title":"보글 · 제산거품 카멜레온","what":"고유 탄막과 은신 순간이동을 사용합니다. 앞발을 모아 힘을 주면 제산 거품 장판이 생깁니다.","tip":"은신 3초 뒤 몸 외곽선 경고가 뜨면 1초 안에 벗어나세요. 미니보스 스킬에는 화면 옆 얼굴 연출이 없습니다.","effect":"chameleon_foam"},
+    {"id":"monster/chameleon-latte","kind":"monster","title":"라떼 · 커피수혈 카멜레온","what":"고유 탄막과 은신 순간이동을 사용합니다. 입에서 뿜은 커피 분수가 내려오면 다른 몬스터가 강화됩니다.","tip":"은신 3초 뒤 몸 외곽선 경고가 뜨면 1초 안에 벗어나세요. 미니보스 스킬에는 화면 옆 얼굴 연출이 없습니다.","effect":"chameleon_latte"}
   ]
 }

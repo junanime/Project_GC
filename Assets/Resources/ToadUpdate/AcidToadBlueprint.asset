@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3353bb926e4e2c43bdc9d511dbec038, type: 3}
   m_Name: AcidToadBlueprint
   m_EditorClassIdentifier: 
-  name: "\uD658\uD0C0 \uB450\uAEBC\uBE44"
+  name: "\uD1A1\uD1A1 \xB7 \uD658\uD0C0 \uCE74\uBA5C\uB808\uC628"
   hp: 1200
   atk: 16
   recovery: 10
@@ -31,23 +31,19 @@ MonoBehaviour:
       dropChance: 1
       coinType: 0
   walkSpriteSequence:
-  - {fileID: 4722148551383178485, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: 8974873916141844176, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: -3480759808854412539, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: -6139644113013993444, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: 509317309806167041, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: -5961213112818861073, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: -7027379877434496704, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  - {fileID: 6079508050437724853, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
-  walkFrameTime: 0.10625
+  - {fileID: 3154336412693049845, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
+  - {fileID: 519097903293497760, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
+  - {fileID: 7434211530209592556, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
+  - {fileID: 9147890197635069419, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
+  walkFrameTime: 0.175
   useGroundShadowFootprint: 1
-  groundShadowCenterUV: {x: 0.5, y: 0.03}
+  groundShadowCenterUV: {x: 0.5, y: 0.035}
   groundShadowSizeUV: {x: 0.8, y: 0.15}
   preserveGroundShadowHeight: 0
-  description: "\uBCFC\uC5D0 \uC8FC\uD669\uC0C9 \uD0C4\uC0B0\uC561\uC744 \uBAA8\uC544
-    \uBFDC\uB294 \uBBF8\uB2C8\uBCF4\uC2A4. \uD0C4\uC0B0 \uAD6C\uCCB4 3\uBC1C, \uC810\uD504
-    \uCC29\uC9C0, \uD0C4\uC0B0\uC561 \uBC1C\uC0AC."
-  resultSprite: {fileID: 4722148551383178485, guid: f679fce60a1b84e46860a4876153ef92, type: 3}
+  description: "\uACE0\uC720 \uD0C4\uB9C9 3\uBC1C \xB7 3\uCD08 \uC740\uC2E0 \uD6C4
+    \uC678\uACFD \uACBD\uACE0 1\uCD08 \uC21C\uAC04\uC774\uB3D9 \xB7 \uACE0\uC720
+    \uD544\uB4DC \uC2A4\uD0AC"
+  resultSprite: {fileID: 4522584740898501104, guid: 090b98d94af7d1f439239b298bed6e64, type: 3}
   meleeLayer:
     serializedVersion: 2
     m_Bits: 0

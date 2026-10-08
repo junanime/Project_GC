@@ -4,7 +4,7 @@ namespace Vampire
     [CreateAssetMenu(menuName="Boss/Roll cake settings")]
     public sealed class SnailBossSettings : ScriptableObject
     {
-        public float maxHealth=6000, bodyWidth=4.2f, walkSpeed=.7f;
+        public float maxHealth=24000, bodyWidth=4.2f, walkSpeed=.7f;
         public float phaseThreshold=.3f, transitionDuration=1.6f;
         public float basicCooldown=4f, patternGap=2f, projectileSpeed=3.2f;
         public int radialCount=18;

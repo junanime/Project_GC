@@ -8,6 +8,7 @@ namespace Vampire
     {
         [SerializeField] private InventorySlot[] inventorySlots;
         private Dictionary<CollectableType, InventorySlot> inventorySlotByType;
+        public IReadOnlyList<InventorySlot> Slots => inventorySlots;
 
         public void Init()
         {
@@ -27,6 +28,8 @@ namespace Vampire
                 return !inventorySlot.IsFull();
             return false;
         }
+
+        public void ApplyMobileLayout() => LightWoodHud.InstallMobile(inventorySlots);
 
         public bool TryGetInventorySlot(Collectable item, out InventorySlot inventorySlot)
         {

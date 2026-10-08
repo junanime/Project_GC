@@ -18,6 +18,18 @@ namespace Vampire
         private readonly List<StageEventPresentation> presentations = new List<StageEventPresentation>();
         private StageEventCornerUI cornerUI;
         private LevelManager presentationLevel;
+        List<StageEventSchedule> initialBasic;
+        List<AdvancedStageFieldEventDirector> initialAdvanced;
+        List<AntacidBubbleSurgeEventController> initialAntacid;
+        public void RestartForStage()
+        {
+            foreach (var module in Modules) module?.Dispose();
+            basicEvents = initialBasic.ConvertAll(StageEventTemplate.Copy);
+            advancedEvents = initialAdvanced.ConvertAll(StageEventTemplate.Copy);
+            antacidEvents = initialAntacid.ConvertAll(StageEventTemplate.Copy);
+            if (useWindowSchedule) PrepareWindowSchedule();
+            base.Awake();
+        }
 
         protected override void LateUpdate()
         {
@@ -41,6 +53,9 @@ namespace Vampire
         }
         protected override void Awake()
         {
+            initialBasic = basicEvents.ConvertAll(StageEventTemplate.Copy);
+            initialAdvanced = advancedEvents.ConvertAll(StageEventTemplate.Copy);
+            initialAntacid = antacidEvents.ConvertAll(StageEventTemplate.Copy);
             if (GetComponent<AcidToadSpawn>() == null) gameObject.AddComponent<AcidToadSpawn>();
             if (useWindowSchedule) PrepareWindowSchedule();
             base.Awake();

@@ -9,7 +9,7 @@ namespace Vampire
     {
         RectTransform root;Image actor,player,stream,warning;string mode;float start;
         Image[] extras; Text caption;
-        public static bool Supports(string effect) => effect=="wave"||effect=="runner"||effect=="toad"||effect=="item_health"||effect=="item_potion"||effect=="item_magnet";
+        public static bool Supports(string effect) => effect.StartsWith("chameleon_")||effect=="wave"||effect=="runner"||effect=="toad"||effect=="item_health"||effect=="item_potion"||effect=="item_magnet";
         public void Configure(string effect)
         {
             mode=effect;bool use=Supports(effect);
@@ -42,13 +42,13 @@ namespace Vampire
             if(root==null||!root.gameObject.activeSelf)return;
             float t=Mathf.Repeat(Time.unscaledTime-start,3.5f);
             if(mode.StartsWith("item_")){ItemDemo(t);return;}
-            if(mode=="toad"){ToadDemo();return;}
+            if(mode=="toad"||mode.StartsWith("chameleon_")){ChameleonDemo();return;}
             caption.text=mode=="runner"?(t>1.3f?"눈치채면 빠르게 도망!":"조심스럽게 접근"):(t<1?"볼 팽창 · 경로 경고":"옆으로 피해 탄산액 회피");
             if(mode=="wave")
             {
-                bool fire=t>=1&&t<3;actor.sprite=AcidToadArt.Frame("ToadHead",t<1?Mathf.Min(7,(int)(t*8)):t<3?8+Mathf.Min(7,(int)((t-1)*4)):15);
+                bool fire=t>=1&&t<3;actor.sprite=ChameleonArt.Portrait(ChameleonKind.Fanta,t<1?10:t<3?11:12,true);
                 Place(actor,.015f,.28f,.29f,.48f);warning.gameObject.SetActive(t<1);Place(warning,.22f,.41f,.77f,.14f);
-                stream.gameObject.SetActive(fire);stream.sprite=AcidToadArt.Frame("AcidFx",(int)(t*12)%4);Place(stream,.245f,.405f,.74f*Mathf.Clamp01((t-1)/.3f),.15f);
+                stream.gameObject.SetActive(fire);stream.sprite=ChameleonArt.Fx(4);stream.preserveAspect=true;Place(stream,.24f+.6f*Mathf.Clamp01((t-1)/2),.405f,.18f,.23f);
                 Place(player,.63f,Mathf.Lerp(.4f,.72f,Mathf.Clamp01(t/.7f)),.12f,.18f);
             }
             else
@@ -60,36 +60,37 @@ namespace Vampire
             }
             if(mode=="wave")actor.rectTransform.localScale=Vector3.one;
         }
-        void ToadDemo()
+        void ChameleonDemo()
         {
-            float clock=Mathf.Repeat(Time.unscaledTime-start,10.5f),t=clock%3.5f;int stage=(int)(clock/3.5f);
+            var kind=mode=="chameleon_drift"?ChameleonKind.Drift:mode=="chameleon_foam"?ChameleonKind.Foam:mode=="chameleon_latte"?ChameleonKind.Latte:ChameleonKind.Fanta;
+            float clock=Mathf.Repeat(Time.unscaledTime-start,15),t=clock%5;int stage=(int)(clock/5);
             foreach(var e in extras)e.gameObject.SetActive(false);
-            actor.rectTransform.localScale=Vector3.one;Place(actor,.06f,.28f,.32f,.49f);Place(player,.74f,.37f,.13f,.2f);
-            warning.gameObject.SetActive(false);stream.gameObject.SetActive(false);
-            actor.sprite=AcidToadArt.Frame("ToadAttack",t<1?Mathf.Min(7,(int)(t*8)):8+Mathf.Min(7,(int)((t-1)*4)));
+            actor.rectTransform.localScale=Vector3.one;actor.color=Color.white;Place(actor,.06f,.28f,.32f,.49f);Place(player,.74f,.37f,.13f,.2f);
+            warning.gameObject.SetActive(false);stream.gameObject.SetActive(false);actor.sprite=ChameleonArt.Frame(kind,0);
             if(stage==0)
             {
-                caption.text="기본 공격 · 탄산 구체 3발";
-                for(int i=0;i<3;i++){var e=extras[i];e.gameObject.SetActive(t>=1&&t<3);e.sprite=AcidToadArt.Frame("AcidFx",4+(int)(t*10)%4);e.preserveAspect=true;float f=Mathf.Clamp01((t-1)/2);Place(e,.32f+f*.65f,.45f+(i-1)*f*.24f,.075f,.12f);}
-                Place(player,.73f,Mathf.Lerp(.4f,.7f,Mathf.Clamp01((t-.3f)/.5f)),.13f,.2f);
+                caption.text="기본 공격 · 고유 탄막 3발";actor.sprite=ChameleonArt.Frame(kind,t<1?6:7);
+                for(int i=0;i<3;i++){var e=extras[i];e.gameObject.SetActive(t>=1&&t<3);e.sprite=ChameleonArt.Projectile(kind);e.preserveAspect=true;float f=Mathf.Clamp01((t-1)/2);Place(e,.32f+f*.65f,.45f+(i-1)*f*.24f,.075f,.12f);}
             }
             else if(stage==1)
             {
-                caption.text=t<1?"점프 착지 · 원 밖으로!":"착지 충격 · 경고 지점 회피";
-                warning.gameObject.SetActive(t<2.2f);warning.sprite=DiscoveryPreviewArt.Load().ring;
-                warning.color=new Color(1,.35f,.1f,.5f);Place(warning,.58f,.28f,.28f,.13f);
-                float f=Mathf.Clamp01((t-1)/.75f);actor.sprite=AcidToadArt.Frame("ToadJump",Mathf.Min(7,(int)(Mathf.Clamp01(t/2.2f)*8)));
-                Place(actor,Mathf.Lerp(.06f,.52f,f),.28f+Mathf.Sin(f*Mathf.PI)*.25f,.32f,.49f);
-                Place(player,.80f,Mathf.Lerp(.35f,.64f,Mathf.Clamp01(t/.8f)),.13f,.2f);
+                caption.text=t<3?"3초 은신 → 현재 위치에 외곽 경고":t<4?"1초 경고 동안 자리를 피하세요":"출현 순간 몸에 닿으면 피해";
+                actor.color=new Color(1,1,1,t<.3f?1-t/.3f:t<4?0:1);
+                if(t>=3)Place(actor,.56f,.28f,.32f,.49f);
+                warning.gameObject.SetActive(t>=3&&t<4);warning.sprite=ChameleonArt.Frame(kind,0);warning.preserveAspect=true;
+                warning.color=new Color(1,.55f,.1f,.5f);Place(warning,.56f,.28f,.32f,.49f);
+                Place(player,.74f,Mathf.Lerp(.37f,.73f,Mathf.Clamp01((t-3)/.7f)),.13f,.2f);
             }
             else
             {
-                caption.text=t<1?"탄산액 발사 · 옆으로 피하기":"발사 중 볼이 서서히 수축";
-                warning.sprite=null;warning.color=new Color(1,.45f,.05f,.4f);warning.gameObject.SetActive(t<1);Place(warning,.31f,.42f,.68f,.12f);
-                stream.gameObject.SetActive(t>=1&&t<3);stream.sprite=AcidToadArt.Frame("AcidFx",(int)(t*12)%4);Place(stream,.3f,.41f,.69f*Mathf.Clamp01((t-1)/.3f),.15f);
-                Place(player,.73f,Mathf.Lerp(.4f,.72f,Mathf.Clamp01(t/.7f)),.13f,.2f);
+                actor.sprite=ChameleonArt.Frame(kind,8+Mathf.Min(4,(int)t));
+                caption.text=kind==ChameleonKind.Drift?"양발 쿵쿵 → 박수 · 연동파 2회":kind==ChameleonKind.Foam?"앞발 모아 끄응 → 거품 안으로 이동":kind==ChameleonKind.Latte?"커피 분수 → 주변 몬스터 강화":"볼 팽창 → 단일 환타 파도";
+                stream.gameObject.SetActive(t>=3&&t<4.8f);stream.sprite=ChameleonArt.Projectile(kind);stream.preserveAspect=true;
+                Place(stream,.32f+Mathf.Clamp01((t-3)/1.8f)*.55f,.45f,.15f,.2f);
+                if(kind==ChameleonKind.Fanta)stream.sprite=ChameleonArt.Fx(4);
             }
         }
+
         void ItemDemo(float t)
         {
             var art=DiscoveryPreviewArt.Load();if(art==null)return;

@@ -14,6 +14,7 @@ namespace Vampire
         float nextBossScan;
         RectTransform toadBubble;
         AcidToadMonster compassToad;
+        UnityEngine.UI.Image chameleonCompassArt;
         float nextToadScan;
         void UpdateBossCompass()
         {
@@ -74,10 +75,11 @@ namespace Vampire
             if(toadBubble==null)
             {
                 toadBubble=Rect("Toad direction bubble",root,.5f,.5f,.5f,.5f);toadBubble.sizeDelta=new Vector2(66,72);
-                Panel(toadBubble,0,.14f,1,1);ImageAt(toadBubble,AcidToadArt.Frame("ToadHead",0),.07f,.21f,.93f,.93f);
+                Panel(toadBubble,0,.14f,1,1);chameleonCompassArt=ImageAt(toadBubble,ChameleonArt.Portrait(compassToad.Kind,0,true),.07f,.21f,.93f,.93f);
                 Label(toadBubble,"▼",.35f,0,.65f,.23f,18).color=new Color(1,.94f,.80f);
             }
             toadBubble.gameObject.SetActive(true);toadBubble.SetAsLastSibling();
+            if(chameleonCompassArt!=null)chameleonCompassArt.sprite=ChameleonArt.Portrait(compassToad.Kind,0,true);
             var canvas=root.GetComponentInParent<Canvas>();
             RectTransformUtility.ScreenPointToLocalPointInRectangle(root,screen,canvas.renderMode==RenderMode.ScreenSpaceOverlay?null:cam,out var local);
             if(screen.z<0)local=-local;

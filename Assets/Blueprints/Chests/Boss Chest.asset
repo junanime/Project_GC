@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Boss Chest
   m_EditorClassIdentifier: 
   abilityChest: 1
-  closedChest: {fileID: 56875098, guid: 47d8a91e3026e405a96bac590c863934, type: 3}
-  openingChest: {fileID: -1761747347, guid: 47d8a91e3026e405a96bac590c863934, type: 3}
-  openChest: {fileID: -369494663, guid: 47d8a91e3026e405a96bac590c863934, type: 3}
+  closedChest: {fileID: 1599701572018192911, guid: e1bae58ca6f309a4bb34282cca00d5c6, type: 3}
+  openingChest: {fileID: 1599701572018192911, guid: e1bae58ca6f309a4bb34282cca00d5c6, type: 3}
+  openChest: {fileID: 1599701572018192911, guid: e1bae58ca6f309a4bb34282cca00d5c6, type: 3}
+  worldSpriteWidth: 0.6
   lootTable:
     lootTable:
     - item: {fileID: 1437905727660197986, guid: abf49d6cb814647109c1773c37109e8e, type: 3}

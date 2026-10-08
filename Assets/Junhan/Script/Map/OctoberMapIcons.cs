@@ -6,7 +6,8 @@ namespace Vampire
     {
         public static Sprite For(MapMarker marker)
         {
-            if(marker.GetComponent<AcidToadMonster>()!=null)return AcidToadArt.Frame("ToadHead",0);
+            var chameleon=marker.GetComponent<AcidToadMonster>();
+            if(chameleon!=null)return ChameleonArt.Portrait(chameleon.Kind,0,true);
             if(marker.GetComponent<FinalBossSummonInteractable>()!=null)return OctoberArt.Get("OctoberUI/BossAltarIcon");
             if(marker.MarkerKind==MapMarkerKind.Chest||marker.GetComponent<Chest>()!=null)return OctoberArt.Get("OctoberUI/ItemChestIcon");
             string n=(marker.name+marker.DisplayName).ToLowerInvariant();

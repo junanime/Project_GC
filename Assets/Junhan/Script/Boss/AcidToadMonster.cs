@@ -3,142 +3,170 @@ using UnityEngine;
 
 namespace Vampire
 {
+    // Keep the historical component GUID so every saved level and pool still references this actor.
     public sealed class AcidToadMonster : MiniBossMonster
     {
         public enum Pattern { Basic, Leap, Jet }
         public Pattern CurrentPattern { get; private set; }
+        public ChameleonKind Kind { get; private set; }
         public bool Busy { get; private set; }
-        public bool AutoPatterns = true;
-        public static float BodyWidth => (Resources.Load<SnailBossSettings>("SnailBossSettings")?.bodyWidth ?? 4.2f) * .8f;
-        FoodAtlasMotion motion;
-        Transform mouth;
-        float delay, flash;
-        int next;
-        Coroutine attackRoutine;
-        AcidJet jet;
-        LineRenderer warning;
-        Vector3 bodyOrigin;
-        public override void Setup(int index, Vector2 position, MonsterBlueprint blueprint, float hpBuff = 0)
+        public bool Invisible { get; private set; }
+        public int DriftPulses { get; private set; }
+        public bool AutoPatterns=true;
+        public static float BodyWidth => ChameleonSettings.Current != null ? ChameleonSettings.Current.bodyWidth : 3.36f;
+        public ChameleonMotion Motion => motion;
+        ChameleonMotion motion;Transform mouth,effects;float delay,flash;int next;
+        Coroutine attackRoutine;SpriteRenderer warning;Material outlineMaterial;Vector3 bodyOrigin;
+        float bodyAlpha=1;bool dying;
+        public override void Setup(int index,Vector2 position,MonsterBlueprint blueprint,float hpBuff=0)
         {
-            base.Setup(index,position,blueprint,hpBuff);
-            transform.localScale=Vector3.one*(BodyWidth/2.8f);
+            base.Setup(index,position,blueprint,hpBuff);Cancel();Kind=ChameleonArt.Kind(blueprint);dying=false;
+            transform.localScale=Vector3.one*(BodyWidth/ChameleonArt.Width);
             if(monsterSpriteAnimator!=null)monsterSpriteAnimator.enabled=false;
-            motion=GetComponent<FoodAtlasMotion>()??gameObject.AddComponent<FoodAtlasMotion>();motion.Configure(monsterSpriteRenderer);
-            monsterSpriteRenderer.transform.localScale=Vector3.one;
-            bodyOrigin=Vector3.zero;monsterSpriteRenderer.transform.localPosition=bodyOrigin;
-            monsterSpriteRenderer.sortingOrder=500;
-            monsterHitbox.size=new Vector2(2.45f,1.55f);monsterHitbox.offset=new Vector2(0,.8f);
-            monsterLegsCollider.radius=.85f;centerTransform.localPosition=new Vector3(0,.85f);
-            if(mouth==null){mouth=new GameObject("Acid mouth").transform;mouth.SetParent(transform,false);}
-            rb.drag=0;delay=1.5f;next=0;Busy=false;flash=0;
-            motion.Play("ToadLocomotion",8,8,1.2f,true);
-            var marker=GetComponent<MapMarker>()??gameObject.AddComponent<MapMarker>();
-            marker.enabled=true;marker.Configure(MapMarkerKind.Boss,"환타 두꺼비",true);
+            var legacy=GetComponent<FoodAtlasMotion>();if(legacy!=null)legacy.enabled=false;
+            motion=GetComponent<ChameleonMotion>()??gameObject.AddComponent<ChameleonMotion>();motion.Configure(monsterSpriteRenderer,Kind);
+            monsterSpriteRenderer.transform.localScale=Vector3.one;bodyOrigin=Vector3.zero;monsterSpriteRenderer.transform.localPosition=bodyOrigin;monsterSpriteRenderer.sortingOrder=500;
+            monsterHitbox.size=new Vector2(2.45f,1.55f);monsterHitbox.offset=new Vector2(0,.8f);monsterLegsCollider.radius=.85f;centerTransform.localPosition=new Vector3(0,.85f);
+            if(mouth==null){mouth=new GameObject("Chameleon mouth").transform;mouth.SetParent(transform,false);}
+            rb.drag=0;delay=1.5f;next=0;Busy=false;Invisible=false;flash=0;bodyAlpha=1;DriftPulses=0;
+            motion.Play(0,2,1.2f,true);
+            var marker=GetComponent<MapMarker>()??gameObject.AddComponent<MapMarker>();marker.enabled=true;marker.Configure(MapMarkerKind.Boss,ChameleonArt.Names[(int)Kind],true);
         }
         protected override void Update()
         {
-            if(!alive||IsFieldRuntimeSuspended||MiniStageRuntimeState.IsInsideMiniStage||Time.timeScale<=0)return;
-            if(playerCharacter==null)return;
+            if(!alive||IsFieldRuntimeSuspended||ChameleonTime.Paused||playerCharacter==null)return;
             if(!Busy)
             {
                 monsterSpriteRenderer.flipX=playerCharacter.transform.position.x<transform.position.x;
-                motion.Play("ToadLocomotion",rb.velocity.sqrMagnitude>.02f?0:8,8,rb.velocity.sqrMagnitude>.02f?.85f:1.2f,true);
+                motion.Play(rb.velocity.sqrMagnitude>.02f?2:0,rb.velocity.sqrMagnitude>.02f?4:2,rb.velocity.sqrMagnitude>.02f?.7f:1.2f,true);
                 if(AutoPatterns&&(delay-=Time.deltaTime)<=0)UsePattern((Pattern)(next++%3));
             }
-            mouth.localPosition=new Vector3(monsterSpriteRenderer.flipX?-.65f:.65f,1f,0);
-            flash=Mathf.Max(0,flash-Time.deltaTime);
-            monsterSpriteRenderer.color=Color.Lerp(Color.white,new Color(1,.6f,.5f),flash/.12f);
+            UpdateMouth();
+            flash=Mathf.Max(0,flash-Time.deltaTime);var color=Color.Lerp(Color.white,new Color(1,.65f,.6f),flash/.12f);color.a=bodyAlpha;monsterSpriteRenderer.color=color;
+            if(warning!=null)warning.flipX=monsterSpriteRenderer.flipX;
         }
         protected override void FixedUpdate()
         {
-            if(!alive||IsFieldRuntimeSuspended||MiniStageRuntimeState.IsInsideMiniStage||playerCharacter==null){if(rb!=null)rb.velocity=Vector2.zero;return;}
-            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;
-            rb.velocity=!Busy&&d.magnitude>4?d.normalized*.75f*IceMoveMultiplier:Vector2.zero;
+            if(!alive||IsFieldRuntimeSuspended||ChameleonTime.Paused||playerCharacter==null){if(rb!=null)rb.velocity=Vector2.zero;return;}
+            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*.75f*IceMoveMultiplier:Vector2.zero;
             if(entityManager?.Grid!=null)entityManager.Grid.UpdateClient(this);
         }
         public bool UsePattern(Pattern pattern)
         {
-            if(!alive||Busy||playerCharacter==null||IsFieldRuntimeSuspended)return false;
+            if(!alive||dying||Busy||playerCharacter==null||IsFieldRuntimeSuspended||ChameleonTime.Paused)return false;
             Busy=true;CurrentPattern=pattern;rb.velocity=Vector2.zero;attackRoutine=StartCoroutine(Attack(pattern));return true;
         }
-        IEnumerator Wait(float duration)
-        {for(float t=0;t<duration;){if(!IsFieldRuntimeSuspended&&!MiniStageRuntimeState.IsInsideMiniStage)t+=Time.deltaTime;yield return null;}}
+        void UpdateMouth()
+        {
+            if(mouth==null||motion?.Art.sprite==null)return;
+            bool upward=Kind==ChameleonKind.Latte&&motion.FrameIndex==11;
+            Vector2 size=motion.Art.sprite.bounds.size;
+            mouth.localPosition=new Vector3((monsterSpriteRenderer.flipX?-1:1)*size.x*(upward?.17f:.32f),size.y*(upward?.84f:.46f),0);
+        }
         IEnumerator Attack(Pattern pattern)
         {
             monsterSpriteRenderer.flipX=playerCharacter.transform.position.x<transform.position.x;
-            mouth.localPosition=new Vector3(monsterSpriteRenderer.flipX?-.65f:.65f,1f,0);
-            if(pattern==Pattern.Leap)yield return Leap();
+            UpdateMouth();
+            if(pattern==Pattern.Leap)yield return Teleport();
+            else if(pattern==Pattern.Basic)
+            {
+                motion.Sample(6);yield return ChameleonTime.Wait(.6f);
+                motion.Sample(7);UpdateMouth();Vector2 direction=((Vector2)playerCharacter.transform.position-(Vector2)mouth.position).normalized;
+                var settings=ChameleonSettings.Current;
+                for(int i=-1;i<=1;i++)ChameleonProjectile.Fire(Kind,mouth.position,Quaternion.Euler(0,0,i*14)*direction,settings.projectileSpeed,settings.projectileDamage,playerCharacter);
+                yield return ChameleonTime.Wait(.45f);
+            }
+            else yield return Special();
+            motion.Sample(12);yield return ChameleonTime.Wait(.5f);motion.Play(0,2,1.2f,true);Busy=false;delay=2.1f;attackRoutine=null;
+        }
+        Transform Effects
+        {
+            get{if(effects==null){effects=new GameObject("Owned chameleon skills").transform;effects.SetParent(transform,false);}return effects;}
+        }
+        IEnumerator Special()
+        {
+            if(Kind==ChameleonKind.Drift)
+            {
+                DriftPulses=0;motion.Sample(8);yield return ChameleonTime.Wait(.45f);ToadCameraShake.Play(.15f,.06f);
+                motion.Sample(9);yield return ChameleonTime.Wait(.45f);ToadCameraShake.Play(.15f,.06f);
+                for(int i=0;i<2;i++)
+                {
+                    motion.Sample(10);yield return ChameleonTime.Wait(.5f);motion.Sample(11);
+                    GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PeristalsisTilt);
+                    ChameleonDriftPulse.Create(Effects,playerCharacter,i==0?Vector2.left:Vector2.right,2.2f);DriftPulses++;
+                    yield return ChameleonTime.Wait(2.2f);
+                }
+            }
+            else if(Kind==ChameleonKind.Foam)
+            {
+                motion.Sample(8);yield return ChameleonTime.Wait(.3f);motion.Sample(9);yield return ChameleonTime.Wait(.45f);motion.Sample(10);yield return ChameleonTime.Wait(.45f);
+                motion.Sample(11);ChameleonFoamSkill.Create(Effects,playerCharacter);yield return ChameleonTime.Wait(.5f);
+            }
+            else if(Kind==ChameleonKind.Latte)
+            {
+                motion.Sample(8);yield return ChameleonTime.Wait(.3f);motion.Sample(9);yield return ChameleonTime.Wait(.3f);motion.Sample(10);yield return ChameleonTime.Wait(.35f);
+                motion.Sample(11);UpdateMouth();ChameleonCoffeeFountain.Create(this,mouth.position,playerCharacter).transform.SetParent(Effects,true);yield return ChameleonTime.Wait(1.9f);
+            }
             else
             {
                 Vector2 direction=((Vector2)playerCharacter.transform.position-(Vector2)mouth.position).normalized;
-                if(pattern==Pattern.Jet)warning=AcidJetTelegraph.Make(mouth.position,direction,11,1.5f);
-                float charge=pattern==Pattern.Jet?1.15f:.6f;
-                motion.Play("ToadAttack",0,8,charge);yield return Wait(charge);
-                if(warning!=null)Destroy(warning.gameObject);
-                if(pattern==Pattern.Basic)
-                {
-                    motion.Play("ToadAttack",8,8,.5f);
-                    var snail=Resources.Load<SnailBossSettings>("SnailBossSettings");float speed=snail!=null?snail.projectileSpeed:3.2f;
-                    for(int i=-1;i<=1;i++)AcidGlob.Fire(mouth.position,Quaternion.Euler(0,0,i*14)*direction,speed,8,playerCharacter);
-                    yield return Wait(.55f);
-                }
-                else
-                {
-                    jet=AcidJet.Create(mouth,direction,11,1.5f,2.1f,8,playerCharacter);
-                    for(float t=0;t<2.1f;){if(!IsFieldRuntimeSuspended&&!MiniStageRuntimeState.IsInsideMiniStage){t+=Time.deltaTime;motion.Sample("ToadAttack",8,8,t/2.1f);}yield return null;}
-                    if(jet!=null)Destroy(jet.gameObject);
-                }
+                var lane=AcidJetTelegraph.Make(mouth.position,direction,11,1.5f);lane.transform.SetParent(Effects,true);
+                motion.Sample(9);yield return ChameleonTime.Wait(.5f);motion.Sample(10);yield return ChameleonTime.Wait(.65f);
+                Destroy(lane.gameObject);motion.Sample(11);
+                ChameleonSodaWave.Fire(mouth.position,(Vector2)mouth.position+direction*11,2.1f,1.5f,8,playerCharacter).transform.SetParent(Effects,true);
+                yield return ChameleonTime.Wait(.6f);
             }
-            motion.Play("ToadLocomotion",8,8,1.2f,true);yield return Wait(.55f);Busy=false;delay=2.1f;attackRoutine=null;
         }
-        IEnumerator Leap()
+        IEnumerator Teleport()
         {
-            Vector2 from=rb.position;
-            Vector2 target=from+Vector2.ClampMagnitude((Vector2)playerCharacter.transform.position-from,7);
-            warning=AcidJetTelegraph.Circle(target,1.65f);
-            motion.Play("ToadJump",0,3,.9f);yield return Wait(.9f);
-            monsterHitbox.enabled=false;monsterLegsCollider.enabled=false;
-            for(float t=0;t<.65f;)
-            {
-                if(!IsFieldRuntimeSuspended&&!MiniStageRuntimeState.IsInsideMiniStage)
-                {
-                    t+=Time.deltaTime;float f=Mathf.Clamp01(t/.65f);
-                    rb.position=Vector2.Lerp(from,target,f);motion.Sample("ToadJump",3,3,f);
-                    monsterSpriteRenderer.transform.localPosition=bodyOrigin+Vector3.up*(Mathf.Sin(f*Mathf.PI)*2.7f);
-                }
-                yield return null;
-            }
-            rb.position=target;monsterSpriteRenderer.transform.localPosition=bodyOrigin;
-            monsterHitbox.enabled=true;monsterLegsCollider.enabled=true;
-            if(warning!=null)Destroy(warning.gameObject);
-            motion.Play("ToadJump",6,2,.35f);
-            AcidLandingRipple.Create(target,1.65f);ToadCameraShake.Play(.25f,.13f);
-            if(Vector2.Distance(playerCharacter.transform.position,target)<1.85f)playerCharacter.TakeDamage(16);
-            yield return Wait(.4f);
+            motion.Sample(0);monsterHitbox.enabled=false;monsterLegsCollider.enabled=false;rb.simulated=false;Invisible=true;
+            for(float t=0;t<.35f;){if(!ChameleonTime.Paused){t+=Time.deltaTime;SetAlpha(1-t/.35f);}yield return null;}
+            SetAlpha(0);if(shadow!=null)shadow.SetActive(false);
+            yield return ChameleonTime.Wait(ChameleonSettings.Current.invisibleSeconds);
+            // Snapshot the player's location once. Never chase them during the one-second tell.
+            Vector2 at=playerCharacter.CenterTransform!=null?playerCharacter.CenterTransform.position:playerCharacter.transform.position;
+            Vector2 offset=monsterSpriteRenderer.transform.TransformVector(monsterSpriteRenderer.sprite.bounds.center);
+            rb.position=at-offset;transform.position=rb.position;
+            var go=new GameObject("Chameleon silhouette warning");go.transform.SetParent(monsterSpriteRenderer.transform,false);
+            warning=go.AddComponent<SpriteRenderer>();warning.sprite=monsterSpriteRenderer.sprite;warning.flipX=monsterSpriteRenderer.flipX;warning.sortingOrder=540;
+            if(outlineMaterial==null)outlineMaterial=new Material(Resources.Load<Shader>("Chameleons/Outline"));
+            warning.sharedMaterial=outlineMaterial;warning.color=ChameleonArt.Accent(Kind);
+            yield return ChameleonTime.Wait(ChameleonSettings.Current.outlineSeconds);
+            Destroy(go);warning=null;Invisible=false;SetAlpha(1);if(shadow!=null)shadow.SetActive(true);
+            rb.simulated=true;monsterHitbox.enabled=true;monsterLegsCollider.enabled=true;Physics2D.SyncTransforms();
+            if(playerCharacter.IsAlive&&OccupiesSilhouette(playerCharacter.CenterTransform!=null?playerCharacter.CenterTransform.position:playerCharacter.transform.position))playerCharacter.TakeDamage(ChameleonSettings.Current.teleportDamage);
+            ToadCameraShake.Play(.15f,.08f);yield return ChameleonTime.Wait(.3f);
         }
+        public bool OccupiesSilhouette(Vector2 point)
+        {
+            var s=monsterSpriteRenderer.sprite;if(s==null)return false;Vector3 local=monsterSpriteRenderer.transform.InverseTransformPoint(point);if(monsterSpriteRenderer.flipX)local.x=-local.x;
+            Vector2 pixel=(Vector2)local*s.pixelsPerUnit+s.pivot;
+            if(pixel.x<0||pixel.y<0||pixel.x>=s.rect.width||pixel.y>=s.rect.height)return false;
+            return s.texture.GetPixel((int)(s.rect.x+pixel.x),(int)(s.rect.y+pixel.y)).a>.2f;
+        }
+        void SetAlpha(float alpha){bodyAlpha=Mathf.Clamp01(alpha);if(monsterSpriteRenderer!=null){var c=monsterSpriteRenderer.color;c.a=bodyAlpha;monsterSpriteRenderer.color=c;}}
         public override void TakeDamage(float damage,Vector2 knockback=default(Vector2),bool isCritical=false)
-        {flash=.12f;base.TakeDamage(damage,knockback*.2f,isCritical);}
-        protected override void OnFieldRuntimeSuspended()
-        {
-            base.OnFieldRuntimeSuspended();Cancel();
-        }
+        {if(Invisible||dying)return;flash=.12f;base.TakeDamage(damage,knockback*.2f,isCritical);}
+        protected override void OnFieldRuntimeSuspended(){base.OnFieldRuntimeSuspended();Cancel();}
+        protected override void OnFieldRuntimeResumed(){base.OnFieldRuntimeResumed();if(rb!=null)rb.simulated=true;}
         void Cancel()
         {
-            if(attackRoutine!=null){StopCoroutine(attackRoutine);attackRoutine=null;}if(jet!=null)Destroy(jet.gameObject);if(warning!=null)Destroy(warning.gameObject);
-            Busy=false;delay=1.2f;if(rb!=null)rb.velocity=Vector2.zero;
+            if(attackRoutine!=null){StopCoroutine(attackRoutine);attackRoutine=null;}
+            if(warning!=null)Destroy(warning.gameObject);if(effects!=null){Destroy(effects.gameObject);effects=null;}
+            Busy=false;Invisible=false;delay=1.2f;if(rb!=null){rb.velocity=Vector2.zero;if(!IsFieldRuntimeSuspended)rb.simulated=true;}SetAlpha(1);
             if(monsterSpriteRenderer!=null)monsterSpriteRenderer.transform.localPosition=bodyOrigin;
-            if(monsterHitbox!=null)monsterHitbox.enabled=alive;
-            if(monsterLegsCollider!=null)monsterLegsCollider.enabled=alive;
+            if(monsterHitbox!=null)monsterHitbox.enabled=alive;if(monsterLegsCollider!=null)monsterLegsCollider.enabled=alive;if(shadow!=null)shadow.SetActive(alive);
         }
         public override IEnumerator Killed(bool killedByPlayer=true)
         {
-            if(!alive)yield break;
-            Cancel();alive=false;
+            if(!alive||dying)yield break;Cancel();dying=true;alive=false;
+            monsterHitbox.enabled=false;monsterLegsCollider.enabled=false;
             var marker=GetComponent<MapMarker>();if(marker!=null)marker.enabled=false;
-            motion.Sample("ToadJump",6,1,0);yield return Wait(.3f);
+            motion.Sample(13);yield return ChameleonTime.Wait(.12f);motion.Sample(14);yield return ChameleonTime.Wait(.3f);motion.Sample(15);yield return ChameleonTime.Wait(.5f);
             yield return base.Killed(killedByPlayer);
         }
         void OnDisable(){Cancel();}
+        void OnDestroy(){if(outlineMaterial!=null)Destroy(outlineMaterial);}
     }
 
     public static class AcidJetTelegraph
