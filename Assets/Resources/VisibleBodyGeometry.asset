@@ -13199,3 +13199,91 @@ MonoBehaviour:
     - {x: 0.31253138, y: 0.34471893}
     - {x: -0.34208518, y: -0.31137532}
     - {x: 0.31253138, y: -0.31137532}
+  - sprite: {fileID: 21300000, guid: 1592977b0b3166e419aa7bdfbc02e186, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.60058653
+      y: 0
+      width: 1.2011731
+      height: 0.58044446
+    outline: []
+  - sprite: {fileID: 21300000, guid: 3be1555adb1c1094eb3b216041ef347f, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -2.401816
+      y: -0.000000032365094
+      width: 4.803632
+      height: 2.061972
+    outline: []
+  - sprite: {fileID: 21300000, guid: a615395df8867be479d06e90516700f6, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 0
+      width: 0.84082115
+      height: 0.80377823
+    outline: []
+  - sprite: {fileID: 21300000, guid: 72dc7a9bfcd031044be1dfd709869a74, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.42041057
+      y: 0
+      width: 0.84082115
+      height: 0.80260867
+    outline: []
+  - sprite: {fileID: 21300000, guid: e6cf328a3c72f344f9b8dcffe535ac06, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 0
+      width: 0.8408211
+      height: 0.8535172
+    outline: []
+  - sprite: {fileID: 21300000, guid: d76d519173f9ea845bc49a374dd30591, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.4204106
+      y: 0
+      width: 0.8408212
+      height: 0.8591948
+    outline: []
+  - sprite: {fileID: 21300000, guid: 2d27d9f984f53324c9844e9f3611f45c, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 0
+      width: 0.8408211
+      height: 0.8035574
+    outline: []
+  - sprite: {fileID: 21300000, guid: d39d19cd0885726439485ff909b8377d, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 0
+      width: 0.84082115
+      height: 0.84533334
+    outline: []
+  - sprite: {fileID: 21300000, guid: 2d6a8fbbb412e654b99734581364ced6, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 0
+      width: 0.8408211
+      height: 0.7688844
+    outline: []
+  - sprite: {fileID: 21300000, guid: 797478b3601c973439fb34526d074865, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.42041054
+      y: 0
+      width: 0.8408212
+      height: 0.83904225
+    outline: []
+  - sprite: {fileID: 21300000, guid: 22e63c8b1018afb448756fc444c928f9, type: 3}
+    bounds:
+      serializedVersion: 2
+      x: -0.42041054
+      y: 0
+      width: 0.8408211
+      height: 0.739233
+    outline: []

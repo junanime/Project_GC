@@ -80,7 +80,7 @@ namespace Vampire.Tests.Editor
             level.SetRunFlowPaused(true);yield return null;
             var view=ui.GetComponentInChildren<PrescriptionScrollView>();var quest=level.PlayerCharacter.GetComponent<PrescriptionRuntime>();
             Check(view!=null&&!view.Expanded&&view.Reveal==0,"Vision scroll defaults to rolled state");
-            Check(!ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Mobile status"||b.name=="Mobile settings"||b.name.Contains("TAB")||b.name.Contains("ESC")),"PC HUD has no TAB/ESC touch buttons");
+            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD status")&&ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD settings"),"PC shares status/settings panels");
             Capture("pc-rolled");
             yield return Press(UnityEngine.InputSystem.Key.Tab);Check(ui.Page=="run","PC TAB still opens status");
             yield return Press(UnityEngine.InputSystem.Key.Tab);Check(ui.Page=="hud","PC TAB closes status");
@@ -115,9 +115,9 @@ namespace Vampire.Tests.Editor
                 Capture("open-"+Screen.width+"x"+Screen.height);
             }
             SetMobile(true);ui.Show("hud");yield return null;
-            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Mobile status")&&ui.GetComponentsInChildren<Button>().Any(b=>b.name=="Mobile settings"),"Mobile simulation retains both navigation buttons");
-            var mobileStatus=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="Mobile status");mobileStatus.onClick.Invoke();Check(ui.Page=="run","Mobile status button functions");ui.CloseRunBook();
-            var mobileSettings=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="Mobile settings");mobileSettings.onClick.Invoke();Check(ui.Page=="settings","Mobile settings button functions");ui.Back();
+            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD status")&&ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD settings"),"Mobile simulation retains both navigation buttons");
+            var mobileStatus=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="HUD status");mobileStatus.onClick.Invoke();Check(ui.Page=="run","Mobile status button functions");ui.CloseRunBook();
+            var mobileSettings=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="HUD settings");mobileSettings.onClick.Invoke();Check(ui.Page=="settings","Mobile settings button functions");ui.Back();
             Capture("mobile-navigation");SetMobile(false);ui.Show("hud");yield return null;
             view=ui.GetComponentInChildren<PrescriptionScrollView>();
             foreach(int id in quest.Capture().quests)quest.Record((PrescriptionRuntime.Goal)id,10000);yield return null;
@@ -127,6 +127,11 @@ namespace Vampire.Tests.Editor
             Check(offers.Count==3&&offers.All(a=>a.Name.StartsWith("고귀 증강: ")),"All mechanic rewards are named Noble augments");
             Check(cards.All(c=>c.UsesNoblePanel),"Noble rewards use their dedicated liquid overframe art");
             Check(!view.gameObject.activeInHierarchy,"Prescription HUD hides behind reward modal");Capture("noble-reward");
+            // Cards first unroll on tap; selection is accepted after the reveal animation.
+            dialog.RevealScrolls();
+            float revealDeadline=Time.realtimeSinceStartup+3;
+            while(!dialog.CanSelectRevealedCard&&Time.realtimeSinceStartup<revealDeadline)yield return null;
+            Check(dialog.CanSelectRevealedCard,"Noble reveal animation finishes before selection");
             cards[0].Selected();yield return null;Check(quest.Claimed&&!dialog.MenuOpen,"Noble reward claim completes once");
             var parent=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true)[0];if(!parent.Owned)manager.AcquireVer4Ability(parent);
             dialog.Open(false);yield return new WaitForSecondsRealtime(.5f);cards=dialog.GetComponentsInChildren<AbilityCard>();

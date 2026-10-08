@@ -123,6 +123,18 @@ namespace Vampire
         }
 
 
+        public void SetStageTexture(Texture2D texture)
+        {
+            StopAllCoroutines();
+            if (backgroundMaterial != null)
+            {
+                backgroundMaterial.mainTexture = texture;
+                backgroundMaterial.SetColor("_Tint", Color.white);
+                backgroundMaterial.SetFloat("_Scale", 12f);
+            }
+            Init(texture, playerTransform);
+        }
+
         public IEnumerator Shockwave(float distance)
         {
             if (backgroundMaterial == null ||

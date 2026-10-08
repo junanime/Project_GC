@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3353bb926e4e2c43bdc9d511dbec038, type: 3}
+  m_Name: FoamBlueprint
+  m_EditorClassIdentifier:
+  name: "\uBCF4\uAE00 \xB7 \uC81C\uC0B0\uAC70\uD488 \uCE74\uBA5C\uB808\uC628"
+  hp: 1200
+  atk: 16
+  recovery: 10
+  armor: 0
+  atkspeed: 5
+  movespeed: 0.75
+  acceleration: 120
+  gemLootTable:
+    lootTable:
+    - item: 10
+      dropChance: 1
+      coinType: 0
+  coinLootTable:
+    lootTable:
+    - item: 5
+      dropChance: 1
+      coinType: 0
+  walkSpriteSequence:
+  - {fileID: -5713811933125418023, guid: 48d03f5fbdd9d914aa07b67e28013150, type: 3}
+  - {fileID: -7899840482961071291, guid: 48d03f5fbdd9d914aa07b67e28013150, type: 3}
+  - {fileID: -5551898890177330678, guid: 48d03f5fbdd9d914aa07b67e28013150, type: 3}
+  - {fileID: 6157403490933880944, guid: 48d03f5fbdd9d914aa07b67e28013150, type: 3}
+  walkFrameTime: 0.175
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.035}
+  groundShadowSizeUV: {x: 0.8, y: 0.15}
+  preserveGroundShadowHeight: 0
+  description: "\uACE0\uC720 \uD0C4\uB9C9 3\uBC1C \xB7 3\uCD08 \uC740\uC2E0 \uD6C4
+    \uC678\uACFD \uACBD\uACE0 1\uCD08 \uC21C\uAC04\uC774\uB3D9 \xB7 \uACE0\uC720
+    \uD544\uB4DC \uC2A4\uD0AC"
+  resultSprite: {fileID: -1839540572531033226, guid: 48d03f5fbdd9d914aa07b67e28013150, type: 3}
+  meleeLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  visualScaleMultiplier: 1
+  debugLog: 1

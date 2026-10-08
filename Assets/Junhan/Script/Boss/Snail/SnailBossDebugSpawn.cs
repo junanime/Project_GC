@@ -5,6 +5,7 @@ namespace Vampire
     public sealed class SnailBossDebugSpawn : MonoBehaviour
     {
         float nextFieldWave=15;
+        public void ResetForStage(){nextFieldWave=15;}
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Install()
         {

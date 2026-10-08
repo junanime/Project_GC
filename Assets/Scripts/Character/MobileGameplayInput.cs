@@ -29,12 +29,13 @@ namespace Vampire
 
         public static void RequestInteraction()
         {
-            if (Active && Time.timeScale > 0) interactionFrame = Time.frameCount;
+            // The shared HUD also accepts a mouse click on desktop.
+            if (Time.timeScale > 0) interactionFrame = Time.frameCount;
         }
 
         public static bool ConsumeInteraction()
         {
-            if (!Active || Time.timeScale <= 0 || Time.frameCount - interactionFrame > 1) return false;
+            if (Time.timeScale <= 0 || Time.frameCount - interactionFrame > 1) return false;
             interactionFrame = -100;
             return true;
         }

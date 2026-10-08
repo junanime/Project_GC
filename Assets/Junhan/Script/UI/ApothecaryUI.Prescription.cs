@@ -10,6 +10,7 @@ namespace Vampire
         bool prescriptionExpanded;
         float prescriptionCloseAt;
         RectTransform prescriptionHud;
+        RectTransform hudNavigation;
         PrescriptionScrollView prescriptionScroll;
         readonly Vector3[] prescriptionSafeCorners=new Vector3[4];
         TextMeshProUGUI prescriptionTitle;
@@ -82,12 +83,19 @@ namespace Vampire
             safe.GetWorldCorners(prescriptionSafeCorners);
             Vector2 corner=prescriptionHud.InverseTransformPoint(prescriptionSafeCorners[2]);
             prescriptionScroll.Dock.anchoredPosition=corner-prescriptionHud.rect.max-new Vector2(0,78);
+            if(hudNavigation!=null)hudNavigation.anchoredPosition=new Vector2(0,-2-330*prescriptionScroll.Reveal);
+            if(skillHudRoot!=null)
+            {
+                Vector2 bottom=content.InverseTransformPoint(prescriptionSafeCorners[3]);
+                skillHudRoot.anchoredPosition=bottom-new Vector2(content.rect.xMax,content.rect.yMin)+new Vector2(-24,48);
+            }
         }
-        void BuildMobileHudNavigation()
+        void BuildHudNavigation()
         {
-            if(!Application.isMobilePlatform&&!MobileGameplayInput.Active)return;
-            ActionButton(content,"상태",.60f,.805f,.715f,.875f,OpenRunBook).name="Mobile status";
-            ActionButton(content,"설정",.60f,.72f,.715f,.79f,OpenSettings).name="Mobile settings";
+            hudNavigation=Rect("HUD navigation",prescriptionScroll.Dock,0,0,1,0);
+            hudNavigation.pivot=new Vector2(.5f,1);hudNavigation.sizeDelta=new Vector2(0,58);
+            ActionButton(hudNavigation,"상태",.04f,0,.48f,1,OpenRunBook).name="HUD status";
+            ActionButton(hudNavigation,"설정",.52f,0,.96f,1,OpenSettings).name="HUD settings";
         }
         public bool RequestSkillReward(Action complete)
         {

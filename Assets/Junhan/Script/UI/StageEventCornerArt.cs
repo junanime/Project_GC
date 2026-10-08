@@ -17,7 +17,7 @@ namespace Vampire
                 case StageEventVisualKind.Infection: return infection;
                 case StageEventVisualKind.Gold: return gold;
                 case StageEventVisualKind.AcidRain: return acidRain;
-                case StageEventVisualKind.Reflux: return sodaCorners??(sodaCorners=new[]{AcidToadArt.Frame("AcidFx",0),AcidToadArt.Frame("AcidFx",1),AcidToadArt.Frame("AcidFx",2),AcidToadArt.Frame("AcidFx",3)});
+                case StageEventVisualKind.Reflux: return sodaCorners??(sodaCorners=new[]{ChameleonArt.Fx(4)});
                 case StageEventVisualKind.Drift: return drift;
                 case StageEventVisualKind.Coffee: return coffee;
                 default: return antacid;
@@ -43,8 +43,8 @@ namespace Vampire
                 case StageEventVisualKind.Infection: return "몰려오는 적을 돌파하세요";
                 case StageEventVisualKind.Gold: return "적을 처치하고 골드를 모으세요";
                 case StageEventVisualKind.AcidRain: return "위산 장판을 피하세요";
-                case StageEventVisualKind.Reflux: return "환타 두꺼비의 볼이 부풀면 탄산액 발사 경로를 피하세요";
-                case StageEventVisualKind.Drift: return "좌우로 바뀌는 기류에 주의하세요";
+                case StageEventVisualKind.Reflux: return "톡톡의 볼이 부풀면 환타 파도 경로를 피하세요";
+                case StageEventVisualKind.Drift: return "꾸룩의 박수 후 쏠림 방향이 바뀝니다";
                 case StageEventVisualKind.Coffee: return "빨라진 몬스터를 조심하세요";
                 default: return "거품 안으로 이동하세요";
             }

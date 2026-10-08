@@ -174,6 +174,7 @@ namespace Vampire
         void OctoberDetails(string title,string description)
         {
             var p=Rect("Selection details",content,.25f,.25f,.75f,.7f);Panel(p,0,0,1,1);
+            p.gameObject.AddComponent<Image>().color=Color.clear;
             Label(p,title,.08f,.75f,.92f,.94f,27);Label(p,description,.08f,.25f,.92f,.75f,22);
             ActionButton(p,"닫기",.35f,.055f,.65f,.23f,()=>Destroy(p.gameObject));
         }
