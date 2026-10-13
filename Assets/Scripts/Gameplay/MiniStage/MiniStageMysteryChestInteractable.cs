@@ -85,6 +85,7 @@ namespace Vampire
         private void Awake()
         {
             ResolveReferences();
+            InteractionFocus.Register(this, () => CanInteract);
             SetGuideVisible(false);
         }
 
@@ -113,7 +114,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 if (debugLog)
                 {
@@ -153,6 +154,11 @@ namespace Vampire
                 if (closedChestSprite != null)
                 {
                     chestRenderer.sprite = closedChestSprite;
+                }
+                else
+                {
+                    var reward = RemakeBalance.Current.levelUpChest;
+                    if (reward != null) chestRenderer.sprite = reward.Visual(reward.closedChest);
                 }
 
                 chestRenderer.color = closedColor;

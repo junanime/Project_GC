@@ -2,8 +2,9 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public class TemperatureStatus : MonoBehaviour
+    public class TemperatureStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => timer > 0 && currentTemperature > 36.5f ? CombatStatusTag.Vulnerability : CombatStatusTag.None;
         private float currentTemperature = 36.5f;
         private const float maxTemperature = 41.5f; // 최대 5스택 제한 (36.5 -> 37.5 -> 38.5 -> 39.5 -> 40.5 -> 41.5)
         private float duration = 4.0f; // 4초 동안 추가 타격이 없으면 체온이 내려가며 컴포넌트 삭제

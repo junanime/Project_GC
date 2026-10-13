@@ -63,6 +63,30 @@ namespace Vampire
 
         public float IceMoveMultiplier => GetComponent<IceChillStatus>()?.SpeedMultiplier ?? 1f;
         public float HP => currentHealth;
+        public SpriteRenderer BodyRenderer => monsterSpriteRenderer;
+        public BoxCollider2D BodyHitbox => monsterHitbox;
+
+        public void FitVisibleBody()
+        {
+            if (monsterSpriteRenderer == null || monsterHitbox == null) SetupHitboxReference();
+            var mini=GetComponentInChildren<SnailMiniVisual>();
+            var food=GetComponent<FoodSnailMonster>();
+            var fit=GetComponent<MonsterBodyFit>() ?? gameObject.AddComponent<MonsterBodyFit>();
+            if(food!=null && food.Shell!=null)fit.Configure(monsterHitbox,monsterSpriteRenderer,food.Shell);
+            else if(mini!=null)fit.Configure(monsterHitbox,mini.Body,mini.Shell);
+            else fit.Configure(monsterHitbox, monsterSpriteRenderer);
+        }
+        public void DespawnForStageTransfer()
+        {
+            StopAllCoroutines();
+            alive = false;
+            OnKilled.RemoveAllListeners();
+            if (entityManager != null)
+            {
+                entityManager.LivingMonsters.Remove(this);
+                entityManager.DespawnMonster(monsterIndex, this, false);
+            }
+        }
         public float SpawnMaxHealth { get; private set; }
         public bool WasKilledByPlayer { get; private set; }
 
@@ -384,8 +408,7 @@ namespace Vampire
             if (monsterHitbox != null && monsterSpriteRenderer != null)
             {
                 monsterHitbox.enabled = true;
-                monsterHitbox.size = monsterSpriteRenderer.bounds.size;
-                monsterHitbox.offset = Vector2.up * monsterHitbox.size.y / 2f;
+                VisibleBodyGeometry.Fit(monsterHitbox, monsterSpriteRenderer);
             }
 
             if (monsterLegsCollider != null && monsterHitbox != null)
@@ -402,7 +425,7 @@ namespace Vampire
             if (monsterHitbox != null)
             {
                 centerTransform.position =
-                    transform.position + (Vector3)monsterHitbox.offset;
+                    monsterHitbox.transform.TransformPoint(monsterHitbox.offset);
             }
             else
             {

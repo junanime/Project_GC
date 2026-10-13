@@ -201,6 +201,7 @@ namespace Vampire
                 return;
             }
 
+            finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,monster);
             monster.TakePeriodicDamage(finalDamage);
 
             // 기존 전체 피해량 시스템에도 포함

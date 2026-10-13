@@ -27,7 +27,7 @@
 | Groggy | 3 s, 1.5x incoming damage, no exposed core | Same |
 
 Tablet internal lane angle starts at ±12°, middle lane 0°; this is explicitly a play-test value, separate from the 15° between the two boards.
-HP starts at 6000, projectile speed 3.2, contact damage 12, projectile damage 8, bomb damage 14. Balance is provisional, not a claim of final difficulty tuning.
+HP starts at 24000 (four times the previous 6000), projectile speed 3.2, contact damage 12, projectile damage 8, bomb damage 14. Balance is provisional, not a claim of final difficulty tuning.
 
 ## Field mini roll cakes
 The mini visuals now use eight single-ingredient cake cutfaces with matching toppings and attached snail bodies, including movement-driven crawling. Field spawns use the four vanilla kinds; summon/absorb actors use their phase's four kinds. See [MiniRollCakeSnails.md](MiniRollCakeSnails.md).

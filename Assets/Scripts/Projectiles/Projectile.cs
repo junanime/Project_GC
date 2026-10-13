@@ -274,6 +274,7 @@ namespace Vampire
             // 몬스터 Blueprint를 Character에게 전달
             // =====================================================
 
+            if(sourceMonsterBlueprint==null)finalDamage*=CombatStatusRules.DamageMultiplier(playerCharacter,damageable as Component);
             Character targetCharacter =
                 damageable as Character;
 

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171521">
+<title>24시간의사투 · 웹 플레이테스트</title>
+<link rel="icon" href="/game-icon.png">
+<style>
+:root{color-scheme:dark;font-family:system-ui,"Malgun Gothic",sans-serif;color:#f5eddb;background:#171521;--gold:#e2b75e;--muted:#c3b4a6}*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;min-height:100svh;padding:clamp(16px,3vw,48px);display:grid;place-items:center;background:radial-gradient(ellipse at 35% 25%,#302333 0,transparent 60%),#171521}
+.page{width:min(1600px,100%)}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:16px}.brand{display:flex;align-items:center;gap:12px}.brand img{width:48px;height:48px;image-rendering:pixelated}.brand h1{font-size:clamp(20px,2vw,28px);margin:0}.eyebrow{display:block;color:var(--gold);font-size:10px;letter-spacing:3px;margin-bottom:5px}.test{font-size:12px;border:1px solid #806645;padding:7px 12px;border-radius:20px;color:#dbc7a2;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 278px;gap:26px;align-items:center}.screen{aspect-ratio:16/9;position:relative;min-width:0;border:1px solid #907047;border-radius:14px;overflow:hidden;background:#211c29;box-shadow:0 24px 70px #0006}.screen:after{content:"";pointer-events:none;position:absolute;inset:7px;border:1px solid #b38b4530;border-radius:8px}
+.chooser{height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:clamp(20px,3vw,44px);text-align:center;background:radial-gradient(ellipse at center,#45302d66,transparent 70%)}.chapter{font-size:11px;letter-spacing:4px;color:var(--gold);margin:0 0 12px}.chooser h2{font-size:clamp(19px,2.2vw,30px);margin:0 0 10px;letter-spacing:-.8px}.intro{color:var(--muted);font-size:13px;line-height:1.8;margin:0 0 26px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:min(650px,100%)}
+button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #faf1c3;outline-offset:4px}.device{position:relative;min-height:168px;border:1px solid #947448;border-radius:10px;color:#f6e8c9;background:linear-gradient(140deg,#56422e,#342733);box-shadow:inset 0 0 0 5px #20192355,0 5px 0 #120e17;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:10px;padding:16px 8px;transition:transform .18s,border-color .18s,background .18s}.device:hover{transform:translateY(-3px);border-color:#f0ce83;background:linear-gradient(140deg,#685238,#3a2d40)}.device svg{width:62px;height:62px;stroke:#e9c880;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #0005)}.device strong{font-size:16px}.device small{font-size:11px;color:#cbbdab}.device.recommended{border-color:#e5be69}.recommend{position:absolute;top:-10px;font-size:10px;padding:3px 10px;background:#e0bb6b;color:#332432;border-radius:20px;white-space:nowrap}.notice{font-size:11px;line-height:1.7;color:#b7a99d;max-width:650px;margin:24px 0 0}.notice strong{color:#e0c69e;font-weight:500}#message{font-size:12px;line-height:1.6;color:#ffcf91;margin:12px 0 0;min-height:20px}
+iframe{display:block;border:0;width:100%;height:100%;background:#171521}.paper{position:relative;color:#483824;background:linear-gradient(110deg,#f3e6c7,#e9d7af 92%);padding:28px 22px 23px;box-shadow:0 12px 24px #0004,inset 0 0 26px #ab804326;border-radius:3px 7px 5px 3px;transform:rotate(.6deg);border:1px solid #c6a777}.paper:before{content:"";position:absolute;left:20px;right:20px;top:9px;height:2px;border-top:1px solid #b39665;border-bottom:1px solid #b3966555}.paper .seal{display:inline-grid;place-items:center;border:2px solid #98523e;color:#98523e;font-family:serif;font-size:13px;width:34px;height:34px;float:right;transform:rotate(-7deg)}.paper h2{font-family:serif;font-size:24px;margin:3px 0 4px}.paper .sub{font-size:11px;color:#836a4a;margin:0 0 18px;letter-spacing:1px}.paper dl{margin:0}.paper .row{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid #b197713d;font-size:12px}.paper dt{font-weight:700;white-space:nowrap}.paper dd{margin:0;text-align:right;line-height:1.7}.paper kbd{font-family:inherit;font-size:11px;border:1px solid #b09a73;border-bottom-width:2px;border-radius:3px;padding:2px 5px;background:#fff7e2}.paper .tip{font-size:11px;line-height:1.8;margin:17px 0 0;color:#745b3d}.paper .tip strong{color:#4c3a21}.under{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px}.footnote{font-size:11px;line-height:1.8;color:#b1a497;margin:0}.actions{display:flex;gap:8px;flex-shrink:0}.utility{border:1px solid #826b49;background:#372b28;color:#e6d1ab;padding:9px 14px;border-radius:6px;font-size:12px}.utility:disabled{opacity:.45;cursor:default}.screen:fullscreen{width:100vw;height:100vh;border:0;border-radius:0;aspect-ratio:auto;background:#171521}.screen:fullscreen:after{display:none}
+@media(min-width:1000px) and (max-height:820px){.page{max-width:calc((100svh - 160px)*1.7778 + 304px)}}
+@media(min-width:1000px) and (max-height:820px){body{padding:20px}header{margin-bottom:14px}.brand img{width:40px;height:40px}.paper{padding:22px 18px 18px}.paper .row{padding:8px 0}.paper .tip{margin-top:12px}.paper .sub{margin-bottom:12px}}
+@media(max-width:999px){.layout{grid-template-columns:1fr}.paper{width:100%;transform:none}.paper dl{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}.paper .tip{margin-top:14px}.chooser{padding:24px}.device{min-height:150px}.intro{margin-bottom:22px}.notice{margin-top:18px}}
+@media(max-width:600px){body{padding:20px 14px}.test{font-size:10px;padding:6px 8px}.brand img{width:36px;height:36px}.eyebrow{font-size:8px;letter-spacing:2px}.brand h1{font-size:19px}.screen{aspect-ratio:auto}.chooser{padding:30px 18px 20px}.chooser h2{font-size:21px}.intro{font-size:12px}.choices{grid-template-columns:1fr;gap:14px}.device{min-height:88px;display:grid;grid-template-columns:54px 1fr;grid-template-rows:1fr 1fr;text-align:left;column-gap:18px;padding:12px 23px}.device svg{grid-row:1/3;width:46px;height:46px}.device strong{align-self:end;font-size:16px}.device small{align-self:start}.recommend{right:12px;top:-9px}.notice{font-size:11px}.paper dl{grid-template-columns:1fr}.under{align-items:start;flex-direction:column}.footnote{font-size:10px}}
+body.mobile-playing{padding:0;overflow:hidden;height:100%;position:fixed;inset:0;background:#171521}body.mobile-playing .page,body.mobile-playing .layout{width:100%;height:100%;max-width:none;display:block}body.mobile-playing header,body.mobile-playing .paper,body.mobile-playing .under{display:none}body.mobile-playing .screen{position:fixed;inset:0;width:100%;height:100%;border:0;border-radius:0;aspect-ratio:auto}body.mobile-playing .screen:after{display:none}
+@media(prefers-reduced-motion:reduce){.device{transition:none}}
+</style>
+</head>
+<body>
+<div class="page">
+<header><div class="brand"><img src="/game-icon.png" alt="혁이"><div><span class="eyebrow">24 HOURS · PLAYTEST</span><h1>24시간의사투</h1></div></div><span class="test">웹 플레이테스트</span></header>
+<div class="layout">
+<main class="screen" id="screen" aria-label="기기 선택 및 게임 화면">
+<section class="chooser" id="chooser">
+<p class="chapter">모험을 시작하기 전에</p><h2>어떤 기기로 플레이하시나요?</h2>
+<p class="intro">현재 사용 중인 기기에 맞게 버전을 선택해 주세요.<br>기기에 맞는 조작 방식으로 실행됩니다.</p>
+<div class="choices">
+<button class="device" data-device="pc"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="9" width="48" height="33" rx="4" fill="#292633"/><path d="M12 35h40M27 43v8m10-8v8M20 54h24M16 18h12m-12 5h7"/><path d="m43 18 3 5 5 1-4 4 1 5-5-3-5 3 1-5-4-4 5-1z" fill="#d1aa5f" stroke="none"/></svg><strong>PC버전</strong><small>키보드 · 마우스</small></button>
+<button class="device" data-device="android"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="16" y="5" width="32" height="54" rx="6" fill="#292633"/><path d="M27 10h10M28 53h8M23 32a9 9 0 0 1 18 0zM26 21l-3-4m15 4 3-4"/><circle cx="28" cy="27" r="1" fill="#e9c880"/><circle cx="36" cy="27" r="1" fill="#e9c880"/><path d="M23 36v5h18v-5"/></svg><strong>안드로이드 버전</strong><small>터치 조작 · Chrome 권장</small></button>
+<button class="device" data-device="iphone"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="16" y="5" width="32" height="54" rx="7" fill="#292633"/><path d="M27 10h10M28 53h8"/><circle cx="32" cy="31" r="12"/><path d="m37 23-3 11-7 5 3-11z" fill="#d1aa5f"/><path d="M32 16v2m0 26v2M17 31h2m26 0h2"/></svg><strong>아이폰 버전</strong><small>터치 조작 · Safari로 열기</small></button>
+</div>
+<p id="message" role="status" aria-live="polite"></p>
+<p class="notice"><strong>아이폰은 Safari로 열어주세요.</strong> 카카오톡 내부 브라우저·다른 브라우저에서는 정상 동작을 보장하지 않습니다.<br>모바일은 가로 화면 · 첫 다운로드는 Wi-Fi 권장 · 기종에 따라 실행이 제한될 수 있어요.</p>
+</section>
+</main>
+<aside class="paper" aria-label="게임 조작법"><span class="seal">안내</span><h2>모험가의 수첩</h2><p class="sub" id="guide-label">PC 조작법</p>
+<dl id="pc-guide"><div class="row"><dt>이동</dt><dd><kbd>W A S D</kbd> / 방향키</dd></div><div class="row"><dt>대쉬</dt><dd><kbd>Shift</kbd></dd></div><div class="row"><dt>액티브 스킬</dt><dd><kbd>R</kbd></dd></div><div class="row"><dt>상호작용</dt><dd><kbd>E</kbd></dd></div><div class="row"><dt>능력치 · 미니맵</dt><dd><kbd>Tab</kbd></dd></div><div class="row"><dt>설정 · 뒤로</dt><dd><kbd>Esc</kbd></dd></div><div class="row"><dt>아이템</dt><dd><kbd>1 2 3 4</kbd><br>또는 <kbd>Z X C V</kbd></dd></div><div class="row"><dt>메뉴 · 강화 선택</dt><dd>마우스 클릭</dd></div></dl>
+<dl id="mobile-guide" hidden><div class="row"><dt>이동 · 조준</dt><dd>왼쪽 조이스틱 방향</dd></div><div class="row"><dt>충전 공격</dt><dd>조이스틱을 누르고 충전, 떼면 발사</dd></div><div class="row"><dt>대쉬 · 상호작용</dt><dd>오른쪽 하단 아이콘</dd></div><div class="row"><dt>액티브 · 패시브</dt><dd>오른쪽 스킬 아이콘</dd></div><div class="row"><dt>아이템</dt><dd>중앙 하단 목함 터치</dd></div><div class="row"><dt>기록 · 설정</dt><dd>비전서 아래 상태 / 설정</dd></div></dl>
+<p class="tip"><strong>기본 무기 공격은 자동으로!</strong><br>적을 피하며 경험치를 모으고<br>강화할 능력을 선택하세요.</p><p class="tip" id="fullscreen-tip">전체화면에서 첫 Esc는 화면 크기를 되돌릴 수 있어요. 설정은 한 번 더 눌러주세요.</p>
+</aside>
+</div>
+<div class="under"><p class="footnote">실버가 10,000개 미만이면 시작 시 보충됩니다. 저장은 현재 브라우저에만 유지됩니다.<br>테스트 서버 운영 중에만 접속할 수 있어요. 진행 중인 전투는 종료하면 이어할 수 없습니다.</p><div class="actions"><button class="utility" id="choose-again" hidden>기기 다시 선택</button><button class="utility" id="fullscreen" disabled>전체화면</button></div></div>
+</div>
+<script>
+'use strict';
+const ua=navigator.userAgent;
+const device=/Android/i.test(ua)?'android':(/iPhone|iPad|iPod/i.test(ua)||navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'iphone':'pc';
+const labels={pc:'PC버전',android:'안드로이드 버전',iphone:'아이폰 버전'};
+const chooser=document.getElementById('chooser'),screen=document.getElementById('screen'),message=document.getElementById('message'),fullscreen=document.getElementById('fullscreen');
+const inApp=/KAKAOTALK|Instagram|FBAN|FBAV|Line\//i.test(ua);
+const safari=/Safari/i.test(ua)&&!/CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua)&&!inApp;
+const recommendation=document.querySelector(`[data-device="${device}"]`);recommendation.classList.add('recommended');
+const badge=document.createElement('span');badge.className='recommend';badge.textContent='현재 기기 추천';recommendation.appendChild(badge);
+if(device!=='pc'){
+ document.getElementById('pc-guide').hidden=true;document.getElementById('mobile-guide').hidden=false;
+ document.getElementById('guide-label').textContent='모바일 조작법';document.getElementById('fullscreen-tip').textContent='가로 화면으로 플레이해 주세요. 회전 잠금을 해제하면 화면을 넓게 쓸 수 있어요.';
+ fullscreen.hidden=true;
+ if(device==='iphone'&&!safari)message.textContent='아이폰은 이 링크를 복사하여 Safari 주소창에 붙여 넣어 주세요.';
+ else if(inApp)message.textContent='카카오톡 안에서 열었다면 이 링크를 Chrome으로 열어주세요.';
+}
+document.querySelectorAll('[data-device]').forEach(button=>button.addEventListener('click',()=>{
+ const selected=button.dataset.device;
+ if(selected!==device){message.textContent=`현재 기기에서는 ${labels[device]}을 선택해 주세요. 선택한 버전은 다른 기기용입니다.`;return;}
+ if(inApp){message.textContent=`카카오톡 등 앱 내부 브라우저에서는 실행을 권장하지 않아요. 이 링크를 복사하여 ${device==='iphone'?'Safari':'Chrome'}에서 열어주세요.`;return;}
+ if(selected!=='pc'){location.assign(`/mobile/?device=${selected}`);return;}
+ const frame=document.createElement('iframe');frame.id='game-frame';frame.title='24시간의사투 '+labels[selected];frame.allow='autoplay; fullscreen';frame.allowFullscreen=true;
+ frame.src=selected==='pc'?'/play-pc.html?embed=1':`/mobile/?device=${selected}`;
+ chooser.hidden=true;screen.appendChild(frame);
+ if(selected!=='pc')document.body.classList.add('mobile-playing');
+ document.getElementById('choose-again').hidden=false;
+ fullscreen.disabled=!screen.requestFullscreen;
+ frame.addEventListener('load',()=>frame.focus());
+}));
+fullscreen.addEventListener('click',async()=>{try{await screen.requestFullscreen();document.getElementById('game-frame')?.focus();}catch{message.textContent='브라우저 메뉴의 전체화면 기능을 이용해 주세요.';}});
+document.getElementById('choose-again').addEventListener('click',()=>{if(confirm('진행 중인 전투는 저장되지 않습니다. 기기 선택 화면으로 돌아갈까요?'))location.reload();});
+</script>
+</body>
+</html>

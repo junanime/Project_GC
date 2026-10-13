@@ -9,6 +9,8 @@ namespace Vampire
         {
             if (runtime.ver4 == null || target == null) return 1f;
             float multiplier=1;
+            var bacteria=target.GetComponent<GutBacteriaStatus>() ?? target.GetComponentInParent<GutBacteriaStatus>();
+            if (runtime.gutBacteriaEnabled && bacteria!=null) bacteria.HarvestRank=runtime.ver4.Count(P.GutBacteriaNeedle,2);
             var honey=target.GetComponent<HoneySlowStatus>();
             if (honey!=null && honey.IsActive) multiplier*=runtime.ver4.Factor(P.Honey,2,.08f);
             var status=target.GetComponent<Ver4NeedleStatus>();
@@ -24,10 +26,16 @@ namespace Vampire
         {
             var snapshot=runtime.ver4;
             if(snapshot==null || target==null || source==null) return;
-            var bacteria=target.GetComponent<GutBacteriaStatus>();
-            if(runtime.gutBacteriaEnabled && bacteria!=null)
+            int polarityStage = snapshot.Count(P.BipolarNeedle, 2);
+            if (polarityStage > 0 && runtime.bipolarPolarity != 0 && Health(target) > 0)
             {
-                bacteria.ExtraGemChance=.10f*snapshot.Count(P.GutBacteriaNeedle,2);
+                var polarity = target.GetComponent<BipolarMarkStatus>() ?? target.gameObject.AddComponent<BipolarMarkStatus>();
+                polarity.Hit(target, runtime.bipolarPolarity, polarityStage, runtime.ver4HitDamage, source);
+            }
+            var bacteria=target.GetComponent<GutBacteriaStatus>();
+            if(runtime.gutBacteriaEnabled && bacteria!=null && Health(target)>0)
+            {
+                bacteria.HarvestRank=snapshot.Count(P.GutBacteriaNeedle,2);
                 if(Random.value<.13f*snapshot.Count(P.GutBacteriaNeedle,1))
                     bacteria.Apply(runtime.gutBacteriaStackDuration,runtime.gutBacteriaRequiredStacks,runtime.gutBacteriaMaxStacks,
                         runtime.gutBacteriaBonusGemCount,runtime.gutBacteriaBonusGemType,runtime.gutBacteriaBonusGemSpawnRadius,false);
@@ -43,9 +51,14 @@ namespace Vampire
             if(snapshot.Has(P.VibrationNeedle))
             {
                 var clock=source.GetComponent<Ver4EffectClock>()??source.gameObject.AddComponent<Ver4EffectClock>();
-                if(clock.TryShock()) AreaDamage(target.transform.position,snapshot.Factor(P.VibrationNeedle,0,.12f),
-                    runtime.ver4HitDamage*.35f*snapshot.Factor(P.VibrationNeedle,1,.12f),
-                    runtime.ver4Knockback*snapshot.Factor(P.VibrationNeedle,2,.15f),source,layer,"진동침");
+                if(clock.TryShock())
+                {
+                    float radius = snapshot.Factor(P.VibrationNeedle,0,.12f);
+                    SyringeAugmentVfx.PlayRadius("VibrationShockwave", target.transform.position, radius, SyringeAugmentVfx.FindTarget(target));
+                    AreaDamage(target.transform.position, radius,
+                        runtime.ver4HitDamage*.35f*snapshot.Factor(P.VibrationNeedle,1,.12f),
+                        runtime.ver4Knockback*snapshot.Factor(P.VibrationNeedle,2,.15f),source,layer,"진동침");
+                }
             }
         }
         public static float Health(Component target)
@@ -72,9 +85,10 @@ namespace Vampire
             result.Sort((a,b)=>((Vector2)a.transform.position-center).sqrMagnitude.CompareTo(((Vector2)b.transform.position-center).sqrMagnitude));
             return result;
         }
-        public static bool Damage(Component target,float amount,Vector2 knockback,Character source,string label,bool periodic=false)
+        public static bool Damage(Component target,float amount,Vector2 knockback,Character source,string label,bool periodic=false,CombatStatusTag? statusBeforeHit=null)
         {
             if(target==null || !(target is IDamageable damageable) || Health(target)<=0) return false;
+            amount*=statusBeforeHit.HasValue ? CombatStatusRules.DamageMultiplier(source,statusBeforeHit.Value) : CombatStatusRules.DamageMultiplier(source,target);
             float before=Health(target);
             if(periodic) damageable.TakePeriodicDamage(amount,knockback);
             else damageable.TakeDamage(amount,knockback);

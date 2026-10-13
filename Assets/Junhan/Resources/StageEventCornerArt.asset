@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdab267110469e69034f03b6ed0626a1, type: 3}
+  m_Name: StageEventCornerArt
+  m_EditorClassIdentifier: 
+  infection:
+  - {fileID: 21300000, guid: 55cc2f8edade413594c3ec5894b9b0cd, type: 3}
+  - {fileID: 21300000, guid: d32e4e98a9dd4b12b846db2b2331f1cf, type: 3}
+  - {fileID: 21300000, guid: 5b9d7d75c8594f6fa3aa8d4a584f6c60, type: 3}
+  gold:
+  - {fileID: -1710096868189380634, guid: 5e923dc6837293b49ad7e7874c0851cf, type: 3}
+  acidRain:
+  - {fileID: 21300000, guid: 6f7b13c55d61c3e49b587d7e3cd98520, type: 3}
+  - {fileID: 21300000, guid: 459b17af4011f834ea4f0eaad630b50f, type: 3}
+  - {fileID: 21300000, guid: eb4ff632dd083fd4f8b44e167b96488e, type: 3}
+  reflux:
+  - {fileID: 21300000, guid: 993b545b31a64b429349f6c9702ca626, type: 3}
+  - {fileID: 21300000, guid: bb0b99a7aac14c688b4721e6fc9707ff, type: 3}
+  - {fileID: 21300000, guid: 9d87e7108b8a4895b5bfb8b2737ff165, type: 3}
+  - {fileID: 21300000, guid: 2ac42b75cc284954892c144ceea31fa3, type: 3}
+  - {fileID: 21300000, guid: cc4eb9c0932c40dd935ae1350f50eaee, type: 3}
+  - {fileID: 21300000, guid: 1b34abacba96474ab49724842f4ba4fc, type: 3}
+  drift:
+  - {fileID: 1081616551705926779, guid: 20952bfe64c34c848a50d1e4848fdd35, type: 3}
+  coffee:
+  - {fileID: 21300000, guid: ca2094c18d7d4835bc09a92ed26bc1ec, type: 3}
+  antacid:
+  - {fileID: 21300000, guid: 01241bf9a2da4ac5855e501c40dc2a3b, type: 3}
+  - {fileID: 21300000, guid: 2fda4aeb96604da99fe5a864a9ea2601, type: 3}
+  - {fileID: 21300000, guid: 2a4602cbf4f447f589a19fe1d8413a4d, type: 3}
+  - {fileID: 21300000, guid: 1295a9a9b5fc4f8ba5646bb381e998a1, type: 3}
+  antacidFoam: {fileID: 21300000, guid: b7402f05fd224e48bdb8dd6a99802ef8, type: 3}

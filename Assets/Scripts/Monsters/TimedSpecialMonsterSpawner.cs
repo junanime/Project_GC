@@ -16,6 +16,38 @@ namespace Vampire
         [SerializeField] private List<EliteSummonObjectSpawner> summonObjectSpawns = new List<EliteSummonObjectSpawner>();
         [SerializeField] private List<MiniBossSpawner> miniBossSpawns = new List<MiniBossSpawner>();
         [SerializeField] private List<BossLevelSpawner> bossSpawns = new List<BossLevelSpawner>();
+        List<TimedSpecialSpawnSchedule> initial_timedSpawns;
+        List<DigestiveEnzymeFieldSpawner> initial_enzymeSpawns;
+        List<EliteMonsterSpawner> initial_eliteSpawns;
+        List<BloodClotFieldSpawner> initial_bloodClotSpawns;
+        List<EliteSummonObjectSpawner> initial_summonObjectSpawns;
+        List<MiniBossSpawner> initial_miniBossSpawns;
+        List<BossLevelSpawner> initial_bossSpawns;
+        protected override void Awake()
+        {
+            initial_timedSpawns = timedSpawns.ConvertAll(StageEventTemplate.Copy);
+            initial_enzymeSpawns = enzymeSpawns.ConvertAll(StageEventTemplate.Copy);
+            initial_eliteSpawns = eliteSpawns.ConvertAll(StageEventTemplate.Copy);
+            initial_bloodClotSpawns = bloodClotSpawns.ConvertAll(StageEventTemplate.Copy);
+            initial_summonObjectSpawns = summonObjectSpawns.ConvertAll(StageEventTemplate.Copy);
+            initial_miniBossSpawns = miniBossSpawns.ConvertAll(StageEventTemplate.Copy);
+            initial_bossSpawns = bossSpawns.ConvertAll(StageEventTemplate.Copy);
+            base.Awake();
+        }
+        public void RestartForStage(LevelManager manager)
+        {
+            foreach (var module in Modules) module?.Dispose();
+            timedSpawns = initial_timedSpawns.ConvertAll(StageEventTemplate.Copy);
+            enzymeSpawns = initial_enzymeSpawns.ConvertAll(StageEventTemplate.Copy);
+            eliteSpawns = initial_eliteSpawns.ConvertAll(StageEventTemplate.Copy);
+            bloodClotSpawns = initial_bloodClotSpawns.ConvertAll(StageEventTemplate.Copy);
+            summonObjectSpawns = initial_summonObjectSpawns.ConvertAll(StageEventTemplate.Copy);
+            miniBossSpawns = initial_miniBossSpawns.ConvertAll(StageEventTemplate.Copy);
+            bossSpawns = initial_bossSpawns.ConvertAll(StageEventTemplate.Copy);
+            levelBossSchedule = new LevelBossSchedule();
+            levelBossSchedule.InitializeLevel(manager);
+            base.Awake();
+        }
         protected override IEnumerable<RuntimeModule> Modules
         {
             get

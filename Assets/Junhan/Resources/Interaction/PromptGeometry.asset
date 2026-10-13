@@ -1,0 +1,1464 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994702b879d74c6795d4bd8b1158af22, type: 3}
+  m_Name: PromptGeometry
+  m_EditorClassIdentifier:
+  entries:
+  - key: PlatformerTilemap|tiles_packed_67
+    assetPath: Assets/Art/Placeholders/LegacyReplacement/Sprites/GenericAtlas/PlatformerTilemap.png
+    spriteName: tiles_packed_67
+    bounds:
+      serializedVersion: 2
+      x: -0.1875
+      y: -0.1875
+      width: 0.375
+      height: 0.375
+  - key: WizardTilemap|tilemap_packed_89
+    assetPath: Assets/Art/Placeholders/LegacyReplacement/Sprites/GenericAtlas/WizardTilemap.png
+    spriteName: tilemap_packed_89
+    bounds:
+      serializedVersion: 2
+      x: -0.16666667
+      y: 0
+      width: 0.33333334
+      height: 0.33333334
+  - key: WizardTilemap|tilemap_packed_90
+    assetPath: Assets/Art/Placeholders/LegacyReplacement/Sprites/GenericAtlas/WizardTilemap.png
+    spriteName: tilemap_packed_90
+    bounds:
+      serializedVersion: 2
+      x: -0.16666667
+      y: 0
+      width: 0.33333334
+      height: 0.33333334
+  - key: WizardTilemap|tilemap_packed_91
+    assetPath: Assets/Art/Placeholders/LegacyReplacement/Sprites/GenericAtlas/WizardTilemap.png
+    spriteName: tilemap_packed_91
+    bounds:
+      serializedVersion: 2
+      x: -0.16666667
+      y: 0
+      width: 0.33333334
+      height: 0.33333334
+  - key: Circle500|Circle500
+    assetPath: Assets/Art/Placeholders/LegacyReplacement/Sprites/UI/Circle500.png
+    spriteName: Circle500
+    bounds:
+      serializedVersion: 2
+      x: -0.498
+      y: -0.498
+      width: 0.996
+      height: 0.996
+  - key: box1.1|box1.1
+    assetPath: Assets/hyeon/UIimage/box1.1.png
+    spriteName: box1.1
+    bounds:
+      serializedVersion: 2
+      x: -0.22190475
+      y: -0.42095238
+      width: 0.4552381
+      height: 0.3847619
+  - key: box2.2|box2.2
+    assetPath: Assets/hyeon/UIimage/box2.2.png
+    spriteName: box2.2
+    bounds:
+      serializedVersion: 2
+      x: -0.2647619
+      y: -0.43809524
+      width: 0.5209524
+      height: 0.5733333
+  - key: box3.3|box3.3
+    assetPath: Assets/hyeon/UIimage/box3.3.png
+    spriteName: box3.3
+    bounds:
+      serializedVersion: 2
+      x: -0.28
+      y: -0.40857142
+      width: 0.56
+      height: 0.60190475
+  - key: susang1|susang1
+    assetPath: Assets/hyeon/UIimage/susang1.png
+    spriteName: susang1
+    bounds:
+      serializedVersion: 2
+      x: -0.33375
+      y: -0.31
+      width: 0.67125
+      height: 0.6475
+  - key: 1|1
+    assetPath: Assets/Junhan/Art/1.png
+    spriteName: 1
+    bounds:
+      serializedVersion: 2
+      x: -1.004
+      y: -1.17
+      width: 1.998
+      height: 2.322
+  - key: cumchine|cumchine
+    assetPath: Assets/Junhan/Art/cumchine.png
+    spriteName: cumchine
+    bounds:
+      serializedVersion: 2
+      x: -0.74666667
+      y: -0.865
+      width: 1.5
+      height: 1.7233334
+  - key: elt_sp|elt_sp
+    assetPath: Assets/Junhan/Art/elt_sp.png
+    spriteName: elt_sp
+    bounds:
+      serializedVersion: 2
+      x: -0.51
+      y: -0.825
+      width: 1.11
+      height: 1.65
+  - key: mini_not_open|mini_not_open
+    assetPath: Assets/Junhan/Art/mini_not_open.png
+    spriteName: mini_not_open
+    bounds:
+      serializedVersion: 2
+      x: -0.42
+      y: -0.375
+      width: 0.81
+      height: 0.66
+  - key: mini_open|mini_open
+    assetPath: Assets/Junhan/Art/mini_open.png
+    spriteName: mini_open
+    bounds:
+      serializedVersion: 2
+      x: -0.42
+      y: -0.375
+      width: 0.81
+      height: 0.72
+  - key: stomach_acid_true_transparent_cropped|stomach_acid_true_transparent_cropped
+    assetPath: Assets/Junhan/Prefabs/StageEvents/stomach_acid_true_transparent_cropped.png
+    spriteName: stomach_acid_true_transparent_cropped
+    bounds:
+      serializedVersion: 2
+      x: -1.0136364
+      y: -0.67454547
+      width: 2.0272727
+      height: 1.3490909
+  - key: KeycapE_Pixel|KeycapE_Pixel
+    assetPath: Assets/Junhan/Resources/Interaction/KeycapE_Pixel.png
+    spriteName: KeycapE_Pixel
+    bounds:
+      serializedVersion: 2
+      x: -15.96875
+      y: -15.625
+      width: 31.9375
+      height: 31.09375
+  - key: miniblue|miniblue
+    assetPath: Assets/Prefabs/MiniStages/miniblue.png
+    spriteName: miniblue
+    bounds:
+      serializedVersion: 2
+      x: -0.418
+      y: -0.418
+      width: 0.836
+      height: 0.836
+  - key: minigreen|minigreen
+    assetPath: Assets/Prefabs/MiniStages/minigreen.png
+    spriteName: minigreen
+    bounds:
+      serializedVersion: 2
+      x: -0.418
+      y: -0.418
+      width: 0.836
+      height: 0.836
+  - key: miniOG|miniOG
+    assetPath: Assets/Prefabs/MiniStages/miniOG.png
+    spriteName: miniOG
+    bounds:
+      serializedVersion: 2
+      x: -0.418
+      y: -0.418
+      width: 0.836
+      height: 0.836
+  - key: minipurple|minipurple
+    assetPath: Assets/Prefabs/MiniStages/minipurple.png
+    spriteName: minipurple
+    bounds:
+      serializedVersion: 2
+      x: -0.418
+      y: -0.418
+      width: 0.836
+      height: 0.836
+  - key: AriStates|0
+    assetPath: Assets/Resources/OctoberUI/AriStates.png
+    spriteName: 0
+    bounds:
+      serializedVersion: 2
+      x: -2.17
+      y: -2.5
+      width: 5.4
+      height: 4.96
+  - key: AriStates|1
+    assetPath: Assets/Resources/OctoberUI/AriStates.png
+    spriteName: 1
+    bounds:
+      serializedVersion: 2
+      x: -2.81
+      y: -2.58
+      width: 5.74
+      height: 4.42
+  - key: AriStates|2
+    assetPath: Assets/Resources/OctoberUI/AriStates.png
+    spriteName: 2
+    bounds:
+      serializedVersion: 2
+      x: -3.18
+      y: -2.58
+      width: 5.64
+      height: 5.06
+  - key: AshiStates|0
+    assetPath: Assets/Resources/OctoberUI/AshiStates.png
+    spriteName: 0
+    bounds:
+      serializedVersion: 2
+      x: -2.39
+      y: -2.79
+      width: 5.11
+      height: 4.89
+  - key: AshiStates|1
+    assetPath: Assets/Resources/OctoberUI/AshiStates.png
+    spriteName: 1
+    bounds:
+      serializedVersion: 2
+      x: -3.33
+      y: -2.88
+      width: 6.21
+      height: 5.18
+  - key: AshiStates|2
+    assetPath: Assets/Resources/OctoberUI/AshiStates.png
+    spriteName: 2
+    bounds:
+      serializedVersion: 2
+      x: -3.37
+      y: -2.82
+      width: 6.24
+      height: 5.03
+  - key: Banner|Banner
+    assetPath: Assets/Resources/OctoberUI/Banner.png
+    spriteName: Banner
+    bounds:
+      serializedVersion: 2
+      x: -10.435
+      y: -2.525
+      width: 20.87
+      height: 5.06
+  - key: BossAltar|BossAltar
+    assetPath: Assets/Resources/OctoberUI/BossAltar.png
+    spriteName: BossAltar
+    bounds:
+      serializedVersion: 2
+      x: -4.61
+      y: -5.415
+      width: 9.2300005
+      height: 10.83
+  - key: BossAltarIcon|BossAltarIcon
+    assetPath: Assets/Resources/OctoberUI/BossAltarIcon.png
+    spriteName: BossAltarIcon
+    bounds:
+      serializedVersion: 2
+      x: -3.3700001
+      y: -4.345
+      width: 6.7400002
+      height: 8.7
+  - key: ButtonStates|Active
+    assetPath: Assets/Resources/OctoberUI/ButtonStates.png
+    spriteName: Active
+    bounds:
+      serializedVersion: 2
+      x: -9.91
+      y: -1.29
+      width: 19.82
+      height: 2.58
+  - key: ButtonStates|Idle
+    assetPath: Assets/Resources/OctoberUI/ButtonStates.png
+    spriteName: Idle
+    bounds:
+      serializedVersion: 2
+      x: -9.91
+      y: -1.29
+      width: 19.82
+      height: 2.58
+  - key: FailureBanner|FailureBanner
+    assetPath: Assets/Resources/OctoberUI/FailureBanner.png
+    spriteName: FailureBanner
+    bounds:
+      serializedVersion: 2
+      x: -10.125
+      y: -2.54
+      width: 20.26
+      height: 5.08
+  - key: HyukiStates|0
+    assetPath: Assets/Resources/OctoberUI/HyukiStates.png
+    spriteName: 0
+    bounds:
+      serializedVersion: 2
+      x: -2.13
+      y: -2.8
+      width: 4.93
+      height: 5.2
+  - key: HyukiStates|1
+    assetPath: Assets/Resources/OctoberUI/HyukiStates.png
+    spriteName: 1
+    bounds:
+      serializedVersion: 2
+      x: -2.96
+      y: -2.79
+      width: 5.81
+      height: 4.75
+  - key: HyukiStates|2
+    assetPath: Assets/Resources/OctoberUI/HyukiStates.png
+    spriteName: 2
+    bounds:
+      serializedVersion: 2
+      x: -3.11
+      y: -2.89
+      width: 5.79
+      height: 5.41
+  - key: ItemChestIcon|ItemChestIcon
+    assetPath: Assets/Resources/OctoberUI/ItemChestIcon.png
+    spriteName: ItemChestIcon
+    bounds:
+      serializedVersion: 2
+      x: -4.13
+      y: -3.66
+      width: 8.27
+      height: 7.32
+  - key: MainBackground|MainBackground
+    assetPath: Assets/Resources/OctoberUI/MainBackground.png
+    spriteName: MainBackground
+    bounds:
+      serializedVersion: 2
+      x: -8.36
+      y: -4.705
+      width: 16.72
+      height: 9.41
+  - key: MapSymbols|Boss
+    assetPath: Assets/Resources/OctoberUI/MapSymbols.png
+    spriteName: Boss
+    bounds:
+      serializedVersion: 2
+      x: -2.15
+      y: -1.955
+      width: 4.29
+      height: 3.9
+  - key: MapSymbols|Germ
+    assetPath: Assets/Resources/OctoberUI/MapSymbols.png
+    spriteName: Germ
+    bounds:
+      serializedVersion: 2
+      x: -2.06
+      y: -1.87
+      width: 4.12
+      height: 3.74
+  - key: MapSymbols|Merchant
+    assetPath: Assets/Resources/OctoberUI/MapSymbols.png
+    spriteName: Merchant
+    bounds:
+      serializedVersion: 2
+      x: -2.265
+      y: -1.78
+      width: 4.54
+      height: 3.56
+  - key: MapSymbols|Player
+    assetPath: Assets/Resources/OctoberUI/MapSymbols.png
+    spriteName: Player
+    bounds:
+      serializedVersion: 2
+      x: -1.99
+      y: -1.665
+      width: 3.98
+      height: 3.33
+  - key: MapSymbols|Portal
+    assetPath: Assets/Resources/OctoberUI/MapSymbols.png
+    spriteName: Portal
+    bounds:
+      serializedVersion: 2
+      x: -2.14
+      y: -1.91
+      width: 4.29
+      height: 3.83
+  - key: MapSymbols|Vending
+    assetPath: Assets/Resources/OctoberUI/MapSymbols.png
+    spriteName: Vending
+    bounds:
+      serializedVersion: 2
+      x: -1.72
+      y: -1.765
+      width: 3.45
+      height: 3.53
+  - key: Panel|Panel
+    assetPath: Assets/Resources/OctoberUI/Panel.png
+    spriteName: Panel
+    bounds:
+      serializedVersion: 2
+      x: -8.525
+      y: -3.995
+      width: 17.05
+      height: 7.99
+  - key: PrescriptionCase|PrescriptionCase
+    assetPath: Assets/Resources/OctoberUI/PrescriptionCase.png
+    spriteName: PrescriptionCase
+    bounds:
+      serializedVersion: 2
+      x: -9.33
+      y: -2.7808356
+      width: 18.66
+      height: 5.5616717
+  - key: RelicCrit|RelicCrit
+    assetPath: Assets/Resources/OctoberUI/RelicCrit.png
+    spriteName: RelicCrit
+    bounds:
+      serializedVersion: 2
+      x: -4.55
+      y: -4.63
+      width: 9.1
+      height: 9.25
+  - key: RelicHealth|RelicHealth
+    assetPath: Assets/Resources/OctoberUI/RelicHealth.png
+    spriteName: RelicHealth
+    bounds:
+      serializedVersion: 2
+      x: -4.665
+      y: -4.715
+      width: 9.32
+      height: 9.43
+  - key: RelicSpeed|RelicSpeed
+    assetPath: Assets/Resources/OctoberUI/RelicSpeed.png
+    spriteName: RelicSpeed
+    bounds:
+      serializedVersion: 2
+      x: -4.61
+      y: -4.625
+      width: 9.22
+      height: 9.26
+  - key: ShiniStates|0
+    assetPath: Assets/Resources/OctoberUI/ShiniStates.png
+    spriteName: 0
+    bounds:
+      serializedVersion: 2
+      x: -2.55
+      y: -2.49
+      width: 5.01
+      height: 4.57
+  - key: ShiniStates|1
+    assetPath: Assets/Resources/OctoberUI/ShiniStates.png
+    spriteName: 1
+    bounds:
+      serializedVersion: 2
+      x: -2.76
+      y: -2.32
+      width: 5.65
+      height: 4.19
+  - key: ShiniStates|2
+    assetPath: Assets/Resources/OctoberUI/ShiniStates.png
+    spriteName: 2
+    bounds:
+      serializedVersion: 2
+      x: -2.78
+      y: -2.49
+      width: 5.38
+      height: 4.83
+  - key: WarningStates|0
+    assetPath: Assets/Resources/OctoberUI/WarningStates.png
+    spriteName: 0
+    bounds:
+      serializedVersion: 2
+      x: -3.255
+      y: -1.5
+      width: 6.51
+      height: 2.99
+  - key: WarningStates|1
+    assetPath: Assets/Resources/OctoberUI/WarningStates.png
+    spriteName: 1
+    bounds:
+      serializedVersion: 2
+      x: -3.315
+      y: -1.575
+      width: 6.63
+      height: 3.15
+  - key: WarningStates|2
+    assetPath: Assets/Resources/OctoberUI/WarningStates.png
+    spriteName: 2
+    bounds:
+      serializedVersion: 2
+      x: -3.36
+      y: -1.67
+      width: 6.71
+      height: 3.34
+  - key: 00-cinnamon|00-cinnamon
+    assetPath: Assets/Resources/Stage2Snails/00-cinnamon.png
+    spriteName: 00-cinnamon
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 3.5340536e-11
+      width: 0.8408211
+      height: 0.80377823
+  - key: 01-strawberry-donut|01-strawberry-donut
+    assetPath: Assets/Resources/Stage2Snails/01-strawberry-donut.png
+    spriteName: 01-strawberry-donut
+    bounds:
+      serializedVersion: 2
+      x: -0.42041057
+      y: 3.8062747e-11
+      width: 0.8408211
+      height: 0.80260867
+  - key: 02-pistachio-macaron|02-pistachio-macaron
+    assetPath: Assets/Resources/Stage2Snails/02-pistachio-macaron.png
+    spriteName: 02-pistachio-macaron
+    bounds:
+      serializedVersion: 2
+      x: -0.42041054
+      y: 6.024693e-11
+      width: 0.8408211
+      height: 0.8535172
+  - key: 03-honey-waffle|03-honey-waffle
+    assetPath: Assets/Resources/Stage2Snails/03-honey-waffle.png
+    spriteName: 03-honey-waffle
+    bounds:
+      serializedVersion: 2
+      x: -0.4204106
+      y: 3.575306e-11
+      width: 0.84082115
+      height: 0.8591948
+  - key: 04-kimbap|04-kimbap
+    assetPath: Assets/Resources/Stage2Snails/04-kimbap.png
+    spriteName: 04-kimbap
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 5.6849057e-11
+      width: 0.840821
+      height: 0.8035574
+  - key: 05-steamed-dumpling|05-steamed-dumpling
+    assetPath: Assets/Resources/Stage2Snails/05-steamed-dumpling.png
+    spriteName: 05-steamed-dumpling
+    bounds:
+      serializedVersion: 2
+      x: -0.42041054
+      y: 3.3113692e-11
+      width: 0.8408211
+      height: 0.84533334
+  - key: 06-cheeseburger|06-cheeseburger
+    assetPath: Assets/Resources/Stage2Snails/06-cheeseburger.png
+    spriteName: 06-cheeseburger
+    bounds:
+      serializedVersion: 2
+      x: -0.4204105
+      y: 3.818051e-11
+      width: 0.840821
+      height: 0.7688844
+  - key: 07-watermelon|07-watermelon
+    assetPath: Assets/Resources/Stage2Snails/07-watermelon.png
+    spriteName: 07-watermelon
+    bounds:
+      serializedVersion: 2
+      x: -0.42041054
+      y: 6.2442156e-11
+      width: 0.84082115
+      height: 0.83904225
+  - key: 08-caramel-pudding|08-caramel-pudding
+    assetPath: Assets/Resources/Stage2Snails/08-caramel-pudding.png
+    spriteName: 08-caramel-pudding
+    bounds:
+      serializedVersion: 2
+      x: -0.42041054
+      y: 5.076944e-11
+      width: 0.8408211
+      height: 0.739233
+  - key: Body|Body
+    assetPath: Assets/Resources/Stage2Snails/Body.png
+    spriteName: Body
+    bounds:
+      serializedVersion: 2
+      x: -0.60058653
+      y: 1.390775e-10
+      width: 1.2011731
+      height: 0.58044446
+  - key: Crater|Crater
+    assetPath: Assets/Resources/Stage2Snails/Crater.png
+    spriteName: Crater
+    bounds:
+      serializedVersion: 2
+      x: -2.401816
+      y: -0.000000009472537
+      width: 4.803632
+      height: 2.061972
+  - key: AcidFx|AcidFx_00
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_00
+    bounds:
+      serializedVersion: 2
+      x: -1.65625
+      y: -0.84765625
+      width: 3.3515625
+      height: 1.6953125
+  - key: AcidFx|AcidFx_01
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_01
+    bounds:
+      serializedVersion: 2
+      x: -1.6953125
+      y: -0.85546875
+      width: 3.3671875
+      height: 1.7109375
+  - key: AcidFx|AcidFx_02
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_02
+    bounds:
+      serializedVersion: 2
+      x: -1.6953125
+      y: -0.78515625
+      width: 3.3671875
+      height: 1.5703125
+  - key: AcidFx|AcidFx_03
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_03
+    bounds:
+      serializedVersion: 2
+      x: -1.6953125
+      y: -0.78515625
+      width: 3.3515625
+      height: 1.5703125
+  - key: AcidFx|AcidFx_04
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_04
+    bounds:
+      serializedVersion: 2
+      x: -1.1796875
+      y: -1.09375
+      width: 2.359375
+      height: 2.1875
+  - key: AcidFx|AcidFx_05
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_05
+    bounds:
+      serializedVersion: 2
+      x: -1.2304688
+      y: -1.1796875
+      width: 2.4609375
+      height: 2.375
+  - key: AcidFx|AcidFx_06
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_06
+    bounds:
+      serializedVersion: 2
+      x: -1.2265625
+      y: -1.2617188
+      width: 2.453125
+      height: 2.5625
+  - key: AcidFx|AcidFx_07
+    assetPath: Assets/Resources/ToadUpdate/AcidFx.png
+    spriteName: AcidFx_07
+    bounds:
+      serializedVersion: 2
+      x: -1.171875
+      y: -1.1210938
+      width: 2.34375
+      height: 2.2421875
+  - key: LightWoodUI|LightWoodUI_00
+    assetPath: Assets/Resources/ToadUpdate/LightWoodUI.png
+    spriteName: LightWoodUI_00
+    bounds:
+      serializedVersion: 2
+      x: -3.7382812
+      y: -1.234375
+      width: 7.6015625
+      height: 2.3125
+  - key: LightWoodUI|LightWoodUI_01
+    assetPath: Assets/Resources/ToadUpdate/LightWoodUI.png
+    spriteName: LightWoodUI_01
+    bounds:
+      serializedVersion: 2
+      x: -2.921875
+      y: -0.6953125
+      width: 5.609375
+      height: 1.3046875
+  - key: LightWoodUI|LightWoodUI_02
+    assetPath: Assets/Resources/ToadUpdate/LightWoodUI.png
+    spriteName: LightWoodUI_02
+    bounds:
+      serializedVersion: 2
+      x: -3.0390625
+      y: -1.3046875
+      width: 6.046875
+      height: 2.640625
+  - key: LightWoodUI|LightWoodUI_03
+    assetPath: Assets/Resources/ToadUpdate/LightWoodUI.png
+    spriteName: LightWoodUI_03
+    bounds:
+      serializedVersion: 2
+      x: -1.296875
+      y: -1.1679688
+      width: 2.5
+      height: 2.40625
+  - key: NobleScroll|Cover
+    assetPath: Assets/Resources/ToadUpdate/NobleScroll.png
+    spriteName: Cover
+    bounds:
+      serializedVersion: 2
+      x: -2.92
+      y: -5.45
+      width: 5.85
+      height: 10.67
+  - key: NobleScroll|Roller
+    assetPath: Assets/Resources/ToadUpdate/NobleScroll.png
+    spriteName: Roller
+    bounds:
+      serializedVersion: 2
+      x: -3.01
+      y: -0.6
+      width: 5.99
+      height: 0.89
+  - key: SquirrelMotion|SquirrelMotion_00
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_00
+    bounds:
+      serializedVersion: 2
+      x: -0.7
+      y: 0
+      width: 1.4
+      height: 1.0682927
+  - key: SquirrelMotion|SquirrelMotion_01
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_01
+    bounds:
+      serializedVersion: 2
+      x: -0.7292683
+      y: 0
+      width: 1.4585366
+      height: 1.0439024
+  - key: SquirrelMotion|SquirrelMotion_02
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_02
+    bounds:
+      serializedVersion: 2
+      x: -0.7365854
+      y: 0
+      width: 1.4731708
+      height: 1.0682927
+  - key: SquirrelMotion|SquirrelMotion_03
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_03
+    bounds:
+      serializedVersion: 2
+      x: -0.7268293
+      y: 0
+      width: 1.4536586
+      height: 1.0829269
+  - key: SquirrelMotion|SquirrelMotion_04
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_04
+    bounds:
+      serializedVersion: 2
+      x: -0.7634146
+      y: 0
+      width: 1.5268292
+      height: 1.0634147
+  - key: SquirrelMotion|SquirrelMotion_05
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_05
+    bounds:
+      serializedVersion: 2
+      x: -0.7853659
+      y: 0
+      width: 1.5707318
+      height: 1.092683
+  - key: SquirrelMotion|SquirrelMotion_06
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_06
+    bounds:
+      serializedVersion: 2
+      x: -0.7512195
+      y: 0
+      width: 1.502439
+      height: 1.0731708
+  - key: SquirrelMotion|SquirrelMotion_07
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_07
+    bounds:
+      serializedVersion: 2
+      x: -0.7487805
+      y: 0
+      width: 1.497561
+      height: 1.0585365
+  - key: SquirrelMotion|SquirrelMotion_08
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_08
+    bounds:
+      serializedVersion: 2
+      x: -0.70731705
+      y: 0
+      width: 1.4146341
+      height: 1.1170732
+  - key: SquirrelMotion|SquirrelMotion_09
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_09
+    bounds:
+      serializedVersion: 2
+      x: -0.76829267
+      y: 0
+      width: 1.5365853
+      height: 1.097561
+  - key: SquirrelMotion|SquirrelMotion_10
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_10
+    bounds:
+      serializedVersion: 2
+      x: -0.71707314
+      y: 0
+      width: 1.4341463
+      height: 1.097561
+  - key: SquirrelMotion|SquirrelMotion_11
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_11
+    bounds:
+      serializedVersion: 2
+      x: -0.75609756
+      y: 0
+      width: 1.5121951
+      height: 1.092683
+  - key: SquirrelMotion|SquirrelMotion_12
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_12
+    bounds:
+      serializedVersion: 2
+      x: -0.70487803
+      y: 0
+      width: 1.4097561
+      height: 1.1268293
+  - key: SquirrelMotion|SquirrelMotion_13
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_13
+    bounds:
+      serializedVersion: 2
+      x: -0.75365853
+      y: 0
+      width: 1.5073171
+      height: 1.1365854
+  - key: SquirrelMotion|SquirrelMotion_14
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_14
+    bounds:
+      serializedVersion: 2
+      x: -0.7390244
+      y: 0
+      width: 1.4780488
+      height: 1.1073171
+  - key: SquirrelMotion|SquirrelMotion_15
+    assetPath: Assets/Resources/ToadUpdate/SquirrelMotion.png
+    spriteName: SquirrelMotion_15
+    bounds:
+      serializedVersion: 2
+      x: -0.75609756
+      y: 0
+      width: 1.5121951
+      height: 1.1560975
+  - key: SquirrelReact|SquirrelReact_00
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_00
+    bounds:
+      serializedVersion: 2
+      x: -0.6966903
+      y: 0.0033096927
+      width: 1.3933806
+      height: 1.1352246
+  - key: SquirrelReact|SquirrelReact_01
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_01
+    bounds:
+      serializedVersion: 2
+      x: -0.72978723
+      y: 0.0033096927
+      width: 1.4595745
+      height: 1.1650119
+  - key: SquirrelReact|SquirrelReact_02
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_02
+    bounds:
+      serializedVersion: 2
+      x: -0.6917258
+      y: 0.0033096927
+      width: 1.3867613
+      height: 1.1583924
+  - key: SquirrelReact|SquirrelReact_03
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_03
+    bounds:
+      serializedVersion: 2
+      x: -0.7049646
+      y: 0
+      width: 1.4099292
+      height: 1.237825
+  - key: SquirrelReact|SquirrelReact_04
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_04
+    bounds:
+      serializedVersion: 2
+      x: -0.71489364
+      y: 0.0033096927
+      width: 1.4264776
+      height: 1.1021277
+  - key: SquirrelReact|SquirrelReact_05
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_05
+    bounds:
+      serializedVersion: 2
+      x: -0.68014187
+      y: 0
+      width: 1.3635935
+      height: 1.1252955
+  - key: SquirrelReact|SquirrelReact_06
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_06
+    bounds:
+      serializedVersion: 2
+      x: -0.63049644
+      y: 0
+      width: 1.2643026
+      height: 1.1153665
+  - key: SquirrelReact|SquirrelReact_07
+    assetPath: Assets/Resources/ToadUpdate/SquirrelReact.png
+    spriteName: SquirrelReact_07
+    bounds:
+      serializedVersion: 2
+      x: -0.7115839
+      y: 0.0033096927
+      width: 1.4198582
+      height: 0.80094564
+  - key: ToadAttack|ToadAttack_00
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_00
+    bounds:
+      serializedVersion: 2
+      x: -1.3910828
+      y: 0.008917198
+      width: 2.7910826
+      height: 1.7566879
+  - key: ToadAttack|ToadAttack_01
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_01
+    bounds:
+      serializedVersion: 2
+      x: -1.3866242
+      y: 0.008917198
+      width: 2.7821655
+      height: 1.7566879
+  - key: ToadAttack|ToadAttack_02
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_02
+    bounds:
+      serializedVersion: 2
+      x: -1.4
+      y: 0.008917198
+      width: 2.7910826
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_03
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_03
+    bounds:
+      serializedVersion: 2
+      x: -1.4089172
+      y: 0
+      width: 2.8178344
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_04
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_04
+    bounds:
+      serializedVersion: 2
+      x: -1.4267515
+      y: 0
+      width: 2.844586
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_05
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_05
+    bounds:
+      serializedVersion: 2
+      x: -1.4133757
+      y: 0.008917198
+      width: 2.8267515
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_06
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_06
+    bounds:
+      serializedVersion: 2
+      x: -1.4312102
+      y: 0
+      width: 2.8624203
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_07
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_07
+    bounds:
+      serializedVersion: 2
+      x: -1.4178344
+      y: 0
+      width: 2.844586
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_08
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_08
+    bounds:
+      serializedVersion: 2
+      x: -1.4
+      y: 0.008917198
+      width: 2.7910826
+      height: 1.8191082
+  - key: ToadAttack|ToadAttack_09
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_09
+    bounds:
+      serializedVersion: 2
+      x: -1.3866242
+      y: 0.008917198
+      width: 2.7732484
+      height: 1.8191082
+  - key: ToadAttack|ToadAttack_10
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_10
+    bounds:
+      serializedVersion: 2
+      x: -1.3821656
+      y: 0.008917198
+      width: 2.7732484
+      height: 1.8012738
+  - key: ToadAttack|ToadAttack_11
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_11
+    bounds:
+      serializedVersion: 2
+      x: -1.3821656
+      y: 0.008917198
+      width: 2.764331
+      height: 1.8012738
+  - key: ToadAttack|ToadAttack_12
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_12
+    bounds:
+      serializedVersion: 2
+      x: -1.3910828
+      y: 0
+      width: 2.7821655
+      height: 1.7477707
+  - key: ToadAttack|ToadAttack_13
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_13
+    bounds:
+      serializedVersion: 2
+      x: -1.3687898
+      y: 0.008917198
+      width: 2.7375796
+      height: 1.7388535
+  - key: ToadAttack|ToadAttack_14
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_14
+    bounds:
+      serializedVersion: 2
+      x: -1.3687898
+      y: 0.008917198
+      width: 2.7375796
+      height: 1.7388535
+  - key: ToadAttack|ToadAttack_15
+    assetPath: Assets/Resources/ToadUpdate/ToadAttack.png
+    spriteName: ToadAttack_15
+    bounds:
+      serializedVersion: 2
+      x: -1.4089172
+      y: 0
+      width: 2.8267515
+      height: 1.7388535
+  - key: ToadHead|ToadHead_00
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_00
+    bounds:
+      serializedVersion: 2
+      x: -1.15
+      y: -0.844822
+      width: 2.3
+      height: 1.689644
+  - key: ToadHead|ToadHead_01
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_01
+    bounds:
+      serializedVersion: 2
+      x: -1.1537217
+      y: -0.844822
+      width: 2.3
+      height: 1.689644
+  - key: ToadHead|ToadHead_02
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_02
+    bounds:
+      serializedVersion: 2
+      x: -1.1537217
+      y: -0.844822
+      width: 2.3074434
+      height: 1.689644
+  - key: ToadHead|ToadHead_03
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_03
+    bounds:
+      serializedVersion: 2
+      x: -1.1648867
+      y: -0.844822
+      width: 2.3297734
+      height: 1.689644
+  - key: ToadHead|ToadHead_04
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_04
+    bounds:
+      serializedVersion: 2
+      x: -1.1723301
+      y: -0.844822
+      width: 2.3372169
+      height: 1.6970874
+  - key: ToadHead|ToadHead_05
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_05
+    bounds:
+      serializedVersion: 2
+      x: -1.1797734
+      y: -0.844822
+      width: 2.3521037
+      height: 1.6970874
+  - key: ToadHead|ToadHead_06
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_06
+    bounds:
+      serializedVersion: 2
+      x: -1.1834952
+      y: -0.844822
+      width: 2.3669903
+      height: 1.6970874
+  - key: ToadHead|ToadHead_07
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_07
+    bounds:
+      serializedVersion: 2
+      x: -1.1834952
+      y: -0.844822
+      width: 2.3669903
+      height: 1.6970874
+  - key: ToadHead|ToadHead_08
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_08
+    bounds:
+      serializedVersion: 2
+      x: -1.1351132
+      y: -0.86343044
+      width: 2.2702265
+      height: 1.7268609
+  - key: ToadHead|ToadHead_09
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_09
+    bounds:
+      serializedVersion: 2
+      x: -1.1351132
+      y: -0.8559871
+      width: 2.2702265
+      height: 1.7194175
+  - key: ToadHead|ToadHead_10
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_10
+    bounds:
+      serializedVersion: 2
+      x: -1.1127832
+      y: -0.8559871
+      width: 2.2255664
+      height: 1.7194175
+  - key: ToadHead|ToadHead_11
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_11
+    bounds:
+      serializedVersion: 2
+      x: -1.1090615
+      y: -0.8559871
+      width: 2.2106795
+      height: 1.7194175
+  - key: ToadHead|ToadHead_12
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_12
+    bounds:
+      serializedVersion: 2
+      x: -1.1090615
+      y: -0.8485437
+      width: 2.218123
+      height: 1.6970874
+  - key: ToadHead|ToadHead_13
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_13
+    bounds:
+      serializedVersion: 2
+      x: -1.1165049
+      y: -0.8485437
+      width: 2.2255664
+      height: 1.6970874
+  - key: ToadHead|ToadHead_14
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_14
+    bounds:
+      serializedVersion: 2
+      x: -1.1127832
+      y: -0.85226536
+      width: 2.2330098
+      height: 1.6970874
+  - key: ToadHead|ToadHead_15
+    assetPath: Assets/Resources/ToadUpdate/ToadHead.png
+    spriteName: ToadHead_15
+    bounds:
+      serializedVersion: 2
+      x: -1.1648867
+      y: -0.85226536
+      width: 2.3297734
+      height: 1.6970874
+  - key: ToadJump|ToadJump_00
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_00
+    bounds:
+      serializedVersion: 2
+      x: -1.3925925
+      y: 0
+      width: 2.7925925
+      height: 1.9777777
+  - key: ToadJump|ToadJump_01
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_01
+    bounds:
+      serializedVersion: 2
+      x: -1.4925926
+      y: 0
+      width: 2.9777777
+      height: 1.5185186
+  - key: ToadJump|ToadJump_02
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_02
+    bounds:
+      serializedVersion: 2
+      x: -1.3296297
+      y: 0
+      width: 2.6592593
+      height: 1.9333333
+  - key: ToadJump|ToadJump_03
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_03
+    bounds:
+      serializedVersion: 2
+      x: -1.5777777
+      y: 0.0074074073
+      width: 3.1555555
+      height: 2.5407407
+  - key: ToadJump|ToadJump_04
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_04
+    bounds:
+      serializedVersion: 2
+      x: -1.1407408
+      y: 0
+      width: 2.2814815
+      height: 1.9111111
+  - key: ToadJump|ToadJump_05
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_05
+    bounds:
+      serializedVersion: 2
+      x: -1.2962962
+      y: 0.0074074073
+      width: 2.5925925
+      height: 2
+  - key: ToadJump|ToadJump_06
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_06
+    bounds:
+      serializedVersion: 2
+      x: -1.5037037
+      y: 0.0074074073
+      width: 3.0074074
+      height: 1.4962963
+  - key: ToadJump|ToadJump_07
+    assetPath: Assets/Resources/ToadUpdate/ToadJump.png
+    spriteName: ToadJump_07
+    bounds:
+      serializedVersion: 2
+      x: -1.4518518
+      y: 0
+      width: 2.8962963
+      height: 2.0370371
+  - key: ToadLocomotion|ToadLocomotion_00
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_00
+    bounds:
+      serializedVersion: 2
+      x: -1.4
+      y: 0
+      width: 2.7909384
+      height: 1.8394821
+  - key: ToadLocomotion|ToadLocomotion_01
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_01
+    bounds:
+      serializedVersion: 2
+      x: -1.4407766
+      y: 0.009061488
+      width: 2.8906147
+      height: 1.8304206
+  - key: ToadLocomotion|ToadLocomotion_02
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_02
+    bounds:
+      serializedVersion: 2
+      x: -1.5132686
+      y: 0
+      width: 3.0265372
+      height: 1.8394821
+  - key: ToadLocomotion|ToadLocomotion_03
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_03
+    bounds:
+      serializedVersion: 2
+      x: -1.4543688
+      y: 0
+      width: 2.8996763
+      height: 1.8485436
+  - key: ToadLocomotion|ToadLocomotion_04
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_04
+    bounds:
+      serializedVersion: 2
+      x: -1.4135922
+      y: 0.009061488
+      width: 2.8181229
+      height: 1.8394821
+  - key: ToadLocomotion|ToadLocomotion_05
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_05
+    bounds:
+      serializedVersion: 2
+      x: -1.4770226
+      y: 0
+      width: 2.9540453
+      height: 1.8304206
+  - key: ToadLocomotion|ToadLocomotion_06
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_06
+    bounds:
+      serializedVersion: 2
+      x: -1.4724919
+      y: 0
+      width: 2.9540453
+      height: 1.8394821
+  - key: ToadLocomotion|ToadLocomotion_07
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_07
+    bounds:
+      serializedVersion: 2
+      x: -1.4271845
+      y: 0
+      width: 2.854369
+      height: 1.8576051
+  - key: ToadLocomotion|ToadLocomotion_08
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_08
+    bounds:
+      serializedVersion: 2
+      x: -1.4090614
+      y: 0.009061488
+      width: 2.8181229
+      height: 1.8485436
+  - key: ToadLocomotion|ToadLocomotion_09
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_09
+    bounds:
+      serializedVersion: 2
+      x: -1.4362459
+      y: 0
+      width: 2.8724918
+      height: 1.8485436
+  - key: ToadLocomotion|ToadLocomotion_10
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_10
+    bounds:
+      serializedVersion: 2
+      x: -1.4543688
+      y: 0.009061488
+      width: 2.9087377
+      height: 1.8485436
+  - key: ToadLocomotion|ToadLocomotion_11
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_11
+    bounds:
+      serializedVersion: 2
+      x: -1.4407766
+      y: 0.009061488
+      width: 2.8815532
+      height: 1.8485436
+  - key: ToadLocomotion|ToadLocomotion_12
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_12
+    bounds:
+      serializedVersion: 2
+      x: -1.4045306
+      y: 0
+      width: 2.8181229
+      height: 1.8847896
+  - key: ToadLocomotion|ToadLocomotion_13
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_13
+    bounds:
+      serializedVersion: 2
+      x: -1.4317151
+      y: 0.009061488
+      width: 2.854369
+      height: 1.8847896
+  - key: ToadLocomotion|ToadLocomotion_14
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_14
+    bounds:
+      serializedVersion: 2
+      x: -1.4588996
+      y: 0
+      width: 2.9177992
+      height: 1.8757281
+  - key: ToadLocomotion|ToadLocomotion_15
+    assetPath: Assets/Resources/ToadUpdate/ToadLocomotion.png
+    spriteName: ToadLocomotion_15
+    bounds:
+      serializedVersion: 2
+      x: -1.4317151
+      y: 0
+      width: 2.8634303
+      height: 1.8847896
+  - key: Back|Back
+    assetPath: Assets/Scripts/boyoung/test/Back.png
+    spriteName: Back
+    bounds:
+      serializedVersion: 2
+      x: -1.525
+      y: -0.585
+      width: 2.79
+      height: 1.05
+  - key: Square|Square
+    assetPath: Packages/com.unity.2d.sprite/Editor/ObjectMenuCreation/DefaultAssets/Textures/v2/Square.png
+    spriteName: Square
+    bounds:
+      serializedVersion: 2
+      x: -0.5
+      y: -0.5
+      width: 1
+      height: 1

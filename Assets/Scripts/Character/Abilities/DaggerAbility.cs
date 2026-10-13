@@ -87,7 +87,7 @@ namespace Vampire
 
 
                 float finalBleedDamage =
-                    bleedDamage.Value;
+                    bleedDamage.Value * CombatStatusRules.DamageMultiplier(playerCharacter,monster);
 
                 if (AttacksBlocked) continue;
 

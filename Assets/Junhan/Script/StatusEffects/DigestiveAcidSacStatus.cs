@@ -6,8 +6,9 @@ namespace Vampire
     /// 소화액낭침 상태.
     /// 침에 맞은 몬스터에게 붙고, 해당 몬스터가 죽으면 사망 위치에 소화액 웅덩이를 생성합니다.
     /// </summary>
-    public class DigestiveAcidSacStatus : MonoBehaviour
+    public class DigestiveAcidSacStatus : MonoBehaviour, ICombatStatus
     {
+        public CombatStatusTag ActiveStatusTags => initialized && !puddleCreated ? CombatStatusTag.DeathMark : CombatStatusTag.None;
         private Monster ownerMonster;
 
         private float puddleLifetime = 3f;
@@ -124,6 +125,12 @@ namespace Vampire
                 sourceCharacter,
                 damageSourceName
             );
+        }
+
+        private void OnDisable()
+        {
+            if (ownerMonster != null) ownerMonster.OnKilled.RemoveListener(OnOwnerKilled);
+            initialized = false; puddleCreated = false;
         }
 
         private void OnDestroy()

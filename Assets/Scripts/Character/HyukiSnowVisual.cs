@@ -23,6 +23,7 @@ namespace Vampire
         {float s=width/r.sprite.bounds.size.x;r.transform.localScale=new Vector3(s/Mathf.Abs(transform.lossyScale.x),s/Mathf.Abs(transform.lossyScale.y),1);}
         void LateUpdate()
         {
+            if(owner!=null && (owner.IsPortalTravelling || owner.IsPortalPoseHeld)){previous=transform.position;Hide();return;}
             if(owner==null||!owner.IsAlive){Hide();return;}
             var art=skill.Definition.iceComponents;if(art==null||art.Length<4)return;
             float dt=Time.deltaTime;if(dt<=0)return;phase+=dt;

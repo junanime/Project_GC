@@ -39,7 +39,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 276406643037884416
-    m_Localized: Needles curve toward nearby enemies while flying.
+    m_Localized: "Needles curve smoothly after firing to follow moving enemies within about four Ashi widths. Flight distance follows your attack range upgrades."
     m_Metadata:
       m_Items: []
   - m_Id: 276406846071558144

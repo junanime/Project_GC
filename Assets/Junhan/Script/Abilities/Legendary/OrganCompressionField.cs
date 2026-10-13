@@ -366,7 +366,8 @@ SyringeDartAbility sourceNeedleAbility)
                 }
             }
 
-            float finalDamage = damagePerTick;
+            float debuffMultiplier = CombatStatusRules.DamageMultiplier(sourceCharacter,target.component);
+            float finalDamage = damagePerTick * debuffMultiplier;
             bool consumedNeedleMark = false;
             SyringeSpecialRuntime runtime = default;
 
@@ -416,7 +417,7 @@ SyringeDartAbility sourceNeedleAbility)
                     monsterLayer,
                     target.component.gameObject,
                     consumedNeedleMark,
-                    finalDamage
+                    finalDamage / debuffMultiplier
                 );
             }
 

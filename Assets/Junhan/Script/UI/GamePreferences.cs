@@ -7,6 +7,7 @@ namespace Vampire
     public sealed class GamePreferenceValues
     {
         public float master = 1, music = .55f, effects = .8f, ui = .8f;
+        public float augmentVfxOpacity = 1f;
         public bool muted, reducedMotion, showFps, pauseOnFocusLoss = true, muteOnFocusLoss = true;
         public int quality = 2, frameLimit = 60;
         public bool vSync = true;
@@ -21,7 +22,8 @@ namespace Vampire
         static GamePreferenceValues current;
         public static event Action Changed;
         public static GamePreferenceValues Current => current ?? (current = Read());
-        public static GamePreferenceValues Defaults() => new GamePreferenceValues {vSync=!Application.isMobilePlatform};
+        public static GamePreferenceValues Defaults() => new GamePreferenceValues
+        {vSync=!GamePlatform.UsesTouchControls, frameLimit=GamePlatform.IsMobileWeb?30:60};
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset() { current=null; Changed=null; }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -36,7 +38,7 @@ namespace Vampire
             GamePreferenceValues value=null;
             if(PlayerPrefs.HasKey(SaveKey))
             {
-                try { value=JsonUtility.FromJson<GamePreferenceValues>(PlayerPrefs.GetString(SaveKey)); }
+                try { value=Defaults(); JsonUtility.FromJsonOverwrite(PlayerPrefs.GetString(SaveKey),value); }
                 catch(ArgumentException) { /* A damaged settings entry must not block startup. */ }
             }
             if(value==null)
@@ -50,6 +52,7 @@ namespace Vampire
         public static void Sanitize(GamePreferenceValues value)
         {
             value.master=Volume(value.master);value.music=Volume(value.music);value.effects=Volume(value.effects);value.ui=Volume(value.ui);
+            value.augmentVfxOpacity=Volume(value.augmentVfxOpacity);
             value.quality=Mathf.Clamp(value.quality,0,2);value.displayMode=Mathf.Clamp(value.displayMode,0,1);
             if(value.frameLimit!=30&&value.frameLimit!=60&&value.frameLimit!=120&&value.frameLimit!=-1)value.frameLimit=60;
             if(value.width<640||value.height<360||value.width>7680||value.height>4320)value.width=value.height=0;
@@ -60,18 +63,22 @@ namespace Vampire
             current.effects=Volume(value.effects);current.ui=Volume(value.ui);current.muted=value.muted;
             AudioListener.volume=current.muted?0:current.master;Changed?.Invoke();
         }
+        public static void PreviewAugmentVfx(float opacity)
+        {
+            current=Current.Copy(); current.augmentVfxOpacity=Volume(opacity); Changed?.Invoke();
+        }
         public static void Apply(GamePreferenceValues value,bool save,bool changeDisplay=true)
         {
             current=value.Copy();Sanitize(current);
             int last=Mathf.Max(0,QualitySettings.names.Length-1);
             int quality=current.quality==0?0:current.quality==1?last/2:last;
             if(QualitySettings.GetQualityLevel()!=quality)QualitySettings.SetQualityLevel(quality,true);
-            QualitySettings.vSyncCount=!Application.isMobilePlatform&&current.vSync?1:0;
+            QualitySettings.vSyncCount=!GamePlatform.UsesTouchControls&&current.vSync?1:0;
             Application.targetFrameRate=current.frameLimit;
             AudioListener.volume=current.muted?0:current.master;
             if(changeDisplay&&!Application.isMobilePlatform)
             {
-#if !UNITY_EDITOR
+#if !UNITY_EDITOR && !UNITY_WEBGL
                 var mode=current.displayMode==0?FullScreenMode.FullScreenWindow:FullScreenMode.Windowed;
                 int w=current.width>0?current.width:Display.main.systemWidth;
                 int h=current.height>0?current.height:Display.main.systemHeight;

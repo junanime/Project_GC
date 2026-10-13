@@ -12,6 +12,20 @@ namespace Vampire
     [System.Serializable]
     public class AdvancedStageFieldEventDirector : RuntimeModule
     {
+        public void CollectPresentations(List<StageEventPresentation> result)
+        {
+            if (!isActiveAndEnabled) return;
+            foreach (var e in acidRefluxWaveEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Reflux, e.eventName, e.visualDirection));
+            foreach (var e in peristalsisDriftEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Drift, e.eventName, GetCurrentDriftDirection(e).x));
+            foreach (var e in coffeeTransfusionEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Coffee, e.eventName));
+        }
+
         protected override void OnSuspended()
         {
             if (mainCamera != null && hasOriginalCameraRotation) mainCamera.transform.rotation = originalCameraRotation;
@@ -43,9 +57,10 @@ namespace Vampire
         [System.Serializable]
         public class AcidRefluxWaveEvent
         {
+            [System.NonSerialized] public float visualDirection = 1f;
             [Header("Event Info")]
             [Tooltip("UI에 표시될 이벤트 이름입니다.")]
-            public string eventName = "산성 역류 파도";
+            public string eventName = "환타 파도";
 
             [Tooltip("체크되어 있으면 이벤트가 발동됩니다.")]
             public bool enabled = true;
@@ -107,7 +122,7 @@ namespace Vampire
         {
             [Header("Event Info")]
             [Tooltip("UI에 표시될 이벤트 이름입니다.")]
-            public string eventName = "연동운동 기류";
+            public string eventName = "위산연동파";
 
             [Tooltip("체크되어 있으면 이벤트가 발동됩니다.")]
             public bool enabled = true;
@@ -153,6 +168,7 @@ namespace Vampire
             [HideInInspector] public bool finished;
             [HideInInspector] public float resolvedStartTime;
             [HideInInspector] public float elapsed;
+            [System.NonSerialized] public int clapPhase;
 
             // 카메라 Tilt 효과음이 이 이벤트에서 이미 재생됐는지 기록합니다.
             [HideInInspector] public bool tiltSfxPlayed;
@@ -163,7 +179,7 @@ namespace Vampire
         {
             [Header("Event Info")]
             [Tooltip("UI에 표시될 이벤트 이름입니다.")]
-            public string eventName = "커피수혈 타임";
+            public string eventName = "커피수혈";
 
             [Tooltip("체크되어 있으면 이벤트가 발동됩니다.")]
             public bool enabled = true;
@@ -219,6 +235,8 @@ namespace Vampire
             [HideInInspector] public bool finished;
             [HideInInspector] public float resolvedStartTime;
             [HideInInspector] public float monsterScanTimer;
+            [System.NonSerialized] public bool presentationComplete;
+            [System.NonSerialized] public float buffStartedAt;
         }
 
         [Header("References")]
@@ -400,7 +418,7 @@ namespace Vampire
             {
                 PeristalsisDriftEvent driftEvent = peristalsisDriftEvents[i];
 
-                if (driftEvent == null || !driftEvent.enabled || !driftEvent.started || driftEvent.finished)
+                if (driftEvent == null || !driftEvent.enabled || !driftEvent.started || driftEvent.finished || driftEvent.elapsed < 0)
                 {
                     continue;
                 }
@@ -562,7 +580,9 @@ namespace Vampire
 
             if (!waveEvent.started)
             {
+                waveEvent.eventName = "환타 파도";
                 waveEvent.started = true;
+                Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Fanta);
                 ShowEventStartedUI(waveEvent.eventName);
                 TutorialGuide.QueueStageEvent("acid-reflux");
 
@@ -582,23 +602,12 @@ namespace Vampire
             for (int i = 0; i < safeWaveCount; i++)
             {
                 bool moveLeftToRight = i % 2 == 0;
+                waveEvent.visualDirection = moveLeftToRight ? 1f : -1f;
 
-                yield return SpawnMovingWave(
-                    eventName: waveEvent.eventName,
-                    moveLeftToRight: moveLeftToRight,
-                    warningDuration: waveEvent.warningDuration,
-                    travelDuration: waveEvent.travelDuration,
-                    waveHeight: waveEvent.waveHeight,
-                    screenPadding: waveEvent.screenPadding,
-                    damage: waveEvent.damage,
-                    damageCooldownPerTarget: waveEvent.damageCooldownPerTarget,
-                    knockbackPower: waveEvent.knockbackPower,
-                    affectPlayer: true,
-                    affectMonsters: true,
-                    waveColor: waveEvent.waveColor,
-                    warningColor: waveEvent.warningColor,
-                    visualOnly: false,
-                    travelStartSfxId: GameAudioManager.GameSfxId.AcidRefluxWavePass);
+                yield return AcidToadEvent.Emit(transform, GetCameraWorldRect(0), moveLeftToRight,
+                    waveEvent.warningDuration, waveEvent.travelDuration, waveEvent.waveHeight,
+                    waveEvent.damage, waveEvent.damageCooldownPerTarget,
+                    levelManager != null ? levelManager.PlayerCharacter : null);
 
                 if (i < safeWaveCount - 1)
                 {
@@ -644,8 +653,12 @@ namespace Vampire
 
             if (!driftEvent.started)
             {
+                driftEvent.eventName = "위산연동파";
                 driftEvent.started = true;
-                driftEvent.elapsed = 0f;
+                driftEvent.elapsed = -ChameleonPortrait.ClapLead;
+                driftEvent.clapPhase = 0;
+                Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Drift);
+                StartCoroutine(ChameleonPortrait.Clap(transform));
 
                 ShowEventStartedUI(driftEvent.eventName);
                 TutorialGuide.QueueStageEvent("peristaltic-drift");
@@ -657,6 +670,15 @@ namespace Vampire
             }
 
             driftEvent.elapsed += Time.deltaTime;
+            if (driftEvent.elapsed < 0) return;
+            float interval = Mathf.Max(1f, driftEvent.directionSwitchInterval);
+            int upcoming = Mathf.FloorToInt(driftEvent.elapsed / interval) + 1;
+            if (upcoming > driftEvent.clapPhase && upcoming * interval < driftEvent.duration &&
+                driftEvent.elapsed >= upcoming * interval - ChameleonPortrait.ClapLead)
+            {
+                driftEvent.clapPhase = upcoming;
+                StartCoroutine(ChameleonPortrait.Clap(transform));
+            }
 
             if (driftEvent.elapsed >= driftEvent.duration)
             {
@@ -719,8 +741,8 @@ namespace Vampire
 
         private Vector2 GetCurrentDriftDirection(PeristalsisDriftEvent driftEvent)
         {
-            float safeSwitchInterval = Mathf.Max(0.1f, driftEvent.directionSwitchInterval);
-            int phase = Mathf.FloorToInt(driftEvent.elapsed / safeSwitchInterval);
+            float safeSwitchInterval = Mathf.Max(1f, driftEvent.directionSwitchInterval);
+            int phase = Mathf.FloorToInt(Mathf.Max(0, driftEvent.elapsed) / safeSwitchInterval);
 
             // 짝수 페이즈: 왼쪽, 홀수 페이즈: 오른쪽
             return phase % 2 == 0 ? Vector2.left : Vector2.right;
@@ -842,7 +864,10 @@ namespace Vampire
 
             if (!coffeeEvent.started)
             {
+                coffeeEvent.eventName = "커피수혈";
                 coffeeEvent.started = true;
+                coffeeEvent.presentationComplete = false;
+                Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Latte);
                 coffeeEvent.monsterScanTimer = 0f;
                 ShowEventStartedUI(coffeeEvent.eventName);
                 TutorialGuide.QueueStageEvent("coffee-transfusion");
@@ -855,7 +880,8 @@ namespace Vampire
                 activeCoffeeWaveRoutine = StartCoroutine(CoffeeWaveRoutine(coffeeEvent));
             }
 
-            if (currentTime >= coffeeEvent.resolvedStartTime + coffeeEvent.duration)
+            if (!coffeeEvent.presentationComplete) return;
+            if (currentTime >= coffeeEvent.buffStartedAt + coffeeEvent.duration)
             {
                 coffeeEvent.finished = true;
                 RemoveAllCoffeeBuffs();
@@ -870,12 +896,12 @@ namespace Vampire
 
             coffeeEvent.monsterScanTimer += Time.deltaTime;
 
-            if (coffeeEvent.monsterScanTimer >= coffeeEvent.monsterScanInterval && currentTime - coffeeEvent.resolvedStartTime >= 0.9f)
+            if (coffeeEvent.monsterScanTimer >= coffeeEvent.monsterScanInterval)
             {
                 coffeeEvent.monsterScanTimer = 0f;
 
                 float remainingDuration =
-                    Mathf.Max(0.1f, coffeeEvent.resolvedStartTime + coffeeEvent.duration - currentTime);
+                    Mathf.Max(0.1f, coffeeEvent.buffStartedAt + coffeeEvent.duration - currentTime);
 
                 ApplyCoffeeBuffToActiveMonsters(coffeeEvent, remainingDuration);
             }
@@ -883,10 +909,10 @@ namespace Vampire
 
         private IEnumerator CoffeeWaveRoutine(CoffeeTransfusionEvent coffeeEvent)
         {
-            CoffeeScreenTransition.Play(transform);
-            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.CoffeeTransfusionPour);
-            yield return WaitForFieldSeconds(CoffeeScreenTransition.Duration);
-
+            yield return ChameleonPortrait.Coffee(transform);
+            coffeeEvent.buffStartedAt = levelManager != null ? levelManager.CurrentLevelTime : 0;
+            coffeeEvent.presentationComplete = true;
+            ApplyCoffeeBuffToActiveMonsters(coffeeEvent, coffeeEvent.duration);
             activeCoffeeWaveRoutine = null;
         }
 
@@ -931,7 +957,7 @@ namespace Vampire
             {
                 if (buffs[i] != null)
                 {
-                    buffs[i].RemoveBuffAndDestroy();
+                    buffs[i].RemoveEventBuff();
                 }
             }
         }

@@ -19,6 +19,8 @@ namespace Vampire
 
         public static void Unlock(string category, string id)
         {
+            if (category == "Needle" && System.Enum.TryParse(id, out SyringeSpecialAugmentAbility.SpecialAugmentType type)
+                && !StartingNeedleSelection.Available(type)) return;
             if (string.IsNullOrEmpty(id))
             {
                 return;

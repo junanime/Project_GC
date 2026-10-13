@@ -123,6 +123,23 @@ namespace Vampire
             grid = new SpatialHashGrid(bounds, gridDimensions);
         }
 
+        public void ContinueInStage(LevelBlueprint next)
+        {
+            int oldCount = monsterPools.Length - 1;
+            // Keep pool indices referenced by special events. Append the new normal pool before the boss pool.
+            if (next.monsters.Length != oldCount + 1) throw new System.InvalidOperationException("Expected one additional stage monster pool.");
+            foreach (var monster in monsterPoolParent.GetComponentsInChildren<Monster>())
+                if (monster.gameObject.activeSelf) monster.DespawnForStageTransfer();
+            foreach (var projectile in OctoberEnemyProjectile.Active.ToArray())
+                if (projectile != null && projectile.IsHostile) projectile.Remove();
+            var pools = new MonsterPool[next.monsters.Length + 1];
+            System.Array.Copy(monsterPools, pools, oldCount);
+            pools[oldCount] = monsterPoolParent.AddComponent<MonsterPool>();
+            pools[oldCount].Init(this, playerCharacter, next.monsters[oldCount].monstersPrefab);
+            pools[pools.Length - 1] = monsterPools[monsterPools.Length - 1];
+            monsterPools = pools; remakeLevel = next;
+        }
+
         void Update()
         {
             // Rebuild the grid if the player gets close to the edge
@@ -313,11 +330,12 @@ namespace Vampire
                 hpBuff
             );
             newMonster.ConfigureGroundShadow(monsterBlueprint);
+            newMonster.FitVisibleBody();
 
             grid.InsertClient(newMonster);
 
             if (!allowDuringMiniStage)
-                TutorialGuide.QueueMonster(monsterBlueprint);
+                TutorialGuide.QueueMonster(monsterBlueprint, newMonster);
 
             return newMonster;
         }
@@ -328,7 +346,7 @@ namespace Vampire
                 return false;
             }
 
-            return MiniStageRuntimeState.IsInsideMiniStage;
+            return MiniStageRuntimeState.IsInsideMiniStage || (playerCharacter != null && playerCharacter.IsPortalTravelling && FindObjectOfType<LevelManager>()?.IsRunFlowPaused == true);
         }
         /// <summary>
         /// 현재 살아있는 메인 필드 몬스터들의 행동을

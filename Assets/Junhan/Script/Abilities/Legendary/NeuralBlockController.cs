@@ -51,6 +51,7 @@ namespace Vampire
         private Canvas overlayCanvas;
         private Image overlayImage;
         private Coroutine overlayRoutine;
+        private Coroutine summonRoutine;
 
         public bool IsBlocking => Time.time < activeUntilTime;
 
@@ -102,7 +103,7 @@ namespace Vampire
             if (timer >= interval)
             {
                 timer -= interval;
-                ActivateNeuralBlock();
+                if (summonRoutine == null) summonRoutine = StartCoroutine(SummonThenBlock());
             }
 
             // 신경차단이 활성화된 동안 새로 스폰된 몬스터도 남은 시간만큼 정지 상태에 넣는다.
@@ -127,6 +128,23 @@ namespace Vampire
             }
 
             PlayScreenOverlay(freezeDuration);
+        }
+
+        private IEnumerator SummonThenBlock()
+        {
+            var character = GetComponentInParent<Character>();
+            if (character == null) character = FindObjectOfType<Character>();
+            PhoenixSummonVisual.Play(character, false, PhoenixSummonVisual.RequiemDuration);
+            yield return new WaitForSeconds(PhoenixSummonVisual.RequiemDuration);
+            if (character != null && character.CurrentHealth > 0 && character.gameObject.activeInHierarchy)
+                ActivateNeuralBlock();
+            summonRoutine = null;
+        }
+        private void OnDisable()
+        {
+            StopAllCoroutines(); summonRoutine = null; overlayRoutine = null;
+            activeUntilTime = -1;
+            if (overlayCanvas != null) overlayCanvas.gameObject.SetActive(false);
         }
 
         private int ApplyFreezeToScreenMonsters(float remainingDuration)

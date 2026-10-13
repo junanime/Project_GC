@@ -16,7 +16,7 @@ namespace Vampire.Tests.Editor
                 var tests = new TutorialGuideTests();
                 tests.EveryFirstDiscoveryHasItsOwnPlayableClip();
                 tests.MonstersHaveDistinctStableDiscoveryIds();
-                Debug.Log("[TutorialGuide] PASS: 39 clips, unique IDs, monster mapping");
+                Debug.Log("[TutorialGuide] PASS: 43 guides, atlas/live previews, unique IDs, monster mapping");
                 EditorApplication.Exit(0);
             }
             catch (System.Exception exception)
@@ -41,30 +41,34 @@ namespace Vampire.Tests.Editor
             Assert.NotNull(text);
             var catalog = JsonUtility.FromJson<Catalog>(text.text);
             Assert.NotNull(catalog);
-            Assert.AreEqual(39, catalog.entries.Length);
+            Assert.AreEqual(43, catalog.entries.Length);
             var ids = new HashSet<string>();
             var effects = new HashSet<string>();
-            int weapons = 0, events = 0, monsters = 0, mechanics = 0;
+            int weapons = 0, events = 0, monsters = 0, mechanics = 0, items = 0;
             foreach (var entry in catalog.entries)
             {
                 Assert.IsTrue(ids.Add(entry.id), "Duplicate tutorial ID: " + entry.id);
                 Assert.IsTrue(effects.Add(entry.effect), "Duplicate clip: " + entry.effect);
                 Assert.IsFalse(string.IsNullOrWhiteSpace(entry.title));
                 var sheet = Resources.Load<Texture2D>("TutorialClips/Sheets/" + entry.effect);
+                if (!FoodTutorialPreview.Supports(entry.effect)) {
                 Assert.NotNull(sheet, "Missing loop sheet for " + entry.id);
                 Assert.AreEqual(1024, sheet.width);
                 Assert.AreEqual(432, sheet.height);
                 Assert.AreEqual(FilterMode.Point, sheet.filterMode);
                 Assert.AreEqual(1, sheet.mipmapCount);
+                }
                 if (entry.kind == "weapon") weapons++;
                 else if (entry.kind == "event") events++;
                 else if (entry.kind == "monster") monsters++;
                 else if (entry.kind == "mechanic") mechanics++;
+                else if (entry.kind == "item") items++;
                 else Assert.Fail("Unknown kind: " + entry.kind);
             }
             Assert.AreEqual(21, weapons);
             Assert.AreEqual(7, events);
-            Assert.AreEqual(10, monsters);
+            Assert.AreEqual(11, monsters);
+            Assert.AreEqual(3, items);
             Assert.AreEqual(1, mechanics);
             Assert.AreNotEqual(TutorialGuide.SeenKey("mechanic/blood-clot"), TutorialGuide.SeenKey("monster/sniper"));
         }

@@ -98,7 +98,7 @@ MonoBehaviour:
     upgrades: 01000000010000000100000001000000
     projectilesPer: 1
   syringeDelay: 0.05
-  baseSyringeMaxDistance: 5
+  baseSyringeMaxDistance: 2.733333
   angleBetweenProjectiles: 10
   maxTotalSpreadAngle: 360
   poisonEnabled: 0
@@ -135,7 +135,7 @@ MonoBehaviour:
   explosionRadius: 1
   explosionDamage: 4
   specialExplosionChance: 1
-  homingRange: 5
+  homingRange: 3.28
   homingLerpSpeed: 8
   fiberTrailLifetime: 2
   fiberTrailDamagePerSecond: 4

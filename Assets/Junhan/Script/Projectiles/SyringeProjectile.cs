@@ -17,14 +17,21 @@ namespace Vampire
 
         private SyringeSpecialRuntime specials;
         private int ver4PiercedTargets;
+        private int accelerationTargets;
+        private float launchSpeed;
+        public bool IsFlying => isActiveAndEnabled && !isDespawning;
         private Transform ver4HomingTarget;
         private SyringeAugmentVfx bipolarVisual;
         private bool heavyImpactVisual;
+        public Vector2 VisualFlightDirection => direction;
 
         public void ConfigureFlightVfx(bool bipolar, bool heavy)
         {
             SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
             heavyImpactVisual = heavy;
+            if (heavy)
+                (GetComponent<PhoenixHeavyFlightVisual>() ?? gameObject.AddComponent<PhoenixHeavyFlightVisual>()).Bind(this, projectileSpriteRenderer);
+            else GetComponent<PhoenixHeavyFlightVisual>()?.Clear();
             if (bipolar)
             {
                 bipolarVisual = SyringeAugmentVfx.Play("BipolarNeedle", transform.position, projectileSpriteRenderer);
@@ -124,6 +131,7 @@ namespace Vampire
         [SerializeField] private GameObject explosionEffectPrefab;
 
         private static bool hasWarnedHealMethodMissing = false;
+        private float baseTrailTime;
 
         private bool IsReturnMode =>
             flightState == NeedleFlightState.ReturnForwardPass ||
@@ -134,6 +142,7 @@ namespace Vampire
         {
             base.Awake();
             baseMaxDistance = maxDistance;
+            if (trailRenderer != null) baseTrailTime = trailRenderer.time;
         }
 
         float itemScale=1;bool itemSecondary;
@@ -151,6 +160,10 @@ namespace Vampire
 
             ConfigureFlightVfx(false, false);
             specials = default;
+            GetComponent<FormationNeedleCollision>()?.ResetLease();
+            launchSpeed = speed;
+            accelerationTargets = 0;
+            if (trailRenderer != null) trailRenderer.time = baseTrailTime;
             ver4PiercedTargets = 0;
             ver4HomingTarget = null;
             nextHomingVfxTime = 0f;
@@ -206,6 +219,14 @@ namespace Vampire
                 BossPierceRuntime.GetBossPierceCount(
                     playerCharacter
                 );
+        }
+
+        private void AccelerateAfterPierce()
+        {
+            int stage = specials.ver4 != null ? specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce, 1) : 0;
+            if (stage <= 0) return;
+            speed = launchSpeed * OriginalCombatRules.PierceSpeed(stage, ++accelerationTargets);
+            if (trailRenderer != null) trailRenderer.time = Mathf.Lerp(.06f, .16f, Mathf.Min(5, accelerationTargets) / 5f);
         }
 
         public override void Launch(Vector2 direction)
@@ -301,7 +322,7 @@ namespace Vampire
 
                         Vector2 previousPosition = transform.position;
 
-                        float normalStep = speed * Time.deltaTime;
+                        float normalStep = Mathf.Min(speed * Time.deltaTime, effectiveMaxDistance - distanceTravelled);
                         transform.position += normalStep * (Vector3)direction;
                         distanceTravelled += normalStep;
 
@@ -368,7 +389,11 @@ namespace Vampire
 
         private void UpdateHomingDirection()
         {
-            Transform target = FindClosestTarget();
+            Transform target = ver4HomingTarget;
+            Monster monster = target != null ? target.GetComponentInParent<Monster>() : null;
+            if (!NeedleTargeting.IsValid(monster, targetLayer) || hitTargetIds.Contains(monster.gameObject.GetInstanceID()) ||
+                (NeedleTargeting.Position(monster) - (Vector2)transform.position).sqrMagnitude > specials.homingRange * specials.homingRange)
+                target = FindClosestTarget();
             ver4HomingTarget = target;
 
             if (target == null)
@@ -380,11 +405,11 @@ namespace Vampire
             Vector2 desiredDirection =
                 ((Vector2)target.position - (Vector2)transform.position).normalized;
 
-            direction = Vector2.Lerp(
+            direction = NeedleTargeting.Curve(
                 direction,
                 desiredDirection,
-                specials.homingLerpSpeed * Time.deltaTime
-            ).normalized;
+                specials.homingLerpSpeed, Time.deltaTime
+            );
             if (Time.deltaTime > 0f && Vector2.Angle(previousDirection, desiredDirection) > 1f && Time.time >= nextHomingVfxTime)
             {
                 SyringeAugmentVfx.PlayDirected("Homing", transform.position, direction, projectileSpriteRenderer);
@@ -437,7 +462,7 @@ namespace Vampire
                 burnStatus = monster.gameObject.AddComponent<BurnStatus>();
             }
 
-            burnStatus.Apply(3f, 0.5f, 3f);
+            burnStatus.Apply(3f, 0.5f, 3f, playerCharacter);
         }
 
         private void ApplyPoison(Component damageableComponent)
@@ -533,8 +558,8 @@ namespace Vampire
             }
 
             float travelledDistance = Vector2.Distance(pressureLaunchPosition, transform.position);
-            float bonus = travelledDistance * Mathf.Max(0f, specials.pressureDamageBonusPerDistance);
-            bonus = Mathf.Min(bonus, Mathf.Max(0f, specials.pressureMaxDamageBonus));
+            int rank = specials.ver4 != null ? specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.PressureNeedle, 2) : 0;
+            float bonus = OriginalCombatRules.PressureBonus(rank, travelledDistance, specials.pressureDamageBonusPerDistance, specials.pressureMaxDamageBonus);
 
             return rawDamage * (1f + bonus);
         }
@@ -694,6 +719,7 @@ namespace Vampire
                 status = monster.gameObject.AddComponent<GutBacteriaStatus>();
             }
 
+            status.HarvestRank = specials.ver4 != null ? specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.GutBacteriaNeedle, 2) : 0;
             status.Apply(
                 specials.gutBacteriaStackDuration,
                 specials.gutBacteriaRequiredStacks,
@@ -829,14 +855,14 @@ namespace Vampire
 
         private Transform FindClosestTarget()
         {
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, specials.homingRange);
-            float closestDistance = float.MaxValue;
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, specials.homingRange, targetLayer);
+            float closestDistance = specials.homingRange;
             Transform closestTarget = null;
 
             foreach (Collider2D hit in hits)
             {
                 Monster monster;
-                if (!TryGetValidMonsterTarget(hit, out monster)) continue;
+                if (!TryGetValidMonsterTarget(hit, out monster) || !NeedleTargeting.IsValid(monster, targetLayer)) continue;
 
                 IDamageable damageable = monster as IDamageable;
                 if (damageable == null) continue;
@@ -881,6 +907,8 @@ namespace Vampire
                     collider,
                     out monsterTarget
                 );
+            // Solid feet are movement contacts, not projectile anatomy.
+            if (monsterTarget != null && monsterTarget.BodyHitbox != null && collider != monsterTarget.BodyHitbox) return;
 
             if (!isValidMonsterTarget)
             {
@@ -999,6 +1027,7 @@ namespace Vampire
 
             TryCreateStuckNeedleVisual(
                 damageableComponent,
+                collider,
                 hitPosition,
                 hitRotation,
                 hitScale
@@ -1022,6 +1051,7 @@ namespace Vampire
                 if (remainingBossPierces > 0)
                 {
                     remainingBossPierces--;
+                    AccelerateAfterPierce();
 
                     if (col != null)
                     {
@@ -1114,6 +1144,7 @@ namespace Vampire
             if (canPierce)
             {
                 remainingPierces--;
+                AccelerateAfterPierce();
                 SyringeAugmentVfx.PlayDirected("Pierce", transform.position, direction, projectileSpriteRenderer);
 
                 if (col != null)
@@ -1372,12 +1403,13 @@ namespace Vampire
 
             bool isCritical = false;
 
+            float debuffMultiplier = CombatStatusRules.DamageMultiplier(playerCharacter,damageableComponent);
             rawDamage *= itemScale;
             rawDamage *= Ver4HitEffects.BeforeHit(damageableComponent,specials);
             if (specials.ver4 != null)
             {
                 if (specials.pierceEnabled && !IsReturnMode)
-                    rawDamage *= 1f + .06f * specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce,2) * ver4PiercedTargets++;
+                    rawDamage *= OriginalCombatRules.PierceDamage(specials.ver4.Count(SyringeSpecialAugmentAbility.SpecialAugmentType.Pierce,2), ver4PiercedTargets++);
                 if (specials.homingEnabled && ver4HomingTarget != null &&
                     (ver4HomingTarget == damageableComponent.transform || ver4HomingTarget.IsChildOf(damageableComponent.transform)))
                     rawDamage *= specials.ver4.Factor(SyringeSpecialAugmentAbility.SpecialAugmentType.Homing,2,.08f);
@@ -1433,9 +1465,6 @@ namespace Vampire
 
             float finalKnockback =
                 knockback;
-            if (specials.ver4 != null && specials.pressureEnabled &&
-                Vector2.Distance(pressureLaunchPosition,transform.position)*specials.pressureDamageBonusPerDistance >= specials.pressureMaxDamageBonus)
-                finalKnockback *= specials.ver4.Factor(SyringeSpecialAugmentAbility.SpecialAugmentType.PressureNeedle,2,.15f);
 
             if (statRuntime != null)
             {
@@ -1462,6 +1491,7 @@ namespace Vampire
 
             var items=playerCharacter!=null?playerCharacter.GetComponent<OctoberItemRuntime>():null;
             if(items!=null)finalDamage=items.BeforeHit(damageableComponent,finalDamage,itemSecondary,ref isCritical,ref finalKnockback);
+            finalDamage *= debuffMultiplier;
             float hpBefore=Ver4HitEffects.Health(damageableComponent);
             float actualReportedDamage =
                 finalDamage;
@@ -1621,20 +1651,23 @@ namespace Vampire
                 );
             }
             var hitRuntime=specials;
-            hitRuntime.ver4HitDamage=finalDamage;
+            // Secondary effects evaluate their own target at damage time, without inheriting this bonus twice.
+            hitRuntime.ver4HitDamage=finalDamage/debuffMultiplier;
             hitRuntime.ver4Knockback=finalKnockback;
             Ver4HitEffects.AfterHit(damageableComponent,hitRuntime,playerCharacter,targetLayer,consumedNeedleMark);
         }
-        private void TryCreateStuckNeedleVisual(Component damageableComponent, Vector3 hitPosition, Quaternion hitRotation, Vector3 hitScale)
+        private void TryCreateStuckNeedleVisual(Component damageableComponent, Collider2D hitCollider, Vector3 hitPosition, Quaternion hitRotation, Vector3 hitScale)
         {
             if (!enableStuckNeedleVisual || IsReturnMode || specials.returnNeedleEnabled || specials.pierceEnabled || damageableComponent == null) return;
 
             Monster monster = damageableComponent.GetComponent<Monster>() ?? damageableComponent.GetComponentInParent<Monster>();
-            if (monster == null) return;
+            var snail = damageableComponent.GetComponentInParent<SnailBossRuntime>();
+            var mini = damageableComponent.GetComponentInParent<SnailBossMinion>();
+            if (monster == null && snail == null && mini == null) return;
 
             TrapMonster trapMonster = monster as TrapMonster;
             if (trapMonster != null && !trapMonster.IsActive) return;
-            if (monster.HP <= 0f) return;
+            if ((monster != null && monster.HP <= 0f) || (snail != null && snail.Dead) || (mini != null && mini.Health <= 0)) return;
             if (projectileSpriteRenderer == null || projectileSpriteRenderer.sprite == null) return;
 
             GameObject stuckNeedleObject = new GameObject("Stuck Needle Visual");
@@ -1643,7 +1676,12 @@ namespace Vampire
             stuckTransform.position = hitPosition;
             stuckTransform.rotation = hitRotation;
             stuckTransform.localScale = hitScale * stuckNeedleScaleMultiplier;
-            stuckTransform.SetParent(monster.transform, true);
+            SpriteRenderer targetRenderer = monster != null ? monster.BodyRenderer : snail != null ? snail.Visual.Shell : mini.GetComponentInChildren<SnailMiniVisual>()?.Shell;
+            var miniVisual=damageableComponent.GetComponentInChildren<SnailMiniVisual>();
+            if(miniVisual!=null)targetRenderer=miniVisual.Shell;
+            if(snail!=null&&snail.Visual.Body.enabled&&Vector2.Distance(snail.Visual.Body.bounds.ClosestPoint(hitPosition),hitPosition)<Vector2.Distance(snail.Visual.Shell.bounds.ClosestPoint(hitPosition),hitPosition))targetRenderer=snail.Visual.Body;
+            if (targetRenderer == null) { Destroy(stuckNeedleObject); return; }
+            stuckTransform.SetParent(targetRenderer.transform, true);
 
             SpriteRenderer renderer = stuckNeedleObject.AddComponent<SpriteRenderer>();
             renderer.sprite = projectileSpriteRenderer.sprite;
@@ -1654,20 +1692,27 @@ namespace Vampire
             baseColor.a = stuckNeedleAlpha;
             renderer.color = baseColor;
 
-            SpriteRenderer targetRenderer = monster.GetComponentInChildren<SpriteRenderer>();
-            if (targetRenderer != null)
+            // Put the forward-most visible tip just inside the hit surface. Using centre position
+            // alone leaves long needles hovering in air at first trigger overlap.
+            Vector2 travel = direction.normalized;
+            Vector2 surface = VisibleBodyGeometry.Surface(targetRenderer,hitPosition,travel);
+            var vertices = renderer.sprite.vertices;
+            float tip = float.NegativeInfinity;
+            foreach (var vertex in vertices)
             {
-                renderer.sortingLayerID = targetRenderer.sortingLayerID;
-                renderer.sortingOrder = targetRenderer.sortingOrder + Mathf.Max(5, stuckNeedleSortingOrderBonus);
+                Vector3 local = new Vector3(renderer.flipX ? -vertex.x : vertex.x, renderer.flipY ? -vertex.y : vertex.y);
+                float along = Vector2.Dot(stuckTransform.TransformVector(local), travel);
+                tip = Mathf.Max(tip, along);
             }
-            else
-            {
-                renderer.sortingLayerID = projectileSpriteRenderer.sortingLayerID;
-                renderer.sortingOrder = projectileSpriteRenderer.sortingOrder + Mathf.Max(5, stuckNeedleSortingOrderBonus);
-            }
+            float depth = Mathf.Clamp(Mathf.Max(renderer.bounds.size.x,renderer.bounds.size.y)*.24f,.035f,.18f);
+            Vector3 embedded = surface + travel*(depth-Mathf.Max(0,tip));
+            embedded.z = targetRenderer.transform.position.z;
+            stuckTransform.position = embedded;
+            renderer.sortingLayerID = targetRenderer.sortingLayerID;
+            renderer.sortingOrder = targetRenderer.sortingOrder - 1;
 
             StuckNeedleVisual stuckVisual = stuckNeedleObject.AddComponent<StuckNeedleVisual>();
-            stuckVisual.Init(monster, stuckNeedleLifetime);
+            stuckVisual.Init(monster, stuckNeedleLifetime, targetRenderer, snail, mini);
         }
 
         private IEnumerator ReenableColliderNextFrame()
@@ -1686,7 +1731,7 @@ namespace Vampire
             }
             else
             {
-                SyringeAugmentVfx.Play("Explosion", transform.position, SyringeAugmentVfx.FindTarget(originalTarget.transform));
+                SyringeAugmentVfx.PlayRadius("Explosion", transform.position, specials.explosionRadius, SyringeAugmentVfx.FindTarget(originalTarget.transform));
             }
 
             Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");
@@ -1718,6 +1763,7 @@ namespace Vampire
                     splashDamage = statRuntime.CalculateOffensiveDamage(playerCharacter, splashComponent, splashDamage, out isCritical);
                 }
 
+                splashDamage *= CombatStatusRules.DamageMultiplier(playerCharacter,splashComponent);
                 splashDamageable.TakeDamage(splashDamage, Vector2.zero);
 
                 // 폭발침 스플래시는 OnHitDamageable을 거치지 않는 독립 피해이므로
@@ -1845,9 +1891,13 @@ namespace Vampire
         private Monster ownerMonster;
         private float lifetime = 2.5f;
         private Coroutine lifetimeCoroutine;
+        private SpriteRenderer body, needle;
+        private SnailBossRuntime snail;
+        private SnailBossMinion mini;
 
-        public void Init(Monster ownerMonster, float lifetime)
+        public void Init(Monster ownerMonster, float lifetime, SpriteRenderer body = null, SnailBossRuntime snail = null, SnailBossMinion mini = null)
         {
+            this.body=body; this.snail=snail; this.mini=mini; needle=GetComponent<SpriteRenderer>();
             this.ownerMonster = ownerMonster;
             this.lifetime = Mathf.Max(0.05f, lifetime);
 
@@ -1858,6 +1908,13 @@ namespace Vampire
 
             lifetimeCoroutine = StartCoroutine(LifetimeRoutine());
         }
+        private void LateUpdate()
+        {
+            if (body == null || !body.gameObject.activeInHierarchy || (ownerMonster != null && ownerMonster.HP<=0) || (snail != null && snail.Dead) || (mini != null && mini.Health<=0)) { Destroy(gameObject); return; }
+            needle.enabled=body.enabled;
+            needle.sortingLayerID=body.sortingLayerID; needle.sortingOrder=body.sortingOrder-1;
+        }
+        private void OnDisable() { if (Application.isPlaying) Destroy(gameObject); }
 
         private IEnumerator LifetimeRoutine()
         {

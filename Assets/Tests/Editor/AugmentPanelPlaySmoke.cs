@@ -295,6 +295,7 @@ namespace Vampire.Tests.Editor
             Check(dialog.MenuOpen&&!reroll.gameObject.activeSelf,"Legendary rewards still open without reroll");
             foreach(var card in cards)TextFits(card,"Legendary");Capture("legendary-existing-frame");
             var legend=(Ver4AugmentOffer)((List<Ability>)Get(dialog,"displayedAbilities"))[0];var legendSource=legend.Source;
+            cards[0].Selected();yield return new WaitForSecondsRealtime(1);
             cards[0].Selected();Check(legendSource.Owned&&!dialog.MenuOpen,"Legendary reward still selectable");
             dialog.Open(false);yield return new WaitForSecondsRealtime(.7f);
             Check(cards.All(c=>!c.UsesNoblePanel&&((Image)Get(c,"abilityImage")).enabled),"Reused Noble cards restore ordinary icons");

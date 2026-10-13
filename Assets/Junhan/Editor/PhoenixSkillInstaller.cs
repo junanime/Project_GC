@@ -34,7 +34,7 @@ namespace Vampire.Editor
                 var d=AssetDatabase.LoadAssetAtPath<CharacterSkillDefinition>(path);
                 if(d==null){d=ScriptableObject.CreateInstance<CharacterSkillDefinition>();AssetDatabase.CreateAsset(d,path);}
                 d.kind=CharacterSkillDefinition.SkillKind.Hyuki;d.passiveName="하다보면";d.activeName="잠깐 진심";
-                d.passiveDescription="빙결침의 즉시 빙결 확률은 10%로 시작합니다. 즉시 빙결 추첨 실패마다 +1%p(최대 100%), 성공 시 10%로 초기화됩니다. 적별 냉기 4스택 확정 빙결과 액티브 빙결은 누적 확률을 초기화하지 않습니다.";
+                d.passiveDescription="상태이상에 걸린 적에게 추가 피해를 줍니다. 강화 시 10% → 20% → 30% → 40% → 50%.";
                 d.activeDescription="눈보라가 잦아들기 시작하는 발동 1.65초 후, 거리 4 이내 적을 최대 5초간 빙결합니다. 다음 빙결침 적중 시 해제됩니다. 보스는 감속 · 재사용 60초.";
                 d.passiveDuration=4;d.activeDuration=IceSkillRules.FreezeDuration;d.cooldown=IceSkillRules.ActiveCooldown;
                 d.passiveIcon=Import("HyukiHadaBomyeon")[0];d.activeIcon=Import("HyukiActive")[0];d.phoenixFrames=Import("IcePhoenix",4,4);d.icePrison=Import("IcePrison",4,2);

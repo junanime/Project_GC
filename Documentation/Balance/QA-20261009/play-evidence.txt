@@ -1,0 +1,74 @@
+ASHI_CHECK actual Ashi scene actor
+ASHI_CHECK Wind is Ashi starting weapon
+ASHI_CHECK owned remake weapon cannot activate Honey
+ASHI_CHECK toggle cannot enable Honey
+ASHI_CHECK retired starting selection falls back Honey
+ASHI_CHECK owned remake weapon cannot activate WoodNeedle
+ASHI_CHECK toggle cannot enable WoodNeedle
+ASHI_CHECK retired starting selection falls back WoodNeedle
+ASHI_CHECK live volleys observed windAS0
+ASHI_CADENCE label=windAS0 volleys=24 interval=0.7362319 count=2 reportedCooldown=0.6363636 activeProjectiles=4
+ASHI_CHECK live volleys observed windAS3
+ASHI_CADENCE label=windAS3 volleys=29 interval=0.6220238 count=2 reportedCooldown=0.522388 activeProjectiles=5
+ASHI_CHECK live volleys observed windAS3_hunger8
+ASHI_CADENCE label=windAS3_hunger8 volleys=36 interval=0.4957143 count=2 reportedCooldown=0.3957486 activeProjectiles=6
+ASHI_CHECK Wind and Hunger each accelerate actual volleys
+ASHI_CHECK actual volleys match effective cooldown plus shot spacing
+ASHI_CHECK Ashi live projectiles damage mini-boss
+ASHI_BATTLE seconds=8 startHP=2500 remainingHP=2348.799 damage=151.2007
+ASHI_CHECK 40 fire applications respect cap at rank 0
+ASHI_CHECK 40 fire applications respect cap at rank 1
+ASHI_CHECK 40 fire applications respect cap at rank 2
+ASHI_CHECK 40 fire applications respect cap at rank 3
+ASHI_CHECK 8 stacks guarantee exactly one additional harvest gem
+ASHI_CHECK qualified kill pays basic and extra gem
+ASHI_CHECK duplicate death cannot duplicate harvest
+ASHI_CHECK expired excess stacks cannot keep cached harvest chance
+ASHI_CHECK three remaining stacks pay only basic reward
+ASHI_CHECK pooled status clears harvest state
+ASHI_CHECK other slots retain random pool; previews never grant originals
+ASHI_CHECK overcharge dialog guarantees original
+ASHI_CHECK reroll retains guarantee without applying previews
+ASHI_CHECK double selection grants one rank
+ASHI_CHECK close clears both reward contexts
+ASHI_CHECK ordinary chest starts without guarantee
+ASHI_CHECK actual overcharge chest offers original
+ASHI_CHECK overlapping chests queue two rewards with isolated contexts
+ASHI_CHECK chest setup clears pooled guarantee
+ASHI_CHECK acquire Poison
+ASHI_CHECK acquire Explosion
+ASHI_CHECK acquire Homing
+ASHI_CHECK acquire Pierce
+ASHI_CHECK acquire Mosquito
+ASHI_CHECK acquire AcupunctureFormation
+ASHI_CHECK acquire ReturnNeedle
+ASHI_CHECK acquire DigestiveAcidSacNeedle
+ASHI_CHECK acquire HungerNeedle
+ASHI_CHECK acquire GutBacteriaNeedle
+ASHI_CHECK acquire FiberNeedle
+ASHI_CHECK acquire CorrosionNeedle
+ASHI_CHECK acquire PressureNeedle
+ASHI_CHECK acquire MarkNeedle
+ASHI_CHECK acquire BipolarNeedle
+ASHI_CHECK acquire FireNeedle
+ASHI_CHECK acquire IceNeedle
+ASHI_CHECK acquire VibrationNeedle
+ASHI_CHECK live completed distribution near 70/30
+ASHI_COMPLETED_DISTRIBUTION legendary=2109 supreme=891
+ASHI_CHECK exhausted guarantee explains fallback
+ASHI_CHECK exhausted reroll keeps three choices
+ASHI_CHECK same-run restore is idempotent
+ASHI_CHECK begin overcharge
+ASHI_CHECK enter enhanced mini-stage
+ASHI_CHECK mini-stage preserves acquired originals and exact numeric values
+ASHI_CHECK enhanced room produces guaranteed chest
+ASHI_CHECK real room chest carries context
+ASHI_CHECK mini-stage return preserves balance state
+ASHI_CHECK enter stage two through actual travel
+ASHI_CHECK stage two preserves all acquired balance state
+ASHI_CHECK legacy retired history does not reject active state
+ASHI_CHECK legacy migration restores active originals only
+ASHI_CHECK migrated shared numeric values cannot apply twice
+ASHI_CHECK legacy saved .24 plus active .23 restore without grade reroll
+ASHI_BALANCE_CHECKS 3637
+ASHI_AUDIT_FINISHED failed=False

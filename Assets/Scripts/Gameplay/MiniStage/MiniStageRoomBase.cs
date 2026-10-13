@@ -46,6 +46,7 @@ namespace Vampire
         private bool awaitingSkillReward;
         public bool Enhanced => director != null && director.CurrentEnhanced;
 
+        public bool RoomStarted => roomStarted;
         public Transform PlayerStartPoint
         {
             get
@@ -249,6 +250,7 @@ namespace Vampire
             // 미니 스테이지 클리어 후 보상 상자가
             // 실제로 생성된 경우에만 클리어 효과음을 재생합니다.
             if (activeRewardChest == null) { UnlockReturnInteractableIfAllowed(); return; }
+            activeRewardChest.GuaranteesOriginal = Enhanced;
             if (activeRewardChest != null)
             {
                 GameAudioManager.PlaySfx(

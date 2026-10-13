@@ -119,7 +119,9 @@ public static class SnailBossPlaySmoke
         Check(boss.transform.position==frozen,"mini-stage cannot drag boss into room");
         MiniStageRuntimeState.ExitMiniStage(null);yield return null;
         boss.TakeDamage(999999);Check(boss.Dead,"lethal damage enters death");
-        yield return new WaitForSeconds(1.7f);Check(level.IsLevelEnded,"boss death completes level");
+        yield return new WaitForSeconds(1.7f);
+        Check(!level.IsLevelEnded && StageProgression.Ensure(level).FirstBossDefeated,
+            "stage 1 boss death opens stage 2 without ending the run");
         Debug.Log("SNAIL_PLAY_ALL_PASS");
         SessionState.SetBool(Key+"Done",true);
     }

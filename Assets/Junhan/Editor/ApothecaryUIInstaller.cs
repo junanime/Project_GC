@@ -84,7 +84,7 @@ namespace Vampire.EditorTools
             {
                 string[] names={"생명 연소","복제 배양","고슴도침","대물침","이기어침","신경차단","독 전염","장기압착","위산 연동파","점막 요새","아귀","산탄침"};
                 int index=new SerializedObject(ability).FindProperty("augmentType").intValue;
-                if(index>=0&&index<names.Length)title=names[index];
+                if(index>=0&&index<names.Length)title=PhoenixNobleTheme.DisplayLabel(names[index]);
             }
             else if(title=="General"){title="일반 증강";description="선택 시 제시된 능력치 효과를 획득합니다.";}
             if(string.IsNullOrWhiteSpace(description))description="플레이 중 증강 선택에서 획득합니다.";

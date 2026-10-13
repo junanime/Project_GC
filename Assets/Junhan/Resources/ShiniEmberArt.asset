@@ -1,0 +1,64 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac235d5fd0559147b8b7e6c26c27ad2, type: 3}
+  m_Name: ShiniEmberArt
+  m_EditorClassIdentifier: 
+  cast:
+  - {fileID: -681047087, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 1381098842, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: -1483889682, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 1759141284, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 1347267631, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: -2124981952, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 1691792360, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: -321114159, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 822801671, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 1616143896, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: -1489262083, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  - {fileID: 1007783518, guid: 8221e1f6a2359f64fb11b29f28189756, type: 3}
+  flames:
+  - {fileID: 1003152039, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: 1896261890, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: -1874699274, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: -1348248671, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: 121120948, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: 2083244735, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: 820656457, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  - {fileID: -72991816, guid: 2a384a4465a791749a45e1178bc00122, type: 3}
+  digits:
+  - {fileID: -228120330, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: 147417673, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: 1608571430, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: 1954696713, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: -2140966113, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: -1622025897, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: 1213275067, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: -1334148768, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: -1923707701, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  - {fileID: -1033115581, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  mouths:
+  - {x: 0.56595564, y: 1.34}
+  - {x: 0.70690066, y: 1.345}
+  - {x: 0.7227867, y: 1.385}
+  - {x: 0.58262205, y: 2.37}
+  - {x: 0.9846135, y: 2.065}
+  - {x: 1.5188235, y: 1.495}
+  - {x: 1.3394551, y: 1.365}
+  - {x: 1.3310436, y: 1.365}
+  - {x: 1.272511, y: 1.35}
+  - {x: 0.84806335, y: 1.36}
+  - {x: 0.79488313, y: 1.325}
+  - {x: 0.61931425, y: 1.64}
+  castHeight: 2.66
+  ember: {fileID: 772028101, guid: 77ec2f8d2b7c9f04796476cda8f4f70a, type: 3}
+  emberHeight: 0.21060002
+  flameMaterial: {fileID: 2100000, guid: b2be7f118da2ffb43831d322bc9196c8, type: 2}

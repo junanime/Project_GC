@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public class PoisonStatus : MonoBehaviour
+    public class PoisonStatus : MonoBehaviour, ICombatStatus
     {
+        private float statusExpires;
+        public CombatStatusTag ActiveStatusTags => poisonActive && Time.time < statusExpires ? CombatStatusTag.Poison : CombatStatusTag.None;
         private Monster targetMonster;
         private Coroutine poisonCoroutine;
         private SyringeAugmentVfx poisonVisual;
@@ -88,6 +90,7 @@ namespace Vampire
                     ? "독침"
                     : damageSourceName;
 
+            statusExpires = Time.time + currentDuration;
             poisonActive = true;
             contagionAlreadyTriggered = false;
 
@@ -168,6 +171,7 @@ namespace Vampire
                 return;
             }
 
+            finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,targetMonster);
             targetMonster.TakePeriodicDamage(finalDamage);
 
             // 기존 총 피해량 시스템에 포함

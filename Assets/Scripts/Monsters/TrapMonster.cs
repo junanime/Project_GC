@@ -49,6 +49,20 @@ namespace Vampire
         private TrapArrowDirection[] arrowSequence;
         private int arrowProgress;
         private TrapArrowMiniGameUI arrowMiniGameUI;
+        private MobileTrapEscapeUI mobileEscapeUI;
+        public int EscapeProgress => arrowProgress;
+        public int EscapeLength => arrowSequence != null ? arrowSequence.Length : 0;
+        public int EscapeTarget => arrowSequence != null && arrowProgress < arrowSequence.Length ? (int)arrowSequence[arrowProgress] : -1;
+        public int EscapeRevision { get; private set; }
+        public bool AcceptsMobileEscape => IsActive && trappedCharacter != null && trappedCharacter.IsTrapBound &&
+            (GamePlatform.UsesTouchControls || MobileGameplayInput.Active) && Time.timeScale > 0f && EscapeTarget >= 0;
+        public void SubmitMobileEscape(int button, int revision)
+        {
+            if (!AcceptsMobileEscape || revision != EscapeRevision || button < 0 || button > 3) return;
+            EscapeRevision++;
+            HandleArrowInput((TrapArrowDirection)button);
+            if (mobileEscapeUI != null) mobileEscapeUI.Refresh();
+        }
 
         private float trapHpBuff = 0f;
         private bool setupCompleted = false;
@@ -495,7 +509,10 @@ namespace Vampire
 
             arrowProgress = 0;
 
-            arrowMiniGameUI = TrapArrowMiniGameUI.Create(
+            EscapeRevision++;
+            if (GamePlatform.UsesTouchControls || MobileGameplayInput.Active)
+                mobileEscapeUI = MobileTrapEscapeUI.Create(this);
+            else arrowMiniGameUI = TrapArrowMiniGameUI.Create(
                 transform,
                 arrowCharacters,
                 trapBlueprint.arrowMiniGameUiYOffset,
@@ -531,6 +548,7 @@ namespace Vampire
         private bool TryReadArrowInput(out TrapArrowDirection inputDirection)
         {
             if (Time.timeScale <= 0f) { inputDirection = TrapArrowDirection.Up; return false; }
+            if (mobileEscapeUI != null) { inputDirection = TrapArrowDirection.Up; return false; }
             if (MobileGameplayInput.ConsumeArrow(out int mobileDirection))
             {
                 inputDirection = (TrapArrowDirection)mobileDirection;
@@ -736,6 +754,13 @@ namespace Vampire
 
         private void StopArrowMiniGame()
         {
+            EscapeRevision++;
+            if (mobileEscapeUI != null)
+            {
+                mobileEscapeUI.gameObject.SetActive(false);
+                Destroy(mobileEscapeUI.gameObject);
+                mobileEscapeUI = null;
+            }
             if (arrowInputCoroutine != null)
             {
                 StopCoroutine(arrowInputCoroutine);

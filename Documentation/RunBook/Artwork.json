@@ -1,0 +1,16 @@
+[
+  {
+    "asset": "Assets/Resources/RunBook/Backplate.png",
+    "generatedSource": "exec-afb40bfa-b85e-46ca-8854-b5377566bc32.png",
+    "sha256": "099a5a46746e211f7d1795434311f6bfc1ee7b150c1f7dca3d8da9a4295abf51",
+    "tool": "built-in image_gen",
+    "pngModified": false
+  },
+  {
+    "asset": "Assets/Resources/RunBook/Icons.png",
+    "generatedSource": "exec-a277d618-bda0-4b97-b413-234e0c4d9b64.png",
+    "sha256": "6c4f8b113d8eed0d4af3aee24e37ee29d7bd37be3a5b71cab64f91418f4cfdbd",
+    "tool": "built-in image_gen",
+    "pngModified": false
+  }
+]

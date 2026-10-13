@@ -91,8 +91,10 @@ namespace Vampire
                 lineRenderer.material = new Material(spriteShader);
             }
 
+            spiralColor.a = 1f;
             lineRenderer.startColor = spiralColor;
             lineRenderer.endColor = spiralColor;
+            AugmentVfxTag.Mark(gameObject);
         }
 
         private void RebuildSpiral()

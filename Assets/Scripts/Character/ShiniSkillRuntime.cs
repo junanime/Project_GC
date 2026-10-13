@@ -48,6 +48,7 @@ namespace Vampire
         void FixedUpdate()
         {
             if(skill==null||!skill.IsShini||!owner.IsAlive)return;
+            if(owner.IsPortalTravelling){previous=transform.position;return;}
             Vector3 position=transform.position;
             // Physics ticks avoid undercounting movement on render frames between physics updates.
             AdvanceMovement((position-previous).sqrMagnitude>.000001f,Time.fixedDeltaTime);previous=position;

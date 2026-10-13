@@ -17,12 +17,18 @@ namespace Vampire
             }
         }
         public static int Id=>SelectedId(CrossSceneData.CharacterBlueprint);
-        public static int SelectedId(CharacterBlueprint character)=>PlayerPrefs.GetInt(SaveKey(character),DefaultId(character));
+        public static bool Available(SyringeSpecialAugmentAbility.SpecialAugmentType type) =>
+            type != SyringeSpecialAugmentAbility.SpecialAugmentType.Honey && type != SyringeSpecialAugmentAbility.SpecialAugmentType.WoodNeedle;
+        public static int SelectedId(CharacterBlueprint character)
+        {
+            int id=PlayerPrefs.GetInt(SaveKey(character),DefaultId(character));
+            return Available((SyringeSpecialAugmentAbility.SpecialAugmentType)id) ? id : DefaultId(character);
+        }
         public static string EnabledKey(SyringeSpecialAugmentAbility.SpecialAugmentType type)=>"October.NeedleEnabled."+type;
-        public static bool Enabled(SyringeSpecialAugmentAbility weapon)=>weapon==null || PlayerPrefs.GetInt(EnabledKey(weapon.Type),1)!=0;
+        public static bool Enabled(SyringeSpecialAugmentAbility weapon)=>weapon==null || (Available(weapon.Type) && PlayerPrefs.GetInt(EnabledKey(weapon.Type),1)!=0);
         public static bool SetEnabled(SyringeSpecialAugmentAbility weapon,bool enabled,ApothecaryUIConfig config)
         {
-            if(weapon==null || !Owned(weapon))return false;
+            if(weapon==null || !Available(weapon.Type) || !Owned(weapon))return false;
             if(!enabled && config.weapons.Count(w=>w!=null && Owned(w) && Enabled(w))<=1)return false;
             PlayerPrefs.SetInt(EnabledKey(weapon.Type),enabled?1:0);PlayerPrefs.Save();return true;
         }

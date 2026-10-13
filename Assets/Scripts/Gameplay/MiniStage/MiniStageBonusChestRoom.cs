@@ -268,6 +268,7 @@ namespace Vampire
             }
 
             spawnedMonsterFromChest.OnKilled.AddListener(OnMonsterChestMonsterKilled);
+            (spawnedMonsterFromChest.GetComponent<MimicChestVisual>() ?? spawnedMonsterFromChest.gameObject.AddComponent<MimicChestVisual>()).Configure();
         }
 
         private void OnMonsterChestMonsterKilled(Monster monster)
@@ -338,7 +339,6 @@ namespace Vampire
         private void BuildRoleList()
         {
             roleBuffer.Clear();
-            if(Enhanced) { for(int i=0;i<mysteryChests.Length;i++)roleBuffer.Add(MiniStageMysteryChestOutcome.TrueReward); return; }
 
             roleBuffer.Add(MiniStageMysteryChestOutcome.Fake);
             roleBuffer.Add(MiniStageMysteryChestOutcome.TrueReward);

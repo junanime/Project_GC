@@ -68,6 +68,7 @@ namespace Vampire
         public CharacterBlueprint character;
         public Image body, effect;
         float elapsed;
+        ShiniEmberArt emberArt;
         void Update()
         {
             if(character==null||body==null)return;
@@ -83,7 +84,9 @@ namespace Vampire
                 {
                     case CharacterSkillDefinition.SkillKind.Ashi:fx=d.activeWind;break;
                     case CharacterSkillDefinition.SkillKind.Hyuki:frames=character.idleSpriteSequence;fx=d.icePrison;break;
-                    case CharacterSkillDefinition.SkillKind.Shini:if(active)frames=d.burningWalk;fx=d.burnVfx;break;
+                    case CharacterSkillDefinition.SkillKind.Shini:
+                        if(emberArt==null)emberArt=Resources.Load<ShiniEmberArt>("ShiniEmberArt");
+                        frames=active&&emberArt!=null?emberArt.cast:character.idleSpriteSequence;fx=null;break;
                     case CharacterSkillDefinition.SkillKind.Ari:fx=null;break;
                 }
             }

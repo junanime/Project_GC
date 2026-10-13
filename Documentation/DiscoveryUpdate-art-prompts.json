@@ -1,0 +1,10 @@
+{
+  "date": "2026-10-06",
+  "tool": "built-in image_gen",
+  "reference": "exec-46a60736-d333-4c58-bf1e-2cee8237f55a.png",
+  "output": "Assets/Resources/ToadUpdate/NobleScroll.png",
+  "transparent_background": true,
+  "prompt": "Create one production-ready transparent sprite sheet with exactly TWO isolated UI assets based on the approved reference's closed scroll, preserving cream parchment, hand-painted subtle pixel-like edges, brown thin outline, jade green endcaps and brass gold accents. Canvas 1024x1024. Left half: a single CLOSED tall parchment scroll front facing, occupying x32..480 y70..950, includes faint herbal leaf seal and mint cloud motifs, top and bottom rollers. No text, no letters, no interface, no background, no glow, no other icons. Right half: ONLY a horizontal rolled parchment roller rod with jade endcaps and gold collars matching the left scroll's lower rod, centered around x540..994 y470..554, surrounding area fully transparent. Keep every element wholly within its half and separated. The scroll will be clipped vertically by code while the standalone rod moves upwards to reveal game cards. These are in-game UI assets, not a concept presentation. Clean readable texture, no invented symbols resembling typography.",
+  "actual_output_size": [1280, 1280],
+  "integration": "Unity sprite slicing, RectMask2D reveal, independent lower roller, unscaled animation. Original card content retained. Toad icon reuses approved ToadHead frame 0. Tutorials animate actual shipped sprites rather than generate new character designs."
+}

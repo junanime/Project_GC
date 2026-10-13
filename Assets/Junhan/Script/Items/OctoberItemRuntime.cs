@@ -129,7 +129,7 @@ namespace Vampire
             if(critical&&slow&&Ready(50,1)){ConsumeSlow(target);Hit(target,LastBaseDamage,50);}
             if(Has(55))
             {
-                if(target is Monster monster)monster.TakeItemPureDamage(LastBaseDamage*.2f);
+                if(target is Monster monster)monster.TakeItemPureDamage(LastBaseDamage*.2f*CombatStatusRules.DamageMultiplier(Player,target));
                 else Hit(target,LastBaseDamage*.2f,55);
             }
             if(drumReady&&Has(59)){drumReady=false;Zone(target.transform.position,2,.7f,LastBaseDamage*.3f,59,true);}

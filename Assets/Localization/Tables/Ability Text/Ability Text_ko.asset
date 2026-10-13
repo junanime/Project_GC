@@ -46,8 +46,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 276406643037884416
-    m_Localized: "\uCE68\uC774 \uC8FC\uBCC0\uC758 \uC801\uC744 \uCD94\uC801\uD558\uBA70
-      \uD718\uC5B4\uC838 \uB0A0\uC544\uAC11\uB2C8\uB2E4."
+    m_Localized: "침이 발사 직후부터 적의 움직임을 따라 부드럽게 휘어집니다. 탐지 범위는 아시 약 4개 길이이며, 침의 비행 거리는 사거리 강화를 따릅니다."
     m_Metadata:
       m_Items: []
   - m_Id: 276406846071558144

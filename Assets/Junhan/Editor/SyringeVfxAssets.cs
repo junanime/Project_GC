@@ -7,6 +7,37 @@ using Vampire;
 
 public static class SyringeVfxAssets
 {
+    [MenuItem("Tools/Syringe VFX/Build October 6 combat effects")]
+    public static void BuildOctober6()
+    {
+        AssetDatabase.Refresh();
+        foreach (string name in new[] { "WoodSprout", "WoodBranch", "VibrationShockwave", "PolarityMark" })
+        {
+            var importer = (TextureImporter)AssetImporter.GetAtPath("Assets/Junhan/Resources/SyringeVfx/" + name + ".png");
+            importer.GetSourceTextureWidthAndHeight(out int width, out _);
+            BuildSheet(name, 2, width / 4f, .055f, name == "PolarityMark" ? 1f : .8f);
+        }
+        BuildVariant("PolarityMark", "YangMark", 0, 4, true, .15f);
+        BuildVariant("PolarityMark", "YinMark", 4, 4, true, .15f);
+        foreach (string name in new[] { "YangMark", "YinMark" })
+        {
+            string path = "Assets/Junhan/Resources/SyringeVfx/" + name + ".prefab";
+            var go = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                var data = new SerializedObject(go.GetComponent<SyringeAugmentVfx>());
+                data.FindProperty("overhead").boolValue = true;
+                data.FindProperty("markerSize").floatValue = .48f;
+                data.FindProperty("sortingOrderOffset").intValue = 12;
+                data.ApplyModifiedPropertiesWithoutUndo();
+                PrefabUtility.SaveAsPrefabAsset(go, path);
+            }
+            finally { PrefabUtility.UnloadPrefabContents(go); }
+        }
+        AssetDatabase.SaveAssets();
+        Debug.Log("OCT6_VFX_ASSETS_OK: isolated yang/yin halves, sprout, branch and shockwave");
+    }
+
     [MenuItem("Tools/Syringe VFX/Rebuild sprite assets")]
     public static void Build()
     {

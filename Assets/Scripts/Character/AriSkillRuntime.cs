@@ -66,6 +66,7 @@ namespace Vampire
         void LateUpdate()
         {
             if(body==null||form==null)return;
+            if(owner.IsPortalTravelling || owner.IsPortalPoseHeld){form.enabled=false;return;}
             if(!owner.IsAlive||owner.IsTrapBound)
             {transition=0;hasForm=false;form.enabled=false;body.forceRenderingOff=false;wasActive=skill.Active;return;}
             var d=skill.Definition;float dt=Time.deltaTime;

@@ -87,6 +87,7 @@ namespace Vampire
         float PlayerRadius(){var c=player.GetComponent<Collider2D>();return c!=null?Mathf.Max(c.bounds.extents.x,c.bounds.extents.y)+.04f:.45f;}
         void LateUpdate()
         {
+            if(player!=null && player.IsPortalTravelling)return;
             if(player==null||Vector2.Distance(player.transform.position,PlayArea.center)>PlayArea.width*2)return;
             var rb=player.GetComponent<Rigidbody2D>();var pos=Clamp(player.transform.position,PlayerRadius());
             if(Vector2.Distance(player.transform.position,pos)>.001f)

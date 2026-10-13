@@ -60,10 +60,16 @@ namespace Vampire
         }
 
         public AugmentUpgradeGrade ResolveNumericGrade(string parentId, AugmentUpgradeGrade rolledGrade)
+            => ResolveNumericGrade(parentId, rolledGrade, Math.Min(UnityEngine.Random.value, .999999999));
+
+        public AugmentUpgradeGrade ResolveNumericGrade(string parentId, AugmentUpgradeGrade rolledGrade, double completionSample)
         {
+            if (double.IsNaN(completionSample) || completionSample < 0 || completionSample >= 1)
+                throw new ArgumentOutOfRangeException(nameof(completionSample));
             if (!IsOwned(parentId)) throw new ArgumentException("Parent is not owned.", nameof(parentId));
             if (!AugmentUpgradeOdds.IsNumeric(rolledGrade)) throw new ArgumentException("Not a numeric grade.", nameof(rolledGrade));
-            return Level(parentId) == MaxParentLevel ? AugmentUpgradeGrade.Supreme : rolledGrade;
+            return Level(parentId) == MaxParentLevel
+                ? (completionSample < .70 ? AugmentUpgradeGrade.Legendary : AugmentUpgradeGrade.Supreme) : rolledGrade;
         }
 
         public List<ParentSnapshot> Capture()

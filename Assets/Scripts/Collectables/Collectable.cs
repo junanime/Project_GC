@@ -49,6 +49,7 @@ namespace Vampire
             if (spawnAnimation)
                 StartCoroutine(SpawnAnimation());
             gameObject.SetActive(true);
+            TutorialGuide.QueueItem(this);
 
             //  [추가] 만약 보석이 스폰되는 시점에 이미 MRI 자석을 보유 중이라면 즉시 흡수!
             if (playerCharacter != null && playerCharacter.AutoCollectItems)

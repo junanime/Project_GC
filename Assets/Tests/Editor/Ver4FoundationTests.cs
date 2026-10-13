@@ -53,7 +53,10 @@ namespace Vampire.Tests.Editor
             }
             Assert.AreEqual(9,progress.Level("Poison"));
             Assert.AreEqual(0,progress.Level("Explosion"));
-            Assert.AreEqual(AugmentUpgradeGrade.Supreme,progress.ResolveNumericGrade("Poison",AugmentUpgradeGrade.Common));
+            for(int i=0;i<10000;i++)
+                Assert.AreEqual(i<7000 ? AugmentUpgradeGrade.Legendary : AugmentUpgradeGrade.Supreme,
+                    progress.ResolveNumericGrade("Poison",AugmentUpgradeGrade.Common,(i+.5)/10000));
+            Assert.AreEqual(AugmentUpgradeGrade.Supreme,progress.ResolveNumericGrade("Poison",AugmentUpgradeGrade.Common,.7));
             Assert.AreEqual(AugmentUpgradeGrade.Common,progress.ResolveNumericGrade("Explosion",AugmentUpgradeGrade.Common));
             Assert.Throws<ArgumentException>(()=>progress.ResolveNumericGrade("Poison",AugmentUpgradeGrade.Original));
         }

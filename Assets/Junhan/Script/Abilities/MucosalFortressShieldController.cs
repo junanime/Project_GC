@@ -156,6 +156,7 @@ namespace Vampire
             effect.BindTo(ownerCharacter.CenterTransform);
             float diameter = 2f * (shieldRadius + Mathf.Max(0, stack - 1) * stackRadiusStep);
             effect.SetWorldSize(Vector2.one * diameter, Vector2.one * 0.86f);
+            effect.SetPhoenixStack(stack - 1);
         }
 
         private void UpdateVisual()
@@ -171,6 +172,7 @@ namespace Vampire
             {
                 shieldVisuals[i].SetWorldSize(Vector2.one * (2f * (shieldRadius + i * stackRadiusStep)), Vector2.one * 0.86f);
                 shieldVisuals[i].SetStrength(shieldColor.a);
+                shieldVisuals[i].SetPhoenixStack(i);
             }
         }
 

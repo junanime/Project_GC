@@ -14,6 +14,7 @@ namespace Vampire
         protected Transform chestItemsParent;
         protected SpriteRenderer spriteRenderer;
         protected bool opened = false;
+        public bool GuaranteesOriginal { get; set; }
         public bool CanInteract => !opened && chestBlueprint!=null && GetComponent<Collider2D>().enabled;
 
         public void Init(EntityManager entityManager, Character playerCharacter, Transform chestItemsParent)
@@ -28,8 +29,9 @@ namespace Vampire
         public void Setup(ChestBlueprint chestBlueprint)
         {
             this.chestBlueprint = chestBlueprint;
+            GuaranteesOriginal = false;
             transform.localScale = Vector3.one;
-            spriteRenderer.sprite = chestBlueprint.closedChest;
+            spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.closedChest);
             opened = false;
             LootInteraction.Attach(this);
             var marker=GetComponent<MapMarker>();if(marker==null)marker=gameObject.AddComponent<MapMarker>();marker.Configure(MapMarkerKind.Chest,"아이템 상자");
@@ -76,14 +78,14 @@ namespace Vampire
             // Two chests may overlap the player in one physics step. Queue this
             // reward until the first modal has closed instead of losing a choice.
             while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
-            spriteRenderer.sprite = chestBlueprint.openingChest;
+            spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.openingChest);
             bool spawnLoot = chestBlueprint.legendaryAugmentChest
                 ? !entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
                 : !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
             if (spawnLoot)
                 SpawnLoot(chestBlueprint.lootTable.DropLootObject(), openedByPlayer);
             yield return new WaitForSeconds(0.1f);
-            spriteRenderer.sprite = chestBlueprint.openChest;
+            spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.openChest);
             if (!spawnLoot)
             {
                 while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
@@ -92,6 +94,7 @@ namespace Vampire
                     : entityManager.AbilitySelectionDialog.HasAvailableAbilities();
                 if (!stillAvailable) SpawnLoot(chestBlueprint.lootTable.DropLootObject(),openedByPlayer);
                 else if (chestBlueprint.legendaryAugmentChest) entityManager.AbilitySelectionDialog.OpenLegendary();
+                else if (GuaranteesOriginal) entityManager.AbilitySelectionDialog.OpenOvercharge();
                 else entityManager.AbilitySelectionDialog.Open(false);
             }
             yield return new WaitForSeconds(0.15f);

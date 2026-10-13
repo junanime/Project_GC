@@ -55,6 +55,7 @@ namespace Vampire
 
         public bool TryBind(TrapMonster trap, Vector3 worldPosition)
         {
+            if(ownerCharacter!=null && ownerCharacter.IsPortalTravelling)return false;
             if (trap == null)
             {
                 return false;

@@ -14,7 +14,7 @@ namespace Vampire
         [SerializeField, Tooltip("Keep playing until the poison status releases this effect.")]
         private bool loop;
         [SerializeField, Tooltip("Opacity of the effect; keeps the target readable.")]
-        private float opacity = 0.75f;
+        private float opacity = 1f;
         [SerializeField, Tooltip("Place this loop in world space instead of fitting a target.")]
         private bool worldSpace;
         [SerializeField, Tooltip("Render below all actors and above backgrounds.")]
@@ -38,6 +38,10 @@ namespace Vampire
         private ObjectPool<SyringeAugmentVfx> ownerPool;
         private bool leased;
         private float elapsed;
+        public SpriteRenderer Target => target;
+        public void SetPhoenixCharge(float charge) { GetComponent<PhoenixRadianceVisual>()?.SetCharge(charge); }
+        public void SetPhoenixAmount(float amount) { GetComponent<PhoenixRadianceVisual>()?.SetAmount(amount); }
+        public void SetPhoenixStack(int index) { GetComponent<PhoenixRadianceVisual>()?.SetStack(index); }
         private static Transform poolRoot;
         private static readonly Dictionary<string, ObjectPool<SyringeAugmentVfx>> pools = new Dictionary<string, ObjectPool<SyringeAugmentVfx>>();
 
@@ -85,6 +89,9 @@ namespace Vampire
             instance.visual = instance.GetComponent<SpriteRenderer>();
             instance.animator = instance.GetComponent<SpriteAnimator>();
             instance.visual.enabled = true;
+            // Authored legacy opacity is replaced by the shared user setting.
+            // SetStrength still controls lifecycle fade/animation independently.
+            instance.opacity = 1f;
             instance.visual.color = new Color(1f, 1f, 1f, instance.opacity);
             instance.ApplyVisualSorting();
             instance.transform.position = position;
@@ -93,6 +100,8 @@ namespace Vampire
             instance.animator.Init(instance.frames, instance.frameTime, false);
             instance.animator.StartAnimation(true);
             instance.FollowTarget();
+            PhoenixNobleVfx.Attach(instance.visual, effect, instance.loop, instance.frames.Length * instance.frameTime);
+            AugmentVfxTag.Mark(instance.gameObject);
             return instance;
         }
 
@@ -133,6 +142,21 @@ namespace Vampire
             var vfx = Play(effect, position, sortingTarget);
             if (vfx != null) vfx.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
             return vfx;
+        }
+
+        // Diameter is in world units and follows the same radius used by damage queries.
+        public static SyringeAugmentVfx PlayRadius(string effect, Vector3 position, float radius, SpriteRenderer sortingTarget = null)
+        {
+            var vfx = Play(effect, position, sortingTarget);
+            if (vfx != null) vfx.SetWorldSize(Vector2.one * (2f * radius), Vector2.one * (effect == "Explosion" ? .88f : .80f));
+            return vfx;
+        }
+
+        public static void PlayBranch(Vector3 from, Vector3 to, SpriteRenderer sortingTarget)
+        {
+            Vector2 delta = to - from;
+            var vfx = PlayDirected("WoodBranch", (from + to) * .5f, delta, sortingTarget);
+            if (vfx != null) vfx.SetWorldSize(new Vector2(Mathf.Max(.25f, delta.magnitude), .5f), new Vector2(.80f, .70f));
         }
 
         public static void PlayAbsorption(Component source, Character player)

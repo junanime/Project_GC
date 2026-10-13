@@ -27,6 +27,7 @@ namespace Vampire
         [SerializeField] protected PointBar expBar;
         [SerializeField] protected Collider2D collectableCollider;
         [SerializeField] protected Collider2D meleeHitboxCollider;
+        private bool hurtboxFitApplied;
         [SerializeField] protected ParticleSystem dustParticles;
         [SerializeField] protected Material defaultMaterial, hitMaterial, deathMaterial;
         [SerializeField] protected ParticleSystem deathParticles;
@@ -160,6 +161,9 @@ namespace Vampire
         protected Vector2 moveDirection;
         private bool movementControlsReversed;
         public bool IsTrapBound => TryGetComponent<PlayerTrapBindRuntime>(out var bind) && bind.IsBound;
+        public bool IsPortalTravelling => TryGetComponent<BloodClotTravel>(out var travel) && travel.Busy;
+        public bool IsPortalDamageProtected => TryGetComponent<BloodClotTravel>(out var travel) && travel.IsDamageProtected;
+        public bool IsPortalPoseHeld => TryGetComponent<BloodClotTravel>(out var travel) && travel.HoldingPose;
         public Vector2 EffectiveMoveDirection => IsTrapBound ? Vector2.zero :
             (movementControlsReversed ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
@@ -184,6 +188,8 @@ namespace Vampire
         private MonsterBlueprint lastDamageMonsterBlueprint;
 
         public MonsterBlueprint LastDamageMonsterBlueprint => lastDamageMonsterBlueprint;
+
+        public bool IsChoosingAugment => abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen;
 
         public Vector2 LookDirection
         {
@@ -210,7 +216,7 @@ namespace Vampire
         public float DebuffDuration(float duration) => Relics != null ? Relics.DebuffDuration(duration) : duration;
         public void GainPickupHealth(float amount) => GainHealth(Relics != null ? Relics.PickupHealing(amount) : amount);
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
-        public bool IsSkillIdle => alive && !IsDashing && !IsTrapBound && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
+        public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
         public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
         private float SnailSlowMultiplier => GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f;
         public float CurrentArmor => armor != null ? armor.Value : 0f;
@@ -359,6 +365,12 @@ namespace Vampire
 
             StartIdleAnimation();
 
+            if (!hurtboxFitApplied && spriteRenderer != null && spriteRenderer.sprite != null)
+            {
+                CharacterHurtboxFit.Apply(this, spriteRenderer, meleeHitboxCollider);
+                hurtboxFitApplied = true;
+            }
+
             movementSpeed = new UpgradeableMovementSpeed();
             movementSpeed.Value = characterBlueprint.movespeed;
             abilityManager.RegisterUpgradeableValue(movementSpeed, true);
@@ -389,7 +401,7 @@ namespace Vampire
                 lookIndicator.transform.localPosition = lookDirection * lookIndicatorRadius;
             }
 
-            if (spriteRenderer != null && !dashSpriteApplied && !IsTrapBound)
+            if (spriteRenderer != null && !dashSpriteApplied && !IsTrapBound && !IsPortalTravelling && !IsPortalPoseHeld)
             {
                 spriteRenderer.flipX = lookDirection.x < 0;
             }
@@ -397,6 +409,7 @@ namespace Vampire
 
         private void HandleHealOnIdle()
         {
+            if(IsPortalTravelling)return;
             if (healOnIdlePerSecond > 0 && Velocity.magnitude < 0.1f)
             {
                 float healAmount = GetMaxHealth() * healOnIdlePerSecond;
@@ -406,6 +419,11 @@ namespace Vampire
 
         protected virtual void FixedUpdate()
         {
+            if (IsPortalTravelling || IsPortalPoseHeld)
+            {
+                if (rb != null) rb.velocity = Vector2.zero;
+                return;
+            }
             if (IsTrapBound)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
@@ -485,6 +503,7 @@ namespace Vampire
 
         public bool TryDash()
         {
+            if (IsPortalTravelling || IsPortalPoseHeld) return false;
             if (Time.timeScale <= 0f || (abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen)) return false;
             if (IsTrapBound) return false;
             if (!enableDash)
@@ -953,7 +972,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (IsDashInvincibilityActive())
+            if (IsPortalDamageProtected || IsDashInvincibilityActive())
             {
                 return;
             }
@@ -985,6 +1004,7 @@ namespace Vampire
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
+            if (IsPortalDamageProtected) return;
             if (!alive)
             {
                 return;
@@ -1810,6 +1830,7 @@ namespace Vampire
             snapshot.SkillSleepSeconds=Skills != null ? Skills.SleepSeconds : 0;
             snapshot.SkillConsumedSleepStacks=Skills != null ? Skills.ConsumedSleepStacks : 0;
             snapshot.SkillIceProcFailures=Skills != null ? Skills.IceProcFailures : 0;
+            snapshot.ShiniFuel=Skills?.Breath!=null?Skills.Breath.Fuel:0;
             snapshot.SkillPassiveLevel=Skills != null ? Skills.PassiveLevel : 1;
             snapshot.SkillActiveLevel=Skills != null ? Skills.ActiveLevel : 1;
             snapshot.Prescription=GetComponent<PrescriptionRuntime>()?.Capture();
@@ -2033,6 +2054,7 @@ namespace Vampire
             Skills?.Restore(snapshot.SkillPassiveRemaining,snapshot.SkillActiveRemaining,snapshot.SkillCooldownRemaining,snapshot.SkillSummonRemaining);
             Skills?.RestoreSleep(snapshot.SkillSleepSeconds,snapshot.SkillConsumedSleepStacks);
             Skills?.RestoreIceProcFailures(snapshot.SkillIceProcFailures);
+            Skills?.Breath?.RestoreFuel(snapshot.ShiniFuel);
             // Restored spent charges must recharge even when no dash can be started.
             StopDashRecharge();
             EnsureDashRecharge();

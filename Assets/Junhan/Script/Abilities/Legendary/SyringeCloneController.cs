@@ -102,7 +102,7 @@ namespace Vampire
                         1f,
                         1f,
                         1f,
-                        0.75f
+                        1f
                     );
             }
 
@@ -118,6 +118,7 @@ namespace Vampire
             cloneRb.gravityScale = 0f;
             cloneRb.drag = 0f;
             cloneRb.angularDrag = 0f;
+            AugmentVfxTag.Mark(cloneObject);
 
             cloneRb.constraints =
                 RigidbodyConstraints2D.FreezeRotation;
@@ -223,6 +224,7 @@ namespace Vampire
                 spawnInvincibleDuration;
 
             visualReadyAt = Time.time + 0.24f;
+            UpdateVisual();
             var spawn = SyringeAugmentVfx.Play("CloneSpawn", transform.position, spriteRenderer);
             if (spawn != null) spawn.BindTo(transform);
 
@@ -348,6 +350,7 @@ namespace Vampire
                 );
 
 
+            targetPosition += Vector3.up * (0.28f + (GamePreferences.Current.reducedMotion ? 0f : Mathf.Sin(Time.time * 5f) * 0.07f));
             transform.position =
                 Vector3.Lerp(
                     transform.position,
@@ -389,6 +392,9 @@ namespace Vampire
                 spriteRenderer.flipX =
                     sourceRenderer.flipX;
 
+                transform.localScale = new Vector3(Mathf.Abs(sourceRenderer.transform.lossyScale.x) / 3f,
+                    Mathf.Abs(sourceRenderer.transform.lossyScale.y) / 3f, 1f);
+
 
                 if (spawnInvincibleTimer > 0f)
                 {
@@ -397,7 +403,7 @@ namespace Vampire
                             1f,
                             1f,
                             1f,
-                            0.45f
+                            0.6f
                         );
                 }
                 else
@@ -407,7 +413,7 @@ namespace Vampire
                             1f,
                             1f,
                             1f,
-                            0.75f
+                            1f
                         );
                 }
             }

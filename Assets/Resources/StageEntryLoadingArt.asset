@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0c3cc2ed9ec9024d8f4d6270596f95e, type: 3}
+  m_Name: StageEntryLoadingArt
+  m_EditorClassIdentifier: 
+  corridor: {fileID: 21300000, guid: fa01acba67219c243876feba2a63dbda, type: 3}
+  hyuki:
+  - {fileID: 8973470121198485876, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: 6839960018944070908, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: -7466859437446363963, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: -646789857003419285, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: 4918430783431970167, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: 3823623766657365831, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: 4899351399647020816, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  - {fileID: -7358850496288348650, guid: c6006c1e704858e4a8aabaa6395d2992, type: 3}
+  shini:
+  - {fileID: 8973470121198485876, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: 6839960018944070908, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: -7466859437446363963, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: -646789857003419285, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: 4918430783431970167, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: 3823623766657365831, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: 4899351399647020816, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  - {fileID: -7358850496288348650, guid: f59d4ff8ad66abd469cb60bbff5f6321, type: 3}
+  ari:
+  - {fileID: 8973470121198485876, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: 6839960018944070908, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: -7466859437446363963, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: -646789857003419285, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: 4918430783431970167, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: 3823623766657365831, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: 4899351399647020816, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  - {fileID: -7358850496288348650, guid: 480beac00f76cec4ebf952d037d262ce, type: 3}
+  ashi:
+  - {fileID: 8973470121198485876, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: 6839960018944070908, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: -7466859437446363963, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: -646789857003419285, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: 4918430783431970167, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: 3823623766657365831, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: 4899351399647020816, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  - {fileID: -7358850496288348650, guid: a0cb2a7b6b661014696d338e0760d2ef, type: 3}
+  bacteria:
+  - {fileID: 21300000, guid: fbe312c9edf8429d9599b66bba6c3631, type: 3}
+  - {fileID: 21300000, guid: fdbbfcd3c5594b21b1c7076fe3a27544, type: 3}
+  - {fileID: 21300000, guid: 8baf1dbd3fb24029a346344951fd0e45, type: 3}
+  - {fileID: 21300000, guid: b8041473ef3a41e1b74da31d6f70c144, type: 3}
+  slime:
+  - {fileID: -2146118600, guid: ad6bb07c1b3255741be51708a3db89fa, type: 3}
+  - {fileID: -1965372516, guid: ad6bb07c1b3255741be51708a3db89fa, type: 3}
+  - {fileID: 146762714, guid: ad6bb07c1b3255741be51708a3db89fa, type: 3}
+  - {fileID: 776401688, guid: ad6bb07c1b3255741be51708a3db89fa, type: 3}

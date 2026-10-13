@@ -706,6 +706,13 @@ namespace Vampire
                 OverrideBgmType.Boss);
         }
 
+        public static void FinishStageBossAudio()
+        {
+            if (Instance == null) return;
+            Instance.EndOverrideBgm(true);
+            Instance.PlaySfxInternal(GameSfxId.RewardEvent);
+        }
+
         public static void EndRunAudio(
             bool victory)
         {

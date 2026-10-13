@@ -65,7 +65,7 @@ MonoBehaviour:
   - {fileID: 9053662864293787467}
   - {fileID: 2391718542799325912}
   autoFindMysteryChests: 1
-  randomizeChestRolesOnStart: 0
+  randomizeChestRolesOnStart: 1
   trueRewardChestBlueprint: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}
   trueRewardChestSpawnPoint: {fileID: 0}
   trueRewardOpenDelay: 0.15

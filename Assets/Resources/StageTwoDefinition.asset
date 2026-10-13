@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c862cd08bdaf9940928edb591daa875, type: 3}
+  m_Name: StageTwoDefinition
+  m_EditorClassIdentifier: 
+  snailPrefab: {fileID: 3571539085545015903, guid: c4e2ae5d114e9574490fc90f2552f526, type: 3}
+  body: {fileID: 21300000, guid: 1592977b0b3166e419aa7bdfbc02e186, type: 3}
+  shells:
+  - {fileID: 21300000, guid: a615395df8867be479d06e90516700f6, type: 3}
+  - {fileID: 21300000, guid: 72dc7a9bfcd031044be1dfd709869a74, type: 3}
+  - {fileID: 21300000, guid: e6cf328a3c72f344f9b8dcffe535ac06, type: 3}
+  - {fileID: 21300000, guid: d76d519173f9ea845bc49a374dd30591, type: 3}
+  - {fileID: 21300000, guid: 2d27d9f984f53324c9844e9f3611f45c, type: 3}
+  - {fileID: 21300000, guid: d39d19cd0885726439485ff909b8377d, type: 3}
+  - {fileID: 21300000, guid: 2d6a8fbbb412e654b99734581364ced6, type: 3}
+  - {fileID: 21300000, guid: 797478b3601c973439fb34526d074865, type: 3}
+  - {fileID: 21300000, guid: 22e63c8b1018afb448756fc444c928f9, type: 3}
+  names:
+  - "\uC2DC\uB098\uBAAC\uB864"
+  - "\uB538\uAE30 \uB3C4\uB11B"
+  - "\uD53C\uC2A4\uD0C0\uCE58\uC624 \uB9C8\uCE74\uB871"
+  - "\uAFC0\uBC84\uD130 \uC640\uD50C"
+  - "\uAE40\uBC25"
+  - "\uCC10\uB9CC\uB450"
+  - "\uCE58\uC988\uBC84\uAC70"
+  - "\uC218\uBC15"
+  - "\uCE90\uB7EC\uBA5C \uD478\uB529"
+  crater: {fileID: 21300000, guid: 3be1555adb1c1094eb3b216041ef347f, type: 3}
+  cream: {fileID: 2800000, guid: d98b8559106088b43a8dd8b76e1d6ee5, type: 3}
+  rewardChest: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}

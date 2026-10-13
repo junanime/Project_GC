@@ -25,6 +25,14 @@ namespace Vampire
         private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
         private bool playerInside => playerColliders.Count > 0;
         private bool consumed = false;
+        public bool Reserved => consumed;
+        public void Reserve(bool value)
+        {
+            consumed = value;
+            var charge = GetComponent<BloodClotOvercharge>();
+            if (charge != null) charge.SetTravelReserved(value);
+            RefreshGuide();
+        }
         public bool CanInteract => isActiveAndEnabled && !consumed && playerInside &&
             miniStageDirector != null && miniStageDirector.CanEnterFromPortal && !ChallengeInProgress;
         public bool ChallengeInProgress => GetComponent<BloodClotOvercharge>() is BloodClotOvercharge charge && charge.Started && !charge.Enhanced;
@@ -56,6 +64,8 @@ namespace Vampire
         private void Awake()
         {
             BloodClotObstacle.Ensure(gameObject);
+            InteractionFocus.ReduceTrigger(GetComponent<Collider2D>());
+            InteractionFocus.Register(this, () => CanInteract);
             RefreshGuide();
         }
 
@@ -74,7 +84,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 TryEnterMiniStage();
             }
@@ -89,7 +99,7 @@ namespace Vampire
 
             Character character = other.GetComponentInParent<Character>();
 
-            if (character == null)
+            if (character == null || other == character.CollectableCollider)
             {
                 return;
             }

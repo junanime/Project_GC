@@ -99,15 +99,7 @@ namespace Vampire
             timeSinceLastAttack += Time.deltaTime;
 
 
-            float attackSpeedMultiplier =
-                Mathf.Max(
-                    0.01f,
-                    playerCharacter.AttackSpeedMultiplier
-                );
-
-
-            float effectiveCooldown =
-                cooldown.Value / attackSpeedMultiplier;
+            float effectiveCooldown = GetEffectiveCooldown();
 
 
             if (timeSinceLastAttack >= effectiveCooldown)
@@ -126,6 +118,8 @@ namespace Vampire
         // =========================================================
         // Attack
         // =========================================================
+
+        public virtual float GetEffectiveCooldown() => Mathf.Max(.001f, cooldown.Value / Mathf.Max(.01f, playerCharacter.AttackSpeedMultiplier));
 
         protected virtual void Attack()
         {

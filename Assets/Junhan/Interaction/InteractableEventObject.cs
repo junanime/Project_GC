@@ -77,6 +77,7 @@ namespace Vampire
 
         protected virtual void Awake()
         {
+            InteractionFocus.Register(this, () => CanBeFocusedBy(currentPlayer));
             interactionCollider = GetComponent<Collider2D>();
 
             if (interactionCollider != null)
@@ -130,7 +131,7 @@ namespace Vampire
                 return;
             }
 
-            if (Vampire.GameInput.TryConsumeInteraction(interactionKey))
+            if (Vampire.GameInput.TryConsumeInteraction(interactionKey, this))
             {
                 TryInteract();
             }
@@ -140,7 +141,7 @@ namespace Vampire
         {
             Character character = other.GetComponentInParent<Character>();
 
-            if (character == null)
+            if (character == null || other == character.CollectableCollider)
             {
                 return;
             }
@@ -177,6 +178,7 @@ namespace Vampire
         public void TryInteract()
         {
             if (Time.timeScale <= 0f) return;
+            if (!InteractionFocus.IsFocused(this)) return;
             if (MiniStageRuntimeState.IsInsideMiniStage && !AllowMiniStageInteraction)
             {
                 return;
@@ -310,7 +312,6 @@ namespace Vampire
             focusedPlayer = player;
 
             InteractableEventObject nearest = null;
-            float nearestSqrDistance = float.MaxValue;
 
             for (int i = candidates.Count - 1; i >= 0; i--)
             {
@@ -329,12 +330,8 @@ namespace Vampire
                     continue;
                 }
 
-                float sqrDistance =
-                    (candidate.transform.position - player.transform.position).sqrMagnitude;
-
-                if (sqrDistance < nearestSqrDistance)
+                if (InteractionFocus.IsFocused(candidate))
                 {
-                    nearestSqrDistance = sqrDistance;
                     nearest = candidate;
                 }
             }
@@ -374,7 +371,7 @@ namespace Vampire
 
         protected void SetPromptVisible(bool visible)
         {
-            PixelInteractionPrompt.Show(PromptOwner, visible && isActiveAndEnabled, promptRoot);
+            PixelInteractionPrompt.Show(PromptOwner, visible && isActiveAndEnabled, promptRoot, this);
         }
     }
 }

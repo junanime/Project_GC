@@ -18,7 +18,8 @@ namespace Vampire
             var line=obj.AddComponent<LineRenderer>(); line.useWorldSpace=false; line.loop=true; line.positionCount=24;
             line.startWidth=line.endWidth=.07f;
             effect.material=new Material(Shader.Find("Sprites/Default")); line.sharedMaterial=effect.material;
-            line.startColor=line.endColor=healing ? new Color(.4f,1,.4f,.7f) : new Color(.4f,.8f,1,.7f);
+            line.startColor=line.endColor=healing ? new Color(.4f,1,.4f,1f) : new Color(.4f,.8f,1,1f);
+            AugmentVfxTag.Mark(obj);
             for(int i=0;i<24;i++) line.SetPosition(i,new Vector3(Mathf.Cos(i*Mathf.PI/12),Mathf.Sin(i*Mathf.PI/12),0));
         }
         private void Update()

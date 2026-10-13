@@ -46,7 +46,7 @@ namespace Vampire
                 size.y * Mathf.Abs(bodyScale.y) / Mathf.Max(.0001f, spriteSize.y * Mathf.Abs(parentScale.y)),
                 originalScale.z);
             projection.sortingLayerID = body.sortingLayerID;
-            projection.sortingOrder = body.sortingOrder - 1;
+            projection.sortingOrder = body.sortingOrder - 2;
             enabled = true;
             RefreshFacing();
         }

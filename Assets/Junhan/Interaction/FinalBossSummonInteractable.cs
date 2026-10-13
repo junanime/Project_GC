@@ -68,6 +68,15 @@ namespace Vampire
             base.OnDisable();
         }
 
+        public void ResetForNextStage()
+        {
+            StopAllCoroutines();
+            if (pendingSummon == this) pendingSummon = null;
+            summoning = false;
+            if (presentation != null) presentation.ResetStandby();
+            ResetInteractionAvailability();
+        }
+
         public bool TryAutomaticSummon()
         {
             if (!isActiveAndEnabled || HasInteracted || Time.timeScale <= 0f ||

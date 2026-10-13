@@ -41,37 +41,37 @@ MonoBehaviour:
     range: 0.04
     size: 0.05
     projectiles: 1
-  - damage: 0.12
-    criticalChance: 0.1
-    criticalDamage: 0.18
-    attackSpeed: 0.08
+  - damage: 0.11
+    criticalChance: 0.09
+    criticalDamage: 0.17
+    attackSpeed: 0.075
     projectileSpeed: 0.08
     knockback: 0.1
     range: 0.07
     size: 0.08
     projectiles: 1
-  - damage: 0.16
-    criticalChance: 0.15
-    criticalDamage: 0.25
-    attackSpeed: 0.12
+  - damage: 0.15
+    criticalChance: 0.14
+    criticalDamage: 0.23
+    attackSpeed: 0.11
     projectileSpeed: 0.12
     knockback: 0.15
     range: 0.1
     size: 0.12
     projectiles: 2
-  - damage: 0.24
-    criticalChance: 0.2
-    criticalDamage: 0.4
-    attackSpeed: 0.18
+  - damage: 0.23
+    criticalChance: 0.19
+    criticalDamage: 0.38
+    attackSpeed: 0.17
     projectileSpeed: 0.18
     knockback: 0.23
     range: 0.15
     size: 0.18
     projectiles: 3
-  - damage: 0.36
-    criticalChance: 0.25
-    criticalDamage: 0.6
-    attackSpeed: 0.27
+  - damage: 0.34
+    criticalChance: 0.23
+    criticalDamage: 0.57
+    attackSpeed: 0.25
     projectileSpeed: 0.27
     knockback: 0.35
     range: 0.23

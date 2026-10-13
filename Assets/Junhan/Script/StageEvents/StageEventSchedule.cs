@@ -254,6 +254,20 @@ namespace Vampire
 
         private int activeAcidRainEventCount;
 
+        public void CollectPresentations(List<StageEventPresentation> result)
+        {
+            if (!isActiveAndEnabled) return;
+            foreach (var e in monsterSurgeEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Infection, e.eventName));
+            foreach (var e in goldRushEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.Gold, e.eventName));
+            foreach (var e in acidSecretionEvents)
+                if (e != null && e.enabled && e.started && !e.finished)
+                    result.Add(new StageEventPresentation(e, StageEventVisualKind.AcidRain, e.eventName));
+        }
+
         public void CollectWindowTemplates(List<StageEventTemplate> templates)
         {
             var monsterSurgeEventsSources = monsterSurgeEvents.ToArray();

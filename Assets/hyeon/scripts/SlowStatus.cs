@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public class SlowStatus : MonoBehaviour
+    public class SlowStatus : MonoBehaviour, ICombatStatus
     {
+        private float statusExpires;
+        public CombatStatusTag ActiveStatusTags => isSlowed && Time.time < statusExpires ? CombatStatusTag.Slow : CombatStatusTag.None;
         private Monster monster;
         private float originalSpeed;
         private bool isSlowed = false;
@@ -32,6 +34,7 @@ namespace Vampire
 
         private IEnumerator SlowRoutine(float duration, float slowPercentage)
         {
+            statusExpires = Time.time + Mathf.Max(0, duration);
             isSlowed = true;
 
             //  [주의] Monster.cs 내부의 이동속도 변수명에 맞게 수정해야 합니다!

@@ -130,7 +130,7 @@ namespace Vampire
 
 
                     float dealtDamage =
-                        damage.Value;
+                        damage.Value * CombatStatusRules.DamageMultiplier(playerCharacter,monster);
 
 
                     // 실제 피해

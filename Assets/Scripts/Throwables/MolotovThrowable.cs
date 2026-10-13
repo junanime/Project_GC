@@ -139,8 +139,9 @@ namespace Vampire
 
 
             // 실제 몬스터 피해
+            float dealtDamage = damage * CombatStatusRules.DamageMultiplier(playerCharacter,damageable as Component);
             damageable.TakePeriodicDamage(
-                damage,
+                dealtDamage,
                 knockback * knockbackDirection
             );
 
@@ -171,7 +172,7 @@ namespace Vampire
             // =====================================================
 
             OnHitDamageable?.Invoke(
-                damage
+                dealtDamage
             );
         }
     }

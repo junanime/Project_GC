@@ -12,17 +12,23 @@ namespace Vampire
         private LineRenderer[] arcs;
         private GameObject orbitRoot;
         private Material orbitMaterial;
-        private float expireTime, phase;
+        private float expireTime, eventExpireTime, skillExpireTime, phase;
         private float extraMoveForce = 2.5f, maxAddedVelocity = 2f;
         private bool initialized;
         private static Sprite beanSprite;
         public void ApplyOrRefresh(Character targetPlayer, float duration, float extraMoveForce,
             float maxAddedVelocity, Color overlayColor)
+            => Apply(targetPlayer,duration,extraMoveForce,maxAddedVelocity,false);
+        public void ApplySkill(Character targetPlayer,float duration,float extraMoveForce,float maxAddedVelocity)
+            => Apply(targetPlayer,duration,extraMoveForce,maxAddedVelocity,true);
+        void Apply(Character targetPlayer,float duration,float extraMoveForce,float maxAddedVelocity,bool skill)
         {
             this.targetPlayer = targetPlayer;
             this.extraMoveForce = Mathf.Max(0f, extraMoveForce);
             this.maxAddedVelocity = Mathf.Max(0.1f, maxAddedVelocity);
-            expireTime = Time.time + Mathf.Max(.1f, duration);
+            if(skill)skillExpireTime=Time.time+Mathf.Max(.1f,duration);
+            else eventExpireTime=Time.time+Mathf.Max(.1f,duration);
+            expireTime = Mathf.Max(eventExpireTime,skillExpireTime);
             if (initialized) return;
             monster = GetComponent<Monster>(); rb = GetComponent<Rigidbody2D>();
             var animator = GetComponentInChildren<SpriteAnimator>(true);
@@ -112,6 +118,7 @@ namespace Vampire
         }
 
 
+        public void RemoveEventBuff(){eventExpireTime=0;expireTime=skillExpireTime;if(expireTime<=Time.time)RemoveBuffAndDestroy();}
         public void RemoveBuffAndDestroy(){initialized=false;Cleanup();Destroy(this);}
         private void Cleanup()
         {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 600898e7687bfcc4a9cd3462f82fd931, type: 3}
   m_Name: SnailBossSettings
   m_EditorClassIdentifier:
-  maxHealth: 6000
+  maxHealth: 24000
   bodyWidth: 4.2
   walkSpeed: 0.7
   phaseThreshold: 0.3

@@ -26,6 +26,10 @@ namespace Vampire
         [SerializeField] private bool logRunFlowPause = true;
 
         private float levelTime = 0f;
+        public const float SpawnPotionDuration = 30f;
+        public const float SpawnPotionMultiplier = 1.5f;
+        public float SpawnPotionRemaining { get; private set; }
+        public void ActivateSpawnPotion() { SpawnPotionRemaining=SpawnPotionDuration; }
         private float timeSinceLastMonsterSpawned;
         private float timeSinceLastChestSpawned;
         public int NormalMonstersSpawned { get; private set; }
@@ -39,6 +43,7 @@ namespace Vampire
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
+        public Inventory PlayerInventory => inventory;
         public bool IsRunFlowPaused => runFlowPaused;
         public bool IsLevelEnded => levelEnded;
 
@@ -48,6 +53,7 @@ namespace Vampire
             this.levelBlueprint = levelBlueprint;
 
             levelTime = 0f;
+            SpawnPotionRemaining = 0f;
             if(gameTimer!=null)gameTimer.SetTime(LevelDuration);
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
@@ -98,6 +104,23 @@ namespace Vampire
             var tutorial = GetComponent<TutorialGuide>();
             if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
             tutorial.Initialize(this);
+            StageProgression.Ensure(this);
+        }
+
+        // Preserve the actual player, abilities, inventory, relic runtimes, stats and loot pools.
+        public void BeginNextStage(LevelBlueprint next)
+        {
+            entityManager.ContinueInStage(next);
+            levelBlueprint = next;
+            levelTime = 0f;
+            timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
+            if (gameTimer != null) gameTimer.SetTime(next.levelTime);
+            infiniteBackground.SetStageTexture(next.backgroundTexture);
+            if (fieldSpawns != null) fieldSpawns.RestartForStage(this);
+            foreach (var director in FindObjectsOfType<StageEventDirector>()) director.RestartForStage();
+            foreach (var toad in FindObjectsOfType<AcidToadSpawn>()) toad.ResetForStage();
+            foreach (var minis in FindObjectsOfType<SnailBossDebugSpawn>()) minis.ResetForStage();
+            foreach (var altar in FindObjectsOfType<FinalBossSummonInteractable>()) altar.ResetForNextStage();
         }
 
         private void Start()
@@ -118,6 +141,7 @@ namespace Vampire
             }
 
             levelTime += Time.deltaTime;
+            SpawnPotionRemaining=Mathf.Max(0,SpawnPotionRemaining-Time.deltaTime);
 
             if (gameTimer != null)
             {
@@ -163,6 +187,7 @@ namespace Vampire
             // 소화효소 처치 난이도 상승 연결:
             // 선택된 난이도가 SpawnRate이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
             spawnRate *= DigestiveEnzymeDifficultyManager.SpawnRateMultiplier;
+            if(SpawnPotionRemaining>0)spawnRate*=SpawnPotionMultiplier;
 
             float monsterSpawnDelay = spawnRate > 0f
                 ? 1.0f / spawnRate

@@ -199,8 +199,10 @@ namespace Vampire
                 lr.material = new Material(spriteShader);
             }
 
+            color.a = 1f;
             lr.startColor = color;
             lr.endColor = color;
+            AugmentVfxTag.Mark(lineObject);
 
             return lr;
         }

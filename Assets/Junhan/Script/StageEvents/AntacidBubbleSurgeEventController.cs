@@ -14,6 +14,12 @@ namespace Vampire
     [System.Serializable]
     public class AntacidBubbleSurgeEventController : RuntimeModule
     {
+        public void CollectPresentations(List<StageEventPresentation> result)
+        {
+            if (isActiveAndEnabled && eventEnabled && started && !finished)
+                result.Add(new StageEventPresentation(this, StageEventVisualKind.Antacid, eventName));
+        }
+
         protected override void OnSuspended() { SetWarningEdgeAlpha(0f); }
         protected override void OnModuleDestroy()
         {
@@ -142,6 +148,7 @@ namespace Vampire
             if (!warningShown && currentTime >= Mathf.Max(0f, startTime - warningDuration))
             {
                 warningShown = true;
+                StartCoroutine(ChameleonPortrait.Foam(transform, Mathf.Max(.5f, warningDuration)));
                 ShowToast("제산 반응 발생");
                 SetWarningEdgeAlpha(1f);
 
@@ -175,6 +182,7 @@ namespace Vampire
         private void StartEvent(float currentTime)
         {
             started = true;
+            Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Foam);
             eventEndTime = currentTime + Mathf.Max(0.1f, duration);
             bubbleSpawnTimer = 0f;
             outsideDamageTimer = damageImmediatelyWhenOutside

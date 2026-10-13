@@ -77,6 +77,7 @@ namespace Vampire
 
                         if (damageable != null)
                         {
+                            float hitDamage = explosionDamage * (sourceMonsterBlueprint == null ? CombatStatusRules.DamageMultiplier(playerCharacter,damageable as Component) : 1);
                             Character targetCharacter =
                                 damageable as Character;
 
@@ -87,7 +88,7 @@ namespace Vampire
                                 sourceMonsterBlueprint != null)
                             {
                                 targetCharacter.TakeDamageFromMonster(
-                                    explosionDamage,
+                                    hitDamage,
                                     dir.normalized * explosionKnockback,
                                     sourceMonsterBlueprint
                                 );
@@ -97,12 +98,12 @@ namespace Vampire
                                 // 플레이어가 발사한 폭발 투사체 또는
                                 // Character가 아닌 일반 IDamageable 대상은 기존 방식 유지
                                 damageable.TakeDamage(
-                                    explosionDamage,
+                                    hitDamage,
                                     dir.normalized * explosionKnockback
                                 );
                             }
 
-                            OnHitDamageable?.Invoke(explosionDamage);
+                            OnHitDamageable?.Invoke(hitDamage);
                         }
 
                         damagedColliders[collider] = true;

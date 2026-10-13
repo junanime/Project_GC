@@ -21,7 +21,7 @@ namespace Vampire
             if(owner.GetComponentInChildren<LootInteraction>(true)!=null)return;
             var area=new GameObject("E interaction range");area.transform.SetParent(owner.transform,false);
             var scale=owner.transform.lossyScale;area.transform.localScale=new Vector3(1/Mathf.Max(.01f,Mathf.Abs(scale.x)),1/Mathf.Max(.01f,Mathf.Abs(scale.y)),1);
-            var trigger=area.AddComponent<CircleCollider2D>();trigger.isTrigger=true;trigger.radius=1.3f;
+            var trigger=area.AddComponent<CircleCollider2D>();trigger.isTrigger=true;trigger.radius=1.1f;
             var interaction=area.AddComponent<LootInteraction>();
             interaction.chest=owner as Chest;interaction.merchant=owner as MerchantNPC;
             interaction.ConfigureReusableInteraction();
