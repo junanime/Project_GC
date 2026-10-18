@@ -81,7 +81,7 @@ namespace Vampire
             for(int i=0;i<4;i++){int n=i;SettingsButton(content,tabs[i],.062f,.704f-i*.114f,.237f,.797f-i*.114f,()=>{Tab=n;Render();},false,true,Tab==i).name="Settings category "+i;}
             var section=RecordShape("Settings section",content,.261f,.151f,.663f,.628f,RecordGold,true,15);
             section.insetColor=new Color(1,.95f,.84f);section.transform.SetSiblingIndex(2);
-            var heading=Label(content,Tab==0?"디스플레이":tabs[Tab],.292f,.790f,.88f,.844f,27);heading.color=RecordInk;heading.alignment=TextAlignmentOptions.MidlineLeft;
+            var heading=Label(content,Tab==0?"디스플레이":tabs[Tab],.292f,.776f,.88f,.830f,27);heading.color=RecordInk;heading.alignment=TextAlignmentOptions.MidlineLeft;
             if(Tab==0)
             {
                 SettingChoice("그래픽 품질",new[]{"낮음","보통","높음"}[settingsDraft.quality],0,()=>settingsDraft.quality=(settingsDraft.quality+1)%3);

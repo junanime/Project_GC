@@ -159,6 +159,11 @@ namespace Vampire
         }
         void Render()
         {
+            RenderContent();
+            ApplyStitchTheme();
+        }
+        void RenderContent()
+        {
             if (content != null) { content.gameObject.SetActive(false); Destroy(content.gameObject); }
             ClearSkillUI();
             portrait = null; previewCharacter = null; silverLabel = null;
