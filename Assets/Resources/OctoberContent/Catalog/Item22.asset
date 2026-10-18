@@ -16,7 +16,7 @@ MonoBehaviour:
   octoberId: 22
   itemRarity: 2
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uB109\uBC31 +30%."
+  description: "\uae30\ubcf8 \uce68 \ub109\ubc31 +30%. \uc801\uc911 \uc2dc \uc8fc\uc704 1.5 \uac70\ub9ac\uc5d0 \uce68 \ud53c\ud574 40%\uc758 \ubc00\uccd0\ub0b4\ub294 \ubc18\ud5a5. \uc7ac\uc0ac\uc6a9 3\ucd08."
   itemIcon: {fileID: 5851777511138360916, guid: 512758512b839db4eb30d6473aa845b8, type: 3}
   cost: 80
   canBuyInLobby: 1

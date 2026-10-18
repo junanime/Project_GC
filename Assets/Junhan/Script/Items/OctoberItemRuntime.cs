@@ -36,9 +36,13 @@ namespace Vampire
         SyringeDartAbility weapon;
         SpriteRenderer orb,guardian;
         LevelManager level;
+        ItemFeedbackVisual pressureMark;
+        int pressureLease;
+        Component pressureTarget;
+        readonly List<OctoberEnemyProjectile> projectileBuffer = new List<OctoberEnemyProjectile>();
         public static OctoberItemRuntime Get(Character p)=>p==null?null:p.GetComponent<OctoberItemRuntime>()??p.gameObject.AddComponent<OctoberItemRuntime>();
         void Awake(){Player=GetComponent<Character>();level=FindObjectOfType<LevelManager>();previous=transform.position;lastHurt=lastHeal=Time.time;Monster.Died+=Killed;}
-        void OnDestroy(){Monster.Died-=Killed;}
+        void OnDestroy(){Monster.Died-=Killed;if(pressureMark!=null)pressureMark.Release(pressureLease);}
         public bool Give(MerchantItemBlueprint item,bool restore=false)
         {
             if(item==null||item.octoberId<1||Has(item.octoberId))return false;
@@ -92,7 +96,7 @@ namespace Vampire
             if(Has(37)&&critical)multiplier+=.25f;
             if(Has(53)&&statuses>=2)multiplier+=.25f;
             if(Has(54)&&Ver4HitEffects.Health(target)<=Ver4HitEffects.MaxHealth(target)*.3f)multiplier+=.25f;
-            if(Has(56)&&distance<=2)multiplier+=.25f;
+            if(Has(56)&&distance<=2)multiplier+=OctoberItemBalance.CloseRangeBonus;
             if(Has(22))knockback*=1.3f;
             if(!secondary)
             {
@@ -123,7 +127,27 @@ namespace Vampire
             if(Has(44)&&UnityEngine.Random.value<.12f&&Ready(44,1)&&!Ver4HitEffects.IsBoss(target))
                 (target.GetComponent<NeuralBlockedMonsterStatus>()??target.gameObject.AddComponent<NeuralBlockedMonsterStatus>()).Apply(.6f*StatusDuration);
             int id=target.GetInstanceID();sameHits=id==lastTarget?sameHits+1:1;lastTarget=id;
-            if(Has(21)&&sameHits>=4){sameHits=0;Hit(target,LastBaseDamage*.8f,21);}
+            if(Has(21))
+            {
+                if(pressureTarget!=target){if(pressureMark!=null)pressureMark.Release(pressureLease);pressureMark=null;pressureTarget=target;}
+                if(sameHits>=4)
+                {
+                    sameHits=0;if(pressureMark!=null)pressureMark.Release(pressureLease);pressureMark=null;
+                    ItemFeedback.For(this).Show(ItemFeedbackKind.PressureBurst,target.transform.position,.45f,.65f);
+                    Hit(target,LastBaseDamage*.8f,21);
+                }
+                else
+                {
+                    if(pressureMark==null||pressureMark.Lease!=pressureLease||!pressureMark.gameObject.activeSelf)
+                    {
+                        pressureMark=ItemFeedback.For(this).Show(ItemFeedbackKind.PressureMark,target.transform.position,3600,.8f,target.transform,sameHits);
+                        if(pressureMark!=null)pressureLease=pressureMark.Lease;
+                    }
+                    else pressureMark.SetStacks(sameHits);
+                }
+            }
+            if(Ready(22,OctoberItemBalance.EchoInterval))
+                Pulse(target.transform.position,1.5f,LastBaseDamage*OctoberItemBalance.EchoDamage,22,1.2f);
             if(critical&&Ready(41,1))Player.GainHealth(1);
             bool slow=IsSlow(target);
             if(critical&&slow&&Ready(50,1)){ConsumeSlow(target);Hit(target,LastBaseDamage,50);}
@@ -134,7 +158,7 @@ namespace Vampire
             }
             if(drumReady&&Has(59)){drumReady=false;Zone(target.transform.position,2,.7f,LastBaseDamage*.3f,59,true);}
             bool burning=IsBurning(target);
-            if(slow&&burning&&Ready(65,3))
+            if(IsSlow(target)&&burning&&Ready(65,3))
             {
                 ConsumeSlow(target);var burn=target.GetComponent<Ver4NeedleStatus>();if(burn!=null)burn.ConsumeBurn(out _);
                 status.BurnUntil=0;var old=target.GetComponent<BurnStatus>();if(old!=null)Destroy(old);
@@ -194,6 +218,8 @@ namespace Vampire
         void Update()
         {
             if(Player==null||!Player.IsAlive||Time.timeScale<=0)return;
+            if(Has(21)&&lastTarget!=0&&(pressureTarget==null||!pressureTarget.gameObject.activeInHierarchy||Ver4HitEffects.Health(pressureTarget)<=0))
+            {if(pressureMark!=null)pressureMark.Release(pressureLease);pressureMark=null;pressureTarget=null;sameHits=0;lastTarget=0;}
             State.elapsed+=Time.deltaTime;
             Vector2 now=transform.position;float travel=Vector2.Distance(now,previous);previous=now;
             if(travel<3){movingDistance+=travel;drumDistance+=travel;if(travel>.01f)travelRecent++;}
@@ -210,8 +236,13 @@ namespace Vampire
             if(Ready(14,8))Pulse(now,2.5f,LastBaseDamage*.25f,14,2);
             float runTime=level!=null?level.CurrentLevelTime:State.elapsed;float day=level!=null&&level.LevelDuration>0?level.LevelDuration:1440;int hour=Mathf.FloorToInt(runTime/day*24);
             if(Has(28)&&(hour%24>=18||hour%24<6)&&Ready(28,3))Pulse(now,3,LastBaseDamage*.6f,28);
-            if(hour>lastHour){lastHour=hour;if(Has(29))Pulse(now,5,LastBaseDamage*1.5f,29);}
-            if(Has(31)&&hour>=23&&Ready(31,1))Pulse(now,3,LastBaseDamage*1.8f,31);
+            if(hour>lastHour)
+            {
+                if(lastHour<23&&hour>=23&&Has(31))cooldown[31]=Mathf.Min(cooldown[31],Time.time);
+                lastHour=hour;if(Has(29))Pulse(now,5,LastBaseDamage*1.5f,29);
+            }
+            if(Ready(31,OctoberItemBalance.DawnInterval(hour)))
+                Pulse(now,3,LastBaseDamage*OctoberItemBalance.DawnDamage(hour),31);
             if(Ready(32,8)&&State.lostHp>0){Pulse(now,4,Mathf.Min(LastBaseDamage*4,State.lostHp*2),32);State.lostHp=0;}
             if(Ready(49,7))Zone(now+facing*2,2,1.5f,0,49,true);
             if(Has(13))
@@ -228,7 +259,7 @@ namespace Vampire
                 if(Ready(30,1.5f))Bolt(30,LastBaseDamage*(.3f+growth*.1f));
             }
             if(Ready(58,4))Bolt(58,LastBaseDamage*1.6f);
-            if((trailClock-=Time.deltaTime)<=0){trailClock=.1f;trail.Add(now);if(trail.Count>30)trail.RemoveAt(0);}
+            if(Has(62)&&(trailClock-=Time.deltaTime)<=0){trailClock=.1f;trail.Add(now);if(trail.Count>30)trail.RemoveAt(0);}
             if(Ready(62,10))StartCoroutine(Backtrack(trail.ToArray()));
             if(Ready(64,15))
             {
@@ -242,7 +273,8 @@ namespace Vampire
         void Projectiles()
         {
             if(!Has(43)&&!Has(52)&&!Has(57))return;
-            var projectiles=OctoberEnemyProjectile.Active.ToArray();
+            projectileBuffer.Clear();projectileBuffer.AddRange(OctoberEnemyProjectile.Active);
+            var projectiles=projectileBuffer;
             bool seal=Ready(57,12);
             foreach(var p in projectiles)
             {
@@ -266,17 +298,31 @@ namespace Vampire
         public List<Component> Nearby(Vector2 position,float radius)=>Ver4HitEffects.Nearby(position,radius,~0,Player);
         public void Hit(Component target,float amount,int item){Ver4HitEffects.Damage(target,amount,Vector2.zero,Player,Name(item));}
         public void Pulse(Vector2 p,float radius,float damage,int item,float push=0)
-        {Ver4HitEffects.AreaDamage(p,radius,damage,push,Player,~0,Name(item));Flash(p,item,radius*.7f);}
+        {
+            Ver4HitEffects.AreaDamage(p,radius,damage,push,Player,~0,Name(item));
+            if(item==65)ItemFeedback.For(this).Show(ItemFeedbackKind.Steam,p,.65f,radius);
+            else if(item==22)ItemFeedback.For(this).Show(ItemFeedbackKind.Echo,p,.45f,radius);
+            else Flash(p,item,radius*.7f);
+        }
         public void Wave(Vector2 direction,float range,float damage,int item)
         {foreach(var t in Nearby(transform.position,range))if(Vector2.Dot(((Vector2)t.transform.position-(Vector2)transform.position).normalized,direction)>.65f)Hit(t,damage,item);Flash((Vector2)transform.position+direction*2,item,2);}
         void Bolt(int item,float damage)
         {var target=Nearby(transform.position,9).FirstOrDefault();if(target!=null)StartCoroutine(Fly(target,item,damage));}
         IEnumerator Fly(Component target,int item,float damage)
         {
-            var image=MakeSprite(item,"아이템 소환체",.55f);image.transform.position=transform.position;
+            var spirit=item==58?ItemFeedback.For(this).Show(ItemFeedbackKind.Spirit,transform.position,2.1f,.8f):null;
+            var image=item==58?null:MakeSprite(item,"아이템 소환체",.55f);
+            Vector2 position=transform.position;
+            if(image!=null)image.transform.position=position;
             float left=2;
             while(target!=null&&Ver4HitEffects.Health(target)>0&&(left-=Time.deltaTime)>0)
-            {image.transform.position=Vector2.MoveTowards(image.transform.position,target.transform.position,9*Time.deltaTime);if(Vector2.Distance(image.transform.position,target.transform.position)<.25f){Hit(target,damage,item);break;}yield return null;}
+            {
+                position=Vector2.MoveTowards(position,target.transform.position,9*Time.deltaTime);
+                if(image!=null)image.transform.position=position;
+                if(spirit!=null)spirit.transform.position=position;
+                if(Vector2.Distance(position,target.transform.position)<.25f){Hit(target,damage,item);break;}yield return null;
+            }
+            if(spirit!=null)spirit.Release();
             if(image!=null)Destroy(image.gameObject);
         }
         public OctoberItemZone Zone(Vector2 p,float radius,float duration,float dps,int id,bool pull=false,bool lure=false)
