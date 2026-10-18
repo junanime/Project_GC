@@ -26,7 +26,8 @@ namespace Vampire
                 if(Time.timeScale==0) return;
                 previousTime=Time.timeScale; ownsPause=true; Time.timeScale=0;
             }
-            Show("settings",3);
+            if(Page=="settings")return;
+            Show("settings",0);
         }
 
         void BeginSettings()
@@ -41,7 +42,7 @@ namespace Vampire
             if(pendingSessionAction!=null){pendingSessionAction=null;Render();return;}
             if(confirmingDisplay){RevertDisplay();return;}
             GamePreferences.Apply(settingsOriginal,false);confirmingDisplay=false;
-            if(settingsReturn=="hud") CloseRunBook(); else Show(settingsReturn);
+            if(level!=null) CloseRunBook(); else Show(settingsReturn);
         }
         void ApplySettings()
         {
@@ -77,8 +78,10 @@ namespace Vampire
         {
             if(settingsDraft==null)BeginSettings();
             string[] tabs={"그래픽","사운드","편의 기능","게임 메뉴"};
-            for(int i=0;i<4;i++){int n=i;ActionButton(content,tabs[i],.145f+i*.18f,.755f,.315f+i*.18f,.835f,()=>{Tab=n;Render();},false,true,Tab==i);}
-            Panel(content,.145f,.205f,.855f,.735f);
+            for(int i=0;i<4;i++){int n=i;SettingsButton(content,tabs[i],.062f,.704f-i*.114f,.237f,.797f-i*.114f,()=>{Tab=n;Render();},false,true,Tab==i).name="Settings category "+i;}
+            var section=RecordShape("Settings section",content,.261f,.151f,.663f,.628f,RecordGold,true,15);
+            section.insetColor=new Color(1,.95f,.84f);section.transform.SetSiblingIndex(2);
+            var heading=Label(content,Tab==0?"디스플레이":tabs[Tab],.292f,.790f,.88f,.844f,27);heading.color=RecordInk;heading.alignment=TextAlignmentOptions.MidlineLeft;
             if(Tab==0)
             {
                 SettingChoice("그래픽 품질",new[]{"낮음","보통","높음"}[settingsDraft.quality],0,()=>settingsDraft.quality=(settingsDraft.quality+1)%3);
@@ -95,7 +98,7 @@ namespace Vampire
                     });
                 }
                 AugmentOpacitySlider();
-                Label(content,"플레이어 증강 효과만 조절합니다. 필드 이벤트 장판은 그대로 유지됩니다.",.20f,.207f,.82f,.239f,14);
+                Label(content,"플레이어 증강 효과만 조절합니다. 필드 이벤트 장판은 그대로 유지됩니다.",.30f,.230f,.89f,.263f,13);
             }
             else if(Tab==1)
             {
@@ -111,31 +114,31 @@ namespace Vampire
                 SettingChoice("프레임 수 표시",OnOff(settingsDraft.showFps),1,()=>settingsDraft.showFps=!settingsDraft.showFps);
                 SettingChoice("다른 창으로 이동 시 일시정지",OnOff(settingsDraft.pauseOnFocusLoss),2,()=>settingsDraft.pauseOnFocusLoss=!settingsDraft.pauseOnFocusLoss);
                 SettingChoice("다른 창으로 이동 시 음소거",OnOff(settingsDraft.muteOnFocusLoss),3,()=>settingsDraft.muteOnFocusLoss=!settingsDraft.muteOnFocusLoss);
-                Label(content,"모든 버튼은 터치로도 사용할 수 있습니다.",.20f,.25f,.80f,.32f,18);
+                Label(content,"모든 버튼은 터치로도 사용할 수 있습니다.",.30f,.29f,.89f,.35f,18);
             }
             else
             {
-                ActionButton(content,level!=null?"계속하기":"이전 화면",.30f,.62f,.70f,.70f,()=>
+                SettingsButton(content,level!=null?"계속하기":"이전 화면",.37f,.66f,.84f,.73f,()=>
                 {
                     GamePreferences.Apply(settingsOriginal,false);
                     if(level!=null)CloseRunBook();else Show(settingsReturn);
                 },true);
-                ActionButton(content,"출전 준비로 돌아가기",.30f,.515f,.70f,.595f,()=>RequestSessionAction("prepare"));
-                ActionButton(content,"메인 화면으로 돌아가기",.30f,.41f,.70f,.49f,()=>RequestSessionAction("main"));
-                ActionButton(content,"게임 종료",.30f,.305f,.70f,.385f,()=>RequestSessionAction("quit"));
-                Label(content,"TAB: 탐험 기록  /  ESC: 설정 열기·뒤로",.20f,.22f,.80f,.28f,17);
+                SettingsButton(content,"출전 준비로 돌아가기",.37f,.55f,.84f,.62f,()=>RequestSessionAction("prepare"));
+                SettingsButton(content,"메인 화면으로 돌아가기",.37f,.44f,.84f,.51f,()=>RequestSessionAction("main"));
+                SettingsButton(content,"게임 종료",.37f,.33f,.84f,.40f,()=>RequestSessionAction("quit"));
+                Label(content,"TAB: 탐험 기록  /  ESC: 설정 열기·뒤로",.30f,.24f,.89f,.29f,16);
             }
-            Label(content,message,.26f,.155f,.74f,.20f,17);
-            ActionButton(content,"뒤로",.15f,.065f,.34f,.15f,CancelSettings);
-            ActionButton(content,"기본값",.40f,.065f,.60f,.15f,()=>{settingsDraft=GamePreferences.Defaults();GamePreferences.PreviewAudio(settingsDraft);GamePreferences.PreviewAugmentVfx(settingsDraft.augmentVfxOpacity);message="적용을 누르면 기본 설정을 저장합니다.";Render();});
-            ActionButton(content,"적용",.66f,.065f,.85f,.15f,ApplySettings,true);
+            Label(content,message,.28f,.161f,.90f,.205f,16).color=RecordInk;
+            SettingsButton(content,level!=null?"계속하기":"뒤로",.28f,.073f,.47f,.147f,CancelSettings).name="Settings resume";
+            SettingsButton(content,"기본값",.50f,.073f,.69f,.147f,()=>{settingsDraft=GamePreferences.Defaults();GamePreferences.PreviewAudio(settingsDraft);GamePreferences.PreviewAugmentVfx(settingsDraft.augmentVfxOpacity);message="적용을 누르면 기본 설정을 저장합니다.";Render();});
+            SettingsButton(content,"적용",.72f,.073f,.91f,.147f,ApplySettings,true);
             if(confirmingDisplay)
             {
                 var shade=ImageAt(content,null,0,0,1,1,false);shade.color=new Color(0,0,0,.65f);shade.raycastTarget=true;
                 Panel(content,.23f,.30f,.77f,.69f);
                 countdown=Label(content,"",.27f,.46f,.73f,.63f,27);
-                ActionButton(content,"유지",.30f,.34f,.48f,.43f,ConfirmDisplay,true);
-                ActionButton(content,"되돌리기",.52f,.34f,.70f,.43f,RevertDisplay);
+                SettingsButton(content,"유지",.30f,.34f,.48f,.43f,ConfirmDisplay,true);
+                SettingsButton(content,"되돌리기",.52f,.34f,.70f,.43f,RevertDisplay);
             }
             if(pendingSessionAction!=null)
             {
@@ -144,8 +147,8 @@ namespace Vampire
                 string destination=pendingSessionAction=="quit"?"게임을 종료할까요?":pendingSessionAction=="prepare"?"출전 준비로 돌아갈까요?":"메인 화면으로 돌아갈까요?";
                 Label(content,destination,.24f,.57f,.76f,.67f,28);
                 Label(content,level!=null?"현재 탐험은 종료되며 이 판은 이어할 수 없습니다.\n획득 골드와 저장된 영구 성장은 유지됩니다.":"적용하지 않은 설정 변경은 저장되지 않습니다.",.24f,.41f,.76f,.55f,21);
-                ActionButton(content,"취소 / ESC",.28f,.30f,.48f,.39f,()=>{pendingSessionAction=null;Render();});
-                ActionButton(content,"확인",.52f,.30f,.72f,.39f,ConfirmSessionAction,true);
+                SettingsButton(content,"취소 / ESC",.28f,.30f,.48f,.39f,()=>{pendingSessionAction=null;Render();});
+                SettingsButton(content,"확인",.52f,.30f,.72f,.39f,ConfirmSessionAction,true);
             }
         }
         void RequestSessionAction(string action){pendingSessionAction=action;Render();}
@@ -178,16 +181,16 @@ namespace Vampire
         static string OnOff(bool value)=>value?"켜짐":"꺼짐";
         void SettingChoice(string title,string value,int row,Action change)
         {
-            float y=.63f-row*.077f;
-            Label(content,title,.20f,y,.53f,y+.065f,23);
-            ActionButton(content,value,.56f,y,.79f,y+.065f,()=>{change();message="변경 사항을 적용해 주세요.";Render();});
+            float y=.695f-row*.078f;
+            Label(content,title,.30f,y,.655f,y+.065f,21).color=RecordInk;
+            SettingsButton(content,value,.675f,y,.897f,y+.065f,()=>{change();message="변경 사항을 적용해 주세요.";Render();});
         }
         void AugmentOpacitySlider()
         {
-            const float y=.245f;
-            Label(content,"증강 효과 불투명도",.20f,y,.47f,y+.065f,20);
-            var number=Label(content,$"{settingsDraft.augmentVfxOpacity*100:0}%",.76f,y,.83f,y+.065f,20);
-            var sr=Rect("Augment VFX opacity slider",content,.49f,y,.73f,y+.065f);
+            const float y=.285f;
+            Label(content,"증강 효과 불투명도",.30f,y,.54f,y+.065f,19);
+            var number=Label(content,$"{settingsDraft.augmentVfxOpacity*100:0}%",.83f,y,.90f,y+.065f,19);
+            var sr=Rect("Augment VFX opacity slider",content,.56f,y,.81f,y+.065f);
             var hit=sr.gameObject.AddComponent<Image>();hit.color=Color.clear;hit.raycastTarget=true;
             var slider=sr.gameObject.AddComponent<Slider>();
             var track=ImageAt(sr,null,0,.34f,1,.66f,false);track.color=new Color(.22f,.12f,.10f);
@@ -203,10 +206,10 @@ namespace Vampire
         }
         void AudioSlider(string title,float value,int row,Action<float> change)
         {
-            float y=.63f-row*.077f;
-            Label(content,title,.19f,y,.36f,y+.065f,23);
-            var number=Label(content,$"{value*100:0}%",.70f,y,.78f,y+.065f,20);
-            var sr=Rect(title+" slider",content,.39f,y,.69f,y+.065f);
+            float y=.695f-row*.078f;
+            Label(content,title,.30f,y,.46f,y+.065f,21).color=RecordInk;
+            var number=Label(content,$"{value*100:0}%",.78f,y,.84f,y+.065f,19);
+            var sr=Rect(title+" slider",content,.48f,y,.76f,y+.065f);
             var hit=sr.gameObject.AddComponent<Image>();hit.color=Color.clear;hit.raycastTarget=true;
             var slider=sr.gameObject.AddComponent<Slider>();
             var track=ImageAt(sr,Config.sectionRibbon,0,.30f,1,.70f,false);track.type=Image.Type.Sliced;track.pixelsPerUnitMultiplier=12;
@@ -214,7 +217,7 @@ namespace Vampire
             var handle=ImageAt(slideArea,Config.inventorySlot,0,.05f,0,.95f,false);handle.rectTransform.sizeDelta=new Vector2(40,0);
             slider.handleRect=handle.rectTransform;slider.targetGraphic=handle;slider.SetValueWithoutNotify(value);
             slider.onValueChanged.AddListener(v=>{change(v);number.text=$"{v*100:0}%";GamePreferences.PreviewAudio(settingsDraft);});
-            if(row==2||row==3)ActionButton(content,"듣기",.785f,y,.843f,y+.065f,()=>GameAudioManager.PlaySfx(row==2?GameAudioManager.GameSfxId.PlayerHit:GameAudioManager.GameSfxId.UiClick),clickSound:false);
+            if(row==2||row==3)SettingsButton(content,"듣기",.85f,y,.91f,y+.065f,()=>GameAudioManager.PlaySfx(row==2?GameAudioManager.GameSfxId.PlayerHit:GameAudioManager.GameSfxId.UiClick),clickSound:false);
         }
     }
 }

@@ -80,18 +80,34 @@ namespace Vampire
                 SetProgress(Mathf.MoveTowards(Progress, target, Time.unscaledDeltaTime * .8f));
                 yield return null;
             }
-            // Data is ready. Finish the final few steps into the opening, then activate Level 1.
-            heading.text = "위장 진입 준비 완료";
-            while (Progress < 1)
-            {
-                SetProgress(Mathf.MoveTowards(Progress, 1, Time.unscaledDeltaTime * .2f));
-                yield return null;
-            }
+            // The last 6% includes actual world placement, not only scene deserialization.
+            heading.text = "위장과 필드 오브젝트를 준비하고 있습니다…";
             ownsPause = true;
             Time.timeScale = 0; // No combat or timer elapses beneath the activation frame.
             operation.allowSceneActivation = true;
             while (!operation.isDone) yield return null;
             yield return null; // LevelManager.Start finishes while the game is still paused.
+            float deadline=Time.realtimeSinceStartup+60;
+            while(true)
+            {
+                var level=FindObjectOfType<LevelManager>();
+                var layout=level!=null?level.GetComponent<FieldObjectLayout>():null;
+                if(level!=null&&level.InitialFieldObjectsReady)break;
+                if((layout!=null&&layout.Failed)||Time.realtimeSinceStartup>deadline)
+                {
+                    heading.text="필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.";
+                    yield return new WaitForSecondsRealtime(1);
+                    var back=SceneManager.LoadSceneAsync(0);while(back!=null&&!back.isDone)yield return null;
+                    Fail();yield break;
+                }
+                yield return null;
+            }
+            heading.text="필드 배치 완료 · 출전 준비 완료";
+            while(Progress<1)
+            {
+                SetProgress(Mathf.MoveTowards(Progress,1,Time.unscaledDeltaTime*.2f));
+                yield return null;
+            }
             running = false;
             RestorePause();
             Destroy(gameObject);

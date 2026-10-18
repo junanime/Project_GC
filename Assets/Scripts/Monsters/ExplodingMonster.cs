@@ -35,6 +35,7 @@ namespace Vampire
         private bool warningActive = false;
 
         private bool trajectoryLocked = false;
+        public bool HasLockedTrajectory => trajectoryLocked;
         private bool missedAutoDeathStarted = false;
 
         private Vector2 lockedMoveDirection = Vector2.zero;

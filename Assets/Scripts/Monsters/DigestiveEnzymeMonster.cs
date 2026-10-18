@@ -213,6 +213,7 @@ namespace Vampire
         /// </summary>
         public void SetupSpawner(DigestiveEnzymeFieldSpawner spawner)
         {
+            StomachSlopeBody.Ensure(gameObject);
             ownerSpawner = spawner;
         }
 

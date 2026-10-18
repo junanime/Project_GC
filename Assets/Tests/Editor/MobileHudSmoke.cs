@@ -91,10 +91,7 @@ namespace Vampire.Tests.Editor
             move.OnPointerDown(Touch(move,11,new Vector2(move.Radius,0)));
             Check(move.Knob.anchoredPosition.x>move.Radius*.99f,"handle follows right drag");
             Check(MobileGameplayInput.ChargeHeld&&MobileGameplayInput.Aim.x>.99f,"single stick preserves charge and movement aim");
-            var dash=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD dash");
-            Check(dash.GetComponentInChildren<SharedDashIcon>()!=null,"dash uses same glyph as reward panel");
-            dash.onClick.Invoke();
-            Check(move.Knob.anchoredPosition.x>0&&MobileGameplayInput.ChargeHeld,"dash does not release movement or charge");
+            Check(!Object.FindObjectsOfType<Button>().Any(b=>b.name=="HUD dash"||b.name=="HUD interact"||b.name=="Active skill R"||b.name=="Passive skill status"),"gameplay action icons removed");
             move.OnDrag(Touch(move,22,new Vector2(-move.Radius,0)));
             Check(move.Knob.anchoredPosition.x>0,"second finger cannot steal movement");
             move.OnDrag(Touch(move,11,new Vector2(-move.Radius,move.Radius)));
@@ -107,27 +104,16 @@ namespace Vampire.Tests.Editor
             Check(slots.All(s=>s.GetComponent<Button>().onClick.GetPersistentMethodName(0)=="UseItem"),"existing item tap bindings retained");
             var inventory=(RectTransform)slots[0].transform.parent;
             Check(inventory.Find("Light wood medicine tray")!=null&&inventory.anchorMin==new Vector2(.5f,0),"wooden item tray at bottom center");
-            var interact=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD interact");
-            interact.onClick.Invoke();
-            Check(MobileGameplayInput.ConsumeInteraction()&&!MobileGameplayInput.ConsumeInteraction(),"HUD interaction consumed once");
+            var gear=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD journal gear");
             foreach(var size in new[]{new Vector2(1280,720),new Vector2(1560,720),new Vector2(1024,768)})
             {
                 Resize((int)size.x,(int)size.y);yield return new WaitForSecondsRealtime(.35f);Canvas.ForceUpdateCanvases();
                 var bounds=Bounds(inventory);
                 Check(bounds.xMin>=Screen.safeArea.xMin&&bounds.xMax<=Screen.safeArea.xMax&&bounds.yMin>=Screen.safeArea.yMin&&bounds.yMax<=Screen.safeArea.yMax,"items inside safe area "+Screen.width);
-                Check(!bounds.Overlaps(Bounds((RectTransform)move.transform))&&!bounds.Overlaps(Bounds((RectTransform)interact.transform)),"items do not overlap movement or actions "+Screen.width);
-                foreach(var button in new[]{dash,interact,Object.FindObjectsOfType<Button>().Single(b=>b.name=="Active skill R"),Object.FindObjectsOfType<Button>().Single(b=>b.name=="Passive skill status")})
-                {
-                    var b=Bounds((RectTransform)button.transform);
-                    Check(b.xMin>=Screen.safeArea.xMin&&b.xMax<=Screen.safeArea.xMax&&b.yMin>=Screen.safeArea.yMin&&b.yMax<=Screen.safeArea.yMax,"action inside safe area "+button.name+" "+Screen.width);
-                    Check(!bounds.Overlaps(b),"tray clears "+button.name);
-                }
-                var scroll=Object.FindObjectOfType<PrescriptionScrollView>();
-                var status=Object.FindObjectsOfType<Button>().Single(b=>b.name=="HUD status");
-                Check(Bounds((RectTransform)status.transform).yMax<=Bounds(scroll.Dock).yMin,"status below prescription");
-                var mini=Object.FindObjectsOfType<RectTransform>().FirstOrDefault(r=>r.name=="MiniMapRoot");
-                if(mini!=null)
-                    Check(!Bounds(mini).Overlaps(Bounds((RectTransform)Object.FindObjectsOfType<Button>().Single(b=>b.name=="Active skill R").transform)),"minimap does not overlap skill button "+Screen.width);
+                Check(!bounds.Overlaps(Bounds((RectTransform)move.transform)),"items clear movement stick "+Screen.width);
+                var gearBounds=Bounds((RectTransform)gear.transform);
+                Check(gearBounds.xMin>=Screen.safeArea.xMin&&gearBounds.xMax<=Screen.safeArea.xMax&&gearBounds.yMax<=Screen.safeArea.yMax,"gear inside safe area");
+                Check(!bounds.Overlaps(gearBounds),"tray clears gear");
                 Capture("layout-"+Screen.width+"x"+Screen.height);
             }
             move.OnPointerDown(Touch(move,11,Vector2.right*move.Radius));Time.timeScale=0;yield return null;yield return null;

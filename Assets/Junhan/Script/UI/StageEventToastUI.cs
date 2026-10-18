@@ -24,6 +24,15 @@ namespace Vampire
         private LevelManager level;
         private float age;
         private bool showing;
+        private bool emergency;
+        public const string AcidEmergencyText = "위산이 분비되고 있습니다!";
+        public void ShowAcidEmergency()
+        {
+            HideLegacyPanel(); EnsureBanner();
+            var queued=pending.ToArray();pending.Clear();pending.Enqueue(AcidEmergencyText);
+            foreach(var entry in queued)pending.Enqueue(entry);
+            Next();
+        }
 
         private void Awake() => HideLegacyPanel();
         private void HideLegacyPanel()
@@ -44,16 +53,47 @@ namespace Vampire
             if (debugLog) Debug.Log("[StageEventToastUI] " + message, this);
         }
 
+        public void ShowSupply(string message)
+        {
+            EnsureBanner();
+            if(showing && emergency){pending.Enqueue(message);return;}
+            // Supply timing must not wait behind a long field-event queue.
+            var queued=pending.ToArray();pending.Clear();pending.Enqueue(message);
+            foreach(var entry in queued)pending.Enqueue(entry);
+            Next();
+        }
+
         private void Next()
         {
             if (pending.Count == 0) { showing = false; bannerGroup.alpha = 0; return; }
             string text = pending.Dequeue();
+            emergency=text==AcidEmergencyText;
+            titleRect.sizeDelta=new Vector2(emergency?1120:760,105);
+            title.rectTransform.anchoredPosition=new Vector2(emergency?560:408,72);
+            title.rectTransform.sizeDelta=new Vector2(emergency?1080:610,emergency?76:58);
+            title.fontSize=emergency?62:42;title.resizeTextMinSize=emergency?57:37;title.resizeTextMaxSize=emergency?62:42;
+            title.color=emergency?new Color(.69f,1,.04f):new Color(1,.96f,.81f);
+            instruction.rectTransform.anchoredPosition=new Vector2(emergency?560:400,17);
+            underline.rectTransform.anchoredPosition=new Vector2(emergency?560:404,43);
+            underline.rectTransform.sizeDelta=new Vector2(emergency?1000:590,emergency?5:3);
             StageEventVisualKind kind = Kind(text);
             title.text = text;
             instruction.text = text == "제산 반응 발생" ? "곧 생성되는 거품을 찾아 이동하세요" : StageEventCornerArt.Instruction(kind);
             icon.sprite = art != null && art.Frames(kind) != null && art.Frames(kind).Length > 0 ? art.Frames(kind)[0] : null;
             icon.enabled = icon.sprite != null;
             underline.color = StageEventCornerArt.Accent(kind);
+            if(text.Contains("보급 캡슐"))
+            {
+                instruction.text=text.StartsWith("잠시")?"10초 후 착지합니다":"지도에서 보급 캡슐을 찾아 상호작용하세요";
+                icon.sprite=SupplyCapsuleArt.Closed;icon.enabled=icon.sprite!=null;
+                underline.color=new Color(.45f,.84f,.72f);
+            }
+            if(emergency)
+            {
+                icon.enabled=false;
+                instruction.text="침수지역: 초당 최대 체력 25% 피해 · 침식 4초 한계";
+                underline.color=new Color(.69f,1,.04f);
+            }
             age = 0; showing = true;
         }
 
@@ -77,7 +117,7 @@ namespace Vampire
             if (!showing) return;
             if (level == null || !level.IsRunFlowPaused) age += Time.deltaTime;
             float enter = Mathf.Max(.01f, fadeInDuration), leave = Mathf.Max(.01f, fadeOutDuration);
-            float end = enter + Mathf.Max(1.6f, visibleDuration) + leave;
+            float end = enter + (emergency?7f:Mathf.Max(1.6f, visibleDuration)) + leave;
             bannerGroup.alpha = Mathf.Min(Mathf.Clamp01(age / enter), Mathf.Clamp01((end - age) / leave));
             titleRect.localScale = Vector3.one * Mathf.Lerp(.94f, 1, Mathf.SmoothStep(0,1,age / enter));
             if (age >= end) Next();

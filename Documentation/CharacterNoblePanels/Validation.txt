@@ -1,0 +1,687 @@
+Unity 2022.3.62f3 / actual Level1 PC GameView / 2026-10-15
+CHARACTER_NOBLE_PASS shared frame loaded
+CHARACTER_NOBLE_PASS start actual run Ashi
+CHARACTER_NOBLE_PASS actual player blueprint Ashi
+CHARACTER_NOBLE_PASS lobby cannot leak another character's art
+CHARACTER_NOBLE_PASS real noble reward produces three character cards
+CHARACTER_NOBLE_PASS reveal gates reward selection
+CHARACTER_NOBLE_PASS sealed cards hide overframe artwork
+CHARACTER_NOBLE_PASS first click reveals without consuming reward
+CHARACTER_NOBLE_PASS reveal finishes then enables selection
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉황파동
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 머리 위에 황금 봉황이 나타나 원형 에너지파를 방출합니다. 주변 적에게 피해를 주고 밀어냅니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉명진혼
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 울림으로 일정 주기마다 화면 안의 적을 잠시 정지시킵니다. 울림이 지속되는 동안 새로 등장한 적에게도 적용됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉인흡진
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 적이 밀집한 곳에 봉황의 인장을 펼칩니다. 인장 안의 적을 중앙으로 끌어당기며 지속 피해를 줍니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS real reward selection closes once
+CHARACTER_NOBLE_PASS ten noble designs Ashi
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉황파동
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 머리 위에 황금 봉황이 나타나 원형 에너지파를 방출합니다. 주변 적에게 피해를 주고 밀어냅니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 천공봉침
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 기운을 침 끝에 모아 발사합니다. 공격 버튼을 오래 누를수록 피해량·크기·속도·관통력이 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉익윤무
+CHARACTER_NOBLE_PASS complete live text fits: 무지개 봉황 깃털침이 침 끝을 바깥으로 향한 채 톱니바퀴처럼 회전합니다. 닿은 적에게 직접 피해를 줍니다. 흩날리는 잔깃은 시각 효과입니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 고고한 봉황
+CHARACTER_NOBLE_PASS complete live text fits: 경험치·골드를 줍지 않는 동안 봉황의 기운이 쌓여 공격력·사거리·공격속도가 증가합니다. 픽업 획득 시 누적 효과가 초기화됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉심연소
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 심장을 태워 최대 체력이 1이 되고 회복할 수 없습니다. 대신 침의 피해량·발사 수·사거리가 크게 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 삼중봉익
+CHARACTER_NOBLE_PASS complete live text fits: 피해를 받지 않고 버티면 봉황의 날개 보호막이 쌓입니다. 최대 3개까지 보유하며 각 보호막이 피격 1회를 막습니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉명진혼
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 울림으로 일정 주기마다 화면 안의 적을 잠시 정지시킵니다. 울림이 지속되는 동안 새로 등장한 적에게도 적용됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉인흡진
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 적이 밀집한 곳에 봉황의 인장을 펼칩니다. 인장 안의 적을 중앙으로 끌어당기며 지속 피해를 줍니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS pool resets to regular style
+CHARACTER_NOBLE_PASS noble layout Ashi
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ashi
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS start actual run Ari
+CHARACTER_NOBLE_PASS actual player blueprint Ari
+CHARACTER_NOBLE_PASS lobby cannot leak another character's art
+CHARACTER_NOBLE_PASS real noble reward produces three character cards
+CHARACTER_NOBLE_PASS reveal gates reward selection
+CHARACTER_NOBLE_PASS sealed cards hide overframe artwork
+CHARACTER_NOBLE_PASS first click reveals without consuming reward
+CHARACTER_NOBLE_PASS reveal finishes then enables selection
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 고고한 봉황
+CHARACTER_NOBLE_PASS complete live text fits: 경험치·골드를 줍지 않는 동안 봉황의 기운이 쌓여 공격력·사거리·공격속도가 증가합니다. 픽업 획득 시 누적 효과가 초기화됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 천공봉침
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 기운을 침 끝에 모아 발사합니다. 공격 버튼을 오래 누를수록 피해량·크기·속도·관통력이 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS real reward selection closes once
+CHARACTER_NOBLE_PASS ten noble designs Ari
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉황파동
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 머리 위에 황금 봉황이 나타나 원형 에너지파를 방출합니다. 주변 적에게 피해를 주고 밀어냅니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 천공봉침
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 기운을 침 끝에 모아 발사합니다. 공격 버튼을 오래 누를수록 피해량·크기·속도·관통력이 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉익윤무
+CHARACTER_NOBLE_PASS complete live text fits: 무지개 봉황 깃털침이 침 끝을 바깥으로 향한 채 톱니바퀴처럼 회전합니다. 닿은 적에게 직접 피해를 줍니다. 흩날리는 잔깃은 시각 효과입니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 고고한 봉황
+CHARACTER_NOBLE_PASS complete live text fits: 경험치·골드를 줍지 않는 동안 봉황의 기운이 쌓여 공격력·사거리·공격속도가 증가합니다. 픽업 획득 시 누적 효과가 초기화됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉심연소
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 심장을 태워 최대 체력이 1이 되고 회복할 수 없습니다. 대신 침의 피해량·발사 수·사거리가 크게 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 삼중봉익
+CHARACTER_NOBLE_PASS complete live text fits: 피해를 받지 않고 버티면 봉황의 날개 보호막이 쌓입니다. 최대 3개까지 보유하며 각 보호막이 피격 1회를 막습니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉명진혼
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 울림으로 일정 주기마다 화면 안의 적을 잠시 정지시킵니다. 울림이 지속되는 동안 새로 등장한 적에게도 적용됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉인흡진
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 적이 밀집한 곳에 봉황의 인장을 펼칩니다. 인장 안의 적을 중앙으로 끌어당기며 지속 피해를 줍니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS pool resets to regular style
+CHARACTER_NOBLE_PASS noble layout Ari
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Ari
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS start actual run Hyuki
+CHARACTER_NOBLE_PASS actual player blueprint Hyuki
+CHARACTER_NOBLE_PASS lobby cannot leak another character's art
+CHARACTER_NOBLE_PASS real noble reward produces three character cards
+CHARACTER_NOBLE_PASS reveal gates reward selection
+CHARACTER_NOBLE_PASS sealed cards hide overframe artwork
+CHARACTER_NOBLE_PASS first click reveals without consuming reward
+CHARACTER_NOBLE_PASS reveal finishes then enables selection
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉명진혼
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 울림으로 일정 주기마다 화면 안의 적을 잠시 정지시킵니다. 울림이 지속되는 동안 새로 등장한 적에게도 적용됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 삼중봉익
+CHARACTER_NOBLE_PASS complete live text fits: 피해를 받지 않고 버티면 봉황의 날개 보호막이 쌓입니다. 최대 3개까지 보유하며 각 보호막이 피격 1회를 막습니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS real reward selection closes once
+CHARACTER_NOBLE_PASS ten noble designs Hyuki
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉황파동
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 머리 위에 황금 봉황이 나타나 원형 에너지파를 방출합니다. 주변 적에게 피해를 주고 밀어냅니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 천공봉침
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 기운을 침 끝에 모아 발사합니다. 공격 버튼을 오래 누를수록 피해량·크기·속도·관통력이 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉익윤무
+CHARACTER_NOBLE_PASS complete live text fits: 무지개 봉황 깃털침이 침 끝을 바깥으로 향한 채 톱니바퀴처럼 회전합니다. 닿은 적에게 직접 피해를 줍니다. 흩날리는 잔깃은 시각 효과입니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 고고한 봉황
+CHARACTER_NOBLE_PASS complete live text fits: 경험치·골드를 줍지 않는 동안 봉황의 기운이 쌓여 공격력·사거리·공격속도가 증가합니다. 픽업 획득 시 누적 효과가 초기화됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉심연소
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 심장을 태워 최대 체력이 1이 되고 회복할 수 없습니다. 대신 침의 피해량·발사 수·사거리가 크게 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 삼중봉익
+CHARACTER_NOBLE_PASS complete live text fits: 피해를 받지 않고 버티면 봉황의 날개 보호막이 쌓입니다. 최대 3개까지 보유하며 각 보호막이 피격 1회를 막습니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉명진혼
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 울림으로 일정 주기마다 화면 안의 적을 잠시 정지시킵니다. 울림이 지속되는 동안 새로 등장한 적에게도 적용됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉인흡진
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 적이 밀집한 곳에 봉황의 인장을 펼칩니다. 인장 안의 적을 중앙으로 끌어당기며 지속 피해를 줍니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS pool resets to regular style
+CHARACTER_NOBLE_PASS noble layout Hyuki
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Hyuki
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS start actual run Shini
+CHARACTER_NOBLE_PASS actual player blueprint Shini
+CHARACTER_NOBLE_PASS lobby cannot leak another character's art
+CHARACTER_NOBLE_PASS real noble reward produces three character cards
+CHARACTER_NOBLE_PASS reveal gates reward selection
+CHARACTER_NOBLE_PASS sealed cards hide overframe artwork
+CHARACTER_NOBLE_PASS first click reveals without consuming reward
+CHARACTER_NOBLE_PASS reveal finishes then enables selection
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 삼중봉익
+CHARACTER_NOBLE_PASS complete live text fits: 피해를 받지 않고 버티면 봉황의 날개 보호막이 쌓입니다. 최대 3개까지 보유하며 각 보호막이 피격 1회를 막습니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉익윤무
+CHARACTER_NOBLE_PASS complete live text fits: 무지개 봉황 깃털침이 침 끝을 바깥으로 향한 채 톱니바퀴처럼 회전합니다. 닿은 적에게 직접 피해를 줍니다. 흩날리는 잔깃은 시각 효과입니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 고고한 봉황
+CHARACTER_NOBLE_PASS complete live text fits: 경험치·골드를 줍지 않는 동안 봉황의 기운이 쌓여 공격력·사거리·공격속도가 증가합니다. 픽업 획득 시 누적 효과가 초기화됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS real reward selection closes once
+CHARACTER_NOBLE_PASS ten noble designs Shini
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉황파동
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 머리 위에 황금 봉황이 나타나 원형 에너지파를 방출합니다. 주변 적에게 피해를 주고 밀어냅니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 천공봉침
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 기운을 침 끝에 모아 발사합니다. 공격 버튼을 오래 누를수록 피해량·크기·속도·관통력이 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉익윤무
+CHARACTER_NOBLE_PASS complete live text fits: 무지개 봉황 깃털침이 침 끝을 바깥으로 향한 채 톱니바퀴처럼 회전합니다. 닿은 적에게 직접 피해를 줍니다. 흩날리는 잔깃은 시각 효과입니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 고고한 봉황
+CHARACTER_NOBLE_PASS complete live text fits: 경험치·골드를 줍지 않는 동안 봉황의 기운이 쌓여 공격력·사거리·공격속도가 증가합니다. 픽업 획득 시 누적 효과가 초기화됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉심연소
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 심장을 태워 최대 체력이 1이 되고 회복할 수 없습니다. 대신 침의 피해량·발사 수·사거리가 크게 증가합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 삼중봉익
+CHARACTER_NOBLE_PASS complete live text fits: 피해를 받지 않고 버티면 봉황의 날개 보호막이 쌓입니다. 최대 3개까지 보유하며 각 보호막이 피격 1회를 막습니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉명진혼
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 울림으로 일정 주기마다 화면 안의 적을 잠시 정지시킵니다. 울림이 지속되는 동안 새로 등장한 적에게도 적용됩니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 봉인흡진
+CHARACTER_NOBLE_PASS complete live text fits: 일정 주기마다 적이 밀집한 곳에 봉황의 인장을 펼칩니다. 인장 안의 적을 중앙으로 끌어당기며 지속 피해를 줍니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 유영봉우
+CHARACTER_NOBLE_PASS complete live text fits: 기본 자동 공격 대신 봉황 깃털이 플레이어 위에서 8자 궤도를 비행하며 적을 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_PASS pool resets to regular style
+CHARACTER_NOBLE_PASS noble layout Shini
+CHARACTER_NOBLE_PASS revealed artwork visible
+CHARACTER_NOBLE_PASS identical panel dimensions
+CHARACTER_NOBLE_PASS identical common frame and four mint gems
+CHARACTER_NOBLE_PASS only playing character art Shini
+CHARACTER_NOBLE_PASS approved illustration window excludes baked labels
+CHARACTER_NOBLE_PASS original art aspect ratio
+CHARACTER_NOBLE_PASS complete live text fits: 쌍봉분신
+CHARACTER_NOBLE_PASS complete live text fits: 봉황의 잔영으로 분신을 만듭니다. 분신은 플레이어를 따라다니며 현재 침 능력을 바탕으로 함께 공격합니다.
+CHARACTER_NOBLE_PASS common noble heading
+CHARACTER_NOBLE_FINISHED failed=False checks=685

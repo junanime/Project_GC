@@ -203,7 +203,7 @@ namespace Vampire
                 return;
             }
 
-            miniMapRoot.SetActive(true);
+            miniMapRoot.SetActive(false);
 
             if (miniMapCanvas != null)
             {
@@ -226,7 +226,7 @@ namespace Vampire
                 return;
             }
 
-            miniMapRoot.SetActive(true);
+            miniMapRoot.SetActive(false);
 
             if (miniMapCanvas != null && originalCanvasStateCached)
             {

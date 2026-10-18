@@ -1,0 +1,167 @@
+PASS ashi selects correct clip
+PASS ashi revival precedes exit sequence
+PASS ashi HP0 begins exit before result
+PASS ashi early result and simultaneous clear cannot bypass exit
+PASS ashi dead input and healing blocked
+PASS ashi lingering player needles released before exit
+PASS ashi result waits at frame 0
+PASS ashi fixed clip scale 0
+PASS ashi result waits at frame 1
+PASS ashi fixed clip scale 1
+PASS ashi result waits at frame 2
+PASS ashi fixed clip scale 2
+PASS ashi result waits at frame 3
+PASS ashi fixed clip scale 3
+PASS ashi result waits at frame 4
+PASS ashi fixed clip scale 4
+PASS ashi result waits at frame 5
+PASS ashi fixed clip scale 5
+PASS ashi result waits at frame 6
+PASS ashi fixed clip scale 6
+PASS ashi result waits at frame 9
+PASS ashi fixed clip scale 9
+PASS ashi result waits at frame 10
+PASS ashi fixed clip scale 10
+PASS ashi result waits at frame 12
+PASS ashi fixed clip scale 12
+PASS ashi result waits at frame 13
+PASS ashi fixed clip scale 13
+PASS ashi result waits at frame 14
+PASS ashi fixed clip scale 14
+PASS ashi result waits at frame 15
+PASS ashi fixed clip scale 15
+PASS ashi completed exit opens failure panel exactly once
+PASS ashi original hidden and player scale/anchor preserved
+PASS ashi surrender/ice remains; bird/fire exits disappear
+PASS ashi held weapon cannot obscure exit
+PASS ashi disappearing body leaves no shadow
+PASS ari selects correct clip
+PASS ari revival precedes exit sequence
+PASS ari HP0 begins exit before result
+PASS ari early result and simultaneous clear cannot bypass exit
+PASS ari dead input and healing blocked
+PASS ari lingering player needles released before exit
+PASS ari result waits at frame 0
+PASS ari fixed clip scale 0
+PASS ari result waits at frame 1
+PASS ari fixed clip scale 1
+PASS ari result waits at frame 2
+PASS ari fixed clip scale 2
+PASS ari result waits at frame 3
+PASS ari fixed clip scale 3
+PASS ari result waits at frame 4
+PASS ari fixed clip scale 4
+PASS ari result waits at frame 5
+PASS ari fixed clip scale 5
+PASS ari result waits at frame 6
+PASS ari fixed clip scale 6
+PASS ari result waits at frame 7
+PASS ari fixed clip scale 7
+PASS ari result waits at frame 8
+PASS ari fixed clip scale 8
+PASS ari result waits at frame 9
+PASS ari fixed clip scale 9
+PASS ari result waits at frame 10
+PASS ari fixed clip scale 10
+PASS ari result waits at frame 11
+PASS ari fixed clip scale 11
+PASS ari result waits at frame 12
+PASS ari fixed clip scale 12
+PASS ari result waits at frame 13
+PASS ari fixed clip scale 13
+PASS ari result waits at frame 14
+PASS ari fixed clip scale 14
+PASS ari result waits at frame 15
+PASS ari fixed clip scale 15
+PASS ari completed exit opens failure panel exactly once
+PASS ari original hidden and player scale/anchor preserved
+PASS ari surrender/ice remains; bird/fire exits disappear
+PASS ari held weapon cannot obscure exit
+PASS ari disappearing body leaves no shadow
+PASS hyuki selects correct clip
+PASS Hyuki uses Level1 ColdIdle reference
+PASS hyuki revival precedes exit sequence
+PASS hyuki HP0 begins exit before result
+PASS hyuki early result and simultaneous clear cannot bypass exit
+PASS hyuki dead input and healing blocked
+PASS hyuki lingering player needles released before exit
+PASS hyuki result waits at frame 0
+PASS hyuki fixed clip scale 0
+PASS hyuki result waits at frame 1
+PASS hyuki fixed clip scale 1
+PASS hyuki result waits at frame 2
+PASS hyuki fixed clip scale 2
+PASS hyuki result waits at frame 3
+PASS hyuki fixed clip scale 3
+PASS hyuki result waits at frame 4
+PASS hyuki fixed clip scale 4
+PASS hyuki result waits at frame 5
+PASS hyuki fixed clip scale 5
+PASS hyuki result waits at frame 6
+PASS hyuki fixed clip scale 6
+PASS hyuki result waits at frame 7
+PASS hyuki fixed clip scale 7
+PASS hyuki result waits at frame 8
+PASS hyuki fixed clip scale 8
+PASS hyuki result waits at frame 9
+PASS hyuki fixed clip scale 9
+PASS hyuki result waits at frame 10
+PASS hyuki fixed clip scale 10
+PASS hyuki result waits at frame 11
+PASS hyuki fixed clip scale 11
+PASS hyuki result waits at frame 12
+PASS hyuki fixed clip scale 12
+PASS hyuki result waits at frame 13
+PASS hyuki fixed clip scale 13
+PASS hyuki result waits at frame 14
+PASS hyuki fixed clip scale 14
+PASS hyuki result waits at frame 15
+PASS hyuki fixed clip scale 15
+PASS hyuki completed exit opens failure panel exactly once
+PASS hyuki original hidden and player scale/anchor preserved
+PASS hyuki surrender/ice remains; bird/fire exits disappear
+PASS hyuki held weapon cannot obscure exit
+PASS hyuki disappearing body leaves no shadow
+PASS shini selects correct clip
+PASS shini revival precedes exit sequence
+PASS shini HP0 begins exit before result
+PASS shini early result and simultaneous clear cannot bypass exit
+PASS shini dead input and healing blocked
+PASS shini lingering player needles released before exit
+PASS shini result waits at frame 0
+PASS shini fixed clip scale 0
+PASS shini result waits at frame 1
+PASS shini fixed clip scale 1
+PASS shini result waits at frame 2
+PASS shini fixed clip scale 2
+PASS shini result waits at frame 3
+PASS shini fixed clip scale 3
+PASS shini result waits at frame 4
+PASS shini fixed clip scale 4
+PASS shini result waits at frame 5
+PASS shini fixed clip scale 5
+PASS shini result waits at frame 6
+PASS shini fixed clip scale 6
+PASS shini result waits at frame 7
+PASS shini fixed clip scale 7
+PASS shini result waits at frame 8
+PASS shini fixed clip scale 8
+PASS shini result waits at frame 9
+PASS shini fixed clip scale 9
+PASS shini result waits at frame 10
+PASS shini fixed clip scale 10
+PASS shini result waits at frame 11
+PASS shini fixed clip scale 11
+PASS shini result waits at frame 12
+PASS shini fixed clip scale 12
+PASS shini result waits at frame 13
+PASS shini fixed clip scale 13
+PASS shini result waits at frame 14
+PASS shini fixed clip scale 14
+PASS shini result waits at frame 15
+PASS shini fixed clip scale 15
+PASS shini completed exit opens failure panel exactly once
+PASS shini original hidden and player scale/anchor preserved
+PASS shini surrender/ice remains; bird/fire exits disappear
+PASS shini held weapon cannot obscure exit
+PASS shini disappearing body leaves no shadow

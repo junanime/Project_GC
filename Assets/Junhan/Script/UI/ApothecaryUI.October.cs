@@ -32,7 +32,7 @@ namespace Vampire
         void OctoberFrame(string title)
         {
             var dim=ImageAt(content,null,0,0,1,1,false);dim.color=new Color(.13f,.025f,.08f,.30f);
-            Panel(content,.10f,.11f,.905f,.865f);
+            if(Page=="result")Panel(content,.035f,.105f,.965f,.865f); else Panel(content,.10f,.11f,.905f,.865f);
             ImageAt(content,OctoberArt.Get(Page=="result"&&!passed?"OctoberUI/FailureBanner":"OctoberUI/Banner"),.30f,.79f,.70f,1);
             var heading=Label(content,title,.34f,.86f,.66f,.967f,42);heading.fontStyle=TMPro.FontStyles.Bold;heading.color=new Color(1,.94f,.68f);heading.outlineColor=OctoberArt.Ink;heading.outlineWidth=.16f;
         }
@@ -191,31 +191,6 @@ namespace Vampire
         {
             var runtime=level!=null&&level.PlayerCharacter!=null?level.PlayerCharacter.GetComponent<OctoberItemRuntime>():null;
             return runtime!=null?Config.items.Where(i=>i!=null&&runtime.Has(i.octoberId)).ToArray():runItems.Where(i=>i!=null).ToArray();
-        }
-        void OctoberResult()
-        {
-            previewCharacter=null;
-            portrait=ImageAt(content,OctoberArt.Character(character,passed?2:1),.19f,.43f,.45f,.80f);
-            float time=level!=null?level.CurrentLevelTime:0;
-            string[] titles={"플레이 시간","처치한 적","획득한 코인","도달 레벨"};
-            string[] values={$"{(int)time/3600:00}:{(int)time/60%60:00}:{(int)time%60:00}",$"{(stats!=null?stats.MonstersKilled:0):N0} 마리",$"{(stats!=null?stats.CoinsGained:0):N0} 개",$"Lv. {(level!=null&&level.PlayerCharacter!=null?level.PlayerCharacter.CurrentLevel:1)}"};
-            for(int i=0;i<4;i++){float y=.70f-i*.073f;Label(content,titles[i],.50f,y,.68f,y+.063f,24);Label(content,values[i],.70f,y,.82f,y+.063f,26);}
-            ImageAt(content,null,.18f,.35f,.82f,.414f,false).color=new Color(.91f,.35f,.46f);
-            Label(content,"이번 탐험의 기록",.18f,.35f,.82f,.414f,23).color=Color.white;
-            var ownedItems=OctoberOwnedItems();
-            var relic=Config.relics.FirstOrDefault(r=>RelicSaveData.IsEquipped(r.relicId));
-            var entries=AugmentHistoryManager.Instance!=null?AugmentHistoryManager.Instance.Entries:null;
-            string[] summary={"획득 실버\n"+(SilverRunRewarder.Instance!=null?SilverRunRewarder.Instance.RunEarnedSilver:0).ToString("N0"),"수집 아이템\n"+ownedItems.Length+"종","장착 유물\n"+(relic!=null?relic.relicName:"없음"),"획득 증강\n"+(entries!=null?entries.Count:0)+"종"};
-            Sprite[] icons={Config.items.FirstOrDefault(i=>i.octoberId==39)?.itemIcon,ownedItems.FirstOrDefault()?.itemIcon,relic!=null?relic.icon:null,entries!=null&&entries.Count>0?entries[0].icon:Config.basicNeedle};
-            for(int i=0;i<4;i++)
-            {
-                float x=.19f+i*.16f;Panel(content,x,.19f,x+.14f,.343f);
-                ImageAt(content,icons[i],x+.045f,.265f,x+.095f,.335f);
-                Label(content,summary[i],x+.005f,.194f,x+.135f,.267f,16);
-            }
-            ActionButton(content,"메인으로",.13f,.052f,.355f,.149f,()=>ReturnToLobby(false));
-            ActionButton(content,"다시하기",.387f,.052f,.613f,.149f,()=>{Time.timeScale=1;CrossSceneData.CharacterBlueprint=character;CrossSceneData.ClearStartingLobbyItems();SceneManager.LoadScene(1);});
-            ActionButton(content,"준비화면",.645f,.052f,.87f,.149f,()=>ReturnToLobby(true),true);
         }
     }
 }

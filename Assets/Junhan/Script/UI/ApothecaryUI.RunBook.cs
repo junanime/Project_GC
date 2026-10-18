@@ -42,19 +42,9 @@ namespace Vampire
         {
             Tab=0;previewCharacter=null;
             var player=level?.PlayerCharacter;
-            ImageAt(content,RunBookArt.Backplate,0,0,1,1,false).name="Exploration record backplate";
-            foreach(var offset in new[]{new Vector2(-.002f,0),new Vector2(.002f,0),new Vector2(0,-.003f),new Vector2(0,.003f)})
-            {
-                var stroke=RecordText("Record title outline","탐험 기록",.403f+offset.x,.012f+offset.y,.196f,.090f,48,TextAlignmentOptions.Center);stroke.fontStyle=FontStyles.Bold;
-            }
-            var title=RecordText("Record title","탐험 기록",.403f,.012f,.196f,.090f,48,TextAlignmentOptions.Center);
-            title.fontStyle=FontStyles.Bold;title.color=new Color(1,.93f,.69f);title.outlineColor=RecordInk;title.outlineWidth=.2f;
-            var close=RecordButton("Record close","×",.944f,.092f,.039f,.065f,CloseRunBook,false,true,true);
-            var closeLabel=close.GetComponent<ApothecaryButtonFeedback>().label;closeLabel.fontSize=closeLabel.fontSizeMax=40;closeLabel.fontSizeMin=40;
-            RecordButton("Record consumables","소모품",.048f,.030f,.08f,.046f,()=>SwitchTab(4));
-            RecordButton("Record guide","안내",.135f,.030f,.067f,.046f,()=>SwitchTab(5));
-            RecordButton("Record settings","설정",.211f,.030f,.067f,.046f,()=>Show("settings"));
-            RecordText("Record key hint","TAB 닫기",.851f,.038f,.085f,.035f,13,TextAlignmentOptions.Right).color=new Color(1,.94f,.77f);
+            UnifiedBookFrame(false);
+            RecordButton("Record consumables","소모품",.735f,.047f,.073f,.037f,()=>SwitchTab(4));
+            RecordButton("Record guide","안내",.816f,.047f,.061f,.037f,()=>SwitchTab(5));
             if(player==null)return;
             character=player.Blueprint;
             RecordImage("Record character",OctoberArt.Character(character,0)??CharacterSprite(character),.083f,.155f,.161f,.219f);
@@ -83,9 +73,9 @@ namespace Vampire
             }
             RecordText("Map heading","탐험 지도",.515f,.145f,.26f,.047f,25).fontStyle=FontStyles.Bold;
             RecordMap(player);
-            var relic=player.Relics?.Equipped;
             var relics=new List<RunBookData.Entry>();
-            if(relic!=null)relics.Add(new RunBookData.Entry{id=relic.relicId,title=relic.relicName,body=RelicDescription(relic),badge="장착 중",icon=relic.icon,color=new Color(.70f,.35f,.86f)});
+            if(player.Relics!=null)foreach(var relic in player.Relics.Owned)
+                relics.Add(new RunBookData.Entry{id=relic.relicId,title=relic.relicName,body=RelicDescription(relic),badge=relic==player.Relics.Equipped?"장착 중":"보급 유물",icon=relic.icon,color=new Color(.70f,.35f,.86f)});
             var items=OctoberOwnedItems().Select(item=>new RunBookData.Entry{id=item.octoberId.ToString(),title=item.itemName,body=item.description,badge="보유",icon=item.itemIcon}).ToList();
             RecordInventory(0,"유물",relics,.045f,.291f,6);
             RecordInventory(1,"아이템",items,.365f,.266f,10);
@@ -94,7 +84,7 @@ namespace Vampire
         void RecordInventory(int section,string title,List<RunBookData.Entry> entries,float x,float width,int pageSize)
         {
             RecordText("Record section "+section,title,x+.027f,.638f,width-.20f,.041f,25).fontStyle=FontStyles.Bold;
-            RecordText("Record count "+section,section==0?$"{entries.Count}/1":$"{entries.Count}종",x+width-.08f,.638f,.071f,.041f,17,TextAlignmentOptions.Right);
+            RecordText("Record count "+section,$"{entries.Count}종",x+width-.08f,.638f,.071f,.041f,17,TextAlignmentOptions.Right);
             int pages=Mathf.Max(1,Mathf.CeilToInt(entries.Count/(float)pageSize));recordPages[section]=Mathf.Clamp(recordPages[section],0,pages-1);
             if(!entries.Any(e=>e.id==recordSelected[section]))recordSelected[section]=entries.FirstOrDefault()?.id;
             int columns=section==0?6:5;float cellW=(width-.014f)/columns;
@@ -148,6 +138,15 @@ namespace Vampire
         {
             var map=ExplorationMapSystem.Instance;
             var viewport=RecordRect("Record map viewport",content,.499f,.214f,.347f,.360f);viewport.gameObject.AddComponent<RectMask2D>();
+            if(map!=null && map.UsesStomachMap)
+            {
+                Canvas.ForceUpdateCanvases();
+                float aspect=FiniteStomachMap.Instance.WorldRect.width/FiniteStomachMap.Instance.WorldRect.height;
+                float available=viewport.rect.width/Mathf.Max(1,viewport.rect.height);
+                float width=available>aspect?aspect/available:1;
+                float height=available<aspect?available/aspect:1;
+                viewport=Rect("Stomach map aspect fit",viewport,(1-width)*.5f,(1-height)*.5f,(1+width)*.5f,(1+height)*.5f);
+            }
             if(map!=null&&map.FullMapTexture!=null)
             {
                 var raw=Rect("Live exploration map",viewport,0,0,1,1).gameObject.AddComponent<RawImage>();raw.texture=map.FullMapTexture;raw.uvRect=map.BookMapUV;raw.raycastTarget=false;

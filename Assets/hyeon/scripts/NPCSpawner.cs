@@ -8,6 +8,7 @@ namespace Vampire
         [Header("상인 스폰 설정")]
         [Tooltip("생성할 상인 프리팹입니다.")]
         [SerializeField] private GameObject merchantPrefab;
+        public GameObject MerchantPrefab => merchantPrefab;
 
         [Tooltip("상인 스폰을 시도하는 간격입니다.")]
         [SerializeField] private float spawnInterval = 25f;
@@ -44,6 +45,13 @@ namespace Vampire
         private void Start()
         {
             ResolveReferences();
+
+            if (levelManager != null && levelManager.UsesInitialFieldLayout)
+            {
+                // Keep the scheduler alive so a later non-finite stage resumes normal spawning.
+                spawnRoutine = StartCoroutine(SpawnRoutine());
+                return;
+            }
 
             if (player != null)
             {
@@ -188,6 +196,7 @@ namespace Vampire
             }
 
             Vector2 safeSpawnPos = GetRandomPositionOutsideScreen();
+            safeSpawnPos = FiniteStomachMap.SafeSpawn(safeSpawnPos, 1f);
 
             Instantiate(merchantPrefab, safeSpawnPos, Quaternion.identity);
 
@@ -243,6 +252,7 @@ namespace Vampire
 
         private bool IsMiniStageSpawnBlocked()
         {
+            if (levelManager != null && levelManager.UsesInitialFieldLayout) return true;
             if (!blockWhileMiniStage)
             {
                 return false;

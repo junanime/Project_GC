@@ -22,10 +22,10 @@ namespace Vampire
         }
 
         [Header("Elite Spawn Count")]
-        [SerializeField] private int minSpawnCount = 5;
-        [SerializeField] private int maxSpawnCount = 15;
+        [SerializeField] private int minSpawnCount = 3;
+        [SerializeField] private int maxSpawnCount = 5;
 
-        [Tooltip("true면 현재 플레이 시간에 비례해서 5~15마리 사이로 소환합니다.")]
+        [Tooltip("true면 현재 플레이 시간에 비례해서 최소~최대 수 사이로 소환합니다.")]
         [SerializeField] private bool scaleCountByLevelTime = true;
 
         [Header("Spawn Position")]
@@ -50,7 +50,7 @@ namespace Vampire
 
         [Header("Spawn Timing")]
         [Tooltip("여러 마리를 한 번에 생성하지 않고 약간의 간격을 두고 생성합니다.")]
-        [SerializeField] private float intervalBetweenSpawns = 0.05f;
+        [SerializeField] private float intervalBetweenSpawns = 0.12f;
 
         [Header("HP Buff")]
         [Tooltip("추가 HP 보정입니다. 보통 0으로 둡니다.")]
@@ -86,9 +86,16 @@ namespace Vampire
                 return false;
             }
 
-            int spawnCount = GetSpawnCountByTime();
-
-            StartCoroutine(SpawnEliteRoutine(spawnCount, player));
+            int aliveElites = 0;
+            foreach(var m in levelManager.EntityManager.LivingMonsters)
+                if(m != null && m.HP > 0 && m.Blueprint is EliteMonsterBlueprint) aliveElites++;
+            int spawnCount = Mathf.Min(GetSpawnCountByTime(), Mathf.Max(0, 8-aliveElites));
+            if(spawnCount == 0) return false;
+            var requests = PlanWave(spawnCount, player);
+            if(requests.Count == 0) return false;
+            // CompleteInteraction disables (and the field spawner may destroy) this altar.
+            // Capture the wave now; its coroutine must be owned by the surviving level.
+            levelManager.StartCoroutine(SpawnPlannedWave(levelManager, levelManager.CurrentLevelBlueprint, requests, intervalBetweenSpawns));
 
             if (debugLog)
             {
@@ -98,21 +105,70 @@ namespace Vampire
             return true;
         }
 
-        private IEnumerator SpawnEliteRoutine(int spawnCount, Character player)
+        struct WaveSpawn
         {
-            for (int i = 0; i < spawnCount; i++)
+            public int pool;
+            public MonsterBlueprint blueprint;
+            public Vector2 position;
+            public float hp;
+        }
+
+        List<WaveSpawn> PlanWave(int count, Character player)
+        {
+            var result = new List<WaveSpawn>();
+            var used = new HashSet<int>();
+            var blueprint = levelManager.CurrentLevelBlueprint;
+            // Melee elites provide readable groups. Avoid stacking ranged, trap or miniboss skills.
+            var eligible = new List<int>();
+            foreach(var pair in blueprint.MonsterIndexMap)
             {
-                int eliteFlatIndex = SelectEliteFlatIndex();
-
-                if (eliteFlatIndex >= 0)
+                var container=blueprint.monsters[pair.Value.Item1];
+                var elite=container.monsterBlueprints[pair.Value.Item2] as EliteMonsterBlueprint;
+                if(elite!=null && container.monstersPrefab.GetComponent<MeleeMonster>()!=null)
                 {
-                    SpawnEliteByFlatIndex(eliteFlatIndex, player);
+                    // The large hopping cookie joins the middle/late groups.
+                    if(container.monstersPrefab.name.Contains("Dubai") && levelManager.CurrentLevelTime<360)continue;
+                    eligible.Add(pair.Key);
                 }
-
-                if (intervalBetweenSpawns > 0f && i < spawnCount - 1)
+            }
+            for(int i=0;i<count;i++)
+            {
+                int index=SelectEliteFlatIndex();
+                if(!eligible.Contains(index)||used.Contains(index))
                 {
-                    yield return new WaitForSeconds(intervalBetweenSpawns);
+                    var available=eligible.FindAll(n=>!used.Contains(n));
+                    if(available.Count==0)break;
+                    index=available[UnityEngine.Random.Range(0,available.Count)];
                 }
+                var pair=blueprint.MonsterIndexMap[index];
+                Vector2 pos=Vector2.zero;bool placed=false;
+                for(int attempt=0;attempt<40;attempt++)
+                {
+                    pos=FiniteStomachMap.SafeSpawn(GetSpawnPosition(player),1.25f);
+                    if(player!=null&&Vector2.Distance(pos,player.transform.position)<minDistanceFromPlayer)continue;
+                    if(result.Exists(r=>Vector2.Distance(r.position,pos)<2f))continue;
+                    placed=true;break;
+                }
+                if(!placed)continue;
+                used.Add(index);
+                result.Add(new WaveSpawn{pool=pair.Item1,blueprint=blueprint.monsters[pair.Item1].monsterBlueprints[pair.Item2],position=pos,hp=hpBuff});
+            }
+            return result;
+        }
+
+        static IEnumerator SpawnPlannedWave(LevelManager owner, LevelBlueprint stage, List<WaveSpawn> requests, float interval)
+        {
+            foreach(var r in requests)
+            {
+                while(owner!=null && !owner.IsLevelEnded && owner.CurrentLevelBlueprint==stage && (owner.IsRunFlowPaused||MiniStageRuntimeState.IsInsideMiniStage))yield return null;
+                if(owner==null||owner.IsLevelEnded||owner.CurrentLevelBlueprint!=stage||!owner.PlayerCharacter.IsAlive)yield break;
+                // Two nearby altars may be activated before either wave finishes.
+                int alive=0;
+                foreach(var monster in owner.EntityManager.LivingMonsters)
+                    if(monster!=null&&monster.HP>0&&monster.Blueprint is EliteMonsterBlueprint)alive++;
+                if(alive>=8)yield break;
+                owner.EntityManager.SpawnMonster(r.pool,r.position,r.blueprint,r.hp);
+                if(interval>0)yield return new WaitForSeconds(interval);
             }
         }
 
@@ -155,6 +211,17 @@ namespace Vampire
                 }
 
                 mappingDictionary[mapping.normalFlatIndex] = mapping.eliteFlatIndex;
+            }
+            // Flat indices changed as new monsters were added. Prefer the actual
+            // source blueprint so a slime selection cannot silently become a chicken.
+            var stage=levelManager.CurrentLevelBlueprint;
+            foreach(var elitePair in stage.MonsterIndexMap)
+            {
+                var elite=stage.monsters[elitePair.Value.Item1].monsterBlueprints[elitePair.Value.Item2] as EliteMonsterBlueprint;
+                if(elite==null||elite.sourceNormalBlueprint==null||!elite.useSourceVisual)continue;
+                foreach(var normalPair in stage.MonsterIndexMap)
+                    if(stage.monsters[normalPair.Value.Item1].monsterBlueprints[normalPair.Value.Item2]==elite.sourceNormalBlueprint)
+                        mappingDictionary[normalPair.Key]=elitePair.Key;
             }
         }
 

@@ -1,0 +1,19 @@
+mid climb: 50% uphill speed
+climb end: 10% uphill speed (90% reduction)
+500 outside/inside spawn candidates constrained, including concave edges
+measured uphill velocity: middle 51.6 %, near end 13.8 % of flat speed
+zero-drag / direct-velocity monster also slows to 50% uphill
+actual chest outside request corrected
+merchant spawn respects field footprint
+sniper Setup relocation also stays inside
+dash blocked on slope without consuming a charge
+released player slides down the curved wall
+run-flow pause freezes slope simulation
+monster uses the same downhill slide
+real mini-stage entrance and room initialization
+stomach wall and movement disabled in remote mini-stage
+mini-stage spawn locations are not projected into main field
+actual mini-stage reward chest stays in its room
+real mini-stage return restores field movement
+TAB shows entire stomach shape
+TAB preserves positioned player/object icons

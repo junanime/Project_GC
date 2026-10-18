@@ -142,6 +142,7 @@ namespace Vampire
             }
 
             OnRoomCleared();
+            FindObjectOfType<StatsManager>()?.RecordMiniStageClear();
             playerCharacter?.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.Room);
             awaitingSkillReward = true;
             if (ApothecaryUI.Instance == null || !ApothecaryUI.Instance.RequestSkillReward(FinishSkillReward))

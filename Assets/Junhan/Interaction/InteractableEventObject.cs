@@ -77,7 +77,7 @@ namespace Vampire
 
         protected virtual void Awake()
         {
-            InteractionFocus.Register(this, () => CanBeFocusedBy(currentPlayer));
+            InteractionFocus.Register(this, () => CanBeFocusedBy(currentPlayer), () => PromptOwner);
             interactionCollider = GetComponent<Collider2D>();
 
             if (interactionCollider != null)
@@ -245,6 +245,7 @@ namespace Vampire
 
         private bool CanBeFocusedBy(Character player)
         {
+            if (AcidLakeEvent.Contains(transform.position)) return false;
             if (!InteractionAvailable || (MiniStageRuntimeState.IsInsideMiniStage && !AllowMiniStageInteraction))
             {
                 return false;

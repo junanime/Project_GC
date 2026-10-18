@@ -63,6 +63,7 @@ namespace Vampire
         }
         public static float Health(Component target)
         {
+            if(target is CurrencyJar jar)return jar.CanBreak ? 1 : 0;
             if(target is SnailBossRuntime snail)return snail.Health;
             if(target is Monster monster) return monster.HP;
             if(target is BossPartDamageTestPart part) return part.CurrentHealth;
@@ -87,6 +88,7 @@ namespace Vampire
         }
         public static bool Damage(Component target,float amount,Vector2 knockback,Character source,string label,bool periodic=false,CombatStatusTag? statusBeforeHit=null)
         {
+            if(target is CurrencyJar jar){if(source==null||amount<=0||!jar.CanBreak)return false;jar.TakeDamage(amount);return jar.Broken;}
             if(target==null || !(target is IDamageable damageable) || Health(target)<=0) return false;
             amount*=statusBeforeHit.HasValue ? CombatStatusRules.DamageMultiplier(source,statusBeforeHit.Value) : CombatStatusRules.DamageMultiplier(source,target);
             float before=Health(target);

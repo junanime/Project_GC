@@ -187,8 +187,8 @@ namespace Vampire
                 FitCardText(nameText, new Vector2(themedCard ? .10f : .12f,themedCard ? .385f : .45f), new Vector2(themedCard ? .90f : .88f,themedCard ? .48f : .51f), themedCard ? 27 : 20, TextAlignmentOptions.Center);
                 if (UsesNoblePanel)
                 {
-                    FitCardText(nameText,new Vector2(.205f,.345f),new Vector2(.795f,.405f),24,TextAlignmentOptions.Center);
-                    nameText.enableAutoSizing=false; nameText.fontSize=24; nameText.enableWordWrapping=false;
+                    FitCardText(nameText,new Vector2(.15f,.293f),new Vector2(.85f,.357f),27,TextAlignmentOptions.Center);
+                    nameText.fontSizeMin=20; nameText.enableWordWrapping=false;
                 }
             }
 
@@ -198,12 +198,19 @@ namespace Vampire
                 FitCardText(descriptionText, new Vector2(themedCard ? .105f : .13f,themedCard ? .07f : .11f), new Vector2(themedCard ? .895f : .87f,themedCard ? .34f : .42f), themedCard ? 18 : 16, TextAlignmentOptions.TopLeft);
                 if (UsesNoblePanel)
                 {
-                    FitCardText(descriptionText,new Vector2(.215f,.15f),new Vector2(.785f,.315f),14,TextAlignmentOptions.TopLeft);
-                    descriptionText.enableAutoSizing=false; descriptionText.fontSize=14;
+                    FitCardText(descriptionText,new Vector2(.17f,.128f),new Vector2(.83f,.265f),16,TextAlignmentOptions.Center);
+                    descriptionText.fontSizeMin=12;
                 }
             }
 
             SetTrainingText();
+            if (UsesNoblePanel)
+            {
+                TrainingUITheme.Text(nameText,27,OctoberArt.Ink);
+                TrainingUITheme.Text(descriptionText,16,OctoberArt.Ink);
+                nameText.enableWordWrapping=false;
+                nameText.overflowMode=descriptionText.overflowMode=TextOverflowModes.Truncate;
+            }
 
             if (buttonText != null)
             {
@@ -394,14 +401,25 @@ namespace Vampire
         private void ApplyAbilityIcon()
         {
             if (abilityImage == null) return;
-            if (ability == null || ability.Image == null)
+            var source = (ability is Ver4AugmentOffer offer ? offer.Source : ability) as SyringeLegendaryAugmentAbility;
+            var sprite = UsesNoblePanel && source != null ? CharacterNoblePanelArt.Get(source.Type.ToString()) : ability != null ? ability.Image : null;
+            if (sprite == null)
             {
                 abilityImage.sprite = null;
                 abilityImage.enabled = false;
                 return;
             }
 
-            abilityImage.sprite = ability.Image;
+            var feather = abilityImage.GetComponent<NobleArtFeather>();
+            if (UsesNoblePanel)
+            {
+                bool cutout = CharacterNoblePanelArt.IsCutout(CharacterNoblePanelArt.PlayingCharacterKey,source.Type.ToString());
+                if(feather==null)feather=abilityImage.gameObject.AddComponent<NobleArtFeather>();
+                feather.enabled=!cutout;
+                if(cutout)AugmentPanelTheme.Anchors(abilityImageRect,new Vector2(.04f,.37f),new Vector2(.96f,.833f));
+            }
+            else if(feather!=null)feather.enabled=false;
+            abilityImage.sprite = sprite;
             abilityImage.color = Color.white;
             abilityImage.enabled = true;
 
@@ -411,12 +429,12 @@ namespace Vampire
             }
 
             float yHeight = abilityImageRect.rect.height;
-            float xWidth = ability.Image.textureRect.width / (float)ability.Image.textureRect.height * yHeight;
+            float xWidth = sprite.rect.width / (float)sprite.rect.height * yHeight;
 
             if (xWidth > abilityImageRect.rect.width)
             {
                 xWidth = abilityImageRect.rect.width;
-                yHeight = ability.Image.textureRect.height / (float)ability.Image.textureRect.width * xWidth;
+                yHeight = sprite.rect.height / (float)sprite.rect.width * xWidth;
             }
 
             ((RectTransform)abilityImage.transform).sizeDelta = new Vector2(xWidth, yHeight);

@@ -1,0 +1,52 @@
+[ChestLoot] PASS Level 1 uses updated normal chest
+[ChestLoot] PASS loot probabilities total 100 percent
+[ChestLoot] PASS 100000 draws: 金幣 / Pouch30 = 8.114 percent
+[ChestLoot] PASS 100000 draws: 金幣 / Bag80 = 4.912 percent
+[ChestLoot] PASS 100000 draws: Red Potion / Bronze1 = 11.814 percent
+[ChestLoot] PASS 100000 draws: Magnet / Bronze1 = 13.916 percent
+[ChestLoot] PASS 100000 draws: Health / Bronze1 = 53.221 percent
+[ChestLoot] PASS 100000 draws: Bomb / Bronze1 = 8.023 percent
+[ChestLoot] PASS 金幣 has visible drop sprite
+[ChestLoot] PASS 金幣 pops upward before pickup unlocks
+[ChestLoot] PASS 金幣 waits on ground outside pickup range, including auto-collect relic
+[ChestLoot] PASS 金幣 is collected automatically by pickup collider
+[ChestLoot] PASS 金幣 pickup stays in world near character
+[ChestLoot] PASS 金幣 pickup completes
+[ChestLoot] PASS gold reward grants 30
+[ChestLoot] PASS gold reward grants 80
+[ChestLoot] PASS Red Potion has visible drop sprite
+[ChestLoot] PASS Red Potion pops upward before pickup unlocks
+[ChestLoot] PASS Red Potion waits on ground outside pickup range, including auto-collect relic
+[ChestLoot] PASS Red Potion is collected automatically by pickup collider
+[ChestLoot] PASS Red Potion pickup stays in world near character
+[ChestLoot] PASS Red Potion pickup completes
+[ChestLoot] PASS Red Potion adds exactly one stored item without using it
+[ChestLoot] PASS Red Potion finishes at character rather than inventory UI
+[ChestLoot] PASS Magnet has visible drop sprite
+[ChestLoot] PASS Magnet pops upward before pickup unlocks
+[ChestLoot] PASS Magnet waits on ground outside pickup range, including auto-collect relic
+[ChestLoot] PASS Magnet is collected automatically by pickup collider
+[ChestLoot] PASS Magnet pickup stays in world near character
+[ChestLoot] PASS Magnet pickup completes
+[ChestLoot] PASS Magnet adds exactly one stored item without using it
+[ChestLoot] PASS Magnet finishes at character rather than inventory UI
+[ChestLoot] PASS Health has visible drop sprite
+[ChestLoot] PASS Health pops upward before pickup unlocks
+[ChestLoot] PASS Health waits on ground outside pickup range, including auto-collect relic
+[ChestLoot] PASS Health is collected automatically by pickup collider
+[ChestLoot] PASS Health pickup stays in world near character
+[ChestLoot] PASS Health pickup completes
+[ChestLoot] PASS Health adds exactly one stored item without using it
+[ChestLoot] PASS Health finishes at character rather than inventory UI
+[ChestLoot] PASS Bomb has visible drop sprite
+[ChestLoot] PASS Bomb pops upward before pickup unlocks
+[ChestLoot] PASS Bomb waits on ground outside pickup range, including auto-collect relic
+[ChestLoot] PASS Bomb is collected automatically by pickup collider
+[ChestLoot] PASS Bomb pickup stays in world near character
+[ChestLoot] PASS Bomb pickup completes
+[ChestLoot] PASS Bomb adds exactly one stored item without using it
+[ChestLoot] PASS Bomb finishes at character rather than inventory UI
+[ChestLoot] PASS nearby rewards cannot skip pop-out with auto-collect active
+[ChestLoot] PASS concurrent pickup reserves capacity and leaves excess bomb on ground
+[ChestLoot] PASS remaining item is picked up after freeing inventory capacity
+[ChestLoot] PASS pooled coin resets chest range restriction for ordinary drops

@@ -133,7 +133,7 @@ namespace Vampire
         private static bool hasWarnedHealMethodMissing = false;
         private float baseTrailTime;
 
-        private bool IsReturnMode =>
+        public bool IsReturnMode =>
             flightState == NeedleFlightState.ReturnForwardPass ||
             flightState == NeedleFlightState.ReturnCurveToPlayer ||
             flightState == NeedleFlightState.ReturnToPlayer;
@@ -983,6 +983,13 @@ namespace Vampire
             }
 
             hitTargetIds.Add(targetId);
+
+            if (damageable is CurrencyJar resourceJar)
+            {
+                resourceJar.TakeDamage(damage);
+                if (!IsReturnMode) HitNothing();
+                return;
+            }
 
             // --------------------------------------------------
             // 이 대상이 테스트용 보스 파츠인지 확인합니다.

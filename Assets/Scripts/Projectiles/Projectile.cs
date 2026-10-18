@@ -71,6 +71,19 @@ namespace Vampire
 
         public UnityEvent<float> OnHitDamageable { get; private set; }
 
+        public void ReleaseForPlayerExit(Character owner)
+        {
+            if (playerCharacter != owner || sourceMonsterBlueprint != null || !gameObject.activeInHierarchy) return;
+            // The run is over: return paused player shots without a hit, loot, or destruction VFX.
+            StopAllCoroutines();
+            moveCoroutine = null;
+            isDespawning = true;
+            if (col != null) col.enabled = false;
+            trailRenderer?.Clear();
+            if (entityManager != null) entityManager.DespawnProjectile(projectileIndex, this);
+            else gameObject.SetActive(false);
+        }
+
         protected virtual void Awake()
         {
             initialRotation = transform.rotation;

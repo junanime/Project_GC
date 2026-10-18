@@ -19,6 +19,7 @@ namespace Vampire
         [Header("References")]
         [SerializeField] private LevelManager levelManager;
         [SerializeField] private GameObject eliteSummonObjectPrefab;
+        public GameObject Prefab => eliteSummonObjectPrefab;
 
         [Header("Spawn Timing")]
         [Tooltip("첫 스폰까지 대기 시간입니다. 60이면 게임 시작 1분 뒤 첫 스폰입니다.")]
@@ -71,6 +72,7 @@ namespace Vampire
 
         protected override void OnTick()
         {
+            if (levelManager != null && levelManager.UsesInitialFieldLayout) return;
             if (levelManager == null)
             {
                 levelManager = FindObjectOfType<LevelManager>();
@@ -199,6 +201,7 @@ namespace Vampire
 
                 float distance = UnityEngine.Random.Range(minDistance, maxDistance);
                 Vector2 candidate = playerPosition + direction * distance;
+                candidate=FiniteStomachMap.SafeSpawn(candidate,1f);
 
                 if (IsTooCloseToOtherInteractables(candidate))
                 {

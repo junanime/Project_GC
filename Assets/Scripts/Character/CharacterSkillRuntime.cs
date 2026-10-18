@@ -15,6 +15,31 @@ namespace Vampire
         public static float HyukiBonus(int level) => Mathf.Clamp(level,1,5)*.1f;
         public int PassiveLevel { get; private set; } = 1;
         public int ActiveLevel { get; private set; } = 1;
+        public const int MaxDashRewardUpgrades = 3;
+        public int DashRewardUpgrades { get; private set; }
+        public bool CanUpgradeDash => owner != null && DashRewardUpgrades < MaxDashRewardUpgrades;
+        public bool CanUpgrade(bool active)
+        {
+            if (Definition == null) return false;
+            int current = active ? ActiveLevel : PassiveLevel;
+            int max = active ? ActiveMaxLevel : PassiveMaxLevel;
+            int other = active ? PassiveLevel : ActiveLevel;
+            int otherMax = active ? PassiveMaxLevel : ActiveMaxLevel;
+            return current < max && !(current == max - 1 && other >= otherMax);
+        }
+        public string UpgradeUnavailableReason(bool active)
+        {
+            if ((active ? ActiveLevel : PassiveLevel) >= (active ? ActiveMaxLevel : PassiveMaxLevel)) return "최대 레벨";
+            return "한 스킬만 최대 강화 가능";
+        }
+        public bool TryUpgradeDash()
+        {
+            if (!CanUpgradeDash) return false;
+            DashRewardUpgrades++;
+            owner.AddDashCharge(1);
+            return true;
+        }
+        public void RestoreDashRewardUpgrades(int count) => DashRewardUpgrades = Mathf.Clamp(count, 0, MaxDashRewardUpgrades);
         public float PassivePower => Mathf.Pow(1.3f, PassiveLevel - 1);
         public float ActivePower => IsShini ? 1+.2f*(ActiveLevel-1) : IsAri ? 1 : Mathf.Pow(1.3f, ActiveLevel - 1);
         public float EffectivePassiveDuration => Definition.passiveDuration * (Definition.kind == CharacterSkillDefinition.SkillKind.Ashi ? PassivePower : 1);
@@ -22,7 +47,7 @@ namespace Vampire
         public float EffectiveCooldown => IsShini ? 0 : Definition.kind==CharacterSkillDefinition.SkillKind.Ashi ? Mathf.Max(1,Definition.cooldown-4*(ActiveLevel-1)) : Definition.cooldown / (IsHyuki ? ActivePower : 1);
         public bool TryUpgrade(bool active)
         {
-            if (Definition == null || (active ? ActiveLevel : PassiveLevel) >= (active ? ActiveMaxLevel : PassiveMaxLevel)) return false;
+            if (!CanUpgrade(active)) return false;
             if (active) ActiveLevel++; else PassiveLevel++;
             return true;
         }
@@ -163,6 +188,7 @@ namespace Vampire
             ConsumedSleepStacks=0;
             owner.UpdateMoveSpeed();
         }
+        public void EndRun() { Clear(); }
         void Clear()
         {
             Breath?.Cancel();

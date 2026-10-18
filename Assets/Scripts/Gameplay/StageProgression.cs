@@ -61,6 +61,7 @@ namespace Vampire
             BloodClotTravel.CanTravel(p) && Time.timeScale > 0;
         public bool TryEnter(Character player, StageExitPortal portal)
         {
+            if (portal == null || AcidLakeEvent.Contains(portal.transform.position)) return false;
             if (portal != Portal || !CanEnter(player) || definition == null || !definition.IsReady) return false;
             Travelling = true; StartCoroutine(Enter(player, portal)); return true;
         }

@@ -17,6 +17,25 @@ namespace Vampire
         [SerializeField] private bool debugLog = true;
 
         public int RunEarnedSilver { get; private set; }
+        private bool pickupOnly;
+        public static void RewardPickup(int amount)
+        {
+            if (amount <= 0) return;
+            if (Instance == null)
+            {
+                var level = FindObjectOfType<LevelManager>();
+                if (level != null)
+                {
+                    var tracker = level.gameObject.AddComponent<SilverRunRewarder>();
+                    // A scene without kill rewards stays that way; only track the new jar pickups.
+                    tracker.pickupOnly = true;
+                }
+            }
+            if (Instance != null) Instance.RunEarnedSilver += amount;
+            SilverWallet.Add(amount);
+        }
+
+        private void OnDestroy() { if (Instance == this) Instance = null; }
 
         private void Awake()
         {
@@ -42,6 +61,7 @@ namespace Vampire
 
         private void AddReward(MonsterBlueprint monsterBlueprint)
         {
+            if (pickupOnly) return;
             int amount = Random.Range(normalMonsterSilverMin, normalMonsterSilverMax + 1);
 
             if (monsterBlueprint is BossMonsterBlueprint)

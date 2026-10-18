@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-15",
+  "method": "Approved card originals + common frame + 8 transparent illustration extracts via imagegen. No raster resampling/compression.",
+  "extractPrompt": "Use case: background-extraction. Edit the supplied APPROVED game card image, not a new character drawing. Output ONLY its central illustration as a genuinely transparent PNG with no card, no UI, no Korean text, no headline, no divider, no gold frame or mint corner gems, no cream paper or pink background. Preserve the illustration EXACTLY: the character's original head shape, original wing-hands, face, expression, proportions, outfit, pose, props, colors, pixel clusters and effects. Include the ENTIRE extended weapon tips, wings, feathers or flames crossing the former frame, uncut. If there is a wooden counter with leaves directly under the character, retain that counter and its little decorations; do not extend the body below it. No redesign, no invented limbs, no painting smoothing or added glow. Crisp pixel-art edges. Center the COMPLETE extracted artwork in a square 1024x1024 transparent canvas, leave 6 percent safe transparent padding on every side. No letters or marks from the UI may remain. Preserve original white feathers and white sleeves as opaque artwork, only remove paper/background. This is production asset extraction of approved artwork, no creative variation. IMPORTANT: retain the geometric WHITE W emblem on the black varsity jacket exactly as in the source, and keep the white square buttons! The W belongs to the character costume, NOT removed UI text. For Hyuki preserve the little gold diamond ornaments under the desk too.",
+  "extracts": [
+    {
+      "key": "Ashi/HeavySnipe",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-cde7ba72-6b00-49ec-a2b3-61fab5e79e92.png"
+    },
+    {
+      "key": "Hyuki/HeavySnipe",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-df048edb-b0fe-40ed-83c9-0c2688d1fcf6.png"
+    },
+    {
+      "key": "Hyuki/HedgehogNeedle",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-85262c24-ffbc-4302-933d-360dcd28d772.png"
+    },
+    {
+      "key": "Hyuki/GastricPeristalsisWave",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-6f2377c1-e2f8-47aa-ba55-e9322fe66f5e.png"
+    },
+    {
+      "key": "Hyuki/MucosalFortress",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-d7e6e417-b192-4318-b65c-f2713a4f3fd4.png"
+    },
+    {
+      "key": "Shini/CloneCulture",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-2d5cb22c-90c4-4747-9a75-7d0048020a6a.png"
+    },
+    {
+      "key": "Shini/HeavySnipe",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-a47f1cae-294b-455b-9bed-0b15a4e3b6a0.png"
+    },
+    {
+      "key": "Shini/OrganCompression",
+      "path": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-43c8e5bb-479e-45f6-bab7-187a4bdcb2ee.png"
+    }
+  ]
+}

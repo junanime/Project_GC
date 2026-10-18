@@ -70,8 +70,8 @@ namespace Vampire
         {
             foreach(var localization in GetComponentsInChildren<LocalizeFontEvent>(true))
             {
-                localization.ThemeFontOverride=UsesTrainingLayout?TrainingUITheme.Font:null;
-                if(!UsesTrainingLayout&&localization.LocalizedFont!=null)
+                localization.ThemeFontOverride=(UsesTrainingLayout || UsesNoblePanel)?TrainingUITheme.Font:null;
+                if(!UsesTrainingLayout&&!UsesNoblePanel&&localization.LocalizedFont!=null)
                 {
                     nameText.font=descriptionText.font=localization.LocalizedFont;
                     nameText.fontSharedMaterial=descriptionText.fontSharedMaterial=localization.LocalizedFont.material;

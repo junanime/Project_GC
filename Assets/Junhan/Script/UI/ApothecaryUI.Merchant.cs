@@ -13,9 +13,17 @@ namespace Vampire
         {merchantItems=items;merchantRerollCost=cost;merchant=manager;Show("merchant");}
         void OctoberMerchant()
         {
+            MerchantBackdrop("수상한 아저씨");
+            OctoberMerchantContents();
+        }
+        void MerchantBackdrop(string heading)
+        {
             var dim=ImageAt(content,null,0,0,1,1,false);dim.color=new Color(0,0,0,.74f);
             ImageAt(content,OctoberArt.Get("OctoberUI/Banner"),.32f,.78f,.68f,1);
-            var title=Label(content,"수상한 아저씨",.34f,.86f,.66f,.967f,32);title.color=new Color(1,.94f,.68f);title.outlineColor=OctoberArt.Ink;title.outlineWidth=.15f;
+            var title=Label(content,heading,.34f,.86f,.66f,.967f,32);title.color=new Color(1,.94f,.68f);title.outlineColor=OctoberArt.Ink;title.outlineWidth=.15f;
+        }
+        void OctoberMerchantContents()
+        {
             Label(content,$"보유 골드  {(stats!=null?stats.CoinsGained:0):N0}",.75f,.865f,.94f,.92f,20).color=Color.white;
             for(int i=0;i<(merchantItems?.Count??0);i++)
             {

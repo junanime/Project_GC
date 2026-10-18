@@ -9,6 +9,7 @@ namespace Vampire
     [Serializable] public sealed class RelicRunState
     {
         public string id;
+        public List<string> additionalIds = new List<string>();
         public bool revived;
         public float barrier, rechargeDelay, idleTime, reflectCooldown;
     }
@@ -19,7 +20,21 @@ namespace Vampire
         public Character Player { get; private set; }
         public RelicBlueprint Equipped { get; private set; }
         public RelicRunState State { get; private set; } = new RelicRunState();
-        public float Bonus(E effect) => Equipped != null && Equipped.effectType == effect ? Mathf.Max(0, Equipped.effectValue) : 0;
+        readonly List<RelicBlueprint> additional = new List<RelicBlueprint>();
+        public IEnumerable<RelicBlueprint> Owned => (Equipped != null ? new[]{Equipped} : Array.Empty<RelicBlueprint>()).Concat(additional);
+        public bool Has(string id) => Owned.Any(r => r.relicId == id);
+        public float Bonus(E effect) => Owned.Where(r => r.effectType == effect).Sum(r => Mathf.Max(0, r.effectValue));
+        // Supply rewards belong to this run; lobby equipment and permanent unlocks are untouched.
+        public bool AddReward(RelicBlueprint relic)
+        {
+            if(relic == null || Has(relic.relicId))return false;
+            float barrierBefore=Bonus(E.Barrier);
+            additional.Add(relic);State.additionalIds.Add(relic.relicId);
+            State.barrier+=Bonus(E.Barrier)-barrierBefore;
+            Player.AddMaxHealthBonus(0);Player.UpdateMoveSpeed();
+            PlayerGeneralStatRuntime.GetOrCreate(Player).SyncPickupCollider();
+            return true;
+        }
         public float MaxHealthBonus => Bonus(E.MaxHealth) + (Player.Blueprint != null ? Player.Blueprint.hp * Bonus(E.MaxHealthPercent) : 0);
         public float MoveSpeedBonus => Bonus(E.MoveSpeed) + (Player.Blueprint != null ? Player.Blueprint.movespeed * Bonus(E.MoveSpeedPercent) : 0);
         public int Revives => Bonus(E.Revival) > 0 && !State.revived ? 1 : 0;
@@ -38,6 +53,7 @@ namespace Vampire
         {
             if (Player == null) Player = GetComponent<Character>();
             Equipped = relic;
+            additional.Clear();
             State = new RelicRunState { id = relic != null ? relic.relicId : "", barrier = Bonus(E.Barrier) };
         }
         public RelicRunState Capture() => JsonUtility.FromJson<RelicRunState>(JsonUtility.ToJson(State));
@@ -47,6 +63,13 @@ namespace Vampire
             var catalog = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             Equipped = catalog?.relics.FirstOrDefault(r => r != null && r.relicId == state.id);
             State = JsonUtility.FromJson<RelicRunState>(JsonUtility.ToJson(state));
+            if(State.additionalIds==null)State.additionalIds=new List<string>();
+            additional.Clear();
+            if(catalog!=null)foreach(var id in State.additionalIds.Distinct())
+            {
+                var relic=catalog.relics.FirstOrDefault(r=>r!=null&&r.relicId==id);
+                if(relic!=null&&!Has(id))additional.Add(relic);
+            }
             State.barrier = Mathf.Clamp(State.barrier, 0, Bonus(E.Barrier));
             PlayerGeneralStatRuntime.GetOrCreate(Player).SyncPickupCollider();
         }

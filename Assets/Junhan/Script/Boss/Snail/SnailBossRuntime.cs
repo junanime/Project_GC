@@ -22,6 +22,7 @@ namespace Vampire
         public Transform EffectsRoot {get;private set;}
         public static bool Paused=>Time.timeScale<=0||MiniStageRuntimeState.IsInsideMiniStage;
         Rigidbody2D rb; Coroutine routine; float timer=2,groggyTime,contactTime,flashTime; int nextPattern; bool initialized,wasPaused;
+        StomachSlopeBody slope;
         Image hpFill; Text hpText; GameObject hud;
         float combatSeconds, actualDamage;
         public float MeasuredDps => actualDamage / Mathf.Max(20, combatSeconds);
@@ -31,6 +32,7 @@ namespace Vampire
             if(settings==null)settings=Resources.Load<SnailBossSettings>("SnailBossSettings");
             if(settings==null){Debug.LogError("Missing SnailBossSettings",this);enabled=false;return;}
             rb=GetComponent<Rigidbody2D>();rb.gravityScale=0;rb.freezeRotation=true;rb.drag=0;
+            slope=StomachSlopeBody.Ensure(gameObject);
             var preview=transform.Find("Summon preview");if(preview!=null)preview.gameObject.SetActive(false);
             Visual=GetComponent<SnailBossVisual>()??gameObject.AddComponent<SnailBossVisual>();Visual.Configure(settings.bodyWidth);
             Health=settings.maxHealth*SnailBossRules.SpawnFraction(SnailFieldProgress.RemovedCount);MissingMask=SnailFieldProgress.Mask;
@@ -70,6 +72,7 @@ namespace Vampire
             Visual.Face(Player.transform.position.x-transform.position.x);
             float distance=Vector2.Distance(Player.transform.position,transform.position);
             rb.velocity=distance>5?((Vector2)(Player.transform.position-transform.position)).normalized*settings.walkSpeed:Vector2.zero;
+            rb.velocity*=slope.MovementMultiplier(rb.velocity);
             Visual.Pose(rb.velocity.sqrMagnitude>.01f?SnailAction.Walk:SnailAction.Idle);
             timer-=Time.deltaTime;
             if(timer<=0)
@@ -194,7 +197,7 @@ namespace Vampire
                 IsDashing=true;Visual.Pose(SnailAction.Roll);
                 for(float t=0;t<settings.dashDistance/settings.dashSpeed;t+=Time.deltaTime)
                 {
-                    rb.position=Vector2.MoveTowards(rb.position,end,settings.dashSpeed*Time.deltaTime);
+                    rb.position=Vector2.MoveTowards(rb.position,end,settings.dashSpeed*Time.deltaTime*slope.MovementMultiplier(end-rb.position));
                     if(Time.frameCount%4==0)SnailBossVfx.Burst(this,rb.position,Chocolate?"ChocolateSplash":"CreamSplash",2,.35f);
                     yield return null;
                     if(Groggy)break;

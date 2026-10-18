@@ -34,7 +34,7 @@ namespace Vampire
             RefreshGuide();
         }
         public bool CanInteract => isActiveAndEnabled && !consumed && playerInside &&
-            miniStageDirector != null && miniStageDirector.CanEnterFromPortal && !ChallengeInProgress;
+            miniStageDirector != null && miniStageDirector.CanEnterFromPortal && !ChallengeInProgress && !AcidLakeEvent.Contains(transform.position);
         public bool ChallengeInProgress => GetComponent<BloodClotOvercharge>() is BloodClotOvercharge charge && charge.Started && !charge.Enhanced;
 
         private void RefreshGuide()

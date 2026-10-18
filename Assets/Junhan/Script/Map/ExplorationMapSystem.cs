@@ -26,8 +26,9 @@ namespace Vampire
     public class ExplorationMapSystem : MonoBehaviour
     {
         public static ExplorationMapSystem Instance { get; private set; }
-        public Texture FullMapTexture => fullMapImage != null ? fullMapImage.texture : null;
-        public Rect BookMapUV => fullMapImage != null ? fullMapImage.uvRect : new Rect(0,0,1,1);
+        public bool UsesStomachMap => FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.StageOne && !MiniStageRuntimeState.IsInsideMiniStage;
+        public Texture FullMapTexture => UsesStomachMap ? FiniteStomachMap.Instance.OverviewTexture : fullMapImage != null ? fullMapImage.texture : null;
+        public Rect BookMapUV => UsesStomachMap ? new Rect(0,0,1,1) : fullMapImage != null ? fullMapImage.uvRect : new Rect(0,0,1,1);
         public bool TryBookPoint(Vector2 world,out Vector2 point)
         {
             var uv=BookMapUV;var normalized=WorldToMapNormalized(world);
@@ -37,6 +38,24 @@ namespace Vampire
         // Snapshot only visible discovered markers while the run is paused; keep the live map texture.
         public void CopyBookMarkers(RectTransform parent)
         {
+            if(UsesStomachMap)
+            {
+                UpdateMarkerDiscovery();
+                foreach(var marker in markers)
+                {
+                    if(marker==null || !marker.gameObject.activeInHierarchy || !marker.ShowOnFullMap)continue;
+                    if(!marker.AlwaysVisible && marker.HideUntilDiscovered && !marker.IsDiscovered)continue;
+                    var point=WorldToMapNormalized(marker.transform.position);
+                    if(point.x<0 || point.y<0 || point.x>1 || point.y>1)continue;
+                    AddBookIcon(parent,marker.Icon,point,20);
+                }
+                if(playerCharacter!=null)
+                {
+                    var renderer=playerCharacter.GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
+                    AddBookIcon(parent,renderer!=null?renderer.sprite:runtimeWhiteSprite,WorldToMapNormalized(playerCharacter.transform.position),26);
+                }
+                return;
+            }
             if (fullMapMarkerRoot == null) return;
             RefreshFullMapView();
             foreach (Transform child in fullMapMarkerRoot)
@@ -52,6 +71,14 @@ namespace Vampire
                 target.anchorMin=target.anchorMax=new Vector2(.5f+rect.anchoredPosition.x/Mathf.Max(1,size.x),.5f+rect.anchoredPosition.y/Mathf.Max(1,size.y));
                 target.sizeDelta=Vector2.one*24;
             }
+        }
+
+        static void AddBookIcon(RectTransform parent,Sprite sprite,Vector2 point,float size)
+        {
+            var go=new GameObject("Stomach map marker",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image));
+            go.transform.SetParent(parent,false);var image=go.GetComponent<Image>();
+            image.sprite=sprite;image.raycastTarget=false;image.preserveAspect=true;
+            image.rectTransform.anchorMin=image.rectTransform.anchorMax=point;image.rectTransform.sizeDelta=Vector2.one*size;
         }
 
         // ========================================
@@ -276,6 +303,7 @@ namespace Vampire
             ForceRevealCurrentPosition();
 
             RefreshAllUI();
+            SetMiniMapVisible(false);
         }
 
 
@@ -1130,6 +1158,7 @@ namespace Vampire
 
         private void UpdateMarkerDiscovery()
         {
+            if (StageEntryLoading.IsLoading || (levelManager != null && !levelManager.InitialFieldObjectsReady)) return;
             if (playerCharacter == null)
             {
                 return;
@@ -1170,9 +1199,9 @@ namespace Vampire
 
                 if (distance <=
                     marker.DiscoverDistance ||
-                    IsWorldPositionExplored(
+                    (!marker.RequireNearbyDiscovery && IsWorldPositionExplored(
                         marker.transform.position
-                    ))
+                    )))
                 {
                     marker.SetDiscovered(
                         true
@@ -1585,6 +1614,11 @@ namespace Vampire
         private Vector2 WorldToMapNormalized(
             Vector2 worldPosition)
         {
+            if(UsesStomachMap)
+            {
+                Rect field=FiniteStomachMap.Instance.WorldRect;
+                return new Vector2((worldPosition.x-field.xMin)/field.width,(worldPosition.y-field.yMin)/field.height);
+            }
             Vector2 normalized =
                 (worldPosition -
                  mapOriginWorld)
@@ -1856,7 +1890,7 @@ namespace Vampire
             if (miniMapRoot != null)
             {
                 miniMapRoot.SetActive(
-                    visible
+                    false // The live HUD map is retired; keep exploration data for the TAB map.
                 );
             }
         }

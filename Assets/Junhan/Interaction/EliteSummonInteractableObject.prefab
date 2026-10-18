@@ -141,8 +141,8 @@ MonoBehaviour:
   promptRoot: {fileID: 0}
   levelManager: {fileID: 0}
   debugLog: 1
-  minSpawnCount: 5
-  maxSpawnCount: 15
+  minSpawnCount: 3
+  maxSpawnCount: 5
   scaleCountByLevelTime: 1
   spawnRadius: 5
   minDistanceFromPlayer: 2.5
@@ -164,7 +164,7 @@ MonoBehaviour:
     eliteFlatIndex: 12
   - normalFlatIndex: 7
     eliteFlatIndex: 13
-  intervalBetweenSpawns: 0.05
+  intervalBetweenSpawns: 0.12
   hpBuff: 0
 --- !u!114 &802052658451493010
 MonoBehaviour:

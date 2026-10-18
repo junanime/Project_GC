@@ -14,6 +14,7 @@ namespace Vampire
         [SerializeField] private List<EliteMonsterSpawner> eliteSpawns = new List<EliteMonsterSpawner>();
         [SerializeField] private List<BloodClotFieldSpawner> bloodClotSpawns = new List<BloodClotFieldSpawner>();
         [SerializeField] private List<EliteSummonObjectSpawner> summonObjectSpawns = new List<EliteSummonObjectSpawner>();
+        public GameObject EliteAltarPrefab => summonObjectSpawns.Find(s => s != null && s.Prefab != null)?.Prefab;
         [SerializeField] private List<MiniBossSpawner> miniBossSpawns = new List<MiniBossSpawner>();
         [SerializeField] private List<BossLevelSpawner> bossSpawns = new List<BossLevelSpawner>();
         List<TimedSpecialSpawnSchedule> initial_timedSpawns;

@@ -211,6 +211,7 @@ namespace Vampire
         public float MaxHealth => GetMaxHealth();
         public CharacterSkillRuntime Skills { get; private set; }
         public bool IsAlive => alive;
+        public bool IsExiting => !alive && GetComponent<CharacterExitSequence>() is CharacterExitSequence exit && !exit.Completed;
         public RelicRuntime Relics { get; private set; }
         public float RelicBonus(RelicBlueprint.RelicEffectType effect) => Relics != null ? Relics.Bonus(effect) : 0;
         public float DebuffDuration(float duration) => Relics != null ? Relics.DebuffDuration(duration) : duration;
@@ -358,6 +359,13 @@ namespace Vampire
             currentHealth = GetMaxHealth();
             healthBar.Setup(currentHealth, 0, GetMaxHealth());
             expBar.Setup(currentExp, 0, nextLevelExp);
+            // Reserve only the right end for the journal gear; retain the flush left edge.
+            if(expBar.transform is RectTransform experienceRect)
+            {
+                experienceRect.anchorMax=new Vector2(.94f,experienceRect.anchorMax.y);
+                experienceRect.offsetMax=new Vector2(0,experienceRect.offsetMax.y);
+                expBar.UpdateDisplay();
+            }
 
             currentLevel = 1;
             TrainingUITheme.LevelBadge(levelText);
@@ -392,6 +400,7 @@ namespace Vampire
 
         protected virtual void Update()
         {
+            if (!alive) return;
             UpdateDashInput();
             HandleHealOnIdle();
             HandleThermometerMovementAndDecay();
@@ -419,6 +428,7 @@ namespace Vampire
 
         protected virtual void FixedUpdate()
         {
+            if (!alive) return;
             if (IsPortalTravelling || IsPortalPoseHeld)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
@@ -631,14 +641,15 @@ namespace Vampire
 
                 if (rb != null)
                 {
-                    var allowedPosition=MiniStageArenaGeometry.ClampMovement(rb, BloodClotObstacle.ClampDash(rb,nextPosition));
+                    var allowedPosition=FiniteStomachMap.ClampDash(rb.position,MiniStageArenaGeometry.ClampMovement(rb, BloodClotObstacle.ClampDash(rb,nextPosition)), GetComponent<StomachSlopeBody>()?.Radius ?? .25f);
                     Skills?.DashStep(rb.position,allowedPosition);
                     rb.MovePosition(allowedPosition);
                 }
                 else
                 {
-                    Skills?.DashStep(transform.position,nextPosition);
-                    transform.position = nextPosition;
+                    var allowedPosition=FiniteStomachMap.ClampDash(transform.position,nextPosition);
+                    Skills?.DashStep(transform.position,allowedPosition);
+                    transform.position = allowedPosition;
                 }
 
                 elapsed += Time.fixedDeltaTime;
@@ -647,7 +658,7 @@ namespace Vampire
 
             if (rb != null)
             {
-                var allowedPosition=MiniStageArenaGeometry.ClampMovement(rb,BloodClotObstacle.ClampDash(rb,targetPosition));
+                var allowedPosition=FiniteStomachMap.ClampDash(rb.position,MiniStageArenaGeometry.ClampMovement(rb,BloodClotObstacle.ClampDash(rb,targetPosition)), GetComponent<StomachSlopeBody>()?.Radius ?? .25f);
                 Skills?.DashStep(rb.position,allowedPosition);
                 rb.MovePosition(allowedPosition);
 
@@ -658,8 +669,9 @@ namespace Vampire
             }
             else
             {
-                Skills?.DashStep(transform.position,targetPosition);
-                transform.position = targetPosition;
+                var allowedPosition=FiniteStomachMap.ClampDash(transform.position,targetPosition);
+                Skills?.DashStep(transform.position,allowedPosition);
+                transform.position = allowedPosition;
             }
 
             yield return new WaitForFixedUpdate();
@@ -940,6 +952,9 @@ namespace Vampire
 
         private IEnumerator LevelUpCoroutine()
         {
+            // A queued XP gain can resume on a later frame while the supply picker is paused.
+            // Keep reward modals serialized so one cannot resume combat behind the other.
+            while(ApothecaryUI.Instance!=null&&ApothecaryUI.Instance.Page=="supplyRelic")yield return null;
             if (!alive)
             {
                 yield break;
@@ -1159,9 +1174,44 @@ namespace Vampire
             isInvincible = false;
         }
 
+        public void TakeAcidLakeDamage(float seconds, bool erosionLimitReached)
+        {
+            if (!alive || IsPortalTravelling || seconds <= 0) return;
+            // Armor, evasion and on-hit grace do not turn continuous acid into tiny hits.
+            // Temporary invulnerability may block HP loss; the lake separately tracks erosion.
+            bool protectedNow = isInvincible || IsDashInvincibilityActive() || IsPortalDamageProtected ||
+                (Skills != null && Skills.IsAri && Skills.Active);
+            if (protectedNow && !erosionLimitReached) return;
+            float loss = erosionLimitReached ? currentHealth : Mathf.Min(currentHealth, MaxHealth * AcidLakeEvent.HealthFractionPerSecond * seconds);
+            currentHealth -= loss;
+            healthBar.SubtractPoints(loss);
+            statsManager.IncreaseDamageTaken(loss);
+            lastDamageMonsterBlueprint = null;
+            GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            if (currentHealth > 0) return;
+            if (ReviveCount > 0) { Revive(); return; }
+            StartCoroutine(DeathAnimation());
+        }
+
+        public void RelocateAfterAcidRevival(Vector2 position)
+        {
+            if (dashCoroutine != null) { StopCoroutine(dashCoroutine); dashCoroutine = null; }
+            RestoreDashCollisionGhost(); RestoreDashSpriteVisual();
+            isDashing = false; dashInvincibleEndTime = -1;
+            moveDirection = Vector2.zero;
+            transform.position = new Vector3(position.x, position.y, transform.position.z);
+            if (rb != null) { rb.position = position; rb.velocity = Vector2.zero; }
+        }
+
         private IEnumerator DeathAnimation()
         {
+            bool submerged = AcidLakeEvent.Contains(transform.position);
             alive = false;
+            currentHealth = 0;
+            moveDirection = Vector2.zero;
+            if (hitAnimationCoroutine != null) { StopCoroutine(hitAnimationCoroutine); hitAnimationCoroutine = null; }
+            if (dashCoroutine != null) { StopCoroutine(dashCoroutine); dashCoroutine = null; }
+            StopDashRecharge();
             GetComponent<PlayerAttackSpeedDebuffRuntime>()?.ClearDebuff();
 
             RestoreDashCollisionGhost();
@@ -1170,50 +1220,26 @@ namespace Vampire
             isDashing = false;
             dashInvincibleEndTime = -1f;
 
-            if (spriteRenderer != null)
-            {
-                spriteRenderer.sharedMaterial = deathMaterial;
-            }
-
+            if (spriteRenderer != null) spriteRenderer.sharedMaterial = defaultMaterial;
+            if (rb != null) { rb.velocity = Vector2.zero; rb.angularVelocity = 0; rb.simulated = false; }
+            if (lookIndicator != null) lookIndicator.gameObject.SetActive(false);
+            var heldWeapon = transform.Find("Weapon");
+            if (heldWeapon != null) heldWeapon.gameObject.SetActive(false);
+            Skills?.EndRun();
             abilityManager.DestroyActiveAbilities();
+            foreach (var projectile in FindObjectsOfType<Projectile>()) projectile.ReleaseForPlayerExit(this);
             StopWalkAnimation();
-
-            if (deathParticles != null)
+            if (deathParticles != null) deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            if (dustParticles != null) dustParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            Time.timeScale = 0;
+            if (!submerged)
             {
-                deathParticles.Play();
+                var exit = GetComponent<CharacterExitSequence>();
+                if (exit == null) exit = gameObject.AddComponent<CharacterExitSequence>();
+                yield return exit.Play(this, spriteRenderer);
             }
-
-            float height = spriteRenderer != null ? spriteRenderer.bounds.size.y : 1f;
-            float t = 0;
-
-            while (t < 1)
-            {
-                if (spriteRenderer != null)
-                {
-                    spriteRenderer.sharedMaterial = deathMaterial;
-                }
-
-                if (deathParticles != null)
-                {
-                    deathParticles.transform.position = transform.position + Vector3.up * height * (1 - t);
-                }
-
-                if (deathMaterial != null)
-                {
-                    deathMaterial.SetFloat("_Wipe", t);
-                }
-
-                t += Time.deltaTime;
-                yield return null;
-            }
-
-            if (deathMaterial != null)
-            {
-                deathMaterial.SetFloat("_Wipe", 1.0f);
-            }
-
-            yield return new WaitForSeconds(0.5f);
-
+            else if (spriteRenderer != null) spriteRenderer.enabled = false;
+            // LevelManager owns reward saving and the result panel, after the final pose holds.
             OnDeath.Invoke();
 
             if (spriteRenderer != null)
@@ -1233,11 +1259,13 @@ namespace Vampire
                 StopCoroutine(hitAnimationCoroutine);
             }
 
+            AcidLakeEvent.Instance?.RelocateRevivedPlayer(this);
             hitAnimationCoroutine = StartCoroutine(HitAnimation());
         }
 
         public void GainHealth(float health)
         {
+            if (!alive) return;
             LegendaryConditionalSpecialRuntime conditionalRuntime =
                 GetComponent<LegendaryConditionalSpecialRuntime>();
 
@@ -1251,6 +1279,7 @@ namespace Vampire
             var items=GetComponent<OctoberItemRuntime>();
             if(items!=null)health=items.Healing(health);
             float actualHeal=Mathf.Clamp(health,0,Mathf.Max(0,maxHealth-currentHealth));
+            statsManager?.RecordHealing(actualHeal);
             items?.Healed(actualHeal,Mathf.Max(0,health-actualHeal));
 
             healthBar.AddPoints(health);
@@ -1833,6 +1862,7 @@ namespace Vampire
             snapshot.ShiniFuel=Skills?.Breath!=null?Skills.Breath.Fuel:0;
             snapshot.SkillPassiveLevel=Skills != null ? Skills.PassiveLevel : 1;
             snapshot.SkillActiveLevel=Skills != null ? Skills.ActiveLevel : 1;
+            snapshot.SkillDashRewardUpgrades=Skills != null ? Skills.DashRewardUpgrades : 0;
             snapshot.Prescription=GetComponent<PrescriptionRuntime>()?.Capture();
             snapshot.SkillPassiveRemaining=Skills != null ? Skills.PassiveRemaining : 0;
             snapshot.SkillActiveRemaining=Skills != null ? Skills.ActiveRemaining : 0;
@@ -2050,6 +2080,7 @@ namespace Vampire
                 currentHealth > 0f;
 
             Skills?.RestoreLevels(snapshot.SkillPassiveLevel,snapshot.SkillActiveLevel);
+            Skills?.RestoreDashRewardUpgrades(snapshot.SkillDashRewardUpgrades);
             GetComponent<PrescriptionRuntime>()?.Restore(snapshot.Prescription);
             Skills?.Restore(snapshot.SkillPassiveRemaining,snapshot.SkillActiveRemaining,snapshot.SkillCooldownRemaining,snapshot.SkillSummonRemaining);
             Skills?.RestoreSleep(snapshot.SkillSleepSeconds,snapshot.SkillConsumedSleepStacks);

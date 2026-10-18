@@ -1,0 +1,391 @@
+[SupplyResults] PASS imported capsule and parachute sprites
+[SupplyResults] PASS alpha padding trimmed via metadata, original PNG preserved
+[SupplyResults] PASS buttons symmetric around old center
+[SupplyResults] PASS hover retains mint art and only enables edge feedback
+[SupplyResults] PASS skip uses distinct coral art
+[SupplyResults] PASS reroll consumed once
+[SupplyResults] PASS skip resumes without granting an augment
+[SupplyResults] PASS warning has no interactable collider
+[SupplyResults] PASS capsule descending after warning
+[SupplyResults] PASS airborne interaction rejected
+[SupplyResults] PASS descent freezes during game pause
+[SupplyResults] PASS landing at ten active seconds enables collider without scale swap
+[SupplyResults] PASS E keycap visible only after landed and player is nearby
+[SupplyResults] PASS E interaction hinges right half and spawns golden orb
+[SupplyResults] PASS three distinct not-owned relic offers
+[SupplyResults] PASS golden orb automatically collects inside pickup range
+[SupplyResults] PASS relic selection pauses combat
+[SupplyResults] PASS queued level-up waits for relic selection to close
+[SupplyResults] PASS selected relic description displayed on right
+[SupplyResults] PASS cancel resumes with same reward choices
+[SupplyResults] PASS reward can be reopened without reroll
+[SupplyResults] PASS reward adds run relic without replacing lobby relic
+[SupplyResults] PASS claim counted exactly once and gameplay resumes
+[SupplyResults] PASS extra relic survives run-state restore
+[SupplyResults] PASS duplicate relic rejected
+[SupplyResults] PASS all owned relic effects contribute
+[SupplyResults] PASS TAB includes additional relics
+[SupplyResults] PASS top four and others preserve all source damage
+[SupplyResults] PASS icon bounds 1
+[SupplyResults] PASS icon bounds 2
+[SupplyResults] PASS icon bounds 3
+[SupplyResults] PASS icon bounds 4
+[SupplyResults] PASS icon bounds 5
+[SupplyResults] PASS icon bounds 6
+[SupplyResults] PASS icon bounds 7
+[SupplyResults] PASS icon bounds 8
+[SupplyResults] PASS icon bounds 9
+[SupplyResults] PASS icon bounds 10
+[SupplyResults] PASS icon bounds 11
+[SupplyResults] PASS icon bounds 12
+[SupplyResults] PASS icon bounds 13
+[SupplyResults] PASS icon bounds 14
+[SupplyResults] PASS icon bounds 15
+[SupplyResults] PASS icon bounds 16
+[SupplyResults] PASS icon bounds 17
+[SupplyResults] PASS icon bounds 18
+[SupplyResults] PASS icon bounds 19
+[SupplyResults] PASS icon bounds 20
+[SupplyResults] PASS icon bounds 21
+[SupplyResults] PASS icon bounds 22
+[SupplyResults] PASS icon bounds 23
+[SupplyResults] PASS icon bounds 24
+[SupplyResults] PASS icon bounds 25
+[SupplyResults] PASS icon bounds 26
+[SupplyResults] PASS icon bounds 27
+[SupplyResults] PASS icon bounds 28
+[SupplyResults] PASS icon bounds 29
+[SupplyResults] PASS icon bounds 30
+[SupplyResults] PASS icon bounds 31
+[SupplyResults] PASS icon bounds 32
+[SupplyResults] PASS icon bounds 33
+[SupplyResults] PASS icon bounds 34
+[SupplyResults] PASS icon bounds 35
+[SupplyResults] PASS icon bounds 36
+[SupplyResults] PASS icon bounds 37
+[SupplyResults] PASS icon bounds 38
+[SupplyResults] PASS icon bounds 39
+[SupplyResults] PASS icon bounds 40
+[SupplyResults] PASS icon bounds 41
+[SupplyResults] PASS icon bounds 42
+[SupplyResults] PASS icon bounds 43
+[SupplyResults] PASS icon bounds 44
+[SupplyResults] PASS icon bounds 45
+[SupplyResults] PASS icon bounds 46
+[SupplyResults] PASS icon bounds 47
+[SupplyResults] PASS icon bounds 48
+[SupplyResults] PASS icon bounds 49
+[SupplyResults] PASS icon bounds 50
+[SupplyResults] PASS icon bounds 51
+[SupplyResults] PASS icon bounds 52
+[SupplyResults] PASS icon bounds 53
+[SupplyResults] PASS icon bounds 54
+[SupplyResults] PASS icon bounds 55
+[SupplyResults] PASS icon bounds 56
+[SupplyResults] PASS icon bounds 57
+[SupplyResults] PASS icon bounds 58
+[SupplyResults] PASS icon bounds 59
+[SupplyResults] PASS icon bounds 60
+[SupplyResults] PASS icon bounds 61
+[SupplyResults] PASS icon bounds 62
+[SupplyResults] PASS icon bounds 63
+[SupplyResults] PASS icon bounds 64
+[SupplyResults] PASS icon bounds 65
+[SupplyResults] PASS icon bounds 66
+[SupplyResults] PASS icon bounds 67
+[SupplyResults] PASS icon bounds 68
+[SupplyResults] PASS icon bounds 69
+[SupplyResults] PASS icon bounds 70
+[SupplyResults] PASS icon bounds 71
+[SupplyResults] PASS icon bounds 72
+[SupplyResults] PASS icon bounds 73
+[SupplyResults] PASS icon bounds 74
+[SupplyResults] PASS icon bounds 75
+[SupplyResults] PASS icon bounds 76
+[SupplyResults] PASS icon bounds 77
+[SupplyResults] PASS icon bounds 78
+[SupplyResults] PASS icon bounds 79
+[SupplyResults] PASS icon bounds 80
+[SupplyResults] PASS icon bounds 81
+[SupplyResults] PASS icon bounds 82
+[SupplyResults] PASS icon bounds 83
+[SupplyResults] PASS icon bounds 84
+[SupplyResults] PASS icon bounds 85
+[SupplyResults] PASS icon bounds 86
+[SupplyResults] PASS icon bounds 87
+[SupplyResults] PASS icon bounds 88
+[SupplyResults] PASS icon bounds 89
+[SupplyResults] PASS icon bounds 90
+[SupplyResults] PASS icon bounds 91
+[SupplyResults] PASS icon bounds 92
+[SupplyResults] PASS icon bounds 93
+[SupplyResults] PASS icon bounds 94
+[SupplyResults] PASS icon bounds 95
+[SupplyResults] PASS icon bounds 96
+[SupplyResults] PASS icon bounds 97
+[SupplyResults] PASS icon bounds 98
+[SupplyResults] PASS icon bounds 99
+[SupplyResults] PASS icon bounds 100
+[SupplyResults] PASS icon bounds 101
+[SupplyResults] PASS icon bounds 102
+[SupplyResults] PASS icon bounds 103
+[SupplyResults] PASS icon bounds 104
+[SupplyResults] PASS icon bounds 105
+[SupplyResults] PASS icon bounds 106
+[SupplyResults] PASS icon bounds 107
+[SupplyResults] PASS icon bounds 108
+[SupplyResults] PASS icon bounds 109
+[SupplyResults] PASS icon bounds 110
+[SupplyResults] PASS icon bounds 111
+[SupplyResults] PASS icon bounds 112
+[SupplyResults] PASS icon bounds 113
+[SupplyResults] PASS icon bounds 114
+[SupplyResults] PASS icon bounds 115
+[SupplyResults] PASS icon bounds 116
+[SupplyResults] PASS icon bounds 117
+[SupplyResults] PASS icon bounds 118
+[SupplyResults] PASS icon bounds 119
+[SupplyResults] PASS icon bounds 120
+[SupplyResults] PASS icon bounds 121
+[SupplyResults] PASS icon bounds 122
+[SupplyResults] PASS icon bounds 123
+[SupplyResults] PASS icon bounds 124
+[SupplyResults] PASS icon bounds 125
+[SupplyResults] PASS icon bounds 126
+[SupplyResults] PASS icon bounds 127
+[SupplyResults] PASS icon bounds 128
+[SupplyResults] PASS icon bounds 129
+[SupplyResults] PASS icon bounds 130
+[SupplyResults] PASS icon bounds 131
+[SupplyResults] PASS icon bounds 132
+[SupplyResults] PASS icon bounds 133
+[SupplyResults] PASS icon bounds 134
+[SupplyResults] PASS icon bounds 135
+[SupplyResults] PASS icon bounds 136
+[SupplyResults] PASS icon bounds 137
+[SupplyResults] PASS icon bounds 138
+[SupplyResults] PASS icon bounds 139
+[SupplyResults] PASS icon bounds 140
+[SupplyResults] PASS icon bounds 141
+[SupplyResults] PASS icon bounds 142
+[SupplyResults] PASS icon bounds 143
+[SupplyResults] PASS icon bounds 144
+[SupplyResults] PASS icon bounds 145
+[SupplyResults] PASS icon bounds 146
+[SupplyResults] PASS icon bounds 147
+[SupplyResults] PASS icon bounds 148
+[SupplyResults] PASS icon bounds 149
+[SupplyResults] PASS icon bounds 150
+[SupplyResults] PASS result numeric-only contribution 0
+[SupplyResults] PASS result shows inventory icons rather than counts 0
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS result numeric-only contribution 1
+[SupplyResults] PASS result shows inventory icons rather than counts 1
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] PASS icon inside inventory box
+[SupplyResults] FINISHED failed=False

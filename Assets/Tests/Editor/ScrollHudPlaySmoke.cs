@@ -80,7 +80,7 @@ namespace Vampire.Tests.Editor
             level.SetRunFlowPaused(true);yield return null;
             var view=ui.GetComponentInChildren<PrescriptionScrollView>();var quest=level.PlayerCharacter.GetComponent<PrescriptionRuntime>();
             Check(view!=null&&!view.Expanded&&view.Reveal==0,"Vision scroll defaults to rolled state");
-            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD status")&&ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD settings"),"PC shares status/settings panels");
+            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD journal gear"),"PC unified journal gear");
             Capture("pc-rolled");
             yield return Press(UnityEngine.InputSystem.Key.Tab);Check(ui.Page=="run","PC TAB still opens status");
             yield return Press(UnityEngine.InputSystem.Key.Tab);Check(ui.Page=="hud","PC TAB closes status");
@@ -115,9 +115,9 @@ namespace Vampire.Tests.Editor
                 Capture("open-"+Screen.width+"x"+Screen.height);
             }
             SetMobile(true);ui.Show("hud");yield return null;
-            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD status")&&ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD settings"),"Mobile simulation retains both navigation buttons");
-            var mobileStatus=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="HUD status");mobileStatus.onClick.Invoke();Check(ui.Page=="run","Mobile status button functions");ui.CloseRunBook();
-            var mobileSettings=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="HUD settings");mobileSettings.onClick.Invoke();Check(ui.Page=="settings","Mobile settings button functions");ui.Back();
+            Check(ui.GetComponentsInChildren<Button>().Any(b=>b.name=="HUD journal gear"),"Mobile unified journal gear");
+            var mobileStatus=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="HUD journal gear");mobileStatus.onClick.Invoke();Check(ui.Page=="run","Mobile status button functions");
+            var mobileSettings=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="Settings bookmark");mobileSettings.onClick.Invoke();Check(ui.Page=="settings","Mobile settings button functions");ui.Back();
             Capture("mobile-navigation");SetMobile(false);ui.Show("hud");yield return null;
             view=ui.GetComponentInChildren<PrescriptionScrollView>();
             foreach(int id in quest.Capture().quests)quest.Record((PrescriptionRuntime.Goal)id,10000);yield return null;

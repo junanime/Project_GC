@@ -44,7 +44,7 @@ namespace Vampire.Tests.Editor
                 Canvas.ForceUpdateCanvases();
                 foreach(var card in cards)
                 {
-                    Check(card.UsesNoblePanel && ((Image)Field(card,"cardBackgroundImage")).sprite==PhoenixNobleArt.Get("Scroll"),"shared hanji frame");
+                    Check(card.UsesNoblePanel && ((Image)Field(card,"cardBackgroundImage")).sprite==CharacterNoblePanelArt.Frame,"shared character noble frame");
                     var icon=(Image)Field(card,"abilityImage");
                     Check(icon.enabled && icon.sprite!=null && icon.rectTransform.rect.width>100,"separate ink illustration visible");
                     foreach(string label in new[]{"nameText","descriptionText"})

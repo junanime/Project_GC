@@ -515,7 +515,7 @@ namespace Vampire
                 return;
             }
 
-            minimapObject.SetActive(true);
+            minimapObject.SetActive(false);
 
             if (!minimapLayerMovedForModal)
             {

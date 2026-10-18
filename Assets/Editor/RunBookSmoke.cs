@@ -134,7 +134,7 @@ namespace Vampire.Editor
             Check(runtime.State.owned.Count==itemCount&&player.Skills.CooldownRemaining==cooldown,"reading never uses items or skills");
             Click("Active skill slot");yield return Frame();Check(GameObject.Find("Skill details")!=null&&player.Skills.CooldownRemaining==cooldown,"active skill reads without casting");
             Object.FindObjectsOfType<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="닫기")).onClick.Invoke();yield return Frame();
-            Click("Record settings");yield return Frame();Check(ui.Page=="settings"&&Time.timeScale==0,"settings button keeps pause");ui.Back();yield return Frame();Check(ui.Page=="run"&&Time.timeScale==0,"settings returns to record");
+            Click("Settings bookmark");yield return Frame();Check(ui.Page=="settings"&&Time.timeScale==0,"settings button keeps pause");Click("Character bookmark");yield return Frame();Check(ui.Page=="run"&&Time.timeScale==0,"settings returns to record");
             Click("Record consumables");yield return Frame();Check(ui.Tab==4,"consumable help retained");
             Object.FindObjectsOfType<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="안내")).onClick.Invoke();yield return Frame();Check(ui.Tab==5,"guide retained");
             Object.FindObjectsOfType<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="탐험 기록")).onClick.Invoke();yield return Frame();Check(ui.Tab==0&&GameObject.Find("Exploration record backplate")!=null,"back from guide to new layout");

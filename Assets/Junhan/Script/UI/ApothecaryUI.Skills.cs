@@ -127,7 +127,7 @@ namespace Vampire
         }
         void UpdateSkillUI()
         {
-            if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(Page=="hud"&&Time.timeScale>0&&!MiniStageRuntimeState.IsInsideMiniStage);
+            if(level!=null && ExplorationMapSystem.Instance!=null)ExplorationMapSystem.Instance.SetMiniMapVisible(false);
             var skill=CurrentSkills;
             if(activeSkillButton==null)return;
             var d=skill!=null?skill.Definition:null;

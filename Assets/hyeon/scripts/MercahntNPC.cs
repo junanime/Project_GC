@@ -8,7 +8,7 @@ namespace Vampire
     {
         private Character playerCharacter;
         private bool isShopOpen = false;
-        public bool CanInteract => !isShopOpen && !MiniStageRuntimeState.IsInsideMiniStage && MerchantUIManager.Instance!=null;
+        public bool CanInteract => !isShopOpen && !MiniStageRuntimeState.IsInsideMiniStage && MerchantUIManager.Instance!=null && !AcidLakeEvent.Contains(transform.position);
 
         private List<MerchantItemBlueprint> shopItems = new List<MerchantItemBlueprint>();
         private bool hasGeneratedShopItems = false;

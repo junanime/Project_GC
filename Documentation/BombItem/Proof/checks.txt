@@ -1,0 +1,30 @@
+[BombItem] PASS desktop HUD minimap hidden
+[BombItem] PASS legacy visibility cannot revive minimap
+[BombItem] PASS TAB map remains functional
+[BombItem] PASS mobile inventory layout leaves minimap hidden
+[BombItem] PASS augment modal cannot revive minimap
+[BombItem] PASS automatic aim chooses dense visible group centroid, ignores offscreen larger group
+[BombItem] PASS no enemies falls back to player position
+[BombItem] PASS spaced enemies fitting one blast outrank nearer isolated enemy
+[BombItem] PASS blast diameter is four live Ashi widths
+[BombItem] PASS bomb inventory holds two
+[BombItem] PASS keyboard Digit1 consumes once despite legacy callback
+[BombItem] PASS keyboard throws at crowd
+[BombItem] PASS key release cannot spend again or enter aim
+[BombItem] PASS keyboard Z consumes once despite legacy callback
+[BombItem] PASS keyboard throws at crowd
+[BombItem] PASS key release cannot spend again or enter aim
+[BombItem] PASS two explosions damage only monsters in radius, 300 each
+[BombItem] PASS first HUD click arms bomb cursor without consumption
+[BombItem] PASS translucent preview matches actual diameter
+[BombItem] PASS dark red boundary is clearer than fill
+[BombItem] PASS preview uses foreground sorting layer
+[BombItem] PASS second field click throws once and immediately removes preview/restores cursor
+[BombItem] PASS bomb click does not also redirect needle
+[BombItem] PASS pause cancels aim without consuming inventory
+[BombItem] PASS UI touch cannot confirm a field throw
+[BombItem] PASS field touch can preview while another finger holds UI
+[BombItem] PASS field touch release confirms exactly one throw
+[BombItem] PASS empty inventory cannot arm
+[BombItem] PASS bomb damage is recorded in results
+[BombItem] FINISHED failed=False

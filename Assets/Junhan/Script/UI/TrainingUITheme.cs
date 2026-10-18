@@ -46,7 +46,7 @@ namespace Vampire
             var parent=text.transform.parent;
             var plate=AugmentPanelTheme.Rect("Training HUD "+iconName,parent);
             plate.anchorMin=plate.anchorMax=plate.pivot=new Vector2(1,1);
-            plate.anchoredPosition=new Vector2(-rightOffset,-42); plate.sizeDelta=new Vector2(122,34);
+            plate.anchoredPosition=new Vector2(-rightOffset-76,-42); plate.sizeDelta=new Vector2(122,34);
             var shape=plate.gameObject.AddComponent<IdentityShape>();
             shape.frame=true;shape.radius=14;shape.color=new Color(.15f,.08f,.16f,.90f);
             shape.insetColor=new Color(.25f,.12f,.23f,.80f);shape.raycastTarget=false;

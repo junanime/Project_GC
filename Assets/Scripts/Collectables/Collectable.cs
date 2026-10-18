@@ -21,6 +21,8 @@ namespace Vampire
         protected ZPositioner zPositioner;
         protected Collider2D col;
         protected bool beingCollected = false;
+        private bool waitingForSpawn;
+        private bool requiresPickupRange;
         public bool IsBeingCollected => beingCollected;
         public uint SpawnGeneration { get; private set; }
 
@@ -37,9 +39,11 @@ namespace Vampire
             zPositioner.Init(playerCharacter.transform);
         }
 
-        public virtual void Setup(bool spawnAnimation = true, bool collectableDuringSpawn = true)
+        public virtual void Setup(bool spawnAnimation = true, bool collectableDuringSpawn = true, bool requirePickupRange = false)
         {
             unchecked { SpawnGeneration++; }
+            waitingForSpawn = spawnAnimation && !collectableDuringSpawn;
+            requiresPickupRange = requirePickupRange;
             col.enabled = !spawnAnimation || collectableDuringSpawn;
             beingCollected = false;
             enabled = true; //  [추가] 오브젝트 재사용을 위해 고유 Update 루프를 다시 켭니다.
@@ -60,8 +64,15 @@ namespace Vampire
 
         public virtual void Collect(CollectionMode collectionMode = CollectionMode.FromGround)
         {
+            if (AcidLakeEvent.Contains(transform.position)) return;
             // Don't collect again if already being collected
-            if (beingCollected)
+            if (beingCollected || waitingForSpawn)
+                return;
+
+            // Chest rewards stay in the field until the player's pickup area reaches them,
+            // including when an automatic collection relic is active.
+            if (requiresPickupRange && (!col.enabled || !playerCharacter.CollectableCollider.enabled ||
+                col.Distance(playerCharacter.CollectableCollider).distance > 0f))
                 return;
 
             // Don't collect if storable in inventory and inventory is full
@@ -76,9 +87,9 @@ namespace Vampire
             if (magnetic)
                 entityManager.MagneticCollectables.Remove(this);
 
-            // Fly self to player inventory if storable in inventory, otherwise send to player themselves
+            // Both consumables and immediate rewards are absorbed by the character.
             if (storeInInventory && hasInventorySlot)
-                StartCoroutine(FlyToInventory(inventorySlot, collectionMode));
+                StartCoroutine(StoreAfterPickup(inventorySlot, collectionMode));
             else
                 StartCoroutine(FlyToPlayer(collectionMode));
         }
@@ -88,9 +99,27 @@ namespace Vampire
             OnCollected();
         }
 
+        public void DissolveInAcidLake()
+        {
+            if (!gameObject.activeInHierarchy) return;
+            StopAllCoroutines();
+            if (beingCollected && entityManager.Inventory.TryGetInventorySlot(this, out var slot)) slot.CancelItemBeingCollected(this);
+            if (entityManager.MagneticCollectables.Contains(this)) entityManager.MagneticCollectables.Remove(this);
+            if (this is ExpGem gem) entityManager.DespawnGem(gem);
+            // Chest coins are instantiated rather than obtained from CoinPool.
+            else if (this is Coin coin && GetComponentInParent<CoinPool>() != null) entityManager.DespawnCoin(coin, false);
+            else Destroy(gameObject);
+        }
+
         protected abstract void OnCollected();
 
         protected virtual IEnumerator FlyToPlayer(CollectionMode collectionMode = CollectionMode.FromGround)
+        {
+            yield return StartCoroutine(MoveToPlayer(collectionMode));
+            OnCollected();
+        }
+
+        private IEnumerator MoveToPlayer(CollectionMode collectionMode)
         {
             if (collectionMode == CollectionMode.FromChest)
             {
@@ -114,32 +143,13 @@ namespace Vampire
             }
             transform.position = playerCharacter.CenterTransform.position;
             yield return null;
-            OnCollected();
         }
 
-        protected virtual IEnumerator FlyToInventory(InventorySlot inventorySlot, CollectionMode collectionMode = CollectionMode.FromGround)
+        private IEnumerator StoreAfterPickup(InventorySlot inventorySlot, CollectionMode collectionMode)
         {
-            // Launch the collectable into the air before sending it to the inventory 
-            // if collected from a chest
+            // Reserve capacity during pickup so overlapping drops cannot exceed the limit.
             inventorySlot.AddItemBeingCollected(this);
-            if (collectionMode == CollectionMode.FromChest)
-                yield return StartCoroutine(ChestAnimation());
-
-            float t = 0;
-            float c = 0;//juiciness / distance;
-            float timeScale = 2.0f;
-            t = -Time.deltaTime*timeScale;
-            Vector3 pickupPos = transform.position;
-            while (t < 1)
-            {
-                t += Time.deltaTime*timeScale;
-                float lerpT = EasingUtils.EaseInBack(t, c);
-                if (lerpT >= 1) break;
-                transform.position = Vector3.LerpUnclamped(pickupPos, Camera.main.ScreenToWorldPoint(inventorySlot.transform.position), lerpT);
-                yield return null;
-            }
-            transform.position = Camera.main.ScreenToWorldPoint(inventorySlot.transform.position);
-            yield return null;
+            yield return StartCoroutine(MoveToPlayer(collectionMode));
             gameObject.SetActive(false);
             inventorySlot.FinalizeAddItemBeingCollected(this);
         }
@@ -156,7 +166,10 @@ namespace Vampire
                 t += Time.deltaTime*saSpeed;
                 yield return null;
             }
-            col.enabled = true;
+            if (!beingCollected)
+                transform.position = spawnPosition + Vector3.right * horizontalSpeed;
+            waitingForSpawn = false;
+            col.enabled = !beingCollected;
             zPositioner.enabled = true;
         }
 
@@ -188,7 +201,7 @@ namespace Vampire
             if (playerCharacter != null && playerCharacter.AutoCollectItems && !beingCollected)
             {
                 Collect();
-                enabled = false; //  [클린코드 최적화] 수집이 시작되었으므로 이 보석의 Update 연산을 즉시 중단합니다.
+                if (beingCollected) enabled = false;
             }
         }
 

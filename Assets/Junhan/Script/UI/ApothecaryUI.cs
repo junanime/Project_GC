@@ -59,6 +59,7 @@ namespace Vampire
             if (roundSource!=null || config.font != null && config.font.sourceFontFile != null)
                 runtimeFont = TMP_FontAsset.CreateFontAsset(roundSource!=null?roundSource:config.font.sourceFontFile);
             level = FindObjectOfType<LevelManager>();
+            if(!lobby)gameObject.AddComponent<WorldObjectTouchInput>();
             stats = FindObjectOfType<StatsManager>();
             character = CrossSceneData.CharacterBlueprint != null ? CrossSceneData.CharacterBlueprint : config.characters.FirstOrDefault();
             characterIndex = Mathf.Max(0, Array.IndexOf(config.characters, character));
@@ -137,6 +138,7 @@ namespace Vampire
             {
                 if (Page == "hud") OpenRunBook();
                 else if (Page == "run") CloseRunBook();
+                else if (Page == "settings") SelectCharacterBookmark();
             }
             if (GameInput.GetKeyDown(KeyCode.Escape)) Back();
         }
@@ -148,6 +150,7 @@ namespace Vampire
         }
         public void Back()
         {
+            if(Page=="supplyRelic"){CloseSupplyRelics(false);return;}
             if(Page=="merchant"){merchant?.CloseShop();return;}
             if (starting || Page == "skillReward" || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
             if(Page=="settings"){CancelSettings();return;}
@@ -160,21 +163,25 @@ namespace Vampire
             ClearSkillUI();
             portrait = null; previewCharacter = null; silverLabel = null;
             content = Rect("Page " + Page, root,0,0,1,1);
-            fullScreenBackdrop.gameObject.SetActive(Page!="hud"&&Page!="merchant");
-            fullScreenBackdrop.color=Page=="run"?new Color(0,0,0,.68f):new Color(.19f,.08f,.07f);
+            bool liveFloodResult = Page == "result" && AcidLakeEvent.Instance != null && AcidLakeEvent.Instance.Flooding;
+            fullScreenBackdrop.gameObject.SetActive(Page!="hud"&&Page!="merchant"&&Page!="supplyRelic");
+            fullScreenBackdrop.color=liveFloodResult?new Color(0,0,0,.15f):Page=="run"||Page=="settings"&&level!=null||Page=="skillReward"?new Color(0,0,0,.68f):new Color(.19f,.08f,.07f);
             if (Page == "hud")
             {
-                BuildSkillHud();
                 BuildPrescriptionHud();
                 BuildHudNavigation();
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
             if(Page=="merchant"){OctoberMerchant();return;}
+            if(Page=="supplyRelic"){OctoberSupplyRelics();return;}
             if(Page=="run" && Tab<4){ExplorationRecord();return;}
-            ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
+            if(Page=="settings"){UnifiedBookFrame(true);Settings();return;}
+            // The book background contains the title logo; rewards instead dim the live field.
+            if(Page=="skillReward"){BuildSkillReward();return;}
+            if (!liveFloodResult)
+                ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { OctoberMain(); return; }
-            if (Page == "skillReward") { BuildSkillReward(); return; }
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "업적 · 해금 도감" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "게임 클리어!" : "아쉽지만 실패!") : Page == "exit" ? "게임 종료" : "설정";
             OctoberFrame(title);
             if (Page == "prepare" || Page == "unlock")
@@ -376,6 +383,7 @@ namespace Vampire
         }
         public void CloseRunBook()
         {
+            if(Page=="settings" && settingsOriginal!=null)GamePreferences.Apply(settingsOriginal,false);
             level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
             ownsPause=false;Show("hud");
@@ -453,11 +461,12 @@ namespace Vampire
             var hit=Rect("Button "+text,parent,x,y,r,t);var hitImage=hit.gameObject.AddComponent<Image>();hitImage.color=Color.clear;
             var button=hit.gameObject.AddComponent<Button>();button.targetGraphic=hitImage;button.transition=Selectable.Transition.None;button.interactable=enabled;
             var visual=Rect("Visual",hit,0,0,1,1);
-            var body=visual.gameObject.AddComponent<Image>();body.sprite=primary?Config.primaryButton:Config.buttonBody;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=4;body.raycastTarget=false;
+            var body=visual.gameObject.AddComponent<Image>();body.sprite=primary&&enabled?Config.primaryButton:Config.buttonBody;body.type=Image.Type.Sliced;body.pixelsPerUnitMultiplier=4;body.raycastTarget=false;
+            if(!enabled)body.color=new Color(.60f,.64f,.72f);
             var surface=Rect("Orbiting edge light",visual,0,0,1,1).gameObject.AddComponent<TitleMenuSurface>();
             surface.button=button;surface.hideIcon=true;surface.decorationOnly=true;surface.raycastTarget=false;
             var label=Label(visual,text,.04f,.04f,.96f,.96f,24);label.fontStyle=FontStyles.Bold;
-            if(primary)label.color=new Color(1,.97f,.88f);
+            if(primary&&enabled)label.color=new Color(1,.97f,.88f);
             var feedback=hit.gameObject.AddComponent<ApothecaryButtonFeedback>();feedback.button=button;feedback.visual=visual;feedback.body=body;feedback.sparkle=surface;feedback.primary=primary;feedback.chosen=chosen;feedback.label=label;
             button.onClick.AddListener(()=>{if(button.IsInteractable()){if(clickSound)GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);action?.Invoke();}});
             return button;

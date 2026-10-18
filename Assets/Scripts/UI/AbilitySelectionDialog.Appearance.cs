@@ -8,6 +8,7 @@ namespace Vampire
     {
         RectTransform panelContent, panelDimmer;
         TextMeshProUGUI originalRewardNotice;
+        Button skipButton;
         readonly Vector3[] panelScreenCorners = new Vector3[4];
 
         void InstallPanelTheme()
@@ -44,7 +45,7 @@ namespace Vampire
             if (rerollButton != null)
             {
                 rerollButton.transform.SetParent(panelContent,false);
-                AugmentPanelTheme.Box((RectTransform)rerollButton.transform,new Vector2(0,-291),new Vector2(310,66));
+                AugmentPanelTheme.Box((RectTransform)rerollButton.transform,new Vector2(168,-291),new Vector2(310,66));
                 foreach (Transform child in rerollButton.transform) child.gameObject.SetActive(false);
                 rerollButtonImage = rerollButton.GetComponent<Image>();
                 rerollButtonImage.color=Color.clear;
@@ -65,12 +66,35 @@ namespace Vampire
                 rerollButtonText.fontStyle=FontStyles.Bold;rerollButtonText.color=OctoberArt.Ink;
                 var feedback=rerollButton.gameObject.AddComponent<ApothecaryButtonFeedback>();
                 feedback.button=rerollButton;feedback.visual=visual;feedback.body=body;feedback.sparkle=light;feedback.label=rerollButtonText;
+                feedback.useThemeStates=false;feedback.borderOnly=true;
                 rerollButton.targetGraphic=rerollButtonImage;rerollButton.transition=Selectable.Transition.None;
                 rerollAvailableImageColor=rerollUsedImageColor=Color.clear;
                 rerollAvailableTextColor=rerollUsedTextColor=OctoberArt.Ink;
 
             }
+            var skipRoot=AugmentPanelTheme.Rect("Skip augment",panelContent);
+            AugmentPanelTheme.Box(skipRoot,new Vector2(-168,-291),new Vector2(310,66));
+            var hit=skipRoot.gameObject.AddComponent<Image>();hit.color=Color.clear;
+            skipButton=skipRoot.gameObject.AddComponent<Button>();skipButton.targetGraphic=hit;skipButton.transition=Selectable.Transition.None;
+            var skipVisual=AugmentPanelTheme.Rect("Visual",skipRoot);AugmentPanelTheme.Anchors(skipVisual,Vector2.zero,Vector2.one);
+            var skipBody=skipVisual.gameObject.AddComponent<Image>();skipBody.sprite=OctoberArt.Button(true);skipBody.type=Image.Type.Sliced;skipBody.pixelsPerUnitMultiplier=4;skipBody.raycastTarget=false;
+            var skipLight=AugmentPanelTheme.Rect("Orbiting edge light",skipVisual).gameObject.AddComponent<TitleMenuSurface>();
+            skipLight.button=skipButton;skipLight.hideIcon=true;skipLight.decorationOnly=true;skipLight.raycastTarget=false;
+            AugmentPanelTheme.Anchors(skipLight.rectTransform,Vector2.zero,Vector2.one);
+            var skipText=AugmentPanelTheme.Label("Skip label",skipVisual,TrainingUITheme.Font,"건너뛰기",26);
+            AugmentPanelTheme.Anchors(skipText.rectTransform,Vector2.zero,Vector2.one);skipText.fontStyle=FontStyles.Bold;skipText.color=Color.white;
+            var skipFeedback=skipRoot.gameObject.AddComponent<ApothecaryButtonFeedback>();
+            skipFeedback.button=skipButton;skipFeedback.visual=skipVisual;skipFeedback.body=skipBody;skipFeedback.sparkle=skipLight;skipFeedback.label=skipText;
+            skipFeedback.useThemeStates=false;skipFeedback.borderOnly=true;
+            skipButton.onClick.AddListener(SkipAbilities);
             UpdatePanelLayout();
+        }
+
+        public void SkipAbilities()
+        {
+            if(!menuOpen)return;
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);
+            Close(); // Consume this offer only; the normal level-up queue continues on the next frame.
         }
 
         void UpdateOriginalRewardNotice()
@@ -103,6 +127,11 @@ namespace Vampire
             AugmentPanelTheme.Box((RectTransform)abilityCardsParent,
                 noble ? new Vector2(0,-48) : new Vector2(0,-14),
                 noble ? new Vector2(1124,540) : new Vector2(890,454));
+            // Taller noble cards need a separate footer row, including the existing skip action.
+            float footerY = noble ? -331 : -291;
+            var footerSize = new Vector2(310, noble ? 50 : 66);
+            if (rerollButton != null) AugmentPanelTheme.Box((RectTransform)rerollButton.transform,new Vector2(168,footerY),footerSize);
+            if (skipButton != null) AugmentPanelTheme.Box((RectTransform)skipButton.transform,new Vector2(-168,footerY),footerSize);
             var root = (RectTransform)transform;
             float scale = Mathf.Min(root.rect.width/1280f, root.rect.height/720f);
             panelContent.localScale = Vector3.one * Mathf.Max(.01f,scale);

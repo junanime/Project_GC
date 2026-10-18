@@ -88,6 +88,16 @@ namespace Vampire
             }
         }
         public float SpawnMaxHealth { get; private set; }
+        // Environmental removal must not call derived Killed routines: blood clots would
+        // open new portals, elites would drop chests, and player kill passives would proc.
+        public void DissolveInAcidLake()
+        {
+            if (!gameObject.activeInHierarchy || IsMiniStageOwned || this is BossMonster || Blueprint is BossMonsterBlueprint) return;
+            bool notify = !deathStarted;
+            deathStarted = true; currentHealth = 0; alive = false; WasKilledByPlayer = false;
+            if (notify) Died?.Invoke(this);
+            DespawnForStageTransfer();
+        }
         public bool WasKilledByPlayer { get; private set; }
 
         // 결과 화면 및 공격 출처 추적용
@@ -206,6 +216,17 @@ namespace Vampire
         /// </summary>
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
+            StomachSlopeBody.Ensure(gameObject);
+            // A pool return can interrupt the .06s hit coroutine before it restores the
+            // material. The next spawn must not inherit a white silhouette or hidden body.
+            if (hitAnimationCoroutine != null) { StopCoroutine(hitAnimationCoroutine); hitAnimationCoroutine = null; }
+            if (monsterSpriteRenderer != null)
+            {
+                if (defaultMaterial != null) monsterSpriteRenderer.sharedMaterial = defaultMaterial;
+                monsterSpriteRenderer.enabled = true;
+            }
+            if (deathParticles != null) deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            if (shadow != null) shadow.SetActive(true);
             if (groundShadow != null) groundShadow.Restore();
             miniStageOwned = isMiniStageOwned;
             nextHitFlashTime = 0f;
@@ -727,11 +748,11 @@ namespace Vampire
                 entityManager.SpawnExpGem((Vector2)transform.position, gemType);
             }
 
-            TryDropCoinsWithStageEventModifier();
+            TryDropCoinsWithStageEventModifier(lootBlueprint);
             TryDropEliteExtraCoins();
         }
 
-        private void TryDropCoinsWithStageEventModifier()
+        private void TryDropCoinsWithStageEventModifier(MonsterBlueprint lootBlueprint)
         {
             bool isEliteMonster = monsterBlueprint is EliteMonsterBlueprint;
 
@@ -768,8 +789,8 @@ namespace Vampire
 
             for (int i = 0; i < dropAttempts; i++)
             {
-                if (monsterBlueprint.coinLootTable != null &&
-                    monsterBlueprint.coinLootTable.TryDropLoot(out CoinType coinType))
+                if (lootBlueprint != null && lootBlueprint.coinLootTable != null &&
+                    lootBlueprint.coinLootTable.TryDropLoot(out CoinType coinType))
                 {
                     entityManager.SpawnCoin((Vector2)transform.position, coinType);
                     droppedCoinCount++;

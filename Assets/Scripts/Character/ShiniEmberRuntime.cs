@@ -119,6 +119,7 @@ namespace Vampire
         {
             var pickup=owner.CollectableCollider;
             for(int i=drops.Count-1;i>=0;i--){var d=drops[i];
+                if(AcidLakeEvent.Contains(d.position)){d.visual.enabled=false;spare.Push(d.visual);drops.RemoveAt(i);continue;}
                 if(Fuel>=Capacity)d.flying=false;
                 else if(!d.flying&&pickup!=null&&pickup.enabled&&pickup.OverlapPoint(d.position))d.flying=true;
                 if(d.flying){d.position=Vector3.MoveTowards(d.position,owner.CenterTransform.position,dt*8);

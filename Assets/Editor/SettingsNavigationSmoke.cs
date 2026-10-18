@@ -50,7 +50,7 @@ public static class SettingsNavigationSmoke
                 if (dialog != null && dialog.MenuOpen) dialog.Close();
                 Time.timeScale = 1;
                 ui.Back();
-                Check(ui.Page == "settings" && ui.Tab == 3 && Time.timeScale == 0, "Escape opens paused game menu");
+                Check(ui.Page == "settings" && ui.Tab == 0 && Time.timeScale == 0, "Escape opens unified settings");
                 Call(ui, "RequestSessionAction", "quit"); ui.Back();
                 Check(ui.Page == "settings" && Time.timeScale == 0, "Escape cancels quit confirmation without resuming");
                 ui.Back();
@@ -60,7 +60,7 @@ public static class SettingsNavigationSmoke
                 ui.Back();
                 Check(ui.Page == "settings" && Time.timeScale == 0, "Escape from book opens settings");
                 ui.Back();
-                Check(ui.Page == "run" && Time.timeScale == 0, "Back restores book while paused");
+                Check(ui.Page == "hud" && Time.timeScale == 1, "Back closes unified panel and resumes");
                 ui.CloseRunBook();
                 Time.timeScale = 0; ui.OpenSettings();
                 Check(ui.Page == "hud", "External pause is not stolen");

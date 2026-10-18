@@ -22,6 +22,7 @@ namespace Vampire
             foreach(var card in abilityCards)
             {
                 if(!card.gameObject.activeSelf)continue;
+                card.SetNobleArtVisible(false);
                 var root=AugmentPanelTheme.Rect("Noble scroll seal",card.transform);
                 AugmentPanelTheme.Anchors(root,Vector2.zero,Vector2.one);
                 scrollRoots.Add(root);
@@ -30,17 +31,17 @@ namespace Vampire
                 var mask=AugmentPanelTheme.Rect("Paper mask",root);
                 AugmentPanelTheme.Anchors(mask,Vector2.zero,Vector2.one);mask.gameObject.AddComponent<RectMask2D>();
                 var paper=AugmentPanelTheme.Fill("Parchment",mask,Color.white);
-                paper.sprite=PhoenixNobleArt.Get("Scroll") ?? AcidToadArt.Frame("NobleScroll",0);
+                paper.sprite=CharacterNoblePanelArt.Frame;
                 AugmentPanelTheme.Anchors(paper.rectTransform,Vector2.zero,Vector2.one);
                 // An opaque backing also hides edge text beyond the art's alpha margin.
-                var backing=AugmentPanelTheme.Fill("Opaque seal backing",mask,new Color(.93f,.84f,.65f));
-                AugmentPanelTheme.Anchors(backing.rectTransform,new Vector2(.18f,.08f),new Vector2(.82f,.92f));backing.transform.SetAsFirstSibling();
-                var rod=AugmentPanelTheme.Fill("Rolling jade rod",root,Color.white);rod.sprite=AcidToadArt.Frame("NobleScroll",1);
+                var backing=AugmentPanelTheme.Fill("Opaque seal backing",mask,new Color(1,.98f,.90f));
+                AugmentPanelTheme.Anchors(backing.rectTransform,new Vector2(.13f,.09f),new Vector2(.87f,.88f));backing.transform.SetAsFirstSibling();
+                var rod=AugmentPanelTheme.Fill("Rolling jade rod",root,new Color(1,.79f,.29f));
                 AugmentPanelTheme.Anchors(rod.rectTransform,new Vector2(.115f,.06f),new Vector2(.885f,.155f));
                 rod.gameObject.SetActive(false); // Closed cover already contains the matching bottom rod.
                 var glow=AugmentPanelTheme.Fill("Reveal light",root,new Color(1,.88f,.4f,0));glow.raycastTarget=false;
-                AugmentPanelTheme.Anchors(glow.rectTransform,new Vector2(.18f,.08f),new Vector2(.82f,.92f));
-                var label=AugmentPanelTheme.Label("Reveal hint",root,TrainingUITheme.Font,"클릭하여 세 족자 공개",16);
+                AugmentPanelTheme.Anchors(glow.rectTransform,new Vector2(.13f,.09f),new Vector2(.87f,.88f));
+                var label=AugmentPanelTheme.Label("Reveal hint",root,TrainingUITheme.Font,"클릭하여 고귀 증강 공개",16);
                 label.color=OctoberArt.Ink;AugmentPanelTheme.Anchors(label.rectTransform,new Vector2(.2f,.20f),new Vector2(.8f,.28f));
             }
         }
@@ -51,6 +52,7 @@ namespace Vampire
         }
         IEnumerator RollScrolls()
         {
+            foreach (var card in abilityCards) if (card != null) card.SetNobleArtVisible(true);
             const float duration=.85f;
             for(float age=0;age<duration;age+=Time.unscaledDeltaTime)
             {
@@ -63,14 +65,14 @@ namespace Vampire
                     foreach(RectTransform paper in mask)
                     {
                         bool backing = paper.name == "Opaque seal backing";
-                        paper.anchorMin=new Vector2(backing ? .18f : 0,1);paper.anchorMax=new Vector2(backing ? .82f : 1,1);
-                        paper.pivot=new Vector2(.5f,1);paper.anchoredPosition=new Vector2(0,backing ? -root.rect.height*.08f : 0);
-                        paper.sizeDelta=new Vector2(0,root.rect.height*(backing ? .84f : 1));
+                        paper.anchorMin=new Vector2(backing ? .13f : 0,1);paper.anchorMax=new Vector2(backing ? .87f : 1,1);
+                        paper.pivot=new Vector2(.5f,1);paper.anchoredPosition=new Vector2(0,backing ? -root.rect.height*.12f : 0);
+                        paper.sizeDelta=new Vector2(0,root.rect.height*(backing ? .79f : 1));
                     }
                     var rod=(RectTransform)root.Find("Rolling jade rod");
                     rod.gameObject.SetActive(t > .12f);
                     float rodY=Mathf.Lerp(.06f,.84f,t);
-                    AugmentPanelTheme.Anchors(rod,new Vector2(.115f,rodY),new Vector2(.885f,rodY+.095f));
+                    AugmentPanelTheme.Anchors(rod,new Vector2(.13f,rodY),new Vector2(.87f,rodY+.004f));
                     root.Find("Reveal hint").gameObject.SetActive(false);
                     root.Find("Reveal light").GetComponent<Image>().color=new Color(1,.88f,.4f,Mathf.Sin(t*Mathf.PI)*.25f);
                 }
@@ -91,6 +93,7 @@ namespace Vampire
             if(scrollRoutine!=null)StopCoroutine(scrollRoutine);scrollRoutine=null;
             foreach(var root in scrollRoots)if(root!=null){root.gameObject.SetActive(false);Destroy(root.gameObject);}
             scrollRoots.Clear();ScrollRevealPending=false;revealedFrame=-1;
+            if (abilityCards != null) foreach (var card in abilityCards) if (card != null) card.SetNobleArtVisible(true);
         }
     }
 }

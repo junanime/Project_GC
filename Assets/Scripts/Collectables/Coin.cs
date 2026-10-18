@@ -8,7 +8,8 @@ namespace Vampire
         Silver2 = 2,
         Gold5 = 5,
         Pouch30 = 30,
-        Bag50 = 50
+        Bag50 = 50,
+        Bag80 = 80
     }
 
     public class Coin : Collectable
@@ -25,12 +26,12 @@ namespace Vampire
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
 
-        public void Setup(Vector2 position, CoinType coinType = CoinType.Bronze1, bool spawnAnimation = true, bool collectableDuringSpawn = true)
+        public void Setup(Vector2 position, CoinType coinType = CoinType.Bronze1, bool spawnAnimation = true, bool collectableDuringSpawn = true, bool requirePickupRange = false)
         {
             this.coinType = coinType;
             spriteRenderer.sprite = coinBlueprint.coinSprites[coinType];
             transform.position = position;
-            base.Setup(spawnAnimation, collectableDuringSpawn);
+            base.Setup(spawnAnimation, collectableDuringSpawn, requirePickupRange);
         }
 
         protected override void OnCollected()
@@ -49,6 +50,7 @@ namespace Vampire
 
                 case CoinType.Pouch30:
                 case CoinType.Bag50:
+                case CoinType.Bag80:
                     GameAudioManager.PlaySfx(
                         GameAudioManager.GameSfxId.CoinPouchPickup
                     );

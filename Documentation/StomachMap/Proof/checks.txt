@@ -1,0 +1,8 @@
+[StomachMap] PASS finite terrain installed in actual Level 1
+[StomachMap] PASS Ashi starts inside stomach
+[StomachMap] PASS infinite field is hidden
+[StomachMap] PASS map ratio follows half-size 7px reference marker
+[StomachMap] PASS pixel grid follows runtime needle-handle painted pixel
+[StomachMap] PASS terrain pixel matches actual fired needle handle
+[StomachMap] PASS chunk seam sample inside playfield
+[StomachMap] FINISHED failed=False

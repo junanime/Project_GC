@@ -17,6 +17,20 @@ namespace Vampire
         public float DamageDealt { get => damageDealt; }
         public float DamageTaken { get => damageTaken; }
         public int CoinsGained { get => coinsGained; }
+        public int NormalMonstersKilled { get; private set; }
+        public int EliteMonstersKilled { get; private set; }
+        public int MiniStagesCleared { get; private set; }
+        public int SupplyCapsulesCollected { get; private set; }
+        public float HealingReceived { get; private set; }
+        public void RecordHealing(float actual) => HealingReceived += Mathf.Max(0, actual);
+        public void RecordMiniStageClear() => MiniStagesCleared++;
+        public void RecordSupplyCollected() => SupplyCapsulesCollected++;
+        public void RecordMonsterKill(Monster monster)
+        {
+            IncrementMonstersKilled();
+            if(monster.Blueprint is EliteMonsterBlueprint) EliteMonstersKilled++;
+            else if(!(monster is BossMonster) && !(monster is MiniBossMonster)) NormalMonstersKilled++;
+        }
 
         private void Start()
         {
@@ -27,7 +41,7 @@ namespace Vampire
         public void IncrementMonstersKilled()
         {
             monstersKilled++;
-            monstersKilledText.text = monstersKilled.ToString();
+            if(monstersKilledText!=null)monstersKilledText.text = monstersKilled.ToString();
         }
 
         public void IncreaseCoinsGained(int amount)

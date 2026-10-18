@@ -71,6 +71,19 @@ namespace Vampire
             ResolveReferences();
         }
 
+        // Preserve an already separated room anchor. Only missing/overlapping anchors move.
+        public void KeepRoomsOutside(Rect mainField)
+        {
+            var padded=Rect.MinMaxRect(mainField.xMin-80,mainField.yMin-80,mainField.xMax+80,mainField.yMax+80);
+            if(miniStageAnchor!=null && !padded.Contains(miniStageAnchor.position)) return;
+            if(miniStageAnchor==null)
+            {
+                var anchor=new GameObject("MiniStageAnchor · outside stomach");
+                anchor.transform.SetParent(transform,false); miniStageAnchor=anchor.transform;
+            }
+            miniStageAnchor.position=new Vector3(mainField.xMax+160,mainField.center.y,0);
+        }
+
         private void ResolveReferences()
         {
             if (levelManager == null)

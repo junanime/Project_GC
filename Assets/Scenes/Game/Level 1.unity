@@ -8174,7 +8174,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &578318353
 RectTransform:
   m_ObjectHideFlags: 0
@@ -40001,6 +40001,7 @@ MonoBehaviour:
   abilityManager: {fileID: 1727210731}
   abilitySelectionDialog: {fileID: 1276250152}
   infiniteBackground: {fileID: 1852338042}
+  stomachMap: {fileID: 11400000, guid: 5dc12443d56bdf14f95b8d6dcfad2f80, type: 2}
   inventory: {fileID: 27198616}
   statsManager: {fileID: 1845134363}
   gameOverDialog: {fileID: 1042722128}

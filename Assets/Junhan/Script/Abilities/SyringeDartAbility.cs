@@ -1019,11 +1019,9 @@ namespace Vampire
                 );
             }
 
-            // 기본침 피해는 기존 전체 피해량에는 포함하지만
-            // AugmentDamageTracker의 증강별 피해 경쟁에서는 제외합니다.
-            // ReportBaseNeedleDamage 내부에서 기존 OnDealDamage도 그대로 호출하므로
-            // 기존 전체 피해량 집계 기능도 유지됩니다.
-            projectile.OnHitDamageable.AddListener(ReportBaseNeedleDamage);
+            // 결과창에서 기본 침도 공격 기여도로 표시합니다.
+            // 돌아오는 침의 별도 집계는 중복하지 않고 기존 전체 피해 이벤트도 유지합니다.
+            projectile.OnHitDamageable.AddListener(damage=>ReportBaseNeedleDamage(damage,projectile is SyringeProjectile sp && sp.IsReturnMode));
             projectile.Launch(direction);
 
             // 여기까지 왔을 때만 실제 발사 성공.
@@ -1034,15 +1032,15 @@ namespace Vampire
         // Base Needle Damage Report
         // =========================================================
 
-        private void ReportBaseNeedleDamage(float dealtDamage)
+        private void ReportBaseNeedleDamage(float dealtDamage,bool returning)
         {
             if (dealtDamage <= 0f)
             {
                 return;
             }
 
-            // 기본침 피해는 기존 전체 피해량 시스템에만 전달합니다.
-            // 증강별 피해 추적에는 기록하지 않습니다.
+            // Return hits have their own attribution in SyringeProjectile; never count them twice.
+            if(!returning)AugmentDamageTracker.Instance?.RecordDamage("기본 침",dealtDamage);
             if (playerCharacter != null)
             {
                 playerCharacter.OnDealDamage.Invoke(dealtDamage);

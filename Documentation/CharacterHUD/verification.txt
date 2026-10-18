@@ -1,0 +1,123 @@
+CHARACTER_HUD_PASS header matches lobby active frame 아시
+CHARACTER_HUD_PASS magnet character 아시
+CHARACTER_HUD_PASS renamed quest 아시
+CHARACTER_HUD_PASS four live cards 아시
+CHARACTER_HUD_PASS stock labels match runtime 아시
+CHARACTER_HUD_PASS quest text fits 아시 Quest category
+CHARACTER_HUD_PASS quest text fits 아시 Quest objective 0
+CHARACTER_HUD_PASS quest text fits 아시 Quest objective 1
+CHARACTER_HUD_PASS quest text fits 아시 Quest objective 2
+CHARACTER_HUD_PASS quest text fits 아시 Claim label
+CHARACTER_HUD_PASS quest text fits 아시 Quest title
+CHARACTER_HUD_PASS wood tray retired
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS fold requested 아시
+CHARACTER_HUD_PASS closed 아시
+CHARACTER_HUD_PASS magnet stays fixed 아시
+CHARACTER_HUD_PASS closed claim hidden 아시
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS reopens 아시
+CHARACTER_HUD_PASS rapid reversal settles 아시
+CHARACTER_HUD_PASS header matches lobby active frame 아리
+CHARACTER_HUD_PASS magnet character 아리
+CHARACTER_HUD_PASS renamed quest 아리
+CHARACTER_HUD_PASS four live cards 아리
+CHARACTER_HUD_PASS stock labels match runtime 아리
+CHARACTER_HUD_PASS quest text fits 아리 Quest category
+CHARACTER_HUD_PASS quest text fits 아리 Quest objective 0
+CHARACTER_HUD_PASS quest text fits 아리 Quest objective 1
+CHARACTER_HUD_PASS quest text fits 아리 Quest objective 2
+CHARACTER_HUD_PASS quest text fits 아리 Claim label
+CHARACTER_HUD_PASS quest text fits 아리 Quest title
+CHARACTER_HUD_PASS wood tray retired
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS fold requested 아리
+CHARACTER_HUD_PASS closed 아리
+CHARACTER_HUD_PASS magnet stays fixed 아리
+CHARACTER_HUD_PASS closed claim hidden 아리
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS reopens 아리
+CHARACTER_HUD_PASS rapid reversal settles 아리
+CHARACTER_HUD_PASS header matches lobby active frame 혁이
+CHARACTER_HUD_PASS magnet character 혁이
+CHARACTER_HUD_PASS renamed quest 혁이
+CHARACTER_HUD_PASS four live cards 혁이
+CHARACTER_HUD_PASS stock labels match runtime 혁이
+CHARACTER_HUD_PASS quest text fits 혁이 Quest category
+CHARACTER_HUD_PASS quest text fits 혁이 Quest objective 0
+CHARACTER_HUD_PASS quest text fits 혁이 Quest objective 1
+CHARACTER_HUD_PASS quest text fits 혁이 Quest objective 2
+CHARACTER_HUD_PASS quest text fits 혁이 Claim label
+CHARACTER_HUD_PASS quest text fits 혁이 Quest title
+CHARACTER_HUD_PASS wood tray retired
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS fold requested 혁이
+CHARACTER_HUD_PASS closed 혁이
+CHARACTER_HUD_PASS magnet stays fixed 혁이
+CHARACTER_HUD_PASS closed claim hidden 혁이
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS reopens 혁이
+CHARACTER_HUD_PASS rapid reversal settles 혁이
+CHARACTER_HUD_PASS header matches lobby active frame 신이
+CHARACTER_HUD_PASS magnet character 신이
+CHARACTER_HUD_PASS renamed quest 신이
+CHARACTER_HUD_PASS four live cards 신이
+CHARACTER_HUD_PASS stock labels match runtime 신이
+CHARACTER_HUD_PASS quest text fits 신이 Quest category
+CHARACTER_HUD_PASS quest text fits 신이 Quest objective 0
+CHARACTER_HUD_PASS quest text fits 신이 Quest objective 1
+CHARACTER_HUD_PASS quest text fits 신이 Quest objective 2
+CHARACTER_HUD_PASS quest text fits 신이 Claim label
+CHARACTER_HUD_PASS quest text fits 신이 Quest title
+CHARACTER_HUD_PASS wood tray retired
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS fold requested 신이
+CHARACTER_HUD_PASS closed 신이
+CHARACTER_HUD_PASS magnet stays fixed 신이
+CHARACTER_HUD_PASS closed claim hidden 신이
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS reopens 신이
+CHARACTER_HUD_PASS rapid reversal settles 신이
+CHARACTER_HUD_PASS no four second auto-close
+CHARACTER_HUD_PASS raycast Record close
+CHARACTER_HUD_PASS open state survives book
+CHARACTER_HUD_PASS mobile card inside screen 1560
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile card inside screen 1560
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile card inside screen 1560
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile card inside screen 1560
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile quest inside screen
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS mobile folds
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS mobile opens
+CHARACTER_HUD_PASS mobile card inside screen 1024
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile card inside screen 1024
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile card inside screen 1024
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile card inside screen 1024
+CHARACTER_HUD_PASS mobile caption fits
+CHARACTER_HUD_PASS mobile item hit target
+CHARACTER_HUD_PASS mobile quest inside screen
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS mobile folds
+CHARACTER_HUD_PASS raycast Quest toggle
+CHARACTER_HUD_PASS mobile opens
+CHARACTER_HUD_PASS completed reward enabled
+CHARACTER_HUD_PASS raycast Noble reward claim
+CHARACTER_HUD_PASS quest reward opens existing noble selector
+CHARACTER_HUD_PASS reward cannot be claimed twice
+CHARACTER_HUD_PASS claimed title retained
+CHARACTER_HUD_FINISHED checks=122 failed=False

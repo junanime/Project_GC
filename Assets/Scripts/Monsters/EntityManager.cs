@@ -214,6 +214,7 @@ namespace Vampire
             if (ShouldBlockFieldMonsterSpawn(false) || blueprint == null ||
                 blueprint.finalBoss == null || blueprint.finalBoss.bossPrefab == null) return null;
             GameObject prefab = blueprint.finalBoss.bossPrefab;
+            position = FiniteStomachMap.SafeSpawn(position, 2f);
             if (prefab.GetComponent<Monster>() != null)
             {
                 Monster monster = SpawnMonster(blueprint.monsters.Length, position,
@@ -314,6 +315,7 @@ namespace Vampire
                 if (snipers>=5) return null;
             }
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
+            position = FiniteStomachMap.SafeSpawn(position, .8f, allowDuringMiniStage);
 
             // 중요:
             // Setup()보다 먼저 소유권을 설정해야 한다.
@@ -331,6 +333,14 @@ namespace Vampire
             );
             newMonster.ConfigureGroundShadow(monsterBlueprint);
             newMonster.FitVisibleBody();
+
+            // Some stationary monster Setup methods recalculate their own spawn position.
+            Vector2 safePosition=FiniteStomachMap.SafeSpawn(newMonster.transform.position,
+                Mathf.Max(.8f,newMonster.Size.magnitude*.5f),allowDuringMiniStage);
+            safePosition=AcidLakeEvent.DrySpawn(safePosition,Mathf.Max(.8f,newMonster.Size.magnitude*.5f),allowDuringMiniStage);
+            newMonster.transform.position=new Vector3(safePosition.x,safePosition.y,newMonster.transform.position.z);
+            var spawnBody=newMonster.GetComponent<Rigidbody2D>();
+            if(spawnBody!=null)spawnBody.position=safePosition;
 
             grid.InsertClient(newMonster);
 
@@ -381,7 +391,7 @@ namespace Vampire
         {
             if (killedByPlayer)
             {
-                statsManager.IncrementMonstersKilled();
+                statsManager.RecordMonsterKill(monster);
             }
             grid.RemoveClient(monster);
             monsterPools[monsterPoolIndex].Release(monster);
@@ -547,6 +557,7 @@ namespace Vampire
             {
                 Vector2 spawnDirection = Random.insideUnitCircle.normalized;
                 Vector2 spawnPosition = (Vector2)playerCharacter.transform.position + spawnDirection * (minSpawnDistance + monsterSpawnBufferDistance + Random.Range(0, chestSpawnRange));
+                spawnPosition = FiniteStomachMap.SafeSpawn(spawnPosition, .7f);
                 newChest.transform.position = spawnPosition;
                 overlapsOtherChest = false;
                 foreach (Chest chest in chests)
@@ -564,6 +575,7 @@ namespace Vampire
 
         public Chest SpawnChest(ChestBlueprint chestBlueprint, Vector2 position)
         {
+            position=FiniteStomachMap.SafeSpawn(position,.7f);
             Chest newChest = chestPool.Get();
             newChest.transform.position = position;
             newChest.Setup(chestBlueprint);

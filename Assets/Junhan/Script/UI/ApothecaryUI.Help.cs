@@ -72,10 +72,12 @@ namespace Vampire
         }
         static TutorialGuide.Entry Entry(InventorySlot slot) => TutorialGuide.Instance?.Entries.FirstOrDefault(e=>e.id=="item/"+Id(slot));
         public static string Title(InventorySlot slot) => Entry(slot)?.title ?? (Id(slot)=="bomb"?"폭탄":Id(slot)=="health"?"체력 회복":Id(slot)=="magnet"?"자석":"몬스터 증식 물약");
+        public static string ShortTitle(InventorySlot slot) => Id(slot)=="bomb"?"폭탄":Id(slot)=="health"?"회복":Id(slot)=="magnet"?"자석":"증식 물약";
         public static string Keys(int index) => index>=0&&index<4?$"{index+1} / {"ZXCV"[index]}":"약함 터치";
         public static string Body(InventorySlot slot,int index)
         {
             string description=Entry(slot)?.what;
+            if(Id(slot)=="bomb")description="지름 약 아시 4개 크기의 원 안에 폭발 피해 300을 줍니다.\n1 / Z: 화면 안에서 가장 밀집한 적 무리의 중심으로 투척합니다.\n클릭·터치: 폭탄을 선택한 뒤 필드의 원하는 위치를 한 번 더 눌러 투척합니다. 빨간 반투명 원이 폭발 범위입니다.\n우클릭·Esc 또는 폭탄 버튼을 다시 눌러 조준을 취소할 수 있습니다.";
             if(string.IsNullOrEmpty(description)) description=Id(slot)=="bomb"?"화면 안의 적에게 피해를 줍니다.":Id(slot)=="health"?"체력을 즉시 회복합니다. 최대 체력을 넘겨 회복하지 않습니다.":Id(slot)=="magnet"?"필드의 코인과 경험치 보석을 한꺼번에 끌어옵니다.":"일정 시간 일반 몬스터의 스폰량을 늘립니다.";
             return description+$"\n\n{slot.CapacityDescription}\n사용: {Keys(index)} 또는 하단 약함 터치";
         }

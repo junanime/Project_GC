@@ -1,0 +1,3 @@
+Body world height=0.5185186
+Exit scale=(0.27, 0.27, 1.00)
+Elapsed=2.733

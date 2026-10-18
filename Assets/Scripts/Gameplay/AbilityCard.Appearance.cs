@@ -14,6 +14,9 @@ namespace Vampire
         Image legacyDescriptionPaper;
         Sprite legacyPanelSprite;
 
+        public void SetNobleArtVisible(bool visible)
+        { if (abilityImage != null) abilityImage.enabled = visible; }
+
         void ApplyPanelTheme()
         {
             var offer = ability as Ver4AugmentOffer;
@@ -22,7 +25,7 @@ namespace Vampire
             // independent of the numeric Legendary upgrade grade.
             bool noble = offer != null ? offer.Kind == Ver4RewardKind.LegendaryAbility : ability.Tier == Ability.AugmentTier.Legendary;
             var nobleSource = (offer != null ? offer.Source : ability) as SyringeLegendaryAugmentAbility;
-            var nobleArt = noble && nobleSource != null && PhoenixNobleArt.Get(nobleSource.Type.ToString()) != null ? PhoenixNobleArt.Get("Scroll") : null;
+            var nobleArt = noble && nobleSource != null && CharacterNoblePanelArt.Get(nobleSource.Type.ToString()) != null ? CharacterNoblePanelArt.Frame : null;
             UsesNoblePanel = nobleArt != null;
             var frame = UsesNoblePanel ? nobleArt : noble ? null : AugmentPanelTheme.Frame(grade);
             themedCard = frame != null;
@@ -71,7 +74,7 @@ namespace Vampire
                     var colors = ColorBlock.defaultColorBlock;
                     colors.highlightedColor=new Color(.89f,1, .95f); colors.pressedColor=new Color(.7f,.8f,.75f);
                     button.colors=colors; button.targetGraphic=cardBackgroundImage;
-                    button.transition=Selectable.Transition.ColorTint;
+                    button.transition=UsesNoblePanel ? Selectable.Transition.None : Selectable.Transition.ColorTint;
                 }
             }
             if (legacyDescriptionPaper == null)
@@ -96,21 +99,25 @@ namespace Vampire
             gradeBorder.color=AugmentPanelTheme.Accent(grade);gradeBody.color=AugmentPanelTheme.Accent(grade);gradeLabel.color=OctoberArt.Ink;
             if (UsesNoblePanel)
             {
-                // One shared scroll/layout, separate transparent ink illustration and live text.
+                // Every character uses this exact frame and layout; only the approved illustration varies.
                 opaqueBacking.gameObject.SetActive(false);
                 gradeBorder.gameObject.SetActive(false);
-                titleRule.gameObject.SetActive(true);
+                titleRule.gameObject.SetActive(false); // The common frame already contains its gold divider.
                 titleRule.color = new Color(.20f,.17f,.14f,.4f);
                 AugmentPanelTheme.Anchors(titleRule.rectTransform,new Vector2(.25f,.33f),new Vector2(.75f,.33f));
                 titleRule.rectTransform.sizeDelta = new Vector2(0,1);
-                AugmentPanelTheme.Anchors(abilityImageRect,new Vector2(.205f,.415f),new Vector2(.795f,.835f));
+                AugmentPanelTheme.Anchors(abilityImageRect,new Vector2(.13f,.37f),new Vector2(.87f,.833f));
                 if (nobleHeading == null)
                 {
-                    nobleHeading = AugmentPanelTheme.Label("Phoenix heading",transform,nameText.font,"고귀 증강",16);
-                    AugmentPanelTheme.Anchors(nobleHeading.rectTransform,new Vector2(.25f,.84f),new Vector2(.75f,.88f));
-                    nobleChoice = AugmentPanelTheme.Label("Phoenix select hint",transform,nameText.font,"― 선택 ―",16);
-                    AugmentPanelTheme.Anchors(nobleChoice.rectTransform,new Vector2(.25f,.105f),new Vector2(.75f,.145f));
-                    nobleHeading.color = nobleChoice.color = OctoberArt.Ink;
+                    nobleHeading = AugmentPanelTheme.Label("Phoenix heading",transform,TrainingUITheme.Font,"고귀 증강",25);
+                    AugmentPanelTheme.Anchors(nobleHeading.rectTransform,new Vector2(.295f,.858f),new Vector2(.705f,.921f));
+                    nobleChoice = AugmentPanelTheme.Label("Phoenix select hint",transform,TrainingUITheme.Font,"― 선택 ―",12);
+                    AugmentPanelTheme.Anchors(nobleChoice.rectTransform,new Vector2(.25f,.09f),new Vector2(.75f,.12f));
+                    nobleHeading.color = new Color(.015f,.23f,.23f);
+                    nobleChoice.color = new Color(.38f,.27f,.12f);
+                    nobleHeading.fontStyle = FontStyles.Normal;
+                    var shadow = nobleHeading.gameObject.AddComponent<Shadow>();
+                    shadow.effectColor = new Color(1,.71f,.12f,.9f); shadow.effectDistance = new Vector2(1,-1);
                     nobleHeading.raycastTarget = nobleChoice.raycastTarget = false;
                 }
                 cardBackgroundImage.preserveAspect = true;

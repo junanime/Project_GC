@@ -15,7 +15,7 @@ namespace Vampire
         protected SpriteRenderer spriteRenderer;
         protected bool opened = false;
         public bool GuaranteesOriginal { get; set; }
-        public bool CanInteract => !opened && chestBlueprint!=null && GetComponent<Collider2D>().enabled;
+        public bool CanInteract => !opened && chestBlueprint!=null && GetComponent<Collider2D>().enabled && !AcidLakeEvent.Contains(transform.position);
 
         public void Init(EntityManager entityManager, Character playerCharacter, Transform chestItemsParent)
         {
@@ -48,16 +48,15 @@ namespace Vampire
             collectable.Init(entityManager, playerCharacter);
             Coin coin = collectable as Coin;
             if (coin != null)
-                coin.Setup(transform.position, loot.coinType, true, true);
+                coin.Setup(transform.position, loot.coinType, true, false, true);
             else
-                collectable.Setup(true, true);
-            // Collect the item immediately if opened by player
-            if (openedByPlayer)
-                collectable.Collect(Collectable.CollectionMode.FromChest);
+                collectable.Setup(true, false, true);
+            // Finish the pop-out before allowing normal, range-based pickup.
         }
 
         public void OpenChest(bool openedByPlayer = true)
         {
+            if (AcidLakeEvent.Contains(transform.position)) return;
             if (!opened)
             {
                 opened = true;
@@ -120,6 +119,13 @@ namespace Vampire
             }
             transform.localScale = Vector3.one;
             GetComponent<Collider2D>().enabled = true;
+        }
+
+        public void CompleteInitialPlacement()
+        {
+            if(opened)return;
+            StopAllCoroutines();transform.localScale=Vector3.one;
+            GetComponent<Collider2D>().enabled=true;
         }
 
     }

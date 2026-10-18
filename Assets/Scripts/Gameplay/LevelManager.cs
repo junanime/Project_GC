@@ -12,6 +12,8 @@ namespace Vampire
         [SerializeField] private AbilityManager abilityManager;
         [SerializeField] private AbilitySelectionDialog abilitySelectionDialog;
         [SerializeField] private InfiniteBackground infiniteBackground;
+        [Header("Stage 1 Terrain")]
+        [SerializeField] private StomachMapDefinition stomachMap;
         [SerializeField] private Inventory inventory;
         [SerializeField] private StatsManager statsManager;
         [SerializeField] private GameOverDialog gameOverDialog;
@@ -44,8 +46,10 @@ namespace Vampire
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
         public Inventory PlayerInventory => inventory;
-        public bool IsRunFlowPaused => runFlowPaused;
+        public bool InitialFieldObjectsReady => !UsesInitialFieldLayout || GetComponent<FieldObjectLayout>()?.Ready == true;
+        public bool IsRunFlowPaused => runFlowPaused || !InitialFieldObjectsReady;
         public bool IsLevelEnded => levelEnded;
+        public bool UsesInitialFieldLayout => stomachMap != null && (GetComponent<StageProgression>() == null || GetComponent<StageProgression>().StageNumber == 1);
 
         public void Init(LevelBlueprint levelBlueprint)
         {
@@ -93,18 +97,23 @@ namespace Vampire
 
             playerCharacter.OnDeath.AddListener(GameOver);
 
+            infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
+            FiniteStomachMap.Install(this, stomachMap, infiniteBackground);
+
             entityManager.SpawnGemsAroundPlayer(
                 this.levelBlueprint.initialExpGemCount,
                 this.levelBlueprint.initialExpGemType
             );
 
-            entityManager.SpawnChest(levelBlueprint.chestBlueprint);
-            infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
+            if (!UsesInitialFieldLayout) entityManager.SpawnChest(levelBlueprint.chestBlueprint);
             inventory.Init();
             var tutorial = GetComponent<TutorialGuide>();
             if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
             tutorial.Initialize(this);
             StageProgression.Ensure(this);
+            SupplyCapsuleDirector.Ensure(this);
+            FieldObjectLayout.Ensure(this);
+            AcidLakeEvent.Install(this);
         }
 
         // Preserve the actual player, abilities, inventory, relic runtimes, stats and loot pools.
@@ -135,7 +144,7 @@ namespace Vampire
                 return;
             }
 
-            if (runFlowPaused)
+            if (IsRunFlowPaused || StageEntryLoading.IsLoading)
             {
                 return;
             }
@@ -221,6 +230,7 @@ namespace Vampire
 
         private void HandleChestSpawn()
         {
+            if (UsesInitialFieldLayout) return;
             if (levelBlueprint == null)
             {
                 return;
@@ -371,6 +381,7 @@ namespace Vampire
 
         public void GameOver()
         {
+            if (playerCharacter != null && playerCharacter.IsExiting) return;
             if (levelEnded)
             {
                 return;
@@ -399,6 +410,7 @@ namespace Vampire
 
         public void LevelPassed(Monster finalBossKilled)
         {
+            if (playerCharacter != null && !playerCharacter.IsAlive) return;
             if (levelEnded)
             {
                 return;

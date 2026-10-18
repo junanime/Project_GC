@@ -217,6 +217,7 @@ namespace Vampire
             }
 
             Vector2 spawnPosition = GetSpawnPosition();
+            spawnPosition = FiniteStomachMap.SafeSpawn(spawnPosition, 1f);
 
             DigestiveEnzymeMonster enzyme = Instantiate(
                 digestiveEnzymePrefab,
