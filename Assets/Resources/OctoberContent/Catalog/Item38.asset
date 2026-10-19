@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 38
   itemRarity: 0
   itemTag: 4
-  description: "5\uCD08\uAC04 \uD53C\uD574\uB97C \uBC1B\uC9C0 \uC54A\uC73C\uBA74
-    \uCD08\uB2F9 \uCD5C\uB300 \uCCB4\uB825 0.5% \uD68C\uBCF5."
+  description: "5초간 피해를 받지 않으면 초당 최대 체력 0.5% 회복."
   itemIcon: {fileID: 6484494318025547049, guid: dc8e65ee2f8b88c4c99ff320145dc8ab, type: 3}
   cost: 25
   canBuyInLobby: 1

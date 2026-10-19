@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 61
   itemRarity: 2
   itemTag: 4
-  description: "\uB300\uC2DC \uC2DC\uC791 \uC704\uCE58\uC5D0 4\uCD08 \uADC0\uD658
-    \uBB38 \uC0DD\uC131. \uB2E4\uC74C \uB300\uC2DC\uAC00 \uBB38\uC73C\uB85C \uADC0\uD658.
-    \uC7AC\uC0AC\uC6A9 12\uCD08."
+  description: "대시 시작 위치에 4초 귀환 문 생성. 다음 대시가 문으로 귀환. 재사용 대기 12초."
   itemIcon: {fileID: -4866730744716989495, guid: 24a0902ba2beac74e826f0919620da8e, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

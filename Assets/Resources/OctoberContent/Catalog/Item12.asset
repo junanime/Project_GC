@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 12
   itemRarity: 0
   itemTag: 4
-  description: "\uC0C1\uD0DC\uC774\uC0C1\uC5D0 \uAC78\uB9B0 \uC801\uC5D0\uAC8C \uAE30\uBCF8
-    \uCE68 \uD53C\uD574 +15%."
+  description: "상태이상에 걸린 적에게 기본 침 피해 +15%."
   itemIcon: {fileID: 3768685186987415826, guid: 08d7964eebe8b6e4eb2ab8244acc943e, type: 3}
   cost: 25
   canBuyInLobby: 1

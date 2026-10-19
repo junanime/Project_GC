@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 19
   itemRarity: 1
   itemTag: 0
-  description: "5\uCD08\uB9C8\uB2E4 \uB9C8\uC9C0\uB9C9 \uAE30\uBCF8 \uCE68 \uBC29\uD5A5\uC73C\uB85C
-    \uD53C\uD574 45%\uC758 \uBA54\uC544\uB9AC \uCE68 \uBC1C\uC0AC."
+  description: "5초마다 마지막 기본 침 방향으로 피해 45%의 메아리 침 발사."
   itemIcon: {fileID: 7404411387463873493, guid: d1454cc545e5fd548ac3da3561a30c77, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

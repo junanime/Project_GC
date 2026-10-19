@@ -24,6 +24,18 @@ namespace Vampire
         public float LastBaseDamage {get;private set;}=8;
         public float StatusDuration=>Has(48)?1.25f:1;
         public float SlowMultiplier(float original)=>Has(47)?Mathf.Max(.3f,original-.15f):original;
+        #if UNITY_EDITOR
+        // Only item time-of-day checks are overridden; encounter scheduling is untouched.
+        public int DebugHour { get; private set; } = -1;
+        public void SetDebugHour(int hour)
+        {
+            DebugHour=Mathf.Clamp(hour,-1,23);
+            float duration=level!=null&&level.LevelDuration>0?level.LevelDuration:1440;
+            float elapsed=level!=null?level.CurrentLevelTime:State.elapsed;
+            lastHour=DebugHour<0?Mathf.FloorToInt(elapsed/duration*24):DebugHour-1;
+            cooldown[31]=Time.time;
+        }
+#endif
         public bool Has(int id)=>State.owned.Contains(id);
         readonly float[] cooldown=new float[67];
         readonly HashSet<int> grazed=new HashSet<int>();
@@ -168,10 +180,10 @@ namespace Vampire
         public float Incoming(float damage,MonsterBlueprint source)
         {
             if(source!=null&&Has(25)&&!(source is BossMonsterBlueprint)&&!(source is EliteMonsterBlueprint))damage*=1.15f;
-            if(source!=null&&Has(63)){var resistance=State.resistance.Find(m=>m.enemy==source.name);if(resistance!=null)damage*=1-Mathf.Min(.2f,resistance.count*.04f);}
+            if(source!=null&&Has(63)){var resistance=State.resistance.Find(m=>m.enemy==source.name);if(resistance!=null)damage*=1-OctoberItemBalance.MemoryResistance(resistance.count);}
             if(charge8){damage*=.6f;charge8=false;cooldown[8]=Time.time+12;}
             if(charge26){damage*=.4f;charge26=false;}
-            if(damage>=Player.MaxHealth*.15f&&Ready(35,8))damage*=.75f;
+            if(Has(35)&&damage>=Player.MaxHealth*.15f&&Ready(35,8))damage*=.75f;
             return Mathf.Max(0,damage);
         }
         public void Hurt(float actual,MonsterBlueprint source)
@@ -235,11 +247,14 @@ namespace Vampire
             if(Ready(19,5)&&weapon!=null)StartCoroutine(Echo(0,.45f));
             if(Ready(14,8))Pulse(now,2.5f,LastBaseDamage*.25f,14,2);
             float runTime=level!=null?level.CurrentLevelTime:State.elapsed;float day=level!=null&&level.LevelDuration>0?level.LevelDuration:1440;int hour=Mathf.FloorToInt(runTime/day*24);
+            #if UNITY_EDITOR
+            if(DebugHour>=0)hour=DebugHour;
+#endif
             if(Has(28)&&(hour%24>=18||hour%24<6)&&Ready(28,3))Pulse(now,3,LastBaseDamage*.6f,28);
             if(hour>lastHour)
             {
                 if(lastHour<23&&hour>=23&&Has(31))cooldown[31]=Mathf.Min(cooldown[31],Time.time);
-                lastHour=hour;if(Has(29))Pulse(now,5,LastBaseDamage*1.5f,29);
+                lastHour=hour;if(Has(29)){Pulse(now,5,LastBaseDamage*OctoberItemBalance.ClockDamage,29);foreach(var t in Nearby(now,5))Slow(t,.35f,2);}
             }
             if(Ready(31,OctoberItemBalance.DawnInterval(hour)))
                 Pulse(now,3,LastBaseDamage*OctoberItemBalance.DawnDamage(hour),31);
@@ -256,11 +271,11 @@ namespace Vampire
                 float growth=Mathf.Min(3,Mathf.Floor(State.elapsed/60));
                 if(guardian==null)guardian=MakeSprite(30,"수호 씨앗",.7f);
                 guardian.transform.position=now+new Vector2(-.8f,.8f);guardian.transform.localScale=Vector3.one*(.07f+growth*.01f);
-                if(Ready(30,1.5f))Bolt(30,LastBaseDamage*(.3f+growth*.1f));
+                if(Ready(30,1.5f))Bolt(30,LastBaseDamage*OctoberItemBalance.GuardianDamage(State.elapsed));
             }
             if(Ready(58,4))Bolt(58,LastBaseDamage*1.6f);
             if(Has(62)&&(trailClock-=Time.deltaTime)<=0){trailClock=.1f;trail.Add(now);if(trail.Count>30)trail.RemoveAt(0);}
-            if(Ready(62,10))StartCoroutine(Backtrack(trail.ToArray()));
+            if(Ready(62,OctoberItemBalance.BacktrackInterval))StartCoroutine(Backtrack(trail.ToArray()));
             if(Ready(64,15))
             {
                 if(hitsRecent*4>attacksRecent){Player.GainHealth(Player.MaxHealth*.06f);Flash(now,64);}
@@ -292,7 +307,7 @@ namespace Vampire
         {
             var hit=new HashSet<int>();var image=MakeSprite(62,"반추 잔상",.7f);
             for(int i=points.Length-1;i>=0;i--)
-            {if(!Player.IsAlive)break;image.transform.position=points[i];foreach(var t in Nearby(points[i],.9f))if(hit.Add(t.GetInstanceID()))Hit(t,LastBaseDamage*.8f,62);yield return new WaitForSeconds(.05f);}
+            {if(!Player.IsAlive)break;image.transform.position=points[i];foreach(var t in Nearby(points[i],.9f))if(hit.Add(t.GetInstanceID()))Hit(t,LastBaseDamage*OctoberItemBalance.BacktrackDamage,62);yield return new WaitForSeconds(.05f);}
             if(image!=null)Destroy(image.gameObject);
         }
         public List<Component> Nearby(Vector2 position,float radius)=>Ver4HitEffects.Nearby(position,radius,~0,Player);
@@ -300,7 +315,8 @@ namespace Vampire
         public void Pulse(Vector2 p,float radius,float damage,int item,float push=0)
         {
             Ver4HitEffects.AreaDamage(p,radius,damage,push,Player,~0,Name(item));
-            if(item==65)ItemFeedback.For(this).Show(ItemFeedbackKind.Steam,p,.65f,radius);
+            if(item==29)ItemFeedback.For(this).Show(ItemFeedbackKind.Echo,p,.8f,radius);
+            else if(item==65)ItemFeedback.For(this).Show(ItemFeedbackKind.Steam,p,.65f,radius);
             else if(item==22)ItemFeedback.For(this).Show(ItemFeedbackKind.Echo,p,.45f,radius);
             else Flash(p,item,radius*.7f);
         }

@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 41
   itemRarity: 1
   itemTag: 1
-  description: "\uAE30\uBCF8 \uCE68 \uCE58\uBA85\uD0C0 \uC2DC \uCCB4\uB825 1 \uD68C\uBCF5.
-    \uC7AC\uC0AC\uC6A9 1\uCD08."
+  description: "기본 침 치명타 시 체력 1 회복. 재사용 대기 1초."
   itemIcon: {fileID: 1997004634984352168, guid: b96165ba34a6abc49a5735b82a3e1432, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

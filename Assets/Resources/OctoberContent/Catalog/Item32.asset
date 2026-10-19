@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 32
   itemRarity: 3
   itemTag: 4
-  description: "\uC2E4\uC81C\uB85C \uC783\uC740 \uCCB4\uB825\uC744 \uAE30\uB85D.
-    8\uCD08\uB9C8\uB2E4 \uC8FC\uC704 4 \uAC70\uB9AC\uC5D0 \uAE30\uB85D\uB7C9 \xD72
-    \uBC18\uACA9. \uCE68 \uD53C\uD574 400% \uC0C1\uD55C."
+  description: "실제로 잃은 체력을 기록. 8초마다 주위 4 거리에 기록량 ×2 반격. 침 피해 400% 상한."
   itemIcon: {fileID: 2903957010282829944, guid: e87ba475515ffe949b2537dba4834a7c, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

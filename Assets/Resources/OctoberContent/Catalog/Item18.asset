@@ -16,11 +16,11 @@ MonoBehaviour:
   octoberId: 18
   itemRarity: 1
   itemTag: 1
-  description: "\uBC1B\uB294 \uD68C\uBCF5\uB7C9 +25%."
+  description: "받는 회복량 +25%."
   itemIcon: {fileID: -1803634826452918745, guid: f53b539c172def64c90936e956b5f162, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

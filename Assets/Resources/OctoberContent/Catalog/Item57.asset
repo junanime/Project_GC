@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 57
   itemRarity: 2
   itemTag: 4
-  description: "12\uCD08\uB9C8\uB2E4 \uC8FC\uC704 2.5 \uAC70\uB9AC \uC801 \uD0C4\uD658\uC744
-    0.6\uCD08 \uC815\uC9C0\uD55C \uD6C4 \uC81C\uAC70."
+  description: "12초마다 주위 2.5 거리 적 탄환을 0.6초 정지한 후 제거."
   itemIcon: {fileID: 1346126288422687182, guid: 459dab8e7e376f643ac234e9b585b742, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

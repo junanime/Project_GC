@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 59
   itemRarity: 2
   itemTag: 0
-  description: "10 \uAC70\uB9AC \uC774\uB3D9 \uD6C4 \uB2E4\uC74C \uAE30\uBCF8 \uCE68
-    \uC801\uC911 \uC9C0\uC810\uC5D0 \uC8FC\uBCC0 \uC801\uC744 \uB04C\uC5B4\uB2F9\uAE30\uB294
-    \uD30C\uB3D9."
+  description: "10 거리 이동 후 다음 기본 침 적중 지점에 주변 적을 끌어당기는 파동."
   itemIcon: {fileID: 843087328106525781, guid: ed5a861b5de8d304b96b4d98831854d1, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

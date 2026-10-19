@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 9
   itemRarity: 0
   itemTag: 0
-  description: "\uD53C\uACA9 \uD6C4 \uB2E4\uC74C \uAE30\uBCF8 \uCE68 \uC801\uC911
-    \uD53C\uD574 +40%. \uC7AC\uC0AC\uC6A9 4\uCD08."
+  description: "피격 후 다음 기본 침 적중 피해 +40%. 재사용 대기 4초."
   itemIcon: {fileID: 2076167717105065358, guid: c5b69f3ddde3bfb4c8d95fbf73b1604d, type: 3}
   cost: 25
   canBuyInLobby: 1

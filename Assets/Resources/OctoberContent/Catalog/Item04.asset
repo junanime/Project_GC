@@ -16,7 +16,7 @@ MonoBehaviour:
   octoberId: 4
   itemRarity: 0
   itemTag: 4
-  description: "\uC544\uC774\uD15C \uD68D\uB4DD \uBC94\uC704 +0.8."
+  description: "아이템 획득 범위 +0.8."
   itemIcon: {fileID: -7413955040948444884, guid: ea51c3b42a518bb4796d94a160cdbc50, type: 3}
   cost: 25
   canBuyInLobby: 1

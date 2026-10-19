@@ -85,7 +85,7 @@ namespace Vampire
         void OctoberSelection()
         {
             var relics=RelicSelectionPolicy.ForLobby(Config.relics);
-            var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
+            var items=ItemOfferPolicy.ForLobby(Config.items);
             var weapons=(Config.weapons??Array.Empty<SyringeSpecialAugmentAbility>()).OrderBy(w=>StartingNeedleSelection.Owned(w)?0:1).ThenBy(w=>(int)w.Type).ToArray();
             int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?relics.Length:items.Length;
             selection=Mathf.Clamp(selection,0,Mathf.Max(0,count-1));

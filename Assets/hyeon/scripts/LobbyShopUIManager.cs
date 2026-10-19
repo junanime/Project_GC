@@ -99,7 +99,7 @@ namespace Vampire
                 if (item == null)
                     continue;
 
-                if (!item.canBuyInLobby)
+                if (!ItemOfferPolicy.CanBuyInLobby(item))
                     continue;
 
                 var card = Instantiate(itemButtonPrefab, itemParent);

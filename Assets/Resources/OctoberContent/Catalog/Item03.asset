@@ -16,7 +16,7 @@ MonoBehaviour:
   octoberId: 3
   itemRarity: 0
   itemTag: 4
-  description: "\uC774\uB3D9 \uC18D\uB3C4 +0.08."
+  description: "이동 속도 +0.08."
   itemIcon: {fileID: -7009080966714031801, guid: d6d8058032cd402469085ab6f6dd67b4, type: 3}
   cost: 25
   canBuyInLobby: 1

@@ -32,9 +32,9 @@ namespace Vampire.Tests.Editor
             items.State.owned.Clear();items.State.delayedExp=0;items.State.overflow=0;
             var sample=ScriptableObject.CreateInstance<MonsterBlueprint>();sample.name="October resistance test";
             items.Give(ui.Config.items[62]);for(int i=0;i<8;i++)items.Hurt(1,sample);
-            Check(Mathf.Abs(items.Incoming(100,sample)-80)<.01f,"Repeated damage resistance caps at 20%");
+            Check(Mathf.Abs(items.Incoming(100,sample)-70)<.01f,"Repeated damage resistance caps at 30%");
             var copy=JsonUtility.FromJson<OctoberItemState>(JsonUtility.ToJson(items.Capture()));items.Restore(copy);
-            Check(Mathf.Abs(items.Incoming(100,sample)-80)<.01f,"Resistance survives serialized stage transfer");
+            Check(Mathf.Abs(items.Incoming(100,sample)-70)<.01f,"Resistance survives serialized stage transfer");
             items.State.owned.Clear();items.Give(ui.Config.items[46]);Check(Mathf.Abs(items.SlowMultiplier(.5f)-.35f)<.001f,"Slow item adds 15 percentage points");
             Check(Mathf.Abs(items.SlowMultiplier(.2f)-.3f)<.001f,"Slow strength never exceeds 70%");
             items.State.owned.Clear();items.Give(ui.Config.items[26]);items.Healed(0,p.MaxHealth*10);

@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 66
   itemRarity: 3
   itemTag: 1
-  description: "\uC2E4\uC81C \uD68C\uBCF5 \uC5C6\uC774 12\uCD08\uB97C \uBC84\uD2F0\uBA74
-    \uCDA9\uC804. \uB2E4\uC74C \uC2E4\uC81C \uD68C\uBCF5 \uC2DC \uC804\uBC29\uC5D0
-    \uCE68 \uD53C\uD574 250% \uC6A9\uC655 \uD30C\uB3D9."
+  description: "실제 회복 없이 12초를 버티면 충전. 다음 실제 회복 시 전방에 침 피해 250% 용왕 파동."
   itemIcon: {fileID: -8485510608179976139, guid: ec7f7aeb68ba0fe4b85d69dfc6c5ce4a, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

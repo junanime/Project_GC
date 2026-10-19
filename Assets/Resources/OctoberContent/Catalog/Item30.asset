@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 30
   itemRarity: 3
   itemTag: 4
-  description: "\uC218\uD638 \uC528\uC557\uC774 1.5\uCD08\uB9C8\uB2E4 \uAC00\uAE4C\uC6B4
-    \uC801\uC744 \uACF5\uACA9. 60\uCD08\uB9C8\uB2E4 \uC131\uC7A5, \uCE68 \uD53C\uD574
-    30\u219240\u219250\u219260%."
+  description: "1.5초마다 수호 씨앗이 가까운 적 공격. 침 피해 50%, 60초마다 +15%p 성장(최대 95%)."
   itemIcon: {fileID: -1108926715327140920, guid: 6b4ff4b8bf7c6bf46bc78319af987781, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

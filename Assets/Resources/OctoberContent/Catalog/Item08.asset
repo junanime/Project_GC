@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 8
   itemRarity: 1
   itemTag: 2
-  description: "12\uCD08\uB9C8\uB2E4 \uBCF4\uD638\uB9C9 \uCDA9\uC804. \uB2E4\uC74C
-    \uBC1B\uB294 \uD53C\uD574 40% \uAC10\uC18C."
+  description: "12초마다 보호막 충전. 다음 받는 피해 40% 감소."
   itemIcon: {fileID: -3442657002975739228, guid: 45c157041403c8b4c832bd69d6c3ee11, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

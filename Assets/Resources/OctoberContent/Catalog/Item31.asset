@@ -16,11 +16,11 @@ MonoBehaviour:
   octoberId: 31
   itemRarity: 3
   itemTag: 0
-  description: "4\ucd08\ub9c8\ub2e4 \uc8fc\uc704 3 \uac70\ub9ac\uc5d0 \uce68 \ud53c\ud574 30%\uc758 \ub738\ubd88. \ub9c8\uc9c0\ub9c9 \uac8c\uc784 \uc2dc\uac04 1\uc2dc\uac04\uc5d0\ub294 1\ucd08\ub9c8\ub2e4 180%\ub85c \uac15\ud654."
+  description: "4초마다 주위 3 거리에 침 피해 30%의 뜸불. 마지막 게임 시간 1시간에는 1초마다 180%로 강화."
   itemIcon: {fileID: -3410640856842819260, guid: ca34aa779ec98c044ab0cf76f39a13c4, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

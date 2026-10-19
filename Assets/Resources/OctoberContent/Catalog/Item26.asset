@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 26
   itemRarity: 2
   itemTag: 2
-  description: "10\uCD08 \uB3D9\uC548 \uD53C\uD574\uB97C \uBC1B\uC9C0 \uC54A\uC73C\uBA74
-    \uD638\uB9AC\uBCD1 \uCDA9\uC804. \uB2E4\uC74C \uD53C\uD574 60% \uAC10\uC18C."
+  description: "10초 동안 피해를 받지 않으면 호리병 충전. 다음 피해 60% 감소."
   itemIcon: {fileID: 1466607180288549578, guid: dea431c88fdf6354882a85287821260b, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

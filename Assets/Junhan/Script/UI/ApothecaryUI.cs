@@ -292,7 +292,7 @@ namespace Vampire
         }
         void ItemSelection()
         {
-            var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
+            var items=ItemOfferPolicy.ForLobby(Config.items);
             if(items.Length==0) { Label(content,"구매 가능한 아이템이 없습니다.",.53f,.4f,.88f,.65f,22);return; }
             selection=Mathf.Clamp(selection,0,items.Length-1);
             Panel(content,.52f,.20f,.88f,.355f);
@@ -339,7 +339,7 @@ namespace Vampire
             {
                 selection=Mathf.Clamp(selection,0,Config.items.Length-1);
                 Grid(Config.items.Length,i=>Config.items[i].itemIcon,i=>Config.items[i].itemName,.12f,.27f,.56f,.70f);
-                var item=Config.items[selection];title=item.itemName;description=item.description+"\n출전 준비에서 실버로 구매합니다.";icon=item.itemIcon;action="사용 가능";
+                var item=Config.items[selection];title=item.itemName;description=item.description+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
             }
             else if(Tab==3 && Config.augments.Length>0)
             {

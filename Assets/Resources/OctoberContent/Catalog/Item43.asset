@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 43
   itemRarity: 0
   itemTag: 2
-  description: "10\uCD08\uB9C8\uB2E4 \uC804\uBC29 1.6 \uAC70\uB9AC \uC548\uC758 \uC801
-    \uD0C4\uD658 1\uAC1C \uCC28\uB2E8."
+  description: "10초마다 전방 1.6 거리 안의 적 탄환 1개 차단."
   itemIcon: {fileID: 1794039821716426985, guid: 125390dbf5b07cb43b127c5d9514f772, type: 3}
   cost: 25
   canBuyInLobby: 1

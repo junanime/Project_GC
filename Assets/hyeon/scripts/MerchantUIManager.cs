@@ -225,7 +225,7 @@ namespace Vampire
         private MerchantItemBlueprint GetRandomItemByRarity(MerchantItemBlueprint.Rarity rarity)
         {
             List<MerchantItemBlueprint> candidates =
-                allAvailableItems.FindAll(item => item!=null && item.itemRarity == rarity && !AlreadyOwned(item));
+                allAvailableItems.FindAll(item => ItemOfferPolicy.CanOffer(item) && item.itemRarity == rarity && !AlreadyOwned(item));
 
             if (candidates.Count == 0)
             {
@@ -243,7 +243,7 @@ namespace Vampire
 
             foreach (MerchantItemBlueprint item in allAvailableItems)
             {
-                if (item!=null&&!AlreadyOwned(item)&&!targetItems.Contains(item))
+                if (ItemOfferPolicy.CanOffer(item)&&!AlreadyOwned(item)&&!targetItems.Contains(item))
                 {
                     remainingItems.Add(item);
                 }
@@ -403,7 +403,8 @@ namespace Vampire
         public void OnClickPurchaseItem(MerchantItemBlueprint itemToBuy, ShopItemButton clickedButton)
         {
             var player=FindObjectOfType<Character>();
-            if(currentInteractingNPC==null||itemToBuy==null||player==null)return;
+            if(currentInteractingNPC==null||!ItemOfferPolicy.CanOffer(itemToBuy)||player==null)return;
+            if(!currentInteractingNPC.GetShopItems().Contains(itemToBuy))return;
             if(itemToBuy.octoberId>0&&OctoberItemRuntime.Get(player).Has(itemToBuy.octoberId))return;
             if (ProcessPayment(RelicRuntime.Price(player,itemToBuy.cost)))
             {

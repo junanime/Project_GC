@@ -50,8 +50,8 @@ namespace Vampire.Tests.Editor
                 var item = Resources.Load<MerchantItemBlueprint>("OctoberContent/Catalog/Item" + id.ToString("00"));
                 Assert.NotNull(item);
                 Assert.AreEqual(OctoberItemBalance.Description[id], item.description, "description " + id);
-                Assert.AreEqual(new[] {25,45,80,130}[(int)item.itemRarity], item.cost, "gold " + id);
-                Assert.AreEqual(new[] {80,150,320,650}[(int)item.itemRarity], item.silverCost, "silver " + id);
+                Assert.AreEqual(ItemOfferPolicy.Gold(item.itemRarity), item.cost, "gold " + id);
+                Assert.AreEqual(ItemOfferPolicy.Silver(item.itemRarity), item.silverCost, "silver " + id);
             }
         }
 

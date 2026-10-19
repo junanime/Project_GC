@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 16
   itemRarity: 2
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68\uC73C\uB85C \uCC98\uCE58\uD55C \uC790\uB9AC\uC5D0
-    3\uCD08 \uBD88\uC7A5\uD310 \uC0DD\uC131. \uCD08\uB2F9 \uCE68 \uD53C\uD574 30%.
-    \uCD5C\uB300 3\uAC1C."
+  description: "기본 침으로 처치한 자리에 3초 불장판 생성. 초당 침 피해 30%. 최대 3개."
   itemIcon: {fileID: 7518160767079190254, guid: b9bbb8cc63c150b4898ed43972b4d151, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

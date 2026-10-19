@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 15
   itemRarity: 1
   itemTag: 1
-  description: "20\uD68C \uCC98\uCE58\uB85C \uCDA9\uC804. \uCCB4\uB825 35% \uC774\uD558\uC5D0\uC11C
-    \uCD5C\uB300 \uCCB4\uB825 15% \uD68C\uBCF5."
+  description: "20회 처치로 충전. 체력 35% 이하에서 최대 체력 15% 회복."
   itemIcon: {fileID: 8338910966080482048, guid: 9778e67ce98392544a78dbbc12fd00df, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

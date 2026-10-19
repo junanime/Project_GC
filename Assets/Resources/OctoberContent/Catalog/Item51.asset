@@ -16,11 +16,11 @@ MonoBehaviour:
   octoberId: 51
   itemRarity: 1
   itemTag: 2
-  description: "\uD53C\uACA9 \uD6C4 \uBB34\uC801 \uC2DC\uAC04 +0.2\uCD08."
+  description: "피격 후 무적 시간 +0.2초."
   itemIcon: {fileID: 2287037381405719200, guid: 442ed7fd178b937438e6ddd93f8c252e, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

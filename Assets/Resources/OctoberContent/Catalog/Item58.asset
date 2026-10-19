@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 58
   itemRarity: 3
   itemTag: 4
-  description: "4\uCD08\uB9C8\uB2E4 \uBD80\uC801 \uC601\uD63C\uC774 \uAC00\uAE4C\uC6B4
-    \uC801\uC744 \uCD94\uC801\uD574 \uCE68 \uD53C\uD574 160%."
+  description: "4초마다 부적 영혼이 가까운 적을 추적해 침 피해 160%."
   itemIcon: {fileID: 5990344245215942624, guid: 65f371788595ad44ebd4a4e195807fa2, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

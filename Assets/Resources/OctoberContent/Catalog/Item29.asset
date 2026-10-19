@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 29
   itemRarity: 3
   itemTag: 0
-  description: "\uAC8C\uC784 \uC2DC\uAC04 1\uC2DC\uAC04\uB9C8\uB2E4 \uC8FC\uC704
-    5 \uAC70\uB9AC\uC5D0 \uCE68 \uD53C\uD574 150% \uCDA9\uACA9\uD30C."
+  description: "게임 시간 매 정각, 주위 5 거리에 침 피해 300% 충격파. 적을 2초간 35% 감속."
   itemIcon: {fileID: 6389952843110535869, guid: 7868dcd638bb01b4a9d1233d1b694fde, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

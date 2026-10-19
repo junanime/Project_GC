@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 14
   itemRarity: 1
   itemTag: 4
-  description: "8\uCD08\uB9C8\uB2E4 \uC8FC\uC704 2.5 \uAC70\uB9AC \uC801\uC744 \uBC00\uC5B4\uB0B4\uBA70
-    \uAE30\uBCF8 \uCE68 \uD53C\uD574 25%."
+  description: "8초마다 주위 2.5 거리 적을 밀어내며 기본 침 피해 25%."
   itemIcon: {fileID: -2420950769482112606, guid: 124d778e8a4d51145a3ff9e798f6446f, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
