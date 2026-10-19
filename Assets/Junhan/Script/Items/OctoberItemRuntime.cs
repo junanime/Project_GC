@@ -60,6 +60,7 @@ namespace Vampire
             if(item==null||item.octoberId<1||Has(item.octoberId))return false;
             int id=item.octoberId;State.owned.Add(id);cooldown[id]=Time.time;
             if(id==8)cooldown[id]=Time.time+12;
+            if(id==29)cooldown[id]=Time.time+OctoberItemBalance.ClockInterval;
             if(!restore)switch(id)
             {
                 case 2:Player.AddMaxHealthBonus(20);Player.GainHealth(20);break;
@@ -254,7 +255,12 @@ namespace Vampire
             if(hour>lastHour)
             {
                 if(lastHour<23&&hour>=23&&Has(31))cooldown[31]=Mathf.Min(cooldown[31],Time.time);
-                lastHour=hour;if(Has(29)){Pulse(now,5,LastBaseDamage*OctoberItemBalance.ClockDamage,29);foreach(var t in Nearby(now,5))Slow(t,.35f,2);}
+                lastHour=hour;
+            }
+            if(Ready(29,OctoberItemBalance.ClockInterval))
+            {
+                Pulse(now,5,LastBaseDamage*OctoberItemBalance.ClockDamage,29);
+                foreach(var t in Nearby(now,5))Slow(t,.35f,2);
             }
             if(Ready(31,OctoberItemBalance.DawnInterval(hour)))
                 Pulse(now,3,LastBaseDamage*OctoberItemBalance.DawnDamage(hour),31);

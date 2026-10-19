@@ -88,7 +88,7 @@ namespace Vampire.EditorTools
         {
             if(!GUILayout.Button(label))return;
             overridden=OctoberItemRuntime.Get(player);overridden.SetDebugHour(hour);
-            message="시간대 변경 · 시계 충격파는 다음 업데이트에 1회 발동";
+            message="시간대 변경 · 야화 약등과 새벽의 뜸에 적용 (시계는 20초 주기)";
         }
     }
 }

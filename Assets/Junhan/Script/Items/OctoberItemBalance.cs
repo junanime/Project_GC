@@ -2,8 +2,8 @@ namespace Vampire
 {
     public static class OctoberItemBalance
     {
-        public const float ClockDamage = 3f;
-        public const float BacktrackInterval = 7f, BacktrackDamage = 1.2f;
+        public const float ClockInterval = 20f, ClockDamage = 2f;
+        public const float BacktrackInterval = 8f, BacktrackDamage = 1f;
         public static float GuardianDamage(float elapsed) => .5f + UnityEngine.Mathf.Clamp(UnityEngine.Mathf.Floor(elapsed/60),0,3)*.15f;
         public static float MemoryResistance(int hits) => UnityEngine.Mathf.Clamp(hits,0,5)*.06f;
         public const float CloseRangeBonus = .35f;
@@ -40,7 +40,7 @@ namespace Vampire
             "10초 동안 피해를 받지 않으면 호리병 충전. 다음 피해 60% 감소.",
             "초과 회복량을 최대 체력의 25%까지 저장. 다음 기본 침에 저장량 ×2 추가 피해.",
             "밤 시간대에 3초마다 3 거리 안의 적에게 침 피해 60%.",
-            "게임 시간 매 정각, 주위 5 거리에 침 피해 300% 충격파. 적을 2초간 35% 감속.",
+            "획득 20초 후부터 20초마다 주위 5 거리에 침 피해 200% 충격파. 적을 2초간 35% 감속.",
             "1.5초마다 수호 씨앗이 가까운 적 공격. 침 피해 50%, 60초마다 +15%p 성장(최대 95%).",
             "4초마다 주위 3 거리에 침 피해 30%의 뜸불. 마지막 게임 시간 1시간에는 1초마다 180%로 강화.",
             "실제로 잃은 체력을 기록. 8초마다 주위 4 거리에 기록량 ×2 반격. 침 피해 400% 상한.",
@@ -73,7 +73,7 @@ namespace Vampire
             "10 거리 이동 후 다음 기본 침 적중 지점에 주변 적을 끌어당기는 파동.",
             "경험치를 3초 저장 후 15% 추가하여 획득. 다음 스테이지로 남은 저장량 보존.",
             "대시 시작 위치에 4초 귀환 문 생성. 다음 대시가 문으로 귀환. 재사용 대기 12초.",
-            "7초마다 최근 3초 이동 경로를 역행하는 잔상. 경로의 적에게 침 피해 120%, 대상당 1회.",
+            "8초마다 최근 3초 이동 경로를 역행하는 잔상. 경로의 적에게 침 피해 100%, 대상당 1회.",
             "같은 종류의 적에게 실제 피격될 때마다 해당 종류 피해 저항 +6%p. 최대 30%.",
             "15초마다 최근 행동에 맞춰 동료 변화: 피격 우세면 회복, 공격 우세면 공격, 이동 우세면 감속 지원.",
             "화상과 감속이 함께 걸린 적에 기본 침 적중 시 두 상태를 소모하여 반경 2에 침 피해 160% 증기 폭발. 재사용 대기 3초.",

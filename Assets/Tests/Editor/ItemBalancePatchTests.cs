@@ -14,6 +14,42 @@ namespace Vampire.Tests.Editor
         const BindingFlags Private=BindingFlags.Instance|BindingFlags.NonPublic;
         static MerchantItemBlueprint[] Catalog()=>Resources.LoadAll<MerchantItemBlueprint>("OctoberContent/Catalog");
 
+        [Test] public void RoleFiltersPartitionOffersWithoutLosingItems()
+        {
+            var offers=Catalog().Where(ItemOfferPolicy.CanOffer).ToArray();
+            var combined=new List<MerchantItemBlueprint>();
+            for(int i=1;i<=4;i++)
+            {
+                var group=ItemOfferPolicy.Filter(offers,(ItemOfferPolicy.Role)i);
+                Assert.Greater(group.Length,0);combined.AddRange(group);
+            }
+            CollectionAssert.AreEquivalent(offers,combined);
+            Assert.AreEqual(combined.Count,combined.Distinct().Count());
+            Assert.AreEqual(58,ItemOfferPolicy.Filter(offers,ItemOfferPolicy.Role.All).Length);
+            Assert.AreEqual(ItemOfferPolicy.Role.Survival,ItemOfferPolicy.RoleOf(63));
+            Assert.AreEqual(ItemOfferPolicy.Role.Status,ItemOfferPolicy.RoleOf(65));
+        }
+
+        [Test] public void ClockWaitsAfterAcquisitionAndPreservesRemainingTime()
+        {
+            var go=new GameObject("clock cooldown test");
+            try
+            {
+                var runtime=go.AddComponent<OctoberItemRuntime>();
+                runtime.Give(Catalog().Single(i=>i.octoberId==29));
+                Assert.IsFalse(runtime.Ready(29,OctoberItemBalance.ClockInterval));
+                var saved=JsonUtility.FromJson<OctoberItemState>(JsonUtility.ToJson(runtime.Capture()));
+                Assert.That(saved.cooldownRemaining[29],Is.EqualTo(20).Within(.1));
+                saved.cooldownRemaining[29]=5;runtime.Restore(saved);
+                runtime.SetDebugHour(23);
+                Assert.IsFalse(runtime.Ready(29,20),"changing time of day must not skip the cooldown");
+                saved.cooldownRemaining[29]=0;runtime.Restore(saved);
+                Assert.IsTrue(runtime.Ready(29,20));Assert.IsFalse(runtime.Ready(29,20));
+                Assert.That(runtime.Capture().cooldownRemaining[29],Is.EqualTo(20).Within(.1));
+            }
+            finally {Object.DestroyImmediate(go);}
+        }
+
         [Test] public void OffersShrinkButAllLegacyIdsStillRestore()
         {
             var all=Catalog();Assert.AreEqual(66,all.Length);Assert.AreEqual(58,all.Count(ItemOfferPolicy.CanOffer));

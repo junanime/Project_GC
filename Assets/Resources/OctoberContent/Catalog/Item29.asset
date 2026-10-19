@@ -16,7 +16,7 @@ MonoBehaviour:
   octoberId: 29
   itemRarity: 3
   itemTag: 0
-  description: "게임 시간 매 정각, 주위 5 거리에 침 피해 300% 충격파. 적을 2초간 35% 감속."
+  description: "획득 20초 후부터 20초마다 주위 5 거리에 침 피해 200% 충격파. 적을 2초간 35% 감속."
   itemIcon: {fileID: 6389952843110535869, guid: 7868dcd638bb01b4a9d1233d1b694fde, type: 3}
   cost: 180
   canBuyInLobby: 1
