@@ -26,12 +26,13 @@ namespace Vampire.Tests.Editor
             try
             {
                 PlayerPrefs.DeleteKey(unlockKey); PlayerPrefs.DeleteKey(equipKey);
-                Assert.AreEqual(33, RelicSelectionPolicy.ForLobby(catalog.relics).Length);
+                int visibleBefore=RelicSelectionPolicy.ForLobby(catalog.relics).Length;
+                Assert.IsFalse(RelicSelectionPolicy.ForLobby(catalog.relics).Contains(legacy));
                 Assert.IsFalse(RelicSelectionPolicy.IsNewOffer(legacy));
                 Assert.IsTrue(RelicSelectionPolicy.IsNewOffer(canonical));
                 Assert.IsTrue(RelicSelectionPolicy.SameChoice(legacy.relicId, canonical.relicId));
                 RelicSaveData.Unlock(legacy.relicId); RelicSaveData.Equip(legacy.relicId);
-                Assert.AreEqual(34, RelicSelectionPolicy.ForLobby(catalog.relics).Length);
+                Assert.AreEqual(visibleBefore+1, RelicSelectionPolicy.ForLobby(catalog.relics).Length);
                 Assert.AreEqual("lotus_chips", RelicSaveData.GetEquippedRelicId());
                 Assert.IsFalse(RelicSelectionPolicy.IsNewOffer(legacy));
             }

@@ -16,9 +16,11 @@ namespace Vampire.Tests.Editor
         static double deadline,next;
         static int step;
         static ItemFilterVisualSmoke(){if(SessionState.GetBool(Key,false))Attach();}
+        static string[] SaveKeys()=>new[]{"Coins","LobbySilverCoins"}.Concat(Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig").relics.Select(r=>"RelicUnlocked_"+r.relicId)).ToArray();
+        public static void RunRelics(){SessionState.SetBool(Key+"Relics",true);Run();}
         public static void Run()
         {
-            foreach(string k in new[]{"Coins","LobbySilverCoins"})
+            foreach(string k in SaveKeys())
             {SessionState.SetBool(Key+k,PlayerPrefs.HasKey(k));SessionState.SetInt(Key+k,PlayerPrefs.GetInt(k));}
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
             Directory.CreateDirectory("Library/ItemFilterProof");
@@ -35,9 +37,9 @@ namespace Vampire.Tests.Editor
             {
                 if(EditorApplication.isPlaying){EditorApplication.ExitPlaymode();return;}
                 if(EditorApplication.isPlayingOrWillChangePlaymode)return;
-                foreach(string k in new[]{"Coins","LobbySilverCoins"})
+                foreach(string k in SaveKeys())
                 {if(SessionState.GetBool(Key+k,false))PlayerPrefs.SetInt(k,SessionState.GetInt(Key+k,0));else PlayerPrefs.DeleteKey(k);}
-                PlayerPrefs.Save();SessionState.SetBool(Key,false);
+                PlayerPrefs.Save();SessionState.SetBool(Key,false);SessionState.SetBool(Key+"Relics",false);
                 EditorApplication.Exit(SessionState.GetBool(Key+"Failed",false)?1:0);return;
             }
             if(EditorApplication.timeSinceStartup>deadline){Fail(new Exception("UI test timeout"));return;}
@@ -46,6 +48,29 @@ namespace Vampire.Tests.Editor
             try
             {
                 var ui=ApothecaryUI.Instance;
+                if(SessionState.GetBool(Key+"Relics",false))
+                {
+                    if(step==0)
+                    {
+                        foreach(var relic in ui.Config.relics)RelicSaveData.Unlock(relic.relicId);
+                        ui.Show("prepare",2);step++;return;
+                    }
+                    var selected=ui.Config.relics[step-1];
+                    var reason=ui.GetComponentsInChildren<TMP_Text>().Single(t=>t.text==selected.selectionReason);
+                    reason.ForceMeshUpdate();if(reason.isTextOverflowing)throw new Exception("Relic reason overflow: "+selected.relicId);
+                    if(step==1||selected.relicId=="needle_case")
+                    {
+                        var shot=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes("Library/ItemFilterProof/relic-"+selected.relicId+".png",shot.EncodeToPNG());UnityEngine.Object.Destroy(shot);
+                    }
+                    if(step==ui.Config.relics.Length)
+                    {
+                        Debug.Log("RELIC_REASON_VISUAL_PASS: 34 reasons fit; existing unlocks retained");SessionState.SetBool(Key+"Done",true);return;
+                    }
+                    var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+                    typeof(ApothecaryUI).GetField("selection",flags).SetValue(ui,step);
+                    typeof(ApothecaryUI).GetField("pageIndex",flags).SetValue(ui,step/6);
+                    typeof(ApothecaryUI).GetMethod("Render",flags).Invoke(ui,null);step++;return;
+                }
                 if(step==0){ui.Show("prepare",3);step++;return;}
                 if(step<=5)
                 {

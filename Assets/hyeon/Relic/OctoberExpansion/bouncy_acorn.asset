@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 1
   effectDescription: "\uCE68\uC774 \uC801\uC911\uD55C \uB4A4 \uB3C4\uD0C4 +1. \uAC00\uAE4C\uC6B4
     \uC544\uC9C1 \uB9DE\uC9C0 \uC54A\uC740 \uC801\uC744 \uC6B0\uC120 \uCD94\uC801."
+  selectionReason: "일직선 밖의 적에게도 침을 이어 맞히려고 고릅니다."

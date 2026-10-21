@@ -8,7 +8,8 @@
       "price": 120,
       "sheet": 1,
       "cell": 0,
-      "description": "최대 체력 +20. 출전 시 증가분도 채워집니다."
+      "description": "최대 체력 +20. 출전 시 증가분도 채워집니다.",
+      "selectionReason": "체력을 늘리지만 현재 캐릭터에서는 홍삼젤리보다 이점이 없습니다."
     },
     {
       "id": "relic_02",
@@ -18,7 +19,8 @@
       "price": 160,
       "sheet": 1,
       "cell": 1,
-      "description": "이동 속도 기본 수치 +0.2."
+      "description": "이동 속도 기본 수치 +0.2.",
+      "selectionReason": "느린 캐릭터로도 이동하며 공격을 피하기 위해 고릅니다."
     },
     {
       "id": "warm_bottle",
@@ -28,7 +30,8 @@
       "price": 160,
       "sheet": 1,
       "cell": 2,
-      "description": "회복 아이템의 체력 회복량 +25%. 자동 회복·흡혈에는 미적용."
+      "description": "회복 아이템의 체력 회복량 +25%. 자동 회복·흡혈에는 미적용.",
+      "selectionReason": "회복 아이템 하나로 더 많은 체력을 회복하려고 고릅니다."
     },
     {
       "id": "clear_dew",
@@ -38,7 +41,8 @@
       "price": 180,
       "sheet": 1,
       "cell": 3,
-      "description": "기절·이동 반전·장판 이탈 후 둔화 지속시간 -25%. 장판 내부와 함정 탈출 조건은 유지."
+      "description": "기절·이동 반전·장판 이탈 후 둔화 지속시간 -25%. 장판 내부와 함정 탈출 조건은 유지.",
+      "selectionReason": "기절과 이동 방해에서 빨리 벗어나려는 선택입니다."
     },
     {
       "id": "life_sprout",
@@ -48,7 +52,8 @@
       "price": 220,
       "sheet": 1,
       "cell": 4,
-      "description": "초당 체력 0.3 회복. 일시정지·사망 중에는 회복하지 않습니다."
+      "description": "초당 체력 0.3 회복. 일시정지·사망 중에는 회복하지 않습니다.",
+      "selectionReason": "멈추지 않고 싸우면서 잃은 체력을 꾸준히 회복합니다."
     },
     {
       "id": "lightning_beat",
@@ -58,7 +63,8 @@
       "price": 220,
       "sheet": 1,
       "cell": 5,
-      "description": "공격 속도 +10%. 액티브 재사용 시간은 바뀌지 않습니다."
+      "description": "공격 속도 +10%. 액티브 재사용 시간은 바뀌지 않습니다.",
+      "selectionReason": "공격 횟수와 적중 기회를 늘리는 빌드에 고릅니다."
     },
     {
       "id": "firm_shield",
@@ -68,7 +74,8 @@
       "price": 180,
       "sheet": 2,
       "cell": 0,
-      "description": "받는 피해 -8%p. 다른 피해 감소와 합산하며 최대 80%."
+      "description": "받는 피해 -8%p. 다른 피해 감소와 합산하며 최대 80%.",
+      "selectionReason": "피격할 때마다 받는 피해를 안정적으로 줄입니다."
     },
     {
       "id": "relic_03",
@@ -78,7 +85,8 @@
       "price": 160,
       "sheet": 2,
       "cell": 1,
-      "description": "치명타 확률 +5%p. 최대 100%."
+      "description": "치명타 확률 +5%p. 최대 100%.",
+      "selectionReason": "치명타에 반응하는 공격 효과를 더 자주 활용합니다."
     },
     {
       "id": "magnet",
@@ -88,7 +96,8 @@
       "price": 140,
       "sheet": 2,
       "cell": 2,
-      "description": "아이템 자동 획득 반경 +30%."
+      "description": "아이템 자동 획득 반경 +30%.",
+      "selectionReason": "위험한 곳에 가까이 가지 않고 보상을 회수합니다."
     },
     {
       "id": "beads",
@@ -98,7 +107,8 @@
       "price": 450,
       "sheet": 2,
       "cell": 3,
-      "description": "발사체 수 +1. 발사체 수를 지원하는 공격에 적용."
+      "description": "발사체 수 +1. 발사체 수를 지원하는 공격에 적용.",
+      "selectionReason": "추가 발사체를 지원하는 공격의 타격 기회를 늘립니다."
     },
     {
       "id": "learning_scroll",
@@ -108,7 +118,8 @@
       "price": 220,
       "sheet": 2,
       "cell": 4,
-      "description": "경험치 획득량 +10%."
+      "description": "경험치 획득량 +10%.",
+      "selectionReason": "경험치를 더 얻어 성장 속도를 높이려고 고릅니다."
     },
     {
       "id": "fortune_pouch",
@@ -118,7 +129,8 @@
       "price": 180,
       "sheet": 2,
       "cell": 5,
-      "description": "런 골드 획득량 +15%. 소수점은 누적하며 로비 실버에는 미적용."
+      "description": "런 골드 획득량 +15%. 소수점은 누적하며 로비 실버에는 미적용.",
+      "selectionReason": "골드를 더 모아 구매와 새로고침 여유를 확보합니다."
     },
     {
       "id": "strong_hammer",
@@ -128,7 +140,8 @@
       "price": 220,
       "sheet": 3,
       "cell": 0,
-      "description": "공격력 +12%. 플레이어 공격력 배율을 사용하는 피해에 적용."
+      "description": "공격력 +12%. 플레이어 공격력 배율을 사용하는 피해에 적용.",
+      "selectionReason": "공격력 배율을 받는 여러 공격을 함께 강화합니다."
     },
     {
       "id": "piercing_arrow",
@@ -138,7 +151,8 @@
       "price": 300,
       "sheet": 3,
       "cell": 1,
-      "description": "침의 일반 몬스터 관통 +1. 관통 증강 없이도 적용. 보스 파츠 관통은 별도."
+      "description": "침의 일반 몬스터 관통 +1. 관통 증강 없이도 적용. 보스 파츠 관통은 별도.",
+      "selectionReason": "일렬로 몰린 적을 관통하지만 침통보다 독자적인 이점이 없습니다."
     },
     {
       "id": "bouncy_acorn",
@@ -148,7 +162,8 @@
       "price": 350,
       "sheet": 3,
       "cell": 2,
-      "description": "침이 적중한 뒤 도탄 +1. 가까운 아직 맞지 않은 적을 우선 추적."
+      "description": "침이 적중한 뒤 도탄 +1. 가까운 아직 맞지 않은 적을 우선 추적.",
+      "selectionReason": "일직선 밖의 적에게도 침을 이어 맞히려고 고릅니다."
     },
     {
       "id": "open_fan",
@@ -158,7 +173,8 @@
       "price": 220,
       "sheet": 3,
       "cell": 3,
-      "description": "공격 범위·침 크기 +15%. 침의 폭발·위산 장판 반경에도 적용."
+      "description": "공격 범위·침 크기 +15%. 침의 폭발·위산 장판 반경에도 적용.",
+      "selectionReason": "침과 장판의 범위를 넓혀 적을 맞히기 쉽게 합니다."
     },
     {
       "id": "hourglass",
@@ -168,7 +184,8 @@
       "price": 220,
       "sheet": 3,
       "cell": 4,
-      "description": "침이 남기는 상태이상·잔류 공격 지속시간 +20%. 액티브·무적 시간에는 미적용."
+      "description": "침이 남기는 상태이상·잔류 공격 지속시간 +20%. 액티브·무적 시간에는 미적용.",
+      "selectionReason": "침의 상태이상과 잔류 공격을 오래 유지합니다."
     },
     {
       "id": "bell",
@@ -178,7 +195,8 @@
       "price": 140,
       "sheet": 3,
       "cell": 5,
-      "description": "침의 적 밀치기 +25%. 보스의 밀치기 면역은 유지."
+      "description": "침의 적 밀치기 +25%. 보스의 밀치기 면역은 유지.",
+      "selectionReason": "밀칠 수 있는 적을 밀어내며 거리를 확보합니다."
     },
     {
       "id": "feather",
@@ -188,7 +206,8 @@
       "price": 200,
       "sheet": 4,
       "cell": 0,
-      "description": "회피 확률 +6%p. 다른 회피와 합산하며 최대 80%."
+      "description": "회피 확률 +6%p. 다른 회피와 합산하며 최대 80%.",
+      "selectionReason": "확률적으로 피격을 무효화하는 생존 방식을 고릅니다."
     },
     {
       "id": "umbrella",
@@ -198,7 +217,8 @@
       "price": 220,
       "sheet": 4,
       "cell": 1,
-      "description": "피격 후 무적 +0.2초. 기본 0.5초에서 0.7초로 증가."
+      "description": "피격 후 무적 +0.2초. 기본 0.5초에서 0.7초로 증가.",
+      "selectionReason": "한 번 맞은 뒤 연속으로 피해받는 상황을 줄입니다."
     },
     {
       "id": "bandage",
@@ -208,7 +228,8 @@
       "price": 260,
       "sheet": 4,
       "cell": 2,
-      "description": "피해 흡수 보호막 최대 +20. 출전 시 충전. 8초간 피격하지 않으면 초당 5 재충전."
+      "description": "피해 흡수 보호막 최대 +20. 출전 시 충전. 8초간 피격하지 않으면 초당 5 재충전.",
+      "selectionReason": "피격 사이에 거리를 벌려 보호막을 재충전합니다."
     },
     {
       "id": "revival_bud",
@@ -218,7 +239,8 @@
       "price": 600,
       "sheet": 4,
       "cell": 3,
-      "description": "한 판에 한 번 쓰러질 때 최대 체력 50%로 부활. 씬 이동으로 재충전되지 않음."
+      "description": "한 판에 한 번 쓰러질 때 최대 체력 50%로 부활. 씬 이동으로 재충전되지 않음.",
+      "selectionReason": "한 번의 치명적인 실수 뒤에도 탐험을 이어갑니다."
     },
     {
       "id": "chestnut",
@@ -228,7 +250,8 @@
       "price": 220,
       "sheet": 4,
       "cell": 4,
-      "description": "실제 잃은 체력의 50%를 반경 2.5 안의 적에게 반사. 0.5초 간격·1회 최대 50."
+      "description": "실제 잃은 체력의 50%를 반경 2.5 안의 적에게 반사. 0.5초 간격·1회 최대 50.",
+      "selectionReason": "근접 피격 시 주변 적에게 반격하는 빌드에 고릅니다."
     },
     {
       "id": "pillow",
@@ -238,7 +261,8 @@
       "price": 220,
       "sheet": 4,
       "cell": 5,
-      "description": "1.5초간 자발적으로 정지하면 초당 최대 체력 1% 회복. 속박·기절 중에는 미적용."
+      "description": "1.5초간 자발적으로 정지하면 초당 최대 체력 1% 회복. 속박·기절 중에는 미적용.",
+      "selectionReason": "안전하게 멈출 틈을 만들어 집중적으로 회복합니다."
     },
     {
       "id": "needle_case",
@@ -248,7 +272,8 @@
       "price": 450,
       "sheet": 5,
       "cell": 0,
-      "description": "침의 일반 몬스터 관통 +2. 관통 증강 없이도 적용. 보스 파츠 관통은 별도."
+      "description": "침의 일반 몬스터 관통 +2. 관통 증강 없이도 적용. 보스 파츠 관통은 별도.",
+      "selectionReason": "일렬로 몰린 적을 한 발로 더 많이 맞히려고 고릅니다."
     },
     {
       "id": "scales",
@@ -258,7 +283,8 @@
       "price": 240,
       "sheet": 5,
       "cell": 1,
-      "description": "런 상점 아이템 가격 -15% (올림). 실버 해금·출전 아이템·새로고침 비용은 유지."
+      "description": "런 상점 아이템 가격 -15% (올림). 실버 해금·출전 아이템·새로고침 비용은 유지.",
+      "selectionReason": "새로고침보다 아이템 구매에 골드를 집중합니다."
     },
     {
       "id": "ginseng_jelly",
@@ -268,7 +294,8 @@
       "price": 240,
       "sheet": 6,
       "cell": 0,
-      "description": "캐릭터 기본 최대 체력 +25%. 출전 시 증가분도 채워집니다."
+      "description": "캐릭터 기본 최대 체력 +25%. 출전 시 증가분도 채워집니다.",
+      "selectionReason": "기본 체력이 높은 캐릭터의 체력 이점을 키웁니다."
     },
     {
       "id": "citrus",
@@ -278,7 +305,8 @@
       "price": 140,
       "sheet": 6,
       "cell": 1,
-      "description": "캐릭터 기본 이동 속도 수치 +12%."
+      "description": "캐릭터 기본 이동 속도 수치 +12%.",
+      "selectionReason": "빠르게 이동하지만 현재 캐릭터에서는 산들 날개보다 이점이 없습니다."
     },
     {
       "id": "walnut",
@@ -288,7 +316,8 @@
       "price": 120,
       "sheet": 6,
       "cell": 2,
-      "description": "받는 피해 -6%p. 다른 피해 감소와 합산하며 최대 80%."
+      "description": "받는 피해 -6%p. 다른 피해 감소와 합산하며 최대 80%.",
+      "selectionReason": "피해를 줄이지만 방패보다 독자적인 전투 이점이 없습니다."
     },
     {
       "id": "honey_rice",
@@ -298,7 +327,8 @@
       "price": 180,
       "sheet": 6,
       "cell": 3,
-      "description": "피해 흡수 보호막 최대 +15. 출전 시 충전. 8초간 피격하지 않으면 초당 5 재충전."
+      "description": "피해 흡수 보호막 최대 +15. 출전 시 충전. 8초간 피격하지 않으면 초당 5 재충전.",
+      "selectionReason": "재충전 보호막을 얻지만 붕대보다 독자적인 이점이 없습니다."
     },
     {
       "id": "lotus_chips",
@@ -308,7 +338,8 @@
       "price": 450,
       "sheet": 6,
       "cell": 4,
-      "description": "발사체 수 +1. 발사체 수를 지원하는 공격에 적용."
+      "description": "발사체 수 +1. 발사체 수를 지원하는 공격에 적용.",
+      "selectionReason": "발사체를 늘리지만 구슬과 효과가 완전히 같습니다."
     },
     {
       "id": "mint_candy",
@@ -318,7 +349,8 @@
       "price": 180,
       "sheet": 6,
       "cell": 5,
-      "description": "침 적중 시 둔화 확률 +15%p. 3초 동안 40% 감속. 빙결과 별도."
+      "description": "침 적중 시 둔화 확률 +15%p. 3초 동안 40% 감속. 빙결과 별도.",
+      "selectionReason": "침으로 적을 느리게 만들어 거리를 유지합니다."
     },
     {
       "id": "omija",
@@ -328,7 +360,8 @@
       "price": 120,
       "sheet": 6,
       "cell": 6,
-      "description": "치명타 확률 +4%p. 최대 100%."
+      "description": "치명타 확률 +4%p. 최대 100%.",
+      "selectionReason": "치명타를 늘리지만 반짝 급소보다 독자적인 이점이 없습니다."
     },
     {
       "id": "ginger_tea",
@@ -338,7 +371,8 @@
       "price": 120,
       "sheet": 6,
       "cell": 7,
-      "description": "기절·이동 반전·장판 이탈 후 둔화 지속시간 -20%. 장판 내부와 함정 탈출 조건은 유지."
+      "description": "기절·이동 반전·장판 이탈 후 둔화 지속시간 -20%. 장판 내부와 함정 탈출 조건은 유지.",
+      "selectionReason": "방해 효과를 줄이지만 이슬보다 독자적인 이점이 없습니다."
     }
   ]
 }

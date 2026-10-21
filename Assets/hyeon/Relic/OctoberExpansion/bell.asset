@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.25
   effectDescription: "\uCE68\uC758 \uC801 \uBC00\uCE58\uAE30 +25%. \uBCF4\uC2A4\uC758
     \uBC00\uCE58\uAE30 \uBA74\uC5ED\uC740 \uC720\uC9C0."
+  selectionReason: "밀칠 수 있는 적을 밀어내며 거리를 확보합니다."

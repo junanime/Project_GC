@@ -19,3 +19,4 @@ MonoBehaviour:
   effectType: 8
   effectValue: 0.3
   effectDescription: "\uC544\uC774\uD15C \uC790\uB3D9 \uD68D\uB4DD \uBC18\uACBD +30%."
+  selectionReason: "위험한 곳에 가까이 가지 않고 보상을 회수합니다."

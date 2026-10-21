@@ -333,7 +333,7 @@ namespace Vampire
                 Grid(relics.Length,i=>relics[i].icon,i=>relics[i].relicName,.12f,.27f,.56f,.70f);
                 var r=relics[selection];title=r.relicName;description=RelicDescription(r);icon=r.icon;
                 bool owned=RelicSaveData.IsUnlocked(r.relicId);action=owned?"해금 완료":SilverWallet.CanSpend(r.price)?$"잠금 해제 · {r.price} 실버":$"실버 부족 · {r.price}";enabled=!owned&&SilverWallet.CanSpend(r.price);
-                unlock=()=>{if(!RelicSaveData.IsUnlocked(r.relicId)&&SilverWallet.TrySpend(r.price)){RelicSaveData.Unlock(r.relicId);message="출전 준비에서 장착할 수 있습니다.";}Render();};
+                unlock=()=>{if(!RelicSaveData.IsUnlocked(r.relicId)&&RelicSelectionPolicy.IsNewOffer(r)&&SilverWallet.TrySpend(r.price)){RelicSaveData.Unlock(r.relicId);message="출전 준비에서 장착할 수 있습니다.";}Render();};
             }
             else if(Tab==2 && Config.items.Length>0)
             {

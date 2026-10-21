@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.1
   effectDescription: "\uACF5\uACA9 \uC18D\uB3C4 +10%. \uC561\uD2F0\uBE0C \uC7AC\uC0AC\uC6A9
     \uC2DC\uAC04\uC740 \uBC14\uB00C\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  selectionReason: "공격 횟수와 적중 기회를 늘리는 빌드에 고릅니다."

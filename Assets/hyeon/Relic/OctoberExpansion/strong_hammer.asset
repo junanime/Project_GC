@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.12
   effectDescription: "\uACF5\uACA9\uB825 +12%. \uD50C\uB808\uC774\uC5B4 \uACF5\uACA9\uB825
     \uBC30\uC728\uC744 \uC0AC\uC6A9\uD558\uB294 \uD53C\uD574\uC5D0 \uC801\uC6A9."
+  selectionReason: "공격력 배율을 받는 여러 공격을 함께 강화합니다."

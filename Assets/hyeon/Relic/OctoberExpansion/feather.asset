@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.06
   effectDescription: "\uD68C\uD53C \uD655\uB960 +6%p. \uB2E4\uB978 \uD68C\uD53C\uC640
     \uD569\uC0B0\uD558\uBA70 \uCD5C\uB300 80%."
+  selectionReason: "확률적으로 피격을 무효화하는 생존 방식을 고릅니다."

@@ -21,3 +21,4 @@ MonoBehaviour:
   effectDescription: "\uD53C\uD574 \uD761\uC218 \uBCF4\uD638\uB9C9 \uCD5C\uB300 +20.
     \uCD9C\uC804 \uC2DC \uCDA9\uC804. 8\uCD08\uAC04 \uD53C\uACA9\uD558\uC9C0 \uC54A\uC73C\uBA74
     \uCD08\uB2F9 5 \uC7AC\uCDA9\uC804."
+  selectionReason: "피격 사이에 거리를 벌려 보호막을 재충전합니다."

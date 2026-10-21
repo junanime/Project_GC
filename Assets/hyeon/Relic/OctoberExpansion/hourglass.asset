@@ -21,3 +21,4 @@ MonoBehaviour:
   effectDescription: "\uCE68\uC774 \uB0A8\uAE30\uB294 \uC0C1\uD0DC\uC774\uC0C1\xB7\uC794\uB958
     \uACF5\uACA9 \uC9C0\uC18D\uC2DC\uAC04 +20%. \uC561\uD2F0\uBE0C\xB7\uBB34\uC801
     \uC2DC\uAC04\uC5D0\uB294 \uBBF8\uC801\uC6A9."
+  selectionReason: "침의 상태이상과 잔류 공격을 오래 유지합니다."

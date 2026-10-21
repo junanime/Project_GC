@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.08
   effectDescription: "\uBC1B\uB294 \uD53C\uD574 -8%p. \uB2E4\uB978 \uD53C\uD574 \uAC10\uC18C\uC640
     \uD569\uC0B0\uD558\uBA70 \uCD5C\uB300 80%."
+  selectionReason: "피격할 때마다 받는 피해를 안정적으로 줄입니다."

@@ -19,3 +19,4 @@ MonoBehaviour:
   effectType: 10
   effectValue: 0.1
   effectDescription: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD\uB7C9 +10%."
+  selectionReason: "경험치를 더 얻어 성장 속도를 높이려고 고릅니다."

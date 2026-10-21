@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 1
   effectDescription: "\uBC1C\uC0AC\uCCB4 \uC218 +1. \uBC1C\uC0AC\uCCB4 \uC218\uB97C
     \uC9C0\uC6D0\uD558\uB294 \uACF5\uACA9\uC5D0 \uC801\uC6A9."
+  selectionReason: "발사체를 늘리지만 구슬과 효과가 완전히 같습니다."

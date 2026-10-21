@@ -139,7 +139,7 @@ namespace Vampire
                 Label(content,$"{pageIndex+1} / {pages}",.545f,.36f,.806f,.398f,14);
                 ActionButton(content,"›",.828f,.36f,.874f,.398f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
             }
-            string detail="",action="선택",title=count>0?name(selection):"",need="";Action accept=null;bool can=true;
+            string detail="",action="선택",title=count>0?name(selection):"",need="",relicReason="";Action accept=null;bool can=true;
             if(count==0){Label(content,"준비 중",.5f,.35f,.85f,.6f,24);return;}
             bool has=owned(selection);
             if(Tab==0)
@@ -164,8 +164,8 @@ namespace Vampire
             }
             else if(Tab==2)
             {
-                var r=relics[selection];detail=RelicDescription(r);need=$"{r.price} 실버로 해금";action=has?"유물 장착":$"해금 · {r.price}";can=has||SilverWallet.CanSpend(r.price);
-                accept=()=>{if(!has&&SilverWallet.TrySpend(r.price))RelicSaveData.Unlock(r.relicId);if(RelicSaveData.IsUnlocked(r.relicId))RelicSaveData.Equip(r.relicId);Render();};
+                var r=relics[selection];detail=RelicDescription(r);relicReason=r.selectionReason;need=$"{r.price} 실버로 해금";action=has?"유물 장착":$"해금 · {r.price}";can=has||(RelicSelectionPolicy.IsNewOffer(r)&&SilverWallet.CanSpend(r.price));
+                accept=()=>{if(!has&&RelicSelectionPolicy.IsNewOffer(r)&&SilverWallet.TrySpend(r.price))RelicSaveData.Unlock(r.relicId);if(RelicSaveData.IsUnlocked(r.relicId))RelicSaveData.Equip(r.relicId);Render();};
             }
             else
             {
@@ -181,7 +181,7 @@ namespace Vampire
             // Keep the main-menu button's 3.49:1 footprint at the smaller size.
             var choose=ActionButton(content,action,.718f,.248f,.865f,.323f,()=>accept?.Invoke(),true,can);
             choose.name="Selection action";
-            Label(content,!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"체크한 침만 전투 중 등장":Tab==3?"최대 2개 · 출전 시 소모":"선택한 유물로 출전",.718f,.178f,.865f,.239f,13);
+            Label(content,Tab==2?relicReason:!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"체크한 침만 전투 중 등장":Tab==3?"최대 2개 · 출전 시 소모":relicReason,.718f,.178f,.865f,.239f,13);
 
         }
         void OctoberDetails(string title,string description)

@@ -19,3 +19,4 @@ MonoBehaviour:
   effectType: 2
   effectValue: 0.05
   effectDescription: "\uCE58\uBA85\uD0C0 \uD655\uB960 +5%p. \uCD5C\uB300 100%."
+  selectionReason: "치명타에 반응하는 공격 효과를 더 자주 활용합니다."

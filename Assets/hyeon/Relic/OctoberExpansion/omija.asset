@@ -19,3 +19,4 @@ MonoBehaviour:
   effectType: 2
   effectValue: 0.04
   effectDescription: "\uCE58\uBA85\uD0C0 \uD655\uB960 +4%p. \uCD5C\uB300 100%."
+  selectionReason: "치명타를 늘리지만 반짝 급소보다 독자적인 이점이 없습니다."

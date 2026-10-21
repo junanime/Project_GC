@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.25
   effectDescription: "\uCE90\uB9AD\uD130 \uAE30\uBCF8 \uCD5C\uB300 \uCCB4\uB825 +25%.
     \uCD9C\uC804 \uC2DC \uC99D\uAC00\uBD84\uB3C4 \uCC44\uC6CC\uC9D1\uB2C8\uB2E4."
+  selectionReason: "기본 체력이 높은 캐릭터의 체력 이점을 키웁니다."

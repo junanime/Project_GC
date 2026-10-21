@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.15
   effectDescription: "\uCE68 \uC801\uC911 \uC2DC \uB454\uD654 \uD655\uB960 +15%p.
     3\uCD08 \uB3D9\uC548 40% \uAC10\uC18D. \uBE59\uACB0\uACFC \uBCC4\uB3C4."
+  selectionReason: "침으로 적을 느리게 만들어 거리를 유지합니다."
