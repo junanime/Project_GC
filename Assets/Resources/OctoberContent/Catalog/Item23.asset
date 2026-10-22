@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 23
   itemRarity: 1
   itemTag: 0
-  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC \uBC18\uBC18 \uD655\uB960\uB85C
-    \uD53C\uD574 140% \uB610\uB294 80%."
+  description: "기본 침 적중 시 반반 확률로 피해 140% 또는 80%."
   itemIcon: {fileID: 6522337379088767396, guid: 1a6770304a56e984889bc08210f39179, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

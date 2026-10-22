@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 20
   effectDescription: "\uCD5C\uB300 \uCCB4\uB825 +20. \uCD9C\uC804 \uC2DC \uC99D\uAC00\uBD84\uB3C4
     \uCC44\uC6CC\uC9D1\uB2C8\uB2E4."
+  selectionReason: "체력을 늘리지만 현재 캐릭터에서는 홍삼젤리보다 이점이 없습니다."

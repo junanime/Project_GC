@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 24
   itemRarity: 2
   itemTag: 4
-  description: "4\uCD08 \uC548\uC5D0 \uC5F0\uC18D \uCC98\uCE58\uD560 \uB54C\uB9C8\uB2E4
-    \uCE68 \uD53C\uD574 +3%, \uCD5C\uB300 +30%."
+  description: "4초 안에 연속 처치할 때마다 침 피해 +3%, 최대 +30%."
   itemIcon: {fileID: -7206847302200730143, guid: 50e7a5c8a246a0f4c8227422ac8acb55, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

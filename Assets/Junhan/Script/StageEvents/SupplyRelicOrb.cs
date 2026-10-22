@@ -9,7 +9,7 @@ namespace Vampire
         public static RelicBlueprint[] Available(Character player)
         {
             var catalog=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
-            return catalog==null||player==null?Array.Empty<RelicBlueprint>():catalog.relics.Where(r=>r!=null&&r.icon!=null&&!player.Relics.Has(r.relicId)).GroupBy(r=>r.relicId).Select(g=>g.First()).ToArray();
+            return catalog==null||player==null?Array.Empty<RelicBlueprint>():catalog.relics.Where(r=>RelicSelectionPolicy.IsNewOffer(r)&&r.icon!=null&&!player.Relics.Owned.Any(owned=>RelicSelectionPolicy.SameChoice(owned.relicId,r.relicId))).GroupBy(r=>r.relicId).Select(g=>g.First()).ToArray();
         }
         public static RelicBlueprint[] Roll(Character player)
         {

@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.2
   effectDescription: "\uD53C\uACA9 \uD6C4 \uBB34\uC801 +0.2\uCD08. \uAE30\uBCF8 0.5\uCD08\uC5D0\uC11C
     0.7\uCD08\uB85C \uC99D\uAC00."
+  selectionReason: "한 번 맞은 뒤 연속으로 피해받는 상황을 줄입니다."

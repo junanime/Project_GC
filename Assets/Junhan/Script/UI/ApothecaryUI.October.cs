@@ -82,21 +82,33 @@ namespace Vampire
             if(icon==null)Label(frame.transform,"+",.1f,.1f,.9f,.9f,28).color=new Color(.72f,.51f,.46f);
             var label=Label(v,caption,.04f,.015f,.96f,.205f,12);label.fontStyle=TMPro.FontStyles.Bold;
         }
+        ItemOfferPolicy.Role itemRole;
         void OctoberSelection()
         {
-            var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
+            var relics=RelicSelectionPolicy.ForLobby(Config.relics);
+            var items=ItemOfferPolicy.Filter(ItemOfferPolicy.ForLobby(Config.items),itemRole);
+            if(Tab==3)
+            {
+                for(int k=0;k<5;k++)
+                {
+                    var role=(ItemOfferPolicy.Role)k;float left=.478f+k*.081f;
+                    ActionButton(content,ItemOfferPolicy.RoleName(role),left,.716f,left+.076f,.755f,
+                        ()=>{itemRole=role;selection=0;pageIndex=0;Render();},false,true,itemRole==role);
+                }
+            }
             var weapons=(Config.weapons??Array.Empty<SyringeSpecialAugmentAbility>()).OrderBy(w=>StartingNeedleSelection.Owned(w)?0:1).ThenBy(w=>(int)w.Type).ToArray();
-            int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?Config.relics.Length:items.Length;
+            int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?relics.Length:items.Length;
             selection=Mathf.Clamp(selection,0,Mathf.Max(0,count-1));
             int pages=Mathf.Max(1,Mathf.CeilToInt(count/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
-            Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(Config.relics[i].relicId):true;
-            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?Config.relics[i].icon:items[i].itemIcon;
-            Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?Config.relics[i].relicName:items[i].itemName;
+            Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(relics[i].relicId):true;
+            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?relics[i].icon:items[i].itemIcon;
+            Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?relics[i].relicName:items[i].itemName;
             for(int j=0;j<6;j++)
             {
                 int index=pageIndex*6+j;if(index>=count)break;
-                float x=.478f+(j%3)*.135f,y=.752f-(j/3+1)*.174f;
-                var b=ActionButton(content,"",x,y,x+.126f,y+.162f,()=>{selection=index;if(Tab==0&&index<Config.characters.Length&&Owned(Config.characters[index])){characterIndex=index;character=Config.characters[index];}Render();},false,true,selection==index);SlotArt(b);b.name="Choice "+Tab+" "+index;
+                float slotHeight=Tab==3?.144f:.162f;
+                float x=.478f+(j%3)*.135f,y=(Tab==3?.706f:.752f)-(j/3+1)*(Tab==3?.151f:.174f);
+                var b=ActionButton(content,"",x,y,x+.126f,y+slotHeight,()=>{selection=index;if(Tab==0&&index<Config.characters.Length&&Owned(Config.characters[index])){characterIndex=index;character=Config.characters[index];}Render();},false,true,selection==index);SlotArt(b);b.name="Choice "+Tab+" "+index;
                 var v=b.transform.Find("Visual");var a=ImageAt(v,icon(index),.16f,.21f,.84f,.94f);
                 bool unlocked=owned(index);if(!unlocked){a.color=new Color(0,0,0,.65f);DrawLock(v,.38f,.35f,.62f,.65f);}
                 Label(v,unlocked?name(index):"잠김",.03f,.01f,.97f,.22f,15);
@@ -127,7 +139,7 @@ namespace Vampire
                 Label(content,$"{pageIndex+1} / {pages}",.545f,.36f,.806f,.398f,14);
                 ActionButton(content,"›",.828f,.36f,.874f,.398f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
             }
-            string detail="",action="선택",title=count>0?name(selection):"",need="";Action accept=null;bool can=true;
+            string detail="",action="선택",title=count>0?name(selection):"",need="",relicReason="";Action accept=null;bool can=true;
             if(count==0){Label(content,"준비 중",.5f,.35f,.85f,.6f,24);return;}
             bool has=owned(selection);
             if(Tab==0)
@@ -152,8 +164,8 @@ namespace Vampire
             }
             else if(Tab==2)
             {
-                var r=Config.relics[selection];detail=RelicDescription(r);need=$"{r.price} 실버로 해금";action=has?"유물 장착":$"해금 · {r.price}";can=has||SilverWallet.CanSpend(r.price);
-                accept=()=>{if(!has&&SilverWallet.TrySpend(r.price))RelicSaveData.Unlock(r.relicId);if(RelicSaveData.IsUnlocked(r.relicId))RelicSaveData.Equip(r.relicId);Render();};
+                var r=relics[selection];detail=RelicDescription(r);relicReason=r.selectionReason;need=$"{r.price} 실버로 해금";action=has?"유물 장착":$"해금 · {r.price}";can=has||(RelicSelectionPolicy.IsNewOffer(r)&&SilverWallet.CanSpend(r.price));
+                accept=()=>{if(!has&&RelicSelectionPolicy.IsNewOffer(r)&&SilverWallet.TrySpend(r.price))RelicSaveData.Unlock(r.relicId);if(RelicSaveData.IsUnlocked(r.relicId))RelicSaveData.Equip(r.relicId);Render();};
             }
             else
             {
@@ -169,7 +181,7 @@ namespace Vampire
             // Keep the main-menu button's 3.49:1 footprint at the smaller size.
             var choose=ActionButton(content,action,.718f,.248f,.865f,.323f,()=>accept?.Invoke(),true,can);
             choose.name="Selection action";
-            Label(content,!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"체크한 침만 전투 중 등장":Tab==3?"아이템은 최대 2개":"선택한 유물로 출전",.718f,.178f,.865f,.239f,13);
+            Label(content,Tab==2?relicReason:!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"체크한 침만 전투 중 등장":Tab==3?"최대 2개 · 출전 시 소모":relicReason,.718f,.178f,.865f,.239f,13);
 
         }
         void OctoberDetails(string title,string description)

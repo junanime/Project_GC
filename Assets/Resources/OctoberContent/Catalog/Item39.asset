@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 39
   itemRarity: 0
   itemTag: 4
-  description: "\uACBD\uD5D8\uCE58 \uD68D\uB4DD \uC2DC 8% \uD655\uB960\uB85C \uD574\uB2F9
-    \uD68D\uB4DD\uB7C9 2\uBC30."
+  description: "경험치 획득 시 8% 확률로 해당 획득량 2배."
   itemIcon: {fileID: 1791900750106319920, guid: d29954308545bb14f8ef1aaecc59db77, type: 3}
   cost: 25
   canBuyInLobby: 1

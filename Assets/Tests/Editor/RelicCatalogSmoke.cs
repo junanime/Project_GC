@@ -21,7 +21,10 @@ namespace Vampire.Tests.Editor
         static RelicCatalogSmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
         public static void Run()
         {
-            RelicCatalogInstaller.Install();
+            RelicCatalogInstaller.Install();RunExisting();
+        }
+        public static void RunExisting()
+        {
             SessionState.SetBool(Key, true);
             EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             var type=typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView");
@@ -92,8 +95,12 @@ namespace Vampire.Tests.Editor
                     Check(description==null||!description.isTextOverflowing,"page "+page+" description fits");
                     Canvas.ForceUpdateCanvases();
                     var capture=ScreenCapture.CaptureScreenshotAsTexture();
-                    File.WriteAllBytes("Library/RelicQA/catalog-"+page+".png",capture.EncodeToPNG());
-                    Destroy(capture);
+                    // Batch-mode GameView may not have a rendered frame yet.
+                    if(capture!=null)
+                    {
+                        File.WriteAllBytes("Library/RelicQA/catalog-"+page+".png",capture.EncodeToPNG());
+                        Destroy(capture);
+                    }
                 }
                 RelicSaveData.Equip("relic_01");
                 for(int index=0;index<config.relics.Length;index++)
@@ -132,19 +139,19 @@ namespace Vampire.Tests.Editor
                         case E.Damage:Near(p.DamageMultiplier,atk+relic.effectValue,"damage");break;
                         case E.Area:Near(p.ProjectileSizeMultiplier,area*(1+relic.effectValue),"area");break;
                         case E.Experience:Near(p.ExperienceMultiplier,xp+relic.effectValue,"XP");break;
-                        case E.HealingPickup:Near(rtime.PickupHealing(30),37.5f,"pickup heal only");break;
+                        case E.HealingPickup:Near(rtime.PickupHealing(30),30*(1+relic.effectValue),"pickup heal only");break;
                         case E.DebuffResistance:Near(p.DebuffDuration(4),4*(1-relic.effectValue),"status resistance");break;
-                        case E.ProjectileCount:Check(p.AdditionalProjectiles>=1,"projectile count");break;
+                        case E.ProjectileCount:for(int shot=1;shot<=5;shot++)Check(rtime.NextNeedleVolleyBonus()==(shot==5?1:0),"periodic projectile count");break;
                         case E.Pierce:
                             var weapon=FindObjectOfType<SyringeDartAbility>();
                             var runtime=(SyringeSpecialRuntime)typeof(SyringeDartAbility).GetMethod("BuildSpecialRuntime",Hidden).Invoke(weapon,null);
                             Check(runtime.pierceEnabled&&runtime.pierceCount>=relic.effectValue,"pierce without augment");break;
                         case E.Bounce:Check(p.MouthwashCount>=1,"bounce count");break;
                         case E.Gold:Near(general.GoldGainMultiplier,1.15f,"gold");break;
-                        case E.Knockback:Near(general.KnockbackMultiplier,1.25f,"knockback");break;
+                        case E.Knockback:Near(general.KnockbackMultiplier,1+relic.effectValue,"knockback");break;
                         case E.Duration:Near(general.StatusDurationMultiplier,1.2f,"duration");break;
-                        case E.PickupRange:Near(general.PickupRangeMultiplier,1.3f,"pickup");break;
-                        case E.Evasion:Near(general.EvasionBonus,.06f,"evasion");break;
+                        case E.PickupRange:Near(general.PickupRangeMultiplier,1+relic.effectValue,"pickup");break;
+                        case E.Evasion:Near(general.EvasionBonus,relic.effectValue,"evasion");break;
                         case E.DamageReduction:Near(general.DamageReductionBonus,relic.effectValue,"reduction");break;
                         case E.HitInvincibility:Near(p.InvincibilityTimeBonus,.2f,"invincibility");break;
                         case E.ShopDiscount:Check(rtime.ShopPrice(25)==22&&rtime.ShopPrice(130)==111,"discount rounded up");break;
@@ -158,17 +165,19 @@ namespace Vampire.Tests.Editor
                             Check(rtime.Revives==0,"revive stays consumed after transfer");break;
                         case E.SlowChance:Near(p.SlowChance,.15f,"slow chance");break;
                     }
+                    if(relic.effectType==E.ProjectileCount)for(int volley=0;volley<4;volley++)rtime.NextNeedleVolleyBonus();
                     var snapshot=p.CaptureRunSceneState();
                     p.RestoreRunSceneState(snapshot);
                     Check(p.Relics.Equipped.relicId==relic.relicId,"scene snapshot "+relic.relicName);
+                    if(relic.effectType==E.ProjectileCount)Check(rtime.NextNeedleVolleyBonus()==1,"fifth volley preserved across scene snapshot");
                 }
                 rtime.Equip(config.relics.First(r=>r.relicId=="bandage"));
-                p.TakeDamage(25); Near(p.CurrentHealth,baseHp-5,"real incoming damage consumes barrier before HP");
+                p.TakeDamage(25); Near(p.CurrentHealth,baseHp-10,"real incoming damage consumes barrier before HP");
                 rtime.Equip(config.relics.First(r=>r.relicId=="life_sprout"));
-                float hp=p.CurrentHealth;rtime.Tick(1);Near(p.CurrentHealth,hp+.3f,"regen tick");rtime.Tick(0);Near(p.CurrentHealth,hp+.3f,"paused regen");
+                float hp=p.CurrentHealth;rtime.Tick(1);Near(p.CurrentHealth,hp+.4f,"regen tick");rtime.Tick(0);Near(p.CurrentHealth,hp+.4f,"paused regen");
                 rtime.Equip(config.relics.First(r=>r.relicId=="bandage"));
-                rtime.Absorb(20);rtime.Tick(7);Near(rtime.State.barrier,0,"shield recharge delay");
-                rtime.Tick(1);rtime.Tick(1);Near(rtime.State.barrier,5,"shield recharge rate");
+                rtime.Absorb(15);rtime.Tick(9);Near(rtime.State.barrier,0,"shield recharge delay");
+                rtime.Tick(1);rtime.Tick(1);Near(rtime.State.barrier,3,"shield recharge rate");
                 rtime.Equip(config.relics.First(r=>r.relicId=="pillow"));
                 hp=p.CurrentHealth;rtime.Tick(1);Near(p.CurrentHealth,hp,"idle recovery delay");
                 rtime.Tick(1);Near(p.CurrentHealth,hp+.5f,"idle recovery after delay only");
@@ -181,13 +190,13 @@ namespace Vampire.Tests.Editor
                 var monster=dummy.AddComponent<Monster>();monster.enabled=false;
                 typeof(Monster).GetField("currentHealth",Hidden).SetValue(monster,200f);
                 Physics2D.SyncTransforms();
-                rtime.Hurt(10);Near(monster.HP,195,"reflection hits multiple colliders once");
-                rtime.Hurt(10);Near(monster.HP,195,"reflection cooldown");
-                rtime.Tick(.5f);rtime.Hurt(200);Near(monster.HP,145,"reflection capped at fifty");
+                rtime.Hurt(10);Near(monster.HP,190,"reflection hits multiple colliders once");
+                rtime.Hurt(10);Near(monster.HP,190,"reflection cooldown");
+                rtime.Tick(.5f);rtime.Hurt(200);Near(monster.HP,140,"reflection capped at fifty");
                 Destroy(dummy);
                 rtime.Equip(config.relics.First(r=>r.relicId=="revival_bud"));
                 typeof(Character).GetField("isInvincible",Hidden).SetValue(p,false);
-                p.TakeDamage(1000);Near(p.CurrentHealth,baseHp*.5f,"fatal hit revives at half HP");
+                p.TakeDamage(1000);Near(p.CurrentHealth,baseHp*.3f,"fatal hit revives at thirty percent HP");
                 Check(p.IsAlive&&rtime.Revives==0,"fatal hit consumes relic revive");
                 var finalSnapshot=p.CaptureRunSceneState();p.RestoreRunSceneState(finalSnapshot);
                 Check(rtime.Revives==0,"real consumed revive persists across snapshot");

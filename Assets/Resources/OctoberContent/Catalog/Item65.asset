@@ -16,14 +16,11 @@ MonoBehaviour:
   octoberId: 65
   itemRarity: 3
   itemTag: 4
-  description: "\uD654\uC0C1\uACFC \uAC10\uC18D\uC774 \uD568\uAED8 \uAC78\uB9B0 \uC801\uC5D0
-    \uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC \uB450 \uC0C1\uD0DC\uB97C \uC18C\uBAA8\uD558\uC5EC
-    \uBC18\uACBD 2\uC5D0 \uCE68 \uD53C\uD574 160% \uC99D\uAE30 \uD3ED\uBC1C. \uC7AC\uC0AC\uC6A9
-    3\uCD08."
+  description: "화상과 감속이 함께 걸린 적에 기본 침 적중 시 두 상태를 소모하여 반경 2에 침 피해 160% 증기 폭발. 재사용 대기 3초."
   itemIcon: {fileID: 1580815087490492262, guid: 362d0e02d1edbd14eb8f87221036611f, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

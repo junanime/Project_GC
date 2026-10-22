@@ -32,7 +32,7 @@ namespace Vampire
                 var grade=item.itemRarity==MerchantItemBlueprint.Rarity.Uncommon?AugmentUpgradeGrade.Rare:item.itemRarity==MerchantItemBlueprint.Rarity.Rare?AugmentUpgradeGrade.Epic:item.itemRarity==MerchantItemBlueprint.Rarity.Legendary?AugmentUpgradeGrade.Legendary:AugmentUpgradeGrade.Common;
                 ImageAt(card,AugmentPanelTheme.Frame(grade),0,0,1,1,false);
                 ImageAt(card,item.itemIcon,.16f,.58f,.84f,.91f);
-                Label(card,AugmentUpgradeOdds.DisplayName(grade),.25f,.50f,.75f,.565f,16).color=AugmentPanelTheme.Accent(grade)*.7f;
+                Label(card,AugmentUpgradeOdds.DisplayName(grade)+" · "+ItemOfferPolicy.RoleName(ItemOfferPolicy.RoleOf(item.octoberId)),.10f,.50f,.90f,.565f,16).color=AugmentPanelTheme.Accent(grade)*.7f;
                 Label(card,item.itemName,.08f,.405f,.92f,.50f,23).fontStyle=TMPro.FontStyles.Bold;
                 Label(card,item.description,.11f,.155f,.89f,.401f,18);
                 var runtime=level?.PlayerCharacter?.GetComponent<OctoberItemRuntime>();

@@ -27,6 +27,7 @@ namespace Vampire
         public RelicEffectType effectType;
         public float effectValue;
         [TextArea(2, 5)] public string effectDescription;
+        [TextArea(1, 3)] public string selectionReason;
 
 
         // =========================================================

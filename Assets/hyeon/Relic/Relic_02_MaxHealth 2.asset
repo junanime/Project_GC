@@ -17,5 +17,6 @@ MonoBehaviour:
   price: 160
   icon: {fileID: 5001564561308697692, guid: c1f583186f4c58c42b3f1d4cf31bd78e, type: 3}
   effectType: 1
-  effectValue: 0.2
-  effectDescription: "\uC774\uB3D9 \uC18D\uB3C4 \uAE30\uBCF8 \uC218\uCE58 +0.2."
+  effectValue: 0.16
+  effectDescription: "이동 속도 기본 수치 +0.16."
+  selectionReason: "느린 캐릭터로도 이동하며 공격을 피하기 위해 고릅니다."

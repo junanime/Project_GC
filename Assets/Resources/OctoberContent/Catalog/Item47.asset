@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 47
   itemRarity: 1
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68\uC73C\uB85C \uBD80\uC5EC\uD558\uB294 \uAC10\uC18D
-    \uAC15\uB3C4 +15%p, \uCD5C\uB300 70%."
+  description: "기본 침으로 부여하는 감속 강도 +15%p, 최대 70%."
   itemIcon: {fileID: -1817231740822062007, guid: c9e768a05bed1f8409c390c17d32f912, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

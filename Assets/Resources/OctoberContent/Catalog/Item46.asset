@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 46
   itemRarity: 1
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC 20% \uD655\uB960\uB85C 3\uCD08
-    \uC911\uB3C5. \uCD08\uB2F9 \uCE68 \uD53C\uD574 20%."
+  description: "기본 침 적중 시 20% 확률로 3초 중독. 초당 침 피해 20%."
   itemIcon: {fileID: 2777818942022360285, guid: dfcc028011475c94587bcb91c6a00d87, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

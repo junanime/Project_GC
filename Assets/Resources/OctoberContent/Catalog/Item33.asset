@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 33
   itemRarity: 3
   itemTag: 0
-  description: "12 \uAC70\uB9AC \uC774\uB3D9\uD558\uBA74 \uCDA9\uC804. \uBA48\uCD94\uBA74
-    \uC804\uBC29\uC5D0 3\uCD08 \uC704\uC0B0 \uC9C0\uB300 \uC0DD\uC131, \uCD08\uB2F9
-    \uCE68 \uD53C\uD574 60%."
+  description: "12 거리 이동하면 충전. 멈추면 전방에 3초 위산 지대 생성, 초당 침 피해 60%."
   itemIcon: {fileID: -4987017225364230237, guid: ee79e4706dfefa949b8ca36c8a6623db, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

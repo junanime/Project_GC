@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 50
   itemRarity: 2
   itemTag: 4
-  description: "\uAC10\uC18D \uC911\uC778 \uC801\uC5D0\uAC8C \uCE58\uBA85\uD0C0 \uC801\uC911
-    \uC2DC \uAC10\uC18D\uC744 \uC18C\uBAA8\uD574 \uCE68 \uD53C\uD574 100% \uCD94\uAC00.
-    \uC7AC\uC0AC\uC6A9 1\uCD08."
+  description: "감속 중인 적에게 치명타 적중 시 감속을 소모해 침 피해 100% 추가. 재사용 대기 1초."
   itemIcon: {fileID: 8920094019175826710, guid: e3391b4456488694b859ff54fa3cf234, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

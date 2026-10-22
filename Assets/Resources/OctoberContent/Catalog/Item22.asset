@@ -16,11 +16,11 @@ MonoBehaviour:
   octoberId: 22
   itemRarity: 2
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uB109\uBC31 +30%."
+  description: "기본 침 넉백 +30%. 적중 시 주위 1.5 거리에 침 피해 40%의 밀쳐내는 반향. 재사용 대기 3초."
   itemIcon: {fileID: 5851777511138360916, guid: 512758512b839db4eb30d6473aa845b8, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 55
   itemRarity: 2
   itemTag: 2
-  description: "\uAE30\uBCF8 \uCE68 \uD53C\uD574\uC758 20%\uB97C \uBC29\uC5B4 \uBCF4\uC815\uC758
-    \uC601\uD5A5\uC744 \uBC1B\uC9C0 \uC54A\uB294 \uC0AC\uD608 \uD53C\uD574\uB85C
-    \uCD94\uAC00. \uBCF4\uC2A4 \uBB34\uC801\uC740 \uC720\uC9C0."
+  description: "기본 침 피해의 20%를 방어 보정의 영향을 받지 않는 사혈 피해로 추가. 보스 무적은 유지."
   itemIcon: {fileID: 4471318942540301848, guid: 2b640d9cf2e66644199352baa2524496, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

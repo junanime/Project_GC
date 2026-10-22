@@ -6,7 +6,7 @@ namespace Vampire
     public class RelicShopManager : MonoBehaviour
     {
         // ========================================
-        // À¯¹° ¹öÆ°
+        // ìœ ë¬¼ ë²„íŠ¼
         // ========================================
 
         [Header("Relic Buttons")]
@@ -14,7 +14,7 @@ namespace Vampire
 
 
         // ========================================
-        // ÆäÀÌÁö
+        // í˜ì´ì§€
         // ========================================
 
         [Header("Pages")]
@@ -50,7 +50,7 @@ namespace Vampire
 
         private void OnEnable()
         {
-            // »óÁ¡À» ¿­¸é Ç×»ó 1ÆäÀÌÁö
+            // ìƒì ì„ ì—´ë©´ í•­ìƒ 1í˜ì´ì§€
             currentPage = 0;
 
             RefreshAll();
@@ -59,7 +59,7 @@ namespace Vampire
 
 
         // ========================================
-        // À¯¹° ÃÊ±âÈ­
+        // ìœ ë¬¼ ì´ˆê¸°í™”
         // ========================================
 
         private void InitButtons()
@@ -80,7 +80,7 @@ namespace Vampire
 
 
         // ========================================
-        // À¯¹° ¼±ÅÃ / ±¸¸Å / ÀåÂø
+        // ìœ ë¬¼ ì„ íƒ / êµ¬ë§¤ / ì¥ì°©
         // ========================================
 
         public void SelectRelic(RelicSlotButton relicButton)
@@ -106,14 +106,14 @@ namespace Vampire
                 if (!success)
                 {
                     Debug.Log(
-                        "[RelicShop] ½Ç¹ö°¡ ºÎÁ·ÇØ¼­ À¯¹°À» ±¸¸ÅÇÒ ¼ö ¾ø½À´Ï´Ù."
+                        "[RelicShop] ì‹¤ë²„ê°€ ë¶€ì¡±í•´ì„œ ìœ ë¬¼ì„ êµ¬ë§¤í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤."
                     );
 
                     return;
                 }
             }
 
-            // ÇÑ °³¸¸ ÀåÂø
+            // í•œ ê°œë§Œ ì¥ì°©
             RelicSaveData.Equip(relicId);
 
             RefreshAll();
@@ -122,6 +122,7 @@ namespace Vampire
 
         private bool TryBuyRelic(RelicSlotButton relicButton)
         {
+            if (RelicSelectionPolicy.Replacement(relicButton.RelicId)!=null) return false;
             int price = relicButton.Price;
 
             bool paid = SilverWallet.TrySpend(price);
@@ -134,7 +135,7 @@ namespace Vampire
             RelicSaveData.Unlock(relicButton.RelicId);
 
             Debug.Log(
-                $"[RelicShop] À¯¹° ±¸¸Å ¿Ï·á: {relicButton.RelicId}"
+                $"[RelicShop] ìœ ë¬¼ êµ¬ë§¤ ì™„ë£Œ: {relicButton.RelicId}"
             );
 
             return true;
@@ -159,7 +160,7 @@ namespace Vampire
 
 
         // ========================================
-        // ´ÙÀ½ ÆäÀÌÁö
+        // ë‹¤ìŒ í˜ì´ì§€
         // ========================================
 
         private void NextPage()
@@ -169,7 +170,7 @@ namespace Vampire
                 return;
             }
 
-            // ¸¶Áö¸· ÆäÀÌÁö¿¡¼­´Â ¸ØÃã
+            // ë§ˆì§€ë§‰ í˜ì´ì§€ì—ì„œëŠ” ë©ˆì¶¤
             if (currentPage < pages.Length - 1)
             {
                 currentPage++;
@@ -180,7 +181,7 @@ namespace Vampire
 
 
         // ========================================
-        // ÀÌÀü ÆäÀÌÁö
+        // ì´ì „ í˜ì´ì§€
         // ========================================
 
         private void PrevPage()
@@ -190,7 +191,7 @@ namespace Vampire
                 return;
             }
 
-            // Ã¹ ÆäÀÌÁö¿¡¼­´Â ¸ØÃã
+            // ì²« í˜ì´ì§€ì—ì„œëŠ” ë©ˆì¶¤
             if (currentPage > 0)
             {
                 currentPage--;
@@ -201,7 +202,7 @@ namespace Vampire
 
 
         // ========================================
-        // ÆäÀÌÁö Ç¥½Ã
+        // í˜ì´ì§€ í‘œì‹œ
         // ========================================
 
         private void RefreshPage()
@@ -224,11 +225,11 @@ namespace Vampire
                     continue;
                 }
 
-                // ÇöÀç ÆäÀÌÁö¸¸ È°¼ºÈ­
+                // í˜„ì¬ í˜ì´ì§€ë§Œ í™œì„±í™”
                 pages[i].SetActive(i == currentPage);
             }
 
-            // ¹öÆ°Àº Ç×»ó È°¼ºÈ­ »óÅÂ
+            // ë²„íŠ¼ì€ í•­ìƒ í™œì„±í™” ìƒíƒœ
             if (prevButton != null)
             {
                 prevButton.interactable = true;
@@ -240,7 +241,7 @@ namespace Vampire
             }
 
             Debug.Log(
-                $"[RelicShop] ÇöÀç ÆäÀÌÁö: {currentPage + 1} / {pages.Length}"
+                $"[RelicShop] í˜„ì¬ í˜ì´ì§€: {currentPage + 1} / {pages.Length}"
             );
         }
     }

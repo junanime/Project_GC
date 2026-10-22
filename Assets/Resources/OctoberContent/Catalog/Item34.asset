@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 34
   itemRarity: 0
   itemTag: 4
-  description: "\uCCB4\uB825\uC774 \uAC00\uB4DD \uCC2C \uC801\uC5D0\uAC8C \uCCAB
-    \uAE30\uBCF8 \uCE68 \uD53C\uD574 +25%."
+  description: "체력이 가득 찬 적에게 첫 기본 침 피해 +25%."
   itemIcon: {fileID: -8747821395013776510, guid: 9c08e6310c01b094182d1428c48e5014, type: 3}
   cost: 25
   canBuyInLobby: 1

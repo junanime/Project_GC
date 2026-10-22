@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relicId: beads
   relicName: "\uD321\uD321 \uAD6C\uC2AC"
-  price: 450
+  price: 240
   icon: {fileID: 3921140195002210693, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
   effectType: 9
   effectValue: 1
-  effectDescription: "\uBC1C\uC0AC\uCCB4 \uC218 +1. \uBC1C\uC0AC\uCCB4 \uC218\uB97C
-    \uC9C0\uC6D0\uD558\uB294 \uACF5\uACA9\uC5D0 \uC801\uC6A9."
+  effectDescription: "기본 침·침샷건을 합쳐 5회 발사할 때마다 추가 1발. 메아리·분신·대물침·이기어침은 제외."
+  selectionReason: "소수의 기본 침을 주기적으로 한 발 더 쏘려고 고릅니다."

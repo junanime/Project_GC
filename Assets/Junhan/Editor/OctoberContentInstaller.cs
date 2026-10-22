@@ -95,7 +95,7 @@ namespace Vampire.EditorTools
                 item.itemRarity=entry.rarity=="전설"?MerchantItemBlueprint.Rarity.Legendary:entry.rarity=="영웅"?MerchantItemBlueprint.Rarity.Rare:entry.rarity=="희귀"?MerchantItemBlueprint.Rarity.Uncommon:MerchantItemBlueprint.Rarity.Common;
                 item.description=OctoberItemBalance.Description[i+1];item.itemIcon=OctoberArt.Get("OctoberContent/Items/"+entry.id);
                 item.canBuyInLobby=true;int grade=(int)item.itemRarity;
-                item.cost=new[]{25,45,80,130}[grade];item.silverCost=new[]{80,150,320,650}[grade];
+                item.cost=ItemOfferPolicy.Gold(item.itemRarity);item.silverCost=ItemOfferPolicy.Silver(item.itemRarity);
                 item.itemTag=(ItemTag)(entry.role.Contains("회복")?1:entry.role.Contains("생존")||entry.role.Contains("방어")?2:entry.role.Contains("공격")?0:4);
                 EditorUtility.SetDirty(item);result[i]=item;
             }

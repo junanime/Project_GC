@@ -17,6 +17,6 @@ MonoBehaviour:
   price: 180
   icon: {fileID: 4599069208132629443, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
   effectType: 7
-  effectValue: 0.08
-  effectDescription: "\uBC1B\uB294 \uD53C\uD574 -8%p. \uB2E4\uB978 \uD53C\uD574 \uAC10\uC18C\uC640
-    \uD569\uC0B0\uD558\uBA70 \uCD5C\uB300 80%."
+  effectValue: 0.1
+  effectDescription: "받는 피해 -10%p. 다른 피해 감소와 합산하며 최대 80%."
+  selectionReason: "피격할 때마다 받는 피해를 안정적으로 줄입니다."

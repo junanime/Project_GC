@@ -17,6 +17,6 @@ MonoBehaviour:
   price: 220
   icon: {fileID: 7822076681434219409, guid: c1f583186f4c58c42b3f1d4cf31bd78e, type: 3}
   effectType: 5
-  effectValue: 0.3
-  effectDescription: "\uCD08\uB2F9 \uCCB4\uB825 0.3 \uD68C\uBCF5. \uC77C\uC2DC\uC815\uC9C0\xB7\uC0AC\uB9DD
-    \uC911\uC5D0\uB294 \uD68C\uBCF5\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  effectValue: 0.4
+  effectDescription: "초당 체력 0.4 회복. 일시정지·사망 중에는 회복하지 않습니다."
+  selectionReason: "멈추지 않고 싸우면서 잃은 체력을 꾸준히 회복합니다."

@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 56
   itemRarity: 2
   itemTag: 4
-  description: "2 \uAC70\uB9AC \uC548\uC758 \uC801\uC5D0\uAC8C \uAE30\uBCF8 \uCE68
-    \uD53C\uD574 +25%."
+  description: "2 거리 안의 적에게 기본 침 피해 +35%."
   itemIcon: {fileID: -1916837811679277742, guid: 89c5e111e861f7c458a12595aa4b2af9, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

@@ -16,14 +16,11 @@ MonoBehaviour:
   octoberId: 64
   itemRarity: 3
   itemTag: 4
-  description: "15\uCD08\uB9C8\uB2E4 \uCD5C\uADFC \uD589\uB3D9\uC5D0 \uB9DE\uCDB0
-    \uB3D9\uB8CC \uBCC0\uD654: \uD53C\uACA9 \uC6B0\uC138\uBA74 \uD68C\uBCF5, \uACF5\uACA9
-    \uC6B0\uC138\uBA74 \uACF5\uACA9, \uC774\uB3D9 \uC6B0\uC138\uBA74 \uAC10\uC18D
-    \uC9C0\uC6D0."
+  description: "15초마다 최근 행동에 맞춰 동료 변화: 피격 우세면 회복, 공격 우세면 공격, 이동 우세면 감속 지원."
   itemIcon: {fileID: -4947801835594442803, guid: c160663e22bb74143a59933887b5c624, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

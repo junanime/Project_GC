@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 63
   itemRarity: 3
   itemTag: 2
-  description: "\uAC19\uC740 \uC885\uB958\uC758 \uC801\uC5D0\uAC8C \uC2E4\uC81C \uD53C\uACA9
-    \uC2DC \uC800\uD56D +4%, \uCD5C\uB300 20%."
+  description: "같은 종류의 적에게 실제 피격될 때마다 해당 종류 피해 저항 +6%p. 최대 30%."
   itemIcon: {fileID: 5844493480773108482, guid: 16eba85105621a74fbccf5b3e866e7fe, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

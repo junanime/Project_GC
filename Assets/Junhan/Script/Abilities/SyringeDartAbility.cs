@@ -837,10 +837,15 @@ namespace Vampire
             StartCoroutine(LaunchSyringes());
         }
 
+        int ConsumeRelicNeedleVolleyBonus()
+        {
+            int extra=playerCharacter?.Relics?.NextNeedleVolleyBonus()??0;
+            return extra>0?playerCharacter.SkillProjectileCount(extra):0;
+        }
         protected IEnumerator LaunchSyringes()
         {
             int totalProjectileCount =
-                GetEffectiveProjectileCount();
+                GetEffectiveProjectileCount() + ConsumeRelicNeedleVolleyBonus();
 
             Vector2 baseDirection = GetAutomaticNeedleDirection();
 
@@ -1291,7 +1296,7 @@ namespace Vampire
 
             baseDirection.Normalize();
 
-            int totalProjectileCount = GetNeedleShotgunProjectileCount();
+            int totalProjectileCount = GetNeedleShotgunProjectileCount() + ConsumeRelicNeedleVolleyBonus();
             if (entityManager != null && totalProjectileCount > 0)
                 SyringeAugmentVfx.PlayDirected("NeedleShotgun", GetProjectileSpawnPosition(baseDirection), baseDirection, SyringeAugmentVfx.FindTarget(playerCharacter));
 

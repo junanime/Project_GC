@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 13
   itemRarity: 2
   itemTag: 0
-  description: "\uACF5\uC804 \uC57D\uD658\uC774 0.5\uCD08\uB9C8\uB2E4 \uC811\uCD09\uD55C
-    \uC801\uC5D0\uAC8C \uAE30\uBCF8 \uCE68 \uD53C\uD574 35%."
+  description: "공전 약환이 0.5초마다 접촉한 적에게 기본 침 피해 35%."
   itemIcon: {fileID: -1055052180696410224, guid: c22fb24d5c375614dabb173a46ff9cea, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

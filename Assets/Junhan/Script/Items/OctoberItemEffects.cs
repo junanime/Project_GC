@@ -33,11 +33,15 @@ namespace Vampire
         float radius,end,dps,nextTick;
         int item;bool pull,lure;
         SpriteRenderer icon;
+        ItemFeedbackVisual feedback;
+        int feedbackLease;
         public void Configure(OctoberItemRuntime source,Vector2 p,float r,float duration,float damage,int id,bool pulling,bool luring)
         {
             owner=source;transform.position=p;radius=r;end=Time.time+duration;dps=damage;item=id;pull=pulling;lure=luring;
-            icon=source.MakeSprite(id,"지대",lure?.6f:r*.7f);icon.transform.SetParent(transform,true);icon.transform.position=p;icon.color=new Color(1,1,1,.6f);
+            if(id==16){feedback=ItemFeedback.For(source).Show(ItemFeedbackKind.FireZone,p,duration,r,transform);if(feedback!=null)feedbackLease=feedback.Lease;}
+            else {icon=source.MakeSprite(id,"지대",lure?.6f:r*.7f);icon.transform.SetParent(transform,true);icon.transform.position=p;icon.color=new Color(1,1,1,.6f);}
         }
+        void OnDestroy(){if(feedback!=null)feedback.Release(feedbackLease);}
         void Update()
         {
             if(owner==null||!owner.Player.IsAlive||Time.time>=end){Destroy(gameObject);return;}

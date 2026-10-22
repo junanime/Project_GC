@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 52
   itemRarity: 1
   itemTag: 4
-  description: "\uC801 \uD0C4\uD658\uC774 1 \uAC70\uB9AC \uC548\uC744 \uC2A4\uCE60
-    \uB54C \uCDA9\uC804. 5\uD68C \uCDA9\uC804 \uC2DC \uC8FC\uC704 2 \uAC70\uB9AC\uC758
-    \uD0C4\uD658 \uC81C\uAC70. \uC7AC\uC0AC\uC6A9 6\uCD08."
+  description: "적 탄환이 1 거리 안을 스칠 때 충전. 5회 충전 시 주위 2 거리의 탄환 제거. 재사용 대기 6초."
   itemIcon: {fileID: 4313312061411379215, guid: 427e9e4672c21ae418f4a77fb5ca80cc, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

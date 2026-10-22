@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.12
   effectDescription: "\uCE90\uB9AD\uD130 \uAE30\uBCF8 \uC774\uB3D9 \uC18D\uB3C4 \uC218\uCE58
     +12%."
+  selectionReason: "빠르게 이동하지만 현재 캐릭터에서는 산들 날개보다 이점이 없습니다."

@@ -14,10 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relicId: bandage
   relicName: "\uB3C4\uD1B0 \uBD95\uB300"
-  price: 260
+  price: 220
   icon: {fileID: -1053171802134507729, guid: 1fe1810a208b04e48a4a8e906f346b8e, type: 3}
   effectType: 20
-  effectValue: 20
-  effectDescription: "\uD53C\uD574 \uD761\uC218 \uBCF4\uD638\uB9C9 \uCD5C\uB300 +20.
-    \uCD9C\uC804 \uC2DC \uCDA9\uC804. 8\uCD08\uAC04 \uD53C\uACA9\uD558\uC9C0 \uC54A\uC73C\uBA74
-    \uCD08\uB2F9 5 \uC7AC\uCDA9\uC804."
+  effectValue: 15
+  effectDescription: "피해 흡수 보호막 최대 +15. 출전 시 충전. 10초간 피격하지 않으면 초당 3 재충전."
+  selectionReason: "피격 사이에 거리를 벌려 보호막을 재충전합니다."

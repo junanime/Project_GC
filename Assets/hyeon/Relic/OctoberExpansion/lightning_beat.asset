@@ -17,6 +17,6 @@ MonoBehaviour:
   price: 220
   icon: {fileID: -1030320975547205165, guid: c1f583186f4c58c42b3f1d4cf31bd78e, type: 3}
   effectType: 6
-  effectValue: 0.1
-  effectDescription: "\uACF5\uACA9 \uC18D\uB3C4 +10%. \uC561\uD2F0\uBE0C \uC7AC\uC0AC\uC6A9
-    \uC2DC\uAC04\uC740 \uBC14\uB00C\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4."
+  effectValue: 0.12
+  effectDescription: "공격 속도 +12%. 액티브 재사용 시간은 바뀌지 않습니다."
+  selectionReason: "공격 횟수와 적중 기회를 늘리는 빌드에 고릅니다."

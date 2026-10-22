@@ -9,7 +9,7 @@ public static class RelicCatalogInstaller
 {
     [Serializable] public class Catalog { public Entry[] entries; }
     [Serializable] public class Entry
-    { public string id, name, effect, description; public float value; public int price, sheet, cell; }
+    { public string id, name, effect, description, selectionReason; public float value; public int price, sheet, cell; }
     [MenuItem("Tools/24tu/Install reviewed relic catalog")]
     public static void Install()
     {
@@ -44,7 +44,7 @@ public static class RelicCatalogInstaller
             { relic = ScriptableObject.CreateInstance<RelicBlueprint>(); AssetDatabase.CreateAsset(relic, folder + "/" + e.id + ".asset"); }
             relic.relicId = e.id; relic.relicName = e.name; relic.price = e.price;
             relic.effectType = (RelicBlueprint.RelicEffectType)Enum.Parse(typeof(RelicBlueprint.RelicEffectType), e.effect);
-            relic.effectValue = e.value; relic.effectDescription = e.description;
+            relic.effectValue = e.value; relic.effectDescription = e.description; relic.selectionReason = e.selectionReason;
             relic.icon = AssetDatabase.LoadAllAssetsAtPath("Assets/Resources/RelicCatalog/Sheet" + e.sheet + ".png").OfType<Sprite>().Single(s => s.name == e.id);
             EditorUtility.SetDirty(relic); AssetDatabase.SaveAssetIfDirty(relic);
             return relic;

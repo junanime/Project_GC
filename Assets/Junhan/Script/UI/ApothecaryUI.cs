@@ -292,7 +292,7 @@ namespace Vampire
         }
         void ItemSelection()
         {
-            var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
+            var items=ItemOfferPolicy.ForLobby(Config.items);
             if(items.Length==0) { Label(content,"구매 가능한 아이템이 없습니다.",.53f,.4f,.88f,.65f,22);return; }
             selection=Mathf.Clamp(selection,0,items.Length-1);
             Panel(content,.52f,.20f,.88f,.355f);
@@ -314,6 +314,7 @@ namespace Vampire
         }
         void Unlock()
         {
+            var relics=RelicSelectionPolicy.ForLobby(Config.relics);
             string[] tabs={"캐릭터","유물","아이템","증강"};
             for(int i=0;i<4;i++) {int t=i;ActionButton(content,tabs[i],.12f+i*.195f,.745f,.30f+i*.195f,.825f,()=>SwitchTab(t),false,true,Tab==i);}
             string title="",description="",action="해금 완료";Sprite icon=null; Action unlock=null;bool enabled=false;
@@ -326,19 +327,19 @@ namespace Vampire
                 bool owned=Owned(c);action=owned?"선택하고 출전 준비":SilverWallet.CanSpend(c.cost)?$"잠금 해제 · {c.cost} 실버":$"실버 부족 · {c.cost}";enabled=owned||SilverWallet.CanSpend(c.cost);
                 unlock=()=>{if(Owned(c)){character=c;characterIndex=Array.IndexOf(Config.characters,c);CrossSceneData.CharacterBlueprint=c;Show("prepare");return;}if(SilverWallet.TrySpend(c.cost)){LobbyUnlockSave.Unlock("Character",c.name);message="새로운 동료를 해금했습니다.";}Render();};
             }
-            else if(Tab==1 && Config.relics.Length>0)
+            else if(Tab==1 && relics.Length>0)
             {
-                selection=Mathf.Clamp(selection,0,Config.relics.Length-1);
-                Grid(Config.relics.Length,i=>Config.relics[i].icon,i=>Config.relics[i].relicName,.12f,.27f,.56f,.70f);
-                var r=Config.relics[selection];title=r.relicName;description=RelicDescription(r);icon=r.icon;
+                selection=Mathf.Clamp(selection,0,relics.Length-1);
+                Grid(relics.Length,i=>relics[i].icon,i=>relics[i].relicName,.12f,.27f,.56f,.70f);
+                var r=relics[selection];title=r.relicName;description=RelicDescription(r);icon=r.icon;
                 bool owned=RelicSaveData.IsUnlocked(r.relicId);action=owned?"해금 완료":SilverWallet.CanSpend(r.price)?$"잠금 해제 · {r.price} 실버":$"실버 부족 · {r.price}";enabled=!owned&&SilverWallet.CanSpend(r.price);
-                unlock=()=>{if(!RelicSaveData.IsUnlocked(r.relicId)&&SilverWallet.TrySpend(r.price)){RelicSaveData.Unlock(r.relicId);message="출전 준비에서 장착할 수 있습니다.";}Render();};
+                unlock=()=>{if(!RelicSaveData.IsUnlocked(r.relicId)&&RelicSelectionPolicy.IsNewOffer(r)&&SilverWallet.TrySpend(r.price)){RelicSaveData.Unlock(r.relicId);message="출전 준비에서 장착할 수 있습니다.";}Render();};
             }
             else if(Tab==2 && Config.items.Length>0)
             {
                 selection=Mathf.Clamp(selection,0,Config.items.Length-1);
                 Grid(Config.items.Length,i=>Config.items[i].itemIcon,i=>Config.items[i].itemName,.12f,.27f,.56f,.70f);
-                var item=Config.items[selection];title=item.itemName;description=item.description+"\n출전 준비에서 실버로 구매합니다.";icon=item.itemIcon;action="사용 가능";
+                var item=Config.items[selection];title=item.itemName;description=item.description+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
             }
             else if(Tab==3 && Config.augments.Length>0)
             {

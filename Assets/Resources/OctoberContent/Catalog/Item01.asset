@@ -16,7 +16,7 @@ MonoBehaviour:
   octoberId: 1
   itemRarity: 0
   itemTag: 0
-  description: "\uAE30\uBCF8 \uCE68 \uD53C\uD574 +12%."
+  description: "기본 침 피해 +12%."
   itemIcon: {fileID: -3493371435002259172, guid: 4082566b42e45e34d82971e248c7dd24, type: 3}
   cost: 25
   canBuyInLobby: 1

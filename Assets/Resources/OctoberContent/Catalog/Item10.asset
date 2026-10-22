@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 10
   itemRarity: 0
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC 20% \uD655\uB960\uB85C \uB109\uBC31
-    +1.5."
+  description: "기본 침 적중 시 20% 확률로 넉백 +1.5."
   itemIcon: {fileID: -8867113925279384392, guid: 62cc8f23bbc4bb84ab82eb0ff2759ff4, type: 3}
   cost: 25
   canBuyInLobby: 1

@@ -20,3 +20,4 @@ MonoBehaviour:
   effectValue: 0.06
   effectDescription: "\uBC1B\uB294 \uD53C\uD574 -6%p. \uB2E4\uB978 \uD53C\uD574 \uAC10\uC18C\uC640
     \uD569\uC0B0\uD558\uBA70 \uCD5C\uB300 80%."
+  selectionReason: "피해를 줄이지만 방패보다 독자적인 전투 이점이 없습니다."

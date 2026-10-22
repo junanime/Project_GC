@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 42
   itemRarity: 0
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uB300\uC0C1\uC5D0\uAC8C 3\uCD08\uAC04
-    \uC9C1\uC811 \uD53C\uD574 +8% \uCDE8\uC57D."
+  description: "기본 침 적중 대상에게 3초간 직접 피해 +8% 취약."
   itemIcon: {fileID: 3800387910311843517, guid: 76db59c63053ce641adc88a574e93286, type: 3}
   cost: 25
   canBuyInLobby: 1

@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 28
   itemRarity: 2
   itemTag: 0
-  description: "\uBC24 \uC2DC\uAC04\uB300\uC5D0 3\uCD08\uB9C8\uB2E4 3 \uAC70\uB9AC
-    \uC548\uC758 \uC801\uC5D0\uAC8C \uCE68 \uD53C\uD574 60%."
+  description: "밤 시간대에 3초마다 3 거리 안의 적에게 침 피해 60%."
   itemIcon: {fileID: 7421928065285533836, guid: 62904f72d52058e44be46683e88c1b65, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

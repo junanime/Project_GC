@@ -11,6 +11,7 @@ namespace Vampire
         public string id;
         public List<string> additionalIds = new List<string>();
         public bool revived;
+        public int needleVolleyCount;
         public float barrier, rechargeDelay, idleTime, reflectCooldown;
     }
 
@@ -73,12 +74,21 @@ namespace Vampire
             State.barrier = Mathf.Clamp(State.barrier, 0, Bonus(E.Barrier));
             PlayerGeneralStatRuntime.GetOrCreate(Player).SyncPickupCollider();
         }
+        public const int NeedleVolleyInterval = 5;
+        public const float BarrierDelay = 10f, BarrierRecharge = 3f, RevivalHealthFraction = .3f;
+        // Called only by actual primary needle/shotgun volleys, never by previews or echoes.
+        public int NextNeedleVolleyBonus()
+        {
+            if(Bonus(E.ProjectileCount)<=0)return 0;
+            State.needleVolleyCount=(Mathf.Max(0,State.needleVolleyCount)+1)%NeedleVolleyInterval;
+            return State.needleVolleyCount==0?1:0;
+        }
         public bool ConsumeRevival()
         { if (Revives == 0) return false; State.revived = true; return true; }
         public float Absorb(float damage)
         {
             if (damage <= 0) return damage;
-            State.rechargeDelay = 8;
+            State.rechargeDelay = BarrierDelay;
             float absorbed = Mathf.Min(State.barrier, damage);
             State.barrier -= absorbed;
             return damage - absorbed;
@@ -106,7 +116,7 @@ namespace Vampire
             State.reflectCooldown = Mathf.Max(0, State.reflectCooldown - dt);
             float rechargeTime = Mathf.Max(0, dt - State.rechargeDelay);
             State.rechargeDelay = Mathf.Max(0, State.rechargeDelay - dt);
-            State.barrier = Mathf.Min(Bonus(E.Barrier), State.barrier + 5 * rechargeTime);
+            State.barrier = Mathf.Min(Bonus(E.Barrier), State.barrier + BarrierRecharge * rechargeTime);
             bool idle = Player.IsSkillIdle && Player.Velocity.sqrMagnitude < .01f &&
                 !(Player.GetComponent<PlayerMiniStageStunRuntime>()?.IsStunned ?? false);
             float idleRecoveryTime = idle ? Mathf.Clamp(State.idleTime + dt - 1.5f, 0, dt) : 0;

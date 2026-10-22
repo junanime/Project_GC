@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 17
   itemRarity: 2
   itemTag: 4
-  description: "\uB300\uC2DC \uC2DC\uC791 \uC704\uCE58\uC5D0 2\uCD08 \uBBF8\uB07C\uB97C
-    \uB0A8\uACA8 \uADFC\uCC98 \uC77C\uBC18 \uC801\uC744 \uC720\uC778. \uC7AC\uC0AC\uC6A9
-    8\uCD08."
+  description: "대시 시작 위치에 2초 미끼를 남겨 근처 일반 적을 유인. 재사용 대기 8초."
   itemIcon: {fileID: -3952098952933838723, guid: 29d0181893596e5469d69bfb58bddb96, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0
