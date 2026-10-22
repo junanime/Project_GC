@@ -17,6 +17,6 @@ MonoBehaviour:
   price: 140
   icon: {fileID: -8059159815462793799, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
   effectType: 8
-  effectValue: 0.3
-  effectDescription: "\uC544\uC774\uD15C \uC790\uB3D9 \uD68D\uB4DD \uBC18\uACBD +30%."
+  effectValue: 0.4
+  effectDescription: "아이템 자동 획득 반경 +40%."
   selectionReason: "위험한 곳에 가까이 가지 않고 보상을 회수합니다."

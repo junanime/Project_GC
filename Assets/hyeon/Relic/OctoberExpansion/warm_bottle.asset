@@ -17,7 +17,6 @@ MonoBehaviour:
   price: 160
   icon: {fileID: 5130967679394630576, guid: c1f583186f4c58c42b3f1d4cf31bd78e, type: 3}
   effectType: 3
-  effectValue: 0.25
-  effectDescription: "\uD68C\uBCF5 \uC544\uC774\uD15C\uC758 \uCCB4\uB825 \uD68C\uBCF5\uB7C9
-    +25%. \uC790\uB3D9 \uD68C\uBCF5\xB7\uD761\uD608\uC5D0\uB294 \uBBF8\uC801\uC6A9."
+  effectValue: 0.4
+  effectDescription: "회복 아이템의 체력 회복량 +40%. 자동 회복·흡혈에는 미적용."
   selectionReason: "회복 아이템 하나로 더 많은 체력을 회복하려고 고릅니다."

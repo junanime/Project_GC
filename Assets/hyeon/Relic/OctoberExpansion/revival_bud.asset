@@ -14,11 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relicId: revival_bud
   relicName: "\uB2E4\uC2DC \uAF43\uBD09\uC624\uB9AC"
-  price: 600
+  price: 280
   icon: {fileID: -5913153302964189299, guid: 1fe1810a208b04e48a4a8e906f346b8e, type: 3}
   effectType: 21
   effectValue: 1
-  effectDescription: "\uD55C \uD310\uC5D0 \uD55C \uBC88 \uC4F0\uB7EC\uC9C8 \uB54C
-    \uCD5C\uB300 \uCCB4\uB825 50%\uB85C \uBD80\uD65C. \uC52C \uC774\uB3D9\uC73C\uB85C
-    \uC7AC\uCDA9\uC804\uB418\uC9C0 \uC54A\uC74C."
+  effectDescription: "한 판에 한 번 쓰러질 때 최대 체력 30%로 부활. 씬 이동으로 재충전되지 않음."
   selectionReason: "한 번의 치명적인 실수 뒤에도 탐험을 이어갑니다."

@@ -17,6 +17,6 @@ MonoBehaviour:
   price: 160
   icon: {fileID: -3037815551600364481, guid: 54d3e892393d4fb43966b872a8b5a95b, type: 3}
   effectType: 2
-  effectValue: 0.05
-  effectDescription: "\uCE58\uBA85\uD0C0 \uD655\uB960 +5%p. \uCD5C\uB300 100%."
+  effectValue: 0.1
+  effectDescription: "치명타 확률 +10%p. 최대 100%."
   selectionReason: "치명타에 반응하는 공격 효과를 더 자주 활용합니다."

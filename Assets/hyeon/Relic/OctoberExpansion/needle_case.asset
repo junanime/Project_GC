@@ -14,11 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relicId: needle_case
   relicName: "\uBC18\uC9DD \uCE68\uD1B5"
-  price: 450
+  price: 240
   icon: {fileID: 32993379364343808, guid: a837251d950fc654d83c90a10c43a4e3, type: 3}
   effectType: 13
-  effectValue: 2
-  effectDescription: "\uCE68\uC758 \uC77C\uBC18 \uBAAC\uC2A4\uD130 \uAD00\uD1B5 +2.
-    \uAD00\uD1B5 \uC99D\uAC15 \uC5C6\uC774\uB3C4 \uC801\uC6A9. \uBCF4\uC2A4 \uD30C\uCE20
-    \uAD00\uD1B5\uC740 \uBCC4\uB3C4."
+  effectValue: 1
+  effectDescription: "침의 일반 몬스터 관통 +1. 관통 증강 없이도 적용. 보스 파츠 관통은 별도."
   selectionReason: "일렬로 몰린 적을 한 발로 더 많이 맞히려고 고릅니다."

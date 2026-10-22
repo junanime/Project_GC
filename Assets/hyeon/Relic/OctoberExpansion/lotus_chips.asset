@@ -18,6 +18,5 @@ MonoBehaviour:
   icon: {fileID: -8612486782222013819, guid: db37ee1efc0294c4795f2b80cd7b0bde, type: 3}
   effectType: 9
   effectValue: 1
-  effectDescription: "\uBC1C\uC0AC\uCCB4 \uC218 +1. \uBC1C\uC0AC\uCCB4 \uC218\uB97C
-    \uC9C0\uC6D0\uD558\uB294 \uACF5\uACA9\uC5D0 \uC801\uC6A9."
-  selectionReason: "발사체를 늘리지만 구슬과 효과가 완전히 같습니다."
+  effectDescription: "기본 침·침샷건을 합쳐 5회 발사할 때마다 추가 1발. 메아리·분신·대물침·이기어침은 제외."
+  selectionReason: "추가 침을 쏘지만 구슬과 효과가 완전히 같습니다."

@@ -252,7 +252,7 @@ namespace Vampire
         public float ProjectileSpeedMultiplier => projectileSpeedMultiplier * (Skills != null && Skills.AshiActive ? 2 : 1);
         public float BurnChance => burnChance;
         public float CritChance => Mathf.Clamp01(critChance + RelicBonus(RelicBlueprint.RelicEffectType.CritChance));
-        public int AdditionalProjectiles => additionalProjectiles + Mathf.RoundToInt(RelicBonus(RelicBlueprint.RelicEffectType.ProjectileCount)) + (Skills != null && Skills.AshiPassive ? 2 : 0);
+        public int AdditionalProjectiles => additionalProjectiles + (Skills != null && Skills.AshiPassive ? 2 : 0);
         public float InvincibilityTimeBonus => invincibilityTimeBonus + RelicBonus(RelicBlueprint.RelicEffectType.HitInvincibility);
         public float LifeSteal => lifeSteal;
         public float HealOnKill => healOnKill;
@@ -1252,7 +1252,7 @@ namespace Vampire
         {
             bool relicRevival = Relics != null && Relics.ConsumeRevival();
             if (!relicRevival) reviveCount--;
-            currentHealth = GetMaxHealth() * 0.5f;
+            currentHealth = GetMaxHealth() * (relicRevival ? RelicRuntime.RevivalHealthFraction : .5f);
             healthBar.Setup(currentHealth, 0, GetMaxHealth());
 
             if (hitAnimationCoroutine != null)

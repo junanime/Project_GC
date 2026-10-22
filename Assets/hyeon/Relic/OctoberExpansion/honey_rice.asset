@@ -18,7 +18,5 @@ MonoBehaviour:
   icon: {fileID: -8493178091291898857, guid: db37ee1efc0294c4795f2b80cd7b0bde, type: 3}
   effectType: 20
   effectValue: 15
-  effectDescription: "\uD53C\uD574 \uD761\uC218 \uBCF4\uD638\uB9C9 \uCD5C\uB300 +15.
-    \uCD9C\uC804 \uC2DC \uCDA9\uC804. 8\uCD08\uAC04 \uD53C\uACA9\uD558\uC9C0 \uC54A\uC73C\uBA74
-    \uCD08\uB2F9 5 \uC7AC\uCDA9\uC804."
+  effectDescription: "피해 흡수 보호막 최대 +15. 출전 시 충전. 10초간 피격하지 않으면 초당 3 재충전."
   selectionReason: "재충전 보호막을 얻지만 붕대보다 독자적인 이점이 없습니다."

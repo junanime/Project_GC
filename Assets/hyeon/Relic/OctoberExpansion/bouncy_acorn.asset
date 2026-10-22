@@ -14,10 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   relicId: bouncy_acorn
   relicName: "\uD1B5\uD1B5 \uB3C4\uD1A0\uB9AC"
-  price: 350
+  price: 240
   icon: {fileID: -7271345920701136429, guid: ef84c63aa89f28042af2806c2001fa95, type: 3}
   effectType: 14
   effectValue: 1
-  effectDescription: "\uCE68\uC774 \uC801\uC911\uD55C \uB4A4 \uB3C4\uD0C4 +1. \uAC00\uAE4C\uC6B4
-    \uC544\uC9C1 \uB9DE\uC9C0 \uC54A\uC740 \uC801\uC744 \uC6B0\uC120 \uCD94\uC801."
+  effectDescription: "침이 적중한 뒤 도탄 +1. 가까운 아직 맞지 않은 적을 우선 추적."
   selectionReason: "일직선 밖의 적에게도 침을 이어 맞히려고 고릅니다."

@@ -17,7 +17,6 @@ MonoBehaviour:
   price: 200
   icon: {fileID: 8920840174910721680, guid: 1fe1810a208b04e48a4a8e906f346b8e, type: 3}
   effectType: 18
-  effectValue: 0.06
-  effectDescription: "\uD68C\uD53C \uD655\uB960 +6%p. \uB2E4\uB978 \uD68C\uD53C\uC640
-    \uD569\uC0B0\uD558\uBA70 \uCD5C\uB300 80%."
+  effectValue: 0.1
+  effectDescription: "회피 확률 +10%p. 다른 회피와 합산하며 최대 80%."
   selectionReason: "확률적으로 피격을 무효화하는 생존 방식을 고릅니다."

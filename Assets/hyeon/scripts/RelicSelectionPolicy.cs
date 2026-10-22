@@ -25,6 +25,15 @@ namespace Vampire
         public static RelicBlueprint[] ForLobby(IEnumerable<RelicBlueprint> catalog) => catalog
             .Where(r => r != null && (IsNewOffer(r) || RelicSaveData.IsUnlocked(r.relicId) || RelicSaveData.IsEquipped(r.relicId))).ToArray();
         public static bool SameChoice(string a, string b) => Canonical(a) == Canonical(b);
-        static string Canonical(string id) => id == "lotus_chips" ? "beads" : id;
+        static string Canonical(string id)
+        {
+            switch(id)
+            {
+                case "lotus_chips":return "beads";
+                case "piercing_arrow":return "needle_case";
+                case "honey_rice":return "bandage";
+                default:return id;
+            }
+        }
     }
 }

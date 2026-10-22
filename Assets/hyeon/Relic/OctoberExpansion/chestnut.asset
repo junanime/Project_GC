@@ -17,8 +17,6 @@ MonoBehaviour:
   price: 220
   icon: {fileID: 2513365136883484307, guid: 1fe1810a208b04e48a4a8e906f346b8e, type: 3}
   effectType: 22
-  effectValue: 0.5
-  effectDescription: "\uC2E4\uC81C \uC783\uC740 \uCCB4\uB825\uC758 50%\uB97C \uBC18\uACBD
-    2.5 \uC548\uC758 \uC801\uC5D0\uAC8C \uBC18\uC0AC. 0.5\uCD08 \uAC04\uACA9\xB71\uD68C
-    \uCD5C\uB300 50."
+  effectValue: 1
+  effectDescription: "실제 잃은 체력의 100%를 반경 2.5 안의 적에게 반사. 0.5초 간격·1회 최대 50."
   selectionReason: "근접 피격 시 주변 적에게 반격하는 빌드에 고릅니다."

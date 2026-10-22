@@ -17,7 +17,6 @@ MonoBehaviour:
   price: 140
   icon: {fileID: 1210468120907054213, guid: ef84c63aa89f28042af2806c2001fa95, type: 3}
   effectType: 17
-  effectValue: 0.25
-  effectDescription: "\uCE68\uC758 \uC801 \uBC00\uCE58\uAE30 +25%. \uBCF4\uC2A4\uC758
-    \uBC00\uCE58\uAE30 \uBA74\uC5ED\uC740 \uC720\uC9C0."
+  effectValue: 0.4
+  effectDescription: "침의 적 밀치기 +40%. 보스의 밀치기 면역은 유지."
   selectionReason: "밀칠 수 있는 적을 밀어내며 거리를 확보합니다."

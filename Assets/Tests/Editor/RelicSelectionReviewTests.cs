@@ -33,7 +33,7 @@ namespace Vampire.Tests.Editor
                     Assert.AreEqual(kept.effectType,relic.effectType);
                     Assert.GreaterOrEqual(kept.effectValue,relic.effectValue);
                 }
-                Assert.AreEqual(relic.relicId=="lotus_chips",RelicSelectionPolicy.SameChoice(relic.relicId,replacement),"weaker owned relic must not block stronger supply reward");
+                Assert.AreEqual(relic.effectType==kept.effectType&&relic.effectValue==kept.effectValue,RelicSelectionPolicy.SameChoice(relic.relicId,replacement),"equal-effect pairs share offers; weaker owned relic must not block a stronger reward");
             }
         }
         [Test] public void RetiredUnlocksAndEquipmentRemainVisibleWithoutOfferingThemToNewPlayers()
