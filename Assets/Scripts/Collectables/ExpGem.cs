@@ -50,7 +50,7 @@ namespace Vampire
             );
 
             playerCharacter.GainExp(
-                (float)gemType
+                (float)gemType * (FestivalDemo.Enabled ? FestivalDemo.Settings.experienceGemMultiplier : 1f)
             );
 
             // 실제 EXP 획득 처리가 완료된 순간

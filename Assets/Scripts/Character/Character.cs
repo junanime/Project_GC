@@ -971,7 +971,6 @@ namespace Vampire
 
             UpdateLevelDisplay();
 
-            if (FestivalDemo.Enabled) { FestivalRunController.AutoLevel(this); yield break; }
             abilitySelectionDialog.Open();
 
             while (abilitySelectionDialog.MenuOpen)

@@ -20,9 +20,10 @@ namespace Vampire
     {
         public bool enabled;
         public float duration = 60, minimumLoadingSeconds = 3, eventSeconds = 25;
-        public float startingSpawnRate = 10, finalSpawnRate = 16;
+        public float startingSpawnRate = 7, finalSpawnRate = 11.2f;
         public float startingHealthMultiplier = 1.35f, finalHealthMultiplier = 1.85f;
-        public int initialEnemies = 18, populationLimit = 110, spawnBudgetPerFrame = 6;
+        public int initialEnemies = 13, populationLimit = 77, spawnBudgetPerFrame = 6;
+        public float experienceGemMultiplier = 1.5f;
         public int questKills = 20, questDashes = 4, questActiveUses = 2;
         public FestivalPreset[] presets;
     }
@@ -159,11 +160,6 @@ namespace Vampire
                 if (distant.Count == 12) break;
             }
             foreach (var monster in distant) monster.DespawnForStageTransfer();
-        }
-        // Bounded growth keeps the four starting effects intact without interrupting a short run.
-        public static void AutoLevel(Character player)
-        {
-            if (player.CurrentLevel <= 6) player.AddDamageMultiplier(.035f);
         }
     }
 }

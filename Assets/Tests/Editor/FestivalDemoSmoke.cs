@@ -85,6 +85,45 @@ namespace Vampire.Tests.Editor
             checks++;Debug.Log("FESTIVAL_PASS "+message);
         }
         static void Set(object target,string field,object value) => target.GetType().GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(target,value);
+        static float Exp(Character hero,string field) => (float)typeof(Character).GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).GetValue(hero);
+        static IEnumerator SelectLevelReward(LevelManager level)
+        {
+            var dialog=level.EntityManager.AbilitySelectionDialog;
+            float timer=level.CurrentLevelTime;
+            var runtime=Object.FindObjectOfType<AbilityManager>().Ver4;
+            int before=runtime.CaptureRunSceneConditionalAugmentIds().Count;
+            yield return new WaitForSecondsRealtime(.35f);
+            Check(Time.timeScale==0&&Mathf.Approximately(timer,level.CurrentLevelTime),"augment selection pauses combat timer");
+            var cards=dialog.GetComponentsInChildren<AbilityCard>().Where(c=>c.gameObject.activeInHierarchy).ToArray();
+            Check(cards.Length==3,"level-up offers three augment choices");
+            cards[0].Selected();
+            float deadline=Time.realtimeSinceStartup+5;
+            while((dialog.MenuOpen||dialog.SelectionAnimating)&&Time.realtimeSinceStartup<deadline)yield return null;
+            Check(!dialog.MenuOpen&&!dialog.SelectionAnimating&&Time.timeScale>0,"augment selection closes and resumes combat");
+            Check(runtime.CaptureRunSceneConditionalAugmentIds().Count==before+1,"selected augment is actually acquired");
+        }
+        static IEnumerator ExperienceChecks(LevelManager level)
+        {
+            var hero=level.PlayerCharacter;
+            float savedExp=Exp(hero,"currentExp"),savedNext=Exp(hero,"nextLevelExp");
+            level.SetRunFlowPaused(true);
+            Set(hero,"nextLevelExp",100000f);
+            foreach(bool festival in new[]{true,false})
+            {
+                FestivalDemo.EnabledOverride=festival;
+                foreach(GemType type in Enum.GetValues(typeof(GemType)))
+                {
+                    float before=Exp(hero,"currentExp");
+                    level.EntityManager.SpawnExpGem((Vector2)hero.transform.position+Vector2.right*100,type,false).Use();
+                    yield return new WaitForSecondsRealtime(.1f);
+                    float expected=(float)type*(festival?1.5f:1f)*hero.ExperienceMultiplier;
+                    Check(Mathf.Abs(Exp(hero,"currentExp")-before-expected)<.001f,$"{type} actual orb XP, festival={festival}: {expected}");
+                }
+            }
+            FestivalDemo.EnabledOverride=null;
+            Set(hero,"currentExp",savedExp);Set(hero,"nextLevelExp",savedNext);
+            level.SetRunFlowPaused(false);
+        }
         static IEnumerator Checks()
         {
             Application.runInBackground=true;
@@ -153,7 +192,7 @@ namespace Vampire.Tests.Editor
                     peak=Mathf.Max(peak,level.EntityManager.LivingMonsters.Count);
                     if(t>2)samples.Add(Time.unscaledDeltaTime*1000);
                     if(!captured&&t>=27){Capture(preset.character+"-combat");captured=true;}
-                    if(level.EntityManager.AbilitySelectionDialog.MenuOpen)throw new Exception("Level-up picker interrupted festival combat");
+                    if(level.EntityManager.AbilitySelectionDialog.MenuOpen)yield return SelectLevelReward(level);
                     yield return null;
                 }
                 player.Move(Vector2.zero);
@@ -176,6 +215,15 @@ namespace Vampire.Tests.Editor
                 while(StageEntryLoading.IsLoading)yield return null;
                 yield return null;
                 var proof=Object.FindObjectOfType<LevelManager>();var hero=proof.PlayerCharacter;
+                if(preset==FestivalDemo.Settings.presets[0])yield return ExperienceChecks(proof);
+                int previousLevel=hero.CurrentLevel;
+                int orbCount=Mathf.CeilToInt((Exp(hero,"nextLevelExp")-Exp(hero,"currentExp"))/(1.5f*hero.ExperienceMultiplier));
+                for(int i=0;i<orbCount;i++)proof.EntityManager.SpawnExpGem((Vector2)hero.transform.position+Vector2.right*100,GemType.White1,false).Use();
+                float rewardDeadline=Time.realtimeSinceStartup+5;
+                while(!proof.EntityManager.AbilitySelectionDialog.MenuOpen&&Time.realtimeSinceStartup<rewardDeadline)yield return null;
+                Check(hero.CurrentLevel==previousLevel+1&&proof.EntityManager.AbilitySelectionDialog.MenuOpen,"collecting orbs opens level-up reward: "+preset.character);
+                Capture(preset.character+"-levelup");
+                yield return SelectLevelReward(proof);
                 var quest=hero.GetComponent<PrescriptionRuntime>();
                 quest.Record(PrescriptionRuntime.Goal.Kills,FestivalDemo.Settings.questKills);
                 quest.Record(PrescriptionRuntime.Goal.Dashes,FestivalDemo.Settings.questDashes);
