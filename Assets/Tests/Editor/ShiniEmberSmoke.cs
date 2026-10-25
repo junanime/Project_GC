@@ -117,7 +117,7 @@ static IEnumerator Checks(LevelManager level){
  var mobile=player.GetComponent<MobileGameplayControls>()??player.gameObject.AddComponent<MobileGameplayControls>();
  Set(mobile,"simulateInEditor",true);yield return null;yield return null;
  ApothecaryUI.Instance.Show("hud");Time.timeScale=1;yield return new WaitForSecondsRealtime(.4f);
- var button=Object.FindObjectsOfType<UnityEngine.UI.Button>().First(b=>b.name=="Active skill R");var input=button.GetComponent<ShiniSkillButton>();Check(input!=null&&button.GetComponent<ApothecaryButtonFeedback>()!=null,"hold input preserves original button feedback");
+ var button=Object.FindObjectsOfType<UnityEngine.UI.Button>().First(b=>b.name=="Active skill Space");var input=button.GetComponent<ShiniSkillButton>();Check(input!=null&&button.GetComponent<ApothecaryButtonFeedback>()!=null,"hold input preserves original button feedback");
  breath.RestoreFuel(24);var e=new UnityEngine.EventSystems.PointerEventData(UnityEngine.EventSystems.EventSystem.current){pointerId=42,button=UnityEngine.EventSystems.PointerEventData.InputButton.Left};input.OnPointerDown(e);Check(breath.Busy&&breath.Fuel==18,"HUD pointer down casts once");input.OnPointerUp(e);button.onClick.Invoke();Check(breath.Fuel==18,"pointer click does not double spend");
  yield return new WaitForSeconds(.64f);CaptureView("01-inflated-chest-and-digits");yield return new WaitForSeconds(.65f);CaptureView("02-fan-flame");
  var digits=player.GetComponentsInChildren<SpriteRenderer>().Where(x=>x.name.StartsWith("Shini flame fuel digit")).ToArray();Check(digits.Count(x=>x.enabled)==2,"two overhead digits for fuel 18");Check(digits[0].sprite==art.digits[1]&&digits[1].sprite==art.digits[8],"overhead digits match ledger");
@@ -140,7 +140,7 @@ static IEnumerator Checks(LevelManager level){
  InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
  InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
  var keyboard=UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Keyboard>();
- UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.R));yield return null;
+ UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState(UnityEngine.InputSystem.Key.Space));yield return null;
  breath.RestoreFuel(24);breath.Press(true);breath.Advance(ShiniEmberRuntime.Preparation+1.8f);reward.Open();int keyboardFuel=breath.Fuel;
  yield return new WaitForSecondsRealtime(.15f);Check(breath.Emitting&&breath.Fuel==keyboardFuel,"held R survives real reward pause");reward.Close();yield return new WaitForSeconds(.27f);Check(breath.Emitting&&breath.Fuel<keyboardFuel,"held R resumes fuel and fire emitting="+breath.Emitting+" fuel="+breath.Fuel+" before="+keyboardFuel+" held="+Get(breath,"keyboardHeld")+" pressed="+keyboard.rKey.isPressed+" current="+(UnityEngine.InputSystem.Keyboard.current==keyboard));
  reward.Open();UnityEngine.InputSystem.InputSystem.QueueStateEvent(keyboard,new UnityEngine.InputSystem.LowLevel.KeyboardState());yield return null;yield return null;

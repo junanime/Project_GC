@@ -152,7 +152,7 @@ namespace Vampire.Tests.Editor
                 // finger down and test the next action after the dash completes.
                 while (level.PlayerCharacter.IsDashing) yield return null;
                 yield return null;
-                var active = Object.FindObjectsOfType<Button>().Single(b => b.name == "Active skill R");
+                var active = Object.FindObjectsOfType<Button>().Single(b => b.name == "Active skill Space");
                 Vector2 activePoint = RectTransformUtility.WorldToScreenPoint(null, active.transform.position);
                 InputSystem.QueueStateEvent(screen, new TouchState { touchId = 74, phase = UnityEngine.InputSystem.TouchPhase.Began, position = activePoint });
                 yield return null; yield return null;

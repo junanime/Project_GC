@@ -100,7 +100,7 @@ namespace Vampire
             LobbyLoadoutData.OnChanged += OnLoadout;
             AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
             Show(lobby ? "main" : "hud");
-            if (lobby) IntroMovie.TryShow(this);
+            if (lobby && Page != "platformError") IntroMovie.TryShow(this);
         }
         void OnDestroy()
         {
@@ -117,6 +117,11 @@ namespace Vampire
         void OnLoadout() { dirty = true; }
         void Update()
         {
+            if (SteamRuntime.IsSteamBuild && SteamGuardPage(Page) == "platformError")
+            {
+                Time.timeScale = 0;
+                if (Page != "platformError") Show("platformError");
+            }
             if (IntroMovie.BlocksMenuInput) return;
             UpdateRanking();
             UpdateSkillUI();
@@ -147,6 +152,7 @@ namespace Vampire
         }
         public void Show(string page, int tab = 0)
         {
+            page = SteamGuardPage(page);
             if (FestivalDemo.Enabled && level == null && (page == "main" || page == "prepare")) page = "festival";
             if(page=="settings" && Page!="settings")BeginSettings();
             Page = page; Tab = tab; selection = page=="prepare"&&tab==0?characterIndex:0;pageIndex=0; message = "";
@@ -205,6 +211,7 @@ namespace Vampire
             if (!liveFloodResult)
                 ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { OctoberMain(); return; }
+            if (Page == "steamImport" || Page == "platformError") { SteamAccountPanel(); return; }
             if (Page == "rankingName") { RankingName(); return; }
             if (Page == "rankingInfo") { RankingInfo(); return; }
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "업적 · 해금 도감" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "게임 클리어!" : "아쉽지만 실패!") : Page == "exit" ? "게임 종료" : "설정";

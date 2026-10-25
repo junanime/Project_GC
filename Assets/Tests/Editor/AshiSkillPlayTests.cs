@@ -105,7 +105,7 @@ namespace Vampire.Tests.Editor
                     case 4:
                         Check(skills.PassiveActive,"dash triggers Marathon");Near(player.AttackSpeedMultiplier,attack*1.2f,"attack speed x1.2");Near(needle.GetEffectiveCooldown(),cooldown/1.2f,"attack cooldown /1.2");
                         Check(needle.GetEffectiveProjectileCount()==count+2,"passive +2 projectiles");Capture("05-marathon");
-                        keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(UnityEngine.InputSystem.Key.R));next+=.65;break;
+                        keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(UnityEngine.InputSystem.Key.Space));next+=.65;break;
                     case 5:
                         Check(skills.IsCutin&&Time.timeScale==0,"R starts paused 2-second cut-in");InputSystem.QueueStateEvent(keyboard,new KeyboardState());
                         var cutinImage=ui.GetComponentsInChildren<Image>().First(i=>i.name=="Ashi cut-in portrait");
@@ -120,7 +120,7 @@ namespace Vampire.Tests.Editor
                         int beforeHeavy=UnityEngine.Object.FindObjectsOfType<SyringeProjectile>().Length;
                         typeof(SyringeDartAbility).GetMethod("FireHeavySnipe",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).Invoke(needle,new object[]{1f});
                         Check(UnityEngine.Object.FindObjectsOfType<SyringeProjectile>().Length==beforeHeavy+6,"charged needle actually emits six projectiles");
-                        var cover=Button("Active skill R").GetComponentsInChildren<Image>().First(i=>i.name=="Clockwise cooldown cover");
+                        var cover=Button("Active skill Space").GetComponentsInChildren<Image>().First(i=>i.name=="Clockwise cooldown cover");
                         Check(cover.fillOrigin==(int)Image.Origin360.Top&&!cover.fillClockwise,"cover recedes clockwise from twelve");
                         int pool=(int)PacingPatchTests.Get(needle,"projectileIndex");var projectile=needle.SpawnPlayerProjectile(pool,player.Position,1,0,speed*2,0);projectile.Launch(Vector2.right);
                         Check(projectile.GetComponent<SkillProjectileWind>()!=null,"active projectile receives wind wake");
@@ -134,7 +134,7 @@ namespace Vampire.Tests.Editor
                         skills.Definition.cutinDuration=3;typeof(MobileGameplayInput).GetProperty("Active").SetValue(null,true);break;
                     case 9:
                         Capture("09-mobile-layout");Check(ui.GetComponentsInChildren<RectTransform>().First(r=>r.name=="Skill HUD").anchoredPosition.y>190,"mobile skills clear movement stick");
-                        Click(Button("Active skill R"),true);Check(skills.IsCutin,"touch activates same skill");next+=2.2;break;
+                        Click(Button("Active skill Space"),true);Check(skills.IsCutin,"touch activates same skill");next+=2.2;break;
                     case 10:
                         Check(skills.IsCutin,"3-second cut-in still playing after 2 seconds");Capture("10-cutin-3s");next+=1.1;break;
                     case 11:

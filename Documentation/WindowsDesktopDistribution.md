@@ -5,7 +5,7 @@
 - 현재 Junhan2 게임을 Windows x64 독립 실행 파일로 빌드한다. Unity 설치 없이 실행할 수 있다.
 - 설치 파일은 사용자 계정의 `%LOCALAPPDATA%\Programs\24tu`에 설치하고 바탕화면/시작 메뉴 바로가기와 제거 기능을 등록한다. 관리자 권한을 요구하지 않는다.
 - 로비에서 새 게임을 시작하며 기존 Insert 보스 테스트 기능도 유지한다. Steam 정식 출시 빌드는 테스트 단축키를 별도 검토한다.
-- 이번 작업은 Steam 업로드, Steam/Google 로그인, 클라우드 동기화를 포함하지 않는다.
+- 이 문서는 Steam을 사용하지 않는 Windows 설치형 테스트판을 설명한다. Steam 전용 빌드·계정별 저장·기존 Unity 랭킹 인증 준비는 [Steam 연결 문서](SteamIntegration.md)를 따른다. 실제 Steam 업로드와 Cloud 활성화는 App ID 발급 후 진행한다.
 - 대표 아이콘은 사용자가 지정한 혁이 액티브 스킬 `HyukiActive.png` 원본을 그대로 사용한다. Windows 실행 파일/바탕화면 바로가기/설치 및 제거 프로그램에 동일하게 적용한다. 새 그림을 생성하거나 원본 외형을 편집하지 않는다. `encode_windows_icon.py`는 설치 프로그램용 ICO 포맷만 변환한다.
 
 ## 저장 범위 — 2026-09-29 사용자 확정
@@ -16,7 +16,9 @@
 
 Windows 플레이어의 저장 공간은 `HKCU\Software\DefaultCompany\24시간의사투`이며 Unity Editor 데이터와는 별도다. 회사명/제품명을 바꾸면 저장 공간이 달라지므로 이번 빌드는 기존 이름을 유지한다. 설치/업데이트/제거는 이 레지스트리나 `%USERPROFILE%\AppData\LocalLow\DefaultCompany\24시간의사투`를 삭제하지 않는다. 저장 데이터는 설치 폴더에 넣지 않는다.
 
-### 계정 연동 후속 설계 (미구현)
+### 계정 연동 설계
+
+2026-10-26: 아래 1~4의 파일 저장·계정 분리·복구·기기 설정 분리는 Steam 전용 코드에 구현했다. 실제 Steam 클라이언트 간 동기화·오프라인·충돌 검증은 App ID와 서비스 설정 완료 후 진행한다. 자세한 준비 상태는 [Steam 연결 문서](SteamIntegration.md)에 기록한다. 일반 테스트판은 위의 기존 PlayerPrefs를 유지한다.
 
 1. 영구 성장 저장을 버전이 있는 파일로 이관하고, 기존 PlayerPrefs는 1회 가져온 뒤 보존한다. 계정 전환 시 다른 계정의 데이터를 자동 이관하지 않는다.
 2. Steam ID별 로컬 프로필을 분리하고, Steam Cloud를 설정한다. 인증된 Steam ID를 사용하고 가짜 ID나 테스트용 App ID를 정식 설정으로 넣지 않는다.
@@ -32,7 +34,7 @@ Steam Cloud 공식 문서: https://partner.steamgames.com/doc/features/cloud
 2. 기본 산출물: `Builds/WindowsDesktop/24tu.exe`와 동반 데이터 폴더. `PROJECT_GC_WINDOWS_OUTPUT`으로 다른 새 폴더 지정 가능. 전체 폴더가 게임이며 exe만 복사하면 안 된다.
 3. NSIS 3.13의 `makensis.exe`를 `Tools/Distribution/Package-Windows.ps1 -Compiler <compiler path>`에 전달한다. 기존 동일 이름 설치 파일은 덮어쓰지 않는다.
 4. 설치 패키지는 `Builds/Installers/24tu-Setup-0.1.20260929.exe`. SHA-256 파일도 생성된다. 새 배포마다 버전을 올린다.
-5. Steam에는 설치 프로그램이 아니라 검증한 `WindowsDesktop` 실행 파일/데이터 폴더를 depot 콘텐츠로 준비하되, `*_DoNotShip`/`*.pdb`/`*.mdb`는 제외한다(로컬 설치 패키지는 자동 제외). 실제 App ID, depot ID, Steamworks 설정과 출시 검토는 별도다.
+5. Steam에는 설치 프로그램이 아니라 별도 Steam 전용 빌드의 실행 파일/데이터 폴더를 depot 콘텐츠로 준비한다. `Build-SteamWindows.ps1`과 `Prepare-SteamDepot.ps1`의 절차는 [Steam 연결 문서](SteamIntegration.md)를 따른다. 실제 App ID, depot ID, Steamworks 설정과 출시 검토는 별도다.
 
 설치 패키지 제작 도구: NSIS 3.13. 이 문서에는 외부 설치 파일 다운로드 링크를 게시하지 않는다.
 

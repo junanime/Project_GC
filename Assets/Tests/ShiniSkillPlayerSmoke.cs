@@ -81,7 +81,7 @@ namespace Vampire.Tests
                 smallBurn.ConsumeBurn(out _);yield return new WaitForEndOfFrame();
                 Check(!small.GetComponent<ShiniBurnVisual>().TintVisible,"orange overlay clears when burn stacks are consumed");
                 small.gameObject.SetActive(false);
-                Check(skill.TryActivate()&&skill.Active&&skill.IsSummoning,"R begins active and phoenix together");
+                Check(skill.TryActivate()&&skill.Active&&skill.IsSummoning,"Active skill begins active and phoenix together");
                 Check(skill.CooldownRemaining>34.9f,"cooldown starts on activation");
                 Check(!skill.TryActivate(),"repeat activation rejected");
                 Check(Mathf.Approximately(skill.MovementMultiplier,1.3f),"active increases movement speed by thirty percent");

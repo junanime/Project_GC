@@ -23,8 +23,7 @@ namespace Vampire
         void OnDestroy(){if(mesh!=null)Destroy(mesh);if(material!=null)Destroy(material);}
     }
 
-    // Three continuous ribbons preserve the noodle's cream body, brown outline and highlight.
-    // No scrolling liquid/noise shader: the noodle remains a solid limb throughout its bend.
+    // Preserve the approved original three-layer noodle material and articulated outline.
     public sealed class FoodBossNoodle:MonoBehaviour
     {
         LineRenderer[] layers;public Vector2[] Points {get;private set;}
@@ -62,21 +61,25 @@ namespace Vampire
 
     public sealed class FoodBossEnergyBeam:MonoBehaviour
     {
-        FoodBossRuntime boss;Vector2 origin,direction;float age,nextHit,duration,length;LineRenderer[] rays;LineRenderer[] pulses;
+        FoodBossRuntime boss;Vector2 origin,direction;float age,nextHit,duration,length;FoodBossFlowRibbon core;LineRenderer halo;LineRenderer[] pulses;
         public static FoodBossEnergyBeam Create(FoodBossRuntime b,Vector2 origin,Vector2 direction,float length=9,float duration=1.1f)
         {
             var f=new GameObject("Horn energy wave").AddComponent<FoodBossEnergyBeam>();f.transform.SetParent(b.Effects,false);f.boss=b;f.origin=origin;f.direction=direction;f.length=length;f.duration=duration;
-            f.rays=new[]{FoodBossEffects.Line(f.transform,new[]{origin,origin},.95f,new Color(.35f,.8f,.12f,.3f),false,520),FoodBossEffects.Line(f.transform,new[]{origin,origin},.65f,new Color(.67f,1,.28f,.95f),false,521),FoodBossEffects.Line(f.transform,new[]{origin,origin},.28f,new Color(.97f,1,.76f),false,522)};
-            f.pulses=new LineRenderer[5];for(int i=0;i<5;i++)f.pulses[i]=FoodBossEffects.Line(f.transform,new[]{origin,origin},.055f,new Color(.92f,1,.63f,.9f),false,523);
+            f.halo=FoodBossEffects.Line(f.transform,new[]{origin,origin},1.05f,new Color(.56f,1,.24f,.22f),false,520);
+            f.core=FoodBossFlowRibbon.Create(f.transform,new Color(.64f,1,.28f),521,2);
+            f.pulses=new LineRenderer[5];for(int i=0;i<5;i++)f.pulses[i]=FoodBossEffects.Line(f.transform,new[]{origin,origin},.045f,new Color(.94f,1,.66f,.85f),false,523);
             return f;
         }
         void Update()
         {
             if(boss==null||boss.Dead){Destroy(gameObject);return;}if(FoodBossRuntime.Paused)return;age+=Time.deltaTime;if(age>=duration){Destroy(gameObject);return;}
-            float reach=length*Mathf.Clamp01(age/.14f),fade=Mathf.Clamp01((duration-age)/.18f),pulse=1+.06f*Mathf.Sin(age*45);Vector2 end=origin+direction*reach,side=FoodBossRuntime.Rotate(direction,90);
-            for(int k=0;k<3;k++){var r=rays[k];r.SetPosition(0,origin);r.SetPosition(1,end);r.startWidth=r.endWidth=(k==0?.95f:k==1?.65f:.28f)*pulse*fade;}
-            for(int k=0;k<pulses.Length;k++){float d=Mathf.Repeat(age*12+k*1.8f,length);var r=pulses[k];r.enabled=d<reach;r.positionCount=17;for(int j=0;j<17;j++){float a=(j/16f-.5f)*Mathf.PI;r.SetPosition(j,origin+direction*(d+Mathf.Cos(a)*.24f)+side*(Mathf.Sin(a)*.37f*fade));}}
-            if(age<duration-.12f&&boss.Player!=null&&boss.Player.IsAlive&&Time.time>=nextHit&&SnailBossProjectile.SegmentDistance(boss.Player.transform.position,origin,end)<.50f){boss.Player.TakeDamage(14);nextHit=Time.time+.7f;}
+            float reach=length*Mathf.SmoothStep(0,1,age/.30f),fade=Mathf.SmoothStep(0,1,(duration-age)/.24f),pulse=1+.035f*Mathf.Sin(age*25);Vector2 end=origin+direction*reach,side=FoodBossRuntime.Rotate(direction,90);
+            var points=new Vector2[45];for(int j=0;j<points.Length;j++){float u=j/(float)(points.Length-1);points[j]=Vector2.Lerp(origin,end,u)+side*(.025f*Mathf.Sin(u*18-age*20)*Mathf.Sin(u*Mathf.PI));}
+            core.Set(points,.72f*pulse*fade,age,fade);
+            halo.SetPosition(0,origin);halo.SetPosition(1,end);halo.startWidth=halo.endWidth=1.05f*fade;
+            var hc=halo.startColor;hc.a=.22f*fade;halo.startColor=halo.endColor=hc;
+            for(int k=0;k<pulses.Length;k++){float d=Mathf.Repeat(age*11+k*1.8f,length);var r=pulses[k];r.enabled=d+.22f<reach;r.positionCount=17;var c=r.startColor;c.a=.80f*fade;r.startColor=r.endColor=c;for(int j=0;j<17;j++){float a=(j/16f-.5f)*Mathf.PI;r.SetPosition(j,origin+direction*(d+Mathf.Cos(a)*.18f)+side*(Mathf.Sin(a)*.31f*fade));}}
+            if(age<duration-.12f&&boss.Player!=null&&boss.Player.IsAlive&&Time.time>=nextHit&&SnailBossProjectile.SegmentDistance(boss.Player.transform.position,origin,end)<.36f*fade+.14f){boss.Player.TakeDamage(14);nextHit=Time.time+.7f;}
         }
     }
 }

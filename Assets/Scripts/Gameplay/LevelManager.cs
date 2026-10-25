@@ -477,7 +477,7 @@ namespace Vampire
             SaveCoinsGained();
             GameAudioManager.EndRunAudio(true);
             RunScore.Current?.Finish(true);
-            PlayerPrefs.Save();
+            ProgressPrefs.Save();
         }
 
         public void AbandonRun()
@@ -486,7 +486,7 @@ namespace Vampire
             levelEnded = true;
             SaveCoinsGained();
             GameAudioManager.EndRunAudio(false);
-            PlayerPrefs.Save();
+            ProgressPrefs.Save();
         }
 
         private void SaveCoinsGained()
@@ -497,8 +497,9 @@ namespace Vampire
                 return;
             }
 
-            int coinCount = PlayerPrefs.GetInt("Coins");
-            PlayerPrefs.SetInt("Coins", coinCount + statsManager.CoinsGained);
+            int coinCount = ProgressPrefs.GetInt("Coins");
+            ProgressPrefs.SetInt("Coins", coinCount + statsManager.CoinsGained);
+            ProgressPrefs.Save();
         }
 
         public void Restart()

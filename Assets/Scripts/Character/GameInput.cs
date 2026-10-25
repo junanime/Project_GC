@@ -9,8 +9,8 @@ namespace Vampire
     // A phone without a keyboard simply has no key events; touch actions are separate.
     public static class GameInput
     {
-        public static KeyCode ActiveSkillKey => FestivalDemo.Enabled ? KeyCode.Space : KeyCode.R;
-        public static string ActiveSkillKeyLabel => FestivalDemo.Enabled ? "Space" : "R";
+        public static KeyCode ActiveSkillKey => KeyCode.Space;
+        public static string ActiveSkillKeyLabel => "Space";
         private static readonly Dictionary<KeyCode,Key> Keys = new Dictionary<KeyCode,Key>();
         private static int interactionFrame=-1;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -33,14 +33,14 @@ namespace Vampire
             var key=ResolveKeyboardKey(code);
             return key!=Key.None && keyboard[key].wasPressedThisFrame;
         }
+
         public static bool GetKey(KeyCode code)
         {
             var keyboard=Keyboard.current;
-            if(keyboard==null || code==KeyCode.None) return false;
+            if(keyboard==null || code==KeyCode.None)return false;
             var key=ResolveKeyboardKey(code);
             return key!=Key.None && keyboard[key].isPressed;
         }
-
         public static Key ResolveKeyboardKey(KeyCode code)
         {
             if(!Keys.TryGetValue(code,out var key))

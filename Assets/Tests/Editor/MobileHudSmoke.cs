@@ -79,7 +79,7 @@ namespace Vampire.Tests.Editor
             var character=level.PlayerCharacter;
             RunScore.Exclude("Mobile HUD and map zoom verification");
             character.AddMaxHealthBonus(10000);character.GainHealth(10000);
-            Check(!Object.FindObjectsOfType<Button>().Any(b=>b.name=="Active skill R"||b.name=="HUD dash"),"desktop skills remain keyboard only");
+            Check(!Object.FindObjectsOfType<Button>().Any(b=>b.name=="Active skill Space"||b.name=="HUD dash"),"desktop skills remain keyboard only");
             var mobile=character.GetComponent<MobileGameplayControls>()??character.gameObject.AddComponent<MobileGameplayControls>();
             typeof(MobileGameplayControls).GetField("simulateInEditor",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(mobile,true);
             yield return null;yield return null;
@@ -109,7 +109,7 @@ namespace Vampire.Tests.Editor
             Check(character.CurrentDashCharges==charges&&!dash.interactable,"paused dash cannot consume charges");
             Time.timeScale=1;yield return null;
             move.OnPointerDown(Touch(move,11,new Vector2(move.Radius,0)));
-            var active=Object.FindObjectsOfType<Button>().Single(b=>b.name=="Active skill R");
+            var active=Object.FindObjectsOfType<Button>().Single(b=>b.name=="Active skill Space");
             Check(active.GetComponent<ShiniSkillButton>()!=null,"Shini hold handler retained");
             active.onClick.Invoke();yield return null;
             Check(character.Skills.Active||character.Skills.CooldownRemaining>0||character.Skills.IsSummoning,"mobile tap casts actual active skill");

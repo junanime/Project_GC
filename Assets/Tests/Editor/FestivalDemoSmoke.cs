@@ -140,11 +140,11 @@ namespace Vampire.Tests.Editor
                 }
                 skill.EndRun();skill.Breath?.RestoreFuel(fuel);
                 FestivalDemo.EnabledOverride=false;
-                yield return KeyboardStateFor(keyboard,InputKey.Space);
-                Check(!skill.Active,"ordinary mode does not adopt festival Space binding");
-                yield return KeyboardStateFor(keyboard);
                 yield return KeyboardStateFor(keyboard,InputKey.R);
-                Check(skill.Active,"ordinary R activation preserved: "+hero.Blueprint.name);
+                Check(!skill.Active,"ordinary mode ignores the old R binding");
+                yield return KeyboardStateFor(keyboard);
+                yield return KeyboardStateFor(keyboard,InputKey.Space);
+                Check(skill.Active,"ordinary mode also uses Space: "+hero.Blueprint.name);
                 yield return KeyboardStateFor(keyboard);
             }
             finally

@@ -1,6 +1,6 @@
 # 페스티벌 PC 데모
 
-이 작업은 `origin/Junhan2`의 `ed67a76`에서 만든 `feature/festival-demo` 브랜치에 있다. 기존 `Project_GC` 작업 폴더의 수정 사항은 포함하거나 변경하지 않는다. 별도 작업 폴더는 `Project_GC-festival-demo`다.
+`feature/festival-demo`는 2026-10-26에 `Junhan2`의 `8380f87`까지 병합했다. 최신 보스 외형·모션·침 부착과 공통 Space 조작을 포함하며, 행사 전용 60초 진행·캐릭터 구성·오프라인 순위 규칙은 유지한다. 별도 작업 폴더는 `Project_GC-festival-demo`다. 이번 행사 실행파일은 Steam 기능을 활성화하지 않는 일반 Windows 빌드다.
 
 ## 참가자 흐름
 

@@ -76,9 +76,9 @@ namespace Vampire.Tests.Editor
                         var l=UnityEngine.Object.FindObjectOfType<LevelManager>();var data=l.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];
                         near=l.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*2,data,500);near.enabled=true;
                         far=l.EntityManager.SpawnMonster(0,(Vector2)player.transform.position+Vector2.right*7,data,500);far.enabled=false;
-                        keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(UnityEngine.InputSystem.Key.R));break;
+                        keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(UnityEngine.InputSystem.Key.Space));break;
                     case 5:
-                        InputSystem.QueueStateEvent(keyboard,new KeyboardState());Check(skill.Active&&!skill.IsCutin&&Time.timeScale>0,"R activates in world without pausing");
+                        InputSystem.QueueStateEvent(keyboard,new KeyboardState());Check(skill.Active&&!skill.IsCutin&&Time.timeScale>0,"Space activates in world without pausing");
                         Check(skill.CooldownRemaining>59&&skill.CooldownRemaining<=60,"sixty-second cooldown starts");Check(!skill.TryActivate(),"cooldown prevents repeated cast");
                         Check(near.GetComponent<NeuralBlockedMonsterStatus>()?.IceFrozen!=true,"active waits for blizzard before freezing");
                         Check(far.GetComponent<NeuralBlockedMonsterStatus>()==null,"enemy outside radius four is unaffected");
@@ -104,7 +104,7 @@ namespace Vampire.Tests.Editor
                         IceSkillRules.Freeze(near);near.gameObject.SetActive(false);Check(!near.GetComponent<NeuralBlockedMonsterStatus>().IceFrozen,"pooled enemy clears ice state");
                         skill.Tick(100);typeof(MobileGameplayInput).GetProperty("Active").SetValue(null,true);break;
                     case 10:
-                        Button("Active skill R").onClick.Invoke();Check(skill.Active,"mobile skill button activates Hyuki");
+                        Button("Active skill Space").onClick.Invoke();Check(skill.Active,"mobile skill button activates Hyuki");
                         var dead=player.CaptureRunSceneState();dead.CurrentHealth=0;player.RestoreRunSceneState(dead);break;
                     case 11:
                         Check(!skill.CanActivate&&!visual.Playing&&visual.CrystalCount==0,"death clears skills and visual effects");typeof(MobileGameplayInput).GetProperty("Active").SetValue(null,false);SessionState.SetBool(Key+"Done",true);break;

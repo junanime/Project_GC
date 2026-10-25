@@ -19,6 +19,10 @@ namespace Vampire.Tests.Editor
         [Serializable] class Saved{public string key;public bool exists;public int value;}[Serializable] class Backup{public Saved[] values;}
         static FoodBossSmoke(){if(SessionState.GetBool(Key,false))Attach();}
         public static void Run()=>Start(false);
+        public static void RunFlowReview(){SessionState.SetBool(Key+"Flow",true);Start(false);}
+        public static void RunTangdengiWalk(){SessionState.SetBool(Key+"TangWalk",true);Start(false);}
+        public static void RunMotionUpdate(){SessionState.SetBool(Key+"MotionUpdate",true);Start(false);}
+        public static void RunFullMotionUpdate(){SessionState.SetBool(Key+"AfterMotion",true);Start(false);}
         public static void RunBasicReview(){SessionState.SetBool(Key+"Basic",true);Start(false);}
         public static void RunFinalReview()=>Start(true);
         public static void RunVisualProof(){SessionState.SetBool(Key+"Visual",true);Start(true);}
@@ -73,6 +77,9 @@ namespace Vampire.Tests.Editor
             foreach(var m in level.EntityManager.LivingMonsters.ToArray())m.DespawnForStageTransfer();
             Set(player,"isInvincible",true);Time.timeScale=1;
             RunScore.Exclude("보스 자동 검증");
+            if(SessionState.GetBool(Key+"MotionUpdate",false)){SessionState.SetBool(Key+"MotionUpdate",false);yield return MotionUpdateReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
+            if(SessionState.GetBool(Key+"TangWalk",false)){SessionState.SetBool(Key+"TangWalk",false);yield return TangdengiWalkReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
+            if(SessionState.GetBool(Key+"Flow",false)){SessionState.SetBool(Key+"Flow",false);yield return FlowReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Basic",false)){SessionState.SetBool(Key+"Basic",false);yield return BasicReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Phase",false)){yield return PhaseProof(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Visual",false)){yield return VisualProof(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
@@ -127,6 +134,7 @@ namespace Vampire.Tests.Editor
             }
             yield return Avoidance(player,origin);
             yield return Fanta(player,origin);
+            if(SessionState.GetBool(Key+"AfterMotion",false)){SessionState.SetBool(Key+"AfterMotion",false);yield return MotionUpdateReview(player,origin);}
             yield return Integration(player,origin);yield return Presentation(player,origin);
             Position(player,origin);SessionState.SetBool(Key+"Done",true);
         }
@@ -214,7 +222,9 @@ namespace Vampire.Tests.Editor
             Check(boss.Health<before,"poison ticks damage new boss");Check(boss.GetComponent<CorrosionStatus>().CurrentStacks==1,"corrosion applies to new boss");Check(boss.GetComponent<NeedleMarkStatus>().TryConsume(),"needle mark applies and consumes on new boss");
             IceSkillRules.Freeze(boss);Check(Mathf.Approximately(boss.GetComponent<FoodBossCombatStatus>().SpeedMultiplier,.8f),"ice retains boss resistance with 20 percent slow");
             boss.Audio.Play(FoodBossSound.Dash);yield return new WaitForSeconds(.1f);Time.timeScale=0;var voice=boss.GetComponents<AudioSource>().First(s=>s.isPlaying);yield return null;float pausedAt=voice.time;yield return new WaitForSecondsRealtime(.15f);Check(Mathf.Abs(voice.time-pausedAt)<.02f,"boss sound pauses with game");Time.timeScale=1;yield return null;
-            Check(boss.Play(FoodBossAttack.Dash),"jump starts for phase-interruption test");yield return new WaitForSeconds(.85f);Check(!boss.Visual.Body.enabled,"jump body off screen before interruption");boss.SetPhaseTwoForTest();while(boss.Busy)yield return null;Check(boss.Visual.Body.enabled&&boss.GetComponent<Collider2D>().enabled,"phase transition restores interrupted airborne boss");
+            Check(boss.Play(FoodBossAttack.Dash),"jump starts for phase-interruption test");
+            float jumpDeadline=Time.time+3;while(boss.Visual.Body.enabled&&boss.Busy&&Time.time<jumpDeadline)yield return null;
+            Check(!boss.Visual.Body.enabled,"jump body off screen before interruption");boss.SetPhaseTwoForTest();while(boss.Busy)yield return null;Check(boss.Visual.Body.enabled&&boss.GetComponent<Collider2D>().enabled,"phase transition restores interrupted airborne boss");
             int score=RunScore.Current.Data.boss;boss.TakeDamage(boss.MaxHealth*2);Check(boss.Dead&&RunScore.Current.Data.boss==score+1,"boss death counted once in ranking");boss.TakeDamage(1);Check(RunScore.Current.Data.boss==score+1,"duplicate death hit cannot score twice");yield return new WaitForSeconds(1.2f);
         }
         static IEnumerator VisualProof(Character player,Vector2 origin)

@@ -56,12 +56,13 @@ namespace Vampire
                 for(int k=0;k<=steps;k++){Vector2 direction=FoodBossRuntime.Dir(angle+turn*k/steps);w.approach[k]=FiniteStomachMap.SafeSpawn(center+new Vector2(direction.x*3.25f,direction.y*2.65f),.5f);}
                 w.approach[steps+1]=boss.Visual.SnailMouth+Vector2.right*(end==0?1.5f:-1.5f);
             }
-            w.Scale();return w;
+            w.Scale();var color=w.art.color;color.a=0;w.art.color=color;return w;
         }
         void Scale(){if(art.sprite!=null)art.transform.localScale=Vector3.one*(width/art.sprite.bounds.size.x);}
         void Update()
         {
             if(Owner==null||Owner.Dead||!Owner.Recovering||Owner.PhaseTwo){Destroy(gameObject);return;}if(FoodBossRuntime.Paused)return;age+=Time.deltaTime;
+            var color=art.color;color.a=Mathf.SmoothStep(0,1,age/.25f);art.color=color;
             if(Owner.Kind==FoodBossKind.Rolpangi)
             {
                 art.sprite=FoodBossArt.Walk(FoodBossKind.Rolpangi,false,Mathf.FloorToInt(age*8)%8);Scale();
@@ -78,12 +79,12 @@ namespace Vampire
             else if(Owner.Kind==FoodBossKind.Hurumi)
             {var offset=FoodBossRuntime.Dir(index*120+age*55);transform.position=Owner.transform.position+(Vector3)(new Vector2(offset.x*1.7f,offset.y*.65f+.8f));art.flipX=offset.y<0;art.sortingOrder=offset.y>.15f?507:516;}
             else if(Owner.Kind==FoodBossKind.Maribi)transform.position=Owner.Visual.TongueSocket;
-            if(thread!=null){thread.positionCount=12;Vector2 start=transform.position,end=Owner.transform.position+Vector3.up*(1.7f+Owner.Visual.Lift);for(int j=0;j<12;j++){float u=j/11f;thread.SetPosition(j,Vector2.Lerp(start,end,u)+Vector2.down*(Mathf.Sin(u*Mathf.PI)*.18f));}}
+            if(thread!=null){thread.positionCount=20;Vector2 start=transform.position,end=Owner.transform.position+Vector3.up*(1.7f+Owner.Visual.Lift);for(int j=0;j<20;j++){float u=j/19f*Mathf.SmoothStep(0,1,age/.45f);thread.SetPosition(j,Vector2.Lerp(start,end,u)+Vector2.down*(Mathf.Sin(u*Mathf.PI)*(.18f+.035f*Mathf.Sin(age*4+index))));}}
         }
         public override void TakeDamage(float damage,Vector2 knockback=default,bool isCritical=false)
         {if(FoodBossRuntime.Paused||Owner==null||!Owner.Recovering||Health<=0||damage<=0||float.IsNaN(damage)||float.IsInfinity(damage))return;Health=Mathf.Max(0,Health-damage);if(Health<=0){GetComponent<FoodBossCombatStatus>()?.Defeated();Owner.Audio.Play(FoodBossSound.Break,.7f);FoodBossEffects.Burst(Owner,transform.position,.65f);Destroy(gameObject);}else if(Owner.Kind==FoodBossKind.Tangdengi&&Health<MaxHealth*.5f){art.sprite=FoodBossArt.Get("SugarMoundCracked");Scale();}}
         public void Consume(){Health=0;Destroy(gameObject);}
         public override void Knockback(Vector2 knockback){}
-        void OnDestroy(){if(thread!=null)Destroy(thread.gameObject);}
+        void OnDestroy(){if(thread!=null){if(Health<=0&&Owner!=null&&!Owner.Dead)thread.gameObject.AddComponent<FoodBossFade>().Lifetime=.20f;else Destroy(thread.gameObject);}}
     }
 }

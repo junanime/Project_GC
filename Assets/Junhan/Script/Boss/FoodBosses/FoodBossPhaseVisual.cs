@@ -35,9 +35,9 @@ namespace Vampire
                 case FoodBossKind.Tangdengi:
                     Add(false,0);Add(true,20);
                     for(int i=30;i<=35;i++)Add(false,i);
-                    Crack(new[]{new Vector2(169,18),new Vector2(158,38),new Vector2(178,53),new Vector2(162,78),new Vector2(192,99)});
-                    Crack(new[]{new Vector2(178,53),new Vector2(211,48),new Vector2(227,71)});
-                    Crack(new[]{new Vector2(162,78),new Vector2(143,98)});
+                    Crack(new[]{new Vector2(217,126),new Vector2(212,139),new Vector2(230,148),new Vector2(216,163),new Vector2(246,177)});
+                    Crack(new[]{new Vector2(230,148),new Vector2(253,142),new Vector2(268,162)});
+                    Crack(new[]{new Vector2(216,163),new Vector2(201,169)});
                     glints=new LineRenderer[3];for(int i=0;i<3;i++){glints[i]=LocalLine("Candy contact glint",.035f,new Color(1,.94f,.65f),518);glints[i].positionCount=2;}
                     break;
                 default:Add(false,0);Add(true,0);break;
@@ -98,7 +98,7 @@ namespace Vampire
             if(glints!=null)for(int i=0;i<glints.Length;i++)
             {
                 var g=glints[i];float age=Mathf.Min(Mathf.Abs(t-3.20f),Mathf.Abs(t-4.15f));g.enabled=age<.08f;
-                var center=Pixel(layers[1],18,85);Vector3 dir=new Vector3(Mathf.Cos(i*Mathf.PI/3),Mathf.Sin(i*Mathf.PI/3),0);g.SetPosition(0,center-dir*.16f);g.SetPosition(1,center+dir*.16f);
+                var center=Pixel(layers[1],44,137);Vector3 dir=new Vector3(Mathf.Cos(i*Mathf.PI/3),Mathf.Sin(i*Mathf.PI/3),0);g.SetPosition(0,center-dir*.16f);g.SetPosition(1,center+dir*.16f);
             }
             foreach(var l in layers)
             {
@@ -150,12 +150,12 @@ namespace Vampire
                             else{float shy=Ease(1.1f,1.5f,t)*(1-Ease(2.65f,3.1f,t));v.y*=1-.055f*shy;v=Turn(v,new Vector3(0,.3f,0),-3*shy);v.y+=Mathf.Sin(Ease(3.05f,3.7f,t)*Mathf.PI)*.23f;}
                             break;
                         case FoodBossKind.Tangdengi:
-                            if(part>=30){float u=t-1.35f;int k=part-30;var pivot=Pixel(l,141+(k%3)*42,k<3?32:88);v=Turn(v,pivot,(k%2==0?-1:1)*u*(70+k*9));v+=new Vector3((k%3-1)*u*(.8f+k*.12f),(.6f+(k%2)*.8f)*u-1.3f*u*u,0);}
+                            if(part>=30){float u=t-1.35f;int k=part-30;var pivot=Pixel(l,210+(k%3)*30,k<3?130:164);v=Turn(v,pivot,(k%2==0?-1:1)*u*(70+k*9));v+=new Vector3((k%3-1)*u*(.8f+k*.12f),(.6f+(k%2)*.8f)*u-1.3f*u*u,0);}
                             else if(l.incoming){float rise=Ease(1.35f,2.65f,t);float compression=Mathf.Lerp(.84f,1,rise);v.y*=compression;
-                                                                float px=q.x*l.width,py=(1-q.y)*l.height,edge=80+Mathf.Min(px,100)*.2f;
-                                bool upper=py<=edge&&px<=180,lower=py>edge&&px<=116&&py<=160;
-                                if(upper||lower){var pivot=Pixel(l,upper?166:114,upper?98:142);pivot.y*=compression;
-                                    float joint=1-Ease(upper?110:60,upper?180:116,px);if(lower)joint*=1-Ease(140,160,py);
+                                float px=q.x*l.width,py=(1-q.y)*l.height,edge=137;
+                                bool upper=py<=edge&&px<=190,lower=py>edge&&px<=178&&py<=197;
+                                if(upper||lower){var pivot=Pixel(l,upper?181:169,upper?144:183);pivot.y*=compression;
+                                    float joint=1-Ease(upper?125:110,upper?190:178,px);if(lower)joint*=1-Ease(183,197,py);
                                     v=Vector3.Lerp(v,Turn(v,pivot,(upper?5:-4)*contact),joint);
                                 }
                                 v.y-=Mathf.Sin(Ease(1.35f,2.8f,t)*Mathf.PI)*.09f;

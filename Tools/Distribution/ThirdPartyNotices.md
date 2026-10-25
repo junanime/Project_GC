@@ -21,3 +21,9 @@ Font credit retained; fonts were not removed by the raster-image migration:
 - Noto Sans CJK TC: https://fonts.google.com/noto/specimen/Noto+Sans+TC/about
 
 These notices do not assert a single license for all subsequently added artwork, audio, or other resources.
+
+Steam integration uses Steamworks.NET 2025.164.1, Copyright (c) Riley Labrecque,
+under the MIT license. Its complete license accompanies Windows builds as
+Steamworks.NET-LICENSE.txt. Project: https://github.com/rlabrecque/Steamworks.NET
+Steam and the Steam logo are trademarks and/or registered trademarks of
+Valve Corporation. Steamworks native redistributables are provided by Valve.

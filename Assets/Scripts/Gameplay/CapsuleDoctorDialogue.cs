@@ -7,7 +7,7 @@ namespace Vampire
     {
         public const string SeenKey="24tu.tutorial.first-boss-capsule.v1";
         public static CapsuleDoctorDialogue Instance {get;private set;}
-        public static bool Seen=>PlayerPrefs.GetInt(SeenKey,0)==1;
+        public static bool Seen=>ProgressPrefs.GetInt(SeenKey,0)==1;
         public bool Finished {get;private set;}
         public int Page {get;private set;}
         public Button NextButton;public TMP_Text Message,Counter,ButtonLabel;
@@ -19,7 +19,7 @@ namespace Vampire
             var view=ApothecaryUI.Instance.BuildCapsuleDialogue();Instance=view;
             view.Message.text=Greeting(OctoberArt.CharacterKey(player.Blueprint));view.Counter.text="1 / 2";
             view.NextButton.onClick.AddListener(view.Advance);
-            PlayerPrefs.SetInt(SeenKey,1);PlayerPrefs.Save();return view;
+            ProgressPrefs.SetInt(SeenKey,1);ProgressPrefs.Save();return view;
         }
         public void Advance(){if(Finished)return;if(Page==0){Page=1;Message.text="계속 수고해라.";Counter.text="2 / 2";ButtonLabel.text="끝";}else{Finished=true;gameObject.SetActive(false);}}
         void OnDestroy(){if(Instance==this)Instance=null;}

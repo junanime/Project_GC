@@ -5,7 +5,7 @@ namespace Vampire
 {
     public sealed partial class FoodBossRuntime
     {
-        // Preserve the existing projectile art, size and forward speed. Denser volleys
+        // Preserve projectile art, size and authored base speeds; the bullet factory applies 1.4x. Denser volleys
         // deal 75% of the old basic hit; unique skills and radial attacks keep their damage.
         const float BasicDamage=6;
 

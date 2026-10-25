@@ -52,7 +52,7 @@ Shader "FoodBosses/PhaseArt"
   // Incoming beetle is continuous: horn roots stay joined during both contacts.
   if(_Part==21)keep=horn(p,1);
   if(_Part==22)keep=horn(p,0);
-  if(_Part>=30&&_Part<=35){float k=_Part-30;float s=floor((p.x-120)/42)+3*step(61,p.y);keep=step(120,p.x)*step(p.x,247)*step(p.y,116)*step(k,s)*step(s,k);}
+  if(_Part>=30&&_Part<=35){float k=_Part-30;float s=floor((p.x-195)/30)+3*step(147,p.y);keep=step(195,p.x)*step(p.x,285)*step(112,p.y)*step(p.y,182)*step(k,s)*step(s,k);}
   clip(keep-.5);
   fixed4 c=tex2D(_MainTex,i.uv);
   if(_Radial>=0){float d=length((i.local-float2(.58,.39))*float2(1,.87));float reveal=smoothstep(_Radial-.015,_Radial+.015,d);c.a*=lerp(reveal,1-reveal,_Incoming);c.rgb=lerp(c.rgb,float3(1,.93,.73),(1-saturate(abs(d-_Radial)/.015))*.32);}

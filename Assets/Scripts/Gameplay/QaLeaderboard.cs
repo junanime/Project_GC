@@ -21,8 +21,8 @@ namespace Vampire
         [Serializable] public sealed class Snapshot { public List<Row> rows = new List<Row>(); public Row mine; public string owner, updated; }
         [Serializable] sealed class Pending { public string playerId, payload; }
         [Serializable] public sealed class Reply { public string runId, rejected; public int score; }
-        const string CacheKey = "Leaderboard." + Board;
-        const string PendingKey = CacheKey + ".pending";
+        static string CacheKey => "Leaderboard." + Board + (SteamRuntime.IsSteamBuild ? ".steam." + (SteamRuntime.AccountId ?? "unavailable") : "");
+        static string PendingKey => CacheKey + ".pending";
         static readonly SemaphoreSlim gate = new SemaphoreSlim(1, 1);
         static Task initialization;
         static string authenticatedId;
@@ -47,7 +47,7 @@ namespace Vampire
         {
             if (UnityServices.State != ServicesInitializationState.Initialized)
                 await UnityServices.InitializeAsync(new InitializationOptions().SetEnvironmentName("production"));
-            if (!AuthenticationService.Instance.IsSignedIn) await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            await GameAuthentication.SignInAsync();
             authenticatedId=AuthenticationService.Instance.PlayerId;
             await AuthenticationService.Instance.GetPlayerNameAsync();
             if (!string.IsNullOrEmpty(AuthenticationService.Instance.LastNotificationDate))
@@ -58,6 +58,8 @@ namespace Vampire
         }
         public static async Task Ready()
         {
+            SteamRuntime.EnsureInitialized();
+            if (SteamRuntime.IsSteamBuild && !SteamRuntime.Ready) throw new InvalidOperationException("Steam identity unavailable");
             if (initialization == null || initialization.IsFaulted || initialization.IsCanceled) initialization = Connect();
             await initialization;
             if (!AuthenticationService.Instance.IsSignedIn) { initialization = Connect(); await initialization; }

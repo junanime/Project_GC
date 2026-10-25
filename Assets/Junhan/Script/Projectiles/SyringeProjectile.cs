@@ -1701,7 +1701,9 @@ namespace Vampire
             Monster monster = damageableComponent.GetComponent<Monster>() ?? damageableComponent.GetComponentInParent<Monster>();
             var snail = damageableComponent.GetComponentInParent<SnailBossRuntime>();
             var mini = damageableComponent.GetComponentInParent<SnailBossMinion>();
-            if (monster == null && snail == null && mini == null) return;
+            var foodBoss = damageableComponent.GetComponentInParent<FoodBossRuntime>();
+            if (monster == null && snail == null && mini == null && foodBoss == null) return;
+            if (foodBoss != null && (foodBoss.Dead || foodBoss.Transitioning || foodBoss.Recovering || foodBoss.Visual.Airborne || !foodBoss.Visual.Body.enabled)) return;
 
             TrapMonster trapMonster = monster as TrapMonster;
             if (trapMonster != null && !trapMonster.IsActive) return;
@@ -1714,7 +1716,7 @@ namespace Vampire
             stuckTransform.position = hitPosition;
             stuckTransform.rotation = hitRotation;
             stuckTransform.localScale = hitScale * stuckNeedleScaleMultiplier;
-            SpriteRenderer targetRenderer = monster != null ? monster.BodyRenderer : snail != null ? snail.Visual.Shell : mini.GetComponentInChildren<SnailMiniVisual>()?.Shell;
+            SpriteRenderer targetRenderer = foodBoss != null ? foodBoss.Visual.Body : monster != null ? monster.BodyRenderer : snail != null ? snail.Visual.Shell : mini.GetComponentInChildren<SnailMiniVisual>()?.Shell;
             var miniVisual=damageableComponent.GetComponentInChildren<SnailMiniVisual>();
             if(miniVisual!=null)targetRenderer=miniVisual.Shell;
             if(snail!=null&&snail.Visual.Body.enabled&&Vector2.Distance(snail.Visual.Body.bounds.ClosestPoint(hitPosition),hitPosition)<Vector2.Distance(snail.Visual.Shell.bounds.ClosestPoint(hitPosition),hitPosition))targetRenderer=snail.Visual.Body;
@@ -1733,7 +1735,7 @@ namespace Vampire
             // Put the forward-most visible tip just inside the hit surface. Using centre position
             // alone leaves long needles hovering in air at first trigger overlap.
             Vector2 travel = direction.normalized;
-            Vector2 surface = VisibleBodyGeometry.Surface(targetRenderer,hitPosition,travel);
+            Vector2 surface = foodBoss != null ? FoodBossNeedleSurface.Surface(targetRenderer,hitPosition,travel) : VisibleBodyGeometry.Surface(targetRenderer,hitPosition,travel);
             var vertices = renderer.sprite.vertices;
             float tip = float.NegativeInfinity;
             foreach (var vertex in vertices)
@@ -1750,7 +1752,7 @@ namespace Vampire
             renderer.sortingOrder = targetRenderer.sortingOrder - 1;
 
             StuckNeedleVisual stuckVisual = stuckNeedleObject.AddComponent<StuckNeedleVisual>();
-            stuckVisual.Init(monster, stuckNeedleLifetime, targetRenderer, snail, mini);
+            stuckVisual.Init(monster, stuckNeedleLifetime, targetRenderer, snail, mini, foodBoss);
         }
 
         private IEnumerator ReenableColliderNextFrame()
@@ -1932,6 +1934,7 @@ namespace Vampire
     // =====================================================================
     // StuckNeedleVisual 서브 클래스
     // =====================================================================
+    [DefaultExecutionOrder(650)]
     public class StuckNeedleVisual : MonoBehaviour
     {
         private Monster ownerMonster;
@@ -1940,10 +1943,11 @@ namespace Vampire
         private SpriteRenderer body, needle;
         private SnailBossRuntime snail;
         private SnailBossMinion mini;
+        private FoodBossRuntime foodBoss;
 
-        public void Init(Monster ownerMonster, float lifetime, SpriteRenderer body = null, SnailBossRuntime snail = null, SnailBossMinion mini = null)
+        public void Init(Monster ownerMonster, float lifetime, SpriteRenderer body = null, SnailBossRuntime snail = null, SnailBossMinion mini = null, FoodBossRuntime foodBoss = null)
         {
-            this.body=body; this.snail=snail; this.mini=mini; needle=GetComponent<SpriteRenderer>();
+            this.body=body; this.snail=snail; this.mini=mini; this.foodBoss=foodBoss; needle=GetComponent<SpriteRenderer>();
             this.ownerMonster = ownerMonster;
             this.lifetime = Mathf.Max(0.05f, lifetime);
 
@@ -1956,6 +1960,7 @@ namespace Vampire
         }
         private void LateUpdate()
         {
+            if(foodBoss!=null&&(foodBoss.Dead||foodBoss.Transitioning||foodBoss.Recovering||foodBoss.Visual.Airborne)){Destroy(gameObject);return;}
             if (body == null || !body.gameObject.activeInHierarchy || (ownerMonster != null && ownerMonster.HP<=0) || (snail != null && snail.Dead) || (mini != null && mini.Health<=0)) { Destroy(gameObject); return; }
             needle.enabled=body.enabled;
             needle.sortingLayerID=body.sortingLayerID; needle.sortingOrder=body.sortingOrder-1;

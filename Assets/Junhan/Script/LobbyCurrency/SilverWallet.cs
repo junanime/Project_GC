@@ -13,7 +13,7 @@ namespace Vampire
         {
             get
             {
-                return PlayerPrefs.GetInt(SilverKey, 0);
+                return ProgressPrefs.GetInt(SilverKey, 0);
             }
         }
 
@@ -52,8 +52,8 @@ namespace Vampire
         {
             int safeAmount = Mathf.Max(0, amount);
 
-            PlayerPrefs.SetInt(SilverKey, safeAmount);
-            PlayerPrefs.Save();
+            ProgressPrefs.SetInt(SilverKey, safeAmount);
+            ProgressPrefs.Save();
 
             OnChanged?.Invoke(safeAmount);
         }
