@@ -11,6 +11,7 @@
   "populationLimit": 77,
   "spawnBudgetPerFrame": 6,
   "experienceGemMultiplier": 1.5,
+  "chestSpawnInterval": 15,
   "questKills": 20,
   "questDashes": 4,
   "questActiveUses": 2,

@@ -24,6 +24,7 @@ namespace Vampire
         public float startingHealthMultiplier = 1.35f, finalHealthMultiplier = 1.85f;
         public int initialEnemies = 13, populationLimit = 77, spawnBudgetPerFrame = 6;
         public float experienceGemMultiplier = 1.5f;
+        public float chestSpawnInterval = 15f;
         public int questKills = 20, questDashes = 4, questActiveUses = 2;
         public FestivalPreset[] presets;
     }
@@ -105,6 +106,7 @@ namespace Vampire
         LevelManager level;
         int initialRemaining;
         float recycleClock;
+        float nextChestTime;
         Camera worldCamera;
         readonly List<Monster> distant = new List<Monster>(12);
 
@@ -133,6 +135,12 @@ namespace Vampire
         public void Tick()
         {
             if (!Ready || level.IsLevelEnded || Time.deltaTime <= 0 || StageEntryLoading.IsLoading) return;
+            // Use active run time, so loading and reward selection never advance the schedule.
+            if (level.CurrentLevelTime >= nextChestTime && TrySpawnItemChest(nextChestTime == 0))
+            {
+                float interval = Mathf.Max(1, FestivalDemo.Settings.chestSpawnInterval);
+                nextChestTime = (Mathf.Floor(level.CurrentLevelTime / interval) + 1) * interval;
+            }
             recycleClock += Time.deltaTime;
             if (recycleClock >= .5f)
             {
@@ -142,6 +150,28 @@ namespace Vampire
             int count = Mathf.Min(initialRemaining, FestivalDemo.Settings.spawnBudgetPerFrame);
             for (int i = 0; i < count; i++) level.SpawnMonsterFromCurrentSpawnTable();
             initialRemaining -= count;
+        }
+        bool TrySpawnItemChest(bool initial)
+        {
+            Vector2 center = level.PlayerCharacter.transform.position;
+            for (int attempt = 0; attempt < 24; attempt++)
+            {
+                float angle = UnityEngine.Random.Range(0f, Mathf.PI * 2);
+                float distance = initial ? 2f : UnityEngine.Random.Range(4f, 7f);
+                Vector2 position = FiniteStomachMap.SafeSpawn(center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance, .7f);
+                float actualDistance = Vector2.Distance(center, position);
+                if (actualDistance < (initial ? 1.2f : 4f) || actualDistance > (initial ? 2.1f : 7.1f)) continue;
+                bool blocked = false;
+                foreach (var hit in Physics2D.OverlapCircleAll(position, .7f))
+                    if (hit.GetComponentInParent<Chest>() != null ||
+                        (!hit.isTrigger && hit.GetComponentInParent<Character>() == null && hit.GetComponentInParent<Monster>() == null))
+                    { blocked = true; break; }
+                if (blocked) continue;
+                var chest = level.EntityManager.SpawnChest(level.CurrentLevelBlueprint.chestBlueprint, position);
+                if (initial) chest.CompleteInitialPlacement();
+                return true;
+            }
+            return false;
         }
         void RecycleDistantEnemies()
         {

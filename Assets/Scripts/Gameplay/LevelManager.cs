@@ -107,7 +107,7 @@ namespace Vampire
                 this.levelBlueprint.initialExpGemType
             );
 
-            if (!UsesInitialFieldLayout) entityManager.SpawnChest(levelBlueprint.chestBlueprint);
+            if (!FestivalDemo.Enabled && !UsesInitialFieldLayout) entityManager.SpawnChest(levelBlueprint.chestBlueprint);
             inventory.Init();
             var tutorial = GetComponent<TutorialGuide>();
             if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
@@ -249,7 +249,7 @@ namespace Vampire
 
         private void HandleChestSpawn()
         {
-            if (UsesInitialFieldLayout) return;
+            if (FestivalDemo.Enabled || UsesInitialFieldLayout) return;
             if (levelBlueprint == null)
             {
                 return;

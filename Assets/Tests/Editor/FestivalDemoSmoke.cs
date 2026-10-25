@@ -86,6 +86,59 @@ namespace Vampire.Tests.Editor
         }
         static void Set(object target,string field,object value) => target.GetType().GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(target,value);
         static float Exp(Character hero,string field) => (float)typeof(Character).GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).GetValue(hero);
+        static List<Ability> Displayed(AbilitySelectionDialog dialog) => (List<Ability>)typeof(AbilitySelectionDialog).GetField("displayedAbilities",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(dialog);
+        static void OriginalOfferChecks(Ver4AugmentRuntime runtime,bool checkOrdinaryMode)
+        {
+            // Only the starting character is necessarily unlocked in the ordinary save.
+            if(checkOrdinaryMode)
+            {
+                FestivalDemo.EnabledOverride=false;
+                var normal=runtime.CreateOffers(false,3,true);
+                var original=normal.OfType<Ver4AugmentOffer>().FirstOrDefault(o=>o.Kind==Ver4RewardKind.Original);
+                Check(original!=null&&runtime.HasEligibleOriginal,"normal mode retains original rewards");
+                FestivalDemo.EnabledOverride=true;
+                Check(!runtime.HasEligibleOriginal&&!runtime.Apply(original),"festival rejects original rewards even if already generated");
+                foreach(var offer in normal)Object.Destroy(offer.gameObject);
+            }
+            bool valid=true;
+            for(int i=0;i<32;i++)
+            {
+                var offers=runtime.CreateOffers(false,3,i%2==0);
+                valid&=offers.Count==3&&offers.OfType<Ver4AugmentOffer>().All(o=>o.Kind!=Ver4RewardKind.Original&&o.Grade!=AugmentUpgradeGrade.Original);
+                foreach(var offer in offers)Object.Destroy(offer.gameObject);
+            }
+            Check(valid,"festival normal and guaranteed offer pools exclude originals and retain three choices");
+            FestivalDemo.EnabledOverride=null;
+        }
+        static IEnumerator ChestScheduleChecks(LevelManager level)
+        {
+            var hero=level.PlayerCharacter;
+            Vector3 origin=hero.transform.position;
+            hero.transform.position=FiniteStomachMap.SafeSpawn((Vector2)origin+Vector2.right*20,.7f);
+            Physics2D.SyncTransforms();
+            foreach(float due in new[]{15f,30f,45f})
+            {
+                int count=Object.FindObjectsOfType<Chest>().Length;
+                Set(level,"levelTime",due-.5f);
+                yield return new WaitForSecondsRealtime(.1f);
+                Check(Object.FindObjectsOfType<Chest>().Length==count,"no early item chest before "+due);
+                level.SetRunFlowPaused(true);Set(level,"levelTime",due);
+                yield return new WaitForSecondsRealtime(.1f);
+                Check(Object.FindObjectsOfType<Chest>().Length==count,"paused run cannot spawn due chest at "+due);
+                level.SetRunFlowPaused(false);
+                var previous=new HashSet<Chest>(Object.FindObjectsOfType<Chest>());
+                float spawnDeadline=Time.realtimeSinceStartup+1;
+                while(Object.FindObjectsOfType<Chest>().Length==count&&Time.realtimeSinceStartup<spawnDeadline)yield return null;
+                var added=Object.FindObjectsOfType<Chest>().Where(c=>!previous.Contains(c)).ToArray();
+                if(added.Length!=1)Capture("chest-schedule-failure");
+                Check(added.Length==1,$"exactly one scheduled item chest at {due}; added={added.Length}, time={level.CurrentLevelTime}, alive={hero.IsAlive}, paused={level.IsRunFlowPaused}, scale={Time.timeScale}, menu={level.EntityManager.AbilitySelectionDialog.MenuOpen}");
+                float distance=Vector2.Distance(hero.transform.position,added[0].transform.position);
+                Check(distance>=3.9f&&distance<=7.1f,"scheduled chest follows current player within four to seven units");
+                yield return new WaitForSecondsRealtime(.1f);
+                Check(Object.FindObjectsOfType<Chest>().Length==count+1,"due chest is not duplicated on following frames");
+            }
+            hero.transform.position=origin;Physics2D.SyncTransforms();
+        }
         static IEnumerator SelectLevelReward(LevelManager level)
         {
             var dialog=level.EntityManager.AbilitySelectionDialog;
@@ -96,6 +149,10 @@ namespace Vampire.Tests.Editor
             Check(Time.timeScale==0&&Mathf.Approximately(timer,level.CurrentLevelTime),"augment selection pauses combat timer");
             var cards=dialog.GetComponentsInChildren<AbilityCard>().Where(c=>c.gameObject.activeInHierarchy).ToArray();
             Check(cards.Length==3,"level-up offers three augment choices");
+            Check(Displayed(dialog).OfType<Ver4AugmentOffer>().All(o=>o.Kind!=Ver4RewardKind.Original),"level-up panel excludes original augments");
+            dialog.RerollAbilities();yield return new WaitForSecondsRealtime(.6f);
+            Check(Displayed(dialog).Count==3&&Displayed(dialog).OfType<Ver4AugmentOffer>().All(o=>o.Kind!=Ver4RewardKind.Original),"reroll keeps three non-original choices");
+            if(SessionState.GetBool(Key+"UiOnly",false))Capture(level.PlayerCharacter.Blueprint.name+"-levelup");
             cards[0].Selected();
             float deadline=Time.realtimeSinceStartup+5;
             while((dialog.MenuOpen||dialog.SelectionAnimating)&&Time.realtimeSinceStartup<deadline)yield return null;
@@ -215,6 +272,10 @@ namespace Vampire.Tests.Editor
                 while(StageEntryLoading.IsLoading)yield return null;
                 yield return null;
                 var proof=Object.FindObjectOfType<LevelManager>();var hero=proof.PlayerCharacter;
+                var initialChests=Object.FindObjectsOfType<Chest>();
+                Check(initialChests.Length==1&&initialChests[0].CanInteract&&Vector2.Distance(initialChests[0].transform.position,hero.transform.position)<=2.1f,"one usable item chest beside player at start: "+preset.character);
+                Check(!proof.CurrentLevelBlueprint.chestBlueprint.abilityChest,"scheduled chest uses existing item loot");
+                OriginalOfferChecks(Object.FindObjectOfType<AbilityManager>().Ver4,preset==FestivalDemo.Settings.presets[0]);
                 if(preset==FestivalDemo.Settings.presets[0])yield return ExperienceChecks(proof);
                 int previousLevel=hero.CurrentLevel;
                 int orbCount=Mathf.CeilToInt((Exp(hero,"nextLevelExp")-Exp(hero,"currentExp"))/(1.5f*hero.ExperienceMultiplier));
@@ -222,7 +283,6 @@ namespace Vampire.Tests.Editor
                 float rewardDeadline=Time.realtimeSinceStartup+5;
                 while(!proof.EntityManager.AbilitySelectionDialog.MenuOpen&&Time.realtimeSinceStartup<rewardDeadline)yield return null;
                 Check(hero.CurrentLevel==previousLevel+1&&proof.EntityManager.AbilitySelectionDialog.MenuOpen,"collecting orbs opens level-up reward: "+preset.character);
-                Capture(preset.character+"-levelup");
                 yield return SelectLevelReward(proof);
                 var quest=hero.GetComponent<PrescriptionRuntime>();
                 quest.Record(PrescriptionRuntime.Goal.Kills,FestivalDemo.Settings.questKills);
@@ -234,8 +294,14 @@ namespace Vampire.Tests.Editor
                 var ownedNobles=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.Owned).ToArray();
                 Check(ownedNobles.Length==1&&ownedNobles[0].Type.ToString()==preset.noble,"exact assigned noble granted: "+preset.character);
                 Check(!quest.TryAutomaticReward(),"noble claim cannot repeat");
+                if(preset==FestivalDemo.Settings.presets[0])yield return ChestScheduleChecks(proof);
+                int chestsAtEnd=Object.FindObjectsOfType<Chest>().Length;
                 Set(proof,"levelTime",59.95f);yield return new WaitForSecondsRealtime(.25f);
                 Check(proof.IsLevelEnded&&RunScore.Current.Data.success&&Mathf.Approximately(RunScore.Current.Data.seconds,60),"timer expiry succeeds exactly at sixty seconds");
+                if(preset==FestivalDemo.Settings.presets[0])Check(Object.FindObjectsOfType<Chest>().Length==chestsAtEnd,"no extra chest at sixty-second time over");
+                chestsAtEnd=Object.FindObjectsOfType<Chest>().Length;
+                yield return new WaitForSecondsRealtime(.1f);
+                Check(Object.FindObjectsOfType<Chest>().Length==chestsAtEnd,"no extra chest after run ended");
                 proof.GameOver();Check(RunScore.Current.Data.success,"late death cannot overwrite finished success");
             }
             Check(SilverWallet.Silver==savedSilver&&RelicSaveData.GetEquippedRelicId()==equipped,"ordinary currency and equipped relic unchanged");

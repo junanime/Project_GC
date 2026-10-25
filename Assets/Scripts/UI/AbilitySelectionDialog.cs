@@ -495,7 +495,7 @@ namespace Vampire
         {
             if (menuOpen || abilityManager == null) return;
             abilityManager.LegendaryRewardContext=false;
-            abilityManager.OriginalRewardContext=true;
+            abilityManager.OriginalRewardContext=!FestivalDemo.Enabled;
             Open(false);
         }
 

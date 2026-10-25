@@ -56,7 +56,7 @@ namespace Vampire
             Combat=new Ver4CombatSnapshot(Progress);
         }
 
-        public bool HasEligibleOriginal => parents != null && parents.Any(p=>p.Owned && StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p)
+        public bool HasEligibleOriginal => !FestivalDemo.Enabled && parents != null && parents.Any(p=>p.Owned && StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p)
             && Enumerable.Range(0,3).Any(option=>Progress.CanSelect(p.Type.ToString(),option)));
 
         public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount, bool guaranteeOriginal = false)
@@ -79,9 +79,10 @@ namespace Vampire
             var newParents=parents.Where(p=>!p.Owned && p.RequirementsMet()).ToList();
             var ownedParents=parents.Where(p=>p.Owned && StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p)).ToList();
             var originals=new List<(SyringeSpecialAugmentAbility parent,int option)>();
-            foreach(var parent in ownedParents)
-                for(int option=0;option<3;option++)
-                    if(Progress.CanSelect(parent.Type.ToString(),option)) originals.Add((parent,option));
+            if(!FestivalDemo.Enabled)
+                foreach(var parent in ownedParents)
+                    for(int option=0;option<3;option++)
+                        if(Progress.CanSelect(parent.Type.ToString(),option)) originals.Add((parent,option));
 
             for(int slot=0;slot<requestedCount;slot++)
             {
@@ -186,7 +187,7 @@ namespace Vampire
             {
                 case Ver4RewardKind.NewSpecial: return !offer.Source.Owned && offer.Source.RequirementsMet();
                 case Ver4RewardKind.LegendaryAbility: return offer.Source is SyringeLegendaryAugmentAbility && !offer.Source.Owned && offer.Source.RequirementsMet();
-                case Ver4RewardKind.Original: return offer.Parent!=null && offer.Parent.Owned && StartingNeedleSelection.Owned(offer.Parent) && StartingNeedleSelection.Enabled(offer.Parent) && Progress.CanSelect(offer.Parent.Type.ToString(),offer.Option);
+                case Ver4RewardKind.Original: return !FestivalDemo.Enabled && offer.Parent!=null && offer.Parent.Owned && StartingNeedleSelection.Owned(offer.Parent) && StartingNeedleSelection.Enabled(offer.Parent) && Progress.CanSelect(offer.Parent.Type.ToString(),offer.Option);
                 case Ver4RewardKind.Numeric: return offer.Parent!=null && offer.Parent.Owned && StartingNeedleSelection.Owned(offer.Parent) && StartingNeedleSelection.Enabled(offer.Parent) && NumericEligible(offer.Option) && AugmentUpgradeOdds.IsNumeric(offer.Grade);
                 default:return false;
             }
