@@ -147,12 +147,15 @@ namespace Vampire
         }
         public void Show(string page, int tab = 0)
         {
+            if (FestivalDemo.Enabled && level == null && (page == "main" || page == "prepare")) page = "festival";
             if(page=="settings" && Page!="settings")BeginSettings();
             Page = page; Tab = tab; selection = page=="prepare"&&tab==0?characterIndex:0;pageIndex=0; message = "";
             Render();
         }
         public void Back()
         {
+            if(Page=="festivalRanking"){Show(level!=null?"result":"festival");return;}
+            if(Page=="festival"){OpenSettings();return;}
             if(Page=="bossChoice"){CloseBossChoice();return;}
             if(Page=="supplyRelic"){CloseSupplyRelics(false);return;}
             if(Page=="merchant"){merchant?.CloseShop();return;}
@@ -183,6 +186,15 @@ namespace Vampire
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
+            if (FestivalDemo.Enabled && (Page == "festival" || Page == "festivalRanking" || Page == "result"))
+            {
+                ImageAt(content, Config.panelBackground, 0,0,1,1,false);
+                Panel(content,.015f,.015f,.985f,.985f);
+                if (Page == "festival") BuildFestivalSelection();
+                else if (Page == "festivalRanking") BuildFestivalRanking();
+                else BuildFestivalResult();
+                return;
+            }
             if(Page=="bossChoice"){BuildBossChoice();return;}
             if(Page=="merchant"){OctoberMerchant();return;}
             if(Page=="supplyRelic"){OctoberSupplyRelics();return;}

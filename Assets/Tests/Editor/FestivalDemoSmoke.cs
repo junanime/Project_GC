@@ -1,0 +1,250 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using TMPro;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
+
+namespace Vampire.Tests.Editor
+{
+    [InitializeOnLoad]
+    public static class FestivalDemoSmoke
+    {
+        const string Key = "FestivalDemoSmoke";
+        const string Output = "Library/FestivalQA";
+        static bool started;
+        static double deadline;
+        static int checks;
+        static FestivalDemoSmoke() { if (SessionState.GetBool(Key,false)) Attach(); }
+        public static void RunAndBuild()
+        {
+            Run();SessionState.SetBool(Key+"Build",true);
+        }
+        public static void RunUiAndBuild()
+        {
+            RunAndBuild();SessionState.SetBool(Key+"UiOnly",true);
+        }
+        public static void RunUi()
+        {
+            Run();SessionState.SetBool(Key+"UiOnly",true);
+        }
+        public static void Run()
+        {
+            Directory.CreateDirectory(Output);
+            File.WriteAllText(Output+"/errors.txt", "");
+            File.WriteAllText(Output+"/combat.csv", "character,seconds,success,kills,peakEnemies,meanFrameMs,p95FrameMs,health,noble\n");
+            SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Fail",false);
+            SessionState.SetBool(Key+"Build",false);
+            SessionState.SetBool(Key+"UiOnly",false);
+            EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
+            EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(0,0,1280,761);
+            Attach();EditorApplication.EnterPlaymode();
+        }
+        static void Attach()
+        {
+            started=false;deadline=EditorApplication.timeSinceStartup+900;
+            EditorApplication.update-=Tick;EditorApplication.update+=Tick;
+            Application.logMessageReceived-=Log;Application.logMessageReceived+=Log;
+        }
+        static void Log(string text,string trace,LogType type)
+        {
+            if(type!=LogType.Error&&type!=LogType.Exception&&type!=LogType.Assert)return;
+            File.AppendAllText(Output+"/errors.txt",text+"\n"+trace+"\n");SessionState.SetBool(Key+"Fail",true);
+        }
+        static void Tick()
+        {
+            if(!SessionState.GetBool(Key,false))return;
+            if(EditorApplication.timeSinceStartup>deadline){File.AppendAllText(Output+"/errors.txt","Timeout\n");SessionState.SetBool(Key+"Fail",true);}
+            if(SessionState.GetBool(Key+"Done",false)||SessionState.GetBool(Key+"Fail",false))
+            {
+                if(EditorApplication.isPlaying){EditorApplication.ExitPlaymode();return;}
+                if(EditorApplication.isPlayingOrWillChangePlaymode)return;
+                bool failed=SessionState.GetBool(Key+"Fail",false);SessionState.SetBool(Key,false);
+                File.WriteAllText(Output+"/result.txt",$"failed={failed} checks={checks}\n");
+                Debug.Log($"FESTIVAL_FINISHED failed={failed} checks={checks}");
+                if(!failed&&SessionState.GetBool(Key+"Build",false)){SessionState.SetBool(Key+"Build",false);Vampire.Editor.FestivalDemoBuild.Run();}
+                else EditorApplication.Exit(failed?1:0);
+                return;
+            }
+            if(!started&&EditorApplication.isPlaying&&ApothecaryUI.Instance!=null)
+            {
+                started=true;var host=new GameObject("Festival QA").AddComponent<FestivalDemoTestHost>();
+                Object.DontDestroyOnLoad(host);host.StartCoroutine(Checks());
+            }
+        }
+        static void Check(bool condition,string message)
+        {
+            if(!condition)throw new Exception("FESTIVAL_FAIL "+message);
+            checks++;Debug.Log("FESTIVAL_PASS "+message);
+        }
+        static void Set(object target,string field,object value) => target.GetType().GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(target,value);
+        static IEnumerator Checks()
+        {
+            Application.runInBackground=true;
+            var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;GamePreferences.Apply(prefs,false);
+            var intro=Object.FindObjectOfType<IntroMovie>();
+            if(intro!=null){intro.RequestSkip();intro.RequestSkip();intro.ConfirmSkip();}
+            yield return null;yield return null;
+            Check(FestivalDemo.Enabled,"festival branch defaults enabled");
+            Check(ApothecaryUI.Instance.Page=="festival","intro opens character selection directly");
+            Check(Object.FindObjectsOfType<Button>().Count(b=>b.name.StartsWith("Festival character "))==4,"four character cards");
+            Check(Application.targetFrameRate==60&&QualitySettings.vSyncCount==0,"PC starts with consistent sixty FPS cap");
+            ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="settings","Escape opens settings from festival selection");
+            ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="festival","settings returns to festival selection");
+            Capture("selection");
+            StorageChecks();
+            var config=FestivalDemo.Catalog;
+            int savedSilver=SilverWallet.Silver;
+            string equipped=RelicSaveData.GetEquippedRelicId();
+            foreach(var preset in FestivalDemo.Settings.presets)
+            {
+                if(SessionState.GetBool(Key+"UiOnly",false))break;
+                var blueprint=config.characters.First(c=>OctoberArt.CharacterKey(c)==preset.character);
+                Check(FestivalDemo.Validate(blueprint)==null,"valid preset "+preset.character);
+                CrossSceneData.CharacterBlueprint=blueprint;CrossSceneData.ClearStartingLobbyItems();
+                float start=Time.realtimeSinceStartup;
+                Check(StageEntryLoading.Begin(blueprint),"load "+preset.character);
+                Check(!StageEntryLoading.Begin(blueprint),"duplicate load blocked");
+                while(StageEntryLoading.IsLoading)
+                {
+                    var loadingLevel=Object.FindObjectOfType<LevelManager>();
+                    if(loadingLevel!=null && loadingLevel.CurrentLevelTime!=0)throw new Exception("Timer advanced during loading");
+                    yield return null;
+                }
+                Check(Time.realtimeSinceStartup-start>=3,"loading presentation lasts at least three seconds");
+                yield return null;
+                var level=Object.FindObjectOfType<LevelManager>();
+                var player=level.PlayerCharacter;
+                var abilities=Object.FindObjectOfType<AbilityManager>();
+                Check(player.Blueprint==blueprint,"character identity "+preset.character);
+                var owned=abilities.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).Where(a=>a.Owned).Select(a=>(int)a.Type).OrderBy(i=>i).ToArray();
+                Check(owned.SequenceEqual(preset.weapons.OrderBy(i=>i)),"exactly four starting effects "+preset.character);
+                Check(player.Relics.Equipped.relicId==preset.relic,"preset relic "+preset.character);
+                Check(player.GetComponent<OctoberItemRuntime>().State.owned.OrderBy(i=>i).SequenceEqual(preset.items.OrderBy(i=>i)),"preset items applied once");
+                FestivalDemo.ApplyWeapons(abilities,blueprint);
+                Check(abilities.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).Count(a=>a.Owned)==4,"starting effects are idempotent");
+                Check(Object.FindObjectsOfType<StageEventDirector>().Sum(d=>d.FestivalScheduledEventCount)==1,"exactly one scheduled event");
+                Check(level.LevelDuration==60&&player.Skills.EffectiveCooldown<=24,"60-second run and reachable active quest");
+                Check(RunScore.Current.Data.rules==FestivalDemo.Rules&&RunScore.Current.FestivalRunId!=null,"separate festival score session");
+                float nextDash=3,nextActive=1;int peak=0;bool captured=false;
+                var samples=new List<float>();
+                while(!level.IsLevelEnded)
+                {
+                    float t=level.CurrentLevelTime;
+                    var direction=new Vector2(Mathf.Cos(t*.45f),Mathf.Sin(t*.45f));
+                    Monster nearest=null;float distance=float.MaxValue;
+                    foreach(var monster in level.EntityManager.LivingMonsters)
+                    {
+                        if(monster==null)continue;
+                        float d=((Vector2)(monster.transform.position-player.transform.position)).sqrMagnitude;
+                        if(d<distance){distance=d;nearest=monster;}
+                    }
+                    if(nearest!=null&&distance<25)direction=((Vector2)(player.transform.position-nearest.transform.position)).normalized;
+                    player.Move(direction);player.LookDirection=nearest!=null?((Vector2)(nearest.transform.position-player.transform.position)).normalized:direction;
+                    if(t>=nextDash){player.TryDash();nextDash=t+5;}
+                    if(t>=nextActive){player.Skills.TryActivate();nextActive=t+3;}
+                    peak=Mathf.Max(peak,level.EntityManager.LivingMonsters.Count);
+                    if(t>2)samples.Add(Time.unscaledDeltaTime*1000);
+                    if(!captured&&t>=27){Capture(preset.character+"-combat");captured=true;}
+                    if(level.EntityManager.AbilitySelectionDialog.MenuOpen)throw new Exception("Level-up picker interrupted festival combat");
+                    yield return null;
+                }
+                player.Move(Vector2.zero);
+                samples.Sort();
+                var data=RunScore.Current.Data;
+                int kills=data.normal+data.special+data.elite;
+                File.AppendAllText(Output+"/combat.csv",$"{preset.character},{data.seconds:F2},{data.success},{kills},{peak},{(samples.Count>0?samples.Average():0):F2},{(samples.Count>0?samples[(int)((samples.Count-1)*.95f)]:0):F2},{player.CurrentHealth:F1},{player.GetComponent<PrescriptionRuntime>().Claimed}\n");
+                Check(peak<=FestivalDemo.Settings.populationLimit,"population cap respected");
+                Check(data.seconds<=60&&RunScore.Current.Finished,"result freezes score and duration");
+                Capture(preset.character+"-result");
+                Time.timeScale=1;SceneManager.LoadScene(0);yield return null;yield return null;
+                while(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page!="festival")yield return null;
+            }
+            // Deterministic lifecycle checks cover every preset regardless of bot survival.
+            foreach(var preset in FestivalDemo.Settings.presets)
+            {
+                Time.timeScale=1;SceneManager.LoadScene(0);yield return null;yield return null;
+                var chosen=config.characters.First(c=>OctoberArt.CharacterKey(c)==preset.character);
+                CrossSceneData.CharacterBlueprint=chosen;StageEntryLoading.Begin(chosen);
+                while(StageEntryLoading.IsLoading)yield return null;
+                yield return null;
+                var proof=Object.FindObjectOfType<LevelManager>();var hero=proof.PlayerCharacter;
+                var quest=hero.GetComponent<PrescriptionRuntime>();
+                quest.Record(PrescriptionRuntime.Goal.Kills,FestivalDemo.Settings.questKills);
+                quest.Record(PrescriptionRuntime.Goal.Dashes,FestivalDemo.Settings.questDashes);
+                quest.Record(PrescriptionRuntime.Goal.ActiveUses,FestivalDemo.Settings.questActiveUses);
+                yield return null;
+                Check(quest.Claimed&&!proof.EntityManager.AbilitySelectionDialog.MenuOpen,"quest immediately grants noble without journal or picker: "+preset.character);
+                var manager=Object.FindObjectOfType<AbilityManager>();
+                var ownedNobles=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.Owned).ToArray();
+                Check(ownedNobles.Length==1&&ownedNobles[0].Type.ToString()==preset.noble,"exact assigned noble granted: "+preset.character);
+                Check(!quest.TryAutomaticReward(),"noble claim cannot repeat");
+                Set(proof,"levelTime",59.95f);yield return new WaitForSecondsRealtime(.25f);
+                Check(proof.IsLevelEnded&&RunScore.Current.Data.success&&Mathf.Approximately(RunScore.Current.Data.seconds,60),"timer expiry succeeds exactly at sixty seconds");
+                proof.GameOver();Check(RunScore.Current.Data.success,"late death cannot overwrite finished success");
+            }
+            Check(SilverWallet.Silver==savedSilver&&RelicSaveData.GetEquippedRelicId()==equipped,"ordinary currency and equipped relic unchanged");
+            var ui=ApothecaryUI.Instance;
+            var fields=ui.GetComponentsInChildren<TMP_InputField>();
+            Check(fields.Length==2,"department and name entry fields");
+            fields[0].text="컴퓨터공학과";fields[1].text="검증 참가자";
+            ui.Show("festivalRanking");yield return null;Capture("ranking");
+            ui.Back();yield return null;
+            Check(ui.Page=="result","Escape returns from in-run ranking to result");
+            fields=ui.GetComponentsInChildren<TMP_InputField>();
+            Check(fields.Length==2&&fields[0].text=="컴퓨터공학과"&&fields[1].text=="검증 참가자","identity input survives ranking round trip");
+            Check(fields.All(f=>f.placeholder!=null&&!f.placeholder.enabled),"restored text hides placeholder hints");
+            fields[0].text="";Check(fields[0].placeholder.enabled,"clearing input restores placeholder hint");
+            fields[0].text="컴퓨터공학과";
+            Capture("result-input");
+            SessionState.SetBool(Key+"Done",true);
+        }
+        static void StorageChecks()
+        {
+            string path=Path.GetFullPath(Output+"/ledger-"+Guid.NewGuid().ToString("N")+".json");
+            var record=new FestivalRecord{runId="one",name="검증 참가자",department="검증 학과",score=10,seconds=30,utc="1"};
+            Check(FestivalLeaderboard.Save(record,out _,path),"first participant saved");
+            Check(FestivalLeaderboard.Save(record,out _,path)&&FestivalLeaderboard.Read(path).Count==1,"duplicate run submission is idempotent");
+            Check(FestivalLeaderboard.Save(new FestivalRecord{runId="two",name="다음 참가자",department="다른 학과",score=5,seconds=60,success=true,utc="2"},out _,path),"shared PC retains a second participant");
+            Check(FestivalLeaderboard.Read(path).First().runId=="two","completion ranks ahead of noncompletion");
+            Check(!FestivalLeaderboard.Save(new FestivalRecord{runId="bad",name="",department="학과"},out _,path),"blank identity rejected");
+            File.WriteAllText(path,"invalid-json");
+            Check(FestivalLeaderboard.Read(path).Count==1,"previous committed backup survives corrupt primary");
+        }
+        static void Capture(string name)
+        {
+            var camera=Camera.main;if(camera==null)return;
+            int width=Mathf.Max(1,Screen.width),height=Mathf.Max(1,Screen.height);
+            var canvases=Object.FindObjectsOfType<Canvas>().Where(c=>c.isRootCanvas&&c.renderMode==RenderMode.ScreenSpaceOverlay).OrderBy(c=>c.sortingOrder).ToArray();
+            var oldCameras=canvases.Select(c=>c.worldCamera).ToArray();var oldDistances=canvases.Select(c=>c.planeDistance).ToArray();
+            var oldLayers=canvases.Select(c=>c.sortingLayerID).ToArray();var oldOrders=canvases.Select(c=>c.sortingOrder).ToArray();
+            var previous=camera.targetTexture;var active=RenderTexture.active;
+            var texture=RenderTexture.GetTemporary(width,height,24,RenderTextureFormat.ARGB32);Texture2D pixels=null;
+            try
+            {
+                camera.targetTexture=texture;
+                // Overlay UI normally renders after every world sorting layer. Preserve that
+                // relationship when rendering the test screenshot through a camera.
+                int topLayer=SortingLayer.layers.OrderBy(l=>l.value).Last().id;
+                for(int i=0;i<canvases.Length;i++){var canvas=canvases[i];canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=camera.nearClipPlane+.1f;canvas.sortingLayerID=topLayer;canvas.sortingOrder=31000+i;}
+                Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=texture;
+                pixels=new Texture2D(width,height,TextureFormat.RGB24,false);pixels.ReadPixels(new Rect(0,0,width,height),0,0);pixels.Apply();
+                File.WriteAllBytes(Output+"/"+name+".png",pixels.EncodeToPNG());
+            }
+            finally
+            {
+                for(int i=0;i<canvases.Length;i++){canvases[i].renderMode=RenderMode.ScreenSpaceOverlay;canvases[i].worldCamera=oldCameras[i];canvases[i].planeDistance=oldDistances[i];canvases[i].sortingLayerID=oldLayers[i];canvases[i].sortingOrder=oldOrders[i];}
+                camera.targetTexture=previous;RenderTexture.active=active;RenderTexture.ReleaseTemporary(texture);if(pixels!=null)Object.Destroy(pixels);
+                Canvas.ForceUpdateCanvases();
+            }
+        }
+    }
+    public sealed class FestivalDemoTestHost:MonoBehaviour { }
+}

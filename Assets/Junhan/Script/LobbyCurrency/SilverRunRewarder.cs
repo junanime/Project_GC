@@ -20,6 +20,7 @@ namespace Vampire
         private bool pickupOnly;
         public static void RewardPickup(int amount)
         {
+            if (FestivalDemo.Enabled) return;
             if (amount <= 0) return;
             if (Instance == null)
             {
@@ -51,6 +52,7 @@ namespace Vampire
 
         public static void RewardMonsterKill(MonsterBlueprint monsterBlueprint)
         {
+            if (FestivalDemo.Enabled) return;
             if (Instance == null)
             {
                 return;

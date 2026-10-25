@@ -121,6 +121,8 @@ namespace Vampire
         {
             yield return null; // All scene Start hooks (mini-stage director and NPC references) have run.
             if (level == null || !level.UsesInitialFieldLayout) yield break;
+            // The 60-second arena has no shops, portals or extra reward pickers.
+            if (FestivalDemo.Enabled) { Ready = true; yield break; }
             IsPlacing=true;
             try { SpawnInitialObjects(); }
             catch (Exception error) { Failed=true; Debug.LogException(error,this); }

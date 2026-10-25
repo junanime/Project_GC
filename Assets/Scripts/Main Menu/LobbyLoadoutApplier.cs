@@ -9,6 +9,7 @@ namespace Vampire
 
         private IEnumerator Start()
         {
+            if (FestivalDemo.Enabled) yield break; // Applied once by FestivalRunController during loading.
             // LevelManager, Character.Init, AbilityManager.Init이 먼저 끝나도록 대기
             yield return null;
             yield return null;

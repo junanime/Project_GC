@@ -28,6 +28,8 @@ namespace Vampire
         static readonly string[] descriptions = { "몬스터 150마리 처치", "엘리트 몬스터 1마리 처치", "15초 안에 몬스터 20마리 처치", "액티브 사용 중 몬스터 25마리 처치", "혈전 입구 1개 개방", "혈전 과충전 1회 완료", "미니스테이지 1회 클리어", "필드에서 200m 이동", "액티브 스킬 3회 사용", "대시 8회 사용", "대시 후 3초 내 몬스터 30마리 처치", "액티브 효과 누적 20초 유지" };
         static readonly float[] targets = { 150, 1, 20, 25, 1, 1, 1, 200, 3, 8, 30, 20 };
         Character owner;
+        AbilityManager rewardManager;
+        public string AutomaticRewardName { get; private set; }
         PrescriptionState state;
         Vector2 previous;
         float lastDash = -100;
@@ -39,12 +41,20 @@ namespace Vampire
         public void Initialize(Character character)
         {
             owner = character; previous = transform.position;
+            rewardManager = FindObjectOfType<AbilityManager>();
             var balance = RemakeBalance.Current;
             int tag = balance.randomTagEachRun ? UnityEngine.Random.Range(0,3) : (int)balance.designatedTag;
             StartPrescription(tag, UnityEngine.Random.Range(1,int.MaxValue));
         }
         public void StartPrescription(int tag, int seed)
         {
+            AutomaticRewardName = null;
+            if (FestivalDemo.Enabled)
+            {
+                state = new PrescriptionState { tag=2, quests=new[]{(int)Goal.Kills,(int)Goal.Dashes,(int)Goal.ActiveUses}, progress=new float[3] };
+                recentKills.Clear(); lastDash=-100;
+                return;
+            }
             tag = Mathf.Clamp(tag,0,2);
             var random = new System.Random(seed);
             var candidates = pools[tag].OrderBy(_ => random.Next()).Take(3).Select(x => (int)x).ToArray();
@@ -53,8 +63,28 @@ namespace Vampire
         }
         void OnEnable() { Monster.Died += OnKilled; }
         void OnDisable() { Monster.Died -= OnKilled; }
-        public string Description(int index) => descriptions[state.quests[index]];
-        public float Target(int index) => targets[state.quests[index]];
+        public string Description(int index)
+        {
+            if (!FestivalDemo.Enabled) return descriptions[state.quests[index]];
+            switch ((Goal)state.quests[index])
+            {
+                case Goal.Kills: return $"몬스터 {Target(index):0}마리 처치";
+                case Goal.Dashes: return $"대시 {Target(index):0}회 사용";
+                case Goal.ActiveUses: return $"액티브 스킬 {Target(index):0}회 사용";
+                default: return descriptions[state.quests[index]];
+            }
+        }
+        public float Target(int index)
+        {
+            if (!FestivalDemo.Enabled) return targets[state.quests[index]];
+            switch ((Goal)state.quests[index])
+            {
+                case Goal.Kills: return FestivalDemo.Settings.questKills;
+                case Goal.Dashes: return FestivalDemo.Settings.questDashes;
+                case Goal.ActiveUses: return FestivalDemo.Settings.questActiveUses;
+                default: return targets[state.quests[index]];
+            }
+        }
         public float Progress(int index) => state.progress[index];
         public bool IsComplete(int index) => state.progress[index] >= Target(index);
         public void Record(Goal goal, float amount=1)
@@ -67,6 +97,7 @@ namespace Vampire
                 if(!wasComplete && IsComplete(i) && Application.isPlaying)
                     GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.RewardEvent);
             }
+            TryAutomaticReward();
         }
         public void RecordDash() { lastDash=Time.time; Record(Goal.Dashes); }
         void OnKilled(Monster monster)
@@ -95,9 +126,21 @@ namespace Vampire
                 for(int i=0;i<3;i++)if(state.quests[i]==(int)Goal.Burst&&!IsComplete(i))state.progress[i]=recentKills.Count;
             }
             previous=position;
+            TryAutomaticReward();
+        }
+        public bool TryAutomaticReward()
+        {
+            if (!FestivalDemo.Enabled || !Ready || owner == null || !owner.IsAlive || Time.timeScale <= 0 ||
+                StageEntryLoading.IsLoading || owner.Skills != null && owner.Skills.IsCutin) return false;
+            state.claimed = true; // Claim before applying effects, which may synchronously publish combat events.
+            if (!FestivalDemo.GrantNoble(rewardManager, owner.Blueprint, out string reward)) { state.claimed = false; return false; }
+            AutomaticRewardName = reward;
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.RewardEvent);
+            return true;
         }
         public bool TryClaim(AbilitySelectionDialog dialog)
         {
+            if (FestivalDemo.Enabled) return TryAutomaticReward();
             if(!Ready || owner==null || !owner.IsAlive || Time.timeScale<=0 || dialog==null || dialog.MenuOpen || owner.Skills!=null&&owner.Skills.IsCutin) return false;
             if(!dialog.HasAvailableLegendaryAbilities())return false;
             dialog.OpenLegendary();

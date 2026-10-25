@@ -20,6 +20,8 @@ namespace Vampire
     {
         public static RunScore Current { get; private set; }
         public RunScoreData Data { get; private set; } = new RunScoreData();
+        public string FestivalRunId { get; private set; }
+        public bool Finished => finished;
         public string Exclusion { get; private set; }
         public string Submission { get; private set; } = "온라인 기록 준비 중";
         readonly HashSet<int> portals = new HashSet<int>();
@@ -43,7 +45,13 @@ namespace Vampire
             if (owner.GetComponent<RunScore>() != null) return;
             var run = owner.gameObject.AddComponent<RunScore>();
             Current = run; run.level = owner;
-            run.ticket = BeginAfterPrevious();
+            if (FestivalDemo.Enabled)
+            {
+                run.FestivalRunId = Guid.NewGuid().ToString("N");
+                run.Data.rules = FestivalDemo.Rules;
+                run.Submission = "행사 PC에 기록 등록 가능";
+            }
+            else run.ticket = BeginAfterPrevious();
         }
         void OnDestroy() { if (Current == this) Current = null; }
         void Update()
@@ -76,6 +84,7 @@ namespace Vampire
         {
             if (finished) return;
             finished = true; Data.success = success;
+            if (FestivalDemo.Enabled) { Data.seconds = Mathf.Min(level.CurrentLevelTime, FestivalDemo.Settings.duration); return; }
             pendingFinish = FinishOnline();
         }
         async Task FinishOnline()

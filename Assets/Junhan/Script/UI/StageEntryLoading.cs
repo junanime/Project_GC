@@ -76,6 +76,7 @@ namespace Vampire
 
         IEnumerator Load()
         {
+            float visibleSince = Time.realtimeSinceStartup;
             // Let the complete overlay render before starting IO / scene deserialization.
             yield return null;
             yield return null;
@@ -101,7 +102,7 @@ namespace Vampire
             {
                 var level=FindObjectOfType<LevelManager>();
                 var layout=level!=null?level.GetComponent<FieldObjectLayout>():null;
-                if(level!=null&&level.InitialFieldObjectsReady)break;
+                if(level!=null&&level.InitialFieldObjectsReady && (!FestivalDemo.Enabled || level.GetComponent<FestivalRunController>()?.Ready == true))break;
                 if((layout!=null&&layout.Failed)||Time.realtimeSinceStartup>deadline)
                 {
                     heading.text="필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.";
@@ -117,6 +118,9 @@ namespace Vampire
                 SetProgress(Mathf.MoveTowards(Progress,1,Time.unscaledDeltaTime*.2f));
                 yield return null;
             }
+            // Reuse this loading presentation for the three-second ready period.
+            while (FestivalDemo.Enabled && Time.realtimeSinceStartup - visibleSince < FestivalDemo.Settings.minimumLoadingSeconds)
+                yield return null;
             running = false;
             RestorePause();
             Destroy(gameObject);
@@ -245,7 +249,7 @@ namespace Vampire
             tip=tipImage.rectTransform;tip.sizeDelta=new Vector2(32,24);
             tipImage.sprite=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig")?.basicNeedle;tipImage.preserveAspect=true;
             percentage=Label("Progress percent","0%",panel,new Rect(883,44,70,34),19,Cream);
-            Label("Tip","TIP   캐릭터와 시작 침은 따로 선택할 수 있어요.",panel,new Rect(100,11,780,27),18,new Color(.75f,.91f,.85f));
+            Label("Tip",FestivalDemo.Enabled ? "TIP   시작 증강 4종 · WASD 이동 · Shift 대시 · R 액티브" : "TIP   캐릭터와 시작 침은 따로 선택할 수 있어요.",panel,new Rect(100,11,780,27),18,new Color(.75f,.91f,.85f));
             // Small cream/gold corner stitches; no herb clutter or large ornaments.
             foreach(float x in new[]{18f,948f})foreach(float y in new[]{18f,107f})
                 BoxAt("Corner stitch",panel,new Rect(x,y,14,3),new Color(.91f,.73f,.36f));

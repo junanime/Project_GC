@@ -26,6 +26,7 @@ namespace Vampire
         List<BossLevelSpawner> initial_bossSpawns;
         protected override void Awake()
         {
+            if (FestivalDemo.Enabled) { foreach (var module in Modules) if (module != null) module.enabled = false; enabled = false; return; }
             initial_timedSpawns = timedSpawns.ConvertAll(StageEventTemplate.Copy);
             initial_enzymeSpawns = enzymeSpawns.ConvertAll(StageEventTemplate.Copy);
             initial_eliteSpawns = eliteSpawns.ConvertAll(StageEventTemplate.Copy);

@@ -45,6 +45,7 @@ namespace Vampire
             if (runtime != null) return runtime;
             runtime = player.gameObject.AddComponent<RelicRuntime>();
             runtime.Player = player;
+            if (FestivalDemo.Enabled) { runtime.Equip(FestivalDemo.Relic(player.Blueprint)); return runtime; }
             var catalog = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             string id = RelicSaveData.GetEquippedRelicId();
             runtime.Equip(catalog != null && RelicSaveData.IsUnlocked(id) ? catalog.relics.FirstOrDefault(r => r != null && r.relicId == id) : null);

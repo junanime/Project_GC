@@ -25,7 +25,8 @@ namespace Vampire
             return Available((SyringeSpecialAugmentAbility.SpecialAugmentType)id) ? id : DefaultId(character);
         }
         public static string EnabledKey(SyringeSpecialAugmentAbility.SpecialAugmentType type)=>"October.NeedleEnabled."+type;
-        public static bool Enabled(SyringeSpecialAugmentAbility weapon)=>weapon==null || (Available(weapon.Type) && PlayerPrefs.GetInt(EnabledKey(weapon.Type),1)!=0);
+        public static bool Enabled(SyringeSpecialAugmentAbility weapon)=>weapon==null || (Available(weapon.Type) &&
+            (FestivalDemo.Enabled ? FestivalDemo.Includes(weapon.Type,CrossSceneData.CharacterBlueprint) : PlayerPrefs.GetInt(EnabledKey(weapon.Type),1)!=0));
         public static bool SetEnabled(SyringeSpecialAugmentAbility weapon,bool enabled,ApothecaryUIConfig config)
         {
             if(weapon==null || !Available(weapon.Type) || !Owned(weapon))return false;
@@ -43,6 +44,7 @@ namespace Vampire
         public static bool Owned(SyringeSpecialAugmentAbility weapon)
         {
             if(weapon==null)return true;
+            if(FestivalDemo.Enabled)return FestivalDemo.Includes(weapon.Type,CrossSceneData.CharacterBlueprint);
             if(LobbyUnlockSave.IsUnlocked("Needle",weapon.Type.ToString(),false))return true;
             var config=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             return config!=null&&config.characters.Any(c=>c!=null&&DefaultId(c)==(int)weapon.Type&&LobbyUnlockSave.IsUnlocked("Character",c.name,c.owned));
@@ -56,6 +58,7 @@ namespace Vampire
         public static void Apply(AbilityManager manager,CharacterBlueprint character=null)
         {
             if(manager==null)return;
+            if(FestivalDemo.Enabled){FestivalDemo.ApplyWeapons(manager,character??CrossSceneData.CharacterBlueprint);return;}
             var config=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             var selected=config!=null?Selected(config,character!=null?character:CrossSceneData.CharacterBlueprint):null;
             if(selected==null)return;

@@ -29,7 +29,10 @@ namespace Vampire
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void Boot()
         {
-            Apply(Read(),false);
+            var values=Read();
+            // Apply after reading settings so initialization order cannot override the PC cap.
+            if(FestivalDemo.Enabled){values.frameLimit=60;values.vSync=false;}
+            Apply(values,false);
             var go=new GameObject("User settings lifecycle");
             UnityEngine.Object.DontDestroyOnLoad(go);go.AddComponent<GamePreferenceLifecycle>();
         }

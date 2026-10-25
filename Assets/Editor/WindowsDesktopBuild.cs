@@ -36,12 +36,13 @@ namespace Vampire.Editor
                     scenes = scenes,
                     locationPathName = Path.Combine(folder, "24tu.exe"),
                     target = BuildTarget.StandaloneWindows64,
-                    options = BuildOptions.CompressWithLz4HC
+                    // Local festival iteration favors quick packaging of the existing resource library.
+                    options = FestivalDemo.Enabled ? BuildOptions.CompressWithLz4 : BuildOptions.CompressWithLz4HC
                 });
                 if (report == null || report.summary.result != BuildResult.Succeeded)
                     throw new InvalidOperationException("Windows build failed; inspect the Unity build log.");
                 File.Copy("LICENSE", Path.Combine(folder, "LICENSE.txt"), true);
-                File.Copy("README.md", Path.Combine(folder, "PLAY_GUIDE.md"), true);
+                File.Copy(FestivalDemo.Enabled ? "Documentation/FestivalDemo.md" : "README.md", Path.Combine(folder, "PLAY_GUIDE.md"), true);
                 File.Copy("Tools/Distribution/ThirdPartyNotices.md", Path.Combine(folder, "ThirdPartyNotices.md"), true);
                 File.WriteAllText(Path.Combine(folder, "desktop-build.json"), JsonUtility.ToJson(new BuildInfo
                 {

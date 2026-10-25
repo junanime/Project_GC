@@ -21,6 +21,8 @@ namespace Vampire
         List<StageEventSchedule> initialBasic;
         List<AdvancedStageFieldEventDirector> initialAdvanced;
         List<AntacidBubbleSurgeEventController> initialAntacid;
+        public string FestivalEventKind { get; private set; }
+        public int FestivalScheduledEventCount { get; private set; }
         public void RestartForStage()
         {
             foreach (var module in Modules) module?.Dispose();
@@ -56,8 +58,8 @@ namespace Vampire
             initialBasic = basicEvents.ConvertAll(StageEventTemplate.Copy);
             initialAdvanced = advancedEvents.ConvertAll(StageEventTemplate.Copy);
             initialAntacid = antacidEvents.ConvertAll(StageEventTemplate.Copy);
-            if (GetComponent<AcidToadSpawn>() == null) gameObject.AddComponent<AcidToadSpawn>();
-            if (useWindowSchedule) PrepareWindowSchedule();
+            if (!FestivalDemo.Enabled && GetComponent<AcidToadSpawn>() == null) gameObject.AddComponent<AcidToadSpawn>();
+            if (useWindowSchedule || FestivalDemo.Enabled) PrepareWindowSchedule();
             base.Awake();
         }
 
@@ -76,6 +78,17 @@ namespace Vampire
                     schedule = time => { var copy = StageEventTemplate.Copy(source); copy.ScheduleAt(time); antacidEvents.Add(copy); } });
             }
             if (templates.Count == 0) { Debug.LogWarning("[StageEventDirector] 활성 이벤트 후보가 없습니다.", this); return; }
+            if (FestivalDemo.Enabled)
+            {
+                // Each CollectWindowTemplates call clears its ordinary schedule first.
+                var choices = templates.FindAll(t => t.duration <= FestivalDemo.Settings.duration - FestivalDemo.Settings.eventSeconds);
+                if (choices.Count == 0) choices = templates;
+                var selected = choices[Random.Range(0, choices.Count)];
+                selected.schedule(FestivalDemo.Settings.eventSeconds);
+                FestivalEventKind = selected.kind;
+                FestivalScheduledEventCount = 1;
+                return;
+            }
             var level = FindObjectOfType<LevelManager>();
             float duration = level != null && level.CurrentLevelBlueprint != null ? level.CurrentLevelBlueprint.levelTime : fallbackDurationSeconds;
             var slots = StageEventWindowPlanner.Build(duration, new[] { primaryTrack, secondaryTrack }, () => Random.value);

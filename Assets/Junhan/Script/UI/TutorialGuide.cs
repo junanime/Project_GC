@@ -112,6 +112,7 @@ namespace Vampire
         }
         private static void Queue(string id)
         {
+            if (FestivalDemo.Enabled) return;
             if (Instance == null || !Instance.ready) return;
             Instance.Enqueue(id);
         }

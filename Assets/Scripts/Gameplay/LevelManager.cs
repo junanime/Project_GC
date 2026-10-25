@@ -36,12 +36,14 @@ namespace Vampire
         private float timeSinceLastChestSpawned;
         public int NormalMonstersSpawned { get; private set; }
         private TimedSpecialMonsterSpawner fieldSpawns;
+        private FestivalRunController festivalRun;
+        private int festivalSpawnFrame = -1, festivalSpawnsThisFrame;
         public void NotifyExternalFinalBossSpawned() { if (fieldSpawns != null) fieldSpawns.NotifyFinalBossSpawned(); }
         private bool levelEnded = false;
         private bool runFlowPaused = false;
 
         public float CurrentLevelTime => levelTime;
-        public float LevelDuration => levelBlueprint != null ? levelBlueprint.levelTime : 0f;
+        public float LevelDuration => FestivalDemo.Enabled ? FestivalDemo.Settings.duration : levelBlueprint != null ? levelBlueprint.levelTime : 0f;
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
@@ -111,10 +113,12 @@ namespace Vampire
             if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
             tutorial.Initialize(this);
             StageProgression.Ensure(this);
-            SupplyCapsuleDirector.Ensure(this);
+            if (!FestivalDemo.Enabled) SupplyCapsuleDirector.Ensure(this);
             FieldObjectLayout.Ensure(this);
-            AcidLakeEvent.Install(this);
+            if (!FestivalDemo.Enabled) AcidLakeEvent.Install(this);
             RunScore.Install(this);
+            FestivalRunController.Install(this, abilityManager);
+            festivalRun = GetComponent<FestivalRunController>();
         }
 
         // Preserve the actual player, abilities, inventory, relic runtimes, stats and loot pools.
@@ -151,8 +155,17 @@ namespace Vampire
             {
                 return;
             }
+            if (FestivalDemo.Enabled && (!playerCharacter.IsAlive || Time.deltaTime <= 0)) return;
 
             levelTime += Time.deltaTime;
+            if (FestivalDemo.Enabled && levelTime >= LevelDuration)
+            {
+                levelTime = LevelDuration;
+                if (gameTimer != null) gameTimer.SetTime(0);
+                if (playerCharacter.IsAlive) LevelPassed(null);
+                else GameOver();
+                return;
+            }
             SpawnPotionRemaining=Mathf.Max(0,SpawnPotionRemaining-Time.deltaTime);
 
             if (gameTimer != null)
@@ -160,6 +173,7 @@ namespace Vampire
                 gameTimer.SetTime(Mathf.Max(0f,LevelDuration-levelTime));
             }
 
+            if (festivalRun != null) festivalRun.Tick();
             HandleNormalMonsterSpawn();
             HandleChestSpawn();
         }
@@ -205,7 +219,9 @@ namespace Vampire
                 ? 1.0f / spawnRate
                 : float.PositiveInfinity;
 
-            while (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
+            int spawnBudget = FestivalDemo.Enabled ? FestivalDemo.Settings.spawnBudgetPerFrame : int.MaxValue;
+            if (FestivalDemo.Enabled) timeSinceLastMonsterSpawned = Mathf.Min(timeSinceLastMonsterSpawned, monsterSpawnDelay * spawnBudget);
+            while (timeSinceLastMonsterSpawned >= monsterSpawnDelay && spawnBudget-- > 0)
             {
                 SpawnMonsterFromSpawnTable();
 
@@ -257,6 +273,7 @@ namespace Vampire
 
         public float GetNormalizedLevelTime()
         {
+            if (FestivalDemo.Enabled) return Mathf.Lerp(.28f, .65f, Mathf.Clamp01(levelTime / LevelDuration));
             if (levelBlueprint == null || levelBlueprint.levelTime <= 0f)
             {
                 return 0f;
@@ -267,6 +284,7 @@ namespace Vampire
 
         public float GetCurrentBaseMonsterSpawnRate()
         {
+            if (FestivalDemo.Enabled) return Mathf.Lerp(FestivalDemo.Settings.startingSpawnRate, FestivalDemo.Settings.finalSpawnRate, Mathf.Clamp01(levelTime / LevelDuration));
             if (levelBlueprint == null || levelBlueprint.monsterSpawnTable == null)
             {
                 return 0f;
@@ -279,8 +297,13 @@ namespace Vampire
 
         public void SpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier = 1f)
         {
+            if (FestivalDemo.Enabled)
+            {
+                if (festivalSpawnFrame != Time.frameCount) { festivalSpawnFrame = Time.frameCount; festivalSpawnsThisFrame = 0; }
+                if (festivalSpawnsThisFrame >= FestivalDemo.Settings.spawnBudgetPerFrame || levelEnded) return;
+            }
             if (levelBlueprint != null && entityManager != null &&
-                entityManager.LivingMonsters.Count >= Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit)) return;
+                entityManager.LivingMonsters.Count >= Mathf.Max(1, FestivalDemo.Enabled ? FestivalDemo.Settings.populationLimit : levelBlueprint.normalSpawnPopulationLimit)) return;
             if (levelBlueprint == null || entityManager == null)
             {
                 Debug.LogWarning(
@@ -325,9 +348,11 @@ namespace Vampire
             // 선택된 난이도가 MonsterHealth이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
             // Spawn APIs take EXTRA HP, not total HP. Only explicit event buffs apply.
             float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
+            if (FestivalDemo.Enabled) multiplier *= Mathf.Lerp(FestivalDemo.Settings.startingHealthMultiplier, FestivalDemo.Settings.finalHealthMultiplier, Mathf.Clamp01(levelTime / LevelDuration));
             float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
             Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
+            if (FestivalDemo.Enabled && spawned != null) festivalSpawnsThisFrame++;
             if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
         }
 
@@ -466,6 +491,7 @@ namespace Vampire
 
         private void SaveCoinsGained()
         {
+            if (FestivalDemo.Enabled) return;
             if (statsManager == null)
             {
                 return;

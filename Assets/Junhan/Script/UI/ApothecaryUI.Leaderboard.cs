@@ -10,6 +10,7 @@ namespace Vampire
         TextMeshProUGUI runScoreStatus;
         void UpdateRanking()
         {
+            if (FestivalDemo.Enabled) return;
             if (Page == "main")
             {
                 QaLeaderboard.Refresh();

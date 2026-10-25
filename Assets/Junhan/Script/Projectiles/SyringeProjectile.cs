@@ -1580,7 +1580,7 @@ namespace Vampire
                 );
             }
 
-            if (isCritical)
+            if (isCritical && !FestivalDemo.Enabled)
             {
                 Debug.Log(
                     $"[치명타] 침 공격 치명타 발생 | " +
@@ -1772,7 +1772,7 @@ namespace Vampire
                 SyringeAugmentVfx.PlayRadius("Explosion", transform.position, specials.explosionRadius, SyringeAugmentVfx.FindTarget(originalTarget.transform));
             }
 
-            Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");
+            if (!FestivalDemo.Enabled) Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");
 
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, specials.explosionRadius);
             HashSet<int> damagedIds = new HashSet<int>();
@@ -1819,7 +1819,7 @@ namespace Vampire
                     splashDamage
                 );
 
-                Debug.Log($"<color=yellow><b> └ [↳ 💥 스플래시 피해 완수]</b></color> 휩쓸린 몹: {monster.gameObject.name} | 입은 피해: {splashDamage}");
+                if (!FestivalDemo.Enabled) Debug.Log($"<color=yellow><b> └ [↳ 💥 스플래시 피해 완수]</b></color> 휩쓸린 몹: {monster.gameObject.name} | 입은 피해: {splashDamage}");
             }
         }
 
@@ -1897,7 +1897,7 @@ namespace Vampire
                 StartCoroutine(ReenableColliderNextFrame());
             }
 
-            Debug.Log($"<color=lightblue>[구강 청결제]</color> 투사체 반사 발동! 새로운 타겟 방향으로 꺾임.");
+            if (!FestivalDemo.Enabled) Debug.Log($"<color=lightblue>[구강 청결제]</color> 투사체 반사 발동! 새로운 타겟 방향으로 꺾임.");
             return true;
         }
 

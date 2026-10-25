@@ -56,13 +56,15 @@ namespace Vampire
                     }
                     if(prescriptionClaim!=null)
                     {
-                        prescriptionClaim.interactable=quest.Ready&&Time.timeScale>0;
-                        prescriptionClaim.GetComponentInChildren<TextMeshProUGUI>().text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택":"퀘스트 3개 완료 → 고귀 증강";
+                        prescriptionClaim.interactable=!FestivalDemo.Enabled&&quest.Ready&&Time.timeScale>0;
+                        prescriptionClaim.GetComponentInChildren<TextMeshProUGUI>().text=FestivalDemo.Enabled ?
+                            (quest.Claimed ? quest.AutomaticRewardName+" 획득!" : "3개 완료 시 고귀 증강 자동 획득") :
+                            quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택":"퀘스트 3개 완료 → 고귀 증강";
                     }
                 }
                 if(overchargeButton!=null)
                 {
-                    var charge=FindNearbyOvercharge();
+                    var charge=FestivalDemo.Enabled?null:FindNearbyOvercharge();
                     overchargeButton.gameObject.SetActive(charge!=null&&!charge.Started&&!MiniStageRuntimeState.IsInsideMiniStage);
                     overchargeButton.interactable=Time.timeScale>0;
                 }

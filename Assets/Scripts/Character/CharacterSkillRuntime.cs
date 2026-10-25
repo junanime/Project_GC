@@ -44,7 +44,8 @@ namespace Vampire
         public float ActivePower => IsShini ? 1+.2f*(ActiveLevel-1) : IsAri ? 1 : Mathf.Pow(1.3f, ActiveLevel - 1);
         public float EffectivePassiveDuration => Definition.passiveDuration * (Definition.kind == CharacterSkillDefinition.SkillKind.Ashi ? PassivePower : 1);
         public float EffectiveActiveDuration => Definition.activeDuration + (IsAri ? 2*(ActiveLevel-1) : 0);
-        public float EffectiveCooldown => IsShini ? 0 : Definition.kind==CharacterSkillDefinition.SkillKind.Ashi ? Mathf.Max(1,Definition.cooldown-4*(ActiveLevel-1)) : Definition.cooldown / (IsHyuki ? ActivePower : 1);
+        public float EffectiveCooldown => FestivalDemo.Enabled ? Mathf.Min(24, BaseEffectiveCooldown) : BaseEffectiveCooldown;
+        float BaseEffectiveCooldown => IsShini ? 0 : Definition.kind==CharacterSkillDefinition.SkillKind.Ashi ? Mathf.Max(1,Definition.cooldown-4*(ActiveLevel-1)) : Definition.cooldown / (IsHyuki ? ActivePower : 1);
         public bool TryUpgrade(bool active)
         {
             if (!CanUpgrade(active)) return false;

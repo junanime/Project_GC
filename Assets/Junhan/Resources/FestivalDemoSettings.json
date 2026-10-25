@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "duration": 60,
+  "minimumLoadingSeconds": 3,
+  "eventSeconds": 25,
+  "startingSpawnRate": 10,
+  "finalSpawnRate": 16,
+  "startingHealthMultiplier": 1.35,
+  "finalHealthMultiplier": 1.85,
+  "initialEnemies": 18,
+  "populationLimit": 110,
+  "spawnBudgetPerFrame": 6,
+  "questKills": 20,
+  "questDashes": 4,
+  "questActiveUses": 2,
+  "presets": [
+    { "character": "Ashi", "description": "기동 · 관통 · 추적", "weapons": [19, 2, 3, 6], "relic": "feather", "items": [1, 20], "noble": "HedgehogNeedle", "damageBonus": 0.22, "attackSpeedBonus": 0.16, "healthBonus": 15 },
+    { "character": "Hyuki", "description": "빙결 · 충격파 · 생존", "weapons": [18, 20, 10, 3], "relic": "firm_shield", "items": [12, 2], "noble": "NeuralBlock", "damageBonus": 0.45, "attackSpeedBonus": 0.30, "healthBonus": 0 },
+    { "character": "Shini", "description": "화상 · 폭발 · 부식", "weapons": [17, 1, 9, 14], "relic": "clear_dew", "items": [12, 8], "noble": "GastricPeristalsisWave", "damageBonus": 0.20, "attackSpeedBonus": 0.12, "healthBonus": 35 },
+    { "character": "Ari", "description": "진형 · 표식 · 연쇄", "weapons": [7, 11, 12, 8], "relic": "lightning_beat", "items": [1, 2], "noble": "MucosalFortress", "damageBonus": 0.40, "attackSpeedBonus": 0.25, "healthBonus": 45 }
+  ]
+}
