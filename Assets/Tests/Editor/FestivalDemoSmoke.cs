@@ -223,10 +223,16 @@ namespace Vampire.Tests.Editor
             dialog.RerollAbilities();yield return new WaitForSecondsRealtime(.6f);
             Check(Displayed(dialog).Count==3&&Displayed(dialog).OfType<Ver4AugmentOffer>().All(o=>o.Kind!=Ver4RewardKind.Original),"reroll keeps three non-original choices");
             if(SessionState.GetBool(Key+"UiOnly",false))Capture(level.PlayerCharacter.Blueprint.name+"-levelup");
+            var selectedOffers=Displayed(dialog);int selectedLevel=level.PlayerCharacter.CurrentLevel;
             cards[0].Selected();
             float deadline=Time.realtimeSinceStartup+5;
-            while((dialog.MenuOpen||dialog.SelectionAnimating)&&Time.realtimeSinceStartup<deadline)yield return null;
-            Check(!dialog.MenuOpen&&!dialog.SelectionAnimating&&Time.timeScale>0,"augment selection closes and resumes combat");
+            while(dialog.SelectionAnimating&&Time.realtimeSinceStartup<deadline)yield return null;
+            // Collected XP can open the next level reward on the same frame the old one closes.
+            // Require a distinct offer set AND another real level, not merely any still-open menu.
+            bool nextReward=dialog.MenuOpen&&!ReferenceEquals(selectedOffers,Displayed(dialog))&&level.PlayerCharacter.CurrentLevel>selectedLevel;
+            bool resumed=!dialog.MenuOpen&&Time.timeScale>0;
+            if(dialog.SelectionAnimating||(!resumed&&!nextReward))Capture("selection-resume-failure");
+            Check(!dialog.SelectionAnimating&&(resumed||(nextReward&&Time.timeScale==0)),"selection completes and resumes combat or advances to a distinct queued level reward");
             Check(runtime.CaptureRunSceneConditionalAugmentIds().Count==before+1,"selected augment is actually acquired");
         }
         static IEnumerator ExperienceChecks(LevelManager level)
