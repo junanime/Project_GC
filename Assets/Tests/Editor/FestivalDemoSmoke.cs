@@ -10,6 +10,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using InputKey = UnityEngine.InputSystem.Key;
 using Object = UnityEngine.Object;
 
 namespace Vampire.Tests.Editor
@@ -35,6 +38,10 @@ namespace Vampire.Tests.Editor
         {
             Run();SessionState.SetBool(Key+"UiOnly",true);
         }
+        public static void RunLaunch()
+        {
+            Run();SessionState.SetBool(Key+"LaunchOnly",true);
+        }
         public static void Run()
         {
             Directory.CreateDirectory(Output);
@@ -43,6 +50,7 @@ namespace Vampire.Tests.Editor
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Fail",false);
             SessionState.SetBool(Key+"Build",false);
             SessionState.SetBool(Key+"UiOnly",false);
+            SessionState.SetBool(Key+"LaunchOnly",false);
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
             EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(0,0,1280,761);
             Attach();EditorApplication.EnterPlaymode();
@@ -87,6 +95,68 @@ namespace Vampire.Tests.Editor
         static void Set(object target,string field,object value) => target.GetType().GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(target,value);
         static float Exp(Character hero,string field) => (float)typeof(Character).GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).GetValue(hero);
         static List<Ability> Displayed(AbilitySelectionDialog dialog) => (List<Ability>)typeof(AbilitySelectionDialog).GetField("displayedAbilities",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(dialog);
+        static IEnumerator KeyboardStateFor(Keyboard keyboard,params InputKey[] keys)
+        {
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState(keys));
+            yield return null;yield return null;
+        }
+        static IEnumerator ActiveSkillInputChecks(LevelManager level)
+        {
+            var hero=level.PlayerCharacter;var skill=hero.Skills;
+            var background=InputSystem.settings.backgroundBehavior;
+            var editorInput=InputSystem.settings.editorInputBehaviorInPlayMode;
+            var invincibleField=typeof(Character).GetField("isInvincible",BindingFlags.Instance|BindingFlags.NonPublic);
+            bool invincible=(bool)invincibleField.GetValue(hero),paused=level.IsRunFlowPaused;
+            int fuel=skill.Breath!=null?skill.Breath.Fuel:0;
+            var mode=FestivalDemo.EnabledOverride;
+            InputSystem.settings.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+            InputSystem.settings.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            var keyboard=InputSystem.AddDevice<Keyboard>();
+            level.SetRunFlowPaused(true);invincibleField.SetValue(hero,true);
+            try
+            {
+                yield return KeyboardStateFor(keyboard,InputKey.R);
+                Check(!skill.Active&&skill.CooldownRemaining==0,"old R key does not activate festival skill");
+                yield return KeyboardStateFor(keyboard);
+                yield return KeyboardStateFor(keyboard,InputKey.Space);
+                Check(skill.Active,"physical Space press activates "+hero.Blueprint.name);
+                if(skill.IsShini)
+                {
+                    Check(skill.Breath.Fuel==fuel-ShiniEmberRuntime.InitialCost,"Space starts Shini with one initial fuel charge");
+                    yield return new WaitForSeconds(ShiniEmberRuntime.Preparation+ShiniEmberRuntime.ShortDuration+.6f);
+                    Check(skill.Breath.Emitting&&skill.Breath.Fuel<fuel-ShiniEmberRuntime.InitialCost,"held Space sustains Shini beyond short cast and consumes fuel");
+                    var dialog=level.EntityManager.AbilitySelectionDialog;
+                    dialog.Open();int pausedFuel=skill.Breath.Fuel;
+                    yield return KeyboardStateFor(keyboard);
+                    yield return new WaitForSecondsRealtime(.1f);
+                    Check(skill.Breath.Busy&&skill.Breath.Fuel==pausedFuel,"Space release is observed while reward freezes Shini");
+                    dialog.Close();yield return new WaitForSeconds(.8f);
+                    Check(!skill.Breath.Busy,"released Space does not latch Shini after reward closes");
+                }
+                else
+                {
+                    yield return KeyboardStateFor(keyboard);
+                    Check(skill.Active&&skill.CooldownRemaining>0,"Space release preserves normal active duration and cooldown");
+                }
+                skill.EndRun();skill.Breath?.RestoreFuel(fuel);
+                FestivalDemo.EnabledOverride=false;
+                yield return KeyboardStateFor(keyboard,InputKey.Space);
+                Check(!skill.Active,"ordinary mode does not adopt festival Space binding");
+                yield return KeyboardStateFor(keyboard);
+                yield return KeyboardStateFor(keyboard,InputKey.R);
+                Check(skill.Active,"ordinary R activation preserved: "+hero.Blueprint.name);
+                yield return KeyboardStateFor(keyboard);
+            }
+            finally
+            {
+                skill.EndRun();skill.Breath?.RestoreFuel(fuel);
+                FestivalDemo.EnabledOverride=mode;
+                InputSystem.RemoveDevice(keyboard);
+                InputSystem.settings.backgroundBehavior=background;
+                InputSystem.settings.editorInputBehaviorInPlayMode=editorInput;
+                invincibleField.SetValue(hero,invincible);level.SetRunFlowPaused(paused);
+            }
+        }
         static void OriginalOfferChecks(Ver4AugmentRuntime runtime,bool checkOrdinaryMode)
         {
             // Only the starting character is necessarily unlocked in the ordinary save.
@@ -185,16 +255,18 @@ namespace Vampire.Tests.Editor
         {
             Application.runInBackground=true;
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;GamePreferences.Apply(prefs,false);
-            var intro=Object.FindObjectOfType<IntroMovie>();
-            if(intro!=null){intro.RequestSkip();intro.RequestSkip();intro.ConfirmSkip();}
             yield return null;yield return null;
             Check(FestivalDemo.Enabled,"festival branch defaults enabled");
-            Check(ApothecaryUI.Instance.Page=="festival","intro opens character selection directly");
+            Check(!IntroMovie.Active&&Object.FindObjectsOfType<IntroMovie>(true).Length==0,"festival launch creates no intro movie");
+            Check(!IntroMovie.BlocksMenuInput,"launch accepts input without skip or confirmation");
+            Check(ApothecaryUI.Instance.Page=="festival","launch opens character selection directly");
             Check(Object.FindObjectsOfType<Button>().Count(b=>b.name.StartsWith("Festival character "))==4,"four character cards");
+            Check(Object.FindObjectsOfType<TMP_Text>().Any(t=>t.text.Contains("Space 액티브")),"character selection explains the Space active key");
             Check(Application.targetFrameRate==60&&QualitySettings.vSyncCount==0,"PC starts with consistent sixty FPS cap");
             ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="settings","Escape opens settings from festival selection");
             ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="festival","settings returns to festival selection");
             Capture("selection");
+            if(SessionState.GetBool(Key+"LaunchOnly",false)){SessionState.SetBool(Key+"Done",true);yield break;}
             StorageChecks();
             var config=FestivalDemo.Catalog;
             int savedSilver=SilverWallet.Silver;
@@ -275,6 +347,7 @@ namespace Vampire.Tests.Editor
                 var initialChests=Object.FindObjectsOfType<Chest>();
                 Check(initialChests.Length==1&&initialChests[0].CanInteract&&Vector2.Distance(initialChests[0].transform.position,hero.transform.position)<=2.1f,"one usable item chest beside player at start: "+preset.character);
                 Check(!proof.CurrentLevelBlueprint.chestBlueprint.abilityChest,"scheduled chest uses existing item loot");
+                yield return ActiveSkillInputChecks(proof);
                 OriginalOfferChecks(Object.FindObjectOfType<AbilityManager>().Ver4,preset==FestivalDemo.Settings.presets[0]);
                 if(preset==FestivalDemo.Settings.presets[0])yield return ExperienceChecks(proof);
                 int previousLevel=hero.CurrentLevel;

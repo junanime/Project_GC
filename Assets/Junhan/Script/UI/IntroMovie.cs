@@ -37,7 +37,8 @@ namespace Vampire
 
         public static void TryShow(ApothecaryUI ui)
         {
-            if (attempted || Active) return;
+            // Festival visitors go straight to the character cards without creating a video player.
+            if (FestivalDemo.Enabled || attempted || Active) return;
             attempted = true;
             var config = Resources.Load<IntroMovieSettings>("IntroMovieSettings");
             if (config == null || !config.playOnLaunch || string.IsNullOrWhiteSpace(config.relativePath)) return;

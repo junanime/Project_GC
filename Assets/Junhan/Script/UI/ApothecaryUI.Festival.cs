@@ -51,7 +51,7 @@ namespace Vampire
                 var weapon=Config.weapons.FirstOrDefault(w=>w!=null&&(int)w.Type==preset.weapons[i]);
                 FestivalEquipment(weapon?.Image,weapon?.Name??"무기 정보 없음",weapon?.Description,.15f+i*.195f,.195f,.335f+i*.195f,.30f);
             }
-            Label(content,"WASD 이동 · Shift 대시 · R 액티브(신이는 길게) · 퀘스트 완료 시 고귀 증강 자동 획득",.04f,.105f,.96f,.16f,19);
+            Label(content,$"WASD 이동 · Shift 대시 · {GameInput.ActiveSkillKeyLabel} 액티브(신이는 길게) · 퀘스트 완료 시 고귀 증강 자동 획득",.04f,.105f,.96f,.16f,19);
             ActionButton(content,"행사 리더보드",.045f,.025f,.275f,.095f,()=>Show("festivalRanking"));
             festivalNote=Label(content,message,.29f,.025f,.68f,.095f,17);
             ActionButton(content,"이 캐릭터로 시작",.70f,.025f,.955f,.095f,StartFestival,true,!starting);

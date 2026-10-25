@@ -67,7 +67,7 @@ namespace Vampire
             {
                 bool active=true;float x=0;
                 var b=HudIconButton("",x,0,()=>{if(Time.timeScale<=0)return;if(active){if(CurrentSkills!=null&&!CurrentSkills.IsShini)CurrentSkills.TryActivate();}else {OpenSkillHelp();if(Page=="run")ShowSkillDetails(character,false);}});
-                b.name=active?"Active skill R":"Passive skill status";
+                b.name=active?$"Active skill {GameInput.ActiveSkillKeyLabel}":"Passive skill status";
                 HudTooltip.Bind(b.gameObject,()=>SkillTitle(character,active),()=>SkillHelp(character,active)+"\n\n설명만 보기: 상태 → 스킬 아이콘");
                 var visual=b.transform.Find("Visual");
                 var framed=Rect("Skill icon",visual,.13f,.25f,.87f,.90f);
@@ -140,7 +140,7 @@ namespace Vampire
             if(dashHudButton!=null)dashHudButton.interactable=playing&&level.PlayerCharacter.CurrentDashCharges>0&&!level.PlayerCharacter.IsDashing;
             if(interactionHudButton!=null)interactionHudButton.interactable=playing;
             if(passiveLevelLabel!=null)passiveLevelLabel.text=$"패시브 Lv.{(skill!=null?skill.PassiveLevel:1)}";
-            if(activeLevelLabel!=null)activeLevelLabel.text=$"{((GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?"":"R · ")}액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
+            if(activeLevelLabel!=null)activeLevelLabel.text=$"{((GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?"":GameInput.ActiveSkillKeyLabel+" · ")}액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
             activeCooldown.fillAmount=d!=null&&skill.EffectiveCooldown>0?skill.CooldownRemaining/skill.EffectiveCooldown:0;
             activeSeconds.text=skill!=null&&skill.IsShini?(skill.Breath!=null&&skill.Breath.Busy?"분사":"6개"):skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
             // Marathon has no separate cooldown: its countdown is the remaining buff duration.
