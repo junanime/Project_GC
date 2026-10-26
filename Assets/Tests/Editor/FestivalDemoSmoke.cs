@@ -30,6 +30,10 @@ namespace Vampire.Tests.Editor
         {
             Run();SessionState.SetBool(Key+"Build",true);
         }
+        public static void RunLaunchAndBuild()
+        {
+            RunAndBuild();SessionState.SetBool(Key+"LaunchOnly",true);
+        }
         public static void RunUiAndBuild()
         {
             RunAndBuild();SessionState.SetBool(Key+"UiOnly",true);

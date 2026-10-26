@@ -142,9 +142,9 @@ namespace Vampire
             string passive,active;
             switch(OctoberArt.CharacterKey(character))
             {
-                case "Hyuki":passive="상태이상에 걸린 적에게\n추가 피해를 줍니다.";active="주변 적을 잠시 얼립니다.\n빙결침으로 더 오래 묶어두세요.";break;
-                case "Shini":passive="적을 처치하면 불씨를 모읍니다.\n불씨는 화염 방사의 연료입니다.";active="부리 앞에 불을 내뿜습니다.\nSpace를 길게 누르면\n불씨를 쓰며 연속 발사합니다.";break;
-                case "Ari":passive="구르며 부딪힌 적에게\n피해를 주고 밀어냅니다.";active="암석 봉황으로 변신합니다.\n강한 돌진을 빠르게 반복합니다.";break;
+                case "Hyuki":passive="상태이상에 걸린 적에게\n추가 피해를 줍니다.";active="주변 적을 잠시 얼립니다.\n빙결침으로 지속시간을\n늘릴 수 있습니다.";break;
+                case "Shini":passive="적을 처치하면 불씨를 모읍니다.\n불씨는 화염 방사의 연료입니다.";active="전방으로 불을 뿜습니다.\nSpace를 길게 누르면\n불씨로 연속 발사합니다.";break;
+                case "Ari":passive="구르며 부딪힌 적에게\n피해를 주고 밀어냅니다.";active="암석 봉황으로 변신해\n강한 돌진을 반복합니다.";break;
                 default:passive="대시 후 잠시 침 개수와\n공격 속도가 증가합니다.";active="잠시 침 개수, 이동 속도,\n침 속도가 크게 증가합니다.";break;
             }
             var skill=character.skills;
