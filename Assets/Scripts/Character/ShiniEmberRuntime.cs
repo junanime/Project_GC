@@ -14,6 +14,7 @@ namespace Vampire
         public int Fuel { get; private set; }
         public int Capacity => 24+6*(skill.PassiveLevel-1);
         public float DamagePower => 1+.2f*(skill.ActiveLevel-1);
+        public float EffectiveDamagePerSecond => DamagePerSecond * DamagePower * FestivalDemo.ShiniActiveDamageMultiplier;
         public bool Busy { get; private set; }
         public bool Emitting => Busy && age>=Preparation && stopped<0;
         public int GroundCount => drops.Count;
@@ -109,7 +110,7 @@ namespace Vampire
             foreach(var target in Ver4HitEffects.Nearby(origin,Range,LayerMask.GetMask("Monster Full","Chest"),owner))
             {
                 if(target is Monster m&&m.IsFieldRuntimeSuspended||!InCone((Vector2)target.transform.position-origin,direction))continue;
-                float damage=DamagePerSecond*seconds*owner.DamageMultiplier*DamagePower;
+                float damage=EffectiveDamagePerSecond*seconds*owner.DamageMultiplier;
                 var stats=PlayerGeneralStatRuntime.GetOrCreate(owner);if(stats!=null)damage=stats.ApplyBossDamageBonus(target,damage);
                 var corrosion=target.GetComponent<CorrosionStatus>();if(corrosion!=null)damage*=corrosion.GetDamageTakenMultiplier();
                 Ver4HitEffects.Damage(target,damage,Vector2.zero,owner,"후우우—!",true);

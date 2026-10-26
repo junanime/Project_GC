@@ -15,6 +15,11 @@ namespace Vampire
             var effect=obj.AddComponent<Ver4GroundEffect>(); effect.end=Time.time+duration;
             effect.nextTick=Time.time+.25f; effect.healing=healing; effect.damage=damage; effect.source=source; effect.layer=layer;
             effect.syringe=SyringeAbilityResolver.FindOwnedOrFirst(FindObjectOfType<AbilityManager>());
+            if(!healing)
+            {
+                obj.AddComponent<ColdGroundVisual>().Initialize(duration);
+                return;
+            }
             var line=obj.AddComponent<LineRenderer>(); line.useWorldSpace=false; line.loop=true; line.positionCount=24;
             line.startWidth=line.endWidth=.07f;
             effect.material=new Material(Shader.Find("Sprites/Default")); line.sharedMaterial=effect.material;

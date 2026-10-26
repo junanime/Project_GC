@@ -28,6 +28,7 @@ namespace Vampire
             => InteractionFocus.IsFocused(owner) && TryConsumeInteraction(key);
         public static bool GetKeyDown(KeyCode code)
         {
+            if(FestivalGaugeTutorial.BlocksInput)return false;
             var keyboard=Keyboard.current;
             if(keyboard==null || code==KeyCode.None) return false;
             var key=ResolveKeyboardKey(code);
@@ -36,6 +37,7 @@ namespace Vampire
 
         public static bool GetKey(KeyCode code)
         {
+            if(FestivalGaugeTutorial.BlocksInput)return false;
             var keyboard=Keyboard.current;
             if(keyboard==null || code==KeyCode.None)return false;
             var key=ResolveKeyboardKey(code);

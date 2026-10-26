@@ -50,10 +50,11 @@ namespace Vampire
                 run.FestivalRunId = Guid.NewGuid().ToString("N");
                 run.Data.rules = FestivalDemo.Rules;
                 run.Submission = "행사 PC에 기록 등록 가능";
+                FestivalQaRecorder.Begin(owner, run.FestivalRunId);
             }
             else run.ticket = BeginAfterPrevious();
         }
-        void OnDestroy() { if (Current == this) Current = null; }
+        void OnDestroy() { FestivalQaRecorder.End(FestivalRunId); if (Current == this) Current = null; }
         void Update()
         {
             if (!finished && !StageEntryLoading.IsLoading && level != null && !level.IsLevelEnded)
@@ -84,7 +85,7 @@ namespace Vampire
         {
             if (finished) return;
             finished = true; Data.success = success;
-            if (FestivalDemo.Enabled) { Data.seconds = Mathf.Min(level.CurrentLevelTime, FestivalDemo.Settings.duration); return; }
+            if (FestivalDemo.Enabled) { Data.seconds = Mathf.Min(level.CurrentLevelTime, FestivalDemo.Settings.duration); FestivalQaRecorder.End(FestivalRunId); return; }
             pendingFinish = FinishOnline();
         }
         async Task FinishOnline()

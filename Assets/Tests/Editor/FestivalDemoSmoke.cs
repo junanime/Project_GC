@@ -34,6 +34,14 @@ namespace Vampire.Tests.Editor
         {
             RunAndBuild();SessionState.SetBool(Key+"LaunchOnly",true);
         }
+        public static void RunQaAndBuild()
+        {
+            RunAndBuild();SessionState.SetBool(Key+"QaOnly",true);
+        }
+        public static void RunQa()
+        {
+            Run();SessionState.SetBool(Key+"QaOnly",true);
+        }
         public static void RunUiAndBuild()
         {
             RunAndBuild();SessionState.SetBool(Key+"UiOnly",true);
@@ -59,6 +67,7 @@ namespace Vampire.Tests.Editor
             SessionState.SetBool(Key+"Build",false);
             SessionState.SetBool(Key+"UiOnly",false);
             SessionState.SetBool(Key+"LaunchOnly",false);SessionState.SetBool(Key+"Balance",false);
+            SessionState.SetBool(Key+"QaOnly",false);
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
             EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(0,0,1280,761);
             Attach();EditorApplication.EnterPlaymode();
@@ -103,6 +112,12 @@ namespace Vampire.Tests.Editor
         static void Set(object target,string field,object value) => target.GetType().GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).SetValue(target,value);
         static float Exp(Character hero,string field) => (float)typeof(Character).GetField(field,BindingFlags.Instance|BindingFlags.NonPublic).GetValue(hero);
         static List<Ability> Displayed(AbilitySelectionDialog dialog) => (List<Ability>)typeof(AbilitySelectionDialog).GetField("displayedAbilities",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(dialog);
+        public static IEnumerator ContinueGaugeGuide()
+        {
+            if(FestivalGaugeTutorial.Instance!=null)FestivalGaugeTutorial.Instance.Dismiss();
+            while(FestivalGaugeTutorial.IsOpen)yield return null;
+            yield return null;yield return null;
+        }
         static IEnumerator KeyboardStateFor(Keyboard keyboard,params InputKey[] keys)
         {
             InputSystem.QueueStateEvent(keyboard,new KeyboardState(keys));
@@ -285,6 +300,21 @@ namespace Vampire.Tests.Editor
                 var card=Object.FindObjectsOfType<Button>().First(b=>b.name=="Festival character "+preset.character);
                 card.onClick.Invoke();yield return null;yield return null;Capture("selection-"+preset.character);
             }
+            if(SessionState.GetBool(Key+"QaOnly",false))
+            {
+                FestivalQaSmoke.DataChecks();
+                FestivalQaSmoke.BufferChecks();
+                var qaButton=ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="QA 데이터"));
+                qaButton.onClick.Invoke();yield return null;yield return null;
+                Check(ApothecaryUI.Instance.Page=="festivalQa","QA operator button opens summary");Capture("qa-summary");
+                var export=ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="QA 내보내기"));
+                export.onClick.Invoke();yield return null;
+                Check(ApothecaryUI.Instance.GetComponentsInChildren<TMP_Text>().Any(t=>t.text.StartsWith("완료:")),"operator export button creates ZIP");Capture("qa-export");
+                ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="festival","QA back returns to selection");
+                yield return FestivalOctober27Checks.Run();
+                ApothecaryUI.Instance.Show("festivalQa");yield return null;yield return null;Capture("qa-after-run");
+                SessionState.SetBool(Key+"Done",true);yield break;
+            }
             if(SessionState.GetBool(Key+"LaunchOnly",false)){SessionState.SetBool(Key+"Done",true);yield break;}
             StorageChecks();
             if(SessionState.GetBool(Key+"Balance",false))
@@ -310,6 +340,7 @@ namespace Vampire.Tests.Editor
                     yield return null;
                 }
                 Check(Time.realtimeSinceStartup-start>=3,"loading presentation lasts at least three seconds");
+                yield return ContinueGaugeGuide();
                 yield return null;
                 var level=Object.FindObjectOfType<LevelManager>();
                 var player=level.PlayerCharacter;
@@ -368,6 +399,7 @@ namespace Vampire.Tests.Editor
                 var chosen=config.characters.First(c=>OctoberArt.CharacterKey(c)==preset.character);
                 CrossSceneData.CharacterBlueprint=chosen;StageEntryLoading.Begin(chosen);
                 while(StageEntryLoading.IsLoading)yield return null;
+                yield return ContinueGaugeGuide();
                 yield return null;
                 var proof=Object.FindObjectOfType<LevelManager>();var hero=proof.PlayerCharacter;
                 var initialChests=Object.FindObjectsOfType<Chest>();

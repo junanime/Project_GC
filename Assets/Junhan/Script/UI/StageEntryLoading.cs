@@ -122,6 +122,7 @@ namespace Vampire
             while (FestivalDemo.Enabled && Time.realtimeSinceStartup - visibleSince < FestivalDemo.Settings.minimumLoadingSeconds)
                 yield return null;
             running = false;
+            if(FestivalDemo.Enabled)FestivalGaugeTutorial.Show(FindObjectOfType<LevelManager>());
             RestorePause();
             Destroy(gameObject);
         }
@@ -137,7 +138,7 @@ namespace Vampire
         {
             if (!ownsPause) return;
             // Other pause owners must not be resumed by this overlay.
-            if (!TutorialGuide.IsOpen && Time.timeScale == 0) Time.timeScale = 1;
+            if (!TutorialGuide.IsOpen && !FestivalGaugeTutorial.IsOpen && Time.timeScale == 0) Time.timeScale = 1;
             ownsPause = false;
         }
         void OnDestroy()

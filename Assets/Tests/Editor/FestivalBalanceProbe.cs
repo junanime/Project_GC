@@ -30,6 +30,7 @@ namespace Vampire.Tests.Editor
                 CrossSceneData.CharacterBlueprint=selected;CrossSceneData.ClearStartingLobbyItems();
                 if(!StageEntryLoading.Begin(selected))throw new Exception("Probe loading failed");
                 while(StageEntryLoading.IsLoading)yield return null;
+                yield return FestivalDemoSmoke.ContinueGaugeGuide();
                 yield return null;
                 var level=Object.FindObjectOfType<LevelManager>();var hero=level.PlayerCharacter;
                 float nextThink=0,nextDash=2,nextSkill=1,path=0;

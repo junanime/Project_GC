@@ -13,7 +13,8 @@ namespace Vampire
 
         void BuildFestivalSelection()
         {
-            Label(content,"페스티벌 · 45초 생존",.05f,.895f,.75f,.975f,36);
+            Label(content,"페스티벌 · 45초 생존",.05f,.895f,.72f,.975f,36);
+            ActionButton(content,"QA 데이터",.735f,.91f,.84f,.975f,()=>Show("festivalQa"));
             ActionButton(content,"설정",.85f,.91f,.96f,.975f,OpenSettings);
             var characters = Config.characters.Where(c => c != null && FestivalDemo.Preset(c) != null).Take(4).ToArray();
             if (!characters.Contains(character)) character = characters.FirstOrDefault();
@@ -54,7 +55,7 @@ namespace Vampire
             }
             Label(content,$"WASD 이동 · Shift 대시 · {GameInput.ActiveSkillKeyLabel} 액티브(신이는 길게) · 경험치 없음 · 퀘스트 완료 시 고귀 증강",.04f,.105f,.96f,.16f,19);
             ActionButton(content,"행사 리더보드",.045f,.025f,.275f,.095f,()=>Show("festivalRanking"));
-            festivalNote=Label(content,message,.29f,.025f,.68f,.095f,17);
+            festivalNote=Label(content,string.IsNullOrEmpty(message)?(FestivalQaRecorder.Problem??"캐릭터 선택·FPS·끊김·오류를 익명 기록합니다"):message,.29f,.025f,.68f,.095f,13);
             ActionButton(content,"이 캐릭터로 시작",.70f,.025f,.955f,.095f,StartFestival,true,!starting);
             StyleFestivalButtons();
         }

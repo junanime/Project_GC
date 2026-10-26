@@ -24,6 +24,7 @@ namespace Vampire
         public float startingHealthMultiplier = 1.25f, finalHealthMultiplier = 2.4f;
         public int initialEnemies = 18, populationLimit = 95, spawnBudgetPerFrame = 6;
         public float experienceGemMultiplier = 0;
+        public float ariActiveCooldownMultiplier = .6f, hyukiActiveCooldownMultiplier = .6f, shiniActiveDamageMultiplier = 1.8f;
         public float startingMoveMultiplier = 1.05f, finalMoveMultiplier = 1.6f;
         public int specialPopulationLimit = 8;
         public float startingDamageMultiplier = 1, finalDamageMultiplier = 3, damageRampStart = 12;
@@ -35,7 +36,7 @@ namespace Vampire
     // Branch-specific defaults live in Resources; normal gameplay never writes these settings.
     public static class FestivalDemo
     {
-        public const string Rules = "festival_pc_v2_45";
+        public const string Rules = "festival_pc_v3_45";
         static FestivalSettings settings;
         public static bool? EnabledOverride { get; set; }
         public static FestivalSettings Settings
@@ -51,6 +52,14 @@ namespace Vampire
             }
         }
         public static bool Enabled => EnabledOverride ?? Settings.enabled;
+        public static float ActiveCooldown(float original, CharacterSkillDefinition.SkillKind kind)
+        {
+            if (!Enabled) return original;
+            float multiplier = kind == CharacterSkillDefinition.SkillKind.Ari ? Settings.ariActiveCooldownMultiplier
+                : kind == CharacterSkillDefinition.SkillKind.Hyuki ? Settings.hyukiActiveCooldownMultiplier : 1;
+            return Mathf.Min(24, original) * Mathf.Clamp(multiplier, .1f, 2);
+        }
+        public static float ShiniActiveDamageMultiplier => Enabled ? Mathf.Clamp(Settings.shiniActiveDamageMultiplier, .1f, 5) : 1;
         public static FestivalPreset Preset(CharacterBlueprint character) =>
             Settings.presets?.FirstOrDefault(p => p.character == OctoberArt.CharacterKey(character));
         public static ApothecaryUIConfig Catalog => Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");

@@ -144,7 +144,7 @@ namespace Vampire
             if(owner==null||canvas==null)return;
             if(progression==null)progression=FindObjectOfType<StageProgression>();
             var camera=Camera.main;var ui=ApothecaryUI.Instance;
-            bool shown=!(progression!=null&&progression.CapsuleBoarded)&&owner.IsAlive&&camera!=null&&(ui==null||ui.Page=="hud")&&Time.timeScale>0;
+            bool shown=!(progression!=null&&progression.CapsuleBoarded)&&owner.IsAlive&&camera!=null&&(ui==null||ui.Page=="hud")&&(Time.timeScale>0||FestivalGaugeTutorial.IsOpen);
             canvas.enabled=shown;if(!shown)return;
             SetSegments(dash,owner.MaxDashCharges);
             Fill(health,0,owner.MaxHealth>0?owner.CurrentHealth/owner.MaxHealth:0);

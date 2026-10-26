@@ -141,7 +141,7 @@ namespace Vampire
                 if (frames != null && frames.Length > 0)
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
-            if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading || level!=null && StageProgression.Ensure(level).Travelling) return;
+            if (TutorialGuide.BlocksMenuInput || FestivalGaugeTutorial.BlocksInput || StageEntryLoading.IsLoading || level!=null && StageProgression.Ensure(level).Travelling) return;
             if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
             {
                 if (Page == "hud") OpenRunBook();
@@ -160,6 +160,7 @@ namespace Vampire
         }
         public void Back()
         {
+            if(Page=="festivalQa"){Show("festival");return;}
             if(Page=="festivalRanking"){Show(level!=null?"result":"festival");return;}
             if(Page=="festival"){OpenSettings();return;}
             if(Page=="bossChoice"){CloseBossChoice();return;}
@@ -192,12 +193,13 @@ namespace Vampire
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
-            if (FestivalDemo.Enabled && (Page == "festival" || Page == "festivalRanking" || Page == "result"))
+            if (FestivalDemo.Enabled && (Page == "festival" || Page == "festivalRanking" || Page == "festivalQa" || Page == "result"))
             {
                 ImageAt(content, Config.panelBackground, 0,0,1,1,false);
                 Panel(content,.015f,.015f,.985f,.985f);
                 if (Page == "festival") BuildFestivalSelection();
                 else if (Page == "festivalRanking") BuildFestivalRanking();
+                else if (Page == "festivalQa") BuildFestivalQa();
                 else BuildFestivalResult();
                 return;
             }
