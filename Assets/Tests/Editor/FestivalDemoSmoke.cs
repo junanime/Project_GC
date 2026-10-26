@@ -38,6 +38,10 @@ namespace Vampire.Tests.Editor
         {
             Run();SessionState.SetBool(Key+"UiOnly",true);
         }
+        public static void RunBalance()
+        {
+            Run();SessionState.SetBool(Key+"Balance",true);
+        }
         public static void RunLaunch()
         {
             Run();SessionState.SetBool(Key+"LaunchOnly",true);
@@ -50,14 +54,14 @@ namespace Vampire.Tests.Editor
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Fail",false);
             SessionState.SetBool(Key+"Build",false);
             SessionState.SetBool(Key+"UiOnly",false);
-            SessionState.SetBool(Key+"LaunchOnly",false);
+            SessionState.SetBool(Key+"LaunchOnly",false);SessionState.SetBool(Key+"Balance",false);
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
             EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(0,0,1280,761);
             Attach();EditorApplication.EnterPlaymode();
         }
         static void Attach()
         {
-            started=false;deadline=EditorApplication.timeSinceStartup+900;
+            started=false;deadline=EditorApplication.timeSinceStartup+3600;
             EditorApplication.update-=Tick;EditorApplication.update+=Tick;
             Application.logMessageReceived-=Log;Application.logMessageReceived+=Log;
         }
@@ -186,7 +190,7 @@ namespace Vampire.Tests.Editor
             Vector3 origin=hero.transform.position;
             hero.transform.position=FiniteStomachMap.SafeSpawn((Vector2)origin+Vector2.right*20,.7f);
             Physics2D.SyncTransforms();
-            foreach(float due in new[]{15f,30f,45f})
+            foreach(float due in new[]{15f,30f})
             {
                 int count=Object.FindObjectsOfType<Chest>().Length;
                 Set(level,"levelTime",due-.5f);
@@ -249,7 +253,7 @@ namespace Vampire.Tests.Editor
                     float before=Exp(hero,"currentExp");
                     level.EntityManager.SpawnExpGem((Vector2)hero.transform.position+Vector2.right*100,type,false).Use();
                     yield return new WaitForSecondsRealtime(.1f);
-                    float expected=(float)type*(festival?1.5f:1f)*hero.ExperienceMultiplier;
+                    float expected=(float)type*(festival?0f:1f)*hero.ExperienceMultiplier;
                     Check(Mathf.Abs(Exp(hero,"currentExp")-before-expected)<.001f,$"{type} actual orb XP, festival={festival}: {expected}");
                 }
             }
@@ -272,8 +276,17 @@ namespace Vampire.Tests.Editor
             ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="settings","Escape opens settings from festival selection");
             ApothecaryUI.Instance.Back();Check(ApothecaryUI.Instance.Page=="festival","settings returns to festival selection");
             Capture("selection");
+            foreach(var preset in FestivalDemo.Settings.presets)
+            {
+                var card=Object.FindObjectsOfType<Button>().First(b=>b.name=="Festival character "+preset.character);
+                card.onClick.Invoke();yield return null;yield return null;Capture("selection-"+preset.character);
+            }
             if(SessionState.GetBool(Key+"LaunchOnly",false)){SessionState.SetBool(Key+"Done",true);yield break;}
             StorageChecks();
+            if(SessionState.GetBool(Key+"Balance",false))
+            {
+                yield return FestivalBalanceProbe.Run();SessionState.SetBool(Key+"Done",true);yield break;
+            }
             var config=FestivalDemo.Catalog;
             int savedSilver=SilverWallet.Silver;
             string equipped=RelicSaveData.GetEquippedRelicId();
@@ -305,7 +318,7 @@ namespace Vampire.Tests.Editor
                 FestivalDemo.ApplyWeapons(abilities,blueprint);
                 Check(abilities.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).Count(a=>a.Owned)==4,"starting effects are idempotent");
                 Check(Object.FindObjectsOfType<StageEventDirector>().Sum(d=>d.FestivalScheduledEventCount)==1,"exactly one scheduled event");
-                Check(level.LevelDuration==60&&player.Skills.EffectiveCooldown<=24,"60-second run and reachable active quest");
+                Check(level.LevelDuration==45&&player.Skills.EffectiveCooldown<=24,"45-second run and reachable active quest");
                 Check(RunScore.Current.Data.rules==FestivalDemo.Rules&&RunScore.Current.FestivalRunId!=null,"separate festival score session");
                 float nextDash=3,nextActive=1;int peak=0;bool captured=false;
                 var samples=new List<float>();
@@ -336,7 +349,10 @@ namespace Vampire.Tests.Editor
                 int kills=data.normal+data.special+data.elite;
                 File.AppendAllText(Output+"/combat.csv",$"{preset.character},{data.seconds:F2},{data.success},{kills},{peak},{(samples.Count>0?samples.Average():0):F2},{(samples.Count>0?samples[(int)((samples.Count-1)*.95f)]:0):F2},{player.CurrentHealth:F1},{player.GetComponent<PrescriptionRuntime>().Claimed}\n");
                 Check(peak<=FestivalDemo.Settings.populationLimit,"population cap respected");
-                Check(data.seconds<=60&&RunScore.Current.Finished,"result freezes score and duration");
+                int specials=level.GetComponent<FestivalRunController>().SpecialSpawned;
+                Debug.Log("FESTIVAL_SPECIALS "+preset.character+" count="+specials);
+                Check(data.seconds<7||specials>0,"scheduled special enemies actually spawn");
+                Check(data.seconds<=45&&RunScore.Current.Finished,"result freezes score and duration");
                 Capture(preset.character+"-result");
                 Time.timeScale=1;SceneManager.LoadScene(0);yield return null;yield return null;
                 while(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page!="festival")yield return null;
@@ -357,12 +373,15 @@ namespace Vampire.Tests.Editor
                 OriginalOfferChecks(Object.FindObjectOfType<AbilityManager>().Ver4,preset==FestivalDemo.Settings.presets[0]);
                 if(preset==FestivalDemo.Settings.presets[0])yield return ExperienceChecks(proof);
                 int previousLevel=hero.CurrentLevel;
-                int orbCount=Mathf.CeilToInt((Exp(hero,"nextLevelExp")-Exp(hero,"currentExp"))/(1.5f*hero.ExperienceMultiplier));
-                for(int i=0;i<orbCount;i++)proof.EntityManager.SpawnExpGem((Vector2)hero.transform.position+Vector2.right*100,GemType.White1,false).Use();
-                float rewardDeadline=Time.realtimeSinceStartup+5;
-                while(!proof.EntityManager.AbilitySelectionDialog.MenuOpen&&Time.realtimeSinceStartup<rewardDeadline)yield return null;
-                Check(hero.CurrentLevel==previousLevel+1&&proof.EntityManager.AbilitySelectionDialog.MenuOpen,"collecting orbs opens level-up reward: "+preset.character);
-                yield return SelectLevelReward(proof);
+                var originals=Object.FindObjectOfType<AbilityManager>().Ver4;
+                Check(originals.CaptureRunSceneConditionalAugmentIds().Count==12,"exactly twelve initial originals: "+preset.character);
+                foreach(int id in preset.weapons)
+                    for(int option=0;option<3;option++)
+                        Check(originals.Progress.Count(((SyringeSpecialAugmentAbility.SpecialAugmentType)id).ToString(),option)==1,"original acquired once, not upgraded: "+id+"/"+option);
+                hero.GainExp(100000);
+                for(int i=0;i<20;i++)proof.EntityManager.SpawnExpGem((Vector2)hero.transform.position+Vector2.right*100,GemType.White1,false).Use();
+                yield return new WaitForSecondsRealtime(.3f);
+                Check(hero.CurrentLevel==previousLevel&&!proof.EntityManager.AbilitySelectionDialog.MenuOpen,"direct and pickup XP cannot level up: "+preset.character);
                 var quest=hero.GetComponent<PrescriptionRuntime>();
                 quest.Record(PrescriptionRuntime.Goal.Kills,FestivalDemo.Settings.questKills);
                 quest.Record(PrescriptionRuntime.Goal.Dashes,FestivalDemo.Settings.questDashes);
@@ -373,11 +392,22 @@ namespace Vampire.Tests.Editor
                 var ownedNobles=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.Owned).ToArray();
                 Check(ownedNobles.Length==1&&ownedNobles[0].Type.ToString()==preset.noble,"exact assigned noble granted: "+preset.character);
                 Check(!quest.TryAutomaticReward(),"noble claim cannot repeat");
-                if(preset==FestivalDemo.Settings.presets[0])yield return ChestScheduleChecks(proof);
+                if(preset==FestivalDemo.Settings.presets[0])
+                {
+                    proof.SetRunFlowPaused(true);Set(proof,"levelTime",0f);
+                    Check(Mathf.Approximately(FestivalRunController.EnemyDamageMultiplier,1),"opening monster damage keeps baseline");
+                    Set(proof,"levelTime",45f);
+                    Check(Mathf.Approximately(FestivalRunController.EnemyDamageMultiplier,3),"closing monster damage reaches configured multiplier");
+                    FestivalDemo.EnabledOverride=false;
+                    Check(Mathf.Approximately(FestivalRunController.EnemyDamageMultiplier,1),"ordinary mode ignores festival damage");
+                    FestivalDemo.EnabledOverride=null;Set(proof,"levelTime",1f);proof.SetRunFlowPaused(false);
+                    yield return ChestScheduleChecks(proof);
+                }
+                if(preset==FestivalDemo.Settings.presets[0])Check(proof.GetComponent<FestivalRunController>().SpecialSpawned>=3,"special waves survive real pool resolution and timed spawning");
                 int chestsAtEnd=Object.FindObjectsOfType<Chest>().Length;
-                Set(proof,"levelTime",59.95f);yield return new WaitForSecondsRealtime(.25f);
-                Check(proof.IsLevelEnded&&RunScore.Current.Data.success&&Mathf.Approximately(RunScore.Current.Data.seconds,60),"timer expiry succeeds exactly at sixty seconds");
-                if(preset==FestivalDemo.Settings.presets[0])Check(Object.FindObjectsOfType<Chest>().Length==chestsAtEnd,"no extra chest at sixty-second time over");
+                Set(proof,"levelTime",44.95f);yield return new WaitForSecondsRealtime(.25f);
+                Check(proof.IsLevelEnded&&RunScore.Current.Data.success&&Mathf.Approximately(RunScore.Current.Data.seconds,45),"timer expiry succeeds exactly at forty-five seconds");
+                if(preset==FestivalDemo.Settings.presets[0])Check(Object.FindObjectsOfType<Chest>().Length==chestsAtEnd,"no extra chest at forty-five-second time over");
                 chestsAtEnd=Object.FindObjectsOfType<Chest>().Length;
                 yield return new WaitForSecondsRealtime(.1f);
                 Check(Object.FindObjectsOfType<Chest>().Length==chestsAtEnd,"no extra chest after run ended");
@@ -397,6 +427,20 @@ namespace Vampire.Tests.Editor
             fields[0].text="";Check(fields[0].placeholder.enabled,"clearing input restores placeholder hint");
             fields[0].text="컴퓨터공학과";
             Capture("result-input");
+            string ledger=Path.GetFullPath(Output+"/ui-ledger-"+Guid.NewGuid().ToString("N")+".json");
+            FestivalLeaderboard.TestFilePath=ledger;
+            for(int i=0;i<35;i++)
+                Check(FestivalLeaderboard.Save(new FestivalRecord{runId="qa-"+i,name="참가자"+i,department="검증학과",character="아시",score=50000-i*50,seconds=45,success=i<8,utc=i.ToString("D3")},out _),"UI fixture record "+i);
+            var submit=ui.GetComponentsInChildren<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="기록 등록"));
+            submit.onClick.Invoke();yield return null;yield return null;
+            Check(ui.Page=="festivalRanking","saving record immediately opens leaderboard");
+            Check(ui.GetComponentsInChildren<RectTransform>().Any(r=>r.name=="Current festival record"),"just saved record pinned above ranked rows");
+            Check(ui.GetComponentsInChildren<RectTransform>().Count(r=>r.name.StartsWith("Festival rank "))==36,"all records rendered, not a top ten cutoff");
+            Check(ui.GetComponentsInChildren<RectTransform>().Count(r=>r.name.StartsWith("Medal "))>=3,"gold silver bronze medal marks");
+            var rankingScroll=ui.GetComponentsInChildren<ScrollRect>().First(r=>r.name=="Festival ranking scroll");
+            Capture("ranking-top");rankingScroll.verticalNormalizedPosition=0;yield return null;
+            Check(rankingScroll.content.anchoredPosition.y>100,"leaderboard scroll reaches later participants");Capture("ranking-bottom");
+            FestivalLeaderboard.TestFilePath=null;
             SessionState.SetBool(Key+"Done",true);
         }
         static void StorageChecks()

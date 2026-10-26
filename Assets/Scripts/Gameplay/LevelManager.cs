@@ -102,7 +102,7 @@ namespace Vampire
             infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
             FiniteStomachMap.Install(this, stomachMap, infiniteBackground);
 
-            entityManager.SpawnGemsAroundPlayer(
+            if (!FestivalDemo.Enabled) entityManager.SpawnGemsAroundPlayer(
                 this.levelBlueprint.initialExpGemCount,
                 this.levelBlueprint.initialExpGemType
             );
@@ -352,7 +352,12 @@ namespace Vampire
             float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
             Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
-            if (FestivalDemo.Enabled && spawned != null) festivalSpawnsThisFrame++;
+            if (FestivalDemo.Enabled && spawned != null)
+            {
+                festivalSpawnsThisFrame++;
+                spawned.moveSpeed *= Mathf.Lerp(FestivalDemo.Settings.startingMoveMultiplier,
+                    FestivalDemo.Settings.finalMoveMultiplier, Mathf.Clamp01(levelTime / LevelDuration));
+            }
             if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
         }
 

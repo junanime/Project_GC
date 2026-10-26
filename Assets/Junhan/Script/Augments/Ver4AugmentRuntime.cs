@@ -210,6 +210,24 @@ namespace Vampire
             return true;
         }
 
+        // First acquisition of each original effect, never its second/third upgrade.
+        // Uses the normal acquisition ledger so transfers and combat snapshots agree.
+        public void GrantInitialOriginals(SyringeSpecialAugmentAbility parent)
+        {
+            if (parent == null || !parent.Owned || !StartingNeedleSelection.Available(parent.Type)) return;
+            RefreshProgress();
+            for (int option = 0; option < OriginalAugmentProgress.EffectsPerParent; option++)
+            {
+                if (Progress.Count(parent.Type.ToString(), option) != 0) continue;
+                var acquisition = new Acquisition { parent = parent.Type.ToString(), original = true,
+                    option = option, grade = (int)AugmentUpgradeGrade.Original };
+                ApplyAcquisition(acquisition);
+                acquisitions.Add(JsonUtility.ToJson(acquisition));
+            }
+            level = 1 + acquisitions.Count;
+            RefreshProgress();
+        }
+
         private void ApplyAcquisition(Acquisition acquisition)
         {
             if(acquisition.original)

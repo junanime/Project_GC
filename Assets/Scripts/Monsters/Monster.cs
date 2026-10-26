@@ -755,7 +755,7 @@ namespace Vampire
                 lootBlueprint = eliteBlueprint.sourceNormalBlueprint;
             }
 
-            if (lootBlueprint != null &&
+            if (!FestivalDemo.Enabled && lootBlueprint != null &&
                 lootBlueprint.gemLootTable != null &&
                 lootBlueprint.gemLootTable.TryDropLoot(out GemType gemType))
             {

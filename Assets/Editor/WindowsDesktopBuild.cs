@@ -64,6 +64,7 @@ namespace Vampire.Editor
                     throw new InvalidOperationException("Windows build failed; inspect the Unity build log.");
                 File.Copy("LICENSE", Path.Combine(folder, "LICENSE.txt"), true);
                 File.Copy(FestivalDemo.Enabled ? "Documentation/FestivalDemo.md" : "README.md", Path.Combine(folder, "PLAY_GUIDE.md"), true);
+                if (FestivalDemo.Enabled) File.Copy("Documentation/FestivalDemo-QuickStart.txt", Path.Combine(folder,"실행안내.txt"),true);
                 File.Copy("Tools/Distribution/ThirdPartyNotices.md", Path.Combine(folder, "ThirdPartyNotices.md"), true);
                 var steamPackage = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().FirstOrDefault(p => p.name == "com.rlabrecque.steamworks.net");
                 if (steamPackage == null || !File.Exists(Path.Combine(steamPackage.resolvedPath, "LICENSE.md")))
@@ -78,7 +79,9 @@ namespace Vampire.Editor
                     version = PlayerSettings.bundleVersion, bytes = report.summary.totalSize,
                     scenes = scenes, sourceCommit = Environment.GetEnvironmentVariable("PROJECT_GC_SOURCE_COMMIT") ?? "unknown",
                     localChangesIncluded = true, iconAsset = AssetDatabase.GetAssetPath(icon)
-                    , steamEnabled = steam, steamAppId = steamAppId
+                    , steamEnabled = steam, steamAppId = steamAppId, festival = FestivalDemo.Enabled,
+                    festivalDuration = FestivalDemo.Enabled ? FestivalDemo.Settings.duration : 0,
+                    festivalRules = FestivalDemo.Enabled ? FestivalDemo.Rules : ""
                 }, true));
                 Debug.Log("[WindowsDesktopBuild] PASS bytes=" + report.summary.totalSize + " path=" + folder);
                 exitCode = 0;
@@ -100,7 +103,9 @@ namespace Vampire.Editor
             public string[] scenes;
             public ulong bytes;
             public bool localChangesIncluded;
-            public bool steamEnabled;
+            public bool steamEnabled, festival;
+            public float festivalDuration;
+            public string festivalRules;
             public uint steamAppId;
         }
     }

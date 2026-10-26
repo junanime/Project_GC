@@ -916,6 +916,7 @@ namespace Vampire
 
         public void GainExp(float exp)
         {
+            if (FestivalDemo.Enabled) return; // All XP sources, including items and direct grants.
             if (alive)
             {
                 var items=GetComponent<OctoberItemRuntime>();
@@ -1070,6 +1071,11 @@ namespace Vampire
                 hasShield = false;
                 return;
             }
+
+            // Festival pressure ramps only monster attacks; keep dodge, shields,
+            // armor and reduction ordering intact, and leave field hazards unchanged.
+            if (FestivalDemo.Enabled && pendingDamageMonsterBlueprint != null)
+                damage *= FestivalRunController.EnemyDamageMultiplier;
 
             if (armor.Value >= damage)
             {

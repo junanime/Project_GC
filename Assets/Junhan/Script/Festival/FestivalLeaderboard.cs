@@ -20,8 +20,15 @@ namespace Vampire
     public static class FestivalLeaderboard
     {
         [Serializable] sealed class Ledger { public int version = 1; public List<FestivalRecord> rows = new List<FestivalRecord>(); }
-        public static string FilePath => Path.Combine(Application.persistentDataPath, "Festival", "leaderboard-v1.json");
-        public static int Score(RunScoreData data) => data == null ? 0 : data.Total + Mathf.FloorToInt(Mathf.Clamp(data.seconds,0,60)*10) + (data.success ? 9000 : 0);
+#if UNITY_EDITOR
+        public static string TestFilePath;
+#endif
+        public static string FilePath =>
+#if UNITY_EDITOR
+            TestFilePath ??
+#endif
+            Path.Combine(Application.persistentDataPath, "Festival", "leaderboard-v1.json");
+        public static int Score(RunScoreData data) => data == null ? 0 : data.Total + Mathf.FloorToInt(Mathf.Clamp(data.seconds,0,FestivalDemo.Settings.duration)*10) + (data.success ? 9000 : 0);
         public static List<FestivalRecord> Read(string path = null)
         {
             path = path ?? FilePath;

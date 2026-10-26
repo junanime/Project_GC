@@ -19,11 +19,14 @@ namespace Vampire
     public sealed class FestivalSettings
     {
         public bool enabled;
-        public float duration = 60, minimumLoadingSeconds = 3, eventSeconds = 25;
-        public float startingSpawnRate = 7, finalSpawnRate = 11.2f;
-        public float startingHealthMultiplier = 1.35f, finalHealthMultiplier = 1.85f;
-        public int initialEnemies = 13, populationLimit = 77, spawnBudgetPerFrame = 6;
-        public float experienceGemMultiplier = 1.5f;
+        public float duration = 45, minimumLoadingSeconds = 3, eventSeconds = 20;
+        public float startingSpawnRate = 10, finalSpawnRate = 18;
+        public float startingHealthMultiplier = 1.25f, finalHealthMultiplier = 2.4f;
+        public int initialEnemies = 18, populationLimit = 95, spawnBudgetPerFrame = 6;
+        public float experienceGemMultiplier = 0;
+        public float startingMoveMultiplier = 1.05f, finalMoveMultiplier = 1.6f;
+        public int specialPopulationLimit = 8;
+        public float startingDamageMultiplier = 1, finalDamageMultiplier = 3, damageRampStart = 12;
         public float chestSpawnInterval = 15f;
         public int questKills = 20, questDashes = 4, questActiveUses = 2;
         public FestivalPreset[] presets;
@@ -32,7 +35,7 @@ namespace Vampire
     // Branch-specific defaults live in Resources; normal gameplay never writes these settings.
     public static class FestivalDemo
     {
-        public const string Rules = "festival_pc_v1";
+        public const string Rules = "festival_pc_v2_45";
         static FestivalSettings settings;
         public static bool? EnabledOverride { get; set; }
         public static FestivalSettings Settings
@@ -84,6 +87,8 @@ namespace Vampire
                 if (ability == null || !ability.Owned && !manager.AcquireVer4Ability(ability))
                     throw new InvalidOperationException("Festival starting augment unavailable: " + (Weapon)id);
             }
+            foreach (int id in preset.weapons)
+                manager.Ver4.GrantInitialOriginals(abilities.First(a => (int)a.Type == id));
         }
         public static bool GrantNoble(AbilityManager manager, CharacterBlueprint character, out string name)
         {
@@ -101,6 +106,18 @@ namespace Vampire
 
     public sealed class FestivalRunController : MonoBehaviour
     {
+        public static FestivalRunController Active { get; private set; }
+        public static float EnemyDamageMultiplier
+        {
+            get
+            {
+                if (!FestivalDemo.Enabled || Active == null || Active.level == null) return 1;
+                var rules=FestivalDemo.Settings;
+                return Mathf.SmoothStep(rules.startingDamageMultiplier,rules.finalDamageMultiplier,
+                    Mathf.InverseLerp(rules.damageRampStart,rules.duration,Active.level.CurrentLevelTime));
+            }
+        }
+        void OnDestroy() { if (Active == this) Active = null; }
         public bool Ready { get; private set; }
         public string EventKind { get; set; }
         LevelManager level;
@@ -108,6 +125,18 @@ namespace Vampire
         float recycleClock;
         float nextChestTime;
         Camera worldCamera;
+        int specialWave;
+        public int SpecialSpawned { get; private set; }
+        readonly HashSet<Monster> specials = new HashSet<Monster>();
+        static readonly float[] WaveTimes = { 7, 13, 20, 27, 34, 40 };
+        static readonly string[][] WaveTypes = {
+            new[] { "Sniper Monster" },
+            new[] { "MonsterBuffer_MoveSpeed_Blueprint", "Sniper Monster" },
+            new[] { "MonsterBuffer_DamageReduction_Blueprint", "Sniper Monster" },
+            new[] { "MonsterDebuffer_AttackSpeed_Blueprint", "MonsterBuffer_MoveSpeed_Blueprint" },
+            new[] { "Sniper Monster", "MonsterBuffer_DamageReduction_Blueprint" },
+            new[] { "Sniper Monster", "MonsterDebuffer_AttackSpeed_Blueprint" }
+        };
         readonly List<Monster> distant = new List<Monster>(12);
 
         public static void Install(LevelManager owner, AbilityManager manager)
@@ -115,6 +144,7 @@ namespace Vampire
             if (!FestivalDemo.Enabled || owner.GetComponent<FestivalRunController>() != null) return;
             var run = owner.gameObject.AddComponent<FestivalRunController>();
             run.level = owner;
+            Active = run;
             run.worldCamera = Camera.main;
             run.initialRemaining = FestivalDemo.Settings.initialEnemies;
             var player = owner.PlayerCharacter;
@@ -141,6 +171,11 @@ namespace Vampire
                 float interval = Mathf.Max(1, FestivalDemo.Settings.chestSpawnInterval);
                 nextChestTime = (Mathf.Floor(level.CurrentLevelTime / interval) + 1) * interval;
             }
+            if (specialWave < WaveTimes.Length && level.CurrentLevelTime >= WaveTimes[specialWave])
+            {
+                SpawnSpecialWave(specialWave);
+                specialWave++;
+            }
             recycleClock += Time.deltaTime;
             if (recycleClock >= .5f)
             {
@@ -150,6 +185,46 @@ namespace Vampire
             int count = Mathf.Min(initialRemaining, FestivalDemo.Settings.spawnBudgetPerFrame);
             for (int i = 0; i < count; i++) level.SpawnMonsterFromCurrentSpawnTable();
             initialRemaining -= count;
+        }
+        void SpawnSpecialWave(int wave)
+        {
+            specials.RemoveWhere(m => m == null || m.HP <= 0 || !m.gameObject.activeInHierarchy);
+            var pools = level.CurrentLevelBlueprint.monsters;
+            foreach (string kind in WaveTypes[wave])
+            {
+                if (specials.Count >= FestivalDemo.Settings.specialPopulationLimit) break;
+                // Reserve space for the scheduled threats without exceeding the total cap.
+                if (level.EntityManager.LivingMonsters.Count >= FestivalDemo.Settings.populationLimit)
+                {
+                    var farthest = level.EntityManager.LivingMonsters.Where(m => m != null && !specials.Contains(m)
+                        && !(m is BossMonster) && !(m is MiniBossMonster))
+                        .OrderByDescending(m => (m.transform.position-level.PlayerCharacter.transform.position).sqrMagnitude).FirstOrDefault();
+                    if (farthest == null) break;
+                    farthest.DespawnForStageTransfer();
+                }
+                for (int pool = 0; pool < pools.Length; pool++)
+                {
+                    var blueprint = pools[pool].monsterBlueprints.FirstOrDefault(b => b != null && ((UnityEngine.Object)b).name == kind);
+                    if (blueprint == null) continue;
+                    Vector2 center = level.PlayerCharacter.transform.position;
+                    Vector2 position = center;
+                    bool valid = false;
+                    for (int attempt=0; attempt<24; attempt++)
+                    {
+                        float angle = UnityEngine.Random.Range(0f, Mathf.PI*2);
+                        position = FiniteStomachMap.SafeSpawn(center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle))*UnityEngine.Random.Range(5.5f,7.5f), .8f);
+                        if (Vector2.Distance(center,position) < 5) continue;
+                        bool blocked = Physics2D.OverlapCircleAll(position,.6f).Any(h => !h.isTrigger
+                            && h.GetComponentInParent<Monster>() == null && h.GetComponentInParent<Character>() == null);
+                        if (!blocked) { valid=true; break; }
+                    }
+                    if (!valid) break;
+                    float hp = Mathf.Lerp(1.2f,1.8f,level.CurrentLevelTime/level.LevelDuration);
+                    var enemy = level.EntityManager.SpawnMonster(pool, position, blueprint, blueprint.hp*(hp-1));
+                    if (enemy != null) { specials.Add(enemy); SpecialSpawned++; }
+                    break;
+                }
+            }
         }
         bool TrySpawnItemChest(bool initial)
         {

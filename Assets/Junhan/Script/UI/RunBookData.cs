@@ -40,7 +40,7 @@ namespace Vampire
                     for(int i=0;i<3;i++)
                     {
                         int count=state.Progress.Count(id,i);if(count==0)continue;
-                        body.Append("\n\n").Append(Ver4AugmentCatalog.OriginalNames[type*3+i]).Append(" ").Append(count).Append("/3\n").Append(OriginalAugmentDescription.Current(type*3+i,count));
+                        body.Append("\n\n").Append(Ver4AugmentCatalog.OriginalNames[type*3+i]).Append(FestivalDemo.Enabled ? $" · 추가 강화 {Mathf.Max(0,count-1)}\n" : $" {count}/3\n").Append(OriginalAugmentDescription.Current(type*3+i,count));
                     }
                 var numeric=acquisitions.Where(a=>a.parent==id&&!a.original).ToArray();
                 if(numeric.Length>0)
@@ -49,7 +49,7 @@ namespace Vampire
                     foreach(var group in numeric.GroupBy(a=>a.option).OrderBy(g=>g.Key))
                         body.Append("\n").Append(Ver4AugmentCatalog.NumericDescription(group.Key,group.Sum(a=>a.amount)));
                 }
-                rows.Add(new Entry{id="weapon/"+id,title=Ver4AugmentCatalog.ParentNames[type],body=body.ToString(),badge=$"오리지널 {original}/9",icon=parent.Image,color=new Color(.68f,.38f,.89f)});
+                rows.Add(new Entry{id="weapon/"+id,title=Ver4AugmentCatalog.ParentNames[type],body=body.ToString(),badge=FestivalDemo.Enabled ? $"효과 3종 · 강화 {Mathf.Max(0, original-3)}" : $"오리지널 {original}/9",icon=parent.Image,color=new Color(.68f,.38f,.89f)});
             }
             foreach(var noble in owned.OfType<SyringeLegendaryAugmentAbility>())
                 rows.Add(new Entry{id="noble/"+noble.Type,title=noble.Name,body=noble.Description,badge="고귀",icon=noble.Image,color=new Color(.94f,.64f,.13f)});
