@@ -2,6 +2,7 @@
 !include "MUI2.nsh"
 !include "x64.nsh"
 !include "LogicLib.nsh"
+!include "FileFunc.nsh"
 
 ; Resolve Windows packaged-host filesystem redirection before writing shell paths.
 ; Input/output: $0. The directory must already exist.
@@ -96,6 +97,16 @@ Function .onInit
   ${EndIf}
   ; A fixed per-user location keeps development checkouts and save folders out of scope.
   StrCpy $INSTDIR "$LOCALAPPDATA\Programs\${APP_FOLDER}"
+  ; Keep an existing physical installation path, including packaged-host redirection.
+  ; Do not create a second installation when LOCALAPPDATA resolves differently on update.
+  ReadRegStr $4 HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_REGISTRY}" "InstallLocation"
+  ${If} $4 != ""
+    ${GetFileName} "$4" $5
+    ${If} $5 == "${APP_FOLDER}"
+      IfFileExists "$4\24tu.exe" 0 +2
+        StrCpy $INSTDIR $4
+    ${EndIf}
+  ${EndIf}
   System::Call 'kernel32::CreateMutexW(p 0, i 0, w "${APP_MUTEX}") p .r0 ?e'
   Pop $1
   ${If} $1 = 183
