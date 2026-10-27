@@ -1,0 +1,67 @@
+{
+  "rules": "festival_pc_v6_45",
+  "checks": 233,
+  "gameplayRuns": 8,
+  "errors": 0,
+  "speedChanges": [
+    {
+      "path": "/normalMonsters/0/speed",
+      "old": 0.8,
+      "new": 0.64,
+      "ratio": 0.8
+    },
+    {
+      "path": "/normalMonsters/1/speed",
+      "old": 0.9,
+      "new": 0.72,
+      "ratio": 0.8
+    },
+    {
+      "path": "/normalMonsters/2/speed",
+      "old": 0.85,
+      "new": 0.68,
+      "ratio": 0.8
+    },
+    {
+      "path": "/normalMonsters/3/speed",
+      "old": 1.05,
+      "new": 0.7875,
+      "ratio": 0.75
+    },
+    {
+      "path": "/normalMonsters/4/speed",
+      "old": 1.25,
+      "new": 0.9375,
+      "ratio": 0.75
+    },
+    {
+      "path": "/normalMonsters/5/speed",
+      "old": 1.15,
+      "new": 0.8625,
+      "ratio": 0.75
+    },
+    {
+      "path": "/normalMonsters/6/speed",
+      "old": 1.65,
+      "new": 1.155,
+      "ratio": 0.7
+    },
+    {
+      "path": "/normalMonsters/7/speed",
+      "old": 1.55,
+      "new": 1.085,
+      "ratio": 0.7
+    },
+    {
+      "path": "/normalMonsters/8/speed",
+      "old": 1.45,
+      "new": 1.015,
+      "ratio": 0.7
+    }
+  ],
+  "limitations": "One scripted novice and intermediate combat run per character. Regression smoke test, not a human win-rate or FPS estimate.",
+  "files": {
+    "runs.csv": "dbdc998e0e9fffc4762e64eefb152db361662f6776459df8245f58a6fd4b746a",
+    "spawns.csv": "0e3615f86bcfdbabf3e7d123ccb3caa9981d8403e0ca47c4c3a5591294b07a81"
+  }
+}

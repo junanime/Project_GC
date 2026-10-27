@@ -1,0 +1,9 @@
+profile,character,seed,seconds,success,normal,special,hp,maxHp,peak,snipers,acidSpores,dashes,actives,noble,pathLength,damageTaken,damageAt10,damageAt20,damageAt30,damageAt40,healsUsed,bombsUsed,nobleType
+1,Ashi,927001,45.000,True,34,4,80.000,80.000,95,2,5,8,2,True,74.698,0.000,0.000,0.000,0.000,0.000,0,0,OrganCompression
+1,Hyuki,927001,45.000,True,32,3,65.040,100.000,95,2,5,8,3,True,74.742,34.960,0.000,9.200,9.200,9.200,0,0,OrganCompression
+1,Shini,927001,45.000,True,57,3,116.000,150.000,95,2,5,10,2,True,69.398,34.000,0.000,6.000,34.000,34.000,0,0,OrganCompression
+1,Ari,927001,45.000,True,118,5,152.000,200.000,95,2,5,31,3,True,120.718,48.000,0.000,10.000,38.000,38.000,0,0,OrganCompression
+0,Ashi,927001,45.000,True,71,4,50.000,80.000,95,2,5,5,2,True,68.837,30.000,0.000,0.000,10.000,20.000,0,0,OrganCompression
+0,Hyuki,927001,27.233,False,81,0,0.000,100.000,95,1,3,3,1,True,41.767,100.000,0.000,36.800,100.000,100.000,0,0,OrganCompression
+0,Shini,927001,31.033,False,117,1,0.000,150.000,95,2,3,3,3,True,45.686,150.000,8.000,44.000,127.600,150.000,0,0,OrganCompression
+0,Ari,927001,43.133,False,152,4,0.000,200.000,95,2,5,11,2,True,78.470,200.000,0.000,30.000,50.000,120.000,0,0,OrganCompression

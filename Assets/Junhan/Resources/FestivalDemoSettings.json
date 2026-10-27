@@ -99,47 +99,47 @@
   "normalMonsters": [
     {
       "blueprint": "1",
-      "speed": 0.8,
+      "speed": 0.64,
       "damage": 8
     },
     {
       "blueprint": "1_1",
-      "speed": 0.9,
+      "speed": 0.72,
       "damage": 10
     },
     {
       "blueprint": "SugarCube_Normal_Body",
-      "speed": 0.85,
+      "speed": 0.68,
       "damage": 12
     },
     {
       "blueprint": "2",
-      "speed": 1.05,
+      "speed": 0.7875,
       "damage": 16
     },
     {
       "blueprint": "3",
-      "speed": 1.25,
+      "speed": 0.9375,
       "damage": 18
     },
     {
       "blueprint": "3_1",
-      "speed": 1.15,
+      "speed": 0.8625,
       "damage": 20
     },
     {
       "blueprint": "4",
-      "speed": 1.65,
+      "speed": 1.155,
       "damage": 24
     },
     {
       "blueprint": "king-oyster",
-      "speed": 1.55,
+      "speed": 1.085,
       "damage": 28
     },
     {
       "blueprint": "red-cap",
-      "speed": 1.45,
+      "speed": 1.015,
       "damage": 32
     }
   ]

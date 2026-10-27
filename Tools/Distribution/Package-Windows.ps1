@@ -3,7 +3,8 @@ param(
     [string]$Payload,
     [string]$Output,
     [string]$Version = '0.1.20260929.3',
-    [switch]$FastCompression
+    [switch]$FastCompression,
+    [switch]$Festival
 )
 $ErrorActionPreference = 'Stop'
 $repoRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -14,6 +15,14 @@ $Compiler = (Resolve-Path -LiteralPath $Compiler).Path
 $Output = [IO.Path]::GetFullPath($Output)
 foreach ($required in @('24tu.exe', 'UnityPlayer.dll', '24tu_Data', 'desktop-build.json')) {
     if (!(Test-Path -LiteralPath (Join-Path $Payload $required))) { throw "Missing player payload: $required" }
+}
+$manifest = Get-Content -LiteralPath (Join-Path $Payload 'desktop-build.json') -Raw | ConvertFrom-Json
+if ($Festival) {
+    if (-not $manifest.festival -or $manifest.festivalDuration -ne 45 -or $manifest.steamEnabled -or -not $manifest.sourceCommit -or $manifest.sourceCommit -eq 'unknown') {
+        throw 'Festival packaging requires a verified standalone 45-second festival build.'
+    }
+} elseif ($manifest.festival) {
+    throw 'Use -Festival so the event build cannot overwrite the normal game installation.'
 }
 if (Test-Path -LiteralPath $Output) { throw "Output already exists; choose a new version or output path: $Output" }
 $outDirectory = Split-Path -Parent $Output
@@ -36,6 +45,7 @@ foreach ($dir in (Get-ChildItem -LiteralPath $Payload -Recurse -Directory | Wher
 [IO.File]::WriteAllLines($uninstallList, $lines, [Text.UTF8Encoding]::new($true))
 $compilerOptions = @('/V3', '/INPUTCHARSET', 'UTF8', "/DPAYLOAD=$Payload", "/DOUTPUT=$Output", "/DUNINSTALL_LIST=$uninstallList", "/DBUILD_VERSION=$Version")
 if ($FastCompression) { $compilerOptions += '/DFAST_PACKAGE' }
+if ($Festival) { $compilerOptions += '/DFESTIVAL_PACKAGE' }
 & $Compiler @compilerOptions (Join-Path $PSScriptRoot '24tu.nsi')
 if ($LASTEXITCODE -ne 0) { throw "Installer compiler failed with exit code $LASTEXITCODE" }
 $hash = Get-FileHash -LiteralPath $Output -Algorithm SHA256
