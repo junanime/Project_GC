@@ -107,6 +107,8 @@ FunctionEnd
 Section "게임 설치"
   SetShellVarContext current
   SetOutPath "$INSTDIR"
+  ; Updates replace the existing payload in the same folder without a duplicate installation.
+  SetOverwrite on
   ClearErrors
   File /r /x "*_DoNotShip" /x "*.pdb" /x "*.mdb" "${PAYLOAD}\*"
   IfErrors 0 +3

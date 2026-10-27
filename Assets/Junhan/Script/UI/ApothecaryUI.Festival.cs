@@ -122,8 +122,10 @@ namespace Vampire
             var star=tab.gameObject.AddComponent<StitchPatchGraphic>();star.starOnly=true;star.accent=StitchPatchTheme.Coral;star.raycastTarget=false;
             var field=box.gameObject.AddComponent<TMP_InputField>();
             var viewport=Rect("Text viewport",box.transform,.14f,.12f,.95f,.88f);viewport.gameObject.AddComponent<RectMask2D>();
-            var text=Label(viewport,value,0,0,1,1,26);text.richText=false;text.alignment=TextAlignmentOptions.MidlineLeft;
+            var text=Label(viewport,value,0,0,1,1,26);text.parseCtrlCharacters=false;text.alignment=TextAlignmentOptions.MidlineLeft;
             field.textViewport=viewport;field.textComponent=text;field.characterLimit=limit;field.text=value;
+            // Set the input field too: TMP otherwise inserts literal <u> tags around IME composition.
+            field.richText=false;
             var placeholder=Label(viewport,caption+" 입력",0,0,1,1,22);placeholder.alignment=TextAlignmentOptions.MidlineLeft;placeholder.color=new Color(.45f,.43f,.38f);
             field.placeholder=placeholder;field.customCaretColor=true;field.caretColor=Ink;
             field.lineType=TMP_InputField.LineType.SingleLine;

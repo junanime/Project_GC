@@ -58,6 +58,10 @@ namespace Vampire.Tests.Editor
         {
             Run();SessionState.SetBool(Key+"LaunchOnly",true);
         }
+        public static void RunInput()
+        {
+            Run();SessionState.SetBool(Key+"InputOnly",true);
+        }
         public static void Run()
         {
             Directory.CreateDirectory(Output);
@@ -68,6 +72,7 @@ namespace Vampire.Tests.Editor
             SessionState.SetBool(Key+"UiOnly",false);
             SessionState.SetBool(Key+"LaunchOnly",false);SessionState.SetBool(Key+"Balance",false);
             SessionState.SetBool(Key+"QaOnly",false);
+            SessionState.SetBool(Key+"InputOnly",false);
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
             EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).position=new Rect(0,0,1280,761);
             Attach();EditorApplication.EnterPlaymode();
@@ -289,6 +294,12 @@ namespace Vampire.Tests.Editor
             Check(!IntroMovie.Active&&Object.FindObjectsOfType<IntroMovie>(true).Length==0,"festival launch creates no intro movie");
             Check(!IntroMovie.BlocksMenuInput,"launch accepts input without skip or confirmation");
             Check(ApothecaryUI.Instance.Page=="festival","launch opens character selection directly");
+            if(SessionState.GetBool(Key+"InputOnly",false))
+            {
+                yield return FestivalIdentityInputChecks.Run(Check);
+                Capture("identity-ime-fixed");
+                SessionState.SetBool(Key+"Done",true);yield break;
+            }
             Check(Object.FindObjectsOfType<Button>().Count(b=>b.name.StartsWith("Festival character "))==4,"four character cards");
             Check(Object.FindObjectsOfType<TMP_Text>().Any(t=>t.text.Contains("Space 액티브")),"character selection explains the Space active key");
             Check(Application.targetFrameRate==60&&QualitySettings.vSyncCount==0,"PC starts with consistent sixty FPS cap");

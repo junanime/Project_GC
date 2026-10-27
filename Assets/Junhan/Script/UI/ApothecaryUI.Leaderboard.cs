@@ -49,8 +49,9 @@ namespace Vampire
             var box=ImageAt(content,null,.30f,.48f,.70f,.58f,false);box.color=new Color(1,.97f,.9f);box.raycastTarget=true;
             var inputSeam=StitchPatchTheme.Attach(box.transform,StitchPatchTheme.Mint);inputSeam.inset=5;
             var field=box.gameObject.AddComponent<TMP_InputField>();
-            var text=Label(box.transform,QaLeaderboard.Nickname,.04f,.03f,.96f,.97f,26);text.richText=false;
+            var text=Label(box.transform,QaLeaderboard.Nickname,.04f,.03f,.96f,.97f,26);text.parseCtrlCharacters=false;
             field.textViewport=box.rectTransform;field.textComponent=text;field.characterLimit=12;field.text=QaLeaderboard.Nickname;
+            field.richText=false; // Keep IME composition markup out of the visible nickname.
             Label(content,"한글·영문·숫자·_·- / 2~12자\n" + (SteamRuntime.IsSteamBuild ? "랭킹 기록은 현재 Steam 계정에 연결됩니다." : "QA 익명 계정은 이 기기·브라우저에 저장됩니다."),.24f,.32f,.76f,.45f,18);
             var note=Label(content,"",.25f,.25f,.75f,.31f,17);
             bool saving=false;
