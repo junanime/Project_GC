@@ -1,0 +1,66 @@
+{
+  "rules": "festival_pc_v5_45",
+  "checks": 233,
+  "gameplayRuns": 80,
+  "errors": 0,
+  "summary": {
+    "0": {
+      "Ashi": {
+        "wins": 1,
+        "runs": 10,
+        "meanSeconds": 38.06
+      },
+      "Ari": {
+        "wins": 0,
+        "runs": 10,
+        "meanSeconds": 31.64
+      },
+      "Hyuki": {
+        "wins": 0,
+        "runs": 10,
+        "meanSeconds": 26.05
+      },
+      "Shini": {
+        "wins": 0,
+        "runs": 10,
+        "meanSeconds": 26.37
+      }
+    },
+    "1": {
+      "Ashi": {
+        "wins": 6,
+        "runs": 10,
+        "meanSeconds": 42.96
+      },
+      "Ari": {
+        "wins": 1,
+        "runs": 10,
+        "meanSeconds": 38.16
+      },
+      "Hyuki": {
+        "wins": 3,
+        "runs": 10,
+        "meanSeconds": 38.29
+      },
+      "Shini": {
+        "wins": 1,
+        "runs": 10,
+        "meanSeconds": 38.82
+      }
+    }
+  },
+  "nobles": {
+    "HungrySpirit": 16,
+    "GastricPeristalsisWave": 16,
+    "OrganCompression": 16,
+    "NeuralBlock": 8,
+    "HedgehogNeedle": 8,
+    "CloneCulture": 8,
+    "HeavySnipe": 8
+  },
+  "limitations": "Actual Unity combat with scripted novice/intermediate input; not measured human win rates. Fixed simulation step, not an FPS benchmark.",
+  "files": {
+    "runs.csv": "1c28980c933cee5bf424df5601966814f47f169c83374e5b447fe13bfefc185e",
+    "spawns.csv": "7894cf7d0b792d5c548e2670cfb37edd75f5583ea9c3a829f5e58e77cdebc359"
+  }
+}

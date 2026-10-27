@@ -38,6 +38,7 @@ namespace Vampire
 
         public static CurrencyJar Create(LevelManager level, Vector2 position, bool silver, Transform parent)
         {
+            if (FestivalDemo.Enabled) return null;
             var go = new GameObject(silver ? "Silver chocolate jar" : "Gold chocolate jar");
             go.transform.SetParent(parent, false); go.transform.position = position;
             var jar = go.AddComponent<CurrencyJar>(); jar.level = level; jar.Silver = silver;
@@ -118,6 +119,7 @@ namespace Vampire
         Vector3[] endpoints;
         public static CurrencyJarDrop Create(LevelManager owner, Vector2 position, bool silver, int amount, Transform parent)
         {
+            if (FestivalDemo.Enabled) return null;
             var go = new GameObject(silver ? "Silver chocolate coins" : "Gold chocolate coins");
             go.transform.SetParent(parent, false); go.transform.position = position;
             var drop = go.AddComponent<CurrencyJarDrop>(); drop.level = owner; drop.Amount = amount; drop.Silver = silver;

@@ -10,7 +10,7 @@ namespace Vampire
     [Serializable]
     public sealed class FestivalPreset
     {
-        public string character, description, relic, noble;
+        public string character, description, relic;
         public int[] weapons, items;
         public float damageBonus, attackSpeedBonus, healthBonus;
     }
@@ -21,22 +21,24 @@ namespace Vampire
         public bool enabled;
         public float duration = 45, minimumLoadingSeconds = 3, eventSeconds = 20;
         public float startingSpawnRate = 10, finalSpawnRate = 18;
-        public float startingHealthMultiplier = 1.25f, finalHealthMultiplier = 2.4f;
+        public float normalBaseHealth = 60;
+        public FestivalMonsterStats[] normalMonsters;
         public int initialEnemies = 18, populationLimit = 95, spawnBudgetPerFrame = 6;
         public float experienceGemMultiplier = 0;
-        public float ariActiveCooldownMultiplier = .6f, hyukiActiveCooldownMultiplier = .6f, shiniActiveDamageMultiplier = 1.8f;
-        public float startingMoveMultiplier = 1.05f, finalMoveMultiplier = 1.6f;
+        public float ashiActiveDuration = 10, ariActiveCooldown = 20, hyukiActiveCooldown = 20;
+        public float ashiActiveMoveMultiplier = 1f;
+        public int shiniStartingFuel = 24;
+        public float ariPhoenixDamage = 55, hyukiStatusBonus = .25f, hyukiFreezeDelay = .6f;
+        public float shiniActiveDamageMultiplier = 4, shiniPreparation = .3f;
         public int specialPopulationLimit = 8;
-        public float startingDamageMultiplier = 1, finalDamageMultiplier = 3, damageRampStart = 12;
         public float chestSpawnInterval = 15f;
-        public int questKills = 20, questDashes = 4, questActiveUses = 2;
         public FestivalPreset[] presets;
     }
 
     // Branch-specific defaults live in Resources; normal gameplay never writes these settings.
     public static class FestivalDemo
     {
-        public const string Rules = "festival_pc_v3_45";
+        public const string Rules = "festival_pc_v5_45";
         static FestivalSettings settings;
         public static bool? EnabledOverride { get; set; }
         public static FestivalSettings Settings
@@ -55,11 +57,32 @@ namespace Vampire
         public static float ActiveCooldown(float original, CharacterSkillDefinition.SkillKind kind)
         {
             if (!Enabled) return original;
-            float multiplier = kind == CharacterSkillDefinition.SkillKind.Ari ? Settings.ariActiveCooldownMultiplier
-                : kind == CharacterSkillDefinition.SkillKind.Hyuki ? Settings.hyukiActiveCooldownMultiplier : 1;
-            return Mathf.Min(24, original) * Mathf.Clamp(multiplier, .1f, 2);
+            if (kind == CharacterSkillDefinition.SkillKind.Ari) return Mathf.Max(1, Settings.ariActiveCooldown);
+            if (kind == CharacterSkillDefinition.SkillKind.Hyuki) return Mathf.Max(1, Settings.hyukiActiveCooldown);
+            return Mathf.Min(24, original);
         }
+        public static float ActiveDuration(float original, CharacterSkillDefinition.SkillKind kind) =>
+            Enabled && kind == CharacterSkillDefinition.SkillKind.Ashi ? Mathf.Max(1, Settings.ashiActiveDuration) : original;
         public static float ShiniActiveDamageMultiplier => Enabled ? Mathf.Clamp(Settings.shiniActiveDamageMultiplier, .1f, 5) : 1;
+        public static string SkillDescription(CharacterSkillDefinition skill, bool active)
+        {
+            string original = active ? skill.activeDescription : skill.passiveDescription;
+            if (!Enabled) return original;
+            if (!active) return skill.kind == CharacterSkillDefinition.SkillKind.Hyuki
+                ? $"상태이상에 걸린 적에게 피해 +{Settings.hyukiStatusBonus*100:0}%" : original;
+            switch (skill.kind)
+            {
+                case CharacterSkillDefinition.SkillKind.Ashi:
+                    return $"{Settings.ashiActiveDuration:0.#}초간 침 개수·침 속도 ×2 · 재사용 24초";
+                case CharacterSkillDefinition.SkillKind.Ari:
+                    return $"{skill.activeDuration:0.#}초간 암석 봉황으로 변신해 돌진합니다.\n변신 대시 기본 피해 {Settings.ariPhoenixDamage:0} · 재사용 {Settings.ariActiveCooldown:0}초";
+                case CharacterSkillDefinition.SkillKind.Hyuki:
+                    return $"{Settings.hyukiFreezeDelay:0.#}초 후 주변 적을 5초 동안 빙결합니다.\n재사용 {Settings.hyukiActiveCooldown:0}초";
+                case CharacterSkillDefinition.SkillKind.Shini:
+                    return $"불씨 6개로 전방에 1.5초간 화염을 뿜습니다.\n기본 초당 피해 {35*ShiniActiveDamageMultiplier:0} · 준비 {Settings.shiniPreparation:0.#}초\n길게 누르면 불씨를 추가 소비해 이어서 발사합니다.";
+                default: return original;
+            }
+        }
         public static FestivalPreset Preset(CharacterBlueprint character) =>
             Settings.presets?.FirstOrDefault(p => p.character == OctoberArt.CharacterKey(character));
         public static ApothecaryUIConfig Catalog => Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
@@ -82,7 +105,6 @@ namespace Vampire
                 return "시작 무기 정보를 불러오지 못했습니다.";
             if (Relic(character) == null || Items(character).Length != preset.items.Length)
                 return "시작 유물·아이템 정보를 불러오지 못했습니다.";
-            if (!Enum.TryParse<Noble>(preset.noble, out _)) return "고귀 증강 보상 정보를 확인해 주세요.";
             return null;
         }
         public static void ApplyWeapons(AbilityManager manager, CharacterBlueprint character)
@@ -99,15 +121,19 @@ namespace Vampire
             foreach (int id in preset.weapons)
                 manager.Ver4.GrantInitialOriginals(abilities.First(a => (int)a.Type == id));
         }
-        public static bool GrantNoble(AbilityManager manager, CharacterBlueprint character, out string name)
+        public static bool StartingNobleAllowed(SyringeLegendaryAugmentAbility ability) =>
+            ability != null && ability.AvailableAsNoble && ability.Type != Noble.LifeBurn;
+        public static SyringeLegendaryAugmentAbility GrantStartingNoble(AbilityManager manager)
         {
-            name = null;
-            if (manager == null || !Enum.TryParse<Noble>(Preset(character)?.noble, out var type)) return false;
-            var ability = manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).FirstOrDefault(a => a.Type == type);
-            if (ability == null) return false;
-            if (!ability.Owned && !manager.AcquireVer4Ability(ability)) return false;
-            name = ability.Name;
-            return true;
+            var all = manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true);
+            var owned = all.Where(a => a.Owned).ToArray();
+            if (owned.Length == 1) return owned[0]; // Re-entry cannot roll a second reward.
+            if (owned.Length != 0) throw new InvalidOperationException("Festival starts with exactly one noble.");
+            var candidates = all.Where(a => StartingNobleAllowed(a) && a.RequirementsMet()).OrderBy(a => a.Type).ToArray();
+            if (candidates.Length == 0) throw new InvalidOperationException("No eligible festival noble.");
+            var selected = candidates[UnityEngine.Random.Range(0, candidates.Length)];
+            if (!manager.AcquireVer4Ability(selected)) throw new InvalidOperationException("Starting noble acquisition failed.");
+            return selected;
         }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset() { settings = null; EnabledOverride = null; }
@@ -116,18 +142,13 @@ namespace Vampire
     public sealed class FestivalRunController : MonoBehaviour
     {
         public static FestivalRunController Active { get; private set; }
-        public static float EnemyDamageMultiplier
-        {
-            get
-            {
-                if (!FestivalDemo.Enabled || Active == null || Active.level == null) return 1;
-                var rules=FestivalDemo.Settings;
-                return Mathf.SmoothStep(rules.startingDamageMultiplier,rules.finalDamageMultiplier,
-                    Mathf.InverseLerp(rules.damageRampStart,rules.duration,Active.level.CurrentLevelTime));
-            }
-        }
-        void OnDestroy() { if (Active == this) Active = null; }
+        FestivalMonsterRoster roster;
+        public int SelectNormal(float seconds, float sample) => roster.Select(seconds, sample);
+        public MonsterBlueprint ResolveNormal(MonsterBlueprint source) => roster.Resolve(source);
+        void OnDestroy() { roster?.Dispose(); if (Active == this) Active = null; }
         public bool Ready { get; private set; }
+        public string StartingNobleName { get; private set; }
+        public string StartingNobleType { get; private set; }
         public string EventKind { get; set; }
         LevelManager level;
         int initialRemaining;
@@ -137,15 +158,20 @@ namespace Vampire
         int specialWave;
         public int SpecialSpawned { get; private set; }
         readonly HashSet<Monster> specials = new HashSet<Monster>();
-        static readonly float[] WaveTimes = { 7, 13, 20, 27, 34, 40 };
+        static readonly float[] WaveTimes = { 8, 13, 16, 24, 30, 32, 40 };
         static readonly string[][] WaveTypes = {
+            new[] { "Acid Spore Blueprint" },
             new[] { "Sniper Monster" },
-            new[] { "MonsterBuffer_MoveSpeed_Blueprint", "Sniper Monster" },
-            new[] { "MonsterBuffer_DamageReduction_Blueprint", "Sniper Monster" },
-            new[] { "MonsterDebuffer_AttackSpeed_Blueprint", "MonsterBuffer_MoveSpeed_Blueprint" },
-            new[] { "Sniper Monster", "MonsterBuffer_DamageReduction_Blueprint" },
-            new[] { "Sniper Monster", "MonsterDebuffer_AttackSpeed_Blueprint" }
+            new[] { "Acid Spore Blueprint" },
+            new[] { "Acid Spore Blueprint" },
+            new[] { "Sniper Monster" },
+            new[] { "Acid Spore Blueprint" },
+            new[] { "Acid Spore Blueprint" }
         };
+        float nextSpecialAttempt;
+        public int SnipersSpawned { get; private set; }
+        public int AcidSporesSpawned { get; private set; }
+        public static event Action<Monster, float> SpecialAppeared;
         readonly List<Monster> distant = new List<Monster>(12);
 
         public static void Install(LevelManager owner, AbilityManager manager)
@@ -153,6 +179,7 @@ namespace Vampire
             if (!FestivalDemo.Enabled || owner.GetComponent<FestivalRunController>() != null) return;
             var run = owner.gameObject.AddComponent<FestivalRunController>();
             run.level = owner;
+            run.roster = new FestivalMonsterRoster(owner.CurrentLevelBlueprint);
             Active = run;
             run.worldCamera = Camera.main;
             run.initialRemaining = FestivalDemo.Settings.initialEnemies;
@@ -167,7 +194,10 @@ namespace Vampire
                 MerchantItemEffectUtility.ApplyToCharacter(item, player, manager, false);
             player.GainHealth(player.MaxHealth);
             var fuel = player.GetComponent<ShiniEmberRuntime>();
-            if (fuel != null) fuel.RestoreFuel(18);
+            if (fuel != null) fuel.RestoreFuel(FestivalDemo.Settings.shiniStartingFuel);
+            var noble = FestivalDemo.GrantStartingNoble(manager);
+            run.StartingNobleName = noble.Name; run.StartingNobleType = noble.Type.ToString();
+            player.GetComponent<PrescriptionRuntime>()?.SetFestivalStartingReward(noble.Name);
             CrossSceneData.ClearStartingLobbyItems();
             run.Ready = true;
         }
@@ -180,10 +210,10 @@ namespace Vampire
                 float interval = Mathf.Max(1, FestivalDemo.Settings.chestSpawnInterval);
                 nextChestTime = (Mathf.Floor(level.CurrentLevelTime / interval) + 1) * interval;
             }
-            if (specialWave < WaveTimes.Length && level.CurrentLevelTime >= WaveTimes[specialWave])
+            if (specialWave < WaveTimes.Length && level.CurrentLevelTime >= WaveTimes[specialWave] && level.CurrentLevelTime >= nextSpecialAttempt)
             {
-                SpawnSpecialWave(specialWave);
-                specialWave++;
+                if (SpawnSpecialWave(specialWave)) specialWave++;
+                nextSpecialAttempt = level.CurrentLevelTime + .2f;
             }
             recycleClock += Time.deltaTime;
             if (recycleClock >= .5f)
@@ -195,45 +225,52 @@ namespace Vampire
             for (int i = 0; i < count; i++) level.SpawnMonsterFromCurrentSpawnTable();
             initialRemaining -= count;
         }
-        void SpawnSpecialWave(int wave)
+        bool SpawnSpecialWave(int wave)
         {
             specials.RemoveWhere(m => m == null || m.HP <= 0 || !m.gameObject.activeInHierarchy);
             var pools = level.CurrentLevelBlueprint.monsters;
             foreach (string kind in WaveTypes[wave])
             {
-                if (specials.Count >= FestivalDemo.Settings.specialPopulationLimit) break;
+                if (specials.Count >= FestivalDemo.Settings.specialPopulationLimit) return false;
                 // Reserve space for the scheduled threats without exceeding the total cap.
                 if (level.EntityManager.LivingMonsters.Count >= FestivalDemo.Settings.populationLimit)
                 {
                     var farthest = level.EntityManager.LivingMonsters.Where(m => m != null && !specials.Contains(m)
                         && !(m is BossMonster) && !(m is MiniBossMonster))
                         .OrderByDescending(m => (m.transform.position-level.PlayerCharacter.transform.position).sqrMagnitude).FirstOrDefault();
-                    if (farthest == null) break;
+                    if (farthest == null) return false;
                     farthest.DespawnForStageTransfer();
                 }
                 for (int pool = 0; pool < pools.Length; pool++)
                 {
                     var blueprint = pools[pool].monsterBlueprints.FirstOrDefault(b => b != null && ((UnityEngine.Object)b).name == kind);
                     if (blueprint == null) continue;
+                    bool sniper = blueprint is SniperMonsterBlueprint;
+                    float minimum = sniper ? 3.8f : 5.5f, maximum = sniper ? 5.2f : 7.5f;
                     Vector2 center = level.PlayerCharacter.transform.position;
                     Vector2 position = center;
                     bool valid = false;
                     for (int attempt=0; attempt<24; attempt++)
                     {
                         float angle = UnityEngine.Random.Range(0f, Mathf.PI*2);
-                        position = FiniteStomachMap.SafeSpawn(center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle))*UnityEngine.Random.Range(5.5f,7.5f), .8f);
-                        if (Vector2.Distance(center,position) < 5) continue;
+                        position = FiniteStomachMap.SafeSpawn(center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle))*UnityEngine.Random.Range(minimum,maximum), .8f);
+                        float distance = Vector2.Distance(center,position);
+                        if (distance < minimum || distance > maximum) continue;
                         bool blocked = Physics2D.OverlapCircleAll(position,.6f).Any(h => !h.isTrigger
                             && h.GetComponentInParent<Monster>() == null && h.GetComponentInParent<Character>() == null);
                         if (!blocked) { valid=true; break; }
                     }
-                    if (!valid) break;
-                    float hp = Mathf.Lerp(1.2f,1.8f,level.CurrentLevelTime/level.LevelDuration);
+                    if (!valid) return false;
+                    float hp = 1.2f; // Fixed species health; no late global stat ramp.
                     var enemy = level.EntityManager.SpawnMonster(pool, position, blueprint, blueprint.hp*(hp-1));
-                    if (enemy != null) { specials.Add(enemy); SpecialSpawned++; }
-                    break;
+                    if (enemy == null) return false;
+                    specials.Add(enemy); SpecialSpawned++;
+                    if (sniper) SnipersSpawned++; else AcidSporesSpawned++;
+                    SpecialAppeared?.Invoke(enemy, level.CurrentLevelTime);
+                    return true;
                 }
             }
+            return false;
         }
         bool TrySpawnItemChest(bool initial)
         {

@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)][string]$BuildFolder,
     [Parameter(Mandatory=$true)][string]$InstallFolder
 )
@@ -10,7 +10,7 @@ if (-not $parent -or $target -eq [IO.Path]::GetPathRoot($target)) { throw 'Speci
 if ($source -eq $target -or $source.StartsWith($target+'\',[StringComparison]::OrdinalIgnoreCase) -or $target.StartsWith($source+'\',[StringComparison]::OrdinalIgnoreCase)) { throw 'Build and installation folders must be separate.' }
 $manifest = Get-Content -LiteralPath (Join-Path $source 'desktop-build.json') -Raw | ConvertFrom-Json
 if ($manifest.steamEnabled -or -not $manifest.sourceCommit -or $manifest.sourceCommit -eq 'unknown') { throw 'Expected a verified standalone festival build with its source commit.' }
-if (-not $manifest.festival -or $manifest.festivalDuration -ne 45 -or $manifest.festivalRules -ne 'festival_pc_v3_45') { throw 'Expected the 45-second festival ruleset.' }
+if (-not $manifest.festival -or $manifest.festivalDuration -ne 45 -or $manifest.festivalRules -ne 'festival_pc_v5_45') { throw 'Expected the 45-second festival ruleset.' }
 $required = @('24tu.exe','UnityPlayer.dll','24tu_Data/Managed/Assembly-CSharp.dll','PLAY_GUIDE.md','실행안내.txt')
 foreach ($name in $required) { if (-not (Test-Path -LiteralPath (Join-Path $source $name))) { throw "Incomplete build: $name" } }
 if (Test-Path -LiteralPath $target) {

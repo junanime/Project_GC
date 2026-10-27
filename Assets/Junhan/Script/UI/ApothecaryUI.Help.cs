@@ -55,7 +55,7 @@ namespace Vampire
         {
             var d=data!=null?data.skills:null;
             if(d==null)return "이 캐릭터의 스킬은 추후 추가됩니다.";
-            string text=active?d.activeDescription:d.passiveDescription;
+            string text=FestivalDemo.SkillDescription(d,active);
             text=text.Replace(" 수치는 ShiniSkills에서 조절할 수 있습니다.","");
             if(CurrentSkills!=null&&data==character)
                 text+=$"\n\n현재 Lv.{(active?CurrentSkills.ActiveLevel:CurrentSkills.PassiveLevel)}"+(active?(CurrentSkills.IsShini?" · 불씨 소모형":$" · 재사용 {CurrentSkills.EffectiveCooldown:0.#}초"):"");

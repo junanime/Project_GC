@@ -53,7 +53,7 @@ namespace Vampire
                 var weapon=Config.weapons.FirstOrDefault(w=>w!=null&&(int)w.Type==preset.weapons[i]);
                 FestivalEquipment(weapon?.Image,weapon?.Name??"무기 정보 없음",weapon?.Description,.14f+i*.14f,.195f,.275f+i*.14f,.30f);
             }
-            Label(content,$"WASD 이동 · Shift 대시 · {GameInput.ActiveSkillKeyLabel} 액티브(신이는 길게) · 경험치 없음 · 퀘스트 완료 시 고귀 증강",.04f,.105f,.96f,.16f,19);
+            Label(content,$"WASD 이동 · Shift 대시 · {GameInput.ActiveSkillKeyLabel} 액티브(신이는 길게) · 경험치 없음 · 시작 시 무작위 고귀 1개",.04f,.105f,.96f,.16f,19);
             ActionButton(content,"행사 리더보드",.045f,.025f,.275f,.095f,()=>Show("festivalRanking"));
             festivalNote=Label(content,string.IsNullOrEmpty(message)?(FestivalQaRecorder.Problem??"캐릭터 선택·FPS·끊김·오류를 익명 기록합니다"):message,.29f,.025f,.68f,.095f,13);
             ActionButton(content,"이 캐릭터로 시작",.70f,.025f,.955f,.095f,StartFestival,true,!starting);
@@ -146,7 +146,7 @@ namespace Vampire
                 case "Hyuki":passive="상태이상에 걸린 적에게\n추가 피해를 줍니다.";active="주변 적을 잠시 얼립니다.\n빙결침으로 지속시간을\n늘릴 수 있습니다.";break;
                 case "Shini":passive="적을 처치하면 불씨를 모읍니다.\n불씨는 화염 방사의 연료입니다.";active="전방으로 불을 뿜습니다.\nSpace를 길게 누르면\n불씨로 연속 발사합니다.";break;
                 case "Ari":passive="구르며 부딪힌 적에게\n피해를 주고 밀어냅니다.";active="암석 봉황으로 변신해\n강한 돌진을 반복합니다.";break;
-                default:passive="대시 후 잠시 침 개수와\n공격 속도가 증가합니다.";active="잠시 침 개수, 이동 속도,\n침 속도가 크게 증가합니다.";break;
+                default:passive="대시 후 잠시 침 개수와\n공격 속도가 증가합니다.";active="10초간 침 개수와\n침 속도가 증가합니다.";break;
             }
             var skill=character.skills;
             ImageAt(root,skill.passiveIcon,.08f,.73f,.31f,.86f);

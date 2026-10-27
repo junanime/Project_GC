@@ -51,7 +51,7 @@ namespace Vampire
             AutomaticRewardName = null;
             if (FestivalDemo.Enabled)
             {
-                state = new PrescriptionState { tag=2, quests=new[]{(int)Goal.Kills,(int)Goal.Dashes,(int)Goal.ActiveUses}, progress=new float[3] };
+                state = new PrescriptionState { tag=2, quests=new[]{(int)Goal.Kills,(int)Goal.Dashes,(int)Goal.ActiveUses}, progress=new float[3], claimed=true };
                 recentKills.Clear(); lastDash=-100;
                 return;
             }
@@ -63,27 +63,13 @@ namespace Vampire
         }
         void OnEnable() { Monster.Died += OnKilled; }
         void OnDisable() { Monster.Died -= OnKilled; }
-        public string Description(int index)
+        public string Description(int index) => descriptions[state.quests[index]];
+        public float Target(int index) => targets[state.quests[index]];
+        public void SetFestivalStartingReward(string name)
         {
-            if (!FestivalDemo.Enabled) return descriptions[state.quests[index]];
-            switch ((Goal)state.quests[index])
-            {
-                case Goal.Kills: return $"몬스터 {Target(index):0}마리 처치";
-                case Goal.Dashes: return $"대시 {Target(index):0}회 사용";
-                case Goal.ActiveUses: return $"액티브 스킬 {Target(index):0}회 사용";
-                default: return descriptions[state.quests[index]];
-            }
-        }
-        public float Target(int index)
-        {
-            if (!FestivalDemo.Enabled) return targets[state.quests[index]];
-            switch ((Goal)state.quests[index])
-            {
-                case Goal.Kills: return FestivalDemo.Settings.questKills;
-                case Goal.Dashes: return FestivalDemo.Settings.questDashes;
-                case Goal.ActiveUses: return FestivalDemo.Settings.questActiveUses;
-                default: return targets[state.quests[index]];
-            }
+            if (!FestivalDemo.Enabled || state == null) return;
+            state.claimed = true;
+            AutomaticRewardName = name;
         }
         public float Progress(int index) => state.progress[index];
         public bool IsComplete(int index) => state.progress[index] >= Target(index);
@@ -128,16 +114,8 @@ namespace Vampire
             previous=position;
             TryAutomaticReward();
         }
-        public bool TryAutomaticReward()
-        {
-            if (!FestivalDemo.Enabled || !Ready || owner == null || !owner.IsAlive || Time.timeScale <= 0 ||
-                StageEntryLoading.IsLoading || owner.Skills != null && owner.Skills.IsCutin) return false;
-            state.claimed = true; // Claim before applying effects, which may synchronously publish combat events.
-            if (!FestivalDemo.GrantNoble(rewardManager, owner.Blueprint, out string reward)) { state.claimed = false; return false; }
-            AutomaticRewardName = reward;
-            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.RewardEvent);
-            return true;
-        }
+        // Festival rewards are granted during run initialization, never by quest progress.
+        public bool TryAutomaticReward() => false;
         public bool TryClaim(AbilitySelectionDialog dialog)
         {
             if (FestivalDemo.Enabled) return TryAutomaticReward();

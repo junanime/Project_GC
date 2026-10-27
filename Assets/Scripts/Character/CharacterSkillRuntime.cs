@@ -11,7 +11,7 @@ namespace Vampire
         public int PassiveMaxLevel => IsShini ? 3 : MaxLevel;
         public int ActiveMaxLevel => IsShini ? 3 : MaxLevel;
         public ShiniEmberRuntime Breath { get; private set; }
-        public float StatusDamageBonus => IsHyuki ? HyukiBonus(PassiveLevel) : 0;
+        public float StatusDamageBonus => IsHyuki ? HyukiBonus(PassiveLevel) + (FestivalDemo.Enabled ? FestivalDemo.Settings.hyukiStatusBonus - .1f : 0) : 0;
         public static float HyukiBonus(int level) => Mathf.Clamp(level,1,5)*.1f;
         public int PassiveLevel { get; private set; } = 1;
         public int ActiveLevel { get; private set; } = 1;
@@ -43,7 +43,7 @@ namespace Vampire
         public float PassivePower => Mathf.Pow(1.3f, PassiveLevel - 1);
         public float ActivePower => IsShini ? 1+.2f*(ActiveLevel-1) : IsAri ? 1 : Mathf.Pow(1.3f, ActiveLevel - 1);
         public float EffectivePassiveDuration => Definition.passiveDuration * (Definition.kind == CharacterSkillDefinition.SkillKind.Ashi ? PassivePower : 1);
-        public float EffectiveActiveDuration => Definition.activeDuration + (IsAri ? 2*(ActiveLevel-1) : 0);
+        public float EffectiveActiveDuration => FestivalDemo.ActiveDuration(Definition.activeDuration, Definition.kind) + (IsAri ? 2*(ActiveLevel-1) : 0);
         public float EffectiveCooldown => FestivalDemo.ActiveCooldown(BaseEffectiveCooldown, Definition.kind);
         float BaseEffectiveCooldown => IsShini ? 0 : Definition.kind==CharacterSkillDefinition.SkillKind.Ashi ? Mathf.Max(1,Definition.cooldown-4*(ActiveLevel-1)) : Definition.cooldown / (IsHyuki ? ActivePower : 1);
         public bool TryUpgrade(bool active)
@@ -59,7 +59,7 @@ namespace Vampire
             int current=active?ActiveLevel:PassiveLevel, max=active?ActiveMaxLevel:PassiveMaxLevel;
             int next=Mathf.Min(max,current+1);string label;float a,b;
             if(IsShini){label=active?"분사 피해(%)":"불씨 최대 보유량";a=active?100+20*(current-1):24+6*(current-1);b=active?100+20*(next-1):24+6*(next-1);}
-            else if(IsHyuki&&!active){label="상태이상 대상 추가 피해(%)";a=HyukiBonus(current)*100;b=HyukiBonus(next)*100;}
+            else if(IsHyuki&&!active){label="상태이상 대상 추가 피해(%)";float bonus=FestivalDemo.Enabled?FestivalDemo.Settings.hyukiStatusBonus-.1f:0;a=(HyukiBonus(current)+bonus)*100;b=(HyukiBonus(next)+bonus)*100;}
             else if(IsHyuki){label="재사용 대기시간(초)";a=EffectiveCooldown;b=FestivalDemo.ActiveCooldown(Definition.cooldown/Mathf.Pow(1.3f,next-1),Definition.kind);}
             else if(IsAri&&active){label="변신 지속시간(초)";a=EffectiveActiveDuration;b=Definition.activeDuration+2*(next-1);}
             else if(IsAri){label="대쉬 접촉 피해";a=Definition.ariRollDamage*PassivePower;b=Definition.ariRollDamage*Mathf.Pow(1.3f,next-1);}
@@ -94,7 +94,7 @@ namespace Vampire
             return success;
         }
         public void RestoreIceProcFailures(int failures) { IceProcFailures=Mathf.Clamp(failures,0,90); }
-        public float MovementMultiplier => AshiActive ? 2 : IsShini && Active ? Mathf.Max(1,Definition.shiniActiveMoveMultiplier) : 1;
+        public float MovementMultiplier => AshiActive ? (FestivalDemo.Enabled ? FestivalDemo.Settings.ashiActiveMoveMultiplier : 2) : IsShini && Active ? Mathf.Max(1,Definition.shiniActiveMoveMultiplier) : 1;
         public bool PassiveActive => PassiveRemaining > 0;
         public bool Active => IsShini ? Breath!=null&&Breath.Busy : ActiveRemaining > 0;
         public int DashSequence { get; private set; }
@@ -128,7 +128,7 @@ namespace Vampire
             if(IsShini || IsHyuki)
             {
                 ActiveRemaining=EffectiveActiveDuration; CooldownRemaining=EffectiveCooldown;
-                SummonRemaining=IceSkillRules.BlizzardFreezeDelay;
+                SummonRemaining=IceSkillRules.EffectiveFreezeDelay;
                 GetComponent<PhoenixSkillVisual>()?.Play();
                 return true;
             }
@@ -176,7 +176,7 @@ namespace Vampire
             PassiveRemaining=IsHyuki?0:Mathf.Clamp(passive,0,EffectivePassiveDuration);
             ActiveRemaining=Mathf.Clamp(active,0,EffectiveActiveDuration);
             CooldownRemaining=Mathf.Clamp(cooldown,0,EffectiveCooldown);
-            float summonDuration=IsShini?ShiniSkillRuntime.SummonDuration:IsHyuki?IceSkillRules.BlizzardFreezeDelay:IsAri?0:Definition.cutinDuration;
+            float summonDuration=IsShini?ShiniSkillRuntime.SummonDuration:IsHyuki?IceSkillRules.EffectiveFreezeDelay:IsAri?0:Definition.cutinDuration;
             SummonRemaining=Mathf.Clamp(summon,0,summonDuration);
             CutinElapsed=summonDuration-SummonRemaining;
             if(IsSummoning)

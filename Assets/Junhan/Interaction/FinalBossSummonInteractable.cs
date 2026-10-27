@@ -44,6 +44,7 @@ namespace Vampire
         protected override void Awake()
         {
             base.Awake();
+            if (FestivalDemo.Enabled) { gameObject.SetActive(false); return; }
             presentation = gameObject.AddComponent<BossSummonPresentation>();
             presentation.Initialize(GetComponent<SpriteRenderer>());
             var marker=GetComponent<MapMarker>();if(marker==null)marker=gameObject.AddComponent<MapMarker>();
@@ -112,6 +113,7 @@ namespace Vampire
 
         public bool OpenBossChoice(Character player)
         {
+            if (FestivalDemo.Enabled) return false;
             if(player==null||summoning||IsSummoning||HasInteracted||IsBossAlreadyPresent()||ApothecaryUI.Instance==null)return false;
             pendingSummon=this;
             bool opened=ApothecaryUI.Instance.ShowBossChoice(this,kind=>

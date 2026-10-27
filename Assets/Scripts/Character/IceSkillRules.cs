@@ -9,6 +9,7 @@ namespace Vampire
         public const float InstantFreezeChance = .10f;
         // Gameplay release and the visual fade share a single timing source.
         public const float BlizzardFreezeDelay = 1.65f;
+        public static float EffectiveFreezeDelay => FestivalDemo.Enabled ? Mathf.Max(.1f, FestivalDemo.Settings.hyukiFreezeDelay) : BlizzardFreezeDelay;
         public static void Freeze(Component target)
         {
             if (MonsterNeedleBarrier.Blocks(target)) return;

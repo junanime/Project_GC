@@ -1,0 +1,146 @@
+{
+    "enabled": true,
+    "duration": 45.0,
+    "minimumLoadingSeconds": 3.0,
+    "eventSeconds": 20.0,
+    "startingSpawnRate": 10.0,
+    "finalSpawnRate": 18.0,
+    "normalBaseHealth": 60.0,
+    "normalMonsters": [
+        {
+            "blueprint": "1",
+            "speed": 0.800000011920929,
+            "damage": 8.0
+        },
+        {
+            "blueprint": "1_1",
+            "speed": 0.8999999761581421,
+            "damage": 10.0
+        },
+        {
+            "blueprint": "SugarCube_Normal_Body",
+            "speed": 0.8500000238418579,
+            "damage": 12.0
+        },
+        {
+            "blueprint": "2",
+            "speed": 1.0499999523162842,
+            "damage": 16.0
+        },
+        {
+            "blueprint": "3",
+            "speed": 1.25,
+            "damage": 18.0
+        },
+        {
+            "blueprint": "3_1",
+            "speed": 1.149999976158142,
+            "damage": 20.0
+        },
+        {
+            "blueprint": "4",
+            "speed": 1.649999976158142,
+            "damage": 24.0
+        },
+        {
+            "blueprint": "king-oyster",
+            "speed": 1.5499999523162842,
+            "damage": 28.0
+        },
+        {
+            "blueprint": "red-cap",
+            "speed": 1.4500000476837159,
+            "damage": 32.0
+        }
+    ],
+    "initialEnemies": 18,
+    "populationLimit": 95,
+    "spawnBudgetPerFrame": 6,
+    "experienceGemMultiplier": 0.0,
+    "ashiActiveDuration": 10.0,
+    "ariActiveCooldown": 20.0,
+    "hyukiActiveCooldown": 20.0,
+    "ashiActiveMoveMultiplier": 1.0,
+    "shiniStartingFuel": 24,
+    "ariPhoenixDamage": 55.0,
+    "hyukiStatusBonus": 0.25,
+    "hyukiFreezeDelay": 0.6000000238418579,
+    "shiniActiveDamageMultiplier": 4.0,
+    "shiniPreparation": 0.30000001192092898,
+    "specialPopulationLimit": 8,
+    "chestSpawnInterval": 15.0,
+    "presets": [
+        {
+            "character": "Ashi",
+            "description": "기동 · 관통 · 추적",
+            "relic": "feather",
+            "weapons": [
+                19,
+                2,
+                3,
+                6
+            ],
+            "items": [
+                1,
+                20
+            ],
+            "damageBonus": 0.0,
+            "attackSpeedBonus": 0.0,
+            "healthBonus": -20.0
+        },
+        {
+            "character": "Hyuki",
+            "description": "빙결 · 충격파 · 생존",
+            "relic": "firm_shield",
+            "weapons": [
+                18,
+                20,
+                10,
+                3
+            ],
+            "items": [
+                12,
+                2
+            ],
+            "damageBonus": 0.44999998807907107,
+            "attackSpeedBonus": 0.30000001192092898,
+            "healthBonus": -20.0
+        },
+        {
+            "character": "Shini",
+            "description": "화상 · 폭발 · 부식",
+            "relic": "clear_dew",
+            "weapons": [
+                17,
+                1,
+                9,
+                14
+            ],
+            "items": [
+                12,
+                8
+            ],
+            "damageBonus": 0.3499999940395355,
+            "attackSpeedBonus": 0.20000000298023225,
+            "healthBonus": 50.0
+        },
+        {
+            "character": "Ari",
+            "description": "진형 · 표식 · 연쇄",
+            "relic": "lightning_beat",
+            "weapons": [
+                7,
+                11,
+                12,
+                8
+            ],
+            "items": [
+                1,
+                2
+            ],
+            "damageBonus": 0.4000000059604645,
+            "attackSpeedBonus": 0.25,
+            "healthBonus": 80.0
+        }
+    ]
+}

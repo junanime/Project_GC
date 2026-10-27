@@ -81,8 +81,9 @@ namespace Vampire
             if (FestivalDemo.Enabled)
             {
                 // Each CollectWindowTemplates call clears its ordinary schedule first.
-                var choices = templates.FindAll(t => t.duration <= FestivalDemo.Settings.duration - FestivalDemo.Settings.eventSeconds);
-                if (choices.Count == 0) choices = templates;
+                var choices = templates.FindAll(t => t.kind != "Gold" && t.duration <= FestivalDemo.Settings.duration - FestivalDemo.Settings.eventSeconds);
+                if (choices.Count == 0) choices = templates.FindAll(t => t.kind != "Gold");
+                if (choices.Count == 0) return;
                 var selected = choices[Random.Range(0, choices.Count)];
                 selected.schedule(FestivalDemo.Settings.eventSeconds);
                 FestivalEventKind = selected.kind;

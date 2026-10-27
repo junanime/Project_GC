@@ -238,7 +238,9 @@ namespace Vampire
 
             float normalizedTime = GetNormalizedLevelTime();
 
-            int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
+            int monsterIndex = FestivalDemo.Enabled
+                ? festivalRun.SelectNormal(levelTime, UnityEngine.Random.value)
+                : levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
             SpawnMonsterByFlatIndex(monsterIndex);
         }
 
@@ -273,7 +275,7 @@ namespace Vampire
 
         public float GetNormalizedLevelTime()
         {
-            if (FestivalDemo.Enabled) return Mathf.Lerp(.28f, .65f, Mathf.Clamp01(levelTime / LevelDuration));
+            if (FestivalDemo.Enabled) return Mathf.Clamp01(levelTime / LevelDuration);
             if (levelBlueprint == null || levelBlueprint.levelTime <= 0f)
             {
                 return 0f;
@@ -347,16 +349,15 @@ namespace Vampire
             // 소화효소 처치 난이도 상승 연결:
             // 선택된 난이도가 MonsterHealth이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
             // Spawn APIs take EXTRA HP, not total HP. Only explicit event buffs apply.
-            float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
-            if (FestivalDemo.Enabled) multiplier *= Mathf.Lerp(FestivalDemo.Settings.startingHealthMultiplier, FestivalDemo.Settings.finalHealthMultiplier, Mathf.Clamp01(levelTime / LevelDuration));
+            if (FestivalDemo.Enabled) monsterBlueprint = festivalRun.ResolveNormal(monsterBlueprint);
+            float multiplier = Mathf.Max(0f, hpMultiplier) * (FestivalDemo.Enabled ? 1f : DigestiveEnzymeDifficultyManager.MonsterHpMultiplier);
             float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
             Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
             if (FestivalDemo.Enabled && spawned != null)
             {
                 festivalSpawnsThisFrame++;
-                spawned.moveSpeed *= Mathf.Lerp(FestivalDemo.Settings.startingMoveMultiplier,
-                    FestivalDemo.Settings.finalMoveMultiplier, Mathf.Clamp01(levelTime / LevelDuration));
+                // Speed/damage are fixed on the species copy, never scaled by elapsed time.
             }
             if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
         }

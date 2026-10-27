@@ -1072,11 +1072,6 @@ namespace Vampire
                 return;
             }
 
-            // Festival pressure ramps only monster attacks; keep dodge, shields,
-            // armor and reduction ordering intact, and leave field hazards unchanged.
-            if (FestivalDemo.Enabled && pendingDamageMonsterBlueprint != null)
-                damage *= FestivalRunController.EnemyDamageMultiplier;
-
             if (armor.Value >= damage)
             {
                 damage = damage < 1 ? damage : 1;

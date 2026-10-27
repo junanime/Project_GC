@@ -533,6 +533,7 @@ namespace Vampire
 
         public Coin SpawnCoin(Vector2 position, CoinType coinType, bool spawnAnimation, bool collectableDuringSpawn)
         {
+            if (FestivalDemo.Enabled) return null;
             Coin newCoin = coinPool.Get();
             newCoin.Setup(position, coinType, spawnAnimation, collectableDuringSpawn);
             if (MiniStageRuntimeState.IsInsideMiniStage) miniStageCoins.Add(newCoin);

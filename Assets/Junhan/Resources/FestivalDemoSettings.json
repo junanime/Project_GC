@@ -5,19 +5,12 @@
   "eventSeconds": 20,
   "startingSpawnRate": 10,
   "finalSpawnRate": 18,
-  "startingHealthMultiplier": 1.25,
-  "finalHealthMultiplier": 2.4,
   "initialEnemies": 18,
   "populationLimit": 95,
   "spawnBudgetPerFrame": 6,
   "experienceGemMultiplier": 0,
-  "ariActiveCooldownMultiplier": 0.6,
-  "hyukiActiveCooldownMultiplier": 0.6,
-  "shiniActiveDamageMultiplier": 1.8,
+  "shiniActiveDamageMultiplier": 4,
   "chestSpawnInterval": 15,
-  "questKills": 20,
-  "questDashes": 4,
-  "questActiveUses": 2,
   "presets": [
     {
       "character": "Ashi",
@@ -33,10 +26,9 @@
         1,
         20
       ],
-      "noble": "HedgehogNeedle",
-      "damageBonus": 0.22,
-      "attackSpeedBonus": 0.16,
-      "healthBonus": 15
+      "damageBonus": 0,
+      "attackSpeedBonus": 0,
+      "healthBonus": -20
     },
     {
       "character": "Hyuki",
@@ -52,10 +44,9 @@
         12,
         2
       ],
-      "noble": "NeuralBlock",
       "damageBonus": 0.45,
       "attackSpeedBonus": 0.3,
-      "healthBonus": 0
+      "healthBonus": -20
     },
     {
       "character": "Shini",
@@ -71,10 +62,9 @@
         12,
         8
       ],
-      "noble": "GastricPeristalsisWave",
       "damageBonus": 0.35,
       "attackSpeedBonus": 0.2,
-      "healthBonus": 45
+      "healthBonus": 50
     },
     {
       "character": "Ari",
@@ -90,16 +80,67 @@
         1,
         2
       ],
-      "noble": "MucosalFortress",
       "damageBonus": 0.4,
       "attackSpeedBonus": 0.25,
-      "healthBonus": 45
+      "healthBonus": 80
     }
   ],
-  "startingMoveMultiplier": 1.05,
-  "finalMoveMultiplier": 1.6,
   "specialPopulationLimit": 8,
-  "startingDamageMultiplier": 1,
-  "finalDamageMultiplier": 3,
-  "damageRampStart": 12
+  "ashiActiveDuration": 10,
+  "ariActiveCooldown": 20,
+  "hyukiActiveCooldown": 20,
+  "ariPhoenixDamage": 55,
+  "hyukiStatusBonus": 0.25,
+  "hyukiFreezeDelay": 0.6,
+  "shiniPreparation": 0.3,
+  "ashiActiveMoveMultiplier": 1,
+  "shiniStartingFuel": 24,
+  "normalBaseHealth": 60,
+  "normalMonsters": [
+    {
+      "blueprint": "1",
+      "speed": 0.8,
+      "damage": 8
+    },
+    {
+      "blueprint": "1_1",
+      "speed": 0.9,
+      "damage": 10
+    },
+    {
+      "blueprint": "SugarCube_Normal_Body",
+      "speed": 0.85,
+      "damage": 12
+    },
+    {
+      "blueprint": "2",
+      "speed": 1.05,
+      "damage": 16
+    },
+    {
+      "blueprint": "3",
+      "speed": 1.25,
+      "damage": 18
+    },
+    {
+      "blueprint": "3_1",
+      "speed": 1.15,
+      "damage": 20
+    },
+    {
+      "blueprint": "4",
+      "speed": 1.65,
+      "damage": 24
+    },
+    {
+      "blueprint": "king-oyster",
+      "speed": 1.55,
+      "damage": 28
+    },
+    {
+      "blueprint": "red-cap",
+      "speed": 1.45,
+      "damage": 32
+    }
+  ]
 }

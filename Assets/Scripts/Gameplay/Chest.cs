@@ -41,6 +41,7 @@ namespace Vampire
 
         private void SpawnLoot(Loot<GameObject> loot, bool openedByPlayer = true)
         {
+            if (loot == null || loot.item == null) return;
             GameObject item = Instantiate(loot.item, chestItemsParent);
             item.transform.position = transform.position;
             transform.position += Vector3.back*0.001f;  // Nudge the collectable in front of the chest
@@ -82,7 +83,7 @@ namespace Vampire
                 ? !entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
                 : !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
             if (spawnLoot)
-                SpawnLoot(chestBlueprint.lootTable.DropLootObject(), openedByPlayer);
+                SpawnLoot(RollLoot(), openedByPlayer);
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.openChest);
             if (!spawnLoot)
@@ -91,7 +92,7 @@ namespace Vampire
                 bool stillAvailable=chestBlueprint.legendaryAugmentChest
                     ? entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
                     : entityManager.AbilitySelectionDialog.HasAvailableAbilities();
-                if (!stillAvailable) SpawnLoot(chestBlueprint.lootTable.DropLootObject(),openedByPlayer);
+                if (!stillAvailable) SpawnLoot(RollLoot(),openedByPlayer);
                 else if (chestBlueprint.legendaryAugmentChest) entityManager.AbilitySelectionDialog.OpenLegendary();
                 else if (GuaranteesOriginal) entityManager.AbilitySelectionDialog.OpenOvercharge();
                 else entityManager.AbilitySelectionDialog.Open(false);
@@ -105,6 +106,25 @@ namespace Vampire
                 yield return null;
             }
             entityManager.DespawnChest(this);
+        }
+
+        internal Loot<GameObject> RollLoot()
+        {
+            if (!FestivalDemo.Enabled) return chestBlueprint.lootTable.DropLootObject();
+            return RollFestivalLoot(UnityEngine.Random.value);
+        }
+
+        internal Loot<GameObject> RollFestivalLoot(float roll)
+        {
+            // Keep the existing prefab, pickup animation and inventory UI. Only the festival odds change.
+            bool bomb = roll < .3f;
+            foreach (var entry in chestBlueprint.lootTable.lootTable)
+            {
+                if (entry?.item == null) continue;
+                if (bomb ? entry.item.GetComponent<Bomb>() != null : entry.item.GetComponent<Health>() != null)
+                    return entry;
+            }
+            throw new InvalidOperationException("Festival item chest must contain both Bomb and Health prefabs.");
         }
 
         private IEnumerator Appear()

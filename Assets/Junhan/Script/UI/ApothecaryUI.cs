@@ -187,7 +187,7 @@ namespace Vampire
             fullScreenBackdrop.color=liveFloodResult?new Color(0,0,0,.15f):Page=="run"||Page=="settings"&&level!=null||Page=="skillReward"?new Color(0,0,0,.68f):new Color(.19f,.08f,.07f);
             if (Page == "hud")
             {
-                BuildPrescriptionHud();
+                if (!FestivalDemo.Enabled) BuildPrescriptionHud();
                 BuildHudNavigation();
                 if(GamePlatform.UsesTouchControls||MobileGameplayInput.Active)BuildSkillHud();
                 return;

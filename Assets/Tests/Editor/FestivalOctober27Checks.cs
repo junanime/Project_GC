@@ -47,11 +47,11 @@ namespace Vampire.Tests.Editor
                     if(key=="Shini")Check(FestivalGaugeTutorial.Instance.GetComponentsInChildren<TMP_Text>().Any(t=>t.text.Contains("불씨 연료")),"Shini tutorial explains fuel instead of cooldown");
                     float cd=skill.EffectiveCooldown;
                     FestivalDemo.EnabledOverride=false;float ordinary=skill.EffectiveCooldown;FestivalDemo.EnabledOverride=null;
-                    Check(Mathf.Approximately(cd,Mathf.Min(24,ordinary)*(key=="Ari"||key=="Hyuki"?.6f:1)),"festival cooldown multiplier after old cap "+key);
-                    if(key=="Ari"||key=="Hyuki")Check(Mathf.Approximately(cd,14.4f),"starting cooldown is 14.4 seconds "+key);
+                    Check(Mathf.Approximately(cd,key=="Ari"||key=="Hyuki"?20:Mathf.Min(24,ordinary)),"festival cooldown multiplier after old cap "+key);
+                    if(key=="Ari"||key=="Hyuki")Check(Mathf.Approximately(cd,20f),"starting cooldown is 20 seconds "+key);
                     if(key=="Shini")
                     {
-                        Check(Mathf.Approximately(skill.Breath.EffectiveDamagePerSecond,63),"Shini active base DPS becomes 63");
+                        Check(Mathf.Approximately(skill.Breath.EffectiveDamagePerSecond,140),"Shini active base DPS becomes 140");
                         FestivalDemo.EnabledOverride=false;
                         Check(Mathf.Approximately(skill.Breath.EffectiveDamagePerSecond,35),"ordinary Shini damage unchanged");FestivalDemo.EnabledOverride=null;
                     }
@@ -66,6 +66,7 @@ namespace Vampire.Tests.Editor
                     for(int i=0;i<7;i++)yield return null;
                     Check(!FestivalGaugeTutorial.IsOpen&&Time.timeScale==1&&level.CurrentLevelTime>0,"continue on release resumes combat "+key);
                     Check(!skill.Active&&skill.CooldownRemaining==0&&(skill.Breath==null||skill.Breath.Fuel==fuel),"dismiss does not activate skill or spend fuel "+key);
+                    yield return FestivalArenaChecks.Run(level);
                     if(key=="Hyuki")yield return ColdVisualChecks(level);
                     if(key=="Ashi")RetryStorageCheck(level,current.FestivalRunId);
                     else current.Finish(false);

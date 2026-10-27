@@ -103,6 +103,10 @@ namespace Vampire
             Callout(new Rect(200,204,310,114),Blue,"대시 · Shift","파란 게이지가 차면\n빠르게 회피");
             bool shini=level.PlayerCharacter.Skills.IsShini;
             Callout(new Rect(760,178,340,128),Gold,shini?"액티브 연료 · Space":"액티브 스킬 · Space",shini?"노란 게이지는 불씨 연료\nSpace를 길게 누르면 연속 발사":"노란 게이지가 차면\n스킬 사용 가능");
+            var run=level.GetComponent<FestivalRunController>();
+            string nobleHint=run.StartingNobleType=="HeavySnipe"?"우클릭을 길게 눌러 충전 발사":
+                run.StartingNobleType=="CursorControl"?"침이 주변을 8자로 자동 회전합니다":"효과는 시작부터 적용됩니다";
+            Label("시작 고귀 · "+run.StartingNobleName+"  /  "+nobleHint,new Rect(160,16,960,48),20,Color.white);
             Plate("Continue",new Rect(350,78,580,64),Red,true);
             Label("아무 곳이나 클릭 또는 Space로 시작",new Rect(370,88,540,45),27,Color.white);
         }

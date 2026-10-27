@@ -28,7 +28,8 @@ namespace Vampire
             TestFilePath ??
 #endif
             Path.Combine(Application.persistentDataPath, "Festival", "leaderboard-v1.json");
-        public static int Score(RunScoreData data) => data == null ? 0 : data.Total + Mathf.FloorToInt(Mathf.Clamp(data.seconds,0,FestivalDemo.Settings.duration)*10) + (data.success ? 9000 : 0);
+        // Ordinary online scoring stays 30/50. Stored festival scores are snapshots.
+        public static int Score(RunScoreData data) => data == null ? 0 : data.Total + data.special * 100 + Mathf.FloorToInt(Mathf.Clamp(data.seconds,0,FestivalDemo.Settings.duration)*10) + (data.success ? 9000 : 0);
         public static List<FestivalRecord> Read(string path = null)
         {
             path = path ?? FilePath;

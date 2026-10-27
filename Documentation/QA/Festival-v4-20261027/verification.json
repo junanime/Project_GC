@@ -1,0 +1,10 @@
+{
+  "functionalChecks": 145,
+  "completedRuns": 80,
+  "errors": 0,
+  "simulationStepSeconds": 0.03333333333333333,
+  "uniqueRunAndSpawnAuditPassed": true,
+  "maximumSpecialSpawnDelaySeconds": 0.03300000000000125,
+  "runtimeSettingsSha256": "070a50b432183f85dc0a5e00f1335c44d315019383a6586a178d84cdf3d99b2b",
+  "testHarnessSha256": "b80f925fe47b75c6d1c30edaaf431aefe7615900cc9a0147fbd77c0db1e6744b"
+}

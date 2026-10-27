@@ -402,6 +402,8 @@ namespace Vampire
             Vector2 originalPosition,
             SniperMonsterBlueprint blueprint)
         {
+            // FestivalRunController already checks the playable map and safe distance.
+            if (FestivalDemo.Enabled && !IsMiniStageOwned) return originalPosition;
             if (blueprint == null)
             {
                 return originalPosition;

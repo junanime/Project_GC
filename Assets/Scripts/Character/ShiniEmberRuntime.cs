@@ -16,7 +16,8 @@ namespace Vampire
         public float DamagePower => 1+.2f*(skill.ActiveLevel-1);
         public float EffectiveDamagePerSecond => DamagePerSecond * DamagePower * FestivalDemo.ShiniActiveDamageMultiplier;
         public bool Busy { get; private set; }
-        public bool Emitting => Busy && age>=Preparation && stopped<0;
+        public float EffectivePreparation => FestivalDemo.Enabled ? Mathf.Max(.1f,FestivalDemo.Settings.shiniPreparation) : Preparation;
+        public bool Emitting => Busy && age>=EffectivePreparation && stopped<0;
         public int GroundCount => drops.Count;
         public bool CanStart => !Busy && Fuel>=InitialCost;
         public bool IsRewardPaused => owner!=null && owner.IsChoosingAugment;
@@ -63,7 +64,7 @@ namespace Vampire
         public bool Press(bool keyboard=false,UnityEngine.InputSystem.Controls.ButtonControl pointerControl=null)
         {
             if(!skill.CanActivate||!CanStart)return false;
-            Fuel-=InitialCost;Busy=true;age=0;stopped=-1;nextHit=Preparation+.2f;nextFuel=Preparation+ShortDuration;
+            Fuel-=InitialCost;Busy=true;age=0;stopped=-1;nextHit=EffectivePreparation+.2f;nextFuel=EffectivePreparation+ShortDuration;
             keyboardHeld=keyboard;pointerHeld=!keyboard;heldPointer=keyboard?null:pointerControl;
             direction=owner.LookDirection.sqrMagnitude>.001f?owner.LookDirection.normalized:Vector2.right;
             owner.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.ActiveUses);return true;
@@ -100,7 +101,7 @@ namespace Vampire
                 }else{DealTick(.2f);nextHit+=.2f;}
             }
             age=end;
-            if(stopped<0&&age>=Preparation+ShortDuration&&!(keyboardHeld||pointerHeld))stopped=age;
+            if(stopped<0&&age>=EffectivePreparation+ShortDuration&&!(keyboardHeld||pointerHeld))stopped=age;
             if(stopped>=0&&age-stopped>=FadeDuration)Cancel();
         }
         public static bool InCone(Vector2 delta,Vector2 facing) => delta.sqrMagnitude<=Range*Range&&(delta.sqrMagnitude<.0001f||Vector2.Dot(delta.normalized,facing)>=Mathf.Cos(HalfAngle*Mathf.Deg2Rad));
@@ -133,7 +134,8 @@ namespace Vampire
             if(body==null||art==null)return;
             bool visible=owner.IsAlive&&!owner.IsPortalTravelling&&!owner.IsPortalPoseHeld;
             DrawDigits(visible);if(!Busy){pose.enabled=fire.enabled=false;return;}
-            int frame=age<Preparation?(age<.12f?1:age<.32f?2:age<.56f?3:4):age<Preparation+.14f?5:CastLoop[(int)((age-Preparation)*7)%4];
+            float prepare=EffectivePreparation, poseAge=age*Preparation/prepare;
+            int frame=age<prepare?(poseAge<.12f?1:poseAge<.32f?2:poseAge<.56f?3:4):age<prepare+.14f?5:CastLoop[(int)((age-prepare)*7)%4];
             if(stopped>=0&&age-stopped>.1f)frame=age-stopped<.24f?9:age-stopped<.37f?10:11;
             // Keep the authored side animation intact. North/south have their own
             // beak anchors; rotate only the flame, never the character sprite.
@@ -146,7 +148,7 @@ namespace Vampire
             pose.sprite=frames[frame];pose.transform.position=feet;pose.transform.localScale=Vector3.one*poseScale;pose.flipX=left;pose.color=body.color;pose.enabled=visible&&body.enabled;body.forceRenderingOff=pose.enabled;
             var mouth=anchors[frame]*poseScale;if(left)mouth.x=-mouth.x;
             if(stopped<0)fireOrigin=feet+(Vector3)mouth;
-            float firing=age-Preparation;fire.enabled=visible&&firing>=0;
+            float firing=age-prepare;fire.enabled=visible&&firing>=0;
             if(!fire.enabled)return;
             fire.sprite=art.flames[(int)(firing*10)%art.flames.Length];fire.transform.position=fireOrigin;
             fire.transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg);

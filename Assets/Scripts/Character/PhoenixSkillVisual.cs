@@ -59,7 +59,7 @@ namespace Vampire
             float delta=Time.deltaTime;phase+=delta;elapsed+=delta;
             if(ashi)elapsed=skill.IsSummoning?skill.CutinElapsed:skill.Definition.cutinDuration;
             if(skill.IsShini)elapsed=skill.IsSummoning?Duration-skill.SummonRemaining:Mathf.Max(Duration,elapsed);
-            else if(skill.IsHyuki&&skill.IsSummoning)elapsed=IceSkillRules.BlizzardFreezeDelay-skill.SummonRemaining;
+            else if(skill.IsHyuki&&skill.IsSummoning)elapsed=IceSkillRules.BlizzardFreezeDelay*(1-skill.SummonRemaining/IceSkillRules.EffectiveFreezeDelay);
             UpdateCrystals();
             var frames=skill.Definition.phoenixFrames;
             bool show=!skill.IsShini&&Playing&&frames!=null&&frames.Length>0;

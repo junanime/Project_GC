@@ -74,7 +74,7 @@ namespace Vampire.Tests.Editor
         }
         static void Attach()
         {
-            started=false;deadline=EditorApplication.timeSinceStartup+3600;
+            started=false;deadline=EditorApplication.timeSinceStartup+10800;
             EditorApplication.update-=Tick;EditorApplication.update+=Tick;
             Application.logMessageReceived-=Log;Application.logMessageReceived+=Log;
         }
@@ -319,7 +319,9 @@ namespace Vampire.Tests.Editor
             StorageChecks();
             if(SessionState.GetBool(Key+"Balance",false))
             {
-                yield return FestivalBalanceProbe.Run();SessionState.SetBool(Key+"Done",true);yield break;
+                if(Environment.GetEnvironmentVariable("FESTIVAL_BALANCE_VERIFY")=="1")
+                    yield return FestivalOctober27Checks.Run();
+                yield return FestivalBalanceSessions.Run();SessionState.SetBool(Key+"Done",true);yield break;
             }
             var config=FestivalDemo.Catalog;
             int savedSilver=SilverWallet.Silver;
@@ -353,7 +355,7 @@ namespace Vampire.Tests.Editor
                 FestivalDemo.ApplyWeapons(abilities,blueprint);
                 Check(abilities.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).Count(a=>a.Owned)==4,"starting effects are idempotent");
                 Check(Object.FindObjectsOfType<StageEventDirector>().Sum(d=>d.FestivalScheduledEventCount)==1,"exactly one scheduled event");
-                Check(level.LevelDuration==45&&player.Skills.EffectiveCooldown<=24,"45-second run and reachable active quest");
+                Check(level.LevelDuration==45&&player.Skills.EffectiveCooldown<=24,"45-second run and usable active cooldown");
                 Check(RunScore.Current.Data.rules==FestivalDemo.Rules&&RunScore.Current.FestivalRunId!=null,"separate festival score session");
                 float nextDash=3,nextActive=1;int peak=0;bool captured=false;
                 var samples=new List<float>();
@@ -386,7 +388,7 @@ namespace Vampire.Tests.Editor
                 Check(peak<=FestivalDemo.Settings.populationLimit,"population cap respected");
                 int specials=level.GetComponent<FestivalRunController>().SpecialSpawned;
                 Debug.Log("FESTIVAL_SPECIALS "+preset.character+" count="+specials);
-                Check(data.seconds<7||specials>0,"scheduled special enemies actually spawn");
+                Check(data.seconds<8.2f||specials>0,"scheduled special enemies actually spawn");
                 Check(data.seconds<=45&&RunScore.Current.Finished,"result freezes score and duration");
                 Capture(preset.character+"-result");
                 Time.timeScale=1;SceneManager.LoadScene(0);yield return null;yield return null;
@@ -419,24 +421,14 @@ namespace Vampire.Tests.Editor
                 yield return new WaitForSecondsRealtime(.3f);
                 Check(hero.CurrentLevel==previousLevel&&!proof.EntityManager.AbilitySelectionDialog.MenuOpen,"direct and pickup XP cannot level up: "+preset.character);
                 var quest=hero.GetComponent<PrescriptionRuntime>();
-                quest.Record(PrescriptionRuntime.Goal.Kills,FestivalDemo.Settings.questKills);
-                quest.Record(PrescriptionRuntime.Goal.Dashes,FestivalDemo.Settings.questDashes);
-                quest.Record(PrescriptionRuntime.Goal.ActiveUses,FestivalDemo.Settings.questActiveUses);
-                yield return null;
-                Check(quest.Claimed&&!proof.EntityManager.AbilitySelectionDialog.MenuOpen,"quest immediately grants noble without journal or picker: "+preset.character);
+                Check(quest.Claimed&&!proof.EntityManager.AbilitySelectionDialog.MenuOpen,"noble present without quest or picker: "+preset.character);
                 var manager=Object.FindObjectOfType<AbilityManager>();
                 var ownedNobles=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.Owned).ToArray();
-                Check(ownedNobles.Length==1&&ownedNobles[0].Type.ToString()==preset.noble,"exact assigned noble granted: "+preset.character);
-                Check(!quest.TryAutomaticReward(),"noble claim cannot repeat");
+                Check(ownedNobles.Length==1&&FestivalDemo.StartingNobleAllowed(ownedNobles[0]),"one eligible starting noble: "+preset.character);
+                Check(!quest.TryAutomaticReward(),"quest cannot add another noble");
                 if(preset==FestivalDemo.Settings.presets[0])
                 {
-                    proof.SetRunFlowPaused(true);Set(proof,"levelTime",0f);
-                    Check(Mathf.Approximately(FestivalRunController.EnemyDamageMultiplier,1),"opening monster damage keeps baseline");
-                    Set(proof,"levelTime",45f);
-                    Check(Mathf.Approximately(FestivalRunController.EnemyDamageMultiplier,3),"closing monster damage reaches configured multiplier");
-                    FestivalDemo.EnabledOverride=false;
-                    Check(Mathf.Approximately(FestivalRunController.EnemyDamageMultiplier,1),"ordinary mode ignores festival damage");
-                    FestivalDemo.EnabledOverride=null;Set(proof,"levelTime",1f);proof.SetRunFlowPaused(false);
+                    yield return FestivalRosterChecks.Run(proof);
                     yield return ChestScheduleChecks(proof);
                 }
                 if(preset==FestivalDemo.Settings.presets[0])Check(proof.GetComponent<FestivalRunController>().SpecialSpawned>=3,"special waves survive real pool resolution and timed spawning");

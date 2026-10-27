@@ -32,6 +32,7 @@ namespace Vampire
         }
         public IEnumerator RebuildForStage()
         {
+            if(FestivalDemo.Enabled){Ready=true;Failed=false;yield break;}
             Ready=false;Failed=false;enabled=true;
             foreach(var chest in chests)if(chest!=null&&chest.gameObject.activeSelf)level.EntityManager.DespawnChest(chest);
             foreach(var o in objects)if(o!=null&&o.GetComponent<Chest>()==null&&o.GetComponent<Monster>()==null){o.SetActive(false);Destroy(o);}
