@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 44
   itemRarity: 0
   itemTag: 0
-  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC 12% \uD655\uB960\uB85C \uC77C\uBC18
-    \uC801\uC758 \uD589\uB3D9\uC744 0.6\uCD08 \uC9C0\uC5F0. \uC7AC\uC0AC\uC6A9 1\uCD08."
+  description: "기본 침 적중 시 12% 확률로 일반 적의 행동을 0.6초 지연. 재사용 대기 1초."
   itemIcon: {fileID: -6628720322366814781, guid: 847e4048ecb265c4484672817b61aa09, type: 3}
   cost: 25
   canBuyInLobby: 1

@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 48
   itemRarity: 1
   itemTag: 4
-  description: "\uC544\uC774\uD15C\uC73C\uB85C \uBD80\uC5EC\uD558\uB294 \uC0C1\uD0DC\uC774\uC0C1
-    \uC9C0\uC18D \uC2DC\uAC04 +25%."
+  description: "아이템으로 부여하는 상태이상 지속 시간 +25%."
   itemIcon: {fileID: -7961338787353089403, guid: 94e1573efc4258d48b2821abe085992a, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

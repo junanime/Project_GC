@@ -82,7 +82,9 @@ Shader "Custom/Dissolve"
                 float2 flowVector = (tex2D(_FlowMap, IN.texcoord).rg - 0.5)*2;
                 float4 a = tex2D(_MainTex, IN.texcoord - flowVector * _Dissolve/2);
 				fixed4 c = IN.color * a;
-                //c.rgb *= IN.color * a;
+                // Blend One requires premultiplied RGB. Transparent PNG pixels can
+                // contain nonzero RGB; without this they draw a bright rectangle.
+                c.rgb *= c.a;
 				return c;
 			}
 		ENDCG

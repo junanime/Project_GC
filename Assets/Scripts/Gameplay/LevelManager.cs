@@ -49,7 +49,7 @@ namespace Vampire
         public bool InitialFieldObjectsReady => !UsesInitialFieldLayout || GetComponent<FieldObjectLayout>()?.Ready == true;
         public bool IsRunFlowPaused => runFlowPaused || !InitialFieldObjectsReady;
         public bool IsLevelEnded => levelEnded;
-        public bool UsesInitialFieldLayout => stomachMap != null && (GetComponent<StageProgression>() == null || GetComponent<StageProgression>().StageNumber == 1);
+        public bool UsesInitialFieldLayout => stomachMap != null;
 
         public void Init(LevelBlueprint levelBlueprint)
         {
@@ -114,21 +114,24 @@ namespace Vampire
             SupplyCapsuleDirector.Ensure(this);
             FieldObjectLayout.Ensure(this);
             AcidLakeEvent.Install(this);
+            RunScore.Install(this);
         }
 
         // Preserve the actual player, abilities, inventory, relic runtimes, stats and loot pools.
         public void BeginNextStage(LevelBlueprint next)
         {
+            foreach (var mini in FindObjectsOfType<MiniStageDirector>()) mini.ResetForNextField();
             entityManager.ContinueInStage(next);
             levelBlueprint = next;
             levelTime = 0f;
+            NormalMonstersSpawned = 0;
             timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
             if (gameTimer != null) gameTimer.SetTime(next.levelTime);
             infiniteBackground.SetStageTexture(next.backgroundTexture);
             if (fieldSpawns != null) fieldSpawns.RestartForStage(this);
             foreach (var director in FindObjectsOfType<StageEventDirector>()) director.RestartForStage();
+            foreach (var toast in FindObjectsOfType<StageEventToastUI>()) toast.ResetForStage();
             foreach (var toad in FindObjectsOfType<AcidToadSpawn>()) toad.ResetForStage();
-            foreach (var minis in FindObjectsOfType<SnailBossDebugSpawn>()) minis.ResetForStage();
             foreach (var altar in FindObjectsOfType<FinalBossSummonInteractable>()) altar.ResetForNextStage();
         }
 
@@ -271,7 +274,7 @@ namespace Vampire
 
             return levelBlueprint.monsterSpawnTable.GetSpawnRate(
                 GetNormalizedLevelTime()
-            );
+            ) * (levelTime >= 8f * 60f ? 1.3f : 1f);
         }
 
         public void SpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier = 1f)
@@ -392,6 +395,7 @@ namespace Vampire
             SaveCoinsGained();
 
             GameAudioManager.EndRunAudio(false);
+            RunScore.Current?.Finish(false);
 
             Time.timeScale = 0f;
 
@@ -420,6 +424,7 @@ namespace Vampire
 
             SaveCoinsGained();
             GameAudioManager.EndRunAudio(true);
+            RunScore.Current?.Finish(true);
             // Boss BGM 종료.
             // Ingame BGM은 재개하지 않음.
             // 승리 보상 효과음 재생.
@@ -438,13 +443,25 @@ namespace Vampire
             }
         }
 
+        // Complete the browser journey without opening the ordinary result panel.
+        // Keep time running for the outlet camera/iris while gameplay stays paused.
+        public void CompleteWebDemo()
+        {
+            if (levelEnded) return;
+            levelEnded = true;
+            SaveCoinsGained();
+            GameAudioManager.EndRunAudio(true);
+            RunScore.Current?.Finish(true);
+            ProgressPrefs.Save();
+        }
+
         public void AbandonRun()
         {
             if (levelEnded) return;
             levelEnded = true;
             SaveCoinsGained();
             GameAudioManager.EndRunAudio(false);
-            PlayerPrefs.Save();
+            ProgressPrefs.Save();
         }
 
         private void SaveCoinsGained()
@@ -454,8 +471,9 @@ namespace Vampire
                 return;
             }
 
-            int coinCount = PlayerPrefs.GetInt("Coins");
-            PlayerPrefs.SetInt("Coins", coinCount + statsManager.CoinsGained);
+            int coinCount = ProgressPrefs.GetInt("Coins");
+            ProgressPrefs.SetInt("Coins", coinCount + statsManager.CoinsGained);
+            ProgressPrefs.Save();
         }
 
         public void Restart()

@@ -9,21 +9,11 @@ namespace Vampire
     {
         private float statusExpires;
         public CombatStatusTag ActiveStatusTags => IsActive && Time.time < statusExpires ? CombatStatusTag.Slow : CombatStatusTag.None;
-        private SyringeAugmentVfx augmentVisual;
         private void EnsureAugmentVisual()
         {
-            if (augmentVisual != null || !SyringeAugmentVfx.IsLiving(this)) return;
+            if (!SyringeAugmentVfx.IsLiving(this)) return;
             var renderer = SyringeAugmentVfx.FindTarget(this);
-            if (renderer != null) augmentVisual = SyringeAugmentVfx.Play("Honey", renderer.bounds.center, renderer);
-        }
-        private void ReleaseAugmentVisual()
-        {
-            if (augmentVisual != null) augmentVisual.Release();
-            augmentVisual = null;
-        }
-        private void LateUpdate()
-        {
-            if (!SyringeAugmentVfx.IsLiving(this)) ReleaseAugmentVisual();
+            HoneyTrailEmitter.Touch(renderer);
         }
         private Rigidbody2D targetRigidbody;
         private Coroutine slowCoroutine;
@@ -42,8 +32,9 @@ namespace Vampire
             }
         }
 
-        public void Apply(float duration, float slowMultiplier)
+        public void Apply(float duration, float slowMultiplier, bool showHoneyTrail = true)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (targetRigidbody == null)
             {
                 targetRigidbody = GetComponent<Rigidbody2D>();
@@ -80,7 +71,7 @@ namespace Vampire
 
             statusExpires = Time.time + Mathf.Max(0, duration);
             slowCoroutine = StartCoroutine(SlowRoutine(duration));
-            EnsureAugmentVisual();
+            if(showHoneyTrail)EnsureAugmentVisual();
         }
 
         private IEnumerator SlowRoutine(float duration)
@@ -92,7 +83,6 @@ namespace Vampire
 
         private void RestoreOriginalDrag()
         {
-            ReleaseAugmentVisual();
             if (targetRigidbody != null && hasOriginalDrag)
             {
                 IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag);

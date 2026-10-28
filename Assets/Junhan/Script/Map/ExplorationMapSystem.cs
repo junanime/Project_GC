@@ -26,7 +26,7 @@ namespace Vampire
     public class ExplorationMapSystem : MonoBehaviour
     {
         public static ExplorationMapSystem Instance { get; private set; }
-        public bool UsesStomachMap => FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.StageOne && !MiniStageRuntimeState.IsInsideMiniStage;
+        public bool UsesStomachMap => FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.FieldActive && !MiniStageRuntimeState.IsInsideMiniStage;
         public Texture FullMapTexture => UsesStomachMap ? FiniteStomachMap.Instance.OverviewTexture : fullMapImage != null ? fullMapImage.texture : null;
         public Rect BookMapUV => UsesStomachMap ? new Rect(0,0,1,1) : fullMapImage != null ? fullMapImage.uvRect : new Rect(0,0,1,1);
         public bool TryBookPoint(Vector2 world,out Vector2 point)

@@ -33,6 +33,12 @@ namespace Vampire
                 return false;
             }
 
+            if (!ItemOfferPolicy.CanBuyInLobby(item))
+            {
+                message = "현재 판매하지 않는 아이템입니다.";
+                return false;
+            }
+
             if (selectedCarryItems.Contains(item))
             {
                 message = "이미 장착한 시작 아이템입니다.";

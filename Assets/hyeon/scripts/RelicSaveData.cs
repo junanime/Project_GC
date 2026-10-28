@@ -18,7 +18,7 @@ namespace Vampire
                 return false;
             }
 
-            return PlayerPrefs.GetInt(GetUnlockedKey(relicId), 0) == 1;
+            return ProgressPrefs.GetInt(GetUnlockedKey(relicId), 0) == 1;
         }
 
         public static void Unlock(string relicId)
@@ -28,13 +28,13 @@ namespace Vampire
                 return;
             }
 
-            PlayerPrefs.SetInt(GetUnlockedKey(relicId), 1);
-            PlayerPrefs.Save();
+            ProgressPrefs.SetInt(GetUnlockedKey(relicId), 1);
+            ProgressPrefs.Save();
         }
 
         public static string GetEquippedRelicId()
         {
-            return PlayerPrefs.GetString(EquippedRelicKey, string.Empty);
+            return ProgressPrefs.GetString(EquippedRelicKey, string.Empty);
         }
 
         public static bool IsEquipped(string relicId)
@@ -54,14 +54,14 @@ namespace Vampire
                 return;
             }
 
-            PlayerPrefs.SetString(EquippedRelicKey, relicId);
-            PlayerPrefs.Save();
+            ProgressPrefs.SetString(EquippedRelicKey, relicId);
+            ProgressPrefs.Save();
         }
 
         public static void Unequip()
         {
-            PlayerPrefs.DeleteKey(EquippedRelicKey);
-            PlayerPrefs.Save();
+            ProgressPrefs.DeleteKey(EquippedRelicKey);
+            ProgressPrefs.Save();
         }
     }
 }

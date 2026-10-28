@@ -32,9 +32,9 @@ namespace Vampire.Tests.Editor
             items.State.owned.Clear();items.State.delayedExp=0;items.State.overflow=0;
             var sample=ScriptableObject.CreateInstance<MonsterBlueprint>();sample.name="October resistance test";
             items.Give(ui.Config.items[62]);for(int i=0;i<8;i++)items.Hurt(1,sample);
-            Check(Mathf.Abs(items.Incoming(100,sample)-80)<.01f,"Repeated damage resistance caps at 20%");
+            Check(Mathf.Abs(items.Incoming(100,sample)-70)<.01f,"Repeated damage resistance caps at 30%");
             var copy=JsonUtility.FromJson<OctoberItemState>(JsonUtility.ToJson(items.Capture()));items.Restore(copy);
-            Check(Mathf.Abs(items.Incoming(100,sample)-80)<.01f,"Resistance survives serialized stage transfer");
+            Check(Mathf.Abs(items.Incoming(100,sample)-70)<.01f,"Resistance survives serialized stage transfer");
             items.State.owned.Clear();items.Give(ui.Config.items[46]);Check(Mathf.Abs(items.SlowMultiplier(.5f)-.35f)<.001f,"Slow item adds 15 percentage points");
             Check(Mathf.Abs(items.SlowMultiplier(.2f)-.3f)<.001f,"Slow strength never exceeds 70%");
             items.State.owned.Clear();items.Give(ui.Config.items[26]);items.Healed(0,p.MaxHealth*10);
@@ -59,8 +59,12 @@ namespace Vampire.Tests.Editor
             foreach(var prefab in prefabs)
             {
                 Set(director,"roomPrefabs",new[]{prefab});Set(director,"useForcedRoomIndex",false);
-                director.EnterMiniStageFromPortal(null);
-                yield return WaitUntil(()=>director.IsInsideMiniStage,"Enter "+prefab.name);
+                director.OpenEntrancePortal(p.transform.position+Vector3.right);
+                var entrance=UnityEngine.Object.FindObjectsOfType<BloodClotMiniStagePortal>().First(x=>!x.Reserved&&!x.ChallengeInProgress);
+                p.transform.position=BloodClotTravel.LeftLanding(entrance.transform,p);
+                p.GetComponent<Rigidbody2D>().position=p.transform.position;
+                director.EnterMiniStageFromPortal(entrance);
+                yield return WaitUntil(()=>director.IsInsideMiniStage&&!director.IsTransitioning,"Enter "+prefab.name);
                 var room=director.CurrentRoom;var arena=room.GetComponent<MiniStageArenaGeometry>();
                 Check(arena!=null&&arena.Contains(p.transform.position,.1f),"Player starts inside "+prefab.name);
                 var background=room.GetComponentsInChildren<SpriteRenderer>().First(s=>s.name=="MiniStage_Background");
@@ -82,8 +86,9 @@ namespace Vampire.Tests.Editor
                     foreach(var sniper in (System.Collections.IEnumerable)typeof(MiniStageSniperRoom).GetField("spawnedSnipers",BindingFlags.NonPublic|BindingFlags.Instance).GetValue(room))
                         if(sniper is Monster m&&m.HP>0)Check(arena.Contains(m.transform.position,.1f),"Sniper spawns inside near perimeter");
                 typeof(MiniStageRoomBase).GetMethod("CompleteRoomWithoutReward",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(room,null);
+                yield return WaitUntil(()=>director.CanReturnFromInteractable(room.ReturnInteractable)&&Time.timeScale>0,"Return interaction ready "+prefab.name);
                 director.ReturnToFieldFromInteractable(room.ReturnInteractable);
-                yield return WaitUntil(()=>!director.IsInsideMiniStage,"Return from "+prefab.name);
+                yield return WaitUntil(()=>!director.IsInsideMiniStage&&!director.IsTransitioning,"Return from "+prefab.name);
                 Check(MiniStageArenaGeometry.Current==null,"Room boundary released on return");
                 camera.orthographicSize=zoom;
             }
@@ -108,7 +113,8 @@ namespace Vampire.Tests.Editor
                 for(int result=0;result<2;result++)
                 {
                     ApothecaryUI.TryShowResult(result==1);yield return null;
-                    Check(ui.CharacterPreview.sprite==OctoberArt.Character(character,result==1?2:1),"Correct result art "+character.name+" "+result);
+                    var expected=result==1?OctoberArt.Character(character,2):CharacterExitSequence.ResultPortrait(character)??OctoberArt.Character(character,1);
+                    Check(ui.CharacterPreview.sprite==expected,"Correct result art "+character.name+" "+result);
                     Check(ui.GetComponentsInChildren<Button>().Length==3,"Identical result actions "+character.name+" "+result);
                     Capture("result-"+OctoberArt.CharacterKey(character)+"-"+result);
                 }

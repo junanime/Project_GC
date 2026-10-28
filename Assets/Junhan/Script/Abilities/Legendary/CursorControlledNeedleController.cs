@@ -32,6 +32,7 @@ namespace Vampire
         private float damageMultiplier;
         private float damageInterval;
         private float visualScale;
+        private float barrierRecoveryUntil;
         private float homingHitRadiusBonus;
 
         private Vector2 backDisplayOffset;
@@ -256,6 +257,13 @@ float maxHitRadiusBonusFromSpecial)
 
             transform.position = GetOrbitCenter();
 
+            if (Time.time < barrierRecoveryUntil)
+            {
+                if (cursorNeedleRenderer != null) cursorNeedleRenderer.enabled = false;
+                SyringeAugmentVfx.ReleaseOwned(ref needleGlow);
+                return;
+            }
+            if (cursorNeedleRenderer != null) cursorNeedleRenderer.enabled = true;
             UpdateOrbitNeedle();
             UpdateAugmentVisuals();
             UpdateCursorNeedleHeavyVisual();
@@ -836,6 +844,15 @@ float maxHitRadiusBonusFromSpecial)
                     continue;
                 }
 
+                var barrier = damageableComponent.GetComponentInParent<MonsterNeedleBarrier>();
+                if (barrier != null && barrier.AbsorbNeedle(cursorNeedleRenderer,
+                    (Vector2)damageableComponent.transform.position - (Vector2)cursorNeedleTransform.position, cursorNeedleTransform.position))
+                {
+                    barrierRecoveryUntil = Time.time + Mathf.Max(.6f, damageInterval);
+                    nextDamageAllowedTimeByTarget[targetId] = barrierRecoveryUntil;
+                    cursorNeedleRenderer.enabled = false;
+                    return;
+                }
                 DamageTarget(damageable, damageableComponent, runtime);
 
                 nextDamageAllowedTimeByTarget[targetId] = Time.time + damageInterval;

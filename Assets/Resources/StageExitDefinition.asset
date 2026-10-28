@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c862cd08bdaf9940928edb591daa875, type: 3}
+  m_Name: StageExitDefinition
+  m_EditorClassIdentifier:
+  crater: {fileID: 21300000, guid: 3be1555adb1c1094eb3b216041ef347f, type: 3}
+  rewardChest: {fileID: 11400000, guid: 09c76747ee6d04f4d8f3605d2a164718, type: 2}

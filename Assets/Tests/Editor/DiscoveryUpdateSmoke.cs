@@ -138,14 +138,13 @@ namespace Vampire.Tests.Editor
             yield return null;Check(snail.GetComponentInChildren<StuckNeedleVisual>()!=null,"Snail boss now supports embedded needles");
             Object.Destroy(snail.gameObject);Object.Destroy(projectile.gameObject);
             var dialog=level.EntityManager.AbilitySelectionDialog;dialog.OpenLegendary();yield return new WaitForSecondsRealtime(.8f);
-            Check(dialog.MenuOpen&&dialog.ScrollRevealPending,"All noble cards start sealed");Capture("noble-sealed");
+            Check(dialog.MenuOpen,"Noble cards immediately available");Capture("noble-visible");
             var cards=Object.FindObjectsOfType<AbilityCard>().Where(c=>c.gameObject.activeInHierarchy).ToArray();
-            Check(cards.Length==3&&cards.All(c=>c.transform.Find("Noble scroll seal")!=null),"Three scroll covers");
-            cards[0].Selected();Check(dialog.MenuOpen&&dialog.ScrollRevealPending,"First click reveals, does not select");
-            yield return new WaitForSecondsRealtime(.4f);Capture("noble-rolling");
-            yield return new WaitForSecondsRealtime(.6f);Check(dialog.CanSelectRevealedCard,"All cards selectable after reveal");Capture("noble-revealed");
-            cards[0].Selected();Check(!dialog.MenuOpen,"Second click chooses reward");
-            dialog.Open(false);yield return new WaitForSecondsRealtime(.5f);Check(!dialog.ScrollRevealPending,"Normal augments skip scroll reveal");dialog.Close();
+            Check(cards.Length==3&&cards.All(c=>c.transform.Find("Noble scroll seal")==null),"Three uncovered noble panels");
+            cards[0].Selected();Check(dialog.MenuOpen&&dialog.SelectionAnimating,"First click selects with motion");
+            yield return new WaitForSecondsRealtime(AugmentSelectionMotion.Duration+.2f);
+            Check(!dialog.MenuOpen,"Noble reward closes after selection motion");
+            dialog.Open(false);yield return new WaitForSecondsRealtime(.5f);Check(!dialog.SelectionAnimating,"Normal augments reset selection state");dialog.Close();
             toad.TakeDamage(100000);yield return new WaitForSeconds(.5f);Check(!marker.enabled,"Dead miniboss removed from map");
             SessionState.SetBool(Key+"Done",true);
         }

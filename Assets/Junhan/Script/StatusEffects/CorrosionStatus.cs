@@ -6,7 +6,7 @@ namespace Vampire
     /// <summary>
     /// 부식침 상태이상.
     /// 대상에게 받는 피해 증가 스택을 부여하고,
-    /// 상태가 유지되는 동안 몬스터 머리 위에 보라색 소용돌이 표시를 생성합니다.
+    /// 상태가 유지되는 동안 파스텔 보라색 몸체 점멸과 작은 거품을 표시합니다.
     /// </summary>
     public class CorrosionStatus : MonoBehaviour, ICombatStatus
     {
@@ -52,6 +52,7 @@ namespace Vampire
             int maxStacks,
             bool isBossTarget)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             this.normalBonusPerStack = Mathf.Max(0f, normalBonusPerStack);
             this.bossBonusPerStack = Mathf.Max(0f, bossBonusPerStack);
             this.maxStacks = Mathf.Max(1, maxStacks);

@@ -10,7 +10,6 @@ namespace Vampire
         public QuestTag designatedTag;
         [Min(1)] public float overchargeRadius = 2.5f;
         [Min(1)] public int overchargeKills = 25;
-        [Min(1)] public float overchargeStaySeconds = 25;
         [Min(.3f)] public float foodExplosionDelay = 1.25f;
         [Min(1)] public float foodExplosionRadiusMultiplier = 1.35f;
         [Range(0,1)] public float foodExplosionDamageMultiplier = .6f;

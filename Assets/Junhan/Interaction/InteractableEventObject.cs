@@ -52,6 +52,7 @@ namespace Vampire
         protected Character CurrentPlayer => currentPlayer;
         protected virtual bool KeepVisibleAfterInteraction => false;
         protected virtual bool AllowMiniStageInteraction => false;
+        protected virtual bool AllowSubmergedInteraction => false;
         protected virtual bool InteractionAvailable => true;
         protected virtual Component PromptOwner => this;
         protected void ConfigureReusableInteraction()
@@ -245,7 +246,7 @@ namespace Vampire
 
         private bool CanBeFocusedBy(Character player)
         {
-            if (AcidLakeEvent.Contains(transform.position)) return false;
+            if (AcidLakeEvent.Contains(transform.position) && !AllowSubmergedInteraction) return false;
             if (!InteractionAvailable || (MiniStageRuntimeState.IsInsideMiniStage && !AllowMiniStageInteraction))
             {
                 return false;

@@ -42,7 +42,7 @@
     {"id":"monster/elite-sugar-cube","kind":"monster","title":"정예 각설탕","what":"일반 각설탕보다 강한 몸으로 밀고 들어옵니다.","tip":"거리를 유지하며 집중 공격하세요.","effect":"elite_sugar"},
     {"id":"monster/trap","kind":"monster","title":"함정 몬스터","what":"캐릭터를 붙잡아 움직임을 제한합니다.","tip":"PC: 표시된 방향키를 순서대로 입력하세요. 모바일: 오른쪽 4개 매듭 중 빛나는 곳을 차례로 터치하세요. 4번 성공하면 탈출하며, 틀리면 처음부터 다시 시작합니다.","effect":"trap"},
     {"id":"monster/armor-buffer","kind":"monster","title":"방어 버프 몬스터","what":"주변 몬스터가 받는 피해를 줄여줍니다.","tip":"보호 효과를 주는 몬스터부터 처치하세요.","effect":"armor"},
-    {"id":"mechanic/blood-clot","kind":"mechanic","title":"혈전과 미니스테이지","what":"혈전 처치 → 입구 출현. 가까이서 E를 누르면 일반 미니스테이지에 입장합니다.","tip":"Q/과충전 버튼으로 시작.\n범위 안에서 처치·체류 목표 완료.\n진행 중 E 입장 불가.\n완료 후 E로 격화 난이도에 도전!\n스킬 강화·레벨업 상자 보상.","effect":"blood_clot"},
+    {"id":"mechanic/blood-clot","kind":"mechanic","title":"혈전과 미니스테이지","what":"혈전 처치 → 입구 출현. 가까이서 E를 누르면 일반 미니스테이지에 입장합니다.","tip":"Q/과충전 버튼으로 시작.\n처치 25마리 / 액티브 효과 중 8마리 /\n대쉬 후 5초 내 8마리 중 한 과제.\n범위 안에서 완료 후 E로 격화 입장!\n스킬 강화·레벨업 상자 보상.","effect":"blood_clot"},
     {"id":"monster/chameleon-drift","kind":"monster","title":"꾸룩 · 위산연동 카멜레온","what":"고유 탄막과 은신 순간이동을 사용합니다. 양발을 쿵쿵 구른 뒤 박수로 연동파를 2회 발동합니다.","tip":"은신 3초 뒤 몸 외곽선 경고가 뜨면 1초 안에 벗어나세요. 미니보스 스킬에는 화면 옆 얼굴 연출이 없습니다.","effect":"chameleon_drift"},
     {"id":"monster/chameleon-foam","kind":"monster","title":"보글 · 제산거품 카멜레온","what":"고유 탄막과 은신 순간이동을 사용합니다. 앞발을 모아 힘을 주면 제산 거품 장판이 생깁니다.","tip":"은신 3초 뒤 몸 외곽선 경고가 뜨면 1초 안에 벗어나세요. 미니보스 스킬에는 화면 옆 얼굴 연출이 없습니다.","effect":"chameleon_foam"},
     {"id":"monster/chameleon-latte","kind":"monster","title":"라떼 · 커피수혈 카멜레온","what":"고유 탄막과 은신 순간이동을 사용합니다. 입에서 뿜은 커피 분수가 내려오면 다른 몬스터가 강화됩니다.","tip":"은신 3초 뒤 몸 외곽선 경고가 뜨면 1초 안에 벗어나세요. 미니보스 스킬에는 화면 옆 얼굴 연출이 없습니다.","effect":"chameleon_latte"}

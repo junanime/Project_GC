@@ -1,0 +1,13 @@
+Current boss SFX selection: clean-v2, approved 2026-10-21.
+57 cues imported byte-for-byte from the reviewed clean-v2 package.
+45 redesigned tonal gesture cues; 11 Hurumi cues retain the earlier noodle core with background beds and game-effect quotations removed.
+3-Skill1.wav is an exact copy of the expressly approved game-style-v1 charge.
+That preserved charge includes a small edited part of the existing project player-dash sound; its existing rights/conditions continue to apply.
+No previous recording-based boss pack is used in this active selection.
+Historical recording credits are retained separately in CREDITS-previous-foley.txt.
+Older Approved/*.wav masters are historical references; the active pinned master is TangdengiCharge-20261021.wav.
+No claim that source analysis is subjective listening verification.
+
+10 approved creature cries added 2026-10-21: original synthesized character voices, no Pokemon recordings, existing game jingles, or noise beds. Current total: 67 cues.
+
+18 original synthesized phase-transition material cues added 2026-10-21 in Audio/Transitions. Dry short gestures, no external recordings, game jingles or ambient noise beds. Generator: build_food_boss_transitions.py. Existing 67 approved WAVs unchanged.

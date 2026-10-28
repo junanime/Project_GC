@@ -181,6 +181,7 @@ namespace Vampire
 
         public void Open(bool failsafe = true)
         {
+            if (SelectionAnimating) return;
             base.Open();
 
             transform.SetAsLastSibling();
@@ -277,7 +278,6 @@ namespace Vampire
                     $"[AbilitySelectionDialog] 선택 패널 수가 {SelectionPanelCount}개보다 적습니다. actual={visibleCount}. " +
                     "AbilityManager 후보 생성 결과를 확인하세요.");
             }
-            PrepareScrollReveal();
         }
 
         private void CacheCardParentScale()
@@ -329,6 +329,7 @@ namespace Vampire
 
         public void RerollAbilities()
         {
+            if (SelectionAnimating) return;
             if (abilityManager != null && abilityManager.LegendaryRewardContext && abilityManager.Ver4 != null && !abilityManager.Ver4.Balance.legendaryReroll) return;
             if (!enableReroll)
             {
@@ -437,7 +438,7 @@ namespace Vampire
 
         public override void Close()
         {
-            ClearScrollReveal();
+            if (SelectionAnimating) return;
             // 증강 선택 BGM이 재생 중이었다면 종료하고,
             // 증강창이 열리기 직전에 재생 중이던 BGM을 이어서 재생합니다.
             GameAudioManager.ExitAugmentSelectionAudio();

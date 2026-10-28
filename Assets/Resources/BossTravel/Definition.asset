@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae2e73b587780f644b1799d1a150c9e0, type: 3}
+  m_Name: Definition
+  m_EditorClassIdentifier:
+  hole: {fileID: 21300000, guid: 024f49b853d059845a4ccd683bbfd0db, type: 3}
+  suits:
+  - {fileID: -3718340306065240137, guid: a5e5e175b392f20468eca4bed9130d64, type: 3}
+  - {fileID: -747752840706465712, guid: a5e5e175b392f20468eca4bed9130d64, type: 3}
+  - {fileID: -195142827131716430, guid: a5e5e175b392f20468eca4bed9130d64, type: 3}
+  - {fileID: 7141377036571319756, guid: a5e5e175b392f20468eca4bed9130d64, type: 3}
+  - {fileID: -1263762052448770807, guid: a5e5e175b392f20468eca4bed9130d64, type: 3}
+  ashiHeight: 0.5111111

@@ -16,7 +16,6 @@ MonoBehaviour:
   designatedTag: 0
   overchargeRadius: 2.5
   overchargeKills: 25
-  overchargeStaySeconds: 25
   foodExplosionDelay: 1.25
   foodExplosionRadiusMultiplier: 1.35
   foodExplosionDamageMultiplier: 0.6

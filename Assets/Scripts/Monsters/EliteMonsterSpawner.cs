@@ -188,6 +188,8 @@ namespace Vampire
             }
         }
 
+        private bool reportedMiniStagePause;
+
         protected override void OnTick()
         {
             if (!spawnEnabled)
@@ -215,14 +217,14 @@ namespace Vampire
 
             if (IsMiniStageSpawnBlocked())
             {
-                if (logMiniStageBlock)
+                if (logMiniStageBlock && !reportedMiniStagePause)
                 {
                     Debug.Log("[EliteMonsterSpawner] 미니 스테이지 진행 중이라 엘리트 스폰 타이머를 멈춥니다.", Host);
                 }
-
+                reportedMiniStagePause = true;
                 return;
             }
-
+            reportedMiniStagePause = false;
             float currentTime = levelManager.CurrentLevelTime;
             int earned = levelManager.NormalMonstersSpawned / Mathf.Max(1, normalSpawnsPerElite);
             if (earned > rewardedNormalSpawnMilestones && activeElites.Count < globalMaxAliveElites && spawnPhases != null && spawnPhases.Length > 0)
@@ -538,6 +540,8 @@ namespace Vampire
             out int eliteFlatIndex)
         {
             eliteFlatIndex = -1;
+
+            if (ColonMonsterRoster.InColon && ColonMonsterRoster.Active.TryEliteIndex(normalFlatIndex, out eliteFlatIndex)) return true;
 
             if (phase.normalToEliteMappings == null)
             {

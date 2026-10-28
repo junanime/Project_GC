@@ -361,7 +361,7 @@ namespace Vampire
             );
         }
 
-        protected IEnumerator DestroyProjectileAnimation()
+        protected virtual IEnumerator DestroyProjectileAnimation()
         {
             if (projectileSpriteRenderer != null)
             {

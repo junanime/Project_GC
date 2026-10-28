@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f1ae058c390b426495056b39e15d543, type: 3}
+  m_Name: red-cap
+  m_EditorClassIdentifier:
+  name: "\uBD89\uC740\uAC13 \uB300\uC7A5"
+  hp: 260
+  atk: 14
+  recovery: 0
+  armor: 0
+  atkspeed: 2
+  movespeed: 0.82
+  acceleration: 5
+  gemLootTable:
+    lootTable:
+    - item: 10
+      dropChance: 0.9
+      coinType: 1
+    - item: 50
+      dropChance: 0.1
+      coinType: 1
+  coinLootTable:
+    lootTable:
+    - item: 5
+      dropChance: 1
+      coinType: 1
+  walkSpriteSequence:
+  - {fileID: 21300000, guid: 008683c93e8d80943a687535c55a5e03, type: 3}
+  - {fileID: 21300000, guid: 400cfbc22625a0541981d1d944ff60d4, type: 3}
+  - {fileID: 21300000, guid: 36c39cb0a2beff54686d403ffb71dda6, type: 3}
+  - {fileID: 21300000, guid: e342e4b58ce6bff4d8e18cde525c101a, type: 3}
+  - {fileID: 21300000, guid: f163944be13b8ed459876a4f8a7ae66e, type: 3}
+  - {fileID: 21300000, guid: a64578c6b150ffa4d997236e2fe327f7, type: 3}
+  - {fileID: 21300000, guid: d4e354ff1513e984dadec08740081a4d, type: 3}
+  - {fileID: 21300000, guid: 7681f9a577b75634282f332c360fae94, type: 3}
+  walkFrameTime: 0.12
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.1484375}
+  groundShadowSizeUV: {x: 0.46, y: 0.07}
+  preserveGroundShadowHeight: 0
+  description: "14\uBD84 30\uCD08 \uC774\uD6C4 \uB4F1\uC7A5\uD558\uB294 \uBD89\uC740\uAC13.
+    \uB290\uB9AC\uC9C0\uB9CC \uD2BC\uD2BC\uD55C \uD6C4\uBC18 \uC77C\uBC18 \uBAAC\uC2A4\uD130."
+  resultSprite: {fileID: 21300000, guid: 008683c93e8d80943a687535c55a5e03, type: 3}
+  meleeLayer:
+    serializedVersion: 2
+    m_Bits: 512

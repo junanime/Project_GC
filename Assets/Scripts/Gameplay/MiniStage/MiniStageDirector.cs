@@ -110,6 +110,21 @@ namespace Vampire
             }
         }
 
+        // A field transfer must not carry old entrances into the new terrain.
+        public void ResetForNextField()
+        {
+            if (isInsideMiniStage || isTransitioning) return;
+            foreach (var portal in FindObjectsOfType<BloodClotMiniStagePortal>())
+            {
+                portal.gameObject.SetActive(false);
+                Destroy(portal.gameObject);
+            }
+            activeEntrancePortal = null;
+            returnPortal = null;
+            CurrentEnhanced = false;
+            CleanupCurrentRoom();
+        }
+
         public void OpenEntrancePortal(Vector3 worldPosition)
         {
             if (isInsideMiniStage || isTransitioning)
@@ -128,7 +143,9 @@ namespace Vampire
                 return;
             }
 
-            if (removePreviousPortalWhenNewPortalOpens && activeEntrancePortal != null)
+            // Preplaced clots each retain their entrance until used or the field is left.
+            if (removePreviousPortalWhenNewPortalOpens && activeEntrancePortal != null &&
+                !(levelManager != null && levelManager.UsesInitialFieldLayout))
             {
                 Destroy(activeEntrancePortal.gameObject);
                 activeEntrancePortal = null;
@@ -220,7 +237,8 @@ namespace Vampire
             var destination=currentRoom.ReturnInteractable;
             destination.SetTravelVisual(true,CurrentEnhanced);
             var landing=BloodClotTravel.LeftLanding(destination.transform,playerCharacter);
-            if(currentRoom.PlayerStartPoint!=currentRoom.transform)currentRoom.PlayerStartPoint.position=landing;
+            // Some rooms reuse the return portal as their start marker. Keep that portal fixed.
+            if(currentRoom.PlayerStartPoint!=currentRoom.transform && currentRoom.PlayerStartPoint!=destination.transform && !destination.transform.IsChildOf(currentRoom.PlayerStartPoint))currentRoom.PlayerStartPoint.position=landing;
             MovePlayer(destination.transform.position);
             isInsideMiniStage = true;
             yield return travel.Eject(destination.transform,landing);
@@ -231,6 +249,7 @@ namespace Vampire
             isTransitioning = false;
 
             currentRoom.BeginRoom();
+            RunScore.Current?.Enter(returnPortal);
 
             if (debugLog)
             {

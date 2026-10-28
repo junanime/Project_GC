@@ -28,50 +28,74 @@ MonoBehaviour:
   idleHandOffset: {x: 0.2, y: -0.06}
   walkHandOffset: {x: 0.25, y: -0.06}
   walkSpriteSequence:
-  - {fileID: 4459870643526393012, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: 8645526209452238827, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: 7177944211563045298, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: -5267232931580505476, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: -5836893476829198220, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: 4585566489794605879, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: 1523800142781248985, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  - {fileID: 289482890230222796, guid: 8378fb47d08ac784295b309037cdac51, type: 3}
-  walkFrameTime: 0.08
+  - {fileID: 490978707820200065, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -4853316323991816368, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -199093491218043214, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -4521553597319662266, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -5384530752959456156, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: 433077617073267275, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -8346126106422503533, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -104240526074514809, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: 8102503987052715957, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -8040071765207510457, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: 2076338923039667210, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: 8455956948874703996, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: 609861254430941161, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -1955784973355739229, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: 4839653611699256493, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  - {fileID: -3554888474650068684, guid: 5de7c5022345fc346aa651d8f68f0225, type: 3}
+  walkFrameTime: 0.06
   idleSpriteSequence:
-  - {fileID: -7314979933727673989, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -8081032536798243898, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -4539074958209568715, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: 1739567181259139291, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: 8678885071075774289, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -106750726642967808, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -5084235833021441256, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -2557863510584615543, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  idleFrameTime: 0.1
+  - {fileID: 2504459759882848401, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -7821441751795971746, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -2129949823502403712, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 7817123517687580441, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -6238116804710165428, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -1664669001704182604, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -5985195198043653846, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 8763395206090742033, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 2090483290536904898, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 5640418289558493350, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 1637997126717038350, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 8889487708288439912, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 6770627806086752513, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -518835429892311333, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 2739618537859471893, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -2032032516437140322, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  idleFrameTime: 0.05
   dashSpriteSequence:
-  - {fileID: 5248685834588034732, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: 4370969615533919276, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: 964266061684134628, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: -1763060046659543566, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: 2054081584894590774, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: -4797407647350604229, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: 2856942303697598913, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
-  - {fileID: 88717187037516196, guid: 0680e10c4d3ca5742bd878ec6349999d, type: 3}
+  - {fileID: -3622344912849502425, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: 3876532805507459885, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: -9090824062094141905, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: -5779364372137723370, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: 4396577648339823554, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: 7393239915255755679, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: -5893313010513414954, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
+  - {fileID: 6209002086523643891, guid: fb16447f7198fed4b9c77ec734c5ac57, type: 3}
   dashFrameTime: 0.0275
   fitDashAnimationToDuration: 1
   dashArtMovesRight: 1
   capturedSpriteSequence:
-  - {fileID: 582160902688759878, guid: 7956e2b65620d9a408c5e0ff649f23dd, type: 3}
-  capturedFrameTime: 0.09
+  - {fileID: 4642054904164542012, guid: 8b8cb81a9bce78a42aef4a2abdebce07, type: 3}
+  capturedFrameTime: 0.06
   resultIdleSpriteSequence:
-  - {fileID: -7314979933727673989, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -8081032536798243898, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -4539074958209568715, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: 1739567181259139291, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: 8678885071075774289, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -106750726642967808, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -5084235833021441256, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  - {fileID: -2557863510584615543, guid: 299dc3c72cdebcf48abdf434feb4e207, type: 3}
-  resultIdleFrameTime: 0.1
+  - {fileID: 2504459759882848401, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -7821441751795971746, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -2129949823502403712, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 7817123517687580441, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -6238116804710165428, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -1664669001704182604, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -5985195198043653846, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 8763395206090742033, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 2090483290536904898, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 5640418289558493350, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 1637997126717038350, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 8889487708288439912, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 6770627806086752513, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -518835429892311333, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: 2739618537859471893, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  - {fileID: -2032032516437140322, guid: 60f87413023e0044cab44accbdbbcbcf, type: 3}
+  resultIdleFrameTime: 0.05
   resultActionASpriteSequence: []
   resultActionBSpriteSequence: []
   resultActionFrameTime: 0.12

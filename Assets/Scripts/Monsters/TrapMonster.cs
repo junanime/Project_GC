@@ -554,25 +554,25 @@ namespace Vampire
                 inputDirection = (TrapArrowDirection)mobileDirection;
                 return true;
             }
-            if (Vampire.GameInput.GetKeyDown(KeyCode.UpArrow))
+            if (Vampire.GameInput.Pressed(Vampire.GameKeyAction.MoveUp))
             {
                 inputDirection = TrapArrowDirection.Up;
                 return true;
             }
 
-            if (Vampire.GameInput.GetKeyDown(KeyCode.DownArrow))
+            if (Vampire.GameInput.Pressed(Vampire.GameKeyAction.MoveDown))
             {
                 inputDirection = TrapArrowDirection.Down;
                 return true;
             }
 
-            if (Vampire.GameInput.GetKeyDown(KeyCode.LeftArrow))
+            if (Vampire.GameInput.Pressed(Vampire.GameKeyAction.MoveLeft))
             {
                 inputDirection = TrapArrowDirection.Left;
                 return true;
             }
 
-            if (Vampire.GameInput.GetKeyDown(KeyCode.RightArrow))
+            if (Vampire.GameInput.Pressed(Vampire.GameKeyAction.MoveRight))
             {
                 inputDirection = TrapArrowDirection.Right;
                 return true;

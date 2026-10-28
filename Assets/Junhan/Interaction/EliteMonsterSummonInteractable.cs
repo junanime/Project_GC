@@ -126,6 +126,8 @@ namespace Vampire
                 var elite=container.monsterBlueprints[pair.Value.Item2] as EliteMonsterBlueprint;
                 if(elite!=null && container.monstersPrefab.GetComponent<MeleeMonster>()!=null)
                 {
+                    if(ColonMonsterRoster.InColon && !ColonMonsterRoster.Active.IsNewElite(pair.Key))continue;
+                    if(ColonMonsterRoster.InColon && ColonMonsterRoster.IntroductionSeconds[pair.Key-ColonMonsterRoster.Active.NormalFlatStart-8]>levelManager.CurrentLevelTime)continue;
                     // The large hopping cookie joins the middle/late groups.
                     if(container.monstersPrefab.name.Contains("Dubai") && levelManager.CurrentLevelTime<360)continue;
                     eligible.Add(pair.Key);
@@ -137,6 +139,9 @@ namespace Vampire
                 if(!eligible.Contains(index)||used.Contains(index))
                 {
                     var available=eligible.FindAll(n=>!used.Contains(n));
+                    // Early colon waves have only one or two unlocked species. Repeat
+                    // those species instead of reducing the advertised encounter count.
+                    if(available.Count==0)available=eligible;
                     if(available.Count==0)break;
                     index=available[UnityEngine.Random.Range(0,available.Count)];
                 }

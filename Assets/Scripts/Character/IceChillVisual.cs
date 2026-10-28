@@ -7,20 +7,25 @@ namespace Vampire
     {
         SpriteRenderer body,overlay;readonly SpriteRenderer[] snow=new SpriteRenderer[9];
         IceChillStatus status;CharacterSkillDefinition art;Material material;float phase;
+        float forcedUntil;
+        public void ForceFor(float seconds){forcedUntil=Mathf.Max(forcedUntil,Time.time+seconds);}
         public bool Visible => overlay!=null&&overlay.enabled;
         public Sprite DisplayedSprite => overlay!=null?overlay.sprite:null;
         void Awake()
         {
             status=GetComponent<IceChillStatus>();body=SyringeAugmentVfx.FindTarget(this);
             art=Resources.Load<CharacterSkillDefinition>("HyukiSkills");
-            material=new Material(Shader.Find("Vampire/IceChillTint"));
+            material=new Material(Resources.Load<Shader>("AugmentVfx/PoisonTint"));
             overlay=Make("Ice slow silhouette");overlay.sharedMaterial=material;
             for(int i=0;i<snow.Length;i++)snow[i]=Make("Ice slow falling snow");
+            AugmentVfxTag.Mark(overlay.gameObject);
+            foreach(var r in snow)AugmentVfxTag.Mark(r.gameObject);
         }
         SpriteRenderer Make(string name){var r=new GameObject(name).AddComponent<SpriteRenderer>();r.transform.SetParent(transform,false);r.enabled=false;return r;}
         void LateUpdate()
         {
-            bool show=status!=null&&status.Stacks>0&&body!=null&&body.enabled&&SyringeAugmentVfx.IsLiving(this);
+            if(status==null)status=GetComponent<IceChillStatus>();
+            bool show=((status!=null&&status.Stacks>0)||Time.time<forcedUntil)&&body!=null&&body.enabled&&SyringeAugmentVfx.IsLiving(this);
             overlay.enabled=show;foreach(var r in snow)r.enabled=show;
             if(!show)return;
             if(!(GetComponent<Monster>() is Monster m&&m.IsFieldRuntimeSuspended))phase+=Time.deltaTime;
@@ -28,7 +33,8 @@ namespace Vampire
             overlay.transform.SetPositionAndRotation(body.transform.position,body.transform.rotation);
             var scale=body.transform.lossyScale;var parent=transform.lossyScale;
             overlay.transform.localScale=new Vector3(scale.x/parent.x,scale.y/parent.y,1);
-            overlay.color=new Color(.58f,.86f,1,.23f+.025f*status.Stacks);
+            overlay.color=new Color(.58f,.86f,1,(.23f+.025f*(status!=null?status.Stacks:1))*body.color.a);
+            StatusTintCycle.Submit(body,overlay,StatusTintKind.Ice);
             overlay.sortingLayerID=body.sortingLayerID;overlay.sortingOrder=body.sortingOrder+1;
             Bounds b=body.bounds;
             for(int i=0;i<snow.Length;i++)
@@ -42,7 +48,7 @@ namespace Vampire
                 r.color=new Color(.8f,.95f,1,Mathf.Sin(age*Mathf.PI)*.7f);r.sortingLayerID=body.sortingLayerID;r.sortingOrder=body.sortingOrder+2;
             }
         }
-        void OnDisable(){if(overlay!=null)overlay.enabled=false;foreach(var r in snow)if(r!=null)r.enabled=false;}
+        void OnDisable(){forcedUntil=0;if(overlay!=null)overlay.enabled=false;foreach(var r in snow)if(r!=null)r.enabled=false;}
         void OnDestroy(){if(material!=null)Destroy(material);}
     }
 }

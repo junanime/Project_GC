@@ -11,6 +11,7 @@ namespace Vampire
         Button dashHudButton, interactionHudButton;
         GameObject cutinPanel, skillDetails;
         RectTransform skillHudRoot;
+        const float SkillHudButtonSize = 110f, SkillHudButtonGap = 14f;
         CharacterSkillRuntime CurrentSkills => level!=null && level.PlayerCharacter!=null ? level.PlayerCharacter.Skills : null;
         void ClearSkillUI()
         {
@@ -58,14 +59,15 @@ namespace Vampire
         void BuildSkillHud()
         {
             skillHudRoot=Rect("Skill HUD",content,1,0,1,0);
-            skillHudRoot.pivot=new Vector2(1,0);skillHudRoot.sizeDelta=new Vector2(216,232);
+            skillHudRoot.pivot=new Vector2(1,0);
+            skillHudRoot.sizeDelta=new Vector2(SkillHudButtonSize*2+SkillHudButtonGap,SkillHudButtonSize);
             skillHudRoot.anchoredPosition=new Vector2(-24,48);
             var d=character!=null?character.skills:null;
-            for(int i=0;i<2;i++)
+            for(int i=1;i<2;i++)
             {
-                bool active=i==1;float x=i*.54f;
-                var b=HudIconButton("",x,.54f,()=>{if(Time.timeScale<=0)return;if(active){if(CurrentSkills!=null&&!CurrentSkills.IsShini)CurrentSkills.TryActivate();}else {OpenSkillHelp();if(Page=="run")ShowSkillDetails(character,false);}});
-                b.name=active?"Active skill R":"Passive skill status";
+                bool active=true;float x=0;
+                var b=HudIconButton("",x,0,()=>{if(Time.timeScale<=0)return;if(active){if(CurrentSkills!=null&&!CurrentSkills.IsShini)CurrentSkills.TryActivate();}else {OpenSkillHelp();if(Page=="run")ShowSkillDetails(character,false);}});
+                b.name=active?"Active skill Space":"Passive skill status";
                 HudTooltip.Bind(b.gameObject,()=>SkillTitle(character,active),()=>SkillHelp(character,active)+"\n\n설명만 보기: 상태 → 스킬 아이콘");
                 var visual=b.transform.Find("Visual");
                 var framed=Rect("Skill icon",visual,.13f,.25f,.87f,.90f);
@@ -87,13 +89,14 @@ namespace Vampire
                 }
                 else {passiveDuration=mask;passiveSeconds=seconds;}
             }
-            bool touch=GamePlatform.UsesTouchControls||MobileGameplayInput.Active;
-            var help=ActionButton(skillHudRoot,"스킬 설명",0,1.02f,1,1.19f,OpenSkillHelp);
-            help.name="Skill help without casting";
-            interactionHudButton=HudIconButton(touch?"상호작용":"E · 상호작용",0,0,()=>{if(Time.timeScale>0)MobileGameplayInput.RequestInteraction();});
-            interactionHudButton.name="HUD interact";
-            Rect("Interaction hand",interactionHudButton.transform.Find("Visual"),.26f,.28f,.74f,.87f).gameObject.AddComponent<HudInteractionIcon>().raycastTarget=false;
-            dashHudButton=HudIconButton(touch?"대쉬":"Shift · 대쉬",.54f,0,()=>{if(Time.timeScale>0&&level!=null&&level.PlayerCharacter!=null)level.PlayerCharacter.TryDash();});
+            // Keep the right slot in the former active-skill position. The
+            // active skill now occupies the matching slot to its left.
+            float dashX=(SkillHudButtonSize+SkillHudButtonGap)/skillHudRoot.sizeDelta.x;
+            dashHudButton=HudIconButton("대쉬",dashX,0,()=>
+            {
+                if(Time.timeScale>0&&level!=null&&level.PlayerCharacter!=null)
+                    level.PlayerCharacter.TryDash();
+            });
             dashHudButton.name="HUD dash";
             var dash=Rect("Shared dash HUD icon",dashHudButton.transform.Find("Visual"),.17f,.28f,.83f,.88f).gameObject.AddComponent<SharedDashIcon>();
             dash.color=new Color(.12f,.65f,.63f);dash.raycastTarget=false;
@@ -107,7 +110,7 @@ namespace Vampire
         }
         Button HudIconButton(string text,float x,float y,System.Action action)
         {
-            var button=ActionButton(skillHudRoot,"",x,y,x+.46f,y+.46f,action);
+            var button=ActionButton(skillHudRoot,"",x,y,x+SkillHudButtonSize/skillHudRoot.sizeDelta.x,y+1,action);
             var visual=button.transform.Find("Visual");
             var body=visual.GetComponent<Image>();body.sprite=LightWoodHud.Art(3);body.type=Image.Type.Simple;
             button.GetComponent<ApothecaryButtonFeedback>().useThemeStates=false;
@@ -134,15 +137,15 @@ namespace Vampire
             bool playing=Time.timeScale>0&&level!=null&&level.PlayerCharacter!=null&&level.PlayerCharacter.CurrentHealth>0;
             activeSkillButton.interactable=playing&&skill!=null&&(skill.CanActivate||skill.IsShini&&skill.Breath!=null&&skill.Breath.Busy);
             var feedback=activeSkillButton.GetComponent<ApothecaryButtonFeedback>();if(feedback!=null)feedback.chosen=skill!=null&&skill.Active;
-            if(dashHudButton!=null)dashHudButton.interactable=playing;
+            if(dashHudButton!=null)dashHudButton.interactable=playing&&level.PlayerCharacter.CurrentDashCharges>0&&!level.PlayerCharacter.IsDashing;
             if(interactionHudButton!=null)interactionHudButton.interactable=playing;
             if(passiveLevelLabel!=null)passiveLevelLabel.text=$"패시브 Lv.{(skill!=null?skill.PassiveLevel:1)}";
-            if(activeLevelLabel!=null)activeLevelLabel.text=$"{((GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?"":"R · ")}액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
+            if(activeLevelLabel!=null)activeLevelLabel.text=$"{((GamePlatform.UsesTouchControls||MobileGameplayInput.Active)?"":GameInput.ActiveSkillKeyLabel+" · ")}액티브 Lv.{(skill!=null?skill.ActiveLevel:1)}";
             activeCooldown.fillAmount=d!=null&&skill.EffectiveCooldown>0?skill.CooldownRemaining/skill.EffectiveCooldown:0;
             activeSeconds.text=skill!=null&&skill.IsShini?(skill.Breath!=null&&skill.Breath.Busy?"분사":"6개"):skill!=null&&skill.IsSummoning?"소환":d!=null&&skill.CooldownRemaining>0?Mathf.CeilToInt(skill.CooldownRemaining).ToString():"";
             // Marathon has no separate cooldown: its countdown is the remaining buff duration.
-            passiveDuration.fillAmount=0;
-            passiveSeconds.text=d!=null&&skill.IsShini&&skill.Breath!=null?$"{skill.Breath.Fuel}/{skill.Breath.Capacity}":d!=null&&skill.IsHyuki?Mathf.RoundToInt(skill.StatusDamageBonus*100)+"%":d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
+            if(passiveDuration!=null)passiveDuration.fillAmount=0;
+            if(passiveSeconds!=null)passiveSeconds.text=d!=null&&skill.IsShini&&skill.Breath!=null?$"{skill.Breath.Fuel}/{skill.Breath.Capacity}":d!=null&&skill.IsHyuki?Mathf.RoundToInt(skill.StatusDamageBonus*100)+"%":d!=null&&skill.PassiveActive?Mathf.CeilToInt(skill.PassiveRemaining).ToString():"";
             activeDurationBar.fillAmount=d!=null&&skill.IsShini&&skill.Breath!=null?(float)skill.Breath.Fuel/skill.Breath.Capacity:d!=null?skill.ActiveRemaining/skill.EffectiveActiveDuration:0;
             cutinPanel.SetActive(false); // Wind phoenix plays in the live scene while combat continues.
             if(skill!=null&&skill.IsCutin&&d.cutin!=null&&d.cutin.Length>0)

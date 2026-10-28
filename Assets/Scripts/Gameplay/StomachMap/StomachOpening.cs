@@ -16,14 +16,20 @@ namespace Vampire
         public Vector2 Radii => Vector2.Scale(new Vector2(Shape.z, Shape.w), map.WorldRect.size);
         public Vector2 Inward => Upper ? Vector2.down : Vector2.up;
         public Vector2 FrontLip => Center + Inward * Radii.y;
-        Vector4 Shape => Upper ? Inlet : Outlet;
+        Vector4 Shape => map.OpeningShape(Upper);
+        public void SetOpened(float value)
+        {
+            Openness=Mathf.Clamp01(value);IsOpen=Openness>=1;moving=false;
+            map.TerrainMaterial.SetFloat(Upper?"_InletOpen":"_OutletOpen",Mathf.SmoothStep(0,1,Openness));
+        }
+        public static StomachOpening Find(bool upper) => System.Array.Find(FindObjectsOfType<StomachOpening>(), o=>o.Upper==upper);
         FiniteStomachMap map;
         bool moving;
 
         public static void Install(FiniteStomachMap owner)
         {
-            owner.TerrainMaterial.SetVector("_Inlet", Inlet);
-            owner.TerrainMaterial.SetVector("_Outlet", Outlet);
+            owner.TerrainMaterial.SetVector("_Inlet", owner.OpeningShape(true));
+            owner.TerrainMaterial.SetVector("_Outlet", owner.OpeningShape(false));
             for (int i = 0; i < 2; i++)
             {
                 var go = new GameObject(i == 0 ? "식도 입구 · 다섯 조각 덮개" : "십이지장 출구 · 다섯 조각 덮개");
@@ -35,11 +41,14 @@ namespace Vampire
             }
         }
         protected override void Awake() { base.Awake(); ConfigureReusableInteraction(); }
-        protected override bool InteractionAvailable => map != null && map.StageOne && map.FieldVisible && !moving && !IsOpen;
+        protected override bool InteractionAvailable => map != null && map.FieldActive && map.FieldVisible && !moving &&
+            (StageProgression.Ensure(levelManager).CanUseOutlet(this) || !IsOpen && !StageProgression.Ensure(levelManager).Travelling);
         protected override bool KeepVisibleAfterInteraction => true;
+        protected override bool AllowSubmergedInteraction => levelManager!=null && StageProgression.Ensure(levelManager).CanUseOutlet(this);
         protected override bool ExecuteInteraction(Character player)
         {
             if (!InteractionAvailable) return false;
+            if(StageProgression.Ensure(levelManager).CanUseOutlet(this))return StageProgression.Ensure(levelManager).TryUseOutlet(player,this);
             IsOpen = true; moving = true;
             return true;
         }
@@ -56,7 +65,7 @@ namespace Vampire
         // only the inlet's lower lip / outlet's upper lip, never circle around behind it.
         public static float FrontDistance(FiniteStomachMap map, Vector2 p, bool upper, out Vector2 inward)
         {
-            var shape = upper ? Inlet : Outlet;
+            var shape = map.OpeningShape(upper);
             var center = map.UVToWorld(new Vector2(shape.x, shape.y));
             var radii = Vector2.Scale(new Vector2(shape.z, shape.w), map.WorldRect.size);
             var local = p - center;

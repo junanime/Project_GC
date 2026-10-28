@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 40
   itemRarity: 1
   itemTag: 0
-  description: "\uAE30\uBCF8 \uCE68\uC774 5\uD68C \uC801\uC911\uD558\uBA74 \uB2E4\uC74C
-    \uAE30\uBCF8 \uCE68 \uD53C\uD574 +60%."
+  description: "기본 침이 5회 적중하면 다음 기본 침 피해 +60%."
   itemIcon: {fileID: -8923707854191116350, guid: ecfac12c72a2a5d4daea29ed1cb3770c, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

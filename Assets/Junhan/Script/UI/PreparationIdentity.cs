@@ -91,8 +91,22 @@ namespace Vampire
                 }
             }
             if(frames==null||frames.Length==0)frames=character.walkSpriteSequence;
-            if(frames!=null&&frames.Length>0)body.sprite=frames[reduced?0:(int)(elapsed/(active?.085f:.14f))%frames.Length];
-            body.rectTransform.anchoredPosition=active?new Vector2(Mathf.Sin(phase*4)*10,Mathf.Abs(Mathf.Sin(phase*7))*3):Vector2.zero;
+            bool hyuki=d!=null&&d.kind==CharacterSkillDefinition.SkillKind.Hyuki;
+            float frameTime=hyuki?Mathf.Max(.01f,character.idleFrameTime):(active?.085f:.14f);
+            if(frames!=null&&frames.Length>0)body.sprite=frames[reduced?0:(int)(elapsed/frameTime)%frames.Length];
+            if(hyuki&&body.sprite!=null)
+            {
+                // Use the same authored scale, pivot and timing as the playable idle.
+                // The cold shiver is already in the sprites; extra UI bobbing moves the feet.
+                var box=((RectTransform)transform).rect;
+                float scale=Mathf.Min(box.height/.72f,box.width/.95f);
+                var rect=body.rectTransform;var sprite=body.sprite;
+                rect.anchorMin=rect.anchorMax=new Vector2(.5f,0);
+                rect.pivot=sprite.pivot/sprite.rect.size;
+                rect.sizeDelta=sprite.rect.size/sprite.pixelsPerUnit*scale;
+                rect.anchoredPosition=new Vector2(0,.27f*scale);
+            }
+            else body.rectTransform.anchoredPosition=active?new Vector2(Mathf.Sin(phase*4)*10,Mathf.Abs(Mathf.Sin(phase*7))*3):Vector2.zero;
             if(effect!=null)
             {
                 effect.enabled=active&&fx!=null&&fx.Length>0;

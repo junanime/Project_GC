@@ -1,0 +1,14 @@
+const assert=require('node:assert/strict'),vm=require('node:vm');
+const {repair,pack}=require('./Prepare-UnityWebCompatibility.cjs');
+const source='var Module={};Module["dynCall_vi"]=true;Module["dynCall_vii"]=true;Module["dynCall_viii"]=true;var received=[];function dynCall(sig,ptr,args){received.push([sig,ptr,args]);return 19;}var open=getDynCaller("vi",10);var error=getDynCaller("vii",11);var message=getDynCaller("viii",12);open(4);error(4,100);message(4,200,6);';
+const fixed=repair(source);assert(fixed.changed);
+const context={};vm.runInNewContext(fixed.source,context);
+assert.equal(JSON.stringify(context.received),JSON.stringify([['vi',10,[4]],['vii',11,[4,100]],['viii',12,[4,200,6]]]));
+assert.equal(vm.runInNewContext(fixed.source+'getDynCaller("vi",10)(9)',{}),19);
+assert.equal(repair(fixed.source).changed,false);
+assert.equal(repair('var untouched=1;').changed,false);
+assert.throws(()=>repair(source.replace('Module["dynCall_vii"]=true;','')));
+const compressed=pack(fixed.source);
+assert.equal(compressed[3],16);assert(compressed.subarray(10,100).includes(Buffer.from('UnityWeb Compressed Content (gzip)\0')));
+assert.equal(require('node:zlib').gunzipSync(compressed).toString(),fixed.source);
+console.log('PASS callback ABI, idempotence, missing ABI rejection, Unity fallback marker and Gzip round-trip');

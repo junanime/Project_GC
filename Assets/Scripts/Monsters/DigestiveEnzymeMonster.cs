@@ -748,6 +748,7 @@ namespace Vampire
 
             if (killedByPlayer)
             {
+                RunScore.Current?.SpecialKill();
                 DigestiveEnzymeDifficultyManager.NotifyDigestiveEnzymeKilledByPlayer(this);
             }
 

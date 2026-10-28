@@ -146,13 +146,13 @@ namespace Vampire.Tests.Editor
                         nearEnemy.transform.position=portal.transform.position;
                         beforeKill=charge.Progress;nearEnemy.StartCoroutine(nearEnemy.Killed());
                         Check(charge.Progress==beforeKill,"Player outside does not count enemy killed inside ring");
-                        Set(charge,"<Kind>k__BackingField",BloodClotOvercharge.Challenge.Stay);
-                        yield return new WaitForSeconds(.15f);
-                        Check(charge.Progress==beforeKill,"Stay progress pauses outside");
+                        charge.Advance(1);
+                        Check(charge.Progress==beforeKill,"Progress pauses outside");
                         player.transform.position=portal.transform.position;player.GetComponent<Rigidbody2D>().position=portal.transform.position;
-                        yield return new WaitForSeconds(.15f);
-                        Check(charge.Progress>beforeKill,"Stay progress resumes inside using elapsed time");
+                        charge.Advance(1);
+                        Check(charge.Progress==beforeKill+1,"Progress resumes inside");
                         float beforePause=charge.Progress;Time.timeScale=0;
+                        charge.Advance(1);
                         yield return new WaitForSecondsRealtime(.15f);
                         Check(charge.Progress==beforePause,"Pause freezes overcharge time");Time.timeScale=1;
                         Set(charge,"<Kind>k__BackingField",BloodClotOvercharge.Challenge.Kills);

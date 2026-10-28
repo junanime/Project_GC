@@ -16,11 +16,11 @@ MonoBehaviour:
   octoberId: 20
   itemRarity: 1
   itemTag: 4
-  description: "\uB300\uC2DC \uCDA9\uC804 \uC2DC\uAC04 15% \uAC10\uC18C."
+  description: "대시 충전 시간 15% 감소."
   itemIcon: {fileID: 4959469515069157919, guid: 90968588248b1394daf64353551bbe21, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

@@ -18,6 +18,8 @@ namespace Vampire
         // Separate from the movement lock: landing protection must not prevent movement.
         public bool IsDamageProtected => isActiveAndEnabled && (Busy || Time.time < protectedUntil);
         float protectedUntil = -1f;
+        bool reservedPose;
+        public void HoldForInteraction(){RestorePhysics();Busy=false;HoldingPose=true;reservedPose=true;protectedUntil=float.PositiveInfinity;}
         public string CharacterKey { get; private set; }
         public SpriteRenderer Visual { get; private set; }
         public float ReferenceHeight => height;
@@ -26,6 +28,7 @@ namespace Vampire
         Rigidbody2D body;
         bool simulated, originalHidden;
         Sprite[] frames;
+        Sprite swimSprite;
         float height, scale;
         Vector3 footOffset;
         SpriteRenderer[] chicks;
@@ -34,7 +37,7 @@ namespace Vampire
 
         public static BloodClotTravel Ensure(Character actor) => actor.GetComponent<BloodClotTravel>() ?? actor.gameObject.AddComponent<BloodClotTravel>();
         static Sprite[] RawFrames(string key) => Resources.LoadAll<Sprite>("BloodClotTravel/" + key).OrderBy(s => s.name).ToArray();
-        public static Sprite[] Frames(string key) => key == "Hyuki" ? RawFrames("HyukiApproach").Concat(RawFrames(key)).ToArray() : RawFrames(key);
+        public static Sprite[] Frames(string key) => RawFrames(key == "Hyuki" ? "HyukiApproved" : key);
         public static bool CanTravel(Character actor) => actor != null && actor.IsAlive && !actor.IsDashing && !actor.IsTrapBound &&
             !(actor.GetComponent<PlayerMiniStageStunRuntime>()?.IsStunned ?? false) && !(actor.Skills?.IsCutin ?? false) && !actor.IsPortalTravelling;
 
@@ -53,12 +56,18 @@ namespace Vampire
             // Use one baked idle silhouette for the whole journey; never renormalize each pose.
             var idle = owner.Blueprint?.idleSpriteSequence?.FirstOrDefault(s => s != null) ?? original.sprite;
             var visible = VisibleBodyGeometry.Bounds(idle);
+            if(swimSprite!=null)Destroy(swimSprite);
+            float ppu=idle.pixelsPerUnit;
+            var crop=new Rect(idle.rect.x+idle.pivot.x+visible.xMin*ppu,idle.rect.y+idle.pivot.y+visible.yMin*ppu,visible.width*ppu,visible.height*ppu);
+            crop.xMin=Mathf.Max(idle.rect.xMin,crop.xMin);crop.yMin=Mathf.Max(idle.rect.yMin,crop.yMin);crop.xMax=Mathf.Min(idle.rect.xMax,crop.xMax);crop.yMax=Mathf.Min(idle.rect.yMax,crop.yMax);
+            swimSprite=Sprite.Create(idle.texture,crop,Vector2.one*.5f,ppu,0,SpriteMeshType.FullRect);
             height = original.transform.TransformVector(Vector3.up * visible.height).magnitude;
             var foot = new Vector3(visible.center.x, visible.yMin, 0);
             if (original.flipX) foot.x = -foot.x;
             footOffset = original.transform.TransformPoint(foot) - transform.position;
-            // Hyuki's fixed compact pose is calibrated to 72% standing height at import.
-            scale = height / Mathf.Max(.001f, frames[0].bounds.size.y);
+            // Approved Hyuki poses share the gameplay PPU/pivot. Atlas padding and
+            // tucked legs must not resize his head when switching into travel.
+            scale = CharacterKey == "Hyuki" ? Mathf.Abs(original.transform.lossyScale.y) : height / Mathf.Max(.001f, frames[0].bounds.size.y);
             if (Visual == null)
             {
                 var go = new GameObject("Blood clot travel visual");
@@ -81,6 +90,21 @@ namespace Vampire
             Vector3 start = transform.position, end = portal != null ? portal.position : start;
             yield return Animate(false, start, end, portal);
         }
+        public void SwimPose(Vector3 position,float time)
+        {
+            if(!Busy)Begin();SetPosition(position);
+            Visual.sprite=swimSprite;
+            Visual.transform.localScale=Vector3.one*(height/swimSprite.bounds.size.y);
+            Visual.transform.position=position+footOffset+Vector3.up*height*.5f;
+            Visual.transform.rotation=Quaternion.Euler(0,0,Mathf.Sin(time*7)*4-12);
+            Visual.flipX=true;Visual.color=Color.white;
+        }
+
+        public void CapsulePose(Vector3 position,float alpha)
+        {
+            SwimPose(position,0);Visual.transform.rotation=Quaternion.identity;Visual.color=new Color(1,1,1,alpha);
+            Visual.sortingLayerName="Monster Full";Visual.sortingOrder=32011;
+        }
 
         public IEnumerator Eject(Transform portal, Vector3 landing)
         {
@@ -90,6 +114,9 @@ namespace Vampire
             if(!Busy)yield break;
             SetPosition(landing);
             RestorePhysics();
+            // Reactivating a simulated body can restore its previous physics pose this frame.
+            // Commit the landing again before room logic / collision callbacks observe it.
+            SetPosition(landing);Physics2D.SyncTransforms();
             protectedUntil = Time.time + ExitInvincibilityDuration;
             Busy = false;
             HoldingPose = true;
@@ -194,10 +221,15 @@ namespace Vampire
             var p = Sample(CharacterKey, eject, t, mouth, height);
             SetPosition(Vector3.Lerp(source, destination, p.progress));
             Visual.sprite = frames[Mathf.Clamp(p.frame, 0, frames.Length - 1)];
+            if(CharacterKey=="Hyuki"&&!eject&&t<HyukiWalkEnd)
+            {
+                var walk=owner.Blueprint.walkSpriteSequence;
+                Visual.sprite=walk[Mathf.FloorToInt(t*Duration/owner.Blueprint.walkFrameTime)%walk.Length];
+            }
             Visual.flipX = CharacterKey == "Hyuki" ? !eject && t < HyukiApex && destination.x < source.x : eject;
             Visual.transform.localScale = Vector3.one * scale;
             Visual.transform.rotation = Quaternion.Euler(0, 0, p.angle);
-            Visual.transform.position = transform.position + footOffset + Vector3.up * (p.lift + Visual.sprite.bounds.size.y * scale * .5f);
+            Visual.transform.position = transform.position + footOffset + Vector3.up * (p.lift + GroundPivotOffset());
             Visual.color = new Color(1, 1, 1, p.alpha);
             SetChicks(eject && CharacterKey == "Ari" && t >= .72f, t * Duration);
         }
@@ -238,15 +270,18 @@ namespace Vampire
         {
             if ((Busy || HoldingPose) && original != null) original.forceRenderingOff=true;
             if (!HoldingPose) return;
+            if(reservedPose)return;
             if (owner == null || !owner.IsAlive || owner.EffectiveMoveDirection.sqrMagnitude > .0001f) { ReleasePose(); return; }
-            Visual.transform.position=transform.position+footOffset+Vector3.up*(Visual.sprite.bounds.size.y*scale*.5f);
+            Visual.transform.position=transform.position+footOffset+Vector3.up*GroundPivotOffset();
             // Last frame stays frozen, but the orbiting dizziness indicator remains alive.
             SetChicks(CharacterKey == "Ari", Time.time);
         }
         void RestorePhysics() { if (body != null) { body.velocity = Vector2.zero; body.angularVelocity = 0; body.simulated = simulated; } }
+        float GroundPivotOffset()=>CharacterKey=="Hyuki"?.27f*scale:Visual.sprite.bounds.size.y*scale*.5f;
         void RestorePortal() { if (animatedPortal != null) animatedPortal.localScale = portalScale; animatedPortal = null; }
         public void ReleasePose()
         {
+            reservedPose=false;if(float.IsPositiveInfinity(protectedUntil))protectedUntil=Time.time+ExitInvincibilityDuration;
             HoldingPose = false;
             if (original != null) original.forceRenderingOff = originalHidden;
             if (Visual != null) Visual.gameObject.SetActive(false);
@@ -259,7 +294,7 @@ namespace Vampire
             Busy = false; ReleasePose();
         }
         void OnDisable() { Cancel(); protectedUntil = -1f; }
-        void OnDestroy() { if (Visual != null) Destroy(Visual.gameObject); }
+        void OnDestroy() { if (Visual != null) Destroy(Visual.gameObject);if(swimSprite!=null)Destroy(swimSprite); }
 
         public static Vector3 LeftLanding(Transform portal, Character actor)
         {

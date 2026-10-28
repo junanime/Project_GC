@@ -26,7 +26,7 @@ namespace Vampire.Tests
    var level=FindObjectOfType<LevelManager>();Check(level?.PlayerCharacter?.Skills?.Breath!=null,"Shini selected and runtime linked in Windows player");
    var tutorial=FindObjectOfType<TutorialGuide>();if(tutorial!=null){tutorial.Close();tutorial.enabled=false;}Time.timeScale=1;ui=ApothecaryUI.Instance;
    var breath=level.PlayerCharacter.Skills.Breath;breath.RestoreFuel(24);
-   var button=FindObjectsOfType<Button>().First(b=>b.name=="Active skill R");var input=button.GetComponent<ShiniSkillButton>();
+   var button=FindObjectsOfType<Button>().First(b=>b.name=="Active skill Space");var input=button.GetComponent<ShiniSkillButton>();
    var e=new PointerEventData(EventSystem.current){pointerId=7,button=PointerEventData.InputButton.Left};input.OnPointerDown(e);yield return new WaitForSeconds(.7f);
    Check(breath.Fuel==18&&breath.Busy,"actual HUD press consumes six and inflates chest");ScreenCapture.CaptureScreenshot(Application.dataPath+"/ember-player-chest.png");
    yield return new WaitForSeconds(.6f);Check(breath.Emitting,"continuous fan renders in player");ScreenCapture.CaptureScreenshot(Application.dataPath+"/ember-player-flame.png");

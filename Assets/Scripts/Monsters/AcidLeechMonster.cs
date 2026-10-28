@@ -647,7 +647,7 @@ namespace Vampire
             }
 
             currentState = LeechState.Dead;
-            if (killedByPlayer) SnailFieldProgress.Record(rollCakeIngredient);
+            // Field kills no longer remove boss toppings or pre-damage the final boss.
             if (rollCakeVisual != null) rollCakeVisual.SetActive(false);
             ClearBloodTrails();
             RestoreMovementPhysicsSettings();

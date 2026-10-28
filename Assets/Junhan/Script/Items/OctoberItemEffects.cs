@@ -15,8 +15,10 @@ namespace Vampire
         OctoberItemRuntime owner;
         Component target;
         void Awake(){target=GetComponent<IDamageable>();}
-        public void Poison(OctoberItemRuntime source,float duration,float damage){owner=source;PoisonUntil=Time.time+duration;poisonDamage=damage;}
-        public void Burn(OctoberItemRuntime source,float duration,float damage){owner=source;BurnUntil=Time.time+duration;burnDamage=damage;}
+        public void Poison(OctoberItemRuntime source,float duration,float damage){
+            if (MonsterNeedleBarrier.Blocks(this)) return;owner=source;PoisonUntil=Time.time+duration;poisonDamage=damage;}
+        public void Burn(OctoberItemRuntime source,float duration,float damage){
+            if (MonsterNeedleBarrier.Blocks(this)) return;owner=source;BurnUntil=Time.time+duration;burnDamage=damage;}
         void Update()
         {
             if(target is Monster m&&m.IsFieldRuntimeSuspended){VulnerableUntil+=Time.deltaTime;PoisonUntil+=Time.deltaTime;BurnUntil+=Time.deltaTime;return;}
@@ -32,18 +34,21 @@ namespace Vampire
         OctoberItemRuntime owner;
         float radius,end,dps,nextTick;
         int item;bool pull,lure;
-        SpriteRenderer icon;
+        ItemFeedbackVisual feedback;
+        int feedbackLease;
         public void Configure(OctoberItemRuntime source,Vector2 p,float r,float duration,float damage,int id,bool pulling,bool luring)
         {
             owner=source;transform.position=p;radius=r;end=Time.time+duration;dps=damage;item=id;pull=pulling;lure=luring;
-            icon=source.MakeSprite(id,"지대",lure?.6f:r*.7f);icon.transform.SetParent(transform,true);icon.transform.position=p;icon.color=new Color(1,1,1,.6f);
+            feedback=ItemFeedback.For(source).Item(id,p,duration,lure?.8f:r,transform,sustained:true);if(feedback!=null)feedbackLease=feedback.Lease;
         }
+        void OnDestroy(){if(feedback!=null)feedback.Release(feedbackLease);}
         void Update()
         {
-            if(owner==null||!owner.Player.IsAlive||Time.time>=end){Destroy(gameObject);return;}
+            if(owner==null||!owner.isActiveAndEnabled||owner.Player==null||!owner.Player.IsAlive||Time.time>=end){Destroy(gameObject);return;}
             if(Time.timeScale<=0||Time.time<nextTick)return;nextTick=Time.time+.25f;
             foreach(var target in owner.Nearby(transform.position,radius))
             {
+                if(MonsterNeedleBarrier.Blocks(target))continue;
                 if(dps>0)Ver4HitEffects.Damage(target,dps*.25f,Vector2.zero,owner.Player,OctoberItemRuntime.Name(item),true);
                 if(item==16)(target.GetComponent<OctoberItemTargetStatus>()??target.gameObject.AddComponent<OctoberItemTargetStatus>()).Burn(owner,.5f,0);
                 if(!pull||Ver4HitEffects.IsBoss(target))continue;
@@ -75,6 +80,7 @@ namespace Vampire
         {
             sealedProjectile=true;
             var simple=GetComponent<BossSimpleBullet>();if(simple!=null)simple.enabled=false;
+            var food=GetComponent<FoodBossBullet>();if(food!=null)food.enabled=false;
             var snail=GetComponent<SnailBossProjectile>();if(snail!=null)snail.enabled=false;
             if(pooled!=null)pooled.StopAllCoroutines();
             foreach(var col in GetComponents<Collider2D>())col.enabled=false;

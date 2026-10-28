@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Stage1
   m_EditorClassIdentifier:
   terrainMaterial: {fileID: 2100000, guid: eee636a684e3b18498f21a114c1f2adf, type: 2}
+  colon: 0
+  inlet: {x: 0.844, y: 0.87, z: 0.030000001, w: 0.046666667}
+  outlet: {x: 0.195, y: 0.3, z: 0.03666667, w: 0.050000004}
   worldWidth: 203.2381
   aspect: 1.5
   chunkSize: 18

@@ -101,25 +101,22 @@ namespace Vampire.Tests.Editor
                 yield return new WaitForSecondsRealtime(.7f);
                 var cards=dialog.GetComponentsInChildren<AbilityCard>();
                 Check(cards.Length==3&&cards.All(c=>c.UsesNoblePanel),"real noble reward produces three character cards");
-                Check(dialog.ScrollRevealPending&&!dialog.CanSelectRevealedCard,"reveal gates reward selection");
-                Check(cards.All(c=>!((Image)Field(c,"abilityImage")).enabled),"sealed cards hide overframe artwork");
-                Capture(character+"-sealed");
-                cards[0].Selected();
-                Check(dialog.MenuOpen&&dialog.ScrollRevealPending,"first click reveals without consuming reward");
-                while(dialog.ScrollRevealPending)yield return null;
-                yield return null;
-                Check(dialog.CanSelectRevealedCard&&dialog.MenuOpen,"reveal finishes then enables selection");
+                Check(cards.All(c=>c.transform.Find("Noble scroll seal")==null),"noble cards have no scroll cover");
+                Check(cards.All(c=>((Image)Field(c,"abilityImage")).enabled),"noble artwork visible without an extra reveal click");
                 foreach(var card in cards)CheckCard(card,character);
                 Capture(character+"-reward");
-                cards[0].Selected();yield return null;
-                Check(!dialog.MenuOpen,"real reward selection closes once");
+                cards[0].Selected();
+                Check(dialog.SelectionAnimating&&dialog.MenuOpen,"first click starts noble selection motion");
+                cards[0].Selected();
+                Check(Object.FindObjectsOfType<AugmentSelectionMotion>().Length==1,"duplicate noble click does not create another motion");
+                yield return new WaitForSecondsRealtime(AugmentSelectionMotion.Duration+.2f);
+                Check(!dialog.MenuOpen&&!dialog.SelectionAnimating,"real reward selection closes once after motion");
                 var abilities=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true).Where(a=>a.AvailableAsNoble).OrderBy(a=>a.Type.ToString()).ToArray();
                 Check(abilities.Length==10,"ten noble designs "+character);
                 dialog.OpenLegendary();yield return new WaitForSecondsRealtime(.5f);
                 cards=dialog.GetComponentsInChildren<AbilityCard>();
                 for(int start=0;start<abilities.Length;start+=3)
                 {
-                    Invoke(dialog,"ClearScrollReveal");
                     for(int i=0;i<cards.Length;i++)cards[i].Init(dialog,abilities[(start+i)%abilities.Length],0);
                     yield return new WaitForSecondsRealtime(.5f);Canvas.ForceUpdateCanvases();
                     foreach(var card in cards)CheckCard(card,character);

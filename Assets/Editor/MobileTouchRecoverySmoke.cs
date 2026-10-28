@@ -64,7 +64,9 @@ namespace Vampire.Editor
                 Check(movement == Vector2.zero, "pause cancels even without a drag event"); Time.timeScale = 1;
                 Device(16, Phase.Ended); Down(17);
                 // This runner is edit-mode; invoke the Unity lifecycle callback explicitly.
-                control.SendMessage("OnDisable", SendMessageOptions.RequireReceiver);
+                // SendMessage on an edit-mode behaviour emits ShouldRunBehaviour;
+                // call this lifecycle method directly just like LateUpdate above.
+                typeof(MobileTouchControl).GetMethod("OnDisable", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(control, null);
                 Check(movement == Vector2.zero, "disabled UI callback cancels");
                 Device(17, Phase.Ended); Down(18); control.OnCancel(new BaseEventData(null));
                 Check(movement == Vector2.zero, "UI cancellation cancels");

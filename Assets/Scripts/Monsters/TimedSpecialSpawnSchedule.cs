@@ -172,6 +172,7 @@ namespace Vampire
 
         private float elapsedTime = 0f;
         private bool runtimeScheduleBuilt = false;
+        private bool reportedMiniStagePause;
 
         protected override void OnAwake()
         {
@@ -208,14 +209,14 @@ namespace Vampire
 
             if (IsMiniStageSpawnBlocked())
             {
-                if (logMiniStageBlock)
+                if (logMiniStageBlock && !reportedMiniStagePause)
                 {
                     Debug.Log("[TimedSpecialSpawnSchedule] 미니 스테이지 진행 중이라 특수 몬스터 스폰 타이머를 멈춥니다.", Host);
                 }
-
+                reportedMiniStagePause = true;
                 return;
             }
-
+            reportedMiniStagePause = false;
             elapsedTime += Time.deltaTime;
 
             UpdateTimedSpawnEvents();
@@ -232,6 +233,7 @@ namespace Vampire
             RemoveAllTrapListeners();
 
             elapsedTime = 0f;
+            reportedMiniStagePause = false;
             runtimeScheduleBuilt = false;
 
             BuildRuntimeSchedule();
@@ -255,6 +257,8 @@ namespace Vampire
             for (int entryIndex = 0; entryIndex < spawnEntries.Length; entryIndex++)
             {
                 TimedSpawnEntry entry = spawnEntries[entryIndex];
+
+                if (ColonMonsterRoster.InColon && entry != null && entry.monsterBlueprint != null && !ColonMonsterRoster.Active.Allowed(entry.monsterBlueprint)) continue;
 
                 if (entry == null)
                 {

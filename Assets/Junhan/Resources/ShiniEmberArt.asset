@@ -45,6 +45,32 @@ MonoBehaviour:
   - {fileID: -1334148768, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
   - {fileID: -1923707701, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
   - {fileID: -1033115581, guid: 3bdec5095d8741c43956112d6752d98a, type: 3}
+  castUp:
+  - {fileID: 1591151253, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -1426956522, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -1485676651, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: 559584210, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -762915635, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -1385485459, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: 1633735512, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -2062824330, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -1246173592, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -1568399782, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: 961772988, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  - {fileID: -1556091602, guid: 6ca5e430d9c718a4098a2f86bbaf0926, type: 3}
+  castDown:
+  - {fileID: 574833538, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -1102377609, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -1742403994, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: 87046377, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -1647600080, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -68136629, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -409886617, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -2049909306, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -886894360, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -618381725, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: 1205413298, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
+  - {fileID: -606283339, guid: f3505e1a4b372b345ae2c2865b597ea6, type: 3}
   mouths:
   - {x: 0.56595564, y: 1.34}
   - {x: 0.70690066, y: 1.345}
@@ -58,6 +84,32 @@ MonoBehaviour:
   - {x: 0.84806335, y: 1.36}
   - {x: 0.79488313, y: 1.325}
   - {x: 0.61931425, y: 1.64}
+  mouthsUp:
+  - {x: 0, y: 2.6}
+  - {x: 0.01, y: 2.6}
+  - {x: 0.01, y: 2.65}
+  - {x: 0.01, y: 2.7}
+  - {x: 0.01, y: 2.67}
+  - {x: 0.005, y: 2.74}
+  - {x: 0.005, y: 2.73}
+  - {x: 0.005, y: 2.74}
+  - {x: 0.005, y: 2.76}
+  - {x: 0.01, y: 2.6}
+  - {x: 0, y: 2.6}
+  - {x: 0, y: 2.6}
+  mouthsDown:
+  - {x: 0.005, y: 0.95}
+  - {x: 0.005, y: 0.95}
+  - {x: 0.005, y: 0.96}
+  - {x: 0.005, y: 0.98}
+  - {x: 0.005, y: 0.97}
+  - {x: 0.005, y: 0.79}
+  - {x: 0.005, y: 0.79}
+  - {x: 0.005, y: 0.79}
+  - {x: 0.005, y: 0.8}
+  - {x: 0.005, y: 0.95}
+  - {x: 0.005, y: 0.95}
+  - {x: 0.005, y: 0.95}
   castHeight: 2.66
   ember: {fileID: 772028101, guid: 77ec2f8d2b7c9f04796476cda8f4f70a, type: 3}
   emberHeight: 0.21060002

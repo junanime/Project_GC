@@ -166,8 +166,9 @@ namespace Vampire
             overlay=new GameObject("Burn orange silhouette").AddComponent<SpriteRenderer>();
             // Exact body transform/sprite mask: preserve the existing silhouette and pixel edges.
             overlay.transform.SetParent(body!=null?body.transform:transform,false);
-            tintMaterial=new Material(Shader.Find("Vampire/IceChillTint"));
+            tintMaterial=new Material(Resources.Load<Shader>("AugmentVfx/PoisonTint"));
             overlay.sharedMaterial=tintMaterial;overlay.enabled=false;
+            AugmentVfxTag.Mark(overlay.gameObject);AugmentVfxTag.Mark(visual.gameObject);
         }
         void LateUpdate()
         {
@@ -177,7 +178,8 @@ namespace Vampire
             if(burning)
             {
                 overlay.sprite=body.sprite;overlay.flipX=body.flipX;overlay.flipY=body.flipY;
-                overlay.color=new Color(1,.62f,.28f,.25f);
+                overlay.color=new Color(1,.62f,.28f,.25f*body.color.a);
+                StatusTintCycle.Submit(body,overlay,StatusTintKind.Fire);
                 overlay.sortingLayerID=body.sortingLayerID;overlay.sortingOrder=body.sortingOrder+1;
             }
             visual.enabled=burning&&art!=null&&art.burnVfx.Length>0;

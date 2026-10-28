@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 6
   itemRarity: 0
   itemTag: 4
-  description: "\uC801 \uCC98\uCE58 \uC2DC 12% \uD655\uB960\uB85C \uB2E4\uC74C \uAE30\uBCF8
-    \uCE68 \uC801\uC911\uC774 \uD655\uC815 \uCE58\uBA85\uD0C0."
+  description: "적 처치 시 12% 확률로 다음 기본 침 적중이 확정 치명타."
   itemIcon: {fileID: 4141383019745035152, guid: 6da6ade9608919f43a52587297d68d19, type: 3}
   cost: 25
   canBuyInLobby: 1

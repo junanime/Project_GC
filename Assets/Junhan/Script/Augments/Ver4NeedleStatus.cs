@@ -31,6 +31,7 @@ namespace Vampire
         }
         public void Hit(SyringeSpecialRuntime runtime,Character source,LayerMask layer)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             var s=runtime.ver4;
             if(s==null || target==null) return;
             ResolveShatter(runtime,source,layer);
@@ -66,6 +67,7 @@ namespace Vampire
         public int BurnStacks => burnStacks;
         public void ApplyFire(SyringeSpecialRuntime runtime,Character source,bool guaranteed=false)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             var s=runtime.ver4;
             if(s==null || target==null || Ver4HitEffects.Health(target)<=0)return;
             if(s.Has(P.FireNeedle) && (guaranteed || Random.value<.25f))

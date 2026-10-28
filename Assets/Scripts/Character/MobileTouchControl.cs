@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using System.Collections.Generic;
 
 namespace Vampire
 {
@@ -19,6 +20,36 @@ namespace Vampire
         private int contactTouchId;
         private PointerEventData.InputButton contactButton;
         private Camera contactCamera;
+        private readonly List<RaycastResult> touchHits = new List<RaycastResult>();
+        private int? browserContact;
+
+        public bool BrowserTouch(int id, int phase, Vector2 position)
+        {
+            if (phase == 0)
+            {
+                if (!Joystick || !isActiveAndEnabled || Time.timeScale <= 0 || pointer.HasValue || !IsTopTouchTarget(position, out var camera)) return false;
+                browserContact = id;
+                pointer = int.MinValue + id;
+                contactDevice = null;
+                contactCamera = camera;
+                Pressed?.Invoke();
+            }
+            if (browserContact != id) return false;
+            if (phase == 2 || !isActiveAndEnabled || Time.timeScale <= 0) Cancel();
+            else ApplyPosition(position, contactCamera);
+            return true;
+        }
+
+        private bool IsTopTouchTarget(Vector2 position, out Camera camera)
+        {
+            camera = null;
+            if (EventSystem.current == null) return false;
+            touchHits.Clear();
+            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = position }, touchHits);
+            if (touchHits.Count == 0 || touchHits[0].gameObject.GetComponentInParent<MobileTouchControl>() != this) return false;
+            camera = touchHits[0].module.eventCamera;
+            return true;
+        }
 
         public void OnPointerDown(PointerEventData data)
         {
@@ -87,6 +118,11 @@ namespace Vampire
 
         private void LateUpdate()
         {
+            // A browser can deliver a Touchscreen state without a matching UI
+            // pointer-down (focus/orientation transitions). The joystick also
+            // reads fresh contacts directly, while respecting the same UI mask.
+            if (!pointer.HasValue && Joystick && GamePlatform.UsesTouchControls && Time.timeScale > 0)
+                TryBeginTouch();
             if (!pointer.HasValue) return;
             // A dropped pointer-up/end-drag must never leave movement latched.
             // Inspect only the owning contact: another finger can still be holding a skill.
@@ -94,10 +130,31 @@ namespace Vampire
             if (Joystick && contactDevice != null) ApplyPosition(position, contactCamera);
         }
 
+        private void TryBeginTouch()
+        {
+            var screen = Touchscreen.current;
+            var events = EventSystem.current;
+            if (screen == null || events == null) return;
+            foreach (var touch in screen.touches)
+            {
+                if (!touch.press.wasPressedThisFrame || !touch.press.isPressed) continue;
+                Vector2 position = touch.position.ReadValue();
+                if (!IsTopTouchTarget(position, out var camera)) continue;
+                pointer = touch.touchId.ReadValue();
+                contactTouchId = touch.touchId.ReadValue();
+                contactDevice = screen;
+                contactCamera = camera;
+                Pressed?.Invoke();
+                ApplyPosition(position, contactCamera);
+                return;
+            }
+        }
+
         public void Cancel()
         {
             if (!pointer.HasValue) return;
             pointer = null;
+            browserContact = null;
             contactDevice = null;
             contactTouchId = 0;
             contactCamera = null;

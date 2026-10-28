@@ -17,6 +17,7 @@ namespace Vampire
 
         public void Hit(Component victim, int incoming, int stage, float hitDamage, Character owner)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (incoming == 0 || stage <= 0 || Ver4HitEffects.Health(victim) <= 0) return;
             if (Time.time >= expires || source != owner) Clear();
             target = victim;

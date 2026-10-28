@@ -16,7 +16,7 @@ MonoBehaviour:
   octoberId: 37
   itemRarity: 0
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uCE58\uBA85\uD0C0 \uD53C\uD574 +25%."
+  description: "기본 침 치명타 피해 +25%."
   itemIcon: {fileID: 6841342759621447842, guid: 793fca2fd8908db48be791020cddbdf5, type: 3}
   cost: 25
   canBuyInLobby: 1

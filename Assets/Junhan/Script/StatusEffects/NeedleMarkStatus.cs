@@ -50,6 +50,7 @@ namespace Vampire
 
         public void Apply(float duration)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             marked = true;
             expireTime = Time.time + Mathf.Max(0.1f, duration);
 

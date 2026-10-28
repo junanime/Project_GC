@@ -49,6 +49,7 @@ namespace Vampire
         /// </summary>
         public void Apply(float duration, float tickInterval, float tickDamage)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             Apply(
                 duration,
                 tickInterval,
@@ -70,6 +71,7 @@ namespace Vampire
             Character sourceCharacter,
             string damageSourceName)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (targetMonster == null)
             {
                 targetMonster = GetComponent<Monster>() ?? GetComponentInParent<Monster>();

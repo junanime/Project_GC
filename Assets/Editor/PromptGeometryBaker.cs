@@ -34,7 +34,7 @@ public static class PromptGeometryBaker
             if (owner is InteractableEventObject || owner is BloodClotMiniStagePortal || owner is MiniStageReturnInteractable || owner is ExitPortalInteractable)
                 Collect(owner.gameObject);
         // Dynamic field props and animation frames, loaded by their existing Resources keys.
-        foreach (var folder in new[] { "Assets/Resources/OctoberUI", "Assets/Resources/ToadUpdate", "Assets/Resources/Stage2Snails" })
+        foreach (var folder in new[] { "Assets/Resources/OctoberUI", "Assets/Resources/ToadUpdate" })
             if (AssetDatabase.IsValidFolder(folder))
                 foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { folder }))
                     foreach (var sprite in AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GUIDToAssetPath(guid)).OfType<Sprite>()) sprites.Add(sprite);

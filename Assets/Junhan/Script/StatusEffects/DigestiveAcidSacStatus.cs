@@ -34,6 +34,7 @@ namespace Vampire
             float puddleTickInterval,
             Color puddleColor)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             Apply(
                 puddleLifetime,
                 puddleRadius,
@@ -59,6 +60,7 @@ namespace Vampire
             Character sourceCharacter,
             string damageSourceName)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             this.puddleLifetime = Mathf.Max(0.1f, puddleLifetime);
             this.puddleRadius = Mathf.Max(0.1f, puddleRadius);
             this.puddleDamagePerSecond = Mathf.Max(0f, puddleDamagePerSecond);

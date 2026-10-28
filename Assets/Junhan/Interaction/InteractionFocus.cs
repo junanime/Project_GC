@@ -38,6 +38,15 @@ namespace Vampire
                 if(entry.owner==null||!entry.owner.gameObject.activeInHierarchy||entry.available==null||!entry.available())continue;
                 var visual=entry.visualOwner!=null?entry.visualOwner():entry.owner;
                 if(visual==null)continue;
+                // Anatomical openings are terrain-shader landmarks, with no SpriteRenderer.
+                if(visual is StomachOpening opening)
+                {
+                    var a=camera.WorldToScreenPoint(opening.Center-(Vector2)opening.Radii);
+                    var b=camera.WorldToScreenPoint(opening.Center+(Vector2)opening.Radii);
+                    var hit=Rect.MinMaxRect(Mathf.Min(a.x,b.x)-12,Mathf.Min(a.y,b.y)-12,Mathf.Max(a.x,b.x)+12,Mathf.Max(a.y,b.y)+12);
+                    float distance=(hit.center-point).sqrMagnitude;
+                    if(hit.Contains(point)&&distance<closest){closest=distance;target=entry.owner;}
+                }
                 foreach(var sprite in visual.GetComponentsInChildren<SpriteRenderer>())
                 {
                     string name=sprite.name.ToLowerInvariant();

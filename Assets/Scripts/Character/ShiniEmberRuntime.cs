@@ -76,12 +76,12 @@ namespace Vampire
             if(owner.IsPortalTravelling||owner.IsPortalPoseHeld||owner.IsTrapBound||owner.IsDashing){Cancel();return;}
             // A reward freezes the existing cast, including its prepaid time and next fuel tick.
             // Still observe release while paused so dismissing the reward cannot latch the channel.
-            if(keyboardHeld&&(Keyboard.current==null||!Keyboard.current.rKey.isPressed))keyboardHeld=false;
+            if(keyboardHeld&&!GameInput.Held(GameKeyAction.Active))keyboardHeld=false;
             if(pointerHeld&&heldPointer!=null&&(!heldPointer.device.added||!heldPointer.isPressed))ReleasePointer();
             if(IsRewardPaused)return;
             if(Time.timeScale<=0
                 ||(ApothecaryUI.Instance!=null&&ApothecaryUI.Instance.Page!="hud")){Cancel();return;}
-            if(Keyboard.current!=null&&Keyboard.current.rKey.wasPressedThisFrame)Press(true);
+            if(GameInput.Pressed(GameKeyAction.Active))Press(true);
             Advance(Time.deltaTime);UpdateDrops(Time.deltaTime);
         }
         public void Advance(float dt)
@@ -134,9 +134,16 @@ namespace Vampire
             DrawDigits(visible);if(!Busy){pose.enabled=fire.enabled=false;return;}
             int frame=age<Preparation?(age<.12f?1:age<.32f?2:age<.56f?3:4):age<Preparation+.14f?5:CastLoop[(int)((age-Preparation)*7)%4];
             if(stopped>=0&&age-stopped>.1f)frame=age-stopped<.24f?9:age-stopped<.37f?10:11;
-            bool left=direction.x<0;var feet=new Vector3(body.bounds.center.x,body.bounds.min.y,body.transform.position.z);
-            pose.sprite=art.cast[frame];pose.transform.position=feet;pose.transform.localScale=Vector3.one*poseScale;pose.flipX=left;pose.color=body.color;pose.enabled=visible&&body.enabled;body.forceRenderingOff=pose.enabled;
-            var mouth=art.mouths[frame]*poseScale;if(left)mouth.x=-mouth.x;
+            // Keep the authored side animation intact. North/south have their own
+            // beak anchors; rotate only the flame, never the character sprite.
+            bool vertical=Mathf.Abs(direction.y)>Mathf.Abs(direction.x);
+            var frames=vertical?(direction.y>0?art.castUp:art.castDown):art.cast;
+            var anchors=vertical?(direction.y>0?art.mouthsUp:art.mouthsDown):art.mouths;
+            if(frames==null||frames.Length!=art.cast.Length||anchors==null||anchors.Length!=frames.Length)
+            {frames=art.cast;anchors=art.mouths;vertical=false;}
+            bool left=!vertical&&direction.x<0;var feet=new Vector3(body.bounds.center.x,body.bounds.min.y,body.transform.position.z);
+            pose.sprite=frames[frame];pose.transform.position=feet;pose.transform.localScale=Vector3.one*poseScale;pose.flipX=left;pose.color=body.color;pose.enabled=visible&&body.enabled;body.forceRenderingOff=pose.enabled;
+            var mouth=anchors[frame]*poseScale;if(left)mouth.x=-mouth.x;
             if(stopped<0)fireOrigin=feet+(Vector3)mouth;
             float firing=age-Preparation;fire.enabled=visible&&firing>=0;
             if(!fire.enabled)return;

@@ -4,7 +4,7 @@ using UnityEngine.Pool;
 
 namespace Vampire
 {
-    [RequireComponent(typeof(SpriteRenderer), typeof(SpriteAnimator))]
+    [RequireComponent(typeof(SpriteRenderer), typeof(SpriteAnimator)), DefaultExecutionOrder(1100)]
     public sealed class SyringeAugmentVfx : MonoBehaviour
     {
         [SerializeField, Tooltip("Frames ordered left to right, top to bottom.")]
@@ -38,6 +38,8 @@ namespace Vampire
         private ObjectPool<SyringeAugmentVfx> ownerPool;
         private bool leased;
         private float elapsed;
+        private PoisonNeedleVisual poisonBodyVisual;
+        private NeedleAttachmentVisual attachmentVisual;
         public SpriteRenderer Target => target;
         public void SetPhoenixCharge(float charge) { GetComponent<PhoenixRadianceVisual>()?.SetCharge(charge); }
         public void SetPhoenixAmount(float amount) { GetComponent<PhoenixRadianceVisual>()?.SetAmount(amount); }
@@ -99,8 +101,24 @@ namespace Vampire
             instance.transform.localScale = Vector3.one;
             instance.animator.Init(instance.frames, instance.frameTime, false);
             instance.animator.StartAnimation(true);
-            instance.FollowTarget();
-            PhoenixNobleVfx.Attach(instance.visual, effect, instance.loop, instance.frames.Length * instance.frameTime);
+            if (effect == "Poison" || effect == "CorrosionNeedle")
+            {
+                instance.animator.StopAnimation();
+                instance.visual.enabled = false;
+                instance.poisonBodyVisual = instance.GetComponent<PoisonNeedleVisual>() ?? instance.gameObject.AddComponent<PoisonNeedleVisual>();
+                instance.poisonBodyVisual.Bind(target, effect == "CorrosionNeedle");
+            }
+            else if (effect == "GutBacteriaNeedle")
+            {
+                instance.animator.StopAnimation();instance.visual.enabled=false;
+                instance.attachmentVisual=instance.GetComponent<NeedleAttachmentVisual>()??instance.gameObject.AddComponent<NeedleAttachmentVisual>();
+                instance.attachmentVisual.Bind(target);
+            }
+            else
+            {
+                instance.FollowTarget();
+                PhoenixNobleVfx.Attach(instance.visual, effect, instance.loop, instance.frames.Length * instance.frameTime);
+            }
             AugmentVfxTag.Mark(instance.gameObject);
             return instance;
         }
@@ -109,6 +127,16 @@ namespace Vampire
         {
             if (!leased) return;
             elapsed += Time.deltaTime;
+            if(attachmentVisual!=null){visual.enabled=false;attachmentVisual.RefreshVisual(Time.deltaTime);return;}
+            if (poisonBodyVisual != null)
+            {
+                // Both regular monsters and food bosses use this same pooled poison lease.
+                visual.enabled = false;
+                // The owning status releases its lease; hide dead targets without recycling
+                // a reference the status might still hold until its own cleanup.
+                poisonBodyVisual.RefreshVisual(Time.deltaTime);
+                return;
+            }
             if (!loop && elapsed >= frames.Length * frameTime)
             { Release(); return; }
             if (destination != null)
@@ -131,6 +159,8 @@ namespace Vampire
         public static bool IsLiving(Component owner)
         {
             if (owner == null || !owner.gameObject.activeInHierarchy) return false;
+            var food=owner.GetComponentInParent<FoodBossRuntime>();if(food!=null&&food.Dead)return false;
+            var weak=owner.GetComponentInParent<FoodBossWeakpoint>();if(weak!=null&&weak.Health<=0)return false;
             var monster = owner.GetComponentInParent<Monster>();
             if (monster != null && monster.HP <= 0f) return false;
             var part = owner.GetComponentInParent<BossPartDamageTestPart>();
@@ -191,6 +221,7 @@ namespace Vampire
         // Owners keep and release persistent leases; never automatically recycle a referenced loop.
         public void SetStrength(float strength)
         {
+            if(attachmentVisual!=null)attachmentVisual.SetStrength(strength);
             if (visual != null) visual.color = new Color(1f, 1f, 1f, opacity * Mathf.Clamp01(strength));
         }
 

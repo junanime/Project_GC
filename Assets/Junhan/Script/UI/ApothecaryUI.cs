@@ -100,9 +100,11 @@ namespace Vampire
             LobbyLoadoutData.OnChanged += OnLoadout;
             AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
             Show(lobby ? "main" : "hud");
+            if (lobby && Page != "platformError") IntroMovie.TryShow(this);
         }
         void OnDestroy()
         {
+            ReleaseKeyboardEditing();
             SilverWallet.OnChanged -= OnSilver;
             LobbyLoadoutData.OnChanged -= OnLoadout;
             if (Instance == this) Instance = null;
@@ -116,6 +118,13 @@ namespace Vampire
         void OnLoadout() { dirty = true; }
         void Update()
         {
+            if (SteamRuntime.IsSteamBuild && SteamGuardPage(Page) == "platformError")
+            {
+                Time.timeScale = 0;
+                if (Page != "platformError") Show("platformError");
+            }
+            if (IntroMovie.BlocksMenuInput) return;
+            UpdateRanking();
             UpdateSkillUI();
             UpdateBossCompass();
             UpdatePrescriptionUI();
@@ -133,23 +142,27 @@ namespace Vampire
                 if (frames != null && frames.Length > 0)
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
-            if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading) return;
-            if (level != null && GameInput.GetKeyDown(KeyCode.Tab))
+            if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading || level!=null && StageProgression.Ensure(level).Travelling) return;
+            if (UpdateKeyboardSelection()) return;
+            if (level != null && GameInput.Pressed(GameKeyAction.Journal))
             {
                 if (Page == "hud") OpenRunBook();
                 else if (Page == "run") CloseRunBook();
                 else if (Page == "settings") SelectCharacterBookmark();
             }
-            if (GameInput.GetKeyDown(KeyCode.Escape)) Back();
+            if (!GameInput.TextEntryFocused && GameInput.GetKeyDown(KeyCode.Escape)) Back();
         }
         public void Show(string page, int tab = 0)
         {
+            page = SteamGuardPage(page);
             if(page=="settings" && Page!="settings")BeginSettings();
-            Page = page; Tab = tab; selection = page=="prepare"&&tab==0?characterIndex:0;pageIndex=0; message = "";
+            Page = page; Tab = tab;
+            SyncKeyboardEditing(); selection = page=="prepare"&&tab==0?characterIndex:0;pageIndex=0; message = "";
             Render();
         }
         public void Back()
         {
+            if(Page=="bossChoice"){CloseBossChoice();return;}
             if(Page=="supplyRelic"){CloseSupplyRelics(false);return;}
             if(Page=="merchant"){merchant?.CloseShop();return;}
             if (starting || Page == "skillReward" || Page == "result" || (level != null && level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)) return;
@@ -175,9 +188,11 @@ namespace Vampire
             {
                 BuildPrescriptionHud();
                 BuildHudNavigation();
+                if(GamePlatform.UsesTouchControls||MobileGameplayInput.Active)BuildSkillHud();
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
+            if(Page=="bossChoice"){BuildBossChoice();return;}
             if(Page=="merchant"){OctoberMerchant();return;}
             if(Page=="supplyRelic"){OctoberSupplyRelics();return;}
             if(Page=="run" && Tab<4){ExplorationRecord();return;}
@@ -187,6 +202,9 @@ namespace Vampire
             if (!liveFloodResult)
                 ImageAt(content,Page == "main" ? Config.mainBackground : Page=="settings"||Page=="exit"?Config.panelBackground:Config.bookBackground,0,0,1,1,false);
             if (Page == "main") { OctoberMain(); return; }
+            if (Page == "steamImport" || Page == "platformError") { SteamAccountPanel(); return; }
+            if (Page == "rankingName") { RankingName(); return; }
+            if (Page == "rankingInfo") { RankingInfo(); return; }
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "업적 · 해금 도감" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "게임 클리어!" : "아쉽지만 실패!") : Page == "exit" ? "게임 종료" : "설정";
             OctoberFrame(title);
             if (Page == "prepare" || Page == "unlock")
@@ -292,7 +310,7 @@ namespace Vampire
         }
         void ItemSelection()
         {
-            var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
+            var items=ItemOfferPolicy.ForLobby(Config.items);
             if(items.Length==0) { Label(content,"구매 가능한 아이템이 없습니다.",.53f,.4f,.88f,.65f,22);return; }
             selection=Mathf.Clamp(selection,0,items.Length-1);
             Panel(content,.52f,.20f,.88f,.355f);
@@ -314,6 +332,7 @@ namespace Vampire
         }
         void Unlock()
         {
+            var relics=RelicSelectionPolicy.ForLobby(Config.relics);
             string[] tabs={"캐릭터","유물","아이템","증강"};
             for(int i=0;i<4;i++) {int t=i;ActionButton(content,tabs[i],.12f+i*.195f,.745f,.30f+i*.195f,.825f,()=>SwitchTab(t),false,true,Tab==i);}
             string title="",description="",action="해금 완료";Sprite icon=null; Action unlock=null;bool enabled=false;
@@ -326,11 +345,11 @@ namespace Vampire
                 bool owned=Owned(c);action=owned?"선택하고 출전 준비":SilverWallet.CanSpend(c.cost)?$"잠금 해제 · {c.cost} 실버":$"실버 부족 · {c.cost}";enabled=owned||SilverWallet.CanSpend(c.cost);
                 unlock=()=>{if(Owned(c)){character=c;characterIndex=Array.IndexOf(Config.characters,c);CrossSceneData.CharacterBlueprint=c;Show("prepare");return;}if(SilverWallet.TrySpend(c.cost)){LobbyUnlockSave.Unlock("Character",c.name);message="새로운 동료를 해금했습니다.";}Render();};
             }
-            else if(Tab==1 && Config.relics.Length>0)
+            else if(Tab==1 && relics.Length>0)
             {
-                selection=Mathf.Clamp(selection,0,Config.relics.Length-1);
-                Grid(Config.relics.Length,i=>Config.relics[i].icon,i=>Config.relics[i].relicName,.12f,.27f,.56f,.70f);
-                var r=Config.relics[selection];title=r.relicName;description=RelicDescription(r);icon=r.icon;
+                selection=Mathf.Clamp(selection,0,relics.Length-1);
+                Grid(relics.Length,i=>relics[i].icon,i=>relics[i].relicName,.12f,.27f,.56f,.70f);
+                var r=relics[selection];title=r.relicName;description=RelicDescription(r);icon=r.icon;
                 bool owned=RelicSaveData.IsUnlocked(r.relicId);action=owned?"해금 완료":SilverWallet.CanSpend(r.price)?$"잠금 해제 · {r.price} 실버":$"실버 부족 · {r.price}";enabled=!owned&&SilverWallet.CanSpend(r.price);
                 unlock=()=>{if(!RelicSaveData.IsUnlocked(r.relicId)&&SilverWallet.TrySpend(r.price)){RelicSaveData.Unlock(r.relicId);message="출전 준비에서 장착할 수 있습니다.";}Render();};
             }
@@ -338,7 +357,7 @@ namespace Vampire
             {
                 selection=Mathf.Clamp(selection,0,Config.items.Length-1);
                 Grid(Config.items.Length,i=>Config.items[i].itemIcon,i=>Config.items[i].itemName,.12f,.27f,.56f,.70f);
-                var item=Config.items[selection];title=item.itemName;description=item.description+"\n출전 준비에서 실버로 구매합니다.";icon=item.itemIcon;action="사용 가능";
+                var item=Config.items[selection];title=item.itemName;description=item.description+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
             }
             else if(Tab==3 && Config.augments.Length>0)
             {
@@ -382,7 +401,7 @@ namespace Vampire
         public void OpenRunBook()
         {
             var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
-            if(level==null || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
+            if(level==null || StageProgression.Ensure(level).Travelling || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
             if(reward!=null && reward.MenuOpen)reward.SetCoveredByRunBook(true);
             previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("run");
         }
@@ -401,7 +420,7 @@ namespace Vampire
             if(Tab==4) ConsumableBook();
             else if(Tab==5) GuideBook();
             Label(content,$"이번 탐험 골드  {(stats!=null?stats.CoinsGained:0):N0}",.55f,.08f,.85f,.15f,21);
-            ActionButton(content,"닫기 / TAB",.12f,.07f,.32f,.15f,CloseRunBook);
+            ActionButton(content,$"닫기 / {GameInput.Label(GameKeyAction.Journal)}",.12f,.07f,.32f,.15f,CloseRunBook);
             ActionButton(content,"설정",.35f,.07f,.49f,.15f,()=>Show("settings"));
         }
         public static bool TryShowResult(bool success)

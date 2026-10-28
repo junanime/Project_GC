@@ -12,13 +12,16 @@ namespace Vampire
             {
                 yield return null;
                 Vector2 direction=left?Vector2.right:Vector2.left;
-                lane=AcidJetTelegraph.Make(panel.MouthWorld,direction,screen.width,Mathf.Clamp(width,1,2));
+                // Portrait is screen-anchored. Snapshot its mouth once: warning and wave
+                // must share the same WORLD path even when the camera follows the player.
+                Vector2 from=panel.MouthWorld;
+                Vector2 end=from+direction*(screen.width+2);
+                lane=AcidJetTelegraph.Make(from,direction,screen.width+2,Mathf.Clamp(width,1,2));
                 GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.DangerWave);
                 panel.Sample(9);yield return ChameleonTime.Wait(Mathf.Max(.9f,warning)*.5f);
                 panel.Sample(10);yield return ChameleonTime.Wait(Mathf.Max(.9f,warning)*.5f);
                 Object.Destroy(lane.gameObject);panel.Sample(11);
-                Vector2 from=panel.MouthWorld;
-                wave=ChameleonSodaWave.Fire(from,from+direction*(screen.width+2),Mathf.Max(1.4f,duration),Mathf.Clamp(width,1,2),damage,player,true,cooldown);
+                wave=ChameleonSodaWave.Fire(from,end,Mathf.Max(1.4f,duration),Mathf.Clamp(width,1,2),damage,player,true,cooldown);
                 GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.AcidRefluxWavePass);
                 yield return ChameleonTime.Wait(.5f);panel.Sample(12);
                 while(wave!=null)yield return null;

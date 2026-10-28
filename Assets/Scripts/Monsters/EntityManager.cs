@@ -61,11 +61,20 @@ namespace Vampire
         public Inventory Inventory { get => inventory; }
         public AbilitySelectionDialog AbilitySelectionDialog { get; private set; }
         private LevelBlueprint remakeLevel;
+        private LevelManager barrierRunLevel;
         public SpatialHashGrid Grid { get => grid; }
 
         public Monster SpawnOverchargeElite(Vector2 position)
         {
             if (remakeLevel == null || MiniStageRuntimeState.IsInsideMiniStage) return null;
+            if(ColonMonsterRoster.InColon)
+            {
+                var roster=ColonMonsterRoster.Active;
+                var owner=barrierRunLevel!=null?barrierRunLevel:FindObjectOfType<LevelManager>();
+                int normal=remakeLevel.monsterSpawnTable.SelectMonster(owner!=null?owner.GetNormalizedLevelTime():0);
+                if(roster.TryEliteIndex(normal,out int elite))
+                    return SpawnMonster(roster.PoolIndex,position,roster.Elites[elite-roster.NormalFlatStart-8].blueprint,0,false);
+            }
             for (int i=0;i<remakeLevel.monsters.Length;i++)
                 foreach(var blueprint in remakeLevel.monsters[i].monsterBlueprints)
                     if(blueprint is EliteMonsterBlueprint)
@@ -75,6 +84,7 @@ namespace Vampire
         public void Init(LevelBlueprint levelBlueprint, Character character, Inventory inventory, StatsManager statsManager, InfiniteBackground infiniteBackground, AbilitySelectionDialog abilitySelectionDialog)
         {
             remakeLevel = levelBlueprint;
+            barrierRunLevel = GetComponent<LevelManager>() ?? FindObjectOfType<LevelManager>();
             this.playerCharacter = character;
             this.inventory = inventory;
             this.infiniteBackground = infiniteBackground;
@@ -127,15 +137,15 @@ namespace Vampire
         {
             int oldCount = monsterPools.Length - 1;
             // Keep pool indices referenced by special events. Append the new normal pool before the boss pool.
-            if (next.monsters.Length != oldCount + 1) throw new System.InvalidOperationException("Expected one additional stage monster pool.");
+            if (next.monsters.Length != oldCount && next.monsters.Length != oldCount + 1) throw new System.InvalidOperationException("Incompatible stage monster pools.");
             foreach (var monster in monsterPoolParent.GetComponentsInChildren<Monster>())
                 if (monster.gameObject.activeSelf) monster.DespawnForStageTransfer();
             foreach (var projectile in OctoberEnemyProjectile.Active.ToArray())
                 if (projectile != null && projectile.IsHostile) projectile.Remove();
             var pools = new MonsterPool[next.monsters.Length + 1];
             System.Array.Copy(monsterPools, pools, oldCount);
-            pools[oldCount] = monsterPoolParent.AddComponent<MonsterPool>();
-            pools[oldCount].Init(this, playerCharacter, next.monsters[oldCount].monstersPrefab);
+            if(next.monsters.Length>oldCount){pools[oldCount] = monsterPoolParent.AddComponent<MonsterPool>();
+            pools[oldCount].Init(this, playerCharacter, next.monsters[oldCount].monstersPrefab);}
             pools[pools.Length - 1] = monsterPools[monsterPools.Length - 1];
             monsterPools = pools; remakeLevel = next;
         }
@@ -209,12 +219,15 @@ namespace Vampire
         /// Monster Spawning
         ////////////////////////////////////////////////////////////////////////////////
         // UFO bosses own their five-core health and rewards; they are not MonsterPool entries.
-        public GameObject SpawnFinalBoss(LevelBlueprint blueprint, Vector2 position, float hpBuff = 0f)
+        public GameObject SpawnFinalBoss(LevelBlueprint blueprint, Vector2 position, float hpBuff = 0f, FoodBossKind? selectedBoss = null)
         {
             if (ShouldBlockFieldMonsterSpawn(false) || blueprint == null ||
                 blueprint.finalBoss == null || blueprint.finalBoss.bossPrefab == null) return null;
             GameObject prefab = blueprint.finalBoss.bossPrefab;
             position = FiniteStomachMap.SafeSpawn(position, 2f);
+            var level = GetComponent<LevelManager>() ?? FindObjectOfType<LevelManager>();
+            if (prefab.GetComponent<SnailBossRuntime>() != null)
+                return FoodBossRuntime.Spawn(selectedBoss ?? (FoodBossKind)Random.Range(0,5), playerCharacter, position, transform).gameObject;
             if (prefab.GetComponent<Monster>() != null)
             {
                 Monster monster = SpawnMonster(blueprint.monsters.Length, position,
@@ -307,6 +320,12 @@ namespace Vampire
                 return null;
             }
 
+            var colon = ColonMonsterRoster.InColon && !allowDuringMiniStage ? ColonMonsterRoster.Active : null;
+            if (colon != null)
+            {
+                if (!colon.Allowed(monsterBlueprint)) return null;
+                monsterBlueprint = colon.Resolve(monsterBlueprint);
+            }
             if (monsterBlueprint is SniperMonsterBlueprint)
             {
                 int snipers=0;
@@ -315,6 +334,7 @@ namespace Vampire
                 if (snipers>=5) return null;
             }
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
+            newMonster.GetComponent<ColonMonsterVisual>()?.ResetForPool();
             position = FiniteStomachMap.SafeSpawn(position, .8f, allowDuringMiniStage);
 
             // 중요:
@@ -331,6 +351,8 @@ namespace Vampire
                 monsterBlueprint,
                 hpBuff
             );
+            if (colon != null && colon.TryGet(monsterBlueprint, out var colonEntry))
+                (newMonster.GetComponent<ColonMonsterVisual>() ?? newMonster.gameObject.AddComponent<ColonMonsterVisual>()).Configure(newMonster, colonEntry);
             newMonster.ConfigureGroundShadow(monsterBlueprint);
             newMonster.FitVisibleBody();
 
@@ -342,6 +364,7 @@ namespace Vampire
             var spawnBody=newMonster.GetComponent<Rigidbody2D>();
             if(spawnBody!=null)spawnBody.position=safePosition;
 
+            MonsterNeedleBarrier.ConfigureSpawn(newMonster, barrierRunLevel != null ? barrierRunLevel.CurrentLevelTime : 0);
             grid.InsertClient(newMonster);
 
             if (!allowDuringMiniStage)
@@ -356,7 +379,9 @@ namespace Vampire
                 return false;
             }
 
-            return MiniStageRuntimeState.IsInsideMiniStage || (playerCharacter != null && playerCharacter.IsPortalTravelling && FindObjectOfType<LevelManager>()?.IsRunFlowPaused == true);
+            var level=barrierRunLevel ?? FindObjectOfType<LevelManager>();
+            bool placing=level!=null&&level.GetComponent<FieldObjectLayout>()?.IsPlacing==true;
+            return MiniStageRuntimeState.IsInsideMiniStage || (!placing&&playerCharacter != null && playerCharacter.IsPortalTravelling && level?.IsRunFlowPaused == true);
         }
         /// <summary>
         /// 현재 살아있는 메인 필드 몬스터들의 행동을

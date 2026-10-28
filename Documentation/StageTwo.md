@@ -1,5 +1,7 @@
 # Stage 2 — whipped cream field
 
+> Historical specification: this cream/snail version was retired on 2026-10-21. It is not restored. The approved new colon stage is documented in [ColonStage.md](ColonStage.md).
+
 Stage 1's roll-cake snail now melts into a 4.8-unit crater and drops three regular ability-selection chests. The run continues until the player chooses to interact with the crater. Both E and the existing mobile interaction control use the shared interaction focus system. The same BloodClotTravel rig selects Ashi, Ari, Hyuki or Shini from the current character blueprint and performs both entry and landing.
 
 The transition remains in Level 1's scene. It does **not** call Character.Init, Inventory.Init, AbilityManager.Init or restore a lossy scene-transfer snapshot. The same character, skills, augments, relic runtime (including consumed revival), consumables, merchant item runtime, experience, silver and statistics remain alive. Existing ground loot and unopened chests remain available. Old field monsters despawn without kills/rewards; hostile projectiles are cleared. Special-event schedules, field minis, the toad encounter and final-boss altar restart. Stage 2 gets a fresh 900-second clock and the existing roll-cake boss. Its final defeat ends the run; there is no Stage 3 yet.

@@ -2068,7 +2068,6 @@ GameObject:
   - component: {fileID: 349207337}
   - component: {fileID: 349207339}
   - component: {fileID: 349207338}
-  - component: {fileID: 349207340}
   m_Layer: 5
   m_Name: MapPanelRoot
   m_TagString: Untagged
@@ -2134,18 +2133,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 349207336}
   m_CullTransparentMesh: 1
---- !u!114 &349207340
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 349207336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddb300e4921cee241a1bc02690849b1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &349216542
 GameObject:
   m_ObjectHideFlags: 0
@@ -8981,7 +8968,6 @@ GameObject:
   - component: {fileID: 724292431}
   - component: {fileID: 724292430}
   - component: {fileID: 724292429}
-  - component: {fileID: 724292428}
   - component: {fileID: 724292432}
   m_Layer: 5
   m_Name: MapViewport
@@ -9010,18 +8996,6 @@ RectTransform:
   m_AnchoredPosition: {x: -2.0897, y: -19.375}
   m_SizeDelta: {x: 356.18, y: 138.75}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &724292428
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 724292426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4ae0942c7582ce42a55065bf83e6442, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &724292429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14687,8 +14661,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 831548137}
         m_TargetAssemblyTypeName: Gamania.Vampire.InventorySlot, Assembly-CSharp
-        m_MethodName: UseItem
-        m_Mode: 1
+        m_MethodName: UseInputItem
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -14703,8 +14677,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 813137308}
         m_TargetAssemblyTypeName: Gamania.Vampire.InventorySlot, Assembly-CSharp
-        m_MethodName: UseItem
-        m_Mode: 1
+        m_MethodName: UseInputItem
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -14719,8 +14693,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 322022559}
         m_TargetAssemblyTypeName: Gamania.Vampire.InventorySlot, Assembly-CSharp
-        m_MethodName: UseItem
-        m_Mode: 1
+        m_MethodName: UseInputItem
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -14735,8 +14709,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2082455970}
         m_TargetAssemblyTypeName: Gamania.Vampire.InventorySlot, Assembly-CSharp
-        m_MethodName: UseItem
-        m_Mode: 1
+        m_MethodName: UseInputItem
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

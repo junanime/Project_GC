@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 49
   itemRarity: 2
   itemTag: 4
-  description: "7\uCD08\uB9C8\uB2E4 \uC804\uBC29 2 \uAC70\uB9AC\uC5D0 1.5\uCD08 \uD761\uC785
-    \uC9C0\uB300 \uC0DD\uC131."
+  description: "7초마다 전방 2 거리에 1.5초 흡입 지대 생성."
   itemIcon: {fileID: -7340989892173105321, guid: 5fd4b26621d6df843b6ee48517d1554f, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

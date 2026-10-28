@@ -38,7 +38,7 @@ namespace Vampire.Tests
                 var runtime=needle.GetCurrentSpecialRuntime();
                 Check(skill.Definition.passiveName=="하다보면"&&skill.Definition.passiveIcon.name=="HyukiHadaBomyeon","new passive name and icon connected");
                 Check(runtime.ver4.Has(SyringeSpecialAugmentAbility.SpecialAugmentType.IceNeedle),"starts with ice needle");
-                Check(player.Blueprint.idleSpriteSequence.Length==8&&player.Blueprint.dashSpriteSequence.Length==8,"eight idle and dash frames");
+                Check(player.Blueprint.idleSpriteSequence.Length==16&&player.Blueprint.dashSpriteSequence.Length==8,"sixteen approved idle and eight dash frames");
                 float ppu=player.Blueprint.walkSpriteSequence[0].pixelsPerUnit;
                 Check(player.Blueprint.idleSpriteSequence.Concat(player.Blueprint.dashSpriteSequence).All(s=>Mathf.Abs(s.pixelsPerUnit-ppu)<.001f),"walk idle dash share exact pixel scale");
                 Check(player.Blueprint.idleSpriteSequence.All(s=>s.pivot==player.Blueprint.idleSpriteSequence[0].pivot),"all idle frames share fixed ground pivot");

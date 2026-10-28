@@ -8,7 +8,7 @@ if (!['localhost','127.0.0.1'].includes(new URL(url).hostname)) throw Error('QA 
 const output = process.argv[3] || path.resolve('Library/WebDemoBrowserQA');
 fs.mkdirSync(output,{recursive:true});
 (async()=>{
-  const browser = await chromium.launch({channel:'chrome',headless:true});
+  const browser = await chromium.launch({channel:'chrome',headless:true,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
   const page = await browser.newPage({viewport:{width:1280,height:900}});
   const logs = [];
   page.on('console',m=>{ const row={type:m.type(),text:m.text()}; logs.push(row); if(row.type==='error'||row.text.includes('[WebDemo]')) console.log(JSON.stringify(row)); });
@@ -22,12 +22,13 @@ fs.mkdirSync(output,{recursive:true});
     console.log(JSON.stringify({screenshot:file,loading:await page.locator('#loading').isVisible(),status:await page.locator('#status').textContent(),logs:logs.splice(0)}));
   }
   await state();
-  console.log('READY: JSON commands state, click(x,y), press(key), down(key), up(key), reload, close.');
+  console.log('READY: JSON commands state, click(x,y), wheel(x,y,delta), press(key), down(key), up(key), reload, close.');
   let queue=Promise.resolve();
   const rl=readline.createInterface({input:process.stdin});
   rl.on('line',line=>queue=queue.then(async()=>{
     const cmd=JSON.parse(line);
     if(cmd.action==='click')await page.mouse.click(cmd.x,cmd.y);
+    else if(cmd.action==='wheel'){await page.mouse.move(cmd.x,cmd.y);await page.mouse.wheel(0,cmd.delta);await page.waitForTimeout(250);}
     else if(cmd.action==='press')await page.keyboard.press(cmd.key);
     else if(cmd.action==='down')await page.keyboard.down(cmd.key);
     else if(cmd.action==='up')await page.keyboard.up(cmd.key);

@@ -17,7 +17,7 @@ namespace Vampire.Editor
                 EditorUserBuildSettings.webGLBuildSubtarget = WebGLTextureSubtarget.ASTC;
                 foreach (var path in new[] {
                     "Assets/Junhan/Art/AshiSkills/marathon-wind-sheet.png",
-                    "Assets/Junhan/Art/CharacterDesigns/Hyuki_Captured.png",
+                    "Assets/Junhan/Art/CharacterDesigns/Hyuki_ApprovedCaptured.png",
                     "Assets/Resources/ToadUpdate/AcidFx.png" })
                 {
                     var original = File.ReadAllBytes(path + ".meta");

@@ -93,8 +93,9 @@ namespace Vampire
         protected override void OnTick()
         {
             if (levelManager != null && levelManager.UsesInitialFieldLayout) return;
-            if (enableForceSpawnKey && Vampire.GameInput.GetKeyDown(forceSpawnKey))
+            if (enableForceSpawnKey && Vampire.GameInput.DebugPressed(forceSpawnKey))
             {
+                RunScore.Exclude("혈전 소환 테스트");
                 SpawnBloodClot();
                 return;
             }

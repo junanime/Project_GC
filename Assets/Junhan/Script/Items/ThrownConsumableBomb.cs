@@ -33,8 +33,13 @@ namespace Vampire
         }
         void Explode()
         {
+            var damagedBosses=new System.Collections.Generic.HashSet<int>();
             foreach(var hit in Physics2D.OverlapCircleAll(Target,BombTargeting.Radius,LayerMask.GetMask("Monster Full")))
+            {
                 hit.GetComponentInParent<CurrencyJar>()?.TakeDamage(damage);
+                if(NeedleTargeting.IsValidBossTarget(hit,~0))
+                {var b=hit.GetComponentInParent<IDamageable>();if(damagedBosses.Add(b.GetInstanceID())){float before=Ver4HitEffects.Health(b);b.TakeDamage(damage);AugmentDamageTracker.Instance?.RecordDamage("폭탄",Mathf.Max(0,before-Ver4HitEffects.Health(b)));}}
+            }
             foreach(var monster in entities.LivingMonsters.ToArray())
             {
                 if(!NeedleTargeting.IsValid(monster,~0))continue;

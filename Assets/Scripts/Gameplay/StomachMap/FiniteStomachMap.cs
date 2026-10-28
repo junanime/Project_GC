@@ -17,6 +17,21 @@ namespace Vampire
         {
             get { if(level==null)return false;if(progression==null)progression=level.GetComponent<StageProgression>();return progression==null || progression.StageNumber==1; }
         }
+        public bool FieldActive => level != null && (progression == null || progression.StageNumber <= 2);
+        public bool IsColon => Definition != null && Definition.colon;
+        public Vector4 OpeningShape(bool upper) => upper ? Definition.inlet : Definition.outlet;
+        public void ChangeDefinition(StomachMapDefinition definition)
+        {
+            foreach(var opening in GetComponentsInChildren<StomachOpening>()) { opening.gameObject.SetActive(false); Destroy(opening.gameObject); }
+            foreach(var c in chunks) { c.SetActive(false); Destroy(c); } chunks.Clear();
+            foreach(var mesh in meshes) Destroy(mesh); meshes.Clear();
+            if(material!=null)Destroy(material);
+            if(distanceTexture!=null)Destroy(distanceTexture);
+            if(wallCoordinateTexture!=null)Destroy(wallCoordinateTexture);
+            var previous=WorldRect;
+            Definition=definition; boundaryLength=0; Build(previous.min);
+            nextOverview=0;
+        }
         public float WallWidth => Definition.wallWidth;
         public float ClimbLimit => Mathf.Max(.5f, WallWidth-Definition.climbableWidth);
         public Material TerrainMaterial => material;
@@ -47,11 +62,11 @@ namespace Vampire
             map.Build(); return map;
         }
 
-        void Build()
+        void Build(Vector2? fixedOrigin = null)
         {
             Instance=this;
             Vector2 size=Definition.Size;
-            Vector2 origin=(Vector2)level.PlayerCharacter.transform.position-Vector2.Scale(Definition.startUV,size);
+            Vector2 origin=fixedOrigin ?? (Vector2)level.PlayerCharacter.transform.position-Vector2.Scale(Definition.startUV,size);
             WorldRect=new Rect(origin,size);
             material=new Material(Definition.terrainMaterial) { name="Finite Stomach (Runtime)", hideFlags=HideFlags.DontSave };
             material.SetVector("_MapRect",new Vector4(origin.x,origin.y,size.x,size.y));
@@ -82,8 +97,9 @@ namespace Vampire
             }
             BuildDistanceField();
             StomachSlopeBody.Ensure(level.PlayerCharacter.gameObject);
-            if(legacy!=null)
+            if(legacy!=null && !legacySuppressed)
             {
+                legacySuppressed=true;
                 legacyEnabled=legacy.enabled; legacyRenderer=legacy.GetComponent<Renderer>();
                 legacyRendererEnabled=legacyRenderer!=null && legacyRenderer.enabled;
                 legacy.enabled=false; if(legacyRenderer!=null)legacyRenderer.enabled=false;
@@ -94,11 +110,13 @@ namespace Vampire
         }
 
         public Vector2 UVToWorld(Vector2 uv) => WorldRect.min+Vector2.Scale(uv,WorldRect.size);
+        bool legacySuppressed;
 
         // A smooth closed outline just inside the outer rim. Both anatomical openings remain
         // visual landmarks until their travel mechanics are designed; they are not stage portals.
         Vector2[] CreateBoundary()
         {
+            if(IsColon)return ColonMapGeometry.Outer(this);
             Vector2[] uv={new Vector2(.032f,.49f),new Vector2(.055f,.70f),new Vector2(.13f,.85f),
                 new Vector2(.245f,.927f),new Vector2(.37f,.87f),new Vector2(.445f,.79f),
                 new Vector2(.50f,.735f),new Vector2(.56f,.735f),new Vector2(.655f,.80f),
@@ -121,6 +139,7 @@ namespace Vampire
 
         public bool Contains(Vector2 p)
         {
+            if(IsColon)return ColonMapGeometry.Contains(this,p);
             bool inside=false;
             for(int i=0,j=boundary.Length-1;i<boundary.Length;j=i++)
             {
@@ -147,6 +166,7 @@ namespace Vampire
 
         float ExactDistance(Vector2 p,out Vector2 inward,out float along)
         {
+            if(IsColon)return ColonMapGeometry.Distance(this,p,out inward,out along);
             along=0;
             bool inside=Contains(p); float nearest=float.MaxValue; Vector2 result=p; inward=Vector2.zero;
             for(int i=0;i<boundary.Length;i++)
@@ -215,7 +235,7 @@ namespace Vampire
         }
         public float SlopeProgress(Vector2 p) => Mathf.Clamp01((WallWidth-DistanceToRim(p,out _))/Definition.climbableWidth);
         public static float UphillMultiplier(float progress) => progress<=.5f ? Mathf.Lerp(1,.5f,Mathf.SmoothStep(0,1,progress*2)) : Mathf.Lerp(.5f,.1f,Mathf.SmoothStep(0,1,(progress-.5f)*2));
-        public bool AppliesAt(Vector2 p) => StageOne && !MiniStageRuntimeState.IsInsideMiniStage && Vector2.Distance(p,WorldRect.center)<WorldRect.width;
+        public bool AppliesAt(Vector2 p) => FieldActive && !MiniStageRuntimeState.IsInsideMiniStage && Vector2.Distance(p,WorldRect.center)<WorldRect.width;
         public static Vector2 ClampDash(Vector2 from,Vector2 to,float radius=.25f)
         {
             var map=Instance;if(map==null || !map.AppliesAt(from))return to;
@@ -236,7 +256,7 @@ namespace Vampire
         public static Vector2 SafeSpawn(Vector2 position,float radius=.5f,bool miniStageOwned=false)
         {
             var map=Instance;
-            if(map==null || !map.StageOne || miniStageOwned || MiniStageRuntimeState.IsInsideMiniStage)return position;
+            if(map==null || !map.FieldActive || miniStageOwned || MiniStageRuntimeState.IsInsideMiniStage)return position;
             // Room OnInit may run during the portal animation, before the global entered flag.
             if(map.level.IsRunFlowPaused && !map.AppliesAt(position))return position;
             // Interactables and stationary snipers start on the flat floor, not an inaccessible slope.
@@ -289,10 +309,10 @@ namespace Vampire
         void LateUpdate()
         {
             if(level==null || Definition==null) return;
-            if(overviewTexture!=null && ApothecaryUI.Instance!=null && ApothecaryUI.Instance.Page=="run" && StageOne &&
+            if(overviewTexture!=null && ApothecaryUI.Instance!=null && ApothecaryUI.Instance.Page=="run" && FieldActive &&
                 !MiniStageRuntimeState.IsInsideMiniStage && Time.unscaledTime>=nextOverview)CaptureOverview();
             var stage=level.GetComponent<StageProgression>();
-            bool stageOne=stage==null || stage.StageNumber==1;
+            bool stageOne=FieldActive;
             var player=level.PlayerCharacter;
             // Mini-stage rooms are separate islands at the existing anchor, not inside the stomach.
             bool atField=stageOne && player!=null && Vector2.Distance(player.transform.position,WorldRect.center)<WorldRect.width;
@@ -305,7 +325,7 @@ namespace Vampire
                 legacy.enabled=stageOne?false:legacyEnabled;
                 if(legacyRenderer!=null)legacyRenderer.enabled=!stageOne && legacyRendererEnabled;
             }
-            if(!atField || player.IsPortalTravelling || MiniStageRuntimeState.IsInsideMiniStage || level.IsRunFlowPaused) return;
+            if(!atField || player.IsPortalTravelling || player.IsPortalPoseHeld || MiniStageRuntimeState.IsInsideMiniStage || level.IsRunFlowPaused) return;
             var body=player.GetComponent<Rigidbody2D>();
             Vector2 position=player.transform.position;
             var collider=player.GetComponent<Collider2D>();

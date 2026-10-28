@@ -14,7 +14,7 @@ namespace Vampire
             }
 
             string key = GetKey(category, id);
-            return PlayerPrefs.GetInt(key, defaultUnlocked ? 1 : 0) == 1;
+            return ProgressPrefs.GetInt(key, defaultUnlocked ? 1 : 0) == 1;
         }
 
         public static void Unlock(string category, string id)
@@ -27,8 +27,8 @@ namespace Vampire
             }
 
             string key = GetKey(category, id);
-            PlayerPrefs.SetInt(key, 1);
-            PlayerPrefs.Save();
+            ProgressPrefs.SetInt(key, 1);
+            ProgressPrefs.Save();
         }
 
         public static void Lock(string category, string id)
@@ -39,8 +39,8 @@ namespace Vampire
             }
 
             string key = GetKey(category, id);
-            PlayerPrefs.DeleteKey(key);
-            PlayerPrefs.Save();
+            ProgressPrefs.DeleteKey(key);
+            ProgressPrefs.Save();
         }
 
         private static string GetKey(string category, string id)

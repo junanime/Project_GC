@@ -31,7 +31,7 @@ namespace Vampire.Editor
                 if (importer.textureType != TextureImporterType.Sprite && importer.textureType != TextureImporterType.Default) continue;
                 importer.GetSourceTextureWidthAndHeight(out int width, out int height);
                 // Tiny pixel icons stay lossless. Preserve source dimensions, filtering and sprite slicing.
-                if ((long)width * height < 262144) continue;
+                if ((long)width * height < 65536) continue;
                 // DXT needs block-aligned dimensions. ASTC pads its edge blocks and
                 // supports the original NPOT dimensions: do not skip mobile sprites.
                 bool nonBlockAligned = width % 4 != 0 || height % 4 != 0;
@@ -58,14 +58,14 @@ namespace Vampire.Editor
                     if (!settings.overridden) settings.maxTextureSize = importer.maxTextureSize;
                     settings.overridden = true;
                     settings.format = mobile ? TextureImporterFormat.ASTC_4x4 :
-                        (importer.DoesSourceTextureHaveAlpha() ? TextureImporterFormat.DXT5 : TextureImporterFormat.DXT1);
+                        (importer.DoesSourceTextureHaveAlpha() ? TextureImporterFormat.DXT5Crunched : TextureImporterFormat.DXT1Crunched);
                     settings.textureCompression = TextureImporterCompression.CompressedHQ;
                     settings.compressionQuality = mobile ? 50 : 100;
-                    settings.crunchedCompression = false;
+                    settings.crunchedCompression = !mobile;
                     importer.SetPlatformTextureSettings(settings);
                     // Runtime body geometry is precomputed. The game does not read
                     // pixels from these imported textures, so no CPU copy is needed.
-                    if (mobile) importer.isReadable = false;
+                    importer.isReadable = false;
                     AssetDatabase.WriteImportSettingsIfDirty(entry.path);
                     AssetDatabase.ImportAsset(entry.path, ImportAssetOptions.ForceUpdate);
                 }

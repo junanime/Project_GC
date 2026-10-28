@@ -73,7 +73,7 @@ namespace Vampire
         static TutorialGuide.Entry Entry(InventorySlot slot) => TutorialGuide.Instance?.Entries.FirstOrDefault(e=>e.id=="item/"+Id(slot));
         public static string Title(InventorySlot slot) => Entry(slot)?.title ?? (Id(slot)=="bomb"?"폭탄":Id(slot)=="health"?"체력 회복":Id(slot)=="magnet"?"자석":"몬스터 증식 물약");
         public static string ShortTitle(InventorySlot slot) => Id(slot)=="bomb"?"폭탄":Id(slot)=="health"?"회복":Id(slot)=="magnet"?"자석":"증식 물약";
-        public static string Keys(int index) => index>=0&&index<4?$"{index+1} / {"ZXCV"[index]}":"약함 터치";
+        public static string Keys(int index) => index>=0&&index<4?GameInput.Label(GameKeyAction.Slot1+index):"약함 터치";
         public static string Body(InventorySlot slot,int index)
         {
             string description=Entry(slot)?.what;

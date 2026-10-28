@@ -73,8 +73,16 @@ namespace Vampire
                 closest = distance;
                 target = monster;
             }
-            if (target == null) return lastNeedleDirection;
-            Vector2 direction = NeedleTargeting.Position(target) - origin;
+            Vector2 targetPoint=target!=null?NeedleTargeting.Position(target):origin;
+            bool found=target!=null;
+            foreach(var hit in Physics2D.OverlapCircleAll(origin,range,monsterLayer))
+            {
+                if(!NeedleTargeting.IsValidBossTarget(hit,monsterLayer))continue;
+                float distance=((Vector2)hit.ClosestPoint(origin)-origin).sqrMagnitude;
+                if(distance>closest)continue;closest=distance;targetPoint=hit.bounds.center;found=true;
+            }
+            if(!found)return lastNeedleDirection;
+            Vector2 direction = targetPoint - origin;
             if (direction.sqrMagnitude > .0001f) lastNeedleDirection = direction.normalized;
             return lastNeedleDirection;
         }

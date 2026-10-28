@@ -74,7 +74,7 @@ namespace Vampire
         void Update()
         {
             if(!CanUse){if(Aiming)Cancel();return;}
-            if(GameInput.GetKeyDown(KeyCode.Alpha1)||GameInput.GetKeyDown(KeyCode.Z))
+            if(GameInput.Pressed(GameKeyAction.Slot1))
             {
                 var bomb=inventory.Slots.FirstOrDefault(s=>s.IsBomb);if(bomb!=null)ThrowAutomatic(bomb);return;
             }
@@ -130,6 +130,10 @@ namespace Vampire
                 var point=NeedleTargeting.Position(monster);var v=camera.WorldToViewportPoint(point);
                 if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(point);
             }
+            foreach(var boss in Object.FindObjectsOfType<FoodBossRuntime>())
+                if(!boss.Dead&&boss.GetComponent<Collider2D>().enabled){var p=(Vector2)boss.transform.position;var v=camera.WorldToViewportPoint(p);if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(p);}
+            foreach(var weak in Object.FindObjectsOfType<FoodBossWeakpoint>())
+                if(weak.Health>0){var p=(Vector2)weak.transform.position;var v=camera.WorldToViewportPoint(p);if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(p);}
             return DensestCenter(points,origin,Radius);
         }
         // Spatial buckets bound the search to nearby enemies, even late in a crowded run.

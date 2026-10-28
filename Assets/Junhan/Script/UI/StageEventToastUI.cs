@@ -26,6 +26,7 @@ namespace Vampire
         private bool showing;
         private bool emergency;
         public const string AcidEmergencyText = "위산이 분비되고 있습니다!";
+        public void ResetForStage(){pending.Clear();showing=false;age=0;if(bannerGroup!=null)bannerGroup.alpha=0;}
         public void ShowAcidEmergency()
         {
             HideLegacyPanel(); EnsureBanner();

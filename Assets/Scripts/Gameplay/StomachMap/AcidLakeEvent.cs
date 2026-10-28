@@ -42,6 +42,7 @@ namespace Vampire
         // Does not advance the boss, monster, capsule or other run schedules.
         public void StartDebugFlood()
         {
+            RunScore.Exclude("위산 이벤트 테스트");
             if (!Active || level.IsLevelEnded || level.IsRunFlowPaused || MiniStageRuntimeState.IsInsideMiniStage) return;
             debugOffset = Mathf.Max(debugOffset, FloodTime - level.CurrentLevelTime);
             EventTime = Mathf.Max(EventTime, FloodTime);
@@ -57,21 +58,24 @@ namespace Vampire
         void Update()
         {
             if (!Active) { if (visual != null) visual.SetVisible(false); return; }
-            if (Keyboard.current != null && Keyboard.current.equalsKey.wasPressedThisFrame && Time.timeScale > 0) StartDebugFlood();
+            if (GameInput.DebugPressed(KeyCode.Equals) && Time.timeScale > 0) StartDebugFlood();
             bool paused = level.IsRunFlowPaused || MiniStageRuntimeState.IsInsideMiniStage;
             float dt = level.IsLevelEnded ? Time.unscaledDeltaTime : paused ? 0 : Time.deltaTime;
             if (level.IsLevelEnded) EventTime += dt;
             else if (!paused) EventTime = Mathf.Max(EventTime, level.CurrentLevelTime + debugOffset);
-            VisualTime += dt;
+            float visualDt=paused&&level.GetComponent<StageProgression>()?.Travelling==true?Time.deltaTime:dt;
+            VisualTime += visualDt;
             if (Raining && !warned && !level.IsLevelEnded) ShowWarning();
             visual.SetVisible(map.FieldVisible && Raining);
-            visual.Tick(dt);
+            visual.Tick(visualDt);
             if (!Flooding || paused || dt <= 0) return;
             RemoveSubmergedMonsters();
             sweepDelay -= dt;
             if (sweepDelay <= 0) { sweepDelay = .15f; RemoveSubmergedObjects(); }
             if (level.IsLevelEnded) return;
             var player = level.PlayerCharacter;
+            var progression=level.GetComponent<StageProgression>();
+            if(progression!=null&&progression.CapsuleBoarded&&progression.Travelling){ErosionSeconds=0;return;}
             if (player == null || !player.IsAlive || player.IsPortalTravelling) return;
             if (!IsSubmerged(player.transform.position)) { ErosionSeconds = 0; return; }
             ErosionSeconds += dt;
@@ -147,6 +151,7 @@ namespace Vampire
             foreach (var item in FindObjectsOfType<T>())
             {
                 if (!item.gameObject.activeInHierarchy || !IsSubmerged(item.transform.position)) continue;
+                if (item is AmphibiousCapsule) continue; // Acid-resistant rescue vehicle.
                 if (item is StomachOpening) continue; // Anatomical terrain stays, interaction is already blocked by water.
                 // Reserved portal travel is atomic; a dive already started may complete.
                 if (item is StageExitPortal && level.PlayerCharacter.IsPortalTravelling) continue;

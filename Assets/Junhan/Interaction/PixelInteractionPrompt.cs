@@ -7,6 +7,8 @@ namespace Vampire
     public sealed class PixelInteractionPrompt : MonoBehaviour
     {
         private SpriteRenderer keyRenderer;
+        private Canvas boundKeyCanvas;
+        private TMPro.TextMeshProUGUI boundKeyText;
         private SpriteRenderer[] bodyRenderers;
         private Transform legacyRoot;
         private bool requestedVisible;
@@ -38,6 +40,7 @@ namespace Vampire
             if (!visible)
             {
                 if (keyRenderer != null) keyRenderer.enabled = false;
+                if (boundKeyCanvas != null) boundKeyCanvas.gameObject.SetActive(false);
                 if (activeBorder != null) activeBorder.enabled = false;
                 wasFocused = false;
                 return;
@@ -59,6 +62,7 @@ namespace Vampire
                 keyRenderer.sortingOrder = 32760;
             }
             keyRenderer.enabled = true;
+            UpdateBoundKey();
             bool focused = InteractionFocus.IsFocused(focusOwner);
             if (focused && !wasFocused) shownAt = Time.unscaledTime;
             wasFocused = focused;
@@ -89,6 +93,34 @@ namespace Vampire
             keyRenderer.transform.localScale = new Vector3(
                 Mathf.Abs(parentScale.x) > 0.001f ? scale / parentScale.x : scale,
                 Mathf.Abs(parentScale.y) > 0.001f ? verticalScale / parentScale.y : verticalScale, 1f);
+        }
+
+        void UpdateBoundKey()
+        {
+            var binding=GamePreferences.Current.keyboard;
+            var key=binding.Get(GameKeyAction.Interact);
+            if(key==KeyCode.None)key=binding.Get(GameKeyAction.Interact,1);
+            bool custom=key!=KeyCode.E;
+            if(!custom){if(boundKeyCanvas!=null)boundKeyCanvas.gameObject.SetActive(false);return;}
+            if(boundKeyCanvas==null)
+            {
+                var go=new GameObject("Bound interaction key",typeof(RectTransform),typeof(Canvas));
+                go.transform.SetParent(keyRenderer.transform,false);
+                var rect=(RectTransform)go.transform;rect.sizeDelta=new Vector2(100,90);
+                rect.localScale=Vector3.one*(keyRenderer.sprite.bounds.size.x/100f);
+                boundKeyCanvas=go.GetComponent<Canvas>();boundKeyCanvas.renderMode=RenderMode.WorldSpace;
+                boundKeyCanvas.overrideSorting=true;boundKeyCanvas.sortingLayerID=keyRenderer.sortingLayerID;boundKeyCanvas.sortingOrder=32761;
+                var face=new GameObject("Key face",typeof(RectTransform),typeof(IdentityShape));face.transform.SetParent(go.transform,false);
+                var fr=(RectTransform)face.transform;fr.anchorMin=Vector2.zero;fr.anchorMax=Vector2.one;fr.offsetMin=fr.offsetMax=Vector2.zero;
+                var shape=face.GetComponent<IdentityShape>();shape.frame=true;shape.radius=12;shape.color=new Color(.17f,.12f,.08f);shape.insetColor=new Color(1,.93f,.69f);shape.raycastTarget=false;
+                var text=new GameObject("Assigned key",typeof(RectTransform),typeof(TMPro.TextMeshProUGUI));text.transform.SetParent(go.transform,false);
+                boundKeyText=text.GetComponent<TMPro.TextMeshProUGUI>();
+                var tr=boundKeyText.rectTransform;tr.anchorMin=new Vector2(.06f,.10f);tr.anchorMax=new Vector2(.94f,.90f);tr.offsetMin=tr.offsetMax=Vector2.zero;
+                if(ApothecaryUI.Instance?.Config?.font!=null)boundKeyText.font=ApothecaryUI.Instance.Config.font;
+                boundKeyText.alignment=TMPro.TextAlignmentOptions.Center;boundKeyText.color=new Color(.13f,.10f,.08f);boundKeyText.enableAutoSizing=true;boundKeyText.fontSizeMax=48;boundKeyText.fontSizeMin=13;boundKeyText.raycastTarget=false;
+            }
+            boundKeyCanvas.gameObject.SetActive(true);keyRenderer.enabled=false;
+            boundKeyText.text=KeyboardBindingValues.KeyLabel(key);
         }
 
         private void CreateBorder()
@@ -129,6 +161,7 @@ namespace Vampire
         private void OnDisable()
         {
             requestedVisible = false;
+            if (boundKeyCanvas != null) boundKeyCanvas.gameObject.SetActive(false);
             if (keyRenderer != null) keyRenderer.enabled = false;
             if (activeBorder != null) activeBorder.enabled = false;
         }

@@ -48,6 +48,7 @@ namespace Vampire
             float bonusGemSpawnRadius,
             bool debugLog)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             this.stackDuration = Mathf.Max(0.1f, stackDuration);
             this.requiredStacks = Mathf.Max(1, requiredStacks);
             this.maxStacks = Mathf.Max(this.requiredStacks, maxStacks);

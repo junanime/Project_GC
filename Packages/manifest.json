@@ -1,5 +1,9 @@
 {
   "dependencies": {
+    "com.rlabrecque.steamworks.net": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#2025.164.1",
+    "com.unity.services.authentication": "3.8.0",
+    "com.unity.services.cloudcode": "2.10.4",
+    "com.unity.services.leaderboards": "2.3.4",
     "com.unity.ai.navigation": "1.1.6",
     "com.unity.collab-proxy": "2.7.1",
     "com.unity.feature.2d": "2.0.1",

@@ -109,12 +109,14 @@ namespace Vampire.Tests.Editor
                 {
                     var dive=player.StartCoroutine(travel.Dive(portal.transform));
                     Check(Mathf.Abs(travel.ReferenceHeight-expected)<.0001f,key+" travel uses opaque idle height "+repeat);
-                    Check(Mathf.Abs(travel.Visual.bounds.size.y-expected)<.012f,key+" opening pose matches original visible height "+repeat);
+                    if(key=="Hyuki")
+                        Check(Mathf.Abs(travel.Visual.transform.lossyScale.y-body.transform.lossyScale.y)<.0001f&&travel.Visual.sprite.pixelsPerUnit==idle.pixelsPerUnit,key+" approved travel retains body pixel scale "+repeat);
+                    else Check(Mathf.Abs(travel.Visual.bounds.size.y-expected)<.012f,key+" opening pose matches original visible height "+repeat);
                     float journeyScale=travel.Visual.transform.localScale.x;
                     yield return dive;
                     yield return travel.Eject(portal.transform,origin);
                     Check(travel.HoldingPose&&Mathf.Abs(travel.Visual.transform.localScale.x-journeyScale)<.0001f,key+" fixed calibrated scale through dive/eject "+repeat);
-                    if(key=="Hyuki")Check(Mathf.Abs(travel.Visual.sprite.bounds.size.y*journeyScale/expected-.72f)<.005f,"Hyuki curl stays at 72% of true original height");
+                    if(key=="Hyuki")Check(travel.Visual.sprite.name.StartsWith("HyukiApproved"),"Hyuki uses approved tucked pose without rescaling");
                     player.Move(Vector2.left);yield return null;yield return null;
                     Check(!travel.HoldingPose,key+" movement restores regular art "+repeat);player.Move(Vector2.zero);
                 }

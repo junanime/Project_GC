@@ -34,7 +34,7 @@ namespace Vampire.Editor
             foreach (var guid in AssetDatabase.FindAssets("t:MonsterBlueprint"))
                 foreach (var path in AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(guid), true))
                     if (path.EndsWith(".png")) paths.Add(path);
-            foreach (var folder in new[]{"Assets/Resources/ToadUpdate", "Assets/Resources/SnailBoss", "Assets/Resources/Stage2Snails"})
+            foreach (var folder in new[]{"Assets/Resources/ToadUpdate", "Assets/Resources/SnailBoss"})
                 if (AssetDatabase.IsValidFolder(folder)) foreach (var guid in AssetDatabase.FindAssets("t:Texture2D",new[]{folder})) paths.Add(AssetDatabase.GUIDToAssetPath(guid));
             var entries = new List<VisibleBodyGeometry.Entry>();
             foreach (var path in paths)
@@ -79,7 +79,7 @@ namespace Vampire.Editor
             return PrefabIcon("Assets/Prefabs/Chest/"+name+".prefab");
         }
         static float Cross(Vector2 o,Vector2 a,Vector2 b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x);
-        static Vector2[] Hull(List<Vector2> input)
+        internal static Vector2[] Hull(List<Vector2> input)
         {
             var p=input.Distinct().OrderBy(v=>v.x).ThenBy(v=>v.y).ToArray();if(p.Length<3)return p;
             var hull=new List<Vector2>();

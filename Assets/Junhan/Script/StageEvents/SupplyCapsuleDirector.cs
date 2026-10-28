@@ -12,6 +12,7 @@ namespace Vampire
         SupplyCapsule pending;
         float dropAt;
         public bool HasPendingDrop => pending!=null;
+        public void RestartForStage(){if(pending!=null)Destroy(pending.gameObject);pending=null;elapsed=0;count=0;next=Random.Range(240f,360f);}
         public static void Ensure(LevelManager level)
         {
             var director=level.GetComponent<SupplyCapsuleDirector>()??level.gameObject.AddComponent<SupplyCapsuleDirector>();

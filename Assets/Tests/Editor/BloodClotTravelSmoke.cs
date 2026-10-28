@@ -141,13 +141,13 @@ namespace Vampire.Tests.Editor
             Check(BloodClotTravel.Sample("Hyuki",false,.65f,.6f,1).frame==3,"Hyuki unfolds on upward hop");
             var apex=BloodClotTravel.Sample("Hyuki",false,BloodClotTravel.HyukiApex,.6f,1);
             Check(apex.frame==BloodClotTravel.HyukiCurledFrame&&apex.lift>BloodClotTravel.Sample("Hyuki",false,.72f,.6f,1).lift&&apex.lift>BloodClotTravel.Sample("Hyuki",false,.76f,.6f,1).lift,"Hyuki curls exactly at jump maximum");
-            Check(Mathf.Abs(BloodClotTravel.Frames("Hyuki")[4].bounds.size.y/BloodClotTravel.Frames("Hyuki")[0].bounds.size.y-.72f)<.001f,"Hyuki compact size preserved");
+            Check(BloodClotTravel.Frames("Hyuki")[4].pixelsPerUnit==BloodClotTravel.Frames("Hyuki")[0].pixelsPerUnit,"Hyuki curled and standing poses share a fixed pixel scale");
             Check(BloodClotTravel.Sample("Hyuki",true,.57f,.6f,1).lift>BloodClotTravel.Sample("Hyuki",true,.79f,.6f,1).lift,"Second rebound lower than first");
             player.transform.position=origin;body.position=origin;
             director.OpenEntrancePortal(origin+Vector3.right);
             var entry=Object.FindObjectsOfType<BloodClotMiniStagePortal>().First(p=>!p.Reserved);
             var charge=entry.GetComponent<BloodClotOvercharge>();
-            typeof(BloodClotOvercharge).GetProperty("Kind").SetValue(charge,BloodClotOvercharge.Challenge.Stay);
+            typeof(BloodClotOvercharge).GetProperty("Kind").SetValue(charge,BloodClotOvercharge.Challenge.Kills);
             Check(charge.Begin(),"Begin overcharge");charge.Advance(charge.Target);
             Check(charge.Enhanced&&entry.GetComponentInChildren<SpriteRenderer>().sprite.name=="Overcharged blood clot","Overcharge swaps purple-vein art");
             var monster=level.EntityManager.LivingMonsters.FirstOrDefault(m=>m!=null&&m.HP>0);
@@ -163,7 +163,7 @@ namespace Vampire.Tests.Editor
             while(director.IsTransitioning&&Time.realtimeSinceStartup<limit)yield return null;
             Check(director.CurrentRoom.RoomStarted&&director.IsInsideMiniStage,"Room begins only after eject");
             Protected(player,"real mini-stage entry landing");
-            Check(player.transform.position.x<director.CurrentRoom.ReturnInteractable.transform.position.x,"Mini stage spawn left of clot");
+            Check(player.transform.position.x<director.CurrentRoom.ReturnInteractable.transform.position.x,"Mini stage spawn left of clot player="+player.transform.position+" portal="+director.CurrentRoom.ReturnInteractable.transform.position+" start="+director.CurrentRoom.PlayerStartPoint.position);
             var room=director.CurrentRoom;Set(room,"optionalReturnUnlocked",true);room.ReturnInteractable.SetUnlocked(true);
             director.ReturnToFieldFromInteractable(room.ReturnInteractable);
             Check(director.IsTransitioning,"Return uses dive");

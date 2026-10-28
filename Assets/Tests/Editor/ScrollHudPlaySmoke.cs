@@ -127,12 +127,11 @@ namespace Vampire.Tests.Editor
             Check(offers.Count==3&&offers.All(a=>a.Name.StartsWith("고귀 증강: ")),"All mechanic rewards are named Noble augments");
             Check(cards.All(c=>c.UsesNoblePanel),"Noble rewards use their dedicated liquid overframe art");
             Check(!view.gameObject.activeInHierarchy,"Prescription HUD hides behind reward modal");Capture("noble-reward");
-            // Cards first unroll on tap; selection is accepted after the reveal animation.
-            dialog.RevealScrolls();
-            float revealDeadline=Time.realtimeSinceStartup+3;
-            while(!dialog.CanSelectRevealedCard&&Time.realtimeSinceStartup<revealDeadline)yield return null;
-            Check(dialog.CanSelectRevealedCard,"Noble reveal animation finishes before selection");
-            cards[0].Selected();yield return null;Check(quest.Claimed&&!dialog.MenuOpen,"Noble reward claim completes once");
+            Check(cards.All(c=>c.transform.Find("Noble scroll seal")==null),"Noble rewards need no reveal tap");
+            cards[0].Selected();
+            Check(dialog.SelectionAnimating,"Noble reward uses shared selection motion");
+            yield return new WaitForSecondsRealtime(AugmentSelectionMotion.Duration+.2f);
+            Check(quest.Claimed&&!dialog.MenuOpen,"Noble reward claim completes once");
             var parent=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true)[0];if(!parent.Owned)manager.AcquireVer4Ability(parent);
             dialog.Open(false);yield return new WaitForSecondsRealtime(.5f);cards=dialog.GetComponentsInChildren<AbilityCard>();
             var samples=new List<Ver4AugmentOffer>();

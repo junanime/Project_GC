@@ -19,6 +19,7 @@ namespace Vampire
 
         public void Apply(float duration, float slowPercentage)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (monster == null) return;
 
             // 이미 둔화 상태라면 기존 코루틴을 종료하고 새로 갱신 (리프레시)

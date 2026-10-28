@@ -14,6 +14,7 @@ namespace Vampire
         void Awake(){target=GetComponent<IDamageable>();rb=GetComponent<Rigidbody2D>();}
         public void Hit(int upgrades, Character source=null)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if(target==null||Ver4HitEffects.Health(target)<=0)return;
             var frozen=GetComponent<NeuralBlockedMonsterStatus>();
             if(frozen!=null&&frozen.IceFrozen)return;

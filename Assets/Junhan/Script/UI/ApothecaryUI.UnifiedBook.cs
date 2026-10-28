@@ -9,7 +9,7 @@ namespace Vampire
     {
         void SelectCharacterBookmark()
         {
-            if(level==null || confirmingDisplay || pendingSessionAction!=null)return;
+            if(level==null || confirmingDisplay || pendingSessionAction!=null || pendingKeyAction.HasValue)return;
             if(Page=="settings" && settingsOriginal!=null)GamePreferences.Apply(settingsOriginal,false);
             Show("run"); // Transfer the existing pause; never acquire or release it twice.
         }

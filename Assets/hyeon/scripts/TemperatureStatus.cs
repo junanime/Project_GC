@@ -26,6 +26,7 @@ namespace Vampire
 
         public void IncreaseTemperature()
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             ResetTimer();
             if (currentTemperature < maxTemperature)
             {

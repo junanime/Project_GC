@@ -33,6 +33,7 @@ namespace Vampire
             State.barrier+=Bonus(E.Barrier)-barrierBefore;
             Player.AddMaxHealthBonus(0);Player.UpdateMoveSpeed();
             PlayerGeneralStatRuntime.GetOrCreate(Player).SyncPickupCollider();
+            ItemFeedback.For(this).Relic(relic,true);
             return true;
         }
         public float MaxHealthBonus => Bonus(E.MaxHealth) + (Player.Blueprint != null ? Player.Blueprint.hp * Bonus(E.MaxHealthPercent) : 0);
@@ -81,9 +82,11 @@ namespace Vampire
             State.rechargeDelay = 8;
             float absorbed = Mathf.Min(State.barrier, damage);
             State.barrier -= absorbed;
+            if(absorbed>0)Feedback(E.Barrier);
             return damage - absorbed;
         }
         public float PickupHealing(float amount) => amount * (1 + Bonus(E.HealingPickup));
+        public void PickupHealed(float actual){if(actual>0)Feedback(E.HealingPickup);}
         public float DebuffDuration(float seconds) => seconds * (1 - Mathf.Clamp(Bonus(E.DebuffResistance), 0, .75f));
         public int ShopPrice(int original) => original <= 0 ? 0 : Mathf.Max(1, Mathf.CeilToInt(original * (1 - Mathf.Clamp(Bonus(E.ShopDiscount), 0, .5f))));
         public static int Price(Character player, int original) => player != null && player.Relics != null ? player.Relics.ShopPrice(original) : original;
@@ -91,14 +94,15 @@ namespace Vampire
         {
             if (actual <= 0 || Bonus(E.Thorns) <= 0 || State.reflectCooldown > 0) return;
             State.reflectCooldown = .5f;
-            var seen = new HashSet<Monster>();
-            foreach (var hit in Physics2D.OverlapCircleAll(transform.position, 2.5f))
+            var effect=Owned.FirstOrDefault(r=>r.effectType==E.Thorns);if(effect!=null)ItemFeedback.For(this).Theme(ItemEffectTheme.Relic(E.Thorns),transform.position,.6f,2.5f);
+            foreach(var target in Ver4HitEffects.Nearby(transform.position,2.5f,~0,Player))
             {
-                var monster = hit.GetComponentInParent<Monster>();
-                if (monster == null || !monster.gameObject.activeInHierarchy || !seen.Add(monster)) continue;
-                monster.TakeItemPureDamage(Mathf.Min(50, actual * Bonus(E.Thorns)));
+                float damage=Mathf.Min(50,actual*Bonus(E.Thorns));
+                if(target is Monster monster)monster.TakeItemPureDamage(damage);
+                else Ver4HitEffects.Damage(target,damage,Vector2.zero,Player,effect!=null?effect.relicName:"반사 유물");
             }
         }
+        void Feedback(E effect){var relic=Owned.FirstOrDefault(r=>r.effectType==effect);if(relic!=null)ItemFeedback.For(this).Relic(relic);}
         void Update() => Tick(Time.deltaTime);
         public void Tick(float dt)
         {
@@ -106,13 +110,15 @@ namespace Vampire
             State.reflectCooldown = Mathf.Max(0, State.reflectCooldown - dt);
             float rechargeTime = Mathf.Max(0, dt - State.rechargeDelay);
             State.rechargeDelay = Mathf.Max(0, State.rechargeDelay - dt);
+            float before=State.barrier;
             State.barrier = Mathf.Min(Bonus(E.Barrier), State.barrier + 5 * rechargeTime);
+            if(before<State.barrier && State.barrier>=Bonus(E.Barrier))Feedback(E.Barrier);
             bool idle = Player.IsSkillIdle && Player.Velocity.sqrMagnitude < .01f &&
                 !(Player.GetComponent<PlayerMiniStageStunRuntime>()?.IsStunned ?? false);
             float idleRecoveryTime = idle ? Mathf.Clamp(State.idleTime + dt - 1.5f, 0, dt) : 0;
             State.idleTime = idle ? State.idleTime + dt : 0;
             float healing = Bonus(E.Regeneration) * dt + Player.MaxHealth * Bonus(E.IdleRecovery) * idleRecoveryTime;
-            if (healing > 0 && Player.CurrentHealth < Player.MaxHealth) Player.GainHealth(healing);
+            if (healing > 0 && Player.CurrentHealth < Player.MaxHealth){float healthBefore=Player.CurrentHealth;Player.GainHealth(healing);if(Player.CurrentHealth>healthBefore)Feedback(idleRecoveryTime>0&&Bonus(E.IdleRecovery)>0?E.IdleRecovery:E.Regeneration);}
         }
     }
 }

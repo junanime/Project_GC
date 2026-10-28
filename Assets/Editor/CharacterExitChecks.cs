@@ -131,7 +131,7 @@ namespace Vampire.Editor
             var actor = level.PlayerCharacter; actor.Move(Vector2.zero);
             var original = actor.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
             Check(CharacterExitSequence.ClipName(actor) == Names[index], Names[index] + " selects correct clip");
-            if (index == 2) Check(actor.Blueprint.idleSpriteSequence[0].texture.name == "Hyuki_ColdIdle", "Hyuki uses Level1 ColdIdle reference");
+            if (index == 2) Check(actor.Blueprint.idleSpriteSequence[0].texture.name == "Hyuki_ApprovedIdle", "Hyuki uses approved Level1 idle reference");
             actor.AddReviveCount(1); ReadyForDamage(actor); actor.TakeDamage(100000);
             Check(actor.IsAlive && actor.CurrentHealth > 0 && actor.GetComponent<CharacterExitSequence>() == null && !level.IsLevelEnded, Names[index] + " revival precedes exit sequence");
             yield return new WaitForSecondsRealtime(.7f);

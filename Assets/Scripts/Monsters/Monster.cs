@@ -70,24 +70,25 @@ namespace Vampire
         {
             if (monsterSpriteRenderer == null || monsterHitbox == null) SetupHitboxReference();
             var mini=GetComponentInChildren<SnailMiniVisual>();
-            var food=GetComponent<FoodSnailMonster>();
             var fit=GetComponent<MonsterBodyFit>() ?? gameObject.AddComponent<MonsterBodyFit>();
-            if(food!=null && food.Shell!=null)fit.Configure(monsterHitbox,monsterSpriteRenderer,food.Shell);
-            else if(mini!=null)fit.Configure(monsterHitbox,mini.Body,mini.Shell);
+            if(mini!=null)fit.Configure(monsterHitbox,mini.Body,mini.Shell);
             else fit.Configure(monsterHitbox, monsterSpriteRenderer);
         }
         public void DespawnForStageTransfer()
         {
+            if (!gameObject.activeSelf) return;
             StopAllCoroutines();
             alive = false;
             OnKilled.RemoveAllListeners();
             if (entityManager != null)
             {
-                entityManager.LivingMonsters.Remove(this);
+                // A killed monster stays active until its death effect finishes, but is
+                // already absent from the living list. Stage transfer must reclaim both.
+                if (entityManager.LivingMonsters.Contains(this)) entityManager.LivingMonsters.Remove(this);
                 entityManager.DespawnMonster(monsterIndex, this, false);
             }
         }
-        public float SpawnMaxHealth { get; private set; }
+        public float SpawnMaxHealth { get; protected set; }
         // Environmental removal must not call derived Killed routines: blood clots would
         // open new portals, elites would drop chests, and player kill passives would proc.
         public void DissolveInAcidLake()
@@ -99,6 +100,13 @@ namespace Vampire
             DespawnForStageTransfer();
         }
         public bool WasKilledByPlayer { get; private set; }
+        bool rankingKillRecorded;
+        public void RecordRankingKill()
+        {
+            if (rankingKillRecorded) return;
+            rankingKillRecorded = true;
+            RunScore.Current?.Kill(this);
+        }
 
         // 결과 화면 및 공격 출처 추적용
         public MonsterBlueprint Blueprint => monsterBlueprint;
@@ -216,6 +224,7 @@ namespace Vampire
         /// </summary>
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
+            GetComponent<MonsterNeedleBarrier>()?.ResetBarrier();
             StomachSlopeBody.Ensure(gameObject);
             // A pool return can interrupt the .06s hit coroutine before it restores the
             // material. The next spawn must not inherit a white silhouette or hidden body.
@@ -231,6 +240,7 @@ namespace Vampire
             miniStageOwned = isMiniStageOwned;
             nextHitFlashTime = 0f;
             deathStarted = false;
+            rankingKillRecorded = false;
 
             fieldRuntimeSuspended = false;
             hasCachedRigidbodySimulated = false;
@@ -534,6 +544,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (fieldRuntimeSuspended || rb == null)
             {
                 return;
@@ -553,6 +564,7 @@ namespace Vampire
     Vector2 knockback = default(Vector2),
     bool isCritical = false)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (!alive || fieldRuntimeSuspended)
 
             {
@@ -635,6 +647,7 @@ namespace Vampire
             deathStarted = true;
             alive = false;
             WasKilledByPlayer = killedByPlayer;
+            if (killedByPlayer) RecordRankingKill();
             Died?.Invoke(this);
 
             if (monsterHitbox != null)
@@ -706,6 +719,7 @@ namespace Vampire
 
         protected virtual void RewardSilver()
         {
+            if (ColonMonsterRoster.InColon && ColonMonsterRoster.Active.RewardEliteSilver(monsterBlueprint)) return;
             EliteMonsterBlueprint eliteBlueprint = monsterBlueprint as EliteMonsterBlueprint;
 
             int rewardCalls = 1;

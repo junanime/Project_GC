@@ -95,8 +95,9 @@ namespace Vampire
         {
             CleanupAliveList();
 
-            if (enableForceSpawnKey && Vampire.GameInput.GetKeyDown(forceSpawnKey))
+            if (enableForceSpawnKey && Vampire.GameInput.DebugPressed(forceSpawnKey))
             {
+                RunScore.Exclude("소화효소 소환 테스트");
                 if (!CanSpawnNow())
                 {
                     if (debugLog)

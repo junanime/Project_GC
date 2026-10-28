@@ -90,9 +90,10 @@ namespace Vampire
 
         protected override void OnTick()
         {
-            if (Vampire.GameInput.GetKeyDown(debugSpawnKey))
+            if (Vampire.GameInput.DebugPressed(debugSpawnKey))
             {
                 Debug.Log("[BossLevelSpawner] Debug spawn key pressed.");
+                RunScore.Exclude("보스 소환 테스트");
                 SpawnBoss();
             }
         }

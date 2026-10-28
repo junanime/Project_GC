@@ -34,15 +34,23 @@ namespace Vampire
     {
         public string role;
         Vector3 origin;
+        CharacterBlueprint hyuki;Image characterImage;
         void Start() {origin=transform.localPosition;}
         void Update()
         {
             float t=Time.unscaledTime;
+            if(role=="Hyuki")
+            {
+                if(hyuki==null)hyuki=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig")?.characters.FirstOrDefault(c=>OctoberArt.CharacterKey(c)=="Hyuki");
+                if(characterImage==null)characterImage=GetComponent<Image>();
+                if(characterImage!=null&&hyuki?.idleSpriteSequence?.Length>0)
+                    characterImage.sprite=hyuki.idleSpriteSequence[GamePreferences.Current.reducedMotion?0:(int)(t/Mathf.Max(.01f,hyuki.idleFrameTime))%hyuki.idleSpriteSequence.Length];
+            }
             if(GamePreferences.Current.reducedMotion){transform.localPosition=origin;transform.localRotation=Quaternion.identity;return;}
             Vector3 d=Vector3.zero;float angle=0;
             switch(role)
             {
-                case "Hyuki": d.x=Mathf.Sin(t*35)*1.4f;d.y=Mathf.Sin(t*27)*.6f;break;
+                case "Hyuki": break; // Shivering is already authored in the shared idle frames.
                 case "Shini": d.x=Mathf.Sin(t*.8f)*34;d.y=-d.x*.6f+Mathf.Abs(Mathf.Sin(t*11))*3;angle=Mathf.Sin(t*11)*2;break;
                 case "Ari": d.x=Mathf.Max(0,Mathf.Sin(t*2.6f))*4;angle=-Mathf.Max(0,Mathf.Sin(t*2.6f))*2;break;
                 case "Germ": d.x=Mathf.Max(0,Mathf.Sin(t*2.6f))*3;d.y=Mathf.Sin(t*4)*1.5f;break;

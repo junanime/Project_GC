@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f1ae058c390b426495056b39e15d543, type: 3}
+  m_Name: king-oyster
+  m_EditorClassIdentifier:
+  name: "\uC0C8\uC1A1\uC774 \uB300\uC7A5"
+  hp: 220
+  atk: 13
+  recovery: 0
+  armor: 0
+  atkspeed: 2
+  movespeed: 0.88
+  acceleration: 5
+  gemLootTable:
+    lootTable:
+    - item: 10
+      dropChance: 1
+      coinType: 1
+  coinLootTable:
+    lootTable:
+    - item: 2
+      dropChance: 0.1
+      coinType: 1
+    - item: 5
+      dropChance: 0.9
+      coinType: 1
+  walkSpriteSequence:
+  - {fileID: 21300000, guid: b113d031c230ebf4596774848e1c62b6, type: 3}
+  - {fileID: 21300000, guid: bf0c9261fec2e2446938e0b2b2ea31ed, type: 3}
+  - {fileID: 21300000, guid: da1b88301db7e63478d2bca50125ed2f, type: 3}
+  - {fileID: 21300000, guid: acd5330cd86ac164ab26c14116525d55, type: 3}
+  - {fileID: 21300000, guid: 93334cfb0b76e4342bef7078aea17366, type: 3}
+  - {fileID: 21300000, guid: 34711159c74d1c445be20bf373c7ceb1, type: 3}
+  - {fileID: 21300000, guid: c71f3c110a7b69a418e20d1d5b3b150a, type: 3}
+  - {fileID: 21300000, guid: 7c2cc88f4774a0e47bf08b8af0f31b3d, type: 3}
+  walkFrameTime: 0.12
+  useGroundShadowFootprint: 1
+  groundShadowCenterUV: {x: 0.5, y: 0.1484375}
+  groundShadowSizeUV: {x: 0.43, y: 0.07}
+  preserveGroundShadowHeight: 0
+  description: "14\uBD84 \uC774\uD6C4 \uB4F1\uC7A5\uD558\uB294 \uC0C8\uC1A1\uC774.
+    \uAC13\uC744 \uC88C\uC6B0\uB85C \uD754\uB4E4\uBA70 \uB2E4\uAC00\uC628\uB2E4."
+  resultSprite: {fileID: 21300000, guid: b113d031c230ebf4596774848e1c62b6, type: 3}
+  meleeLayer:
+    serializedVersion: 2
+    m_Bits: 512

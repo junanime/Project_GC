@@ -164,6 +164,7 @@ namespace Vampire
         public override IEnumerator Killed(bool killedByPlayer=true)
         {
             if(!alive||dying)yield break;Cancel();dying=true;alive=false;
+            if(killedByPlayer)RecordRankingKill();
             monsterHitbox.enabled=false;monsterLegsCollider.enabled=false;
             var marker=GetComponent<MapMarker>();if(marker!=null)marker.enabled=false;
             motion.Sample(13);yield return ChameleonTime.Wait(.12f);motion.Sample(14);yield return ChameleonTime.Wait(.3f);motion.Sample(15);yield return ChameleonTime.Wait(.5f);

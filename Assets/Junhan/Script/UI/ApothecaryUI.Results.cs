@@ -29,9 +29,9 @@ namespace Vampire
                 total.ToString("N0"),$"{stats?.DamageTaken??0:N0}",$"{stats?.HealingReceived??0:N0}",$"{SilverRunRewarder.Instance?.RunEarnedSilver??0:N0}"};
             for(int i=0;i<8;i++)
             {
-                float x=.26f+i%4*.17f,y=.72f-i/4*.08f;
-                var n=Label(content,names[i],x,y+.042f,x+.161f,y+.08f,17);n.name="Result metric "+names[i];
-                Label(content,values[i],x,y,x+.161f,y+.041f,22).fontStyle=FontStyles.Bold;
+                float x=.26f+i%4*.17f,y=.71f-i/4*.068f;
+                var n=Label(content,names[i],x,y+.032f,x+.161f,y+.062f,17);n.name="Result metric "+names[i];
+                Label(content,values[i],x,y,x+.161f,y+.032f,22).fontStyle=FontStyles.Bold;
             }
             ResultHeader("공격 기여도",.065f,.586f,.578f,.636f);
             ResultHeader("이벤트 기록",.595f,.586f,.935f,.636f);
@@ -79,6 +79,7 @@ namespace Vampire
                 }
             }
             ActionButton(content,"메인으로",.13f,.02f,.355f,.105f,()=>ReturnToLobby(false));
+            runScoreStatus=Label(content,"",.25f,.777f,.93f,.807f,16);
             ActionButton(content,"다시하기",.387f,.02f,.613f,.105f,()=>{CrossSceneData.CharacterBlueprint=character;CrossSceneData.ClearStartingLobbyItems();StageEntryLoading.Begin(character);});
             ActionButton(content,"준비화면",.645f,.02f,.87f,.105f,()=>ReturnToLobby(true),true);
         }

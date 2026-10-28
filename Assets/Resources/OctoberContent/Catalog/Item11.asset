@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 11
   itemRarity: 0
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uC801\uC911 \uC2DC 20% \uD655\uB960\uB85C 2\uCD08
-    \uB3D9\uC548 25% \uAC10\uC18D."
+  description: "기본 침 적중 시 20% 확률로 2초 동안 25% 감속."
   itemIcon: {fileID: -1777455776372657589, guid: dd4b9c9b201f2f04c881f4e59bddc575, type: 3}
   cost: 25
   canBuyInLobby: 1

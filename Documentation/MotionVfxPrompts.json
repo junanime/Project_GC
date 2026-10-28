@@ -1,0 +1,27 @@
+{
+  "mode": "built-in image_gen",
+  "previewOnly": false,
+  "prompts": [
+    {
+      "variant": "a",
+      "prompt": "Create a NEW production game VFX transparent sprite atlas, not a screenshot. Cute clean hand-pixel-art for a bright Korean 2D roguelite, no noisy AI speckling, NO blur, NO bloom, no gradients outside silhouettes, limited palette shading with pixel clusters and a thin darker colored outline. These sprites will be shown very small, so each must be legible at 16-32 pixels. Canvas 1536x1024 landscape, exactly a 3 column x 2 row grid of equal cells. Five isolated sprites centered in cells with at least 25% transparent padding in each cell. Top-left = Ashi wind; top-middle = Ari stone/feather; top-right = Hyuki ice; bottom-left = Shini ember; bottom-middle = neutral needle disappearance; bottom-right MUST be entirely empty. No text, no labels, no frames, no white dots, no characters, no shadows. Real alpha transparent background. Each cell has ONE compact motif only. Variant A, restrained collectible-particle shapes. Ashi: ONE small mint-green curved leaf with simple vein, diagonal. Ari: ONE smooth rounded honey-cream pebble with tiny warm pink highlight, NOT an egg or face. Hyuki: ONE small ice-blue diamond shard, two clean facets. Shini: ONE short golden orange ember flame leaning right with coral outer edge, no face. Neutral needle disappearance: a small ivory-gold four-point glint with TWO tiny detached gold chip flecks, no ring. Deliberately minimal.",
+      "original": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-9fa00c82-35d5-49ea-805a-d57caf7d833d.png"
+    },
+    {
+      "variant": "b",
+      "prompt": "Create a NEW production game VFX transparent sprite atlas, not a screenshot. Cute clean hand-pixel-art for a bright Korean 2D roguelite, no noisy AI speckling, NO blur, NO bloom, no gradients outside silhouettes, limited palette shading with pixel clusters and a thin darker colored outline. These sprites will be shown very small, so each must be legible at 16-32 pixels. Canvas 1536x1024 landscape, exactly a 3 column x 2 row grid of equal cells. Five isolated sprites centered in cells with at least 25% transparent padding in each cell. Top-left = Ashi wind; top-middle = Ari stone/feather; top-right = Hyuki ice; bottom-left = Shini ember; bottom-middle = neutral needle disappearance; bottom-right MUST be entirely empty. No text, no labels, no frames, no white dots, no characters, no shadows. Real alpha transparent background. Each cell has ONE compact motif only. Variant B, short flowing motion marks. Ashi: a tapered curved mint wind comma, open and swept backwards, with a tiny leaf integrated at its tip. Ari: one short cream-gold feather bent gently in an arc, 3 simple feather notches. Hyuki: a narrow crescent-shaped cyan frost skate slash with a tiny ice wedge at its trailing tip. Shini: a short hooked orange flame lick, two tongues and a bright yellow center. Neutral needle disappearance: an incomplete narrow pale gold elliptical ripple with a small tapered tail, a gentle dissipating whisk, NOT an explosion. Compact single clear silhouettes, not long trails.",
+      "original": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-7472d8cc-d47d-4ced-8892-06763bf9b06e.png"
+    },
+    {
+      "variant": "c",
+      "prompt": "Create a NEW production game VFX transparent sprite atlas, not a screenshot. Cute clean hand-pixel-art for a bright Korean 2D roguelite, no noisy AI speckling, NO blur, NO bloom, no gradients outside silhouettes, limited palette shading with pixel clusters and a thin darker colored outline. These sprites will be shown very small, so each must be legible at 16-32 pixels. Canvas 1536x1024 landscape, exactly a 3 column x 2 row grid of equal cells. Five isolated sprites centered in cells with at least 25% transparent padding in each cell. Top-left = Ashi wind; top-middle = Ari stone/feather; top-right = Hyuki ice; bottom-left = Shini ember; bottom-middle = neutral needle disappearance; bottom-right MUST be entirely empty. No text, no labels, no frames, no white dots, no characters, no shadows. Real alpha transparent background. Each cell has ONE compact motif only. Variant C, little character signatures. Ashi: a pair of tiny mint leaves curled together like a breeze spiral, no wood. Ari: THREE rounded cream pebbles close together forming one tiny stepping-stone mound, pale taupe contour and honey highlights. Hyuki: ONE simple six-point light-blue snow crystal, chunky readable branches, dark blue edge, not intricate. Shini: THREE small ember petals closely arranged as one tiny flower-like orange flame tuft, no plant stem and no face. Neutral needle disappearance: THREE tiny gold stitch dashes radiating from a pale ivory small central glint, clean sewing-needle theme, no whole needle. Iconic clean silhouettes.",
+      "original": "C:\\Users\\junan\\.codex\\generated_images\\01a11298-af1c-74a2-a4c9-e15585b3abaa\\exec-73f2ee09-d96c-4c64-8419-325a3d51f9aa.png"
+    }
+  ],
+  "approved": {
+    "date": "2026-10-20",
+    "characterTrails": "B: Ashi wind, Ari feather, Hyuki frost, Shini flame",
+    "needleEnd": "A: shared gold glint",
+    "needleScaleRelativeToPreview": 0.6666666666666666
+  }
+}

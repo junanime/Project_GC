@@ -121,7 +121,7 @@ public static class SnailBossPlaySmoke
         boss.TakeDamage(999999);Check(boss.Dead,"lethal damage enters death");
         yield return new WaitForSeconds(1.7f);
         Check(!level.IsLevelEnded && StageProgression.Ensure(level).FirstBossDefeated,
-            "stage 1 boss death opens stage 2 without ending the run");
+            "stage 1 boss death opens escape portal before victory");
         Debug.Log("SNAIL_PLAY_ALL_PASS");
         SessionState.SetBool(Key+"Done",true);
     }

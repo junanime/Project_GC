@@ -158,7 +158,7 @@ namespace Vampire
 
                 if (toTarget.sqrMagnitude > 0.02f)
                 {
-                    velocity = toTarget.normalized * GetCurrentMoveSpeed();
+                    velocity = ColonNavigation.Toward(rb.position, targetTransform.position) * GetCurrentMoveSpeed();
                 }
             }
             else

@@ -1,4 +1,4 @@
-﻿#if DEVELOPMENT_BUILD && !UNITY_EDITOR
+#if DEVELOPMENT_BUILD && !UNITY_EDITOR
 using System;
 using System.Collections;
 using System.Linq;
@@ -39,7 +39,7 @@ namespace Vampire.Tests
                 var needle=FindObjectOfType<SyringeDartAbility>();needle.enabled=false;int count=needle.GetEffectiveProjectileCount();float speed=needle.GetEffectiveSpeed();
                 Check(player.TryDash(),"native dash starts");yield return new WaitForSeconds(.4f);
                 Check(skill.PassiveActive&&needle.GetEffectiveProjectileCount()==count+2,"native Marathon bonus");
-                var keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.R));
+                var keyboard=Keyboard.current??InputSystem.AddDevice<Keyboard>();InputSystem.QueueStateEvent(keyboard,new KeyboardState(Key.Space));
                 yield return new WaitForSecondsRealtime(.4f);InputSystem.QueueStateEvent(keyboard,new KeyboardState());
                 Check(skill.IsCutin&&Time.timeScale==0,"native R cut-in pauses world");
                 var portrait=ApothecaryUI.Instance.GetComponentsInChildren<Image>().First(i=>i.name=="Ashi cut-in portrait");
@@ -51,7 +51,7 @@ namespace Vampire.Tests
                 Check(Mathf.Abs(skill.CooldownRemaining-remaining)<.001f,"native TAB freezes timers");ApothecaryUI.Instance.CloseRunBook();
                 skill.Tick(100);yield return null;
                 Check(!skill.Active&&needle.GetEffectiveProjectileCount()==count,"native modifiers expire");
-                var button=ApothecaryUI.Instance.GetComponentsInChildren<Button>().Single(b=>b.name=="Active skill R");
+                var button=ApothecaryUI.Instance.GetComponentsInChildren<Button>().Single(b=>b.name=="Active skill Space");
                 ExecuteEvents.Execute(button.gameObject,new PointerEventData(EventSystem.current){button=PointerEventData.InputButton.Left},ExecuteEvents.pointerClickHandler);
                 Check(skill.IsCutin,"native pointer activation");
                 yield return new WaitForSecondsRealtime(2.2f);Check(!errors,"no native runtime errors");passed=true;

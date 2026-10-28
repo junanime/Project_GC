@@ -6,6 +6,7 @@ namespace Vampire
     [Serializable]
     public sealed class GamePreferenceValues
     {
+        public KeyboardBindingValues keyboard = KeyboardBindingValues.Defaults();
         public float master = 1, music = .55f, effects = .8f, ui = .8f;
         public float augmentVfxOpacity = 1f;
         public bool muted, reducedMotion, showFps, pauseOnFocusLoss = true, muteOnFocusLoss = true;
@@ -51,6 +52,8 @@ namespace Vampire
         static float Volume(float value) => float.IsNaN(value)||float.IsInfinity(value)?1:Mathf.Clamp01(value);
         public static void Sanitize(GamePreferenceValues value)
         {
+            if(value.keyboard==null)value.keyboard=KeyboardBindingValues.Defaults();
+            value.keyboard.Sanitize();
             value.master=Volume(value.master);value.music=Volume(value.music);value.effects=Volume(value.effects);value.ui=Volume(value.ui);
             value.augmentVfxOpacity=Volume(value.augmentVfxOpacity);
             value.quality=Mathf.Clamp(value.quality,0,2);value.displayMode=Mathf.Clamp(value.displayMode,0,1);

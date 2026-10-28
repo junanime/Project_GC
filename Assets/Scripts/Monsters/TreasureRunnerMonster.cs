@@ -252,7 +252,7 @@ namespace Vampire
                 return;
             }
 
-            Vector2 direction = toPlayer.normalized;
+            Vector2 direction = ColonNavigation.Toward(rb.position, rb.position + toPlayer);
 
             Vector2 sideNoise = new Vector2(-direction.y, direction.x)
                 * Mathf.Sin(Time.time * 2.5f)
@@ -295,7 +295,12 @@ namespace Vampire
                 speed *= panicSpeedMultiplier;
             }
 
-            rb.velocity = (awayFromPlayer + sideNoise).normalized * speed * IceMoveMultiplier;
+            Vector2 fleeDirection = (awayFromPlayer + sideNoise).normalized;
+            var map = FiniteStomachMap.Instance;
+            if (map != null && map.IsColon && map.AppliesAt(rb.position))
+                fleeDirection = ColonNavigation.Toward(rb.position,
+                    map.ClampToField(rb.position + fleeDirection * 12f, map.WallWidth + 1f));
+            rb.velocity = fleeDirection * speed * IceMoveMultiplier;
         }
 
         private void DropTreasureReward()

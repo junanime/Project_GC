@@ -6,6 +6,9 @@ namespace Vampire
     public sealed class StomachMapDefinition : ScriptableObject
     {
         public Material terrainMaterial;
+        public bool colon;
+        public Vector4 inlet = StomachOpening.Inlet;
+        public Vector4 outlet = StomachOpening.Outlet;
         // Reference: 1164px-wide map, 7px yellow marker, Ashi visible width = 3.5px.
         // Ashi's opaque idle width = 330 source pixels / 675 PPU * 1.25 = .611111 units.
         [Min(10)] public float worldWidth = 203.2381f;

@@ -1,0 +1,261 @@
+{
+  "approved_variant": "03-A-plus02.png",
+  "approved_source_atlas": "exec-021d79e2-afe0-4ec9-ae9f-d12fb3d62e6d.png",
+  "method": "Approved PNG crops copied byte-for-byte; Unity point filtering, grounded pivots and runtime visible-height normalization. Supplementary images generated through built-in image_gen; split using Unity sprite rects. No texture painted by code.",
+  "files": [
+    {
+      "asset": "Assets/Resources/ColonMonsters/Extras.png",
+      "size": [
+        1774,
+        887
+      ],
+      "alpha_bounds": [
+        106,
+        71,
+        1707,
+        887
+      ],
+      "has_transparency": true,
+      "sha256": "8f24cd21d1426803da2a8fa8996f920f9ff8aca9f0a10e6cc9d31c20c7bf075a",
+      "source": "Built-in image_gen supplementary popcorn and baby-pea atlas, exec-9352f241-41a4-4a32-b246-ad999729f390.png"
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N01.png",
+      "size": [
+        226,
+        217
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        226,
+        217
+      ],
+      "has_transparency": true,
+      "sha256": "e88ed050441707485e41ee14362a947e350982ec3e619a0807a6bcecbc8c0365",
+      "source": "approved A +0.2 variant / A-N01.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N02.png",
+      "size": [
+        274,
+        235
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        274,
+        235
+      ],
+      "has_transparency": true,
+      "sha256": "b0d03d636d7e17b7c84804e0984bd5c8a949e9a25c862a74ca8a433f622bb079",
+      "source": "approved A +0.2 variant / A-N02.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N03.png",
+      "size": [
+        255,
+        235
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        255,
+        235
+      ],
+      "has_transparency": true,
+      "sha256": "d735ea40fcad5c46235dd4c1f7d8b8e95f94dd7072a2bbfa9ccde4fb68c924b8",
+      "source": "approved A +0.2 variant / A-N03.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N04.png",
+      "size": [
+        255,
+        235
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        255,
+        235
+      ],
+      "has_transparency": true,
+      "sha256": "9f8c8d968926fc05c2bfe3cacd6069db7ae75dc80f75e630f917f013a89a7b26",
+      "source": "approved A +0.2 variant / A-N04.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N05.png",
+      "size": [
+        236,
+        245
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        236,
+        245
+      ],
+      "has_transparency": true,
+      "sha256": "3c5d544f2de1b18c94bb85543ff7a8cf8f64eec97643165937106a24f3e30f26",
+      "source": "approved A +0.2 variant / A-N05.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N06.png",
+      "size": [
+        245,
+        226
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        245,
+        226
+      ],
+      "has_transparency": true,
+      "sha256": "3d601e6152eb50cd506d1494655159c24db36d07acb670a7b933575a66778342",
+      "source": "approved A +0.2 variant / A-N06.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N07.png",
+      "size": [
+        303,
+        216
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        303,
+        216
+      ],
+      "has_transparency": true,
+      "sha256": "58e00cd72acd98c72fb73078d1bc8a913630bac65bd517dcd3437808c1aa32fa",
+      "source": "approved A +0.2 variant / A-N07.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/N08.png",
+      "size": [
+        255,
+        235
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        255,
+        235
+      ],
+      "has_transparency": true,
+      "sha256": "8f0b73b8b847702cee016c2736d9d6a3bc914a8660becfed506ad6a11b384268",
+      "source": "approved A +0.2 variant / A-N08.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/S01.png",
+      "size": [
+        265,
+        265
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        265,
+        265
+      ],
+      "has_transparency": true,
+      "sha256": "9337ff8b7bcc0efbd5ec49b221695294f598754b247668d608914e020f10be16",
+      "source": "approved A +0.2 variant / A-S01.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/S02.png",
+      "size": [
+        255,
+        237
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        255,
+        237
+      ],
+      "has_transparency": true,
+      "sha256": "8920afaca24920c2fb8a410bd2f5f899b9e2e0719fd4dcaeff23b7f2cca8c935",
+      "source": "approved A +0.2 variant / A-S02.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/S03.png",
+      "size": [
+        284,
+        196
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        284,
+        196
+      ],
+      "has_transparency": true,
+      "sha256": "ec92ad13d9c114774c76691abfce24d46ce41be6944dd8abbb15b014a72533f9",
+      "source": "approved A +0.2 variant / A-S03.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/S04.png",
+      "size": [
+        285,
+        248
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        285,
+        248
+      ],
+      "has_transparency": true,
+      "sha256": "59c41ba1b40f3d5a1c11b82784e13223e1e0bb0d90c59d2460d65471ec275207",
+      "source": "approved A +0.2 variant / A-S04.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/S05.png",
+      "size": [
+        274,
+        245
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        274,
+        245
+      ],
+      "has_transparency": true,
+      "sha256": "31a57cd5bb6297ecfc49009745cd07a965b1da1e3b291fc96d719231a0692b35",
+      "source": "approved A +0.2 variant / A-S05.png",
+      "exact_source_bytes": true
+    },
+    {
+      "asset": "Assets/Resources/ColonMonsters/S06.png",
+      "size": [
+        302,
+        234
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        302,
+        234
+      ],
+      "has_transparency": true,
+      "sha256": "addc5a86fa9d6f139c1c4ac8a4404ef31f173672cdbf50aa32ea5e3dc9e76c5c",
+      "source": "approved A +0.2 variant / A-S06.png",
+      "exact_source_bytes": true
+    }
+  ]
+}

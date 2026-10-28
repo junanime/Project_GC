@@ -25,7 +25,9 @@ namespace Vampire
   // The reward hides the HUD. Runtime polling still sees physical releases while this is disabled.
   void OnEnable(){if(held!=null&&!held.IsPointerHeld)Release();}
   void OnDisable(){if(held==null||!held.IsRewardPaused)Release();}
-  void OnDestroy(){Release();}
+  // Rebuilding the HUD for a level-up must not cancel a physically held mobile touch.
+  // The runtime keeps polling its InputSystem ButtonControl even while this UI is absent.
+  void OnDestroy(){if(held==null||!held.IsRewardPaused)Release();}
   void OnApplicationFocus(bool f){if(!f)Release();}
  }
 }

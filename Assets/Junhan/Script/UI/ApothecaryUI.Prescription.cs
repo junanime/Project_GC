@@ -98,7 +98,7 @@ namespace Vampire
             face.insetColor=new Color(1,.94f,.81f);face.transform.SetAsFirstSibling();
             var glyph=Rect("Gear symbol",feedback.visual,.22f,.22f,.78f,.78f).gameObject.AddComponent<BookNavigationGraphic>();
             glyph.gear=true;glyph.color=new Color(.18f,.42f,.39f);glyph.raycastTarget=false;
-            HudTooltip.Bind(gear.gameObject,()=>"탐험 기록 · 설정",()=>"캐릭터정보와 설정을 확인합니다.\nTAB: 캐릭터정보 / ESC: 설정");
+            HudTooltip.Bind(gear.gameObject,()=>"탐험 기록 · 설정",()=>$"캐릭터정보와 설정을 확인합니다.\n{GameInput.Label(GameKeyAction.Journal)}: 캐릭터정보 / Esc: 설정");
 
         }
         public bool RequestSkillReward(Action complete)

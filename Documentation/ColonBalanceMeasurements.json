@@ -1,0 +1,1339 @@
+{
+  "method": {
+    "baseline": "Four invulnerable automated observers, 885 seconds per field at timeScale 1; field transfer helper at checkpoint, not natural boss clearance.",
+    "revision": "Same recorded entry builds; 885 seconds of Stage 2 at timeScale 2; random routes and offers vary, not paired deterministic trajectories.",
+    "combat": "Real projectiles against stationary targets two world units away; three trials per target, 20-second censoring. Includes owned passives/items; excludes active skill usage.",
+    "limits": "No human win-rate estimate, no mini-stage skill reward collection by observer. Averages describe four sampled builds only."
+  },
+  "growth": [
+    {
+      "character": "아시",
+      "entry_level": 43,
+      "baseline_end_level": 51,
+      "revised_end_level": 60,
+      "entry_damage_multiplier": 2.8399999141693115,
+      "revised_damage_multiplier": 3.429999589920044,
+      "entry_attack_speed_multiplier": 1.7699998617172241,
+      "revised_attack_speed_multiplier": 2.0899996757507324
+    },
+    {
+      "character": "아리",
+      "entry_level": 54,
+      "baseline_end_level": 60,
+      "revised_end_level": 64,
+      "entry_damage_multiplier": 2.1000001430511475,
+      "revised_damage_multiplier": 2.1000001430511475,
+      "entry_attack_speed_multiplier": 1.940000295639038,
+      "revised_attack_speed_multiplier": 2.1600000858306885
+    },
+    {
+      "character": "혁이",
+      "entry_level": 32,
+      "baseline_end_level": 41,
+      "revised_end_level": 46,
+      "entry_damage_multiplier": 1.5600000619888306,
+      "revised_damage_multiplier": 1.9000000953674316,
+      "entry_attack_speed_multiplier": 1.4600001573562622,
+      "revised_attack_speed_multiplier": 1.940000057220459
+    },
+    {
+      "character": "신이",
+      "entry_level": 58,
+      "baseline_end_level": 66,
+      "revised_end_level": 71,
+      "entry_damage_multiplier": 2.8999998569488525,
+      "revised_damage_multiplier": 3.489999532699585,
+      "entry_attack_speed_multiplier": 1.9149998426437378,
+      "revised_attack_speed_multiplier": 2.374999761581421
+    }
+  ],
+  "combat": [
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.267,
+      "hp": 70.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.3,
+      "hp": 85.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.241,
+      "hp": 115.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.35,
+      "hp": 155.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.4,
+      "hp": 210.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.375,
+      "hp": 290.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.8,
+      "hp": 420.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.924,
+      "hp": 600.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.592,
+      "hp": 315.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.708,
+      "hp": 382.5
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.666,
+      "hp": 517.5
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.166,
+      "hp": 697.5
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.526,
+      "hp": 945.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.925,
+      "hp": 1305.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 3.249,
+      "hp": 1890.0
+    },
+    {
+      "character": "아시",
+      "build": "entry",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 4.583,
+      "hp": 2700.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.35,
+      "hp": 70.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.175,
+      "hp": 85.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.325,
+      "hp": 115.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.333,
+      "hp": 155.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.317,
+      "hp": 210.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.308,
+      "hp": 290.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.466,
+      "hp": 420.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.65,
+      "hp": 600.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.283,
+      "hp": 315.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.525,
+      "hp": 382.5
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.35,
+      "hp": 517.5
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.567,
+      "hp": 697.5
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.642,
+      "hp": 945.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.029,
+      "hp": 1305.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.309,
+      "hp": 1890.0
+    },
+    {
+      "character": "아시",
+      "build": "grown",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.079,
+      "hp": 2700.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.375,
+      "hp": 70.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.266,
+      "hp": 85.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.241,
+      "hp": 115.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.333,
+      "hp": 155.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.35,
+      "hp": 210.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.4,
+      "hp": 290.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.658,
+      "hp": 420.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.933,
+      "hp": 600.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.534,
+      "hp": 315.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.683,
+      "hp": 382.5
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.692,
+      "hp": 517.5
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.966,
+      "hp": 697.5
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.292,
+      "hp": 945.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.742,
+      "hp": 1305.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.803,
+      "hp": 1890.0
+    },
+    {
+      "character": "아리",
+      "build": "entry",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 3.75,
+      "hp": 2700.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.359,
+      "hp": 70.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.35,
+      "hp": 85.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.342,
+      "hp": 115.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.325,
+      "hp": 155.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.317,
+      "hp": 210.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.384,
+      "hp": 290.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.624,
+      "hp": 420.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.725,
+      "hp": 600.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.326,
+      "hp": 315.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.708,
+      "hp": 382.5
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.509,
+      "hp": 517.5
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.708,
+      "hp": 697.5
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.075,
+      "hp": 945.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.308,
+      "hp": 1305.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.241,
+      "hp": 1890.0
+    },
+    {
+      "character": "아리",
+      "build": "grown",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.85,
+      "hp": 2700.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.392,
+      "hp": 70.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.35,
+      "hp": 85.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.483,
+      "hp": 115.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.626,
+      "hp": 155.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.866,
+      "hp": 210.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.825,
+      "hp": 290.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.591,
+      "hp": 420.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.175,
+      "hp": 600.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.883,
+      "hp": 315.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.011,
+      "hp": 382.5
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.721,
+      "hp": 517.5
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.187,
+      "hp": 697.5
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.991,
+      "hp": 945.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 4.366,
+      "hp": 1305.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 6.083,
+      "hp": 1890.0
+    },
+    {
+      "character": "혁이",
+      "build": "entry",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 8.583,
+      "hp": 2700.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.259,
+      "hp": 70.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.4,
+      "hp": 85.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.242,
+      "hp": 115.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.45,
+      "hp": 155.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.433,
+      "hp": 210.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.45,
+      "hp": 290.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.65,
+      "hp": 420.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.05,
+      "hp": 600.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.45,
+      "hp": 315.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.667,
+      "hp": 382.5
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.85,
+      "hp": 517.5
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.767,
+      "hp": 697.5
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.325,
+      "hp": 945.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.866,
+      "hp": 1305.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.73,
+      "hp": 1890.0
+    },
+    {
+      "character": "혁이",
+      "build": "grown",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 3.45,
+      "hp": 2700.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.283,
+      "hp": 70.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.366,
+      "hp": 85.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.3,
+      "hp": 115.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.325,
+      "hp": 155.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.383,
+      "hp": 210.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.433,
+      "hp": 290.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.8,
+      "hp": 420.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.967,
+      "hp": 600.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.517,
+      "hp": 315.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.642,
+      "hp": 382.5
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.808,
+      "hp": 517.5
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.95,
+      "hp": 697.5
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.249,
+      "hp": 945.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.809,
+      "hp": 1305.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.567,
+      "hp": 1890.0
+    },
+    {
+      "character": "신이",
+      "build": "entry",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 3.808,
+      "hp": 2700.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N01",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.334,
+      "hp": 70.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N06",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.266,
+      "hp": 85.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N07",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.333,
+      "hp": 115.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N02",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.316,
+      "hp": 155.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N04",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.25,
+      "hp": 210.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N08",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.375,
+      "hp": 290.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N03",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.5,
+      "hp": 420.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N05",
+      "elite": false,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.783,
+      "hp": 600.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N01",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.392,
+      "hp": 315.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N06",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.45,
+      "hp": 382.5
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N07",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.525,
+      "hp": 517.5
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N02",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.591,
+      "hp": 697.5
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N04",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 0.825,
+      "hp": 945.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N08",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.184,
+      "hp": 1305.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N03",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 1.791,
+      "hp": 1890.0
+    },
+    {
+      "character": "신이",
+      "build": "grown",
+      "target": "N05",
+      "elite": true,
+      "trials": 3,
+      "kills": 3,
+      "median_seconds": 2.483,
+      "hp": 2700.0
+    }
+  ],
+  "navigation": {
+    "queries": 384,
+    "identical_directions": true,
+    "after_ms": 53.78,
+    "before_ms": 151.93,
+    "max_cached_fields": 16
+  }
+}

@@ -96,12 +96,16 @@ namespace Vampire
         public float MovementMultiplier => AshiActive ? 2 : IsShini && Active ? Mathf.Max(1,Definition.shiniActiveMoveMultiplier) : 1;
         public bool PassiveActive => PassiveRemaining > 0;
         public bool Active => IsShini ? Breath!=null&&Breath.Busy : ActiveRemaining > 0;
+        public int DashSequence { get; private set; }
+        public float LastDashTime { get; private set; } = float.NegativeInfinity;
         public bool CanActivate => (!IsShini || Breath!=null&&Breath.CanStart) && Definition != null && owner.IsAlive && !owner.IsPortalTravelling && !owner.IsTrapBound && !owner.IsDashing && !IsCutin && !IsSummoning && CooldownRemaining <= 0 && Time.timeScale > 0 && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud");
         SkillWindVisual aura;
         public void Initialize(Character character) { owner=character; aura=gameObject.AddComponent<SkillWindVisual>(); aura.Bind(this); if(IsShini){Breath=gameObject.AddComponent<ShiniEmberRuntime>();Breath.Bind(character,this);} gameObject.AddComponent<PhoenixSkillVisual>().Bind(character,this); if(IsAri)gameObject.AddComponent<AriSkillRuntime>().Bind(character,this); }
         public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && !IsAri && owner.IsAlive) PassiveRemaining=EffectivePassiveDuration; }
         public void DashStarted()
         {
+            DashSequence++;
+            LastDashTime=Time.time;
             owner.GetComponent<PrescriptionRuntime>()?.RecordDash();
             if(IsShini)Breath?.Cancel();
             if(IsAri) GetComponent<AriSkillRuntime>()?.BeginDash();
@@ -140,7 +144,7 @@ namespace Vampire
             if (Definition==null) return;
             if (!owner.IsAlive) { Clear(); return; }
             Tick(Time.deltaTime);
-            if(!IsShini && GameInput.GetKeyDown(KeyCode.R)) TryActivate();
+            if(!IsShini && GameInput.Pressed(GameKeyAction.Active)) TryActivate();
         }
         public void Tick(float delta)
         {

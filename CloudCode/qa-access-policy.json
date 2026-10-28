@@ -1,0 +1,11 @@
+{
+  "statements": [
+    {
+      "Sid": "DenyDirectPlayerLeaderboardWrites",
+      "Effect": "Deny",
+      "Action": ["Write"],
+      "Principal": "Player",
+      "Resource": "urn:ugs:leaderboards:/**"
+    }
+  ]
+}

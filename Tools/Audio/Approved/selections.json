@@ -1,0 +1,27 @@
+[
+  {
+    "boss": "롤팽이",
+    "source": "Rolpangi.wav",
+    "sha256": "e898c62eb05e5ff9bec0397e7f345ad94dd18cb742c711932b4c03b84307d34e"
+  },
+  {
+    "boss": "데니카니",
+    "source": "Denikani.wav",
+    "sha256": "dd7b38a4bb83f6201bf4d000baad9028f5f87a6606b9c893fffa382b8d2ee471"
+  },
+  {
+    "boss": "마리비",
+    "source": "Maribi.wav",
+    "sha256": "74229bef4b1a65e36f9ce9bcd8bec5f194022012c4a510d2ed4b65b238f18960"
+  },
+  {
+    "boss": "탕뎅이",
+    "source": "TangdengiDash.wav",
+    "sha256": "0285c7464d8ba719e9a96f0c4e28deed42a807ccb5ff9f3dae0d806253218de6"
+  },
+  {
+    "boss": "후루미",
+    "source": "Hurumi.wav",
+    "sha256": "9f46e33780ef296c54942df03ede6913fbc7c21b07375a9543827645b64f6ac5"
+  }
+]

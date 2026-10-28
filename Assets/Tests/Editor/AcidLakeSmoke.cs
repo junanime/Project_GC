@@ -27,7 +27,7 @@ namespace Vampire.Tests.Editor
             Vampire.Editor.AcidLakeArtImporter.Prepare();
             Directory.CreateDirectory(Output);RestorePrefs();
             var catalog=JsonUtility.FromJson<Catalog>(Resources.Load<TextAsset>("TutorialClips/catalog").text);
-            var keys=catalog.entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{"Coins","LobbySilverCoins"}).Distinct();
+            var keys=catalog.entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{"Coins","LobbySilverCoins",CapsuleDoctorDialogue.SeenKey}).Distinct();
             File.WriteAllText(Output+"/prefs-backup.json",JsonUtility.ToJson(new Backup{values=keys.Select(k=>new Saved{key=k,exists=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
             foreach(var e in catalog.entries)PlayerPrefs.SetInt(TutorialGuide.SeenKey(e.id),1);
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
@@ -195,7 +195,17 @@ namespace Vampire.Tests.Editor
             var progression=level.GetComponent<StageProgression>();
             Check(progression.FinalBossDefeated(wet,10),"boss death creates exit while flood continues");
             var portal=progression.Portal;Check(portal!=null,"boss exit exists before water sweep");
+            // Boss defeat now delivers the capsule before ordinary field spawning
+            // resumes. Complete that real presentation before testing new spawns.
+            float deliveryLimit=Time.realtimeSinceStartup+15;
+            while(progression.Travelling&&Time.realtimeSinceStartup<deliveryLimit)
+            {
+                if(CapsuleDoctorDialogue.Instance!=null&&!CapsuleDoctorDialogue.Instance.Finished)CapsuleDoctorDialogue.Instance.Advance();
+                yield return null;
+            }
+            Check(!progression.Travelling&&!player.IsPortalTravelling,"capsule delivery releases field spawning");
             var monster=level.EntityManager.SpawnMonsterRandomPosition(0,level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0]);
+            Check(monster!=null,"field spawn succeeds after capsule landing");
             monster.transform.position=wet;float hp=player.CurrentHealth;
             Call(lake,"RemoveSubmergedObjects");yield return null;
             Check(!chest.gameObject.activeSelf&&merchant==null&&jar==null&&!clot.gameObject.activeSelf,"chest merchant jar and blood clot removed without rewards");
@@ -221,7 +231,11 @@ namespace Vampire.Tests.Editor
             Overview(lake,"03-final-safe-zone");
             ApothecaryUI.Instance.OpenRunBook();yield return null;Set(map,"nextOverview",0f);var finalTexture=map.OverviewTexture;
             Shot("08-tab-final-flood");ApothecaryUI.Instance.CloseRunBook();yield return null;
-            lake.enabled=false;Position(player,wet);Set(player,"isInvincible",false);Set(player,"currentHealth",player.MaxHealth);
+            lake.enabled=false;
+            // Capsule landing grants the same arrival grace as blood-clot travel.
+            // Test ordinary acid damage only after that real protection expires.
+            yield return new WaitForSeconds(BloodClotTravel.ExitInvincibilityDuration+.1f);
+            Position(player,wet);Set(player,"isInvincible",false);Set(player,"currentHealth",player.MaxHealth);
             player.TakeAcidLakeDamage(1,false);Check(Mathf.Abs(player.CurrentHealth-player.MaxHealth*.75f)<.01f,"25 percent MAX HP per second, no armor dilution");
             Set(player,"isInvincible",true);hp=player.CurrentHealth;player.TakeAcidLakeDamage(1,false);Check(player.CurrentHealth==hp,"temporary protection blocks HP loss");
             player.AddReviveCount(1);player.TakeAcidLakeDamage(1,true);

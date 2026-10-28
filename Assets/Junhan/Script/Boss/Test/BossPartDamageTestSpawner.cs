@@ -45,7 +45,7 @@ namespace Vampire
 
         private void Update()
         {
-            if (respawnKey != KeyCode.None && Vampire.GameInput.GetKeyDown(respawnKey))
+            if (respawnKey != KeyCode.None && Vampire.GameInput.DebugPressed(respawnKey))
                 SpawnTestBoss();
         }
 

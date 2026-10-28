@@ -255,6 +255,7 @@ namespace Vampire
 
         public override IEnumerator Killed(bool killedByPlayer = true)
         {
+            if (killedByPlayer) RecordRankingKill();
             alive = false;
 
             ResolveBossController();

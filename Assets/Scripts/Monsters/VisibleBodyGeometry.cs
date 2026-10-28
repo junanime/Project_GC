@@ -25,6 +25,11 @@ namespace Vampire
         }
         static Vector2 World(SpriteRenderer body,Vector2 p)
         {if(body.flipX)p.x=-p.x;if(body.flipY)p.y=-p.y;return body.transform.TransformPoint(p);}
+        public static Vector2[] Outline(Sprite sprite)
+        {
+            Bounds(sprite);
+            return cache.TryGetValue(sprite,out var entry)&&entry.outline!=null&&entry.outline.Length>=3 ? entry.outline : sprite.vertices;
+        }
         static float Cross(Vector2 a,Vector2 b)=>a.x*b.y-a.y*b.x;
         public static Vector2 Surface(SpriteRenderer body, Vector2 incoming, Vector2 direction)
         {

@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 7
   itemRarity: 1
   itemTag: 0
-  description: "\uAE30\uBCF8 \uCE68\uC744 6\uD68C \uBC1C\uC0AC\uD560 \uB54C\uB9C8\uB2E4
-    \uD53C\uD574 60%\uC758 \uCE68\uC744 1\uD68C \uCD94\uAC00 \uBC1C\uC0AC."
+  description: "기본 침을 6회 발사할 때마다 피해 60%의 침을 1회 추가 발사."
   itemIcon: {fileID: 7192574610919693145, guid: 59590d7d00e2bad47a863bf820051a10, type: 3}
-  cost: 45
+  cost: 50
   canBuyInLobby: 1
-  silverCost: 150
+  silverCost: 180
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

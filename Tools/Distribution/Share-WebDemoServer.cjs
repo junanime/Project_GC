@@ -50,7 +50,7 @@ function reload(){
 }
 reload();
 fs.watchFile(configFile,{interval:1000},()=>{try{reload();}catch(e){console.error('Keeping previous build:',e.message);}});
-const types={'.html':'text/html; charset=utf-8','.js':'application/javascript','.json':'application/json','.png':'image/png','.wasm':'application/wasm','.txt':'text/plain; charset=utf-8','.md':'text/plain; charset=utf-8'};
+const types={'.html':'text/html; charset=utf-8','.js':'application/javascript','.json':'application/json','.png':'image/png','.wasm':'application/wasm','.mp4':'video/mp4','.webm':'video/webm','.ogg':'audio/ogg','.wav':'audio/wav','.txt':'text/plain; charset=utf-8','.md':'text/plain; charset=utf-8'};
 const server=http.createServer((req,res)=>{
   res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');
   res.setHeader('X-Robots-Tag','noindex, nofollow, noarchive');res.setHeader('Cross-Origin-Resource-Policy','same-origin');

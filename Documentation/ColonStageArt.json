@@ -1,0 +1,25 @@
+{
+  "date": "2026-10-23",
+  "tool": "Built-in image_gen (no CLI/API fallback)",
+  "assets": [
+    {
+      "path": "Assets/Resources/ColonMap/Layout.png",
+      "source": "exec-87472e00-bc18-45e4-afc6-2573058baa83.png",
+      "status": "User-approved first colon concept, copied without modifying the image. Rendering adds world-grid floor detail and animated opening plates."
+    },
+    {
+      "path": "Assets/Resources/BossTravel/Suits.png",
+      "source": "exec-201573aa-0554-436f-b43d-d7efa460bc98.png",
+      "references": ["FoodBosses/Walk0P1.png", "FoodBosses/Walk1P1.png", "FoodBosses/Walk2P1.png", "FoodBosses/Walk3P1.png", "FoodBosses/Walk4P1.png"],
+      "transparent_background": true,
+      "prompt": "Use case stylized-concept, production game sprite atlas with real transparent alpha. Exactly FIVE equally sized square cells in ONE horizontal row, generous empty transparent gutter around every sprite, front view slight top-down, no labels/text/UI. Create five EMPTY discarded food-boss SHELL DIVING SUITS, wearable by a tiny round bird character with head poking through circular neck hole. Each suit is a cute small compact armor shell with hollow open neck collar in upper third, torso body enclosure, two little side flippers and two short swim fins at bottom. NO character inside, NO face, NO animal/boss heads, NO eyes. Same silhouette dimensions and pixel density across all cells. All outlines clean dark brown 2-3px pixel-art edges, crisp readable pixel clusters and restrained shading. Cell1 rollcake snail theme: tan sponge cake rolled shell torso with ivory spiral cream, tiny strawberry red shoulder trim. Cell2 danish hermit crab: flaky golden pastry curved shell torso with small claw-shaped side mittens. Cell3 lemon madeleine scallop: pale lemon yellow ridged seashell torso with ivory rim, small yellow fins. Cell4 candied Hercules beetle: ruby strawberry sugar glazed shell with green grape shoulder clasp and small ivory horn-shaped collar, amber fins. Cell5 udon anemone: golden fried-tofu pillow torso, ivory noodle straps/collar/side flippers and two soft noodle fins, tiny naruto accent. Show recognizable salvaged boss shell material, cozy low clutter, NOT metallic modern scuba. Each complete standalone silhouette fills about 70 percent cell width and 80 percent height. Match reference food-monster game style, not realistic or painterly. Keep neck opening truly transparent and smooth enough to show bird head when layered. These same sprites will lie on ground then expand slightly around player as a diving costume."
+    },
+    {
+      "path": "Assets/Resources/BossTravel/Hole.png",
+      "source": "exec-134b8ced-4ca6-4427-9961-1c4921620440.png",
+      "status": "Explicitly selected by the user for the actual spawned escape hole.",
+      "transparent_background": true,
+      "prompt": "Production top-down 2D cute pixel-art game sprite, transparent background, one single fresh escape burrow hole in soft pink stomach floor. Wide oval dark burgundy cavity, simple rounded coral-pink raised rim with a few soft freshly displaced little pink chunks immediately at its edge. Clean gentle tissue, no gore veins teeth tentacles spikes. Inner sides shade softly into deep dark center. Rim back half slightly higher, front half low enough to dive across. Match cute Korean food-monster pixel art theme, fine clean pixel clusters, dark rose contour, no AI grain. No ground outside rim, no cast shadow outside hole, no text, no UI. Single centered compact asset with plenty of transparent margins, 3:2 oval."
+    }
+  ]
+}

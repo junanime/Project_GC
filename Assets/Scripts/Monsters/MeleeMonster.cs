@@ -59,7 +59,7 @@ namespace Vampire
             }
 
             Vector2 moveDirection =
-                ((Vector2)playerCharacter.transform.position - (Vector2)transform.position).normalized;
+                ColonNavigation.Toward(transform.position,playerCharacter.transform.position);
 
             rb.velocity +=
                 moveDirection *

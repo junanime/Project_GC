@@ -14,7 +14,7 @@ namespace Vampire
 
         private void Update()
         {
-            if (Vampire.GameInput.GetKeyDown(addSilverKey))
+            if (Vampire.GameInput.DebugPressed(addSilverKey))
             {
                 SilverWallet.Add(addAmount);
 
@@ -24,7 +24,7 @@ namespace Vampire
                 }
             }
 
-            if (Vampire.GameInput.GetKeyDown(resetSilverKey))
+            if (Vampire.GameInput.DebugPressed(resetSilverKey))
             {
                 SilverWallet.ResetSilver();
 

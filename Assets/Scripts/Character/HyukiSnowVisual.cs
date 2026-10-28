@@ -6,7 +6,7 @@ namespace Vampire
     public sealed class HyukiSnowVisual : MonoBehaviour
     {
         sealed class Mote {public SpriteRenderer sprite;public Vector3 position,velocity;public float life,maxLife;}
-        Character owner;CharacterSkillRuntime skill;SpriteRenderer body;
+        Character owner;CharacterSkillRuntime skill;SpriteRenderer body,skate;
         readonly List<Mote> motes=new List<Mote>();readonly List<SpriteRenderer> storm=new List<SpriteRenderer>();
         Vector3 previous;float emission,phase;
         public bool DashingWake {get;private set;}
@@ -26,6 +26,17 @@ namespace Vampire
             if(owner!=null && (owner.IsPortalTravelling || owner.IsPortalPoseHeld)){previous=transform.position;Hide();return;}
             if(owner==null||!owner.IsAlive){Hide();return;}
             var art=skill.Definition.iceComponents;if(art==null||art.Length<4)return;
+            if(skate==null)skate=Make("Hyuki ice skate surface");
+            skate.enabled=owner.IsDashing&&body!=null&&body.enabled;
+            if(skate.enabled)
+            {
+                // VFX lives separately from the fixed-size character frames.
+                skate.sprite=art[3];skate.flipX=body.flipX;skate.sortingOrder=body.sortingOrder-1;
+                var foot=body.transform.TransformPoint(new Vector3(0,-.27f,0));
+                skate.transform.position=foot+Vector3.down*.012f;
+                skate.transform.localScale=new Vector3(.62f/skate.sprite.bounds.size.x/Mathf.Abs(transform.lossyScale.x),.10f/skate.sprite.bounds.size.y/Mathf.Abs(transform.lossyScale.y),1);
+                skate.color=new Color(.8f,1,1,.8f);
+            }
             float dt=Time.deltaTime;if(dt<=0)return;phase+=dt;
             Vector3 delta=transform.position-previous;previous=transform.position;DashingWake=owner.IsDashing;
             if(delta.sqrMagnitude>.000001f)
@@ -77,7 +88,7 @@ namespace Vampire
             }
             else foreach(var r in storm)r.enabled=false;
         }
-        void Hide(){foreach(var m in motes)m.sprite.enabled=false;foreach(var r in storm)r.enabled=false;emission=0;previous=transform.position;}
+        void Hide(){if(skate!=null)skate.enabled=false;foreach(var m in motes)m.sprite.enabled=false;foreach(var r in storm)r.enabled=false;emission=0;previous=transform.position;}
         void OnDisable(){Hide();}
     }
 }

@@ -1,0 +1,110 @@
+[
+  {
+    "file": "0-CreamPress.wav",
+    "seconds": 0.44,
+    "peak": 0.46328329689156056,
+    "sha256": "f44814de0a129aea203ed349bc1d4f97ee4209b32ecf7af377b103f8ddbe2182"
+  },
+  {
+    "file": "0-CreamSpread.wav",
+    "seconds": 0.58,
+    "peak": 0.4496405818417289,
+    "sha256": "a1316f99b188491eb8e4f3cbca8af5f5e860f398a61ed0cccfa6d7a4170b57af"
+  },
+  {
+    "file": "0-ToppingSettle.wav",
+    "seconds": 0.33,
+    "peak": 0.47234987182307014,
+    "sha256": "04cfee3aaaa897c2315106a6c100b568aa44b0545a1e3733ec70a220e3f983b3"
+  },
+  {
+    "file": "1-Crack.wav",
+    "seconds": 0.31,
+    "peak": 0.62,
+    "sha256": "66a5bd21f4080359d6804d95b953d282d0c0dc9b31900fe557de79f9648147fb"
+  },
+  {
+    "file": "1-ShellOpen.wav",
+    "seconds": 0.53,
+    "peak": 0.6200000000000001,
+    "sha256": "9f3ed75ae919b529b019668a57b682b8b05b89f6a2dab301b706e1e67c7e9d5c"
+  },
+  {
+    "file": "1-Molt.wav",
+    "seconds": 0.48,
+    "peak": 0.62,
+    "sha256": "c5f23e0063fd22864533e668af869b26655bb6671e86eab792050f88b1e7b322"
+  },
+  {
+    "file": "1-ClawSettle.wav",
+    "seconds": 0.4,
+    "peak": 0.62,
+    "sha256": "5adfef2dd8325d586c098e3ea71be8104fe447bb857e6909d936dfc1c945094d"
+  },
+  {
+    "file": "2-LidRattle.wav",
+    "seconds": 0.38,
+    "peak": 0.62,
+    "sha256": "449d57f11be12624a7d919c7d012929a22868d95dbb3ddac296b7517cf735509"
+  },
+  {
+    "file": "2-LidPop.wav",
+    "seconds": 0.33,
+    "peak": 0.5354568099046553,
+    "sha256": "56763072c6232dda728a45a215ea508a0a8934d441dd47c36fda60d91715cecf"
+  },
+  {
+    "file": "2-Shy.wav",
+    "seconds": 0.45,
+    "peak": 0.5159076227747863,
+    "sha256": "eb5d75b2fd63baa4629a208933f297d8f77802c3845c762dc762554403b3b0b0"
+  },
+  {
+    "file": "2-Angry.wav",
+    "seconds": 0.35,
+    "peak": 0.62,
+    "sha256": "edb88cb90d2535974767d02c27e8fd1021b480f9b747e765e47c823e84697000"
+  },
+  {
+    "file": "3-Stress.wav",
+    "seconds": 0.38,
+    "peak": 0.62,
+    "sha256": "caf1f20e204aeacf06b6f12c51fb7c61f0e692e2fac1193539a2462f75fd9418"
+  },
+  {
+    "file": "3-Crack.wav",
+    "seconds": 0.32,
+    "peak": 0.62,
+    "sha256": "da32ac040817fcc7b469efde97ad255af19e5b8bda166303a2e8a7b235db49da"
+  },
+  {
+    "file": "3-Shatter.wav",
+    "seconds": 0.42,
+    "peak": 0.62,
+    "sha256": "7772791a74cc8bfa50112b8d3fb8eef190a981d263e49e45b9b51fc92e138aea"
+  },
+  {
+    "file": "3-CandyClash.wav",
+    "seconds": 0.4,
+    "peak": 0.62,
+    "sha256": "a6efcee8d9585eb792bb7d512fa1c1d0cf54d8f08df2b98bf99a9bba70e3769e"
+  },
+  {
+    "file": "4-Dip.wav",
+    "seconds": 0.46,
+    "peak": 0.4721686649657651,
+    "sha256": "70abcf2d3097cbdef6e144531e9eaf857078256aa86266450c099e3775634d46"
+  },
+  {
+    "file": "4-Unfurl.wav",
+    "seconds": 0.46,
+    "peak": 0.46271493098412125,
+    "sha256": "6b96915d0bc7bcd7bf23c805829f373328a6cb5148624614401541b0a36b948c"
+  },
+  {
+    "file": "4-NoodleSettle.wav",
+    "seconds": 0.38,
+    "peak": 0.49018510296192247,
+    "sha256": "8fa7086521509a88e7e5056e17813fee160828fd8b340c34f8b1b7cd91197ca9"
+  }
+]

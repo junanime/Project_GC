@@ -94,7 +94,7 @@ namespace Vampire
 
         public void SkipAbilities()
         {
-            if(!menuOpen)return;
+            if(!menuOpen || SelectionAnimating)return;
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);
             Close(); // Consume this offer only; the normal level-up queue continues on the next frame.
         }

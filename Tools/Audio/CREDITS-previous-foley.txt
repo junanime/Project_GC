@@ -1,0 +1,30 @@
+Boss SFX recording-based review, 2026-10-20
+
+Edited third-party CC0 recordings, not recorded by Codex.
+
+OwlishMedia
+202 More Sound Effects
+CC0
+https://opengameart.org/content/202-more-sound-effects
+
+OwlishMedia
+Sound Effects Pack
+CC0
+https://opengameart.org/content/sound-effects-pack
+
+Independent.nu / submitted by qubodup
+35 wooden cracks/hits/destructions
+CC0
+https://opengameart.org/content/35-wooden-crackshitsdestructions
+
+Wet-towel source candidates rejected due to pre-existing hard clipping; no towel files used.
+Only cloth, fruit/tap/slap, paper, water and wood recordings used.
+No Scifi/Technology/UI, electrical appliances or kettle recordings used.
+Two user-approved sounds preserved byte-for-byte; existing provenance unchanged.
+Selected for game integration by the user on 2026-10-20. Automated signal checks do not constitute subjective listening review.
+
+
+--- Two updated patterns ---
+OwlishMedia, CC0 recordings: https://opengameart.org/content/sound-effects-pack
+Independent.nu wood recordings, CC0: https://opengameart.org/content/35-wooden-crackshitsdestructions
+Hurumi curtain includes edits of the existing user-approved noodle master; master file unchanged.

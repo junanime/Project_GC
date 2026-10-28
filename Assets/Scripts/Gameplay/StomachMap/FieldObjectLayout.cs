@@ -16,6 +16,7 @@ namespace Vampire
         public IReadOnlyList<Slot> Slots => slots;
         public bool Ready { get; private set; }
         public bool Failed { get; private set; }
+        public bool IsPlacing {get;private set;}
         public IReadOnlyList<GameObject> SpawnedObjects => objects;
         public int Seed { get; private set; }
         readonly List<Slot> slots = new List<Slot>();
@@ -28,6 +29,19 @@ namespace Vampire
         {
             if (!owner.UsesInitialFieldLayout || owner.GetComponent<FieldObjectLayout>() != null) return;
             owner.gameObject.AddComponent<FieldObjectLayout>().level = owner;
+        }
+        public IEnumerator RebuildForStage()
+        {
+            Ready=false;Failed=false;enabled=true;
+            foreach(var chest in chests)if(chest!=null&&chest.gameObject.activeSelf)level.EntityManager.DespawnChest(chest);
+            foreach(var o in objects)if(o!=null&&o.GetComponent<Chest>()==null&&o.GetComponent<Monster>()==null){o.SetActive(false);Destroy(o);}
+            if(root!=null)Destroy(root.gameObject);
+            slots.Clear();chests.Clear();objects.Clear();yield return null;
+            IsPlacing=true;
+            try{SpawnInitialObjects();}catch(Exception e){Failed=true;Debug.LogException(e,this);}finally{IsPlacing=false;}
+            yield return null;
+            foreach(var c in chests)if(c!=null)c.CompleteInitialPlacement();Physics2D.SyncTransforms();
+            Ready=!Failed&&objects.Count==Counts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
         }
 
         public static List<Slot> Generate(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked = null)
@@ -107,8 +121,10 @@ namespace Vampire
         {
             yield return null; // All scene Start hooks (mini-stage director and NPC references) have run.
             if (level == null || !level.UsesInitialFieldLayout) yield break;
+            IsPlacing=true;
             try { SpawnInitialObjects(); }
             catch (Exception error) { Failed=true; Debug.LogException(error,this); }
+            finally{IsPlacing=false;}
             if(Failed)yield break;
             // NPC Start hooks and interaction registration finish under the loading overlay.
             yield return null;
@@ -152,6 +168,7 @@ namespace Vampire
                 marker.Configure(kind,slot.kind==Kind.GoldJar?"골드 초콜릿 병":slot.kind==Kind.SilverJar?"실버 초콜릿 병":placed.name);
                 marker.RequireNearbyDiscovery=true;marker.ResetDiscovery();
             }
+            if(level.GetComponent<StageProgression>()?.Travelling==true)level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
         }
 
         void Update()

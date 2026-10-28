@@ -11,6 +11,22 @@ namespace Vampire
         bool browserBlocked;
         float savedScale;
         bool releaseBrowserPointers;
+        MobileTouchControl browserJoystick;
+        [System.Serializable] sealed class BrowserContact { public int id, phase; public float x, y; }
+
+        // DOM touch coordinates are normalized to the rendered canvas, independent
+        // of browser zoom, DPR, safe area and Unity's internal render resolution.
+        [Preserve]
+        public void SetBrowserTouch(string value)
+        {
+            var touch = JsonUtility.FromJson<BrowserContact>(value);
+            if (touch == null || browserBlocked) return;
+            if (touch.phase == 0 && (browserJoystick == null || !browserJoystick.isActiveAndEnabled))
+                foreach (var control in FindObjectsOfType<MobileTouchControl>())
+                    if (control.Joystick && control.name == "MOVE") { browserJoystick = control; break; }
+            if (browserJoystick != null)
+                browserJoystick.BrowserTouch(touch.id, touch.phase, new Vector2(touch.x * Screen.width, touch.y * Screen.height));
+        }
 
 #if UNITY_WEBGL && PROJECT_GC_MOBILE_WEB && !UNITY_EDITOR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

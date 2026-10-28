@@ -10,6 +10,7 @@ const url=process.argv[2],out=process.argv[3];assert(['localhost','127.0.0.1'].i
    let entered=0;
    page.on('console',m=>{if(m.text().includes('[LobbyLoadoutApplier]'))entered++;});
    page.on('console',m=>{if(['warning','error'].includes(m.type()))logs.push({type:m.type(),text:m.text()});});page.on('pageerror',e=>logs.push({type:'pageerror',text:String(e)}));
+   page.on('response',r=>{if(r.status()>=400)logs.push({type:'http',status:r.status(),url:r.url()});});
    await page.goto(url);await page.screenshot({path:path.join(out,mode+'-before.png'),fullPage:true});
    await page.locator(`[data-device="${mode}"]`).click();
    let frame;if(mode==='pc')frame=await(await page.locator('#game-frame').elementHandle()).contentFrame();else{await page.waitForURL('**/mobile/?device='+mode);frame=page;}
@@ -22,8 +23,13 @@ const url=process.argv[2],out=process.argv[3];assert(['localhost','127.0.0.1'].i
    assert(state.memory&&state.canvas.width>100);assert(!logs.some(x=>x.type==='pageerror'));
    if(mode==='pc'){await page.locator('#fullscreen').click();await page.waitForTimeout(400);await page.screenshot({path:path.join(out,'pc-fullscreen.png')});await page.evaluate(()=>document.exitFullscreen());}
    async function tapGame(x,y){const r=await frame.locator('canvas').boundingBox();if(mode==='pc')await page.mouse.click(r.x+r.width*x,r.y+r.height*y);else await page.touchscreen.tap(r.x+r.width*x,r.y+r.height*y);}
-   await tapGame(.86,.183);await page.waitForTimeout(350);
-   await tapGame(.812,.338);await page.waitForTimeout(250);
+   // The current game opens with a video start gate. Exercise the real two-tap
+   // confirmation without a screenshot delay between taps (the window is 3 s).
+   await tapGame(.5,.5);await page.waitForTimeout(500);
+   await tapGame(.1,.1);await page.waitForTimeout(180);await tapGame(.1,.1);
+   await page.waitForTimeout(450);await page.screenshot({path:path.join(out,mode+'-intro-confirm.png')});
+   await tapGame(.625,.60);await page.waitForTimeout(1000);
+   await tapGame(.86,.183);await page.waitForTimeout(500);
    await page.screenshot({path:path.join(out,mode+'-prepare.png')});
    await tapGame(.79,.941);
    const until=Date.now()+60000;while(!entered&&Date.now()<until)await page.waitForTimeout(250);

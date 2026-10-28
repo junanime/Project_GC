@@ -16,12 +16,11 @@ MonoBehaviour:
   octoberId: 25
   itemRarity: 3
   itemTag: 4
-  description: "\uAE30\uBCF8 \uCE68 \uD53C\uD574 +50%. \uC77C\uBC18 \uC801\uC758
-    \uC774\uB3D9 \uC18D\uB3C4\uC640 \uACF5\uACA9 \uD53C\uD574 +15%."
+  description: "기본 침 피해 +50%. 일반 적의 이동 속도와 공격 피해 +15%."
   itemIcon: {fileID: 8673248622936758366, guid: 2d66b017726b19b44acc03ca21196a76, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

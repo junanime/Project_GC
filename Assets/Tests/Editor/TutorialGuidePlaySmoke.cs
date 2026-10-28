@@ -90,15 +90,20 @@ namespace Vampire.Tests.Editor
             try
             {
                 var ui = ApothecaryUI.Instance;
+                var intro = FindObjectOfType<IntroMovie>();
+                if (intro != null) typeof(IntroMovie).GetMethod("Finish", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(intro, null);
+                yield return null;
                 CrossSceneData.CharacterBlueprint = ui.Config.characters.First(x => x.skills != null &&
                     x.skills.kind == CharacterSkillDefinition.SkillKind.Hyuki);
                 CrossSceneData.StartingLobbyItems = Array.Empty<MerchantItemBlueprint>();
                 PlayerPrefs.DeleteKey(acidKey); PlayerPrefs.DeleteKey(sniperKey); PlayerPrefs.DeleteKey(clotKey);
-                SceneManager.LoadScene(1);
-                yield return new WaitForSecondsRealtime(2f);
+                Check(StageEntryLoading.Begin(CrossSceneData.CharacterBlueprint), "actual loading starts");
+                while (StageEntryLoading.IsLoading) yield return null;
                 var level = FindObjectOfType<LevelManager>();
                 Check(level != null && TutorialGuide.Instance != null, "guide installed in level");
+                RunScore.Exclude("Tutorial regression verification");
                 level.enabled = false;
+                if (TutorialGuide.IsOpen) TutorialGuide.Instance.Close();
                 if (level.EntityManager.AbilitySelectionDialog.MenuOpen)
                     level.EntityManager.AbilitySelectionDialog.Close();
                 Check(ApothecaryUI.Instance.Page == "hud", "HUD is visible");

@@ -16,7 +16,7 @@ namespace Vampire
                 string role=OctoberArt.CharacterKey(c);float x,y,r,t;
                 switch(role)
                 {
-                    case "Hyuki":x=.11f;y=.12f;r=.255f;t=.425f;break;
+                    case "Hyuki":x=.255f;y=.12f;r=.365f;t=.425f;break;
                     case "Shini":x=.475f;y=.45f;r=.615f;t=.74f;break;
                     case "Ari":x=.655f;y=.10f;r=.86f;t=.42f;break;
                     default:x=.36f;y=.075f;r=.53f;t=.39f;break;
@@ -28,6 +28,7 @@ namespace Vampire
             germ.gameObject.AddComponent<OctoberTitleMotion>().role="Germ";
             string[] labels={"게임 시작","업적","설정","종료"};string[] pages={"prepare","unlock","settings","exit"};
             for(int i=0;i<4;i++){int index=i;ActionButton(content,labels[i],.768f,.77f-i*.104f,.968f,.872f-i*.104f,()=>Show(pages[index]),i==0);}
+            RankingPanel();
         }
         void OctoberFrame(string title)
         {
@@ -84,14 +85,15 @@ namespace Vampire
         }
         void OctoberSelection()
         {
-            var items=Config.items.Where(i=>i!=null&&i.canBuyInLobby).ToArray();
+            var relics=RelicSelectionPolicy.ForLobby(Config.relics);
+            var items=ItemOfferPolicy.ForLobby(Config.items);
             var weapons=(Config.weapons??Array.Empty<SyringeSpecialAugmentAbility>()).OrderBy(w=>StartingNeedleSelection.Owned(w)?0:1).ThenBy(w=>(int)w.Type).ToArray();
-            int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?Config.relics.Length:items.Length;
+            int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?relics.Length:items.Length;
             selection=Mathf.Clamp(selection,0,Mathf.Max(0,count-1));
             int pages=Mathf.Max(1,Mathf.CeilToInt(count/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
-            Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(Config.relics[i].relicId):true;
-            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?Config.relics[i].icon:items[i].itemIcon;
-            Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?Config.relics[i].relicName:items[i].itemName;
+            Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(relics[i].relicId):true;
+            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?relics[i].icon:items[i].itemIcon;
+            Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?relics[i].relicName:items[i].itemName;
             for(int j=0;j<6;j++)
             {
                 int index=pageIndex*6+j;if(index>=count)break;
@@ -152,7 +154,7 @@ namespace Vampire
             }
             else if(Tab==2)
             {
-                var r=Config.relics[selection];detail=RelicDescription(r);need=$"{r.price} 실버로 해금";action=has?"유물 장착":$"해금 · {r.price}";can=has||SilverWallet.CanSpend(r.price);
+                var r=relics[selection];detail=RelicDescription(r);need=$"{r.price} 실버로 해금";action=has?"유물 장착":$"해금 · {r.price}";can=has||SilverWallet.CanSpend(r.price);
                 accept=()=>{if(!has&&SilverWallet.TrySpend(r.price))RelicSaveData.Unlock(r.relicId);if(RelicSaveData.IsUnlocked(r.relicId))RelicSaveData.Equip(r.relicId);Render();};
             }
             else

@@ -134,7 +134,7 @@ namespace Vampire
 
             if (distanceToTarget > stopDistanceToCluster)
             {
-                Vector2 direction = toTarget.normalized;
+                Vector2 direction = ColonNavigation.Toward(transform.position,currentClusterTarget);
                 float acceleration = monsterBlueprint != null ? monsterBlueprint.acceleration : 5f;
                 rb.velocity += direction * acceleration * Time.fixedDeltaTime;
             }

@@ -4,6 +4,14 @@ namespace Vampire
 {
     public static class NeedleTargeting
     {
+        public static bool IsValidBossTarget(Component target,LayerMask targets)
+        {
+            if(target==null||!target.gameObject.activeInHierarchy)return false;
+            var damageable=target.GetComponentInParent<IDamageable>();
+            if(!(damageable is FoodBossRuntime)&&!(damageable is FoodBossWeakpoint)&&!(damageable is SnailBossRuntime))return false;
+            if(Ver4HitEffects.Health(damageable)<=0)return false;
+            var c=damageable.GetComponent<Collider2D>();return c!=null&&c.enabled&&(targets.value&(1<<c.gameObject.layer))!=0;
+        }
         public static bool IsValid(Monster monster, LayerMask targets)
         {
             if (monster == null || !monster.gameObject.activeInHierarchy || monster.HP <= 0f ||

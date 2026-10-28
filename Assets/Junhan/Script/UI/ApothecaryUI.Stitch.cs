@@ -26,7 +26,7 @@ namespace Vampire
         }
         void ApplyStitchTheme()
         {
-            if(content==null || Page!="main"&&Page!="prepare"&&Page!="run"&&Page!="settings")return;
+            if(content==null || Page!="main"&&Page!="prepare"&&Page!="run"&&Page!="settings"&&Page!="rankingName"&&Page!="rankingInfo")return;
             foreach(var f in content.GetComponentsInChildren<ApothecaryButtonFeedback>(true))
             {
                 bool slot=f.name.StartsWith("Choice ")||f.name.StartsWith("Loadout ")||f.name.StartsWith("Record ")&&f.name.Contains("slot ")||f.name.Contains("skill slot");
@@ -40,6 +40,10 @@ namespace Vampire
                 if(f.name=="Record close"||f.name.Contains("skill slot")||f.name.StartsWith("Record ")&&f.name.Contains("slot "))continue;
                 bool smallToolbar=f.name=="Record consumables"||f.name=="Record guide";
                 StitchPatchTheme.Button(f,f.primary||f.chosen,!slot&&!smallToolbar);
+                if(f.name.StartsWith("Keyboard assign ")) {
+                    var seam=f.visual.GetComponentInChildren<StitchPatchGraphic>();
+                    if(seam!=null){seam.inset=4;seam.radius=8;}
+                }
                 if(slot)
                     foreach(var label in f.visual.GetComponentsInChildren<TextMeshProUGUI>())
                         if(!string.IsNullOrEmpty(label.text)&&label.rectTransform.anchorMax.y<.25f)

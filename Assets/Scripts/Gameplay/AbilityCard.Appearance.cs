@@ -14,9 +14,6 @@ namespace Vampire
         Image legacyDescriptionPaper;
         Sprite legacyPanelSprite;
 
-        public void SetNobleArtVisible(bool visible)
-        { if (abilityImage != null) abilityImage.enabled = visible; }
-
         void ApplyPanelTheme()
         {
             var offer = ability as Ver4AugmentOffer;

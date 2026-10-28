@@ -11,13 +11,20 @@ namespace Vampire
         public const float BlizzardFreezeDelay = 1.65f;
         public static void Freeze(Component target)
         {
+            if (MonsterNeedleBarrier.Blocks(target)) return;
             if (target == null || Ver4HitEffects.Health(target) <= 0) return;
             target.GetComponent<IceChillStatus>()?.Clear();
             // Preserve the existing boss resistance: chill instead of a complete stun.
             if (Ver4HitEffects.IsBoss(target))
             {
+                (target.GetComponent<IceChillVisual>()??target.gameObject.AddComponent<IceChillVisual>()).ForceFor(FreezeDuration);
+                if(FoodBossCombatStatus.Supports(target))
+                {
+                    (target.GetComponent<FoodBossCombatStatus>()??target.gameObject.AddComponent<FoodBossCombatStatus>()).Slow(FreezeDuration,.8f);
+                    return;
+                }
                 if (target is Monster)
-                    (target.GetComponent<HoneySlowStatus>() ?? target.gameObject.AddComponent<HoneySlowStatus>()).Apply(FreezeDuration, .8f);
+                    (target.GetComponent<HoneySlowStatus>() ?? target.gameObject.AddComponent<HoneySlowStatus>()).Apply(FreezeDuration, .8f, false);
                 else
                 {
                     var boss = target.GetComponentInParent<BossController>();

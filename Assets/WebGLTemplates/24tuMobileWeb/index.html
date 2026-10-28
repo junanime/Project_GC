@@ -34,7 +34,7 @@
     <p id="instructions">설치 없이 가로 화면으로 플레이하세요.<br>아이폰은 Safari, 안드로이드는 Chrome으로 열어주세요.<br>첫 다운로드 약 500MB · Wi-Fi 권장 · 실버 10,000개 미만이면 보충</p>
     <small>모바일 웹 실험판 · 기종에 따라 느리거나 재로딩될 수 있어요 · 저장은 현재 브라우저에만 유지</small>
     <progress id="progress" max="1" value="0" hidden></progress>
-    <span id="status">왼쪽 이동·조준 / 누르는 동안 충전 · 오른쪽 스킬·대쉬 · 하단 목함 아이템</span>
+    <span id="status">왼쪽 이동 · 우측 하단 대쉬 · 대쉬 왼쪽 액티브 · NPC 직접 터치 · 톱니바퀴 지도·설정</span>
     <button id="start">게임 불러오기</button>
   </div>
   <div class="overlay" id="resume" hidden>
@@ -46,6 +46,31 @@
 <div class="overlay" id="rotate" hidden><strong>휴대폰을 가로로 돌려주세요</strong><p>화면 회전 잠금을 해제해 주세요.<br>가로 화면으로 돌아오면 계속할 수 있어요.</p></div>
 <script>
   'use strict';
+  // Forward canvas-relative touches independently of Unity UI event dispatch.
+  // Unity still checks the topmost HUD hit; menus and skill taps cannot move it.
+  function installGameTouchBridge(canvas, send) {
+    const contacts = new Set();
+    function forward(event) {
+      const begin = event.type === 'touchstart';
+      const end = event.type === 'touchend' || event.type === 'touchcancel';
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      if (begin && event.target === canvas) canvas.focus({preventScroll:true});
+      for (const touch of event.changedTouches) {
+        if (begin && event.target === canvas) contacts.add(touch.identifier);
+        if (!contacts.has(touch.identifier)) continue;
+        send(JSON.stringify({id:touch.identifier, phase:begin?0:end?2:1,
+          x:(touch.clientX-rect.left)/rect.width, y:1-(touch.clientY-rect.top)/rect.height}));
+        if (end) contacts.delete(touch.identifier);
+      }
+    }
+    for (const type of ['touchstart','touchmove','touchend','touchcancel'])
+      window.addEventListener(type, forward, {capture:true, passive:true});
+    return function () {
+      for (const type of ['touchstart','touchmove','touchend','touchcancel']) window.removeEventListener(type,forward,true);
+      contacts.clear();
+    };
+  }
   const canvas=document.getElementById('unity-canvas'), loading=document.getElementById('loading');
   const status=document.getElementById('status'), progress=document.getElementById('progress');
   const start=document.getElementById('start'), resume=document.getElementById('resume'), rotate=document.getElementById('rotate');
@@ -56,6 +81,9 @@
   document.querySelector('h1').textContent='24시간의사투 · '+(android?'안드로이드':'아이폰')+' 웹 QA';
   document.getElementById('instructions').innerHTML='설치 없이 '+browserName+'에서 가로 화면으로 플레이하세요.<br>첫 다운로드 약 '+mobileDownloadMegabytes+'MB · Wi-Fi 권장<br>실버가 10,000개 미만이면 보충됩니다.';
   let unityInstance, started=false, failed=false;
+  installGameTouchBridge(canvas, value => {
+    if (unityInstance) unityInstance.SendMessage('Mobile web lifecycle','SetBrowserTouch',value);
+  });
   let browserTouchCount=0;
   function reportBrowserTouches(event){
     browserTouchCount=event.touches.length;

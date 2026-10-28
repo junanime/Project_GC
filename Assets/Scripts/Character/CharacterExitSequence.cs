@@ -100,6 +100,11 @@ namespace Vampire
                 var idle = actor.Blueprint.idleSpriteSequence;
                 var reference = idle != null && idle.Length > 0 ? idle[0] : body.sprite;
                 var bounds = PaintedBounds(reference);
+                if(name=="hyuki")
+                {
+                    var visible=VisibleBodyGeometry.Bounds(reference);
+                    bounds=new Bounds(visible.center,visible.size);
+                }
                 BodyHeight = bounds.size.y * Mathf.Abs(body.transform.lossyScale.y);
                 anchor = body.transform.TransformPoint(new Vector3(0, bounds.min.y, 0));
                 visual = new GameObject("Character run exit").AddComponent<SpriteRenderer>();

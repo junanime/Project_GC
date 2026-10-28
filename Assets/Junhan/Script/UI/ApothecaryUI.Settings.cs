@@ -19,7 +19,7 @@ namespace Vampire
 
         public void OpenSettings()
         {
-            if(starting || (level != null && (level.IsLevelEnded || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)))) return;
+            if(starting || (level != null && (StageProgression.Ensure(level).Travelling || level.IsLevelEnded || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)))) return;
             if(Page=="hud")
             {
                 // Do not steal a pause owned by a level-up dialog or another system.
@@ -33,12 +33,13 @@ namespace Vampire
         void BeginSettings()
         {
             settingsReturn=Page ?? "main";
-            pendingSessionAction=null;
+            pendingSessionAction=null;pendingKeyAction=null;
             settingsOriginal=GamePreferences.Current.Copy();settingsDraft=settingsOriginal.Copy();
             confirmingDisplay=false;
         }
         void CancelSettings()
         {
+            if(pendingKeyAction.HasValue){pendingKeyAction=null;Render();return;}
             if(pendingSessionAction!=null){pendingSessionAction=null;Render();return;}
             if(confirmingDisplay){RevertDisplay();return;}
             GamePreferences.Apply(settingsOriginal,false);confirmingDisplay=false;
@@ -46,6 +47,8 @@ namespace Vampire
         }
         void ApplySettings()
         {
+            string keyError=settingsDraft.keyboard.ValidationError();
+            if(keyError!=null){message=keyError;Render();return;}
             bool display=!Application.isMobilePlatform&&Application.platform!=RuntimePlatform.WebGLPlayer&&(settingsDraft.width!=settingsOriginal.width||settingsDraft.height!=settingsOriginal.height||settingsDraft.displayMode!=settingsOriginal.displayMode);
             GamePreferences.Apply(settingsDraft,!display);
             if(display){confirmingDisplay=true;displayDeadline=Time.unscaledTime+15;Render();}
@@ -77,11 +80,12 @@ namespace Vampire
         void Settings()
         {
             if(settingsDraft==null)BeginSettings();
-            string[] tabs={"그래픽","사운드","편의 기능","게임 메뉴"};
-            for(int i=0;i<4;i++){int n=i;SettingsButton(content,tabs[i],.062f,.704f-i*.114f,.237f,.797f-i*.114f,()=>{Tab=n;Render();},false,true,Tab==i).name="Settings category "+i;}
+            SyncKeyboardEditing();
+            string[] tabs={"그래픽","사운드","키보드","편의 기능","게임 메뉴"};
+            for(int i=0;i<5;i++){int n=i;SettingsButton(content,tabs[i],.062f,.704f-i*.104f,.237f,.791f-i*.104f,()=>{Tab=n;message="";Render();},false,true,Tab==i).name="Settings category "+i;}
             var section=RecordShape("Settings section",content,.261f,.151f,.663f,.628f,RecordGold,true,15);
             section.insetColor=new Color(1,.95f,.84f);section.transform.SetSiblingIndex(2);
-            var heading=Label(content,Tab==0?"디스플레이":tabs[Tab],.292f,.776f,.88f,.830f,27);heading.color=RecordInk;heading.alignment=TextAlignmentOptions.MidlineLeft;
+            var heading=Label(content,Tab==0?"디스플레이":Tab==2?"키보드 설정":tabs[Tab],.292f,.776f,.88f,.830f,27);heading.color=RecordInk;heading.alignment=TextAlignmentOptions.MidlineLeft;
             if(Tab==0)
             {
                 SettingChoice("그래픽 품질",new[]{"낮음","보통","높음"}[settingsDraft.quality],0,()=>settingsDraft.quality=(settingsDraft.quality+1)%3);
@@ -108,7 +112,8 @@ namespace Vampire
                 AudioSlider("UI 효과음",settingsDraft.ui,3,v=>settingsDraft.ui=v);
                 SettingChoice("음소거",OnOff(settingsDraft.muted),4,()=>{settingsDraft.muted=!settingsDraft.muted;GamePreferences.PreviewAudio(settingsDraft);});
             }
-            else if(Tab==2)
+            else if(Tab==2) KeyboardSettings();
+            else if(Tab==3)
             {
                 SettingChoice("움직임 줄이기",OnOff(settingsDraft.reducedMotion),0,()=>settingsDraft.reducedMotion=!settingsDraft.reducedMotion);
                 SettingChoice("프레임 수 표시",OnOff(settingsDraft.showFps),1,()=>settingsDraft.showFps=!settingsDraft.showFps);
@@ -126,12 +131,13 @@ namespace Vampire
                 SettingsButton(content,"출전 준비로 돌아가기",.37f,.55f,.84f,.62f,()=>RequestSessionAction("prepare"));
                 SettingsButton(content,"메인 화면으로 돌아가기",.37f,.44f,.84f,.51f,()=>RequestSessionAction("main"));
                 SettingsButton(content,"게임 종료",.37f,.33f,.84f,.40f,()=>RequestSessionAction("quit"));
-                Label(content,"TAB: 탐험 기록  /  ESC: 설정 열기·뒤로",.30f,.24f,.89f,.29f,16);
+                Label(content,$"{GameInput.Label(GameKeyAction.Journal)}: 탐험 기록  /  Esc: 설정 열기·뒤로",.30f,.24f,.89f,.29f,16);
             }
             Label(content,message,.28f,.161f,.90f,.205f,16).color=RecordInk;
             SettingsButton(content,level!=null?"계속하기":"뒤로",.28f,.073f,.47f,.147f,CancelSettings).name="Settings resume";
-            SettingsButton(content,"기본값",.50f,.073f,.69f,.147f,()=>{settingsDraft=GamePreferences.Defaults();GamePreferences.PreviewAudio(settingsDraft);GamePreferences.PreviewAugmentVfx(settingsDraft.augmentVfxOpacity);message="적용을 누르면 기본 설정을 저장합니다.";Render();});
-            SettingsButton(content,"적용",.72f,.073f,.91f,.147f,ApplySettings,true);
+            SettingsButton(content,Tab==2?"키 설정 초기화":"기본값",.50f,.073f,.69f,.147f,()=>{if(Tab==2){settingsDraft.keyboard=KeyboardBindingValues.Defaults();selectedKeyboardKey=KeyCode.Space;keyboardGroup=0;keyboardSlot=0;}else{settingsDraft=GamePreferences.Defaults();GamePreferences.PreviewAudio(settingsDraft);GamePreferences.PreviewAugmentVfx(settingsDraft.augmentVfxOpacity);}message="적용을 누르면 기본 설정을 저장합니다.";Render();}).name="Settings reset";
+            SettingsButton(content,"적용",.72f,.073f,.91f,.147f,ApplySettings,true).name="Settings apply";
+            KeyboardConflict();
             if(confirmingDisplay)
             {
                 var shade=ImageAt(content,null,0,0,1,1,false);shade.color=new Color(0,0,0,.65f);shade.raycastTarget=true;

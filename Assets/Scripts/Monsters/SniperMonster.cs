@@ -77,6 +77,7 @@ namespace Vampire
             transform.position = finalSpawnPosition;
 
             currentHealth = sniperBlueprint.hp + hpBuff;
+            SpawnMaxHealth = currentHealth;
             alive = true;
 
             if (entityManager != null &&
@@ -642,6 +643,8 @@ namespace Vampire
 
         private Vector2 GetProjectileSpawnWorldPosition()
         {
+            var colonVisual=GetComponent<ColonMonsterVisual>();
+            if(colonVisual!=null&&colonVisual.Entry!=null)return colonVisual.Muzzle;
             if (sniperBlueprint != null && sniperBlueprint.fireSprites != null &&
                 sniperBlueprint.fireSprites.Length > 0 && monsterSpriteRenderer != null)
             {
@@ -737,6 +740,7 @@ namespace Vampire
 
             // 결과 화면용: 이 탄환을 발사한 몬스터 정보를 Projectile에 전달
             projectile.SetSourceMonster(sniperBlueprint);
+            ColonPopcornProjectile.Apply(projectile, GetComponent<ColonMonsterVisual>()?.Entry?.id == "S01");
 
             projectile.Launch(
                 direction.normalized

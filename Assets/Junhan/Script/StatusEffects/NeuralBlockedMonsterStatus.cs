@@ -25,6 +25,7 @@ namespace Vampire
         public float IceRemaining => Mathf.Max(0,iceEndTime-Time.time);
         public void ApplyIce(float duration)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (!initialized) CacheReferences();
             iceEndTime=Mathf.Max(iceEndTime,Time.time+Mathf.Max(.05f,duration));
             (GetComponent<IcePrisonVisual>()??gameObject.AddComponent<IcePrisonVisual>()).Rebind(this);
@@ -42,6 +43,7 @@ namespace Vampire
 
         public void Apply(float duration)
         {
+            if (MonsterNeedleBarrier.Blocks(this)) return;
             if (!initialized)
             {
                 CacheReferences();

@@ -23,10 +23,11 @@ namespace Vampire
         public int SupplyCapsulesCollected { get; private set; }
         public float HealingReceived { get; private set; }
         public void RecordHealing(float actual) => HealingReceived += Mathf.Max(0, actual);
-        public void RecordMiniStageClear() => MiniStagesCleared++;
+        public void RecordMiniStageClear() { MiniStagesCleared++; RunScore.Current?.Clear(); }
         public void RecordSupplyCollected() => SupplyCapsulesCollected++;
         public void RecordMonsterKill(Monster monster)
         {
+            monster.RecordRankingKill();
             IncrementMonstersKilled();
             if(monster.Blueprint is EliteMonsterBlueprint) EliteMonstersKilled++;
             else if(!(monster is BossMonster) && !(monster is MiniBossMonster)) NormalMonstersKilled++;

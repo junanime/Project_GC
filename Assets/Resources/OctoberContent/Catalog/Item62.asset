@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 62
   itemRarity: 3
   itemTag: 0
-  description: "10\uCD08\uB9C8\uB2E4 \uCD5C\uADFC 3\uCD08 \uC774\uB3D9 \uACBD\uB85C\uB97C
-    \uC5ED\uD589\uD558\uB294 \uC794\uC0C1. \uACBD\uB85C\uC758 \uC801\uC5D0\uAC8C
-    \uCE68 \uD53C\uD574 80%, \uB300\uC0C1\uB2F9 1\uD68C."
+  description: "7초마다 최근 3초 이동 경로를 역행하는 잔상. 경로의 적에게 침 피해 120%, 대상당 1회."
   itemIcon: {fileID: -641241640232805664, guid: 953b3d034d2176843877f37db0a430b8, type: 3}
-  cost: 130
+  cost: 180
   canBuyInLobby: 1
-  silverCost: 650
+  silverCost: 900
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

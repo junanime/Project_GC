@@ -17,7 +17,7 @@ namespace Vampire
             public Color color;
             public int segments;
         }
-        Character owner;
+        Character owner;StageProgression progression;
         Canvas canvas;
         RectTransform surface;
         Transform body;
@@ -33,7 +33,7 @@ namespace Vampire
 
         public void Bind(Character character,PointBar legacy)
         {
-            owner=character;
+            owner=character;progression=FindObjectOfType<StageProgression>();
             if(legacy!=null)
             {
                 var group=legacy.GetComponent<CanvasGroup>();
@@ -142,8 +142,9 @@ namespace Vampire
         void LateUpdate()
         {
             if(owner==null||canvas==null)return;
+            if(progression==null)progression=FindObjectOfType<StageProgression>();
             var camera=Camera.main;var ui=ApothecaryUI.Instance;
-            bool shown=owner.IsAlive&&camera!=null&&(ui==null||ui.Page=="hud")&&Time.timeScale>0;
+            bool shown=!(progression!=null&&progression.CapsuleBoarded)&&owner.IsAlive&&camera!=null&&(ui==null||ui.Page=="hud")&&Time.timeScale>0;
             canvas.enabled=shown;if(!shown)return;
             SetSegments(dash,owner.MaxDashCharges);
             Fill(health,0,owner.MaxHealth>0?owner.CurrentHealth/owner.MaxHealth:0);

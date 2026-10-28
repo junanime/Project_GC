@@ -64,12 +64,18 @@ namespace Vampire
             }
         }
 
+        public void UseInputItem(UnityEngine.InputSystem.InputAction.CallbackContext context)
+        {
+            if(!context.performed || Time.timeScale<=0 || GameInput.KeyboardBlocked)return;
+            if(IsBomb)BombTargeting.For(this)?.ThrowAutomatic(this);else UseItem();
+        }
+
         public void UseItem()
         {
             // Serialized PlayerInput callbacks can arrive for multiple phases. Only a fresh key press throws.
             if(IsBomb)
             {
-                if(GameInput.GetKeyDown(KeyCode.Alpha1)||GameInput.GetKeyDown(KeyCode.Z))BombTargeting.For(this)?.ThrowAutomatic(this);
+                if(GameInput.Pressed(GameKeyAction.Slot1))BombTargeting.For(this)?.ThrowAutomatic(this);
                 return;
             }
             if (items.Count > 0)

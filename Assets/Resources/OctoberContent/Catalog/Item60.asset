@@ -16,13 +16,11 @@ MonoBehaviour:
   octoberId: 60
   itemRarity: 2
   itemTag: 4
-  description: "\uACBD\uD5D8\uCE58\uB97C 3\uCD08 \uC800\uC7A5 \uD6C4 15% \uCD94\uAC00\uD558\uC5EC
-    \uD68D\uB4DD. \uB2E4\uC74C \uC2A4\uD14C\uC774\uC9C0\uB85C \uB0A8\uC740 \uC800\uC7A5\uB7C9
-    \uBCF4\uC874."
+  description: "경험치를 3초 저장 후 15% 추가하여 획득. 다음 스테이지로 남은 저장량 보존."
   itemIcon: {fileID: -9215292386175866922, guid: e5b030baa85ce6b4e9e0809796b5a708, type: 3}
-  cost: 80
+  cost: 100
   canBuyInLobby: 1
-  silverCost: 320
+  silverCost: 400
   abilityPrefab: {fileID: 0}
   atkSpeedBoost: 0
   atkDamageBoost: 0

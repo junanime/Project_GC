@@ -12,6 +12,33 @@ namespace Vampire.Tests.Editor
     {
         private static LevelBlueprint Level => AssetDatabase.LoadAssetAtPath<LevelBlueprint>("Assets/Blueprints/Levels/Level 1.asset");
         [Test]
+        public void RuntimeSpawnRateIncreasesAtEightMinutesWithoutChangingPoolWeights()
+        {
+            var host = new GameObject("Spawn rate boundary check");
+            host.SetActive(false);
+            var manager = host.AddComponent<LevelManager>();
+            const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(LevelManager).GetField("levelBlueprint", flags).SetValue(manager, Level);
+            var clock = typeof(LevelManager).GetField("levelTime", flags);
+            try
+            {
+                foreach (float seconds in new[] { 0f, 420f, 479.99f, 480f, 481f, 600f, 900f, 1140f, 0f })
+                {
+                    clock.SetValue(manager, seconds);
+                    float original = Level.monsterSpawnTable.GetSpawnRate(Mathf.Clamp01(seconds / Level.levelTime));
+                    Assert.AreEqual(original * (seconds < 480 ? 1 : 1.3f), manager.GetCurrentBaseMonsterSpawnRate(), .00001f, "Time " + seconds);
+                }
+                foreach (var pair in Level.MonsterIndexMap)
+                {
+                    var pool = Level.monsters[pair.Value.Item1];
+                    if (pool.monstersPrefab.GetComponent<AcidLeechMonster>() == null) continue;
+                    for (int second = 0; second <= 1140; second++)
+                        Assert.AreEqual(0, Level.monsterSpawnTable.GetProbability(second / Level.levelTime, pair.Key), "Retired field mini must never enter normal selection");
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(host); }
+        }
+        [Test]
         public void SpawnWeightsHandleBoundariesAndUnnormalizedInspectorValues()
         {
             var t = new MonsterSpawnTable { spawnChanceKeyframes = new[] {

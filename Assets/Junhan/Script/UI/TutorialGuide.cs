@@ -117,7 +117,7 @@ namespace Vampire
         }
         private void Enqueue(string id)
         {
-            if (!entries.TryGetValue(id, out Entry entry) || PlayerPrefs.GetInt(SeenKey(id), 0) != 0 || !pendingIds.Add(id)) return;
+            if (!entries.TryGetValue(id, out Entry entry) || ProgressPrefs.GetInt(SeenKey(id), 0) != 0 || !pendingIds.Add(id)) return;
             pending.Enqueue(entry);
         }
 
@@ -181,8 +181,8 @@ namespace Vampire
             canvasObject.SetActive(true);
             if (discovery)
             {
-                PlayerPrefs.SetInt(SeenKey(entry.id), 1);
-                PlayerPrefs.Save();
+                ProgressPrefs.SetInt(SeenKey(entry.id), 1);
+                ProgressPrefs.Save();
             }
         }
         public void Replay() { clipStart = Time.unscaledTime; preview?.GetComponent<FoodTutorialPreview>()?.Restart(); }
@@ -224,8 +224,12 @@ namespace Vampire
             panel.color = Color.white; panel.raycastTarget = true;
             var ribbon = RectImage(card, "Pink ribbon", .325f, .875f, .675f, 1.025f, new Color(.93f,.49f,.56f));
             ribbon.sprite = Resources.Load<Sprite>("OctoberUI/Banner");
-            kindText = Label(ribbon.rectTransform, "", .08f, .16f, .92f, .84f, 31, Color.white);
+            // The curved ribbon's lower centre is transparent. Keep lettering
+            // inside the coloured fabric instead of crossing onto cream paper.
+            kindText = Label(ribbon.rectTransform, "", .14f, .40f, .86f, .93f, 29, Color.white);
+            kindText.resizeTextForBestFit = true; kindText.resizeTextMinSize = 20; kindText.resizeTextMaxSize = 29;
             titleText = Label(card, "", .10f, .785f, .90f, .87f, 37, new Color(.23f,.12f,.15f));
+            titleText.resizeTextForBestFit = true; titleText.resizeTextMinSize = 24; titleText.resizeTextMaxSize = 37;
             RectImage(card, "Preview border", .055f, .235f, .615f, .78f, new Color(.38f,.18f,.27f));
             var previewFrame = RectImage(card, "Preview", .068f, .251f, .602f, .765f, new Color(.59f,.27f,.35f));
             preview = Rect("Looping gameplay demonstration", previewFrame.rectTransform, .015f, .025f, .985f, .975f).gameObject.AddComponent<RawImage>();

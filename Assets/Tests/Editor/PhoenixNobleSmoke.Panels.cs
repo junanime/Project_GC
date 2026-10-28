@@ -38,7 +38,6 @@ namespace Vampire.Tests.Editor
             Check(cards.Length==3,"three live reward cards");
             for(int start=0;start<abilities.Length;start+=3)
             {
-                typeof(AbilitySelectionDialog).GetMethod("ClearScrollReveal",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(dialog,null);
                 for(int i=0;i<cards.Length;i++)cards[i].Init(dialog,abilities[(start+i)%abilities.Length],0);
                 yield return new WaitForSecondsRealtime(.6f);
                 Canvas.ForceUpdateCanvases();
@@ -56,17 +55,8 @@ namespace Vampire.Tests.Editor
                 }
                 PanelCapture("panels-"+start);
             }
-            typeof(AbilitySelectionDialog).GetMethod("PrepareScrollReveal",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(dialog,null);
-            Check(dialog.ScrollRevealPending && !dialog.CanSelectRevealedCard,"sealed cards cannot be selected");
-            Check(cards.All(c=>!c.transform.Find("Noble scroll seal/Rolling jade rod").gameObject.activeSelf),"closed covers have no duplicate moving rods");
-            PanelCapture("sealed");
-            cards[0].Selected();
-            yield return new WaitForSecondsRealtime(.4f);
-            Check(dialog.ScrollRevealPending && dialog.MenuOpen,"first click only rolls covers, does not choose");
-            PanelCapture("rolling");
-            yield return new WaitForSecondsRealtime(.6f);
-            Check(!dialog.ScrollRevealPending && dialog.CanSelectRevealedCard && dialog.MenuOpen,"all covers finish rolling before selection becomes available");
-            Check(cards.All(c=>!c.transform.Find("Noble scroll seal/Rolling jade rod").gameObject.activeSelf),"revealed frames have no duplicate moving rods");
+            Check(cards.All(c=>c.transform.Find("Noble scroll seal")==null),"noble panels have no cover or rolling rods");
+            Check(cards.All(c=>((Image)Field(c,"abilityImage")).enabled),"noble illustrations immediately visible");
             PanelCapture("revealed");
             var regular=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).First();
             cards[0].Init(dialog,regular,0);yield return new WaitForSecondsRealtime(.5f);

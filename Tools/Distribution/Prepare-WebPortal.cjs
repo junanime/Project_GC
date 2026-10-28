@@ -6,6 +6,8 @@ fs.mkdirSync(backup,{recursive:true});fs.mkdirSync(portal,{recursive:true});
 function preserve(file,label){const target=path.join(backup,label);assert(!fs.existsSync(target),'Use a fresh backup directory');fs.copyFileSync(file,target);}
 const pcFile=path.join(desktop,'index.html'),mobileFile=path.join(mobile,'index.html');
 preserve(pcFile,'pc-index.html');preserve(mobileFile,'mobile-index.html');
+require('./Prepare-UnityWebCompatibility.cjs').prepare(desktop);
+require('./Prepare-UnityWebCompatibility.cjs').prepare(mobile);
 let pc=fs.readFileSync(pcFile,'utf8');
 if(!pc.includes('data-portal-embed'))pc=pc.replace('</head>',`<style data-portal-embed>
 html.portal-embed,html.portal-embed body{width:100%;height:100%;min-height:0;padding:0;overflow:hidden;background:#171521}

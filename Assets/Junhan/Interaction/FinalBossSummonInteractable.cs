@@ -31,6 +31,8 @@ namespace Vampire
         public static bool IsSummoning => pendingSummon != null;
         private BossSummonPresentation presentation;
         private bool summoning;
+        private FoodBossKind selectedBoss;
+        private bool foodRoster;
         protected override bool KeepVisibleAfterInteraction => true;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -45,7 +47,7 @@ namespace Vampire
             presentation = gameObject.AddComponent<BossSummonPresentation>();
             presentation.Initialize(GetComponent<SpriteRenderer>());
             var marker=GetComponent<MapMarker>();if(marker==null)marker=gameObject.AddComponent<MapMarker>();
-            marker.Configure(MapMarkerKind.Event,"롤케이크 소환 제단");
+            marker.Configure(MapMarkerKind.Event,"보스 소환 제단");
             // Separate the E-key trigger from a thick static footprint; dashes collide with the base.
             var trigger=GetComponent<Collider2D>();
             if(trigger is BoxCollider2D box){box.size=new Vector2(3.6f,3.2f);box.offset=new Vector2(0,.45f);}
@@ -60,6 +62,7 @@ namespace Vampire
 
         protected override void OnDisable()
         {
+            ApothecaryUI.Instance?.CancelBossChoice(this);
             StopAllCoroutines();
             if (presentation != null) presentation.ResetStandby();
             if (pendingSummon == this) pendingSummon = null;
@@ -83,7 +86,8 @@ namespace Vampire
                 MiniStageRuntimeState.IsInsideMiniStage) return false;
             if (levelManager == null) levelManager = FindObjectOfType<LevelManager>();
             if (levelManager == null || levelManager.IsRunFlowPaused || levelManager.IsLevelEnded) return false;
-            if (!ExecuteInteraction(levelManager.PlayerCharacter)) return false;
+            selectedBoss=(FoodBossKind)Random.Range(0,5);
+            if (!BeginSummon(levelManager.PlayerCharacter)) return false;
             // A player can leave the terminal far behind. Keep automatic transmission visible.
             Camera camera = Camera.main;
             if (camera != null)
@@ -101,6 +105,27 @@ namespace Vampire
         }
 
         protected override bool ExecuteInteraction(Character player)
+        {
+            OpenBossChoice(player);
+            return false; // The altar is consumed only after the player confirms a choice.
+        }
+
+        public bool OpenBossChoice(Character player)
+        {
+            if(player==null||summoning||IsSummoning||HasInteracted||IsBossAlreadyPresent()||ApothecaryUI.Instance==null)return false;
+            pendingSummon=this;
+            bool opened=ApothecaryUI.Instance.ShowBossChoice(this,kind=>
+            {
+                if(pendingSummon==this)pendingSummon=null;
+                if(this==null||!isActiveAndEnabled)return;
+                selectedBoss=kind;
+                if(BeginSummon(player)){RunScore.Exclude("보스 선택 테스트");CompleteInteraction();}
+            },()=>{if(pendingSummon==this)pendingSummon=null;});
+            if(!opened&&pendingSummon==this)pendingSummon=null;
+            return opened;
+        }
+
+        private bool BeginSummon(Character player)
         {
             if (levelManager == null)
             {
@@ -142,6 +167,7 @@ namespace Vampire
 
             pendingSummon = this;
             summoning = true;
+            foodRoster=StageProgression.Ensure(levelManager).StageNumber<=2;
             StartCoroutine(SummonSequence(player, levelBlueprint));
             return true;
         }
@@ -154,7 +180,14 @@ namespace Vampire
                 yield return presentation.Transmit();
                 if (levelManager == null || levelManager.CurrentLevelBlueprint != blueprint) yield break;
                 Vector3 landing = GetSpawnPosition(player);
-                yield return presentation.Descend(blueprint.finalBoss.bossPrefab, landing);
+                if(foodRoster)
+                {
+                    var preview=new GameObject("Selected boss arrival template");
+                    preview.transform.position=new Vector3(0,0,1000); // Source template stays outside the live camera.
+                    var sr=preview.AddComponent<SpriteRenderer>();sr.sprite=FoodBossArt.Walk(selectedBoss,false,0);sr.sortingOrder=510;preview.transform.localScale=Vector3.one*FoodBossArt.WalkScale(selectedBoss,false);
+                    try{yield return presentation.Descend(preview,landing);}finally{Destroy(preview);}
+                }
+                else yield return presentation.Descend(blueprint.finalBoss.bossPrefab, landing);
                 if (levelManager == null || levelManager.CurrentLevelBlueprint != blueprint) yield break;
                 success = SpawnConfiguredBoss(blueprint, landing);
                 presentation.FinishArrival();
@@ -174,7 +207,7 @@ namespace Vampire
         private bool SpawnConfiguredBoss(LevelBlueprint levelBlueprint, Vector3 spawnPosition)
         {
             GameObject spawnedBoss = levelManager.EntityManager.SpawnFinalBoss(
-                levelBlueprint, spawnPosition);
+                levelBlueprint, spawnPosition, 0, selectedBoss);
 
             if (spawnedBoss == null)
             {
@@ -259,7 +292,7 @@ namespace Vampire
             BossMonster existingBossMonster = FindObjectOfType<BossMonster>();
             BossController existingBossController = FindObjectOfType<BossController>();
 
-            return existingBossMonster != null || existingBossController != null || FindObjectOfType<SnailBossRuntime>() != null;
+            return existingBossMonster != null || existingBossController != null || FindObjectOfType<SnailBossRuntime>() != null || FindObjectOfType<FoodBossRuntime>() != null;
         }
 
         private void DisableBossLevelSpawners()

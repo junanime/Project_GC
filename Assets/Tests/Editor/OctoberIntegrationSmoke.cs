@@ -24,6 +24,7 @@ namespace Vampire.Tests.Editor
         static int beforeBuy;
         static bool gameplayStarted;
         [Serializable] class Save { public string key;public bool exists;public int value; }
+        [Serializable] class TutorialCatalog { public TutorialGuide.Entry[] entries; }
         [Serializable] class Backup {public Save[] values;public bool equippedExists;public string equipped;public bool settingsExists;public string settings;}
         static string BackupPath=>Path.GetFullPath("Library/OctoberIntegrationSaveBackup.json");
         static OctoberIntegrationSmoke(){if(SessionState.GetBool(Key,false))Attach();}
@@ -33,7 +34,8 @@ namespace Vampire.Tests.Editor
             Directory.CreateDirectory(Output);
             var config=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             Check(config!=null&&config.characters.Length>0&&config.items.Length>=2&&config.relics.Length>0,"Catalog valid");
-            var keys=new[]{"LobbySilverCoins","Coins","Apothecary.ReducedMotion","October.StartingNeedle"}.Concat(config.relics.Select(r=>"RelicUnlocked_"+r.relicId)).Concat(config.characters.Select(c=>"LobbyUnlock.Character."+c.name)).Concat(config.characters.Select(StartingNeedleSelection.SaveKey)).ToArray();
+            var catalog=JsonUtility.FromJson<TutorialCatalog>(Resources.Load<TextAsset>("TutorialClips/catalog").text);
+            var keys=new[]{"LobbySilverCoins","Coins","Apothecary.ReducedMotion","October.StartingNeedle"}.Concat(config.relics.Select(r=>"RelicUnlocked_"+r.relicId)).Concat(config.characters.Select(c=>"LobbyUnlock.Character."+c.name)).Concat(config.characters.Select(StartingNeedleSelection.SaveKey)).Concat(catalog.entries.Select(e=>TutorialGuide.SeenKey(e.id))).ToArray();
             var backup=new Backup{values=keys.Select(k=>new Save{key=k,exists=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray(),equippedExists=PlayerPrefs.HasKey("EquippedRelicId"),equipped=PlayerPrefs.GetString("EquippedRelicId")};
             backup.settingsExists=PlayerPrefs.HasKey(GamePreferences.SaveKey);backup.settings=PlayerPrefs.GetString(GamePreferences.SaveKey);
             File.WriteAllText(BackupPath,JsonUtility.ToJson(backup));
@@ -82,6 +84,14 @@ namespace Vampire.Tests.Editor
             if(EditorApplication.timeSinceStartup>deadline||failed)
             {SessionState.SetBool(Key+"Failed",true);SessionState.SetBool(Key+"Done",true);return;}
             if(!EditorApplication.isPlaying || ApothecaryUI.Instance==null || EditorApplication.timeSinceStartup<next)return;
+            if (IntroMovie.Active)
+            {
+                typeof(IntroMovie).GetMethod("Finish",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)
+                    .Invoke(UnityEngine.Object.FindObjectOfType<IntroMovie>(),null);
+                next=EditorApplication.timeSinceStartup+.5; return;
+            }
+            if (step==13 && (StageEntryLoading.IsLoading || UnityEngine.Object.FindObjectOfType<LevelManager>()?.PlayerCharacter==null)) return;
+            if(TutorialGuide.IsOpen){TutorialGuide.Instance.Close();next=EditorApplication.timeSinceStartup+.1;return;}
             next=EditorApplication.timeSinceStartup+.65;
             try
             {
@@ -111,6 +121,7 @@ namespace Vampire.Tests.Editor
                     case 13:
                         Check(ui.Page=="hud","Gameplay loaded");
                         var player=UnityEngine.Object.FindObjectOfType<LevelManager>().PlayerCharacter;
+                        RunScore.Exclude("Automated game functionality audit");
                         var runtime=player.GetComponent<OctoberItemRuntime>();Check(runtime!=null&&runtime.Has(1)&&runtime.Has(2),"Carry item mechanics installed once");
                         float hp=player.MaxHealth;Check(!runtime.Give(ui.Config.items[1])&&player.MaxHealth==hp,"Duplicate item cannot apply twice");
                         Check(CrossSceneData.StartingLobbyItems.Length==0,"Carry queue consumed");
@@ -126,7 +137,7 @@ namespace Vampire.Tests.Editor
                         var dialog=UnityEngine.Object.FindObjectOfType<AbilitySelectionDialog>();
                         if(dialog!=null&&dialog.MenuOpen){Capture("13-training-panels");UnityEngine.Object.FindObjectsOfType<AbilityCard>().First().Selected();step=14;next+=.6;break;}
                         ui.OpenRunBook();break;
-                    case 15:Check(ui.Page=="run"&&Time.timeScale==0,"TAB pauses gameplay");Capture("07-tab-map");Click("설정");break;
+                    case 15:Check(ui.Page=="run"&&Time.timeScale==0,"TAB pauses gameplay");Capture("07-tab-map");Activate(ui.GetComponentsInChildren<Button>().Single(b=>b.name=="Settings bookmark"));break;
                     case 16:Capture("08-esc-settings");ui.Show("run",2);break;
                     case 17:Capture("09-run-inventory");ui.CloseRunBook();break;
                     case 18:

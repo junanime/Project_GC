@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 5
   itemRarity: 0
   itemTag: 4
-  description: "4 \uAC70\uB9AC \uBC16\uC758 \uC801\uC5D0\uAC8C \uAE30\uBCF8 \uCE68
-    \uD53C\uD574 +18%."
+  description: "4 거리 밖의 적에게 기본 침 피해 +18%."
   itemIcon: {fileID: 1644439917284058798, guid: 84133d5229815274db9a0ebf84970ec1, type: 3}
   cost: 25
   canBuyInLobby: 1

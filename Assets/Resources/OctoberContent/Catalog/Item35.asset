@@ -16,8 +16,7 @@ MonoBehaviour:
   octoberId: 35
   itemRarity: 0
   itemTag: 4
-  description: "\uCD5C\uB300 \uCCB4\uB825 15% \uC774\uC0C1 \uD53C\uD574\uB97C \uBC1B\uC744
-    \uB54C \uD574\uB2F9 \uD53C\uD574 25% \uAC10\uC18C. \uC7AC\uC0AC\uC6A9 8\uCD08."
+  description: "최대 체력 15% 이상 피해를 받을 때 해당 피해 25% 감소. 재사용 대기 8초."
   itemIcon: {fileID: 7371855700123445641, guid: c9a328df73c92d846821635c8305e562, type: 3}
   cost: 25
   canBuyInLobby: 1

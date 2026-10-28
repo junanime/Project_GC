@@ -64,6 +64,15 @@ namespace Vampire
             view.SetProgress(0);
             return view;
         }
+        public static StageEntryLoading CreateStageTransfer(CharacterBlueprint character)
+        {
+            var view=Create(character);view.running=true;
+            view.heading.text="대장으로 이동 중…";
+            foreach(var label in view.GetComponentsInChildren<TextMeshProUGUI>())
+                if(label.name=="Stage")label.text="STAGE 02  ·  대장";
+            return view;
+        }
+        public void CompleteStageTransfer(){running=false;Destroy(gameObject);}
 
         IEnumerator Load()
         {
@@ -172,7 +181,8 @@ namespace Vampire
         {
             if (runner == null || frames == null || frames.Length == 0) return;
             bool reduced=GamePreferences.Current.reducedMotion;
-            runner.sprite=frames[reduced ? 0 : (int)(elapsed/.085f)%frames.Length];
+            float frameTime=CharacterKey=="Hyuki"?.12f:.085f;
+            runner.sprite=frames[reduced ? 0 : (int)(elapsed/frameTime)%frames.Length];
             float scale=Perspective(Progress);
             float hop=reduced ? 0 : Mathf.Abs(Mathf.Sin(elapsed*Mathf.PI/.34f))*4*scale;
             runner.rectTransform.anchoredPosition=Route(Progress)+Vector2.up*hop;

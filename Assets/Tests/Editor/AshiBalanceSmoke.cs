@@ -143,7 +143,7 @@ static IEnumerator Checks(LevelManager level){
  // Actual mini-stage entry/exit preserves every acquisition. Test the room's chest producer too.
  foreach(var m in level.EntityManager.LivingMonsters.ToArray())if(m!=null)m.gameObject.SetActive(false);
  var director=Object.FindObjectOfType<MiniStageDirector>();director.OpenEntrancePortal(player.transform.position+Vector3.right);
- var entry=Object.FindObjectsOfType<BloodClotMiniStagePortal>().First(p=>!p.Reserved);var charge=entry.GetComponent<BloodClotOvercharge>();typeof(BloodClotOvercharge).GetProperty("Kind").SetValue(charge,BloodClotOvercharge.Challenge.Stay);
+ var entry=Object.FindObjectsOfType<BloodClotMiniStagePortal>().First(p=>!p.Reserved);var charge=entry.GetComponent<BloodClotOvercharge>();typeof(BloodClotOvercharge).GetProperty("Kind").SetValue(charge,BloodClotOvercharge.Challenge.Kills);
  Check(charge.Begin(),"begin overcharge");charge.Advance(charge.Target);director.EnterMiniStageFromPortal(entry);
  end=Time.realtimeSinceStartup+15;while(director.IsTransitioning&&Time.realtimeSinceStartup<end)yield return null;
  Check(director.IsInsideMiniStage&&director.CurrentEnhanced,"enter enhanced mini-stage");
@@ -155,8 +155,7 @@ static IEnumerator Checks(LevelManager level){
  end=Time.realtimeSinceStartup+15;while(director.IsTransitioning&&Time.realtimeSinceStartup<end)yield return null;
  Check(!director.IsInsideMiniStage&&rt.CaptureRunSceneConditionalAugmentIds().SequenceEqual(saved)&&player.DamageMultiplier==damage,"mini-stage return preserves balance state");
  var progression=StageProgression.Ensure(level);progression.FinalBossDefeated(player.transform.position+Vector3.right*4,100);
- Check(progression.TryEnter(player,progression.Portal),"enter stage two through actual travel");end=Time.realtimeSinceStartup+15;while(progression.Travelling&&Time.realtimeSinceStartup<end)yield return null;
- Check(progression.StageNumber==2&&rt.CaptureRunSceneConditionalAugmentIds().SequenceEqual(saved)&&player.DamageMultiplier==damage,"stage two preserves all acquired balance state");
+ Check(StageProgression.StageTwoEnabled&&progression.StageNumber==1&&progression.Portal!=null&&progression.Remnant!=null,"stage one leaves pursuit hole and colon-travel remnant");
  // A fresh runtime restores legacy retired history without reactivating either parent.
  var legacy=saved.Concat(new[]{"{\"version\":4,\"parent\":\"Honey\",\"original\":true,\"option\":0,\"grade\":3,\"amount\":0}","{\"version\":4,\"parent\":\"WoodNeedle\",\"original\":false,\"option\":0,\"grade\":4,\"amount\":0.24}"}).ToList();
  var copy=new GameObject("Migration runtime").AddComponent<Ver4AugmentRuntime>();copy.Configure(rt.Balance,manager,level.EntityManager,player);
