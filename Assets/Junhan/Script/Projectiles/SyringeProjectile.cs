@@ -39,12 +39,12 @@ namespace Vampire
             entityManager.DespawnProjectile(projectileIndex, this);
         }
 
-        public void ConfigureFlightVfx(bool bipolar, bool heavy)
+        public void ConfigureFlightVfx(bool bipolar, bool heavy, float charge = 1)
         {
             SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
             heavyImpactVisual = heavy;
             if (heavy)
-                (GetComponent<PhoenixHeavyFlightVisual>() ?? gameObject.AddComponent<PhoenixHeavyFlightVisual>()).Bind(this, projectileSpriteRenderer);
+                (GetComponent<PhoenixHeavyFlightVisual>() ?? gameObject.AddComponent<PhoenixHeavyFlightVisual>()).Bind(this, projectileSpriteRenderer, charge);
             else GetComponent<PhoenixHeavyFlightVisual>()?.Clear();
             if (bipolar)
             {
