@@ -41,6 +41,7 @@ namespace Vampire
             try{SpawnInitialObjects();}catch(Exception e){Failed=true;Debug.LogException(e,this);}finally{IsPlacing=false;}
             yield return null;
             foreach(var c in chests)if(c!=null)c.CompleteInitialPlacement();Physics2D.SyncTransforms();
+            if(!Failed)BuriedBossDirector.Ensure(level).PrepareStage(level.PlayerCharacter.transform.position);
             Ready=!Failed&&objects.Count==Counts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
         }
 
@@ -130,6 +131,7 @@ namespace Vampire
             yield return null;
             foreach(var chest in chests)chest.CompleteInitialPlacement();
             Physics2D.SyncTransforms();
+            BuriedBossDirector.Ensure(level).PrepareStage(level.PlayerCharacter.transform.position);
             Ready = objects.Count == Counts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
             if(!Ready){Failed=true;Debug.LogError("Initial field objects did not finish placing.",this);}
         }

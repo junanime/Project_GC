@@ -28,7 +28,7 @@ namespace Vampire
         [SerializeField] private bool disableBossLevelSpawnersAfterSpawn = true;
 
         private static FinalBossSummonInteractable pendingSummon;
-        public static bool IsSummoning => pendingSummon != null;
+        public static bool IsSummoning => pendingSummon != null || BuriedBossDirector.Pending != null;
         private BossSummonPresentation presentation;
         private bool summoning;
         private FoodBossKind selectedBoss;
@@ -86,7 +86,8 @@ namespace Vampire
                 MiniStageRuntimeState.IsInsideMiniStage) return false;
             if (levelManager == null) levelManager = FindObjectOfType<LevelManager>();
             if (levelManager == null || levelManager.IsRunFlowPaused || levelManager.IsLevelEnded) return false;
-            selectedBoss=(FoodBossKind)Random.Range(0,5);
+            var buried = levelManager.GetComponent<BuriedBossDirector>();
+            selectedBoss=buried!=null ? buried.SelectedKind : (FoodBossKind)Random.Range(0,5);
             if (!BeginSummon(levelManager.PlayerCharacter)) return false;
             // A player can leave the terminal far behind. Keep automatic transmission visible.
             Camera camera = Camera.main;
@@ -218,6 +219,7 @@ namespace Vampire
             Monster legacyBoss = spawnedBoss.GetComponent<Monster>();
             if (legacyBoss != null) legacyBoss.OnKilled.AddListener(levelManager.LevelPassed);
             levelManager.NotifyExternalFinalBossSpawned();
+            levelManager.GetComponent<BuriedBossDirector>()?.NotifySpawned();
 
             BossController bossController = spawnedBoss.GetComponent<BossController>();
 

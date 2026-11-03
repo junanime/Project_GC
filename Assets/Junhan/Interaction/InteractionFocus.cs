@@ -38,6 +38,16 @@ namespace Vampire
                 if(entry.owner==null||!entry.owner.gameObject.activeInHierarchy||entry.available==null||!entry.available())continue;
                 var visual=entry.visualOwner!=null?entry.visualOwner():entry.owner;
                 if(visual==null)continue;
+                // Hurumi's existing noodle is a deformable mesh, not a SpriteRenderer.
+                if(visual is BuriedBossPart buried && buried.Presentation!=null)
+                {
+                    var bounds=buried.Presentation.PartBounds;
+                    var a=camera.WorldToScreenPoint(bounds.min);var b=camera.WorldToScreenPoint(bounds.max);
+                    var hit=Rect.MinMaxRect(Mathf.Min(a.x,b.x)-12,Mathf.Min(a.y,b.y)-12,Mathf.Max(a.x,b.x)+12,Mathf.Max(a.y,b.y)+12);
+                    float distance=(hit.center-point).sqrMagnitude;
+                    if(hit.Contains(point)&&distance<closest){closest=distance;target=entry.owner;}
+                    continue;
+                }
                 // Anatomical openings are terrain-shader landmarks, with no SpriteRenderer.
                 if(visual is StomachOpening opening)
                 {

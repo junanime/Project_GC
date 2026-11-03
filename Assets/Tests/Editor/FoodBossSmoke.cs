@@ -19,6 +19,7 @@ namespace Vampire.Tests.Editor
         [Serializable] class Saved{public string key;public bool exists;public int value;}[Serializable] class Backup{public Saved[] values;}
         static FoodBossSmoke(){if(SessionState.GetBool(Key,false))Attach();}
         public static void Run()=>Start(false);
+        public static void RunBuriedArrival(){SessionState.SetBool(Key+"BuriedArrival",true);Start(false);}
         public static void RunFlowReview(){SessionState.SetBool(Key+"Flow",true);Start(false);}
         public static void RunTangdengiWalk(){SessionState.SetBool(Key+"TangWalk",true);Start(false);}
         public static void RunMotionUpdate(){SessionState.SetBool(Key+"MotionUpdate",true);Start(false);}
@@ -77,6 +78,7 @@ namespace Vampire.Tests.Editor
             foreach(var m in level.EntityManager.LivingMonsters.ToArray())m.DespawnForStageTransfer();
             Set(player,"isInvincible",true);Time.timeScale=1;
             RunScore.Exclude("보스 자동 검증");
+            if(SessionState.GetBool(Key+"BuriedArrival",false)){SessionState.SetBool(Key+"BuriedArrival",false);yield return BuriedArrivalReview(level,player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"MotionUpdate",false)){SessionState.SetBool(Key+"MotionUpdate",false);yield return MotionUpdateReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"TangWalk",false)){SessionState.SetBool(Key+"TangWalk",false);yield return TangdengiWalkReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Flow",false)){SessionState.SetBool(Key+"Flow",false);yield return FlowReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
