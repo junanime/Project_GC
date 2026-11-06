@@ -154,6 +154,17 @@ namespace Vampire
                 return;
             }
 
+            var colon = other.GetComponentInParent<ColonBossRuntime>();
+            if (colon != null)
+            {
+                if (!NeedleTargeting.IsValidBossTarget(colon, targetLayer)) return;
+                int bossId = colon.gameObject.GetInstanceID();
+                if (nextDamageTimesByTarget.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) return;
+                Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
+                nextDamageTimesByTarget[bossId] = Time.time + tickInterval;
+                return;
+            }
+
             Monster monster = other.GetComponentInParent<Monster>();
 
             if (monster == null)

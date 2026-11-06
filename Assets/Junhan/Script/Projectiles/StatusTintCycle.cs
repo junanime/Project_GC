@@ -54,6 +54,10 @@ namespace Vampire
                 elapsed = 0;
             }
             var active = overlays[selected];
+            // A colon manatee can expose only its head through a masked pipe opening.
+            // Tint must reveal exactly the same pixels as the original body.
+            active.maskInteraction = body.maskInteraction;
+            active.sortingLayerID = body.sortingLayerID;
             active.enabled = true;
             // Preserve bespoke boss limb/flight clipping when tinting the same sprite.
             sourceProperties = sourceProperties ?? new MaterialPropertyBlock();

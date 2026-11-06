@@ -1,0 +1,29 @@
+{
+  "id": "hedgehog",
+  "kind": "Idle",
+  "frameCount": 1,
+  "frameWidth": 220,
+  "frameHeight": 176,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 220,
+  "atlasHeight": 176,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4772727272727273,
+  "pivotY": 0.045454545454545414,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 0.8,
+  "referenceVisibleHeight": 163,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Idle_000",
+      "x": 0,
+      "y": 0,
+      "width": 220,
+      "height": 176
+    }
+  ]
+}

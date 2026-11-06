@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Vampire
 {
-    // One layout per stage-one run. Mini stages reuse the same field and do not reroll it.
+    // One layout per stage. Mini stages reuse the same field and do not reroll it.
     public sealed class FieldObjectLayout : MonoBehaviour
     {
         public enum Kind { Chest, Merchant, BloodClot, EliteAltar, GoldJar, SilverJar }
@@ -41,7 +41,7 @@ namespace Vampire
             try{SpawnInitialObjects();}catch(Exception e){Failed=true;Debug.LogException(e,this);}finally{IsPlacing=false;}
             yield return null;
             foreach(var c in chests)if(c!=null)c.CompleteInitialPlacement();Physics2D.SyncTransforms();
-            if(!Failed)BuriedBossDirector.Ensure(level).PrepareStage(level.PlayerCharacter.transform.position);
+            if(!Failed)PrepareBossHabitats();
             Ready=!Failed&&objects.Count==Counts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
         }
 
@@ -50,6 +50,15 @@ namespace Vampire
             var rng = new System.Random(seed);
             var result = new List<Slot>();
             var paired = new HashSet<int>();
+            Vector2? reservedColonHome=null;
+            if(map.IsColon)
+            {
+                // The unique wall-mounted home has fewer valid sites than ordinary props.
+                // Reserve one first so 86 props can never fill every valid manatee wall segment.
+                var sites=ColonBossDirector.FindManateeSites(map,start);
+                if(sites.Count==0)throw new InvalidOperationException("No valid central-wall home footprint in colon geometry.");
+                reservedColonHome=sites[rng.Next(sites.Count)].position;
+            }
             float roll() => (float)rng.NextDouble();
             int Sector(Vector2 p)
             {
@@ -59,6 +68,7 @@ namespace Vampire
             bool Allowed(Vector2 p, Kind kind, int partner)
             {
                 if (map.NavigationDistance(p, out _) < WallInset || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
+                if(reservedColonHome.HasValue&&Vector2.Distance(p,reservedColonHome.Value)<ColonBossDirector.PropClearance+2.05f)return false;
                 for (int j = 0; j < result.Count; j++)
                 {
                     var other = result[j];
@@ -131,9 +141,26 @@ namespace Vampire
             yield return null;
             foreach(var chest in chests)chest.CompleteInitialPlacement();
             Physics2D.SyncTransforms();
-            BuriedBossDirector.Ensure(level).PrepareStage(level.PlayerCharacter.transform.position);
-            Ready = objects.Count == Counts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
+            PrepareBossHabitats();
+            Ready = !Failed && objects.Count == Counts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
             if(!Ready){Failed=true;Debug.LogError("Initial field objects did not finish placing.",this);}
+        }
+        void PrepareBossHabitats()
+        {
+            try
+            {
+                var position=(Vector2)level.PlayerCharacter.transform.position;
+                // Also retires the old buried part when moving from the stomach to the colon.
+                BuriedBossDirector.Ensure(level).PrepareStage(position);
+                if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)
+                {
+                    var bosses=ColonBossDirector.Ensure(level);
+                    bosses.PrepareStage(position);
+                    if(!bosses.Ready||bosses.Failed)
+                        throw new InvalidOperationException("All six colon boss habitats must be ready before loading ends.");
+                }
+            }
+            catch(Exception error){Failed=true;Debug.LogException(error,this);}
         }
         void SpawnInitialObjects()
         {

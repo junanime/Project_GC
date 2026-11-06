@@ -20,6 +20,7 @@ namespace Vampire
             if(!closed)r.Add(src[src.Length-1]);return r.ToArray();
         }
         public static Vector2[] Outer(FiniteStomachMap m){var r=new Vector2[outer.Length];for(int i=0;i<r.Length;i++)r[i]=m.UVToWorld(outer[i]);return r;}
+        public static Vector2[] CentralRidge(FiniteStomachMap m){var r=new Vector2[spine.Length];for(int i=0;i<r.Length;i++)r[i]=m.UVToWorld(spine[i]);return r;}
         static bool Inside(Vector2 p){bool inside=false;for(int i=0,j=outer.Length-1;i<outer.Length;j=i++)if((outer[i].y>p.y)!=(outer[j].y>p.y)&&p.x<(outer[j].x-outer[i].x)*(p.y-outer[i].y)/(outer[j].y-outer[i].y)+outer[i].x)inside=!inside;return inside;}
         static float Nearest(FiniteStomachMap m,Vector2[] points,Vector2 p,bool closed,out Vector2 q)
         {

@@ -1,0 +1,29 @@
+{
+  "id": "manatee",
+  "kind": "Dormant",
+  "frameCount": 1,
+  "frameWidth": 252,
+  "frameHeight": 200,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 252,
+  "atlasHeight": 200,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4007936507936508,
+  "pivotY": 0.030000000000000027,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 173,
+  "referenceBaselineY": 317,
+  "frames": [
+    {
+      "name": "Dormant_000",
+      "x": 0,
+      "y": 0,
+      "width": 252,
+      "height": 200
+    }
+  ]
+}

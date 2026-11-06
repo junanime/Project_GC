@@ -154,6 +154,16 @@ namespace Vampire
                 appliedCount++;
             }
 
+            // Colon encounters are IDamageable rather than Monster, so they are not in
+            // the legacy list above. Keep the same on-screen/layer rules for them.
+            foreach (var boss in ColonBossRuntime.Active)
+            {
+                LayerMask layer = monsterLayer.value == 0 ? (LayerMask)~0 : monsterLayer;
+                if (!NeedleTargeting.IsValidBossTarget(boss, layer) || !IsInScreen(boss.HitCenter)) continue;
+                var status = boss.GetComponent<NeuralBlockedMonsterStatus>() ?? boss.gameObject.AddComponent<NeuralBlockedMonsterStatus>();
+                status.Apply(remainingDuration, false);
+                appliedCount++;
+            }
             return appliedCount;
         }
 

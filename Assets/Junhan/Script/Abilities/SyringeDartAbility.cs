@@ -1253,7 +1253,8 @@ namespace Vampire
                     }
                 }
 
-                Vector2 targetPosition = damageableComponent.transform.position;
+                if (damageable is ColonBossRuntime colon && !NeedleTargeting.IsValidBossTarget(colon, monsterLayer)) continue;
+                Vector2 targetPosition = NeedleTargeting.Position(damageableComponent);
 
                 if (monster != null && monster.CenterTransform != null)
                 {

@@ -1,0 +1,78 @@
+{
+  "id": "turtle",
+  "kind": "Pose",
+  "frameCount": 8,
+  "frameWidth": 220,
+  "frameHeight": 160,
+  "columns": 8,
+  "rows": 1,
+  "atlasWidth": 1760,
+  "atlasHeight": 160,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5045454545454545,
+  "pivotY": 0.03125,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 150,
+  "referenceBaselineY": 338,
+  "frames": [
+    {
+      "name": "Pose_000",
+      "x": 0,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_001",
+      "x": 220,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_002",
+      "x": 440,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_003",
+      "x": 660,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_004",
+      "x": 880,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_005",
+      "x": 1100,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_006",
+      "x": 1320,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    },
+    {
+      "name": "Pose_007",
+      "x": 1540,
+      "y": 0,
+      "width": 220,
+      "height": 160
+    }
+  ]
+}

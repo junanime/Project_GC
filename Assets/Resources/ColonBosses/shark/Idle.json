@@ -1,0 +1,29 @@
+{
+  "id": "shark",
+  "kind": "Idle",
+  "frameCount": 1,
+  "frameWidth": 244,
+  "frameHeight": 180,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 244,
+  "atlasHeight": 180,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.38934426229508196,
+  "pivotY": 0.03888888888888886,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.2,
+  "referenceVisibleHeight": 140,
+  "referenceBaselineY": 308,
+  "frames": [
+    {
+      "name": "Idle_000",
+      "x": 0,
+      "y": 0,
+      "width": 244,
+      "height": 180
+    }
+  ]
+}

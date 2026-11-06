@@ -1,0 +1,12 @@
+{
+  "id": "hedgehog",
+  "name": "밤송이고슴도치",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 163,
+  "referencePixelWidth": 209,
+  "walkCycle": 0.8,
+  "walkFrameCount": 20,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Approved locomotion artwork. Single scale per pose set, fixed world pivot."
+}

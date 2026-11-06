@@ -1,0 +1,29 @@
+{
+  "id": "pudding",
+  "kind": "Dormant",
+  "frameCount": 1,
+  "frameWidth": 236,
+  "frameHeight": 188,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 236,
+  "atlasHeight": 188,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4957627118644068,
+  "pivotY": 0.03191489361702127,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 179,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Dormant_000",
+      "x": 0,
+      "y": 0,
+      "width": 236,
+      "height": 188
+    }
+  ]
+}

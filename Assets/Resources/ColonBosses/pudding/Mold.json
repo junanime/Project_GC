@@ -1,0 +1,29 @@
+{
+  "id": "pudding",
+  "kind": "Mold",
+  "frameCount": 1,
+  "frameWidth": 228,
+  "frameHeight": 204,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 228,
+  "atlasHeight": 204,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4956140350877193,
+  "pivotY": 0.02941176470588236,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 179,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Mold_000",
+      "x": 0,
+      "y": 0,
+      "width": 228,
+      "height": 204
+    }
+  ]
+}

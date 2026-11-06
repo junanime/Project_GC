@@ -35,6 +35,13 @@ namespace Vampire
             StopAllCoroutines();
             Cleanup();
             if (Part != null) { Part.gameObject.SetActive(false); Destroy(Part.gameObject); }
+            Part = null;
+            if(stage>=2)
+            {
+                // Stage two has six permanent homes; its final boss is separately reserved.
+                Consumed=true;PreparedStage=stage;EntryPosition=start;
+                return;
+            }
             Consumed = false;
             EntryPosition = start;
             SelectedKind = (FoodBossKind)Random.Range(0, 5);
@@ -80,6 +87,7 @@ namespace Vampire
         }
 
         public bool CanSummon => isActiveAndEnabled && !Consumed && PreparedStage > 0 && level != null &&
+            StageProgression.Ensure(level).StageNumber==1 &&
             !level.IsLevelEnded && !level.IsRunFlowPaused && !MiniStageRuntimeState.IsInsideMiniStage &&
             !StageProgression.Ensure(level).FirstBossDefeated && !FinalBossSummonInteractable.IsSummoning &&
             FindObjectOfType<FoodBossRuntime>() == null && FindObjectOfType<BossMonster>() == null &&

@@ -12,7 +12,7 @@ namespace Vampire
         public float SpeedMultiplier=>slowLeft>0?slowFactor:1;
         public CombatStatusTag ActiveStatusTags => (poisonLeft>0?CombatStatusTag.Poison:CombatStatusTag.None)|(slowLeft>0?CombatStatusTag.Slow:CombatStatusTag.None)|(acid?CombatStatusTag.DeathMark:CombatStatusTag.None)|(bacteria.Count>0?CombatStatusTag.Infection:CombatStatusTag.None);
         void Awake(){target=GetComponent<IDamageable>();}
-        public static bool Supports(Component target)=>target is FoodBossRuntime||target is FoodBossWeakpoint;
+        public static bool Supports(Component target)=>target is FoodBossRuntime||target is FoodBossWeakpoint||target is ColonBossRuntime;
         public static void Apply(Component target,SyringeSpecialRuntime runtime,Character source,bool markConsumed)
         {
             if(!Supports(target)||Ver4HitEffects.Health(target)<=0)return;
@@ -39,6 +39,7 @@ namespace Vampire
             }
         }
         public void Slow(float seconds,float multiplier){slowLeft=Mathf.Max(slowLeft,seconds);slowFactor=Mathf.Min(slowFactor,Mathf.Clamp(multiplier,.2f,1));}
+        public void ClearSlow(){slowLeft=0;slowFactor=1;}
         void Update()
         {
             if(FoodBossRuntime.Paused)return;

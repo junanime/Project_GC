@@ -52,7 +52,7 @@ namespace Vampire
             if (!SyringeAugmentVfx.IsLiving(this)) return;
             // Only the screen-wide noble uses the shared hourglass. Item stuns retain their cue.
             if (showLocalVisual && augmentVisual == null)
-                augmentVisual = SyringeAugmentVfx.Play("NeuralBlock", transform.position, SyringeAugmentVfx.FindTarget(monster));
+                augmentVisual = SyringeAugmentVfx.Play("NeuralBlock", transform.position, SyringeAugmentVfx.FindTarget(monster != null ? (Component)monster : this));
             endTime = Mathf.Max(endTime, Time.time + Mathf.Max(0.05f, duration));
 
             DisableMonsterMovementComponent();

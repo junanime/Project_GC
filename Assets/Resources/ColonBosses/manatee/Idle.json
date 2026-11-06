@@ -1,0 +1,29 @@
+{
+  "id": "manatee",
+  "kind": "Idle",
+  "frameCount": 1,
+  "frameWidth": 216,
+  "frameHeight": 204,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 216,
+  "atlasHeight": 204,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.38425925925925924,
+  "pivotY": 0.03431372549019607,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 173,
+  "referenceBaselineY": 317,
+  "frames": [
+    {
+      "name": "Idle_000",
+      "x": 0,
+      "y": 0,
+      "width": 216,
+      "height": 204
+    }
+  ]
+}

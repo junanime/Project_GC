@@ -1,0 +1,12 @@
+{
+  "id": "pudding",
+  "name": "푸딩바다사자",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 179,
+  "referencePixelWidth": 247,
+  "walkCycle": 1.6,
+  "walkFrameCount": 40,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Approved locomotion artwork. Single scale per pose set, fixed world pivot."
+}

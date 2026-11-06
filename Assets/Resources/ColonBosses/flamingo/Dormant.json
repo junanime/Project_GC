@@ -1,0 +1,29 @@
+{
+  "id": "flamingo",
+  "kind": "Dormant",
+  "frameCount": 1,
+  "frameWidth": 184,
+  "frameHeight": 204,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 184,
+  "atlasHeight": 204,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5,
+  "pivotY": 0.03431372549019607,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.2,
+  "referenceVisibleHeight": 222,
+  "referenceBaselineY": 339,
+  "frames": [
+    {
+      "name": "Dormant_000",
+      "x": 0,
+      "y": 0,
+      "width": 184,
+      "height": 204
+    }
+  ]
+}

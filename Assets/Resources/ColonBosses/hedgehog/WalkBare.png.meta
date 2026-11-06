@@ -1,0 +1,580 @@
+fileFormatVersion: 2
+guid: bc24874ff4586904c89385e85b41b951
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 7
+  spritePivot: {x: 0.5, y: 0}
+  spritePixelsToUnits: 125
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 0
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: WalkBare_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57c15df4fd7eeed90800000000000000
+      internalID: -7066455818994639755
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_001
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2daee9227c5437e20800000000000000
+      internalID: 3347095669648059090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_002
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2ff0b62c1e6bbbe50800000000000000
+      internalID: 6826250740955811826
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_003
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62774776d66ec2720800000000000000
+      internalID: 2822884424015968038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_004
+      rect:
+        serializedVersion: 2
+        x: 880
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 799454d62c53e2d20800000000000000
+      internalID: 3255598689808632215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_005
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87416e03b42b63160800000000000000
+      internalID: 7004982306434061432
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_006
+      rect:
+        serializedVersion: 2
+        x: 1320
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e4aa023518ca3d80800000000000000
+      internalID: -8270077772353067803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_007
+      rect:
+        serializedVersion: 2
+        x: 1540
+        y: 352
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1feccbf0c46ab5db0800000000000000
+      internalID: -4802061732048744719
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_008
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24c95c5e54e19fac0800000000000000
+      internalID: -3820989523290645438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_009
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aae5b33bacc678970800000000000000
+      internalID: 8757087618291424938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_010
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1523659b2f8a245e0800000000000000
+      internalID: -1926791930116165039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_011
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e8435fc6ba796770800000000000000
+      internalID: 8604543488649021665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_012
+      rect:
+        serializedVersion: 2
+        x: 880
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a49a3b3947e0f6710800000000000000
+      internalID: 1688584279144245578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_013
+      rect:
+        serializedVersion: 2
+        x: 1100
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3940d1dd3ef35dc00800000000000000
+      internalID: 924715546394297491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_014
+      rect:
+        serializedVersion: 2
+        x: 1320
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaa69282d11a02cb0800000000000000
+      internalID: -4890732048724432210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_015
+      rect:
+        serializedVersion: 2
+        x: 1540
+        y: 176
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3bb0fb3d618b5e10800000000000000
+      internalID: 2187484350175558458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_016
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abe93c760811b98e0800000000000000
+      internalID: -1685734392325759302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_017
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 0
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fe1feef2f35b5fb0800000000000000
+      internalID: -4658037086460371208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_018
+      rect:
+        serializedVersion: 2
+        x: 440
+        y: 0
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d1a9d406dd94a71e0800000000000000
+      internalID: -2199364252864767459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: WalkBare_019
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 0
+        width: 220
+        height: 176
+      alignment: 9
+      pivot: {x: 0.47727272, y: 0.045454547}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 019b5e596d6369680800000000000000
+      internalID: -8748744930854848240
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      WalkBare_000: -7066455818994639755
+      WalkBare_001: 3347095669648059090
+      WalkBare_002: 6826250740955811826
+      WalkBare_003: 2822884424015968038
+      WalkBare_004: 3255598689808632215
+      WalkBare_005: 7004982306434061432
+      WalkBare_006: -8270077772353067803
+      WalkBare_007: -4802061732048744719
+      WalkBare_008: -3820989523290645438
+      WalkBare_009: 8757087618291424938
+      WalkBare_010: -1926791930116165039
+      WalkBare_011: 8604543488649021665
+      WalkBare_012: 1688584279144245578
+      WalkBare_013: 924715546394297491
+      WalkBare_014: -4890732048724432210
+      WalkBare_015: 2187484350175558458
+      WalkBare_016: -1685734392325759302
+      WalkBare_017: -4658037086460371208
+      WalkBare_018: -2199364252864767459
+      WalkBare_019: -8748744930854848240
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

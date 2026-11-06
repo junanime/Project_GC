@@ -1,0 +1,78 @@
+{
+  "id": "pudding",
+  "kind": "Pose",
+  "frameCount": 8,
+  "frameWidth": 272,
+  "frameHeight": 208,
+  "columns": 8,
+  "rows": 1,
+  "atlasWidth": 2176,
+  "atlasHeight": 208,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5183823529411765,
+  "pivotY": 0.038461538461538436,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 179,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Pose_000",
+      "x": 0,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_001",
+      "x": 272,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_002",
+      "x": 544,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_003",
+      "x": 816,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_004",
+      "x": 1088,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_005",
+      "x": 1360,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_006",
+      "x": 1632,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    },
+    {
+      "name": "Pose_007",
+      "x": 1904,
+      "y": 0,
+      "width": 272,
+      "height": 208
+    }
+  ]
+}

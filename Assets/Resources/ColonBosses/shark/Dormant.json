@@ -1,0 +1,29 @@
+{
+  "id": "shark",
+  "kind": "Dormant",
+  "frameCount": 1,
+  "frameWidth": 132,
+  "frameHeight": 124,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 132,
+  "atlasHeight": 124,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.29545454545454547,
+  "pivotY": 0.056451612903225756,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.2,
+  "referenceVisibleHeight": 140,
+  "referenceBaselineY": 308,
+  "frames": [
+    {
+      "name": "Dormant_000",
+      "x": 0,
+      "y": 0,
+      "width": 132,
+      "height": 124
+    }
+  ]
+}

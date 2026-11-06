@@ -1,0 +1,12 @@
+{
+  "id": "flamingo",
+  "name": "도넛플라밍고",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 222,
+  "referencePixelWidth": 138,
+  "walkCycle": 1.2,
+  "walkFrameCount": 30,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Approved locomotion artwork. Single scale per pose set, fixed world pivot."
+}

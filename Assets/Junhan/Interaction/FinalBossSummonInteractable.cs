@@ -82,6 +82,7 @@ namespace Vampire
 
         public bool TryAutomaticSummon()
         {
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if (!isActiveAndEnabled || HasInteracted || Time.timeScale <= 0f ||
                 MiniStageRuntimeState.IsInsideMiniStage) return false;
             if (levelManager == null) levelManager = FindObjectOfType<LevelManager>();
@@ -113,6 +114,7 @@ namespace Vampire
 
         public bool OpenBossChoice(Character player)
         {
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if(player==null||summoning||IsSummoning||HasInteracted||IsBossAlreadyPresent()||ApothecaryUI.Instance==null)return false;
             pendingSummon=this;
             bool opened=ApothecaryUI.Instance.ShowBossChoice(this,kind=>
@@ -128,6 +130,7 @@ namespace Vampire
 
         private bool BeginSummon(Character player)
         {
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if (levelManager == null)
             {
                 Debug.LogError("[FinalBossSummonInteractable] LevelManager를 찾지 못했습니다.", this);

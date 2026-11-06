@@ -1,0 +1,14 @@
+{
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5,
+  "pivotY": 0.5,
+  "frames": [
+    {
+      "name": "HouseDoor_000",
+      "x": 0,
+      "y": 0,
+      "width": 112,
+      "height": 88
+    }
+  ]
+}

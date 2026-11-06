@@ -1,0 +1,29 @@
+{
+  "id": "turtle",
+  "kind": "Dormant",
+  "frameCount": 1,
+  "frameWidth": 160,
+  "frameHeight": 132,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 160,
+  "atlasHeight": 132,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5125,
+  "pivotY": 0.037878787878787845,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 150,
+  "referenceBaselineY": 338,
+  "frames": [
+    {
+      "name": "Dormant_000",
+      "x": 0,
+      "y": 0,
+      "width": 160,
+      "height": 132
+    }
+  ]
+}

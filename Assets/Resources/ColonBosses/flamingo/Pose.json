@@ -1,0 +1,78 @@
+{
+  "id": "flamingo",
+  "kind": "Pose",
+  "frameCount": 8,
+  "frameWidth": 244,
+  "frameHeight": 236,
+  "columns": 8,
+  "rows": 1,
+  "atlasWidth": 1952,
+  "atlasHeight": 236,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4959016393442623,
+  "pivotY": 0.029661016949152574,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.2,
+  "referenceVisibleHeight": 222,
+  "referenceBaselineY": 339,
+  "frames": [
+    {
+      "name": "Pose_000",
+      "x": 0,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_001",
+      "x": 244,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_002",
+      "x": 488,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_003",
+      "x": 732,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_004",
+      "x": 976,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_005",
+      "x": 1220,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_006",
+      "x": 1464,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    },
+    {
+      "name": "Pose_007",
+      "x": 1708,
+      "y": 0,
+      "width": 244,
+      "height": 236
+    }
+  ]
+}

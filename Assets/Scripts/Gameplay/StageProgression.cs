@@ -34,25 +34,10 @@ namespace Vampire
         public string TransitionPhase {get;private set;}="field";
         LevelManager level;StageExitDefinition definition;Transform escapeHole;
         bool entering;LevelBlueprint stageTwo;SpiralStageTransition iris;SpriteRenderer[] hiddenPassenger;bool[] hiddenStates;
-        string altarSettings;Sprite altarSprite;Material altarMaterial;Vector3 altarScale;int altarLayer,altarOrder;
         public static StageProgression Ensure(LevelManager owner){var p=owner.GetComponent<StageProgression>()??owner.gameObject.AddComponent<StageProgression>();p.level=owner;return p;}
         void Awake()
         {
             level=GetComponent<LevelManager>();definition=Resources.Load<StageExitDefinition>("StageExitDefinition");
-            var altar=FindObjectOfType<FinalBossSummonInteractable>();
-            if(altar!=null)
-            {
-                altarSettings=JsonUtility.ToJson(altar);altarScale=altar.transform.localScale;
-                var sr=altar.GetComponent<SpriteRenderer>();if(sr!=null){altarSprite=sr.sprite;altarMaterial=sr.sharedMaterial;altarLayer=sr.sortingLayerID;altarOrder=sr.sortingOrder;}
-            }
-        }
-        void RestoreBossAltar(FiniteStomachMap map)
-        {
-            if(FindObjectOfType<FinalBossSummonInteractable>()!=null)return;
-            if(altarSettings==null)throw new System.InvalidOperationException("Missing original boss altar settings");
-            var go=new GameObject("대장 보스 소환 제단");go.transform.position=FiniteStomachMap.SafeSpawn(map.UVToWorld(new Vector2(.73f,.3f)),2);go.transform.localScale=altarScale;
-            var sr=go.AddComponent<SpriteRenderer>();sr.sprite=altarSprite;sr.sharedMaterial=altarMaterial;sr.sortingLayerID=altarLayer;sr.sortingOrder=altarOrder;
-            go.AddComponent<CircleCollider2D>();var altar=go.AddComponent<FinalBossSummonInteractable>();JsonUtility.FromJsonOverwrite(altarSettings,altar);altar.ResetForNextStage();
         }
         public Transform BeginEscape(FoodBossKind kind,Vector3 position)
         {
@@ -64,6 +49,9 @@ namespace Vampire
         }
         public bool FinalBossDefeated(Vector3 position,float measuredDps,FoodBossKind kind=FoodBossKind.Rolpangi)
         {
+            // This callback belongs to the five stage-one food bosses. Optional colon bosses
+            // never open an exit; Byunbi King is the mandatory stage-two final boss (separate work).
+            if(StageNumber>=2)return true;
             if(FirstBossDefeated||level==null||level.IsLevelEnded)return true;
             if(definition==null||definition.crater==null)return false;
             FirstBossDefeated=true;DefeatedKind=kind;level.NotifyExternalFinalBossSpawned();
@@ -152,10 +140,12 @@ namespace Vampire
             var map=FiniteStomachMap.Instance;var nextMap=Resources.Load<StomachMapDefinition>("ColonMap/Stage2");
             if(nextMap==null)throw new System.InvalidOperationException("ColonMap/Stage2 is missing");
             map.ChangeDefinition(nextMap);loading.SetProgress(.4f);yield return null;
-            RestoreBossAltar(map);
+            foreach(var altar in FindObjectsOfType<FinalBossSummonInteractable>())
+            {
+                altar.gameObject.SetActive(false);Destroy(altar.gameObject);
+            }
             stageTwo=ColonMonsterRoster.Create(level);
             level.BeginNextStage(stageTwo);level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);level.GetComponent<SupplyCapsuleDirector>()?.RestartForStage();
-            foreach(var altar in FindObjectsOfType<FinalBossSummonInteractable>())altar.transform.position=FiniteStomachMap.SafeSpawn(altar.transform.position,2);
             var inlet=StomachOpening.Find(true);inlet.SetOpened(0);var landing=map.ClampToField(inlet.FrontLip+Vector2.down*2,map.WallWidth+.6f);
             travel.SwimPose(landing,0);travel.Visual.color=Color.clear;loading.SetProgress(.7f);
             yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();

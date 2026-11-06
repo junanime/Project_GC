@@ -1,0 +1,78 @@
+{
+  "id": "hedgehog",
+  "kind": "Pose",
+  "frameCount": 8,
+  "frameWidth": 256,
+  "frameHeight": 192,
+  "columns": 8,
+  "rows": 1,
+  "atlasWidth": 2048,
+  "atlasHeight": 192,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5,
+  "pivotY": 0.03645833333333337,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 0.8,
+  "referenceVisibleHeight": 163,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Pose_000",
+      "x": 0,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_001",
+      "x": 256,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_002",
+      "x": 512,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_003",
+      "x": 768,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_004",
+      "x": 1024,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_005",
+      "x": 1280,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_006",
+      "x": 1536,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    },
+    {
+      "name": "Pose_007",
+      "x": 1792,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    }
+  ]
+}

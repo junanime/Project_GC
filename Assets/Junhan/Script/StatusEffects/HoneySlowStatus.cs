@@ -18,6 +18,8 @@ namespace Vampire
         private Rigidbody2D targetRigidbody;
         private Coroutine slowCoroutine;
         public bool IsActive => slowCoroutine != null;
+        // Script-driven bosses cannot use Rigidbody drag as their locomotion speed.
+        public float SpeedMultiplier { get; private set; } = 1f;
 
         private bool hasOriginalDrag = false;
         private float originalDrag;
@@ -52,6 +54,7 @@ namespace Vampire
 
             // slowMultiplier는 0에 가까울수록 강한 둔화, 1이면 둔화 없음
             slowMultiplier = Mathf.Clamp(slowMultiplier, 0.05f, 1f);
+            SpeedMultiplier = slowMultiplier;
 
             if (!hasOriginalDrag)
             {
@@ -89,6 +92,7 @@ namespace Vampire
             }
 
             slowCoroutine = null;
+            SpeedMultiplier = 1f;
         }
 
         private void OnDisable()

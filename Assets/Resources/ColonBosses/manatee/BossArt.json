@@ -1,0 +1,12 @@
+{
+  "id": "manatee",
+  "name": "배매너티",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 173,
+  "referencePixelWidth": 206,
+  "walkCycle": 1.6,
+  "walkFrameCount": 40,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Approved locomotion artwork. Single scale per pose set, fixed world pivot."
+}

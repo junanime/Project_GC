@@ -134,22 +134,20 @@ SyringeDartAbility sourceNeedleAbility)
 
             List<Monster> screenMonsters = GetScreenMonsters();
 
-            if (screenMonsters.Count <= 0)
+            var positions = new List<Vector2>(screenMonsters.Count + ColonBossRuntime.Active.Count);
+            foreach (var monster in screenMonsters)
+                if (monster != null) positions.Add(GetMonsterWorldPosition(monster));
+            LayerMask targets = monsterLayer.value == 0 ? (LayerMask)~0 : monsterLayer;
+            foreach (var boss in ColonBossRuntime.Active)
+                if (boss != null && NeedleTargeting.IsValidBossTarget(boss, targets) && IsInScreen(boss.HitCenter))
+                    positions.Add(boss.HitCenter);
+
+            for (int i = 0; i < positions.Count; i++)
             {
-                return false;
-            }
-
-            for (int i = 0; i < screenMonsters.Count; i++)
-            {
-                Monster candidate = screenMonsters[i];
-
-                if (candidate == null)
-                {
-                    continue;
-                }
-
-                Vector2 candidatePosition = GetMonsterWorldPosition(candidate);
-                int count = CountMonstersAround(candidatePosition, screenMonsters);
+                Vector2 candidatePosition = positions[i];
+                int count = 0;
+                foreach (var position in positions)
+                    if (Vector2.Distance(candidatePosition, position) <= clusterSearchRadius) count++;
 
                 if (count > bestCount)
                 {

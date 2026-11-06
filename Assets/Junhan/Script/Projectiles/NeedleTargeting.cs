@@ -8,7 +8,8 @@ namespace Vampire
         {
             if(target==null||!target.gameObject.activeInHierarchy)return false;
             var damageable=target.GetComponentInParent<IDamageable>();
-            if(!(damageable is FoodBossRuntime)&&!(damageable is FoodBossWeakpoint)&&!(damageable is SnailBossRuntime))return false;
+            if(!(damageable is FoodBossRuntime)&&!(damageable is FoodBossWeakpoint)&&!(damageable is SnailBossRuntime)&&!(damageable is ColonBossRuntime))return false;
+            if(damageable is ColonBossRuntime colon&&(colon.Dead||colon.Arriving||colon.Hidden))return false;
             if(Ver4HitEffects.Health(damageable)<=0)return false;
             var c=damageable.GetComponent<Collider2D>();return c!=null&&c.enabled&&(targets.value&(1<<c.gameObject.layer))!=0;
         }
@@ -23,6 +24,14 @@ namespace Vampire
 
         public static Vector2 Position(Monster monster) => monster.CenterTransform != null
             ? (Vector2)monster.CenterTransform.position : (Vector2)monster.transform.position;
+
+        // Pipe encounters can move the exposed head away from the hidden body's root.
+        public static Vector2 Position(Component target)
+        {
+            if (target == null) return Vector2.zero;
+            var colon = target.GetComponentInParent<ColonBossRuntime>();
+            return colon != null ? colon.HitCenter : (Vector2)target.transform.position;
+        }
 
         // Angular interpolation cannot stall when target and flight point in opposite directions.
         public static Vector2 Curve(Vector2 current, Vector2 desired, float response, float deltaTime)

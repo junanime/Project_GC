@@ -53,6 +53,8 @@ namespace Vampire
         public static SpriteRenderer FindTarget(Component owner)
         {
             if (owner == null) return null;
+            var colon = owner.GetComponentInParent<ColonBossRuntime>();
+            if (colon != null && colon.Visual != null) return colon.Visual.Main;
             foreach (var renderer in owner.GetComponentsInChildren<SpriteRenderer>(true))
                 if (renderer.GetComponent<SyringeAugmentVfx>() == null &&
                     renderer.GetComponentInParent<StuckNeedleVisual>() == null &&
@@ -159,6 +161,7 @@ namespace Vampire
         public static bool IsLiving(Component owner)
         {
             if (owner == null || !owner.gameObject.activeInHierarchy) return false;
+            var colon=owner.GetComponentInParent<ColonBossRuntime>();if(colon!=null&&colon.Dead)return false;
             var food=owner.GetComponentInParent<FoodBossRuntime>();if(food!=null&&food.Dead)return false;
             var weak=owner.GetComponentInParent<FoodBossWeakpoint>();if(weak!=null&&weak.Health<=0)return false;
             var monster = owner.GetComponentInParent<Monster>();

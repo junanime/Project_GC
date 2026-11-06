@@ -12,7 +12,7 @@ namespace Vampire.Tests.Editor
     [InitializeOnLoad]
     public static class CapsuleStageSmoke
     {
-        const string Key="CapsuleStageSmoke",Output="D:/Project_GC/work/capsule-proof-v3";
+        const string Key="CapsuleStageSmoke",Output="Library/CapsuleStageProof";
         static bool started;static int checks;static double deadline;
         static string pendingGroup;static int pendingFrame;
         [Serializable]class Entry{public string id;}[Serializable]class Catalog{public Entry[] entries;}
@@ -23,11 +23,14 @@ namespace Vampire.Tests.Editor
         static void Start()
         {
             Directory.CreateDirectory(Output);Restore();File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
-            Vampire.Editor.AmphibiousCapsuleInstaller.Install();
+            // Do not rewrite the approved art/import settings every time the regression test runs.
+            if(Resources.LoadAll<Sprite>("AmphibiousCapsule/Body").Length==0||Resources.LoadAll<Sprite>("AmphibiousCapsule/Doctor").Length==0)
+                Vampire.Editor.AmphibiousCapsuleInstaller.Install();
             var entries=JsonUtility.FromJson<Catalog>(Resources.Load<TextAsset>("TutorialClips/catalog").text).entries;
-            var keys=entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{CapsuleDoctorDialogue.SeenKey}).ToArray();
+            var tutorialKeys=entries.Select(e=>TutorialGuide.SeenKey(e.id)).ToArray();
+            var keys=tutorialKeys.Concat(new[]{CapsuleDoctorDialogue.SeenKey,"Coins","LobbySilverCoins"}).ToArray();
             File.WriteAllText(Output+"/prefs.json",JsonUtility.ToJson(new Backup{prefs=keys.Select(k=>new Pref{key=k,had=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
-            foreach(var k in keys)PlayerPrefs.SetInt(k,1);PlayerPrefs.DeleteKey(CapsuleDoctorDialogue.SeenKey);
+            foreach(var k in tutorialKeys)PlayerPrefs.SetInt(k,1);PlayerPrefs.DeleteKey(CapsuleDoctorDialogue.SeenKey);
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
             CrossSceneData.CharacterBlueprint=AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/Main Character Blueprint.asset");
             EditorSceneManager.OpenScene("Assets/Scenes/Game/Level 1.unity");
@@ -152,7 +155,10 @@ namespace Vampire.Tests.Editor
             for(int i=0;i<originalBlueprint.monsters.Length;i++)Check(level.CurrentLevelBlueprint.monsters[i].monstersPrefab==originalBlueprint.monsters[i].monstersPrefab,"same monster prefab "+i);
             Check(level.InitialFieldObjectsReady&&level.GetComponent<FieldObjectLayout>().SpawnedObjects.Count==86,"stage two initial layout completes before play");
             Check(!lake.Active&&!AcidLakeEvent.Contains(player.transform.position),"stage-one acid stops in colon");
-            Check(Object.FindObjectOfType<FinalBossSummonInteractable>()!=null,"stage-two boss altar survives or restores after stage-one flood");
+            var colonBosses=level.GetComponent<ColonBossDirector>();
+            Check(colonBosses!=null&&colonBosses.Ready&&!colonBosses.Failed&&colonBosses.Habitats.Count==6,"six optional homes finish loading before stage-two play");
+            Check(colonBosses.Habitats.Select(h=>h.Kind).Distinct().Count()==6,"stage-two home kinds are unique");
+            Check(Object.FindObjectOfType<FinalBossSummonInteractable>()==null,"legacy stage-one boss altar is removed in stage two");
             Check(!player.IsPortalTravelling&&!player.IsPortalPoseHeld&&player.GetComponent<Rigidbody2D>().simulated,"input and physics released after one-second settle");
             yield return new WaitForSeconds(.3f);
             Capture("stage2",0);
@@ -176,10 +182,20 @@ namespace Vampire.Tests.Editor
             Check(map.NavigationDistance(player.transform.position,out _)>beforeSlide+.02f,"actual player slides down colon wall after release");
             Position(player,map.ClampToField(map.UVToWorld(new Vector2(.75f,.3f)),10));
             foreach(var key in new[]{"Ashi","Ari","Hyuki","Shini"})Check(BloodClotTravel.Frames(key).Length==(key=="Hyuki"?5:16),"character-specific mini-stage exit art available "+key);
-            var final=level.EntityManager.SpawnFinalBoss(level.CurrentLevelBlueprint,(Vector2)player.transform.position+Vector2.right*3,0,FoodBossKind.Maribi).GetComponent<FoodBossRuntime>();
-            final.AutoPatterns=false;final.TakeDamage(final.MaxHealth+1);yield return new WaitForSeconds(3);
-            Check(progression.Portal!=null&&progression.Capsule==null,"actual stage-two boss leaves final exit without another capsule");
-            Check(progression.TryEnter(player,progression.Portal)&&level.IsLevelEnded,"stage two exit finishes the run");
+            var home=colonBosses.Habitats.First(h=>h.Kind==ColonBossKind.Flamingo);
+            Position(player,map.ClampToField((Vector2)home.transform.position+Vector2.down*2,map.WallWidth+.5f));
+            yield return new WaitForSeconds(.25f); // Let the real trigger/focus enter before pressing E/touch.
+            InteractionFocus.SelectTouched(home);home.TryInteract();yield return null;
+            var optional=ColonBossRuntime.Active.FirstOrDefault(b=>b!=null&&b.Kind==ColonBossKind.Flamingo);
+            Check(optional!=null,"actual E/touch interaction summons the chosen optional boss after capsule travel");
+            optional.AutoPatterns=false;deadline=Time.time+20;
+            while(optional.Arriving&&Time.time<deadline)yield return null;
+            Check(!optional.Arriving,"optional boss arrival finishes before combat");
+            optional.TakeDamage(optional.MaxHealth+1);yield return new WaitForSeconds(3);
+            Check(colonBosses.IsDefeated(home)&&colonBosses.DefeatedCount==1,"optional boss defeat is recorded only for its own home");
+            Check(progression.Portal==null&&progression.Capsule==null,"optional boss leaves no stage-exit portal or additional capsule");
+            Check(!level.IsLevelEnded&&!progression.TryEnter(player,progression.Portal),"optional boss defeat never clears stage two");
+            Check(ColonBossDefinition.RequiredFinalBossName=="변비왕"&&!ColonBossDefinition.RequiredFinalBossImplemented,"mandatory lower-left Byunbi King remains reserved for separate implementation");
             Time.captureDeltaTime=0;SessionState.SetBool(Key+"Done",true);
         }
     }

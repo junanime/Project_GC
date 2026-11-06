@@ -1,0 +1,29 @@
+{
+  "id": "pudding",
+  "kind": "Idle",
+  "frameCount": 1,
+  "frameWidth": 256,
+  "frameHeight": 192,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 256,
+  "atlasHeight": 192,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.49609375,
+  "pivotY": 0.04166666666666663,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 179,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Idle_000",
+      "x": 0,
+      "y": 0,
+      "width": 256,
+      "height": 192
+    }
+  ]
+}

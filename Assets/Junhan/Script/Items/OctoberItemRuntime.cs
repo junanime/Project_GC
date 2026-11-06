@@ -348,9 +348,10 @@ namespace Vampire
         public static string Name(int id){var item=Resources.Load<MerchantItemBlueprint>("OctoberContent/Catalog/Item"+id.ToString("00"));return item!=null?item.itemName:"아이템";}
         public void Slow(Component t,float strength,float duration)
         {if(t==null)return;float s=1-SlowMultiplier(1-strength);(t.GetComponent<HoneySlowStatus>()??t.gameObject.AddComponent<HoneySlowStatus>()).Apply(duration*StatusDuration,1-s);}
-        public static bool IsSlow(Component t)=>t.GetComponent<HoneySlowStatus>()?.IsActive==true||(t.GetComponent<IceChillStatus>()?.Stacks??0)>0;
+        public static bool IsSlow(Component t)=>t.GetComponent<HoneySlowStatus>()?.IsActive==true||(t.GetComponent<IceChillStatus>()?.Stacks??0)>0||ColonHasStatus(t,CombatStatusTag.Slow);
         public static bool IsBurning(Component t)=>t.GetComponent<BurnStatus>()!=null||(t.GetComponent<Ver4NeedleStatus>()?.BurnStacks??0)>0||(t.GetComponent<OctoberItemTargetStatus>()?.BurnUntil??0)>Time.time;
-        static int StatusCount(Component t)=>(IsSlow(t)?1:0)+(IsBurning(t)?1:0)+(t.GetComponent<PoisonStatus>()!=null||(t.GetComponent<OctoberItemTargetStatus>()?.PoisonUntil??0)>Time.time?1:0)+(t.GetComponent<NeuralBlockedMonsterStatus>()?.Active==true?1:0);
-        static void ConsumeSlow(Component t){var honey=t.GetComponent<HoneySlowStatus>();if(honey!=null){honey.enabled=false;Destroy(honey);}var ice=t.GetComponent<IceChillStatus>();if(ice!=null){ice.enabled=false;Destroy(ice);}}
+        static int StatusCount(Component t)=>(IsSlow(t)?1:0)+(IsBurning(t)?1:0)+(t.GetComponent<PoisonStatus>()!=null||(t.GetComponent<OctoberItemTargetStatus>()?.PoisonUntil??0)>Time.time||ColonHasStatus(t,CombatStatusTag.Poison)?1:0)+(t.GetComponent<NeuralBlockedMonsterStatus>()?.Active==true?1:0);
+        static bool ColonHasStatus(Component t,CombatStatusTag tag)=>t is ColonBossRuntime&&(CombatStatusRules.ActiveTags(t)&tag)!=0;
+        static void ConsumeSlow(Component t){var honey=t.GetComponent<HoneySlowStatus>();if(honey!=null){honey.enabled=false;Destroy(honey);}var ice=t.GetComponent<IceChillStatus>();if(ice!=null){ice.enabled=false;Destroy(ice);}if(t is ColonBossRuntime)t.GetComponent<FoodBossCombatStatus>()?.ClearSlow();}
     }
 }

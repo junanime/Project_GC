@@ -1,0 +1,12 @@
+{
+  "id": "shark",
+  "name": "바게트상어",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 140,
+  "referencePixelWidth": 233,
+  "walkCycle": 1.2,
+  "walkFrameCount": 30,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Approved locomotion artwork. Single scale per pose set, fixed world pivot."
+}

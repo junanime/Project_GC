@@ -1,0 +1,29 @@
+{
+  "id": "flamingo",
+  "kind": "Idle",
+  "frameCount": 1,
+  "frameWidth": 148,
+  "frameHeight": 232,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 148,
+  "atlasHeight": 232,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.49324324324324326,
+  "pivotY": 0.03448275862068961,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.2,
+  "referenceVisibleHeight": 222,
+  "referenceBaselineY": 339,
+  "frames": [
+    {
+      "name": "Idle_000",
+      "x": 0,
+      "y": 0,
+      "width": 148,
+      "height": 232
+    }
+  ]
+}

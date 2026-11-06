@@ -1,0 +1,2 @@
+"routes","failed","deliberate_cross_wall_routes","total_steps","minimum_wall_distance","required_wall_distance","tested_body_radius","configured_clearance_radius","elapsed_wall_seconds","method"
+"128","0","96","66341","3.4610214","3.408","1.408","1.41","12.6081059","Same map and ClampDash geometry; standalone calculation, not Unity physics/FPS"

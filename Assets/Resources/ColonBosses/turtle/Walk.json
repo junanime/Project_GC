@@ -1,0 +1,302 @@
+{
+  "id": "turtle",
+  "kind": "Walk",
+  "frameCount": 40,
+  "frameWidth": 200,
+  "frameHeight": 160,
+  "columns": 8,
+  "rows": 5,
+  "atlasWidth": 1600,
+  "atlasHeight": 800,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.505,
+  "pivotY": 0.043749999999999956,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 150,
+  "referenceBaselineY": 338,
+  "frames": [
+    {
+      "name": "Walk_000",
+      "x": 0,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_001",
+      "x": 200,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_002",
+      "x": 400,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_003",
+      "x": 600,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_004",
+      "x": 800,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_005",
+      "x": 1000,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_006",
+      "x": 1200,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_007",
+      "x": 1400,
+      "y": 640,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_008",
+      "x": 0,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_009",
+      "x": 200,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_010",
+      "x": 400,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_011",
+      "x": 600,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_012",
+      "x": 800,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_013",
+      "x": 1000,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_014",
+      "x": 1200,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_015",
+      "x": 1400,
+      "y": 480,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_016",
+      "x": 0,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_017",
+      "x": 200,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_018",
+      "x": 400,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_019",
+      "x": 600,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_020",
+      "x": 800,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_021",
+      "x": 1000,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_022",
+      "x": 1200,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_023",
+      "x": 1400,
+      "y": 320,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_024",
+      "x": 0,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_025",
+      "x": 200,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_026",
+      "x": 400,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_027",
+      "x": 600,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_028",
+      "x": 800,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_029",
+      "x": 1000,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_030",
+      "x": 1200,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_031",
+      "x": 1400,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_032",
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_033",
+      "x": 200,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_034",
+      "x": 400,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_035",
+      "x": 600,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_036",
+      "x": 800,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_037",
+      "x": 1000,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_038",
+      "x": 1200,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Walk_039",
+      "x": 1400,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    }
+  ]
+}
