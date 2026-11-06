@@ -6,8 +6,23 @@ namespace Vampire
 {
     public sealed class ColonBossVisual : MonoBehaviour
     {
-        [Serializable] class ArtInfo { public float referencePixelWidth = 240, referencePixelHeight = 180, pixelsPerUnit = 125, walkCycle = 1.6f; }
+        [Serializable] class NutPose
+        {
+            public int pose;
+            public bool visible;
+            public Vector2[] positions;
+            public float[] heights;
+        }
+        [Serializable] class ArtInfo
+        {
+            public float referencePixelWidth = 240, referencePixelHeight = 180, pixelsPerUnit = 125, walkCycle = 1.6f;
+            public Vector2 pipeFaceUV, mouthUV;
+            public NutPose[] nutPoses;
+        }
         public SpriteRenderer Main { get; private set; }
+        // Body tint must also cover authored spines drawn in front of carried chestnuts.
+        public int ForegroundSortingOrder => Main == null ? 0 : nutFront == null
+            ? Main.sortingOrder : Mathf.Max(Main.sortingOrder, nutFront.sortingOrder);
         public Transform Center => Main.transform;
         public int Facing { get; private set; } = -1;
         public bool Visible = true;
@@ -22,14 +37,16 @@ namespace Vampire
         public float WalkRate = 1;
         public float ReferenceHeight { get; private set; }
         ColonBossRuntime boss;
-        Sprite[] walk, bareWalk, poses, summon;
+        Sprite[] walk, bareWalk, poses, summon, nutFrontFrames;
         public bool Bare;
         public float GroundSpin;
         static readonly Dictionary<string,Sprite[]> cache=new Dictionary<string,Sprite[]>();
         SpriteRenderer shadow;
         SpriteRenderer[] carriedNuts;
+        SpriteRenderer nutFront;
         static readonly Vector2[] NutSockets={new Vector2(.0555f,.7670f),new Vector2(.3633f,.5904f),new Vector2(.5803f,.3633f)};
         static readonly float[] NutHeights={.21194f,.21698f,.1968f};
+        ArtInfo art;
         float scale, cycle, clock, flash;
         int summonFrame = -1;
         public static Sprite[] Load(string id, string sheet)
@@ -43,9 +60,10 @@ namespace Vampire
         {
             boss = owner; var id = owner.Definition.Id;
             walk = Load(id,"Walk"); poses = Load(id,"Pose"); summon = Load(id,"Summon");
-            if(owner.Kind==ColonBossKind.Hedgehog)bareWalk=Load(id,"WalkBare");
+            if(owner.Kind==ColonBossKind.Hedgehog){bareWalk=Load(id,"WalkBare");nutFrontFrames=Load(id,"NutForeground");}
             var json = Resources.Load<TextAsset>("ColonBosses/" + id + "/BossArt");
             var info = json != null ? JsonUtility.FromJson<ArtInfo>(json.text) : new ArtInfo();
+            art = info;
             scale = owner.Definition.Size / (info.referencePixelWidth / info.pixelsPerUnit); cycle = info.walkCycle;
             ReferenceHeight = info.referencePixelHeight / info.pixelsPerUnit * scale;
             Main = new GameObject("Body · one reference scale").AddComponent<SpriteRenderer>(); Main.transform.SetParent(transform,false); Main.sortingOrder = 510;
@@ -56,6 +74,8 @@ namespace Vampire
             {
                 carriedNuts=new SpriteRenderer[3];var nut=Resources.Load<Sprite>("ColonMonsters/S02");
                 for(int i=0;i<3;i++){var r=new GameObject("Carried stage-two chestnut "+i).AddComponent<SpriteRenderer>();r.transform.SetParent(Main.transform,false);r.sprite=nut;r.sortingOrder=511;if(nut!=null)r.transform.localScale=Vector3.one*NutHeights[i]/nut.bounds.size.y;carriedNuts[i]=r;}
+                nutFront=new GameObject("Spines in front of carried chestnuts").AddComponent<SpriteRenderer>();
+                nutFront.transform.SetParent(Main.transform,false);nutFront.sortingOrder=512;
             }
             Sample();
         }
@@ -76,8 +96,10 @@ namespace Vampire
             summonFrame=-1; requestedPose=displayedPose=6; poseBlend=1;
             Lift=Roll=Squash=Stretch=GroundSpin=0; Sample();
         }
-        public Vector2 PipeFace => Socket(.2431f,.5819f);
-        public Vector2 Mouth => boss.Kind==ColonBossKind.Flamingo?Socket(.18f,.74f):
+        public Vector2 PipeFace => art != null && art.pipeFaceUV != Vector2.zero
+            ? Socket(art.pipeFaceUV.x,art.pipeFaceUV.y) : Socket(.2431f,.5819f);
+        public Vector2 Mouth => art != null && art.mouthUV != Vector2.zero ? Socket(art.mouthUV.x,art.mouthUV.y) :
+            boss.Kind==ColonBossKind.Flamingo?Socket(.18f,.74f):
             boss.Kind==ColonBossKind.Shark?Socket(.13f,.43f):boss.Kind==ColonBossKind.Pudding?Socket(.30f,.65f):
             boss.Kind==ColonBossKind.Turtle?Socket(.15f,.67f):boss.Kind==ColonBossKind.Manatee?Socket(.18f,.59f):Socket(.15f,.35f);
         public void Summon(float progress) { summonFrame = Mathf.Clamp(Mathf.FloorToInt(progress * summon.Length),0,summon.Length-1); Sample(); }
@@ -109,7 +131,31 @@ namespace Vampire
             Main.transform.localPosition = Vector3.up * Lift+center-Quaternion.Euler(0,0,Roll)*center;
             Main.transform.localRotation = Quaternion.Euler(0,0,Roll);
             Main.color = flash > 0 ? new Color(1,.73f,.73f,Opacity) : new Color(1,1,1,Opacity);
-            if(carriedNuts!=null)for(int i=0;i<3;i++){var nut=carriedNuts[i];nut.enabled=Visible&&!Bare&&displayedPose>0&&summonFrame<0;var p=NutSockets[i];if(Main.flipX)p.x=-p.x;nut.transform.localPosition=p;nut.flipX=Main.flipX;nut.color=new Color(1,1,1,Opacity);}
+            if(carriedNuts!=null)
+            {
+                NutPose attachment=null;
+                if(art?.nutPoses!=null)
+                    foreach(var candidate in art.nutPoses)
+                        if(candidate.pose==displayedPose){attachment=candidate;break;}
+                for(int i=0;i<carriedNuts.Length;i++)
+                {
+                    var nut=carriedNuts[i];
+                    // Each authored pose owns its sockets; a curled body must not leave nuts floating.
+                    nut.enabled=Visible&&!Bare&&displayedPose>0&&summonFrame<0&&(attachment==null||attachment.visible);
+                    var p=attachment?.positions!=null&&i<attachment.positions.Length?attachment.positions[i]:NutSockets[i];
+                    float height=attachment?.heights!=null&&i<attachment.heights.Length?attachment.heights[i]:NutHeights[i];
+                    if(Main.flipX)p.x=-p.x;
+                    nut.transform.localPosition=p;
+                    if(nut.sprite!=null)nut.transform.localScale=Vector3.one*height/nut.sprite.bounds.size.y;
+                    nut.flipX=Main.flipX;nut.color=new Color(1,1,1,Opacity);
+                }
+                if(nutFront!=null)
+                {
+                    nutFront.enabled=carriedNuts[0].enabled&&nutFrontFrames!=null&&displayedPose<nutFrontFrames.Length;
+                    if(nutFront.enabled)nutFront.sprite=nutFrontFrames[displayedPose];
+                    nutFront.flipX=Main.flipX;nutFront.color=Main.color;
+                }
+            }
             shadow.enabled = Visible && Main.maskInteraction == SpriteMaskInteraction.None; shadow.color = new Color(0,0,0,.19f*Opacity*Mathf.Clamp01(1-Lift*.13f));
         }
     }

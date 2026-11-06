@@ -58,6 +58,9 @@ namespace Vampire
             // Tint must reveal exactly the same pixels as the original body.
             active.maskInteraction = body.maskInteraction;
             active.sortingLayerID = body.sortingLayerID;
+            var colonVisual = body.GetComponentInParent<ColonBossVisual>();
+            if (colonVisual != null && colonVisual.Main == body)
+                active.sortingOrder = Mathf.Max(active.sortingOrder, colonVisual.ForegroundSortingOrder + 1);
             active.enabled = true;
             // Preserve bespoke boss limb/flight clipping when tinting the same sprite.
             sourceProperties = sourceProperties ?? new MaterialPropertyBlock();

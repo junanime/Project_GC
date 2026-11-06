@@ -2,77 +2,77 @@
   "id": "manatee",
   "kind": "Pose",
   "frameCount": 8,
-  "frameWidth": 288,
-  "frameHeight": 232,
+  "frameWidth": 276,
+  "frameHeight": 212,
   "columns": 8,
   "rows": 1,
-  "atlasWidth": 2304,
-  "atlasHeight": 232,
+  "atlasWidth": 2208,
+  "atlasHeight": 212,
   "pixelsPerUnit": 125,
-  "pivotX": 0.4131944444444444,
-  "pivotY": 0.025862068965517238,
+  "pivotX": 0.4057971014492754,
+  "pivotY": 0.028301886792452824,
   "sourcePivotX": 256,
   "sourcePivotY": 338,
   "fps": 25,
   "cycleSeconds": 1.6,
   "referenceVisibleHeight": 173,
-  "referenceBaselineY": 317,
+  "referenceBaselineY": 316,
   "frames": [
     {
       "name": "Pose_000",
       "x": 0,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_001",
-      "x": 288,
+      "x": 276,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_002",
-      "x": 576,
+      "x": 552,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_003",
-      "x": 864,
+      "x": 828,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_004",
-      "x": 1152,
+      "x": 1104,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_005",
-      "x": 1440,
+      "x": 1380,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_006",
-      "x": 1728,
+      "x": 1656,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Pose_007",
-      "x": 2016,
+      "x": 1932,
       "y": 0,
-      "width": 288,
-      "height": 232
+      "width": 276,
+      "height": 212
     }
   ]
 }

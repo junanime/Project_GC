@@ -3,160 +3,160 @@
   "kind": "Walk",
   "frameCount": 20,
   "frameWidth": 220,
-  "frameHeight": 176,
+  "frameHeight": 192,
   "columns": 8,
   "rows": 3,
   "atlasWidth": 1760,
-  "atlasHeight": 528,
+  "atlasHeight": 576,
   "pixelsPerUnit": 125,
-  "pivotX": 0.4772727272727273,
-  "pivotY": 0.045454545454545414,
+  "pivotX": 0.4954545454545455,
+  "pivotY": 0.03125,
   "sourcePivotX": 256,
   "sourcePivotY": 338,
   "fps": 25,
   "cycleSeconds": 0.8,
-  "referenceVisibleHeight": 163,
-  "referenceBaselineY": 336,
+  "referenceVisibleHeight": 182,
+  "referenceBaselineY": 337,
   "frames": [
     {
       "name": "Walk_000",
       "x": 0,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_001",
       "x": 220,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_002",
       "x": 440,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_003",
       "x": 660,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_004",
       "x": 880,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_005",
       "x": 1100,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_006",
       "x": 1320,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_007",
       "x": 1540,
-      "y": 352,
+      "y": 384,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_008",
       "x": 0,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_009",
       "x": 220,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_010",
       "x": 440,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_011",
       "x": 660,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_012",
       "x": 880,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_013",
       "x": 1100,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_014",
       "x": 1320,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_015",
       "x": 1540,
-      "y": 176,
+      "y": 192,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_016",
       "x": 0,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_017",
       "x": 220,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_018",
       "x": 440,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 192
     },
     {
       "name": "Walk_019",
       "x": 660,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 192
     }
   ]
 }

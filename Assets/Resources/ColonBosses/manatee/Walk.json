@@ -2,301 +2,301 @@
   "id": "manatee",
   "kind": "Walk",
   "frameCount": 40,
-  "frameWidth": 216,
-  "frameHeight": 208,
+  "frameWidth": 276,
+  "frameHeight": 212,
   "columns": 8,
   "rows": 5,
-  "atlasWidth": 1728,
-  "atlasHeight": 1040,
+  "atlasWidth": 2208,
+  "atlasHeight": 1060,
   "pixelsPerUnit": 125,
-  "pivotX": 0.3888888888888889,
-  "pivotY": 0.038461538461538436,
+  "pivotX": 0.4057971014492754,
+  "pivotY": 0.028301886792452824,
   "sourcePivotX": 256,
   "sourcePivotY": 338,
   "fps": 25,
   "cycleSeconds": 1.6,
   "referenceVisibleHeight": 173,
-  "referenceBaselineY": 317,
+  "referenceBaselineY": 316,
   "frames": [
     {
       "name": "Walk_000",
       "x": 0,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_001",
-      "x": 216,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 276,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_002",
-      "x": 432,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 552,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_003",
-      "x": 648,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 828,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_004",
-      "x": 864,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 1104,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_005",
-      "x": 1080,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 1380,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_006",
-      "x": 1296,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 1656,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_007",
-      "x": 1512,
-      "y": 832,
-      "width": 216,
-      "height": 208
+      "x": 1932,
+      "y": 848,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_008",
       "x": 0,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_009",
-      "x": 216,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 276,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_010",
-      "x": 432,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 552,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_011",
-      "x": 648,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 828,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_012",
-      "x": 864,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 1104,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_013",
-      "x": 1080,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 1380,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_014",
-      "x": 1296,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 1656,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_015",
-      "x": 1512,
-      "y": 624,
-      "width": 216,
-      "height": 208
+      "x": 1932,
+      "y": 636,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_016",
       "x": 0,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_017",
-      "x": 216,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 276,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_018",
-      "x": 432,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 552,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_019",
-      "x": 648,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 828,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_020",
-      "x": 864,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 1104,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_021",
-      "x": 1080,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 1380,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_022",
-      "x": 1296,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 1656,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_023",
-      "x": 1512,
-      "y": 416,
-      "width": 216,
-      "height": 208
+      "x": 1932,
+      "y": 424,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_024",
       "x": 0,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_025",
-      "x": 216,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 276,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_026",
-      "x": 432,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 552,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_027",
-      "x": 648,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 828,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_028",
-      "x": 864,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 1104,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_029",
-      "x": 1080,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 1380,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_030",
-      "x": 1296,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 1656,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_031",
-      "x": 1512,
-      "y": 208,
-      "width": 216,
-      "height": 208
+      "x": 1932,
+      "y": 212,
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_032",
       "x": 0,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_033",
-      "x": 216,
+      "x": 276,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_034",
-      "x": 432,
+      "x": 552,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_035",
-      "x": 648,
+      "x": 828,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_036",
-      "x": 864,
+      "x": 1104,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_037",
-      "x": 1080,
+      "x": 1380,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_038",
-      "x": 1296,
+      "x": 1656,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     },
     {
       "name": "Walk_039",
-      "x": 1512,
+      "x": 1932,
       "y": 0,
-      "width": 216,
-      "height": 208
+      "width": 276,
+      "height": 212
     }
   ]
 }

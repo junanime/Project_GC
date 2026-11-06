@@ -128,10 +128,10 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -147,12 +147,12 @@ TextureImporter:
       name: Pose_001
       rect:
         serializedVersion: 2
-        x: 288
+        x: 276
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -168,12 +168,12 @@ TextureImporter:
       name: Pose_002
       rect:
         serializedVersion: 2
-        x: 576
+        x: 552
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -189,12 +189,12 @@ TextureImporter:
       name: Pose_003
       rect:
         serializedVersion: 2
-        x: 864
+        x: 828
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -210,12 +210,12 @@ TextureImporter:
       name: Pose_004
       rect:
         serializedVersion: 2
-        x: 1152
+        x: 1104
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -231,12 +231,12 @@ TextureImporter:
       name: Pose_005
       rect:
         serializedVersion: 2
-        x: 1440
+        x: 1380
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -252,12 +252,12 @@ TextureImporter:
       name: Pose_006
       rect:
         serializedVersion: 2
-        x: 1728
+        x: 1656
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -273,12 +273,12 @@ TextureImporter:
       name: Pose_007
       rect:
         serializedVersion: 2
-        x: 2016
+        x: 1932
         y: 0
-        width: 288
-        height: 232
+        width: 276
+        height: 212
       alignment: 9
-      pivot: {x: 0.41319445, y: 0.02586207}
+      pivot: {x: 0.4057971, y: 0.028301887}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

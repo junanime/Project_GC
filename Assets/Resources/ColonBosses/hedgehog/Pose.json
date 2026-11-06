@@ -2,77 +2,77 @@
   "id": "hedgehog",
   "kind": "Pose",
   "frameCount": 8,
-  "frameWidth": 256,
-  "frameHeight": 192,
+  "frameWidth": 228,
+  "frameHeight": 208,
   "columns": 8,
   "rows": 1,
-  "atlasWidth": 2048,
-  "atlasHeight": 192,
+  "atlasWidth": 1824,
+  "atlasHeight": 208,
   "pixelsPerUnit": 125,
-  "pivotX": 0.5,
-  "pivotY": 0.03645833333333337,
+  "pivotX": 0.5043859649122807,
+  "pivotY": 0.038461538461538436,
   "sourcePivotX": 256,
   "sourcePivotY": 338,
   "fps": 25,
-  "cycleSeconds": 0.8,
-  "referenceVisibleHeight": 163,
-  "referenceBaselineY": 336,
+  "cycleSeconds": 0,
+  "referenceVisibleHeight": 182,
+  "referenceBaselineY": 337,
   "frames": [
     {
       "name": "Pose_000",
       "x": 0,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_001",
-      "x": 256,
+      "x": 228,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_002",
-      "x": 512,
+      "x": 456,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_003",
-      "x": 768,
+      "x": 684,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_004",
-      "x": 1024,
+      "x": 912,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_005",
-      "x": 1280,
+      "x": 1140,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_006",
-      "x": 1536,
+      "x": 1368,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     },
     {
       "name": "Pose_007",
-      "x": 1792,
+      "x": 1596,
       "y": 0,
-      "width": 256,
-      "height": 192
+      "width": 228,
+      "height": 208
     }
   ]
 }

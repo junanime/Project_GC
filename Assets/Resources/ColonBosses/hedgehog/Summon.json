@@ -3,104 +3,104 @@
   "kind": "Summon",
   "frameCount": 12,
   "frameWidth": 220,
-  "frameHeight": 176,
+  "frameHeight": 196,
   "columns": 8,
   "rows": 2,
   "atlasWidth": 1760,
-  "atlasHeight": 352,
+  "atlasHeight": 392,
   "pixelsPerUnit": 125,
-  "pivotX": 0.4772727272727273,
-  "pivotY": 0.045454545454545414,
+  "pivotX": 0.4954545454545455,
+  "pivotY": 0.04081632653061229,
   "sourcePivotX": 256,
   "sourcePivotY": 338,
   "fps": 25,
-  "cycleSeconds": 0.8,
-  "referenceVisibleHeight": 163,
-  "referenceBaselineY": 336,
+  "cycleSeconds": 0,
+  "referenceVisibleHeight": 182,
+  "referenceBaselineY": 337,
   "frames": [
     {
       "name": "Summon_000",
       "x": 0,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_001",
       "x": 220,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_002",
       "x": 440,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_003",
       "x": 660,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_004",
       "x": 880,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_005",
       "x": 1100,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_006",
       "x": 1320,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_007",
       "x": 1540,
-      "y": 176,
+      "y": 196,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_008",
       "x": 0,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_009",
       "x": 220,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_010",
       "x": 440,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 196
     },
     {
       "name": "Summon_011",
       "x": 660,
       "y": 0,
       "width": 220,
-      "height": 176
+      "height": 196
     }
   ]
 }

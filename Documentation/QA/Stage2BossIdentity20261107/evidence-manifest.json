@@ -1,0 +1,315 @@
+{
+  "createdAt": "2026-11-06T23:22:37.142Z",
+  "unity": "2022.3.62f3",
+  "branch": "Junhan2",
+  "assetResult": "PASS checks=1048; complete alpha-mask comparison; fixed imported anchors; neutral identity pixels match",
+  "smokeResult": "PASS checks=229",
+  "smokeCompletedAt": "2026-11-06T23:21:51.610Z",
+  "foregroundRuntime": "PASS poison body=510 foreground=512 active-tint=513; exactly one active status; actual LateUpdate submission frame=1856\nPASS corrosion body=510 foreground=512 active-tint=513; exactly one active status; actual LateUpdate submission frame=1924",
+  "captures": [
+    {
+      "clip": "Hedgehog-arrival",
+      "capturedAt": "2026-11-06T23:15:04.498Z"
+    },
+    {
+      "clip": "Hedgehog-pattern-00",
+      "capturedAt": "2026-11-06T23:15:15.328Z"
+    },
+    {
+      "clip": "Hedgehog-pattern-01",
+      "capturedAt": "2026-11-06T23:15:18.756Z"
+    },
+    {
+      "clip": "Hedgehog-pattern-02",
+      "capturedAt": "2026-11-06T23:15:22.612Z"
+    },
+    {
+      "clip": "Hedgehog-pattern-03",
+      "capturedAt": "2026-11-06T23:15:25.820Z"
+    },
+    {
+      "clip": "Hedgehog-walk",
+      "capturedAt": "2026-11-06T23:15:08.657Z"
+    },
+    {
+      "clip": "Manatee-arrival",
+      "capturedAt": "2026-11-06T22:57:42.696Z"
+    },
+    {
+      "clip": "Manatee-pattern-00",
+      "capturedAt": "2026-11-06T22:57:53.558Z"
+    },
+    {
+      "clip": "Manatee-pattern-01",
+      "capturedAt": "2026-11-06T22:57:56.360Z"
+    },
+    {
+      "clip": "Manatee-pattern-02",
+      "capturedAt": "2026-11-06T22:57:59.074Z"
+    },
+    {
+      "clip": "Manatee-pattern-03",
+      "capturedAt": "2026-11-06T22:58:05.803Z"
+    },
+    {
+      "clip": "Manatee-pattern-04",
+      "capturedAt": "2026-11-06T22:58:12.593Z"
+    },
+    {
+      "clip": "Manatee-walk",
+      "capturedAt": "2026-11-06T22:57:46.824Z"
+    }
+  ],
+  "assets": [
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/ArtSource.json",
+      "sha256": "c63919d84867e1414a24ec6d7bc41b4f8da384f829feb46b1784c4cc5be16cd5",
+      "bytes": 16876
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/BossArt.json",
+      "sha256": "ce7967368ffdda7d70114b405091c5639837e01dfee68fef623b97ac8533498f",
+      "bytes": 4459
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Dormant.json",
+      "sha256": "b802deeacb2978066bb2c4e48fef964f71e6aa518a54dc161ef76fd0e8502d63",
+      "bytes": 536
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Dormant.png",
+      "sha256": "3e9906a7e234aee1e4c97f14177fe7699cc6933c32e0648df1ed2461c3554d04",
+      "bytes": 53617
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Idle.json",
+      "sha256": "b6f2e2ab0adc3bad47b388a8a87e49efcc7cf8f0814be3f01f498c31dd8a683a",
+      "bytes": 518
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Idle.png",
+      "sha256": "4e517ca6b8e5f861d21d1efb67c9ce22d57433cb0c68f3480e97c3530f3b7445",
+      "bytes": 75096
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/IdleBare.json",
+      "sha256": "d1e5e8baeece76f1f39163876f41c808615a50f33ee0c7ded77c0081be4c5a6a",
+      "bytes": 526
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/IdleBare.png",
+      "sha256": "63bf68054b2b3dcde0e26fb2b7b965747f92f883903473ee465c03803b78f7d2",
+      "bytes": 73650
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Impact.json",
+      "sha256": "c785e6139afce0b5900f4bb86ab42577c4fb3809d79036355f6ad517f927789a",
+      "bytes": 648
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Impact.png",
+      "sha256": "69730348b023773ce4f78e740b96383bfe1e0b5174bc7064099310a134f9f579",
+      "bytes": 21203
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/NutForeground.json",
+      "sha256": "176bf1192cde0978937b328c3509aac84af5b6081d48d690fb13957f95cfb1ad",
+      "bytes": 1364
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/NutForeground.png",
+      "sha256": "2b542f0004325819a2eefbd726bd6ab4aa4f79c5ccdfe3061849ed53c8a31202",
+      "bytes": 39866
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Pose.json",
+      "sha256": "ff2923af17697ec9fa7a52d3a05fe670143439da153a46fe7d0d85a6aee53759",
+      "bytes": 1298
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Pose.png",
+      "sha256": "a783718d5994062633e5713dba251d1d15035cf5739031e8ee0abe387b69c087",
+      "bytes": 530056
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Projectile.json",
+      "sha256": "6c386d6a0bce3e0e5ee255035161f311cd32579fbdc39b87193887a6d9d790cb",
+      "bytes": 332
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Projectile.png",
+      "sha256": "773d7ba21541105810d3486a19c12d99cb693603039e5721677a372dc9bf1fed",
+      "bytes": 2400
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Secondary.json",
+      "sha256": "2e623cd49440b9cb2a9df311b9857d8e96fa81b4ce2d03344caa39c75608a322",
+      "bytes": 330
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Secondary.png",
+      "sha256": "b89d5dfc0c5d455596d4f3f64219921494a95e593eae595c5733251195d9664c",
+      "bytes": 11237
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Summon.json",
+      "sha256": "208c1494c8d6c18d50685c1957a230d3562070bdfa8d95382cfc3132120e9dc3",
+      "bytes": 1774
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Summon.png",
+      "sha256": "37ef55f342cddc51f8bce871bf291cff5b0be03189340e7d669e9cc8582d7a8c",
+      "bytes": 630822
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Walk.json",
+      "sha256": "d8a425eb1f59f92946fa0c6607e9c44760b3ac1062ac915240d4fb9955e89820",
+      "bytes": 2627
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/Walk.png",
+      "sha256": "4f827671d1a27d744255d6bf4ddb41f6ef08d91a01208d30a33f167fc2968c11",
+      "bytes": 332484
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/WalkBare.json",
+      "sha256": "deacdf0721c24b9e29f1f8beb4e1e0a9f376059b92a202e5b86432f1a8e8ae38",
+      "bytes": 2711
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/hedgehog/WalkBare.png",
+      "sha256": "ccfcb10570e14700cd01018337a71689ae8ad3d8d4e1d2625af0da2ea3651ea9",
+      "bytes": 328850
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/BossArt.json",
+      "sha256": "310bce760312931016e78e524f332af1618336e6ff60e720fe94bc2e33bf878a",
+      "bytes": 556
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Dormant.json",
+      "sha256": "5bab3a1ec784f893ff4ef6f357e7ca8d3ea6e5d8c61611f7e4a0bd63de60f4e0",
+      "bytes": 538
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Dormant.png",
+      "sha256": "e0c46672c3ff8cdd2aca976640ee5665b33f54db9025b7084544fcccb6740a1f",
+      "bytes": 57238
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseBase.json",
+      "sha256": "50f50933fc966f06a06197bdc2f4da5e9a3cd3c55afd8d93be5c7d94193baa64",
+      "bytes": 188
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseBase.png",
+      "sha256": "258abd33889304c0c9674f1afef1c71811e9dfde9342a6fc0ecad600b690df5d",
+      "bytes": 225733
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseDoor.json",
+      "sha256": "d1c56c25a4f4ffcf9f10bb16158253a8431654841b77c59be91cf358f6577ad8",
+      "bytes": 189
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseDoor.png",
+      "sha256": "ab60426bf1c181b974471ecb61be3da1ccfc3fd99f18f795be2dc46b4d69a510",
+      "bytes": 4567
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseLayout.json",
+      "sha256": "86b2c96d994d1322d0fad486b75a496b9ebb013572648a020da8cfed60c64085",
+      "bytes": 1430
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseLip.json",
+      "sha256": "27737ee79f75de6f2ce38e58c5c20f6028397e7e90bef026a9da9caf28da1df0",
+      "bytes": 187
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseLip.png",
+      "sha256": "e970730a97b20bda088d1f5b3795226e59cae9b73d07c2f7e96867757c3da6a7",
+      "bytes": 23914
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseMask.json",
+      "sha256": "20501f00c1da3fa63fd28c942740b30c462801e90fec4a55621e8ab2e1d5317c",
+      "bytes": 188
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/HouseMask.png",
+      "sha256": "c97a8bcc88d531316be496dae016f0944db9cfeb43a60e5a0b0cb6051257950c",
+      "bytes": 3953
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Idle.json",
+      "sha256": "647b4422d9ec69da09c4199c71175e95eee14d21ce633f0dbebf1358a522a1f5",
+      "bytes": 532
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Idle.png",
+      "sha256": "e0c46672c3ff8cdd2aca976640ee5665b33f54db9025b7084544fcccb6740a1f",
+      "bytes": 57238
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Impact.json",
+      "sha256": "05842766a0caa67708d96866e8825ae8346b27c7d00b25e3abb5efc481ef469d",
+      "bytes": 647
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Impact.png",
+      "sha256": "8a43eb8e1d45c2f34cb83407670887f9473713151db337ac45cf7a9e8a465650",
+      "bytes": 23353
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Pose.json",
+      "sha256": "5d3ef5fca84c572c4878048b1d1b03b9979264bf8cbefd60d5e27b7b1bcfde91",
+      "bytes": 1300
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Pose.png",
+      "sha256": "2fea7a388dcb0d9031f649bf96825e34c2712922013f278edb565449e26c0bd7",
+      "bytes": 343844
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Projectile.json",
+      "sha256": "208bd86f22599b2eab39b81ce3b146e1c00e5c006b3b3e9b7cfeb1bcd59f668f",
+      "bytes": 331
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Projectile.png",
+      "sha256": "dcfc891faa4400e7e157438ecc9270df6357af1f8cec8ed79a505ed3cf933e73",
+      "bytes": 4219
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Secondary.json",
+      "sha256": "bee6d96ff48aaedac56c5ef174a5b37ef5c20b55cfa12f9514336362730807de",
+      "bytes": 329
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Secondary.png",
+      "sha256": "f82bca308c44638491da5bec6069b6797dee422a08a1be16778a30743a26b325",
+      "bytes": 11450
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Summon.json",
+      "sha256": "f988a6c09cb892f9e1217132018b2e168b60174411cb219aa0870cc4a28ec231",
+      "bytes": 1777
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Summon.png",
+      "sha256": "a929d02e887945725d388a50da1a84c66673105eb6573ed2451e8d70799d49bc",
+      "bytes": 454729
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Walk.json",
+      "sha256": "555fee4d707bf2c3d6ebe22d09b3b66b02e72cd92856318e44180b9f78c8227a",
+      "bytes": 4862
+    },
+    {
+      "file": "Assets/Resources/ColonBosses/manatee/Walk.png",
+      "sha256": "06d07fafb7ac8162fbd3578618e733885f1f6a19dd7bdf7577b5b2590a9ff53a",
+      "bytes": 1231800
+    }
+  ]
+}

@@ -1,0 +1,1050 @@
+valid needle mask entry count
+needle mask length flamingo/Walk
+unique needle mask flamingo/Walk
+complete needle mask flamingo/Walk
+needle mask length flamingo/Idle
+unique needle mask flamingo/Idle
+complete needle mask flamingo/Idle
+needle mask length flamingo/Pose
+unique needle mask flamingo/Pose
+complete needle mask flamingo/Pose
+needle mask length flamingo/Summon
+unique needle mask flamingo/Summon
+complete needle mask flamingo/Summon
+needle mask length flamingo/Dormant
+unique needle mask flamingo/Dormant
+complete needle mask flamingo/Dormant
+needle mask length shark/Walk
+unique needle mask shark/Walk
+complete needle mask shark/Walk
+needle mask length shark/Idle
+unique needle mask shark/Idle
+complete needle mask shark/Idle
+needle mask length shark/Pose
+unique needle mask shark/Pose
+complete needle mask shark/Pose
+needle mask length shark/Summon
+unique needle mask shark/Summon
+complete needle mask shark/Summon
+needle mask length shark/Dormant
+unique needle mask shark/Dormant
+complete needle mask shark/Dormant
+needle mask length shark/Fin
+unique needle mask shark/Fin
+complete needle mask shark/Fin
+needle mask length pudding/Walk
+unique needle mask pudding/Walk
+complete needle mask pudding/Walk
+needle mask length pudding/Idle
+unique needle mask pudding/Idle
+complete needle mask pudding/Idle
+needle mask length pudding/Pose
+unique needle mask pudding/Pose
+complete needle mask pudding/Pose
+needle mask length pudding/Summon
+unique needle mask pudding/Summon
+complete needle mask pudding/Summon
+needle mask length pudding/Dormant
+unique needle mask pudding/Dormant
+complete needle mask pudding/Dormant
+needle mask length pudding/Mold
+unique needle mask pudding/Mold
+complete needle mask pudding/Mold
+needle mask length hedgehog/Walk
+unique needle mask hedgehog/Walk
+complete needle mask hedgehog/Walk
+needle mask length hedgehog/Idle
+unique needle mask hedgehog/Idle
+complete needle mask hedgehog/Idle
+needle mask length hedgehog/Pose
+unique needle mask hedgehog/Pose
+complete needle mask hedgehog/Pose
+needle mask length hedgehog/Summon
+unique needle mask hedgehog/Summon
+complete needle mask hedgehog/Summon
+needle mask length hedgehog/Dormant
+unique needle mask hedgehog/Dormant
+complete needle mask hedgehog/Dormant
+needle mask length hedgehog/WalkBare
+unique needle mask hedgehog/WalkBare
+complete needle mask hedgehog/WalkBare
+needle mask length hedgehog/IdleBare
+unique needle mask hedgehog/IdleBare
+complete needle mask hedgehog/IdleBare
+needle mask length turtle/Walk
+unique needle mask turtle/Walk
+complete needle mask turtle/Walk
+needle mask length turtle/Idle
+unique needle mask turtle/Idle
+complete needle mask turtle/Idle
+needle mask length turtle/Pose
+unique needle mask turtle/Pose
+complete needle mask turtle/Pose
+needle mask length turtle/Summon
+unique needle mask turtle/Summon
+complete needle mask turtle/Summon
+needle mask length turtle/Dormant
+unique needle mask turtle/Dormant
+complete needle mask turtle/Dormant
+needle mask length manatee/Walk
+unique needle mask manatee/Walk
+complete needle mask manatee/Walk
+needle mask length manatee/Idle
+unique needle mask manatee/Idle
+complete needle mask manatee/Idle
+needle mask length manatee/Pose
+unique needle mask manatee/Pose
+complete needle mask manatee/Pose
+needle mask length manatee/Summon
+unique needle mask manatee/Summon
+complete needle mask manatee/Summon
+needle mask length manatee/Dormant
+unique needle mask manatee/Dormant
+complete needle mask manatee/Dormant
+needle mask file has no stale trailing bytes
+source PNG readable Assets/Resources/ColonBosses/hedgehog/Walk
+source PNG readable Assets/Resources/ColonBosses/hedgehog/WalkBare
+source PNG readable Assets/Resources/ColonBosses/hedgehog/Idle
+source PNG readable Assets/Resources/ColonBosses/hedgehog/IdleBare
+source PNG readable Assets/Resources/ColonBosses/hedgehog/Pose
+source PNG readable Assets/Resources/ColonBosses/hedgehog/Summon
+source PNG readable Assets/Resources/ColonBosses/hedgehog/Dormant
+valid reference geometry hedgehog
+frame metadata count hedgehog/Walk
+PNG matches atlas metadata dimensions hedgehog/Walk
+shared original canvas anchor and PPU hedgehog/Walk
+imported PPU and sprite mode hedgehog/Walk
+full-rect unscaled point-filtered cells hedgehog/Walk
+no missing or stale imported cells hedgehog/Walk
+needle surface exists hedgehog/Walk
+needle surface dimensions follow PNG hedgehog/Walk
+all 1013760 alpha pixels agree with needle surface hedgehog/Walk
+unique in-bounds frame hedgehog/Walk Walk_000
+animation cells do not overlap hedgehog/Walk Walk_000
+imported frame name hedgehog/Walk Walk_000
+imported rectangle and fixed pivot hedgehog/Walk Walk_000
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_000
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_000
+unique in-bounds frame hedgehog/Walk Walk_001
+animation cells do not overlap hedgehog/Walk Walk_001
+imported frame name hedgehog/Walk Walk_001
+imported rectangle and fixed pivot hedgehog/Walk Walk_001
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_001
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_001
+unique in-bounds frame hedgehog/Walk Walk_002
+animation cells do not overlap hedgehog/Walk Walk_002
+imported frame name hedgehog/Walk Walk_002
+imported rectangle and fixed pivot hedgehog/Walk Walk_002
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_002
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_002
+unique in-bounds frame hedgehog/Walk Walk_003
+animation cells do not overlap hedgehog/Walk Walk_003
+imported frame name hedgehog/Walk Walk_003
+imported rectangle and fixed pivot hedgehog/Walk Walk_003
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_003
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_003
+unique in-bounds frame hedgehog/Walk Walk_004
+animation cells do not overlap hedgehog/Walk Walk_004
+imported frame name hedgehog/Walk Walk_004
+imported rectangle and fixed pivot hedgehog/Walk Walk_004
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_004
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_004
+unique in-bounds frame hedgehog/Walk Walk_005
+animation cells do not overlap hedgehog/Walk Walk_005
+imported frame name hedgehog/Walk Walk_005
+imported rectangle and fixed pivot hedgehog/Walk Walk_005
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_005
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_005
+unique in-bounds frame hedgehog/Walk Walk_006
+animation cells do not overlap hedgehog/Walk Walk_006
+imported frame name hedgehog/Walk Walk_006
+imported rectangle and fixed pivot hedgehog/Walk Walk_006
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_006
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_006
+unique in-bounds frame hedgehog/Walk Walk_007
+animation cells do not overlap hedgehog/Walk Walk_007
+imported frame name hedgehog/Walk Walk_007
+imported rectangle and fixed pivot hedgehog/Walk Walk_007
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_007
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_007
+unique in-bounds frame hedgehog/Walk Walk_008
+animation cells do not overlap hedgehog/Walk Walk_008
+imported frame name hedgehog/Walk Walk_008
+imported rectangle and fixed pivot hedgehog/Walk Walk_008
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_008
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_008
+unique in-bounds frame hedgehog/Walk Walk_009
+animation cells do not overlap hedgehog/Walk Walk_009
+imported frame name hedgehog/Walk Walk_009
+imported rectangle and fixed pivot hedgehog/Walk Walk_009
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_009
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_009
+unique in-bounds frame hedgehog/Walk Walk_010
+animation cells do not overlap hedgehog/Walk Walk_010
+imported frame name hedgehog/Walk Walk_010
+imported rectangle and fixed pivot hedgehog/Walk Walk_010
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_010
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_010
+unique in-bounds frame hedgehog/Walk Walk_011
+animation cells do not overlap hedgehog/Walk Walk_011
+imported frame name hedgehog/Walk Walk_011
+imported rectangle and fixed pivot hedgehog/Walk Walk_011
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_011
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_011
+unique in-bounds frame hedgehog/Walk Walk_012
+animation cells do not overlap hedgehog/Walk Walk_012
+imported frame name hedgehog/Walk Walk_012
+imported rectangle and fixed pivot hedgehog/Walk Walk_012
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_012
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_012
+unique in-bounds frame hedgehog/Walk Walk_013
+animation cells do not overlap hedgehog/Walk Walk_013
+imported frame name hedgehog/Walk Walk_013
+imported rectangle and fixed pivot hedgehog/Walk Walk_013
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_013
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_013
+unique in-bounds frame hedgehog/Walk Walk_014
+animation cells do not overlap hedgehog/Walk Walk_014
+imported frame name hedgehog/Walk Walk_014
+imported rectangle and fixed pivot hedgehog/Walk Walk_014
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_014
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_014
+unique in-bounds frame hedgehog/Walk Walk_015
+animation cells do not overlap hedgehog/Walk Walk_015
+imported frame name hedgehog/Walk Walk_015
+imported rectangle and fixed pivot hedgehog/Walk Walk_015
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_015
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_015
+unique in-bounds frame hedgehog/Walk Walk_016
+animation cells do not overlap hedgehog/Walk Walk_016
+imported frame name hedgehog/Walk Walk_016
+imported rectangle and fixed pivot hedgehog/Walk Walk_016
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_016
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_016
+unique in-bounds frame hedgehog/Walk Walk_017
+animation cells do not overlap hedgehog/Walk Walk_017
+imported frame name hedgehog/Walk Walk_017
+imported rectangle and fixed pivot hedgehog/Walk Walk_017
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_017
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_017
+unique in-bounds frame hedgehog/Walk Walk_018
+animation cells do not overlap hedgehog/Walk Walk_018
+imported frame name hedgehog/Walk Walk_018
+imported rectangle and fixed pivot hedgehog/Walk Walk_018
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_018
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_018
+unique in-bounds frame hedgehog/Walk Walk_019
+animation cells do not overlap hedgehog/Walk Walk_019
+imported frame name hedgehog/Walk Walk_019
+imported rectangle and fixed pivot hedgehog/Walk Walk_019
+integer pixel anchor avoids cross-sheet drift hedgehog/Walk Walk_019
+nonempty silhouette retains unclipped transparent border hedgehog/Walk Walk_019
+frame metadata count hedgehog/WalkBare
+PNG matches atlas metadata dimensions hedgehog/WalkBare
+shared original canvas anchor and PPU hedgehog/WalkBare
+imported PPU and sprite mode hedgehog/WalkBare
+full-rect unscaled point-filtered cells hedgehog/WalkBare
+no missing or stale imported cells hedgehog/WalkBare
+needle surface exists hedgehog/WalkBare
+needle surface dimensions follow PNG hedgehog/WalkBare
+all 1013760 alpha pixels agree with needle surface hedgehog/WalkBare
+unique in-bounds frame hedgehog/WalkBare WalkBare_000
+animation cells do not overlap hedgehog/WalkBare WalkBare_000
+imported frame name hedgehog/WalkBare WalkBare_000
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_000
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_000
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_000
+unique in-bounds frame hedgehog/WalkBare WalkBare_001
+animation cells do not overlap hedgehog/WalkBare WalkBare_001
+imported frame name hedgehog/WalkBare WalkBare_001
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_001
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_001
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_001
+unique in-bounds frame hedgehog/WalkBare WalkBare_002
+animation cells do not overlap hedgehog/WalkBare WalkBare_002
+imported frame name hedgehog/WalkBare WalkBare_002
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_002
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_002
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_002
+unique in-bounds frame hedgehog/WalkBare WalkBare_003
+animation cells do not overlap hedgehog/WalkBare WalkBare_003
+imported frame name hedgehog/WalkBare WalkBare_003
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_003
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_003
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_003
+unique in-bounds frame hedgehog/WalkBare WalkBare_004
+animation cells do not overlap hedgehog/WalkBare WalkBare_004
+imported frame name hedgehog/WalkBare WalkBare_004
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_004
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_004
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_004
+unique in-bounds frame hedgehog/WalkBare WalkBare_005
+animation cells do not overlap hedgehog/WalkBare WalkBare_005
+imported frame name hedgehog/WalkBare WalkBare_005
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_005
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_005
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_005
+unique in-bounds frame hedgehog/WalkBare WalkBare_006
+animation cells do not overlap hedgehog/WalkBare WalkBare_006
+imported frame name hedgehog/WalkBare WalkBare_006
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_006
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_006
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_006
+unique in-bounds frame hedgehog/WalkBare WalkBare_007
+animation cells do not overlap hedgehog/WalkBare WalkBare_007
+imported frame name hedgehog/WalkBare WalkBare_007
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_007
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_007
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_007
+unique in-bounds frame hedgehog/WalkBare WalkBare_008
+animation cells do not overlap hedgehog/WalkBare WalkBare_008
+imported frame name hedgehog/WalkBare WalkBare_008
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_008
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_008
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_008
+unique in-bounds frame hedgehog/WalkBare WalkBare_009
+animation cells do not overlap hedgehog/WalkBare WalkBare_009
+imported frame name hedgehog/WalkBare WalkBare_009
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_009
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_009
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_009
+unique in-bounds frame hedgehog/WalkBare WalkBare_010
+animation cells do not overlap hedgehog/WalkBare WalkBare_010
+imported frame name hedgehog/WalkBare WalkBare_010
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_010
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_010
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_010
+unique in-bounds frame hedgehog/WalkBare WalkBare_011
+animation cells do not overlap hedgehog/WalkBare WalkBare_011
+imported frame name hedgehog/WalkBare WalkBare_011
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_011
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_011
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_011
+unique in-bounds frame hedgehog/WalkBare WalkBare_012
+animation cells do not overlap hedgehog/WalkBare WalkBare_012
+imported frame name hedgehog/WalkBare WalkBare_012
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_012
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_012
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_012
+unique in-bounds frame hedgehog/WalkBare WalkBare_013
+animation cells do not overlap hedgehog/WalkBare WalkBare_013
+imported frame name hedgehog/WalkBare WalkBare_013
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_013
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_013
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_013
+unique in-bounds frame hedgehog/WalkBare WalkBare_014
+animation cells do not overlap hedgehog/WalkBare WalkBare_014
+imported frame name hedgehog/WalkBare WalkBare_014
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_014
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_014
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_014
+unique in-bounds frame hedgehog/WalkBare WalkBare_015
+animation cells do not overlap hedgehog/WalkBare WalkBare_015
+imported frame name hedgehog/WalkBare WalkBare_015
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_015
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_015
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_015
+unique in-bounds frame hedgehog/WalkBare WalkBare_016
+animation cells do not overlap hedgehog/WalkBare WalkBare_016
+imported frame name hedgehog/WalkBare WalkBare_016
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_016
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_016
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_016
+unique in-bounds frame hedgehog/WalkBare WalkBare_017
+animation cells do not overlap hedgehog/WalkBare WalkBare_017
+imported frame name hedgehog/WalkBare WalkBare_017
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_017
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_017
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_017
+unique in-bounds frame hedgehog/WalkBare WalkBare_018
+animation cells do not overlap hedgehog/WalkBare WalkBare_018
+imported frame name hedgehog/WalkBare WalkBare_018
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_018
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_018
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_018
+unique in-bounds frame hedgehog/WalkBare WalkBare_019
+animation cells do not overlap hedgehog/WalkBare WalkBare_019
+imported frame name hedgehog/WalkBare WalkBare_019
+imported rectangle and fixed pivot hedgehog/WalkBare WalkBare_019
+integer pixel anchor avoids cross-sheet drift hedgehog/WalkBare WalkBare_019
+nonempty silhouette retains unclipped transparent border hedgehog/WalkBare WalkBare_019
+frame metadata count hedgehog/Idle
+PNG matches atlas metadata dimensions hedgehog/Idle
+shared original canvas anchor and PPU hedgehog/Idle
+imported PPU and sprite mode hedgehog/Idle
+full-rect unscaled point-filtered cells hedgehog/Idle
+no missing or stale imported cells hedgehog/Idle
+needle surface exists hedgehog/Idle
+needle surface dimensions follow PNG hedgehog/Idle
+all 42240 alpha pixels agree with needle surface hedgehog/Idle
+unique in-bounds frame hedgehog/Idle Idle_000
+animation cells do not overlap hedgehog/Idle Idle_000
+imported frame name hedgehog/Idle Idle_000
+imported rectangle and fixed pivot hedgehog/Idle Idle_000
+integer pixel anchor avoids cross-sheet drift hedgehog/Idle Idle_000
+nonempty silhouette retains unclipped transparent border hedgehog/Idle Idle_000
+frame metadata count hedgehog/IdleBare
+PNG matches atlas metadata dimensions hedgehog/IdleBare
+shared original canvas anchor and PPU hedgehog/IdleBare
+imported PPU and sprite mode hedgehog/IdleBare
+full-rect unscaled point-filtered cells hedgehog/IdleBare
+no missing or stale imported cells hedgehog/IdleBare
+needle surface exists hedgehog/IdleBare
+needle surface dimensions follow PNG hedgehog/IdleBare
+all 42240 alpha pixels agree with needle surface hedgehog/IdleBare
+unique in-bounds frame hedgehog/IdleBare IdleBare_000
+animation cells do not overlap hedgehog/IdleBare IdleBare_000
+imported frame name hedgehog/IdleBare IdleBare_000
+imported rectangle and fixed pivot hedgehog/IdleBare IdleBare_000
+integer pixel anchor avoids cross-sheet drift hedgehog/IdleBare IdleBare_000
+nonempty silhouette retains unclipped transparent border hedgehog/IdleBare IdleBare_000
+frame metadata count hedgehog/Pose
+PNG matches atlas metadata dimensions hedgehog/Pose
+shared original canvas anchor and PPU hedgehog/Pose
+imported PPU and sprite mode hedgehog/Pose
+full-rect unscaled point-filtered cells hedgehog/Pose
+no missing or stale imported cells hedgehog/Pose
+needle surface exists hedgehog/Pose
+needle surface dimensions follow PNG hedgehog/Pose
+all 379392 alpha pixels agree with needle surface hedgehog/Pose
+unique in-bounds frame hedgehog/Pose Pose_000
+animation cells do not overlap hedgehog/Pose Pose_000
+imported frame name hedgehog/Pose Pose_000
+imported rectangle and fixed pivot hedgehog/Pose Pose_000
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_000
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_000
+unique in-bounds frame hedgehog/Pose Pose_001
+animation cells do not overlap hedgehog/Pose Pose_001
+imported frame name hedgehog/Pose Pose_001
+imported rectangle and fixed pivot hedgehog/Pose Pose_001
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_001
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_001
+unique in-bounds frame hedgehog/Pose Pose_002
+animation cells do not overlap hedgehog/Pose Pose_002
+imported frame name hedgehog/Pose Pose_002
+imported rectangle and fixed pivot hedgehog/Pose Pose_002
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_002
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_002
+unique in-bounds frame hedgehog/Pose Pose_003
+animation cells do not overlap hedgehog/Pose Pose_003
+imported frame name hedgehog/Pose Pose_003
+imported rectangle and fixed pivot hedgehog/Pose Pose_003
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_003
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_003
+unique in-bounds frame hedgehog/Pose Pose_004
+animation cells do not overlap hedgehog/Pose Pose_004
+imported frame name hedgehog/Pose Pose_004
+imported rectangle and fixed pivot hedgehog/Pose Pose_004
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_004
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_004
+unique in-bounds frame hedgehog/Pose Pose_005
+animation cells do not overlap hedgehog/Pose Pose_005
+imported frame name hedgehog/Pose Pose_005
+imported rectangle and fixed pivot hedgehog/Pose Pose_005
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_005
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_005
+unique in-bounds frame hedgehog/Pose Pose_006
+animation cells do not overlap hedgehog/Pose Pose_006
+imported frame name hedgehog/Pose Pose_006
+imported rectangle and fixed pivot hedgehog/Pose Pose_006
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_006
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_006
+unique in-bounds frame hedgehog/Pose Pose_007
+animation cells do not overlap hedgehog/Pose Pose_007
+imported frame name hedgehog/Pose Pose_007
+imported rectangle and fixed pivot hedgehog/Pose Pose_007
+integer pixel anchor avoids cross-sheet drift hedgehog/Pose Pose_007
+nonempty silhouette retains unclipped transparent border hedgehog/Pose Pose_007
+frame metadata count hedgehog/Summon
+PNG matches atlas metadata dimensions hedgehog/Summon
+shared original canvas anchor and PPU hedgehog/Summon
+imported PPU and sprite mode hedgehog/Summon
+full-rect unscaled point-filtered cells hedgehog/Summon
+no missing or stale imported cells hedgehog/Summon
+needle surface exists hedgehog/Summon
+needle surface dimensions follow PNG hedgehog/Summon
+all 689920 alpha pixels agree with needle surface hedgehog/Summon
+unique in-bounds frame hedgehog/Summon Summon_000
+animation cells do not overlap hedgehog/Summon Summon_000
+imported frame name hedgehog/Summon Summon_000
+imported rectangle and fixed pivot hedgehog/Summon Summon_000
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_000
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_000
+unique in-bounds frame hedgehog/Summon Summon_001
+animation cells do not overlap hedgehog/Summon Summon_001
+imported frame name hedgehog/Summon Summon_001
+imported rectangle and fixed pivot hedgehog/Summon Summon_001
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_001
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_001
+unique in-bounds frame hedgehog/Summon Summon_002
+animation cells do not overlap hedgehog/Summon Summon_002
+imported frame name hedgehog/Summon Summon_002
+imported rectangle and fixed pivot hedgehog/Summon Summon_002
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_002
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_002
+unique in-bounds frame hedgehog/Summon Summon_003
+animation cells do not overlap hedgehog/Summon Summon_003
+imported frame name hedgehog/Summon Summon_003
+imported rectangle and fixed pivot hedgehog/Summon Summon_003
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_003
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_003
+unique in-bounds frame hedgehog/Summon Summon_004
+animation cells do not overlap hedgehog/Summon Summon_004
+imported frame name hedgehog/Summon Summon_004
+imported rectangle and fixed pivot hedgehog/Summon Summon_004
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_004
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_004
+unique in-bounds frame hedgehog/Summon Summon_005
+animation cells do not overlap hedgehog/Summon Summon_005
+imported frame name hedgehog/Summon Summon_005
+imported rectangle and fixed pivot hedgehog/Summon Summon_005
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_005
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_005
+unique in-bounds frame hedgehog/Summon Summon_006
+animation cells do not overlap hedgehog/Summon Summon_006
+imported frame name hedgehog/Summon Summon_006
+imported rectangle and fixed pivot hedgehog/Summon Summon_006
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_006
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_006
+unique in-bounds frame hedgehog/Summon Summon_007
+animation cells do not overlap hedgehog/Summon Summon_007
+imported frame name hedgehog/Summon Summon_007
+imported rectangle and fixed pivot hedgehog/Summon Summon_007
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_007
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_007
+unique in-bounds frame hedgehog/Summon Summon_008
+animation cells do not overlap hedgehog/Summon Summon_008
+imported frame name hedgehog/Summon Summon_008
+imported rectangle and fixed pivot hedgehog/Summon Summon_008
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_008
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_008
+unique in-bounds frame hedgehog/Summon Summon_009
+animation cells do not overlap hedgehog/Summon Summon_009
+imported frame name hedgehog/Summon Summon_009
+imported rectangle and fixed pivot hedgehog/Summon Summon_009
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_009
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_009
+unique in-bounds frame hedgehog/Summon Summon_010
+animation cells do not overlap hedgehog/Summon Summon_010
+imported frame name hedgehog/Summon Summon_010
+imported rectangle and fixed pivot hedgehog/Summon Summon_010
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_010
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_010
+unique in-bounds frame hedgehog/Summon Summon_011
+animation cells do not overlap hedgehog/Summon Summon_011
+imported frame name hedgehog/Summon Summon_011
+imported rectangle and fixed pivot hedgehog/Summon Summon_011
+integer pixel anchor avoids cross-sheet drift hedgehog/Summon Summon_011
+nonempty silhouette retains unclipped transparent border hedgehog/Summon Summon_011
+frame metadata count hedgehog/Dormant
+PNG matches atlas metadata dimensions hedgehog/Dormant
+shared original canvas anchor and PPU hedgehog/Dormant
+imported PPU and sprite mode hedgehog/Dormant
+full-rect unscaled point-filtered cells hedgehog/Dormant
+no missing or stale imported cells hedgehog/Dormant
+needle surface exists hedgehog/Dormant
+needle surface dimensions follow PNG hedgehog/Dormant
+all 33088 alpha pixels agree with needle surface hedgehog/Dormant
+unique in-bounds frame hedgehog/Dormant Dormant_000
+animation cells do not overlap hedgehog/Dormant Dormant_000
+imported frame name hedgehog/Dormant Dormant_000
+imported rectangle and fixed pivot hedgehog/Dormant Dormant_000
+integer pixel anchor avoids cross-sheet drift hedgehog/Dormant Dormant_000
+nonempty silhouette retains unclipped transparent border hedgehog/Dormant Dormant_000
+walk frame count matches definition hedgehog
+eight imported action poses hedgehog
+summon frame count matches definition hedgehog
+idle uses exact walk-neutral identity and anchor hedgehog
+pose zero uses exact walk-neutral identity and anchor hedgehog
+arrival completes on exact walk-neutral identity and anchor hedgehog
+dormant-to-arrival starts without changed source identity hedgehog
+reference size agrees with neutral source pixels hedgehog
+INFO legacy socket fallback hedgehog/mouthUV
+INFO legacy socket fallback hedgehog/pipeFaceUV
+unique valid chestnut pose index
+unique valid chestnut pose index
+three chestnut socket positions and heights for pose 1
+finite proportionate chestnut attachment 1/0
+chestnut anchor lies within its authored pose cell 1/0
+finite proportionate chestnut attachment 1/1
+chestnut anchor lies within its authored pose cell 1/1
+finite proportionate chestnut attachment 1/2
+chestnut anchor lies within its authored pose cell 1/2
+unique valid chestnut pose index
+unique valid chestnut pose index
+three chestnut socket positions and heights for pose 3
+finite proportionate chestnut attachment 3/0
+chestnut anchor lies within its authored pose cell 3/0
+finite proportionate chestnut attachment 3/1
+chestnut anchor lies within its authored pose cell 3/1
+finite proportionate chestnut attachment 3/2
+chestnut anchor lies within its authored pose cell 3/2
+unique valid chestnut pose index
+three chestnut socket positions and heights for pose 4
+finite proportionate chestnut attachment 4/0
+chestnut anchor lies within its authored pose cell 4/0
+finite proportionate chestnut attachment 4/1
+chestnut anchor lies within its authored pose cell 4/1
+finite proportionate chestnut attachment 4/2
+chestnut anchor lies within its authored pose cell 4/2
+unique valid chestnut pose index
+three chestnut socket positions and heights for pose 5
+finite proportionate chestnut attachment 5/0
+chestnut anchor lies within its authored pose cell 5/0
+finite proportionate chestnut attachment 5/1
+chestnut anchor lies within its authored pose cell 5/1
+finite proportionate chestnut attachment 5/2
+chestnut anchor lies within its authored pose cell 5/2
+unique valid chestnut pose index
+three chestnut socket positions and heights for pose 6
+finite proportionate chestnut attachment 6/0
+chestnut anchor lies within its authored pose cell 6/0
+finite proportionate chestnut attachment 6/1
+chestnut anchor lies within its authored pose cell 6/1
+finite proportionate chestnut attachment 6/2
+chestnut anchor lies within its authored pose cell 6/2
+unique valid chestnut pose index
+three chestnut socket positions and heights for pose 7
+finite proportionate chestnut attachment 7/0
+chestnut anchor lies within its authored pose cell 7/0
+finite proportionate chestnut attachment 7/1
+chestnut anchor lies within its authored pose cell 7/1
+finite proportionate chestnut attachment 7/2
+chestnut anchor lies within its authored pose cell 7/2
+bare movement frame count unchanged
+bare idle uses exact bare walk neutral
+source PNG readable Assets/Resources/ColonBosses/manatee/Walk
+source PNG readable Assets/Resources/ColonBosses/manatee/Idle
+source PNG readable Assets/Resources/ColonBosses/manatee/Pose
+source PNG readable Assets/Resources/ColonBosses/manatee/Summon
+source PNG readable Assets/Resources/ColonBosses/manatee/Dormant
+valid reference geometry manatee
+frame metadata count manatee/Walk
+PNG matches atlas metadata dimensions manatee/Walk
+shared original canvas anchor and PPU manatee/Walk
+imported PPU and sprite mode manatee/Walk
+full-rect unscaled point-filtered cells manatee/Walk
+no missing or stale imported cells manatee/Walk
+needle surface exists manatee/Walk
+needle surface dimensions follow PNG manatee/Walk
+all 2340480 alpha pixels agree with needle surface manatee/Walk
+unique in-bounds frame manatee/Walk Walk_000
+animation cells do not overlap manatee/Walk Walk_000
+imported frame name manatee/Walk Walk_000
+imported rectangle and fixed pivot manatee/Walk Walk_000
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_000
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_000
+unique in-bounds frame manatee/Walk Walk_001
+animation cells do not overlap manatee/Walk Walk_001
+imported frame name manatee/Walk Walk_001
+imported rectangle and fixed pivot manatee/Walk Walk_001
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_001
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_001
+unique in-bounds frame manatee/Walk Walk_002
+animation cells do not overlap manatee/Walk Walk_002
+imported frame name manatee/Walk Walk_002
+imported rectangle and fixed pivot manatee/Walk Walk_002
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_002
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_002
+unique in-bounds frame manatee/Walk Walk_003
+animation cells do not overlap manatee/Walk Walk_003
+imported frame name manatee/Walk Walk_003
+imported rectangle and fixed pivot manatee/Walk Walk_003
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_003
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_003
+unique in-bounds frame manatee/Walk Walk_004
+animation cells do not overlap manatee/Walk Walk_004
+imported frame name manatee/Walk Walk_004
+imported rectangle and fixed pivot manatee/Walk Walk_004
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_004
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_004
+unique in-bounds frame manatee/Walk Walk_005
+animation cells do not overlap manatee/Walk Walk_005
+imported frame name manatee/Walk Walk_005
+imported rectangle and fixed pivot manatee/Walk Walk_005
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_005
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_005
+unique in-bounds frame manatee/Walk Walk_006
+animation cells do not overlap manatee/Walk Walk_006
+imported frame name manatee/Walk Walk_006
+imported rectangle and fixed pivot manatee/Walk Walk_006
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_006
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_006
+unique in-bounds frame manatee/Walk Walk_007
+animation cells do not overlap manatee/Walk Walk_007
+imported frame name manatee/Walk Walk_007
+imported rectangle and fixed pivot manatee/Walk Walk_007
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_007
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_007
+unique in-bounds frame manatee/Walk Walk_008
+animation cells do not overlap manatee/Walk Walk_008
+imported frame name manatee/Walk Walk_008
+imported rectangle and fixed pivot manatee/Walk Walk_008
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_008
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_008
+unique in-bounds frame manatee/Walk Walk_009
+animation cells do not overlap manatee/Walk Walk_009
+imported frame name manatee/Walk Walk_009
+imported rectangle and fixed pivot manatee/Walk Walk_009
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_009
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_009
+unique in-bounds frame manatee/Walk Walk_010
+animation cells do not overlap manatee/Walk Walk_010
+imported frame name manatee/Walk Walk_010
+imported rectangle and fixed pivot manatee/Walk Walk_010
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_010
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_010
+unique in-bounds frame manatee/Walk Walk_011
+animation cells do not overlap manatee/Walk Walk_011
+imported frame name manatee/Walk Walk_011
+imported rectangle and fixed pivot manatee/Walk Walk_011
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_011
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_011
+unique in-bounds frame manatee/Walk Walk_012
+animation cells do not overlap manatee/Walk Walk_012
+imported frame name manatee/Walk Walk_012
+imported rectangle and fixed pivot manatee/Walk Walk_012
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_012
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_012
+unique in-bounds frame manatee/Walk Walk_013
+animation cells do not overlap manatee/Walk Walk_013
+imported frame name manatee/Walk Walk_013
+imported rectangle and fixed pivot manatee/Walk Walk_013
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_013
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_013
+unique in-bounds frame manatee/Walk Walk_014
+animation cells do not overlap manatee/Walk Walk_014
+imported frame name manatee/Walk Walk_014
+imported rectangle and fixed pivot manatee/Walk Walk_014
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_014
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_014
+unique in-bounds frame manatee/Walk Walk_015
+animation cells do not overlap manatee/Walk Walk_015
+imported frame name manatee/Walk Walk_015
+imported rectangle and fixed pivot manatee/Walk Walk_015
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_015
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_015
+unique in-bounds frame manatee/Walk Walk_016
+animation cells do not overlap manatee/Walk Walk_016
+imported frame name manatee/Walk Walk_016
+imported rectangle and fixed pivot manatee/Walk Walk_016
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_016
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_016
+unique in-bounds frame manatee/Walk Walk_017
+animation cells do not overlap manatee/Walk Walk_017
+imported frame name manatee/Walk Walk_017
+imported rectangle and fixed pivot manatee/Walk Walk_017
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_017
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_017
+unique in-bounds frame manatee/Walk Walk_018
+animation cells do not overlap manatee/Walk Walk_018
+imported frame name manatee/Walk Walk_018
+imported rectangle and fixed pivot manatee/Walk Walk_018
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_018
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_018
+unique in-bounds frame manatee/Walk Walk_019
+animation cells do not overlap manatee/Walk Walk_019
+imported frame name manatee/Walk Walk_019
+imported rectangle and fixed pivot manatee/Walk Walk_019
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_019
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_019
+unique in-bounds frame manatee/Walk Walk_020
+animation cells do not overlap manatee/Walk Walk_020
+imported frame name manatee/Walk Walk_020
+imported rectangle and fixed pivot manatee/Walk Walk_020
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_020
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_020
+unique in-bounds frame manatee/Walk Walk_021
+animation cells do not overlap manatee/Walk Walk_021
+imported frame name manatee/Walk Walk_021
+imported rectangle and fixed pivot manatee/Walk Walk_021
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_021
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_021
+unique in-bounds frame manatee/Walk Walk_022
+animation cells do not overlap manatee/Walk Walk_022
+imported frame name manatee/Walk Walk_022
+imported rectangle and fixed pivot manatee/Walk Walk_022
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_022
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_022
+unique in-bounds frame manatee/Walk Walk_023
+animation cells do not overlap manatee/Walk Walk_023
+imported frame name manatee/Walk Walk_023
+imported rectangle and fixed pivot manatee/Walk Walk_023
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_023
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_023
+unique in-bounds frame manatee/Walk Walk_024
+animation cells do not overlap manatee/Walk Walk_024
+imported frame name manatee/Walk Walk_024
+imported rectangle and fixed pivot manatee/Walk Walk_024
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_024
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_024
+unique in-bounds frame manatee/Walk Walk_025
+animation cells do not overlap manatee/Walk Walk_025
+imported frame name manatee/Walk Walk_025
+imported rectangle and fixed pivot manatee/Walk Walk_025
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_025
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_025
+unique in-bounds frame manatee/Walk Walk_026
+animation cells do not overlap manatee/Walk Walk_026
+imported frame name manatee/Walk Walk_026
+imported rectangle and fixed pivot manatee/Walk Walk_026
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_026
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_026
+unique in-bounds frame manatee/Walk Walk_027
+animation cells do not overlap manatee/Walk Walk_027
+imported frame name manatee/Walk Walk_027
+imported rectangle and fixed pivot manatee/Walk Walk_027
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_027
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_027
+unique in-bounds frame manatee/Walk Walk_028
+animation cells do not overlap manatee/Walk Walk_028
+imported frame name manatee/Walk Walk_028
+imported rectangle and fixed pivot manatee/Walk Walk_028
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_028
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_028
+unique in-bounds frame manatee/Walk Walk_029
+animation cells do not overlap manatee/Walk Walk_029
+imported frame name manatee/Walk Walk_029
+imported rectangle and fixed pivot manatee/Walk Walk_029
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_029
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_029
+unique in-bounds frame manatee/Walk Walk_030
+animation cells do not overlap manatee/Walk Walk_030
+imported frame name manatee/Walk Walk_030
+imported rectangle and fixed pivot manatee/Walk Walk_030
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_030
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_030
+unique in-bounds frame manatee/Walk Walk_031
+animation cells do not overlap manatee/Walk Walk_031
+imported frame name manatee/Walk Walk_031
+imported rectangle and fixed pivot manatee/Walk Walk_031
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_031
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_031
+unique in-bounds frame manatee/Walk Walk_032
+animation cells do not overlap manatee/Walk Walk_032
+imported frame name manatee/Walk Walk_032
+imported rectangle and fixed pivot manatee/Walk Walk_032
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_032
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_032
+unique in-bounds frame manatee/Walk Walk_033
+animation cells do not overlap manatee/Walk Walk_033
+imported frame name manatee/Walk Walk_033
+imported rectangle and fixed pivot manatee/Walk Walk_033
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_033
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_033
+unique in-bounds frame manatee/Walk Walk_034
+animation cells do not overlap manatee/Walk Walk_034
+imported frame name manatee/Walk Walk_034
+imported rectangle and fixed pivot manatee/Walk Walk_034
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_034
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_034
+unique in-bounds frame manatee/Walk Walk_035
+animation cells do not overlap manatee/Walk Walk_035
+imported frame name manatee/Walk Walk_035
+imported rectangle and fixed pivot manatee/Walk Walk_035
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_035
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_035
+unique in-bounds frame manatee/Walk Walk_036
+animation cells do not overlap manatee/Walk Walk_036
+imported frame name manatee/Walk Walk_036
+imported rectangle and fixed pivot manatee/Walk Walk_036
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_036
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_036
+unique in-bounds frame manatee/Walk Walk_037
+animation cells do not overlap manatee/Walk Walk_037
+imported frame name manatee/Walk Walk_037
+imported rectangle and fixed pivot manatee/Walk Walk_037
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_037
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_037
+unique in-bounds frame manatee/Walk Walk_038
+animation cells do not overlap manatee/Walk Walk_038
+imported frame name manatee/Walk Walk_038
+imported rectangle and fixed pivot manatee/Walk Walk_038
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_038
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_038
+unique in-bounds frame manatee/Walk Walk_039
+animation cells do not overlap manatee/Walk Walk_039
+imported frame name manatee/Walk Walk_039
+imported rectangle and fixed pivot manatee/Walk Walk_039
+integer pixel anchor avoids cross-sheet drift manatee/Walk Walk_039
+nonempty silhouette retains unclipped transparent border manatee/Walk Walk_039
+frame metadata count manatee/Idle
+PNG matches atlas metadata dimensions manatee/Idle
+shared original canvas anchor and PPU manatee/Idle
+imported PPU and sprite mode manatee/Idle
+full-rect unscaled point-filtered cells manatee/Idle
+no missing or stale imported cells manatee/Idle
+needle surface exists manatee/Idle
+needle surface dimensions follow PNG manatee/Idle
+all 58512 alpha pixels agree with needle surface manatee/Idle
+unique in-bounds frame manatee/Idle Idle_000
+animation cells do not overlap manatee/Idle Idle_000
+imported frame name manatee/Idle Idle_000
+imported rectangle and fixed pivot manatee/Idle Idle_000
+integer pixel anchor avoids cross-sheet drift manatee/Idle Idle_000
+nonempty silhouette retains unclipped transparent border manatee/Idle Idle_000
+frame metadata count manatee/Pose
+PNG matches atlas metadata dimensions manatee/Pose
+shared original canvas anchor and PPU manatee/Pose
+imported PPU and sprite mode manatee/Pose
+full-rect unscaled point-filtered cells manatee/Pose
+no missing or stale imported cells manatee/Pose
+needle surface exists manatee/Pose
+needle surface dimensions follow PNG manatee/Pose
+all 468096 alpha pixels agree with needle surface manatee/Pose
+unique in-bounds frame manatee/Pose Pose_000
+animation cells do not overlap manatee/Pose Pose_000
+imported frame name manatee/Pose Pose_000
+imported rectangle and fixed pivot manatee/Pose Pose_000
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_000
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_000
+unique in-bounds frame manatee/Pose Pose_001
+animation cells do not overlap manatee/Pose Pose_001
+imported frame name manatee/Pose Pose_001
+imported rectangle and fixed pivot manatee/Pose Pose_001
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_001
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_001
+unique in-bounds frame manatee/Pose Pose_002
+animation cells do not overlap manatee/Pose Pose_002
+imported frame name manatee/Pose Pose_002
+imported rectangle and fixed pivot manatee/Pose Pose_002
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_002
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_002
+unique in-bounds frame manatee/Pose Pose_003
+animation cells do not overlap manatee/Pose Pose_003
+imported frame name manatee/Pose Pose_003
+imported rectangle and fixed pivot manatee/Pose Pose_003
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_003
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_003
+unique in-bounds frame manatee/Pose Pose_004
+animation cells do not overlap manatee/Pose Pose_004
+imported frame name manatee/Pose Pose_004
+imported rectangle and fixed pivot manatee/Pose Pose_004
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_004
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_004
+unique in-bounds frame manatee/Pose Pose_005
+animation cells do not overlap manatee/Pose Pose_005
+imported frame name manatee/Pose Pose_005
+imported rectangle and fixed pivot manatee/Pose Pose_005
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_005
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_005
+unique in-bounds frame manatee/Pose Pose_006
+animation cells do not overlap manatee/Pose Pose_006
+imported frame name manatee/Pose Pose_006
+imported rectangle and fixed pivot manatee/Pose Pose_006
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_006
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_006
+unique in-bounds frame manatee/Pose Pose_007
+animation cells do not overlap manatee/Pose Pose_007
+imported frame name manatee/Pose Pose_007
+imported rectangle and fixed pivot manatee/Pose Pose_007
+integer pixel anchor avoids cross-sheet drift manatee/Pose Pose_007
+nonempty silhouette retains unclipped transparent border manatee/Pose Pose_007
+frame metadata count manatee/Summon
+PNG matches atlas metadata dimensions manatee/Summon
+shared original canvas anchor and PPU manatee/Summon
+imported PPU and sprite mode manatee/Summon
+full-rect unscaled point-filtered cells manatee/Summon
+no missing or stale imported cells manatee/Summon
+needle surface exists manatee/Summon
+needle surface dimensions follow PNG manatee/Summon
+all 936192 alpha pixels agree with needle surface manatee/Summon
+unique in-bounds frame manatee/Summon Summon_000
+animation cells do not overlap manatee/Summon Summon_000
+imported frame name manatee/Summon Summon_000
+imported rectangle and fixed pivot manatee/Summon Summon_000
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_000
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_000
+unique in-bounds frame manatee/Summon Summon_001
+animation cells do not overlap manatee/Summon Summon_001
+imported frame name manatee/Summon Summon_001
+imported rectangle and fixed pivot manatee/Summon Summon_001
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_001
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_001
+unique in-bounds frame manatee/Summon Summon_002
+animation cells do not overlap manatee/Summon Summon_002
+imported frame name manatee/Summon Summon_002
+imported rectangle and fixed pivot manatee/Summon Summon_002
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_002
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_002
+unique in-bounds frame manatee/Summon Summon_003
+animation cells do not overlap manatee/Summon Summon_003
+imported frame name manatee/Summon Summon_003
+imported rectangle and fixed pivot manatee/Summon Summon_003
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_003
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_003
+unique in-bounds frame manatee/Summon Summon_004
+animation cells do not overlap manatee/Summon Summon_004
+imported frame name manatee/Summon Summon_004
+imported rectangle and fixed pivot manatee/Summon Summon_004
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_004
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_004
+unique in-bounds frame manatee/Summon Summon_005
+animation cells do not overlap manatee/Summon Summon_005
+imported frame name manatee/Summon Summon_005
+imported rectangle and fixed pivot manatee/Summon Summon_005
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_005
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_005
+unique in-bounds frame manatee/Summon Summon_006
+animation cells do not overlap manatee/Summon Summon_006
+imported frame name manatee/Summon Summon_006
+imported rectangle and fixed pivot manatee/Summon Summon_006
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_006
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_006
+unique in-bounds frame manatee/Summon Summon_007
+animation cells do not overlap manatee/Summon Summon_007
+imported frame name manatee/Summon Summon_007
+imported rectangle and fixed pivot manatee/Summon Summon_007
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_007
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_007
+unique in-bounds frame manatee/Summon Summon_008
+animation cells do not overlap manatee/Summon Summon_008
+imported frame name manatee/Summon Summon_008
+imported rectangle and fixed pivot manatee/Summon Summon_008
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_008
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_008
+unique in-bounds frame manatee/Summon Summon_009
+animation cells do not overlap manatee/Summon Summon_009
+imported frame name manatee/Summon Summon_009
+imported rectangle and fixed pivot manatee/Summon Summon_009
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_009
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_009
+unique in-bounds frame manatee/Summon Summon_010
+animation cells do not overlap manatee/Summon Summon_010
+imported frame name manatee/Summon Summon_010
+imported rectangle and fixed pivot manatee/Summon Summon_010
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_010
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_010
+unique in-bounds frame manatee/Summon Summon_011
+animation cells do not overlap manatee/Summon Summon_011
+imported frame name manatee/Summon Summon_011
+imported rectangle and fixed pivot manatee/Summon Summon_011
+integer pixel anchor avoids cross-sheet drift manatee/Summon Summon_011
+nonempty silhouette retains unclipped transparent border manatee/Summon Summon_011
+frame metadata count manatee/Dormant
+PNG matches atlas metadata dimensions manatee/Dormant
+shared original canvas anchor and PPU manatee/Dormant
+imported PPU and sprite mode manatee/Dormant
+full-rect unscaled point-filtered cells manatee/Dormant
+no missing or stale imported cells manatee/Dormant
+needle surface exists manatee/Dormant
+needle surface dimensions follow PNG manatee/Dormant
+all 58512 alpha pixels agree with needle surface manatee/Dormant
+unique in-bounds frame manatee/Dormant Dormant_000
+animation cells do not overlap manatee/Dormant Dormant_000
+imported frame name manatee/Dormant Dormant_000
+imported rectangle and fixed pivot manatee/Dormant Dormant_000
+integer pixel anchor avoids cross-sheet drift manatee/Dormant Dormant_000
+nonempty silhouette retains unclipped transparent border manatee/Dormant Dormant_000
+walk frame count matches definition manatee
+eight imported action poses manatee
+summon frame count matches definition manatee
+idle uses exact walk-neutral identity and anchor manatee
+pose zero uses exact walk-neutral identity and anchor manatee
+arrival completes on exact walk-neutral identity and anchor manatee
+dormant-to-arrival starts without changed source identity manatee
+reference size agrees with neutral source pixels manatee
+finite in-cell socket UV manatee/mouthUV
+socket points onto authored body manatee/mouthUV
+finite in-cell socket UV manatee/pipeFaceUV
+socket points onto authored body manatee/pipeFaceUV
