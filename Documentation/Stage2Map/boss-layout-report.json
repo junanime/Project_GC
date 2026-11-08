@@ -1,0 +1,14 @@
+{
+    "success": true,
+    "samples": 256,
+    "failures": 0,
+    "homesChecked": 1536,
+    "clusteredPairs": 24,
+    "runsWithClosePair": 23,
+    "uniqueLayouts": 256,
+    "minimumHomeGap": 11.148002624511719,
+    "minimumPropGap": 5.6001386642456059,
+    "minimumEntryGap": 14.004210472106934,
+    "milliseconds": 68120,
+    "errors": []
+}

@@ -1,0 +1,229 @@
+main menu enters actual stage-one loading
+stage-one loading completed
+stage-two map and progression active
+stage-one player, inventory, skills and upgrades survive transition
+loading waits for all six habitats
+one live habitat for every accepted boss
+all 86 ordinary field objects retained
+all fourteen clot entrances coexist with boss habitats
+stage-one buried parts retired in colon
+legacy altar cannot create a stage-one final boss in colon
+repeated prepare preserves homes and consumed state
+256 real-geometry seeds have complete safe spaced layouts
+real interaction creates Flamingo
+repeat interaction cannot duplicate Flamingo
+arrival is invulnerable Flamingo
+arrival finishes ready at full health Flamingo
+combat collider enabled after arrival Flamingo
+invalid pattern indices rejected Flamingo
+starts Flamingo pattern 0
+finishes Flamingo pattern 0
+root body size preserved Flamingo pattern 0
+no inherited basic/radial barrage Flamingo pattern 0
+visible intact body after Flamingo pattern 0
+starts Flamingo pattern 1
+finishes Flamingo pattern 1
+root body size preserved Flamingo pattern 1
+no inherited basic/radial barrage Flamingo pattern 1
+visible intact body after Flamingo pattern 1
+starts Flamingo pattern 2
+finishes Flamingo pattern 2
+root body size preserved Flamingo pattern 2
+no inherited basic/radial barrage Flamingo pattern 2
+visible intact body after Flamingo pattern 2
+poison damage applies Flamingo
+corrosion stack applies Flamingo
+needle mark applies Flamingo
+boss freeze/status adapter exists Flamingo
+real interaction creates Shark
+repeat interaction cannot duplicate Shark
+arrival is invulnerable Shark
+arrival finishes ready at full health Shark
+combat collider enabled after arrival Shark
+two simultaneous bosses have independent health HUDs
+simultaneous health pools are independent
+invalid pattern indices rejected Shark
+starts Shark pattern 0
+finishes Shark pattern 0
+root body size preserved Shark pattern 0
+no inherited basic/radial barrage Shark pattern 0
+visible intact body after Shark pattern 0
+starts Shark pattern 1
+finishes Shark pattern 1
+root body size preserved Shark pattern 1
+no inherited basic/radial barrage Shark pattern 1
+visible intact body after Shark pattern 1
+starts Shark pattern 2
+finishes Shark pattern 2
+root body size preserved Shark pattern 2
+no inherited basic/radial barrage Shark pattern 2
+visible intact body after Shark pattern 2
+starts Shark pattern 3
+finishes Shark pattern 3
+root body size preserved Shark pattern 3
+no inherited basic/radial barrage Shark pattern 3
+visible intact body after Shark pattern 3
+poison damage applies Shark
+corrosion stack applies Shark
+needle mark applies Shark
+boss freeze/status adapter exists Shark
+defeated home cannot be farmed twice Shark
+optional defeat never clears stage or opens exit Shark
+real interaction creates Pudding
+repeat interaction cannot duplicate Pudding
+arrival is invulnerable Pudding
+arrival finishes ready at full health Pudding
+combat collider enabled after arrival Pudding
+invalid pattern indices rejected Pudding
+starts Pudding pattern 0
+finishes Pudding pattern 0
+root body size preserved Pudding pattern 0
+no inherited basic/radial barrage Pudding pattern 0
+visible intact body after Pudding pattern 0
+starts Pudding pattern 1
+finishes Pudding pattern 1
+root body size preserved Pudding pattern 1
+no inherited basic/radial barrage Pudding pattern 1
+visible intact body after Pudding pattern 1
+starts Pudding pattern 2
+finishes Pudding pattern 2
+root body size preserved Pudding pattern 2
+no inherited basic/radial barrage Pudding pattern 2
+visible intact body after Pudding pattern 2
+starts Pudding pattern 3
+finishes Pudding pattern 3
+root body size preserved Pudding pattern 3
+no inherited basic/radial barrage Pudding pattern 3
+visible intact body after Pudding pattern 3
+starts Pudding pattern 4
+finishes Pudding pattern 4
+root body size preserved Pudding pattern 4
+no inherited basic/radial barrage Pudding pattern 4
+visible intact body after Pudding pattern 4
+poison damage applies Pudding
+corrosion stack applies Pudding
+needle mark applies Pudding
+boss freeze/status adapter exists Pudding
+defeated home cannot be farmed twice Pudding
+optional defeat never clears stage or opens exit Pudding
+real interaction creates Hedgehog
+repeat interaction cannot duplicate Hedgehog
+arrival is invulnerable Hedgehog
+arrival finishes ready at full health Hedgehog
+combat collider enabled after arrival Hedgehog
+invalid pattern indices rejected Hedgehog
+starts Hedgehog pattern 0
+finishes Hedgehog pattern 0
+root body size preserved Hedgehog pattern 0
+no inherited basic/radial barrage Hedgehog pattern 0
+visible intact body after Hedgehog pattern 0
+starts Hedgehog pattern 1
+finishes Hedgehog pattern 1
+root body size preserved Hedgehog pattern 1
+no inherited basic/radial barrage Hedgehog pattern 1
+visible intact body after Hedgehog pattern 1
+starts Hedgehog pattern 2
+finishes Hedgehog pattern 2
+root body size preserved Hedgehog pattern 2
+no inherited basic/radial barrage Hedgehog pattern 2
+visible intact body after Hedgehog pattern 2
+starts Hedgehog pattern 3
+finishes Hedgehog pattern 3
+root body size preserved Hedgehog pattern 3
+no inherited basic/radial barrage Hedgehog pattern 3
+visible intact body after Hedgehog pattern 3
+poison damage applies Hedgehog
+corrosion stack applies Hedgehog
+needle mark applies Hedgehog
+boss freeze/status adapter exists Hedgehog
+defeated home cannot be farmed twice Hedgehog
+optional defeat never clears stage or opens exit Hedgehog
+real interaction creates Turtle
+repeat interaction cannot duplicate Turtle
+arrival is invulnerable Turtle
+arrival finishes ready at full health Turtle
+combat collider enabled after arrival Turtle
+invalid pattern indices rejected Turtle
+starts Turtle pattern 0
+finishes Turtle pattern 0
+root body size preserved Turtle pattern 0
+no inherited basic/radial barrage Turtle pattern 0
+visible intact body after Turtle pattern 0
+starts Turtle pattern 1
+finishes Turtle pattern 1
+root body size preserved Turtle pattern 1
+no inherited basic/radial barrage Turtle pattern 1
+visible intact body after Turtle pattern 1
+starts Turtle pattern 2
+finishes Turtle pattern 2
+root body size preserved Turtle pattern 2
+no inherited basic/radial barrage Turtle pattern 2
+visible intact body after Turtle pattern 2
+starts Turtle pattern 3
+finishes Turtle pattern 3
+root body size preserved Turtle pattern 3
+no inherited basic/radial barrage Turtle pattern 3
+visible intact body after Turtle pattern 3
+poison damage applies Turtle
+corrosion stack applies Turtle
+needle mark applies Turtle
+boss freeze/status adapter exists Turtle
+defeated home cannot be farmed twice Turtle
+optional defeat never clears stage or opens exit Turtle
+real interaction creates Manatee
+repeat interaction cannot duplicate Manatee
+arrival is invulnerable Manatee
+arrival finishes ready at full health Manatee
+combat collider enabled after arrival Manatee
+invalid pattern indices rejected Manatee
+starts Manatee pattern 0
+finishes Manatee pattern 0
+root body size preserved Manatee pattern 0
+no inherited basic/radial barrage Manatee pattern 0
+visible intact body after Manatee pattern 0
+starts Manatee pattern 1
+finishes Manatee pattern 1
+root body size preserved Manatee pattern 1
+no inherited basic/radial barrage Manatee pattern 1
+visible intact body after Manatee pattern 1
+starts Manatee pattern 2
+finishes Manatee pattern 2
+root body size preserved Manatee pattern 2
+no inherited basic/radial barrage Manatee pattern 2
+visible intact body after Manatee pattern 2
+starts Manatee pattern 3
+finishes Manatee pattern 3
+root body size preserved Manatee pattern 3
+no inherited basic/radial barrage Manatee pattern 3
+visible intact body after Manatee pattern 3
+starts Manatee pattern 4
+finishes Manatee pattern 4
+root body size preserved Manatee pattern 4
+no inherited basic/radial barrage Manatee pattern 4
+visible intact body after Manatee pattern 4
+poison damage applies Manatee
+corrosion stack applies Manatee
+needle mark applies Manatee
+boss freeze/status adapter exists Manatee
+defeated home cannot be farmed twice Manatee
+optional defeat never clears stage or opens exit Manatee
+all six distinct optional boss defeats recorded
+required final boss remains explicitly reserved
+supplemental three bosses finish arrival
+three nearby bosses expose three simultaneous health bars
+three boss health bars occupy separate rows
+status test starts turtle dash
+neural block freezes an in-flight boss dash
+boss dash resumes after neural block expires
+interrupted dash completes without deadlock
+honey slow and trail attach to optional boss
+moving optional boss leaves a short honey stain
+optional boss projectile registers for item interception
+item seal immediately freezes boss projectile
+sealed boss projectile is removed after seal delay
+death test starts pudding lob children
+mid-pattern death cancels child animation and removes effect hierarchy
+recorded stage-one carryover build is available
+recorded entry ability build restored in full
+benchmark target finishes arrival
+real carryover needle combat damages the optional boss

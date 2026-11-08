@@ -47,6 +47,25 @@ namespace Vampire
 
         public static List<Slot> Generate(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked = null)
         {
+            if(!map.IsColon)return GenerateAttempt(map,start,seed,blocked);
+            // Validate the entire 86-prop + six-habitat plan before instantiating anything.
+            // Dense wall layouts can exhaust one random proposal; reroll the proposal,
+            // never drop an object or relax wall/interaction clearance to make it fit.
+            Exception last=null;
+            for(int attempt=0;attempt<32;attempt++)
+            {
+                try
+                {
+                    var result=GenerateAttempt(map,start,unchecked(seed+attempt*104729),blocked);
+                    ColonBossDirector.Generate(map,start,seed^0x62B7,result);
+                    return result;
+                }
+                catch(InvalidOperationException error){last=error;}
+            }
+            throw new InvalidOperationException("No complete colon layout after 32 proposals; seed="+seed,last);
+        }
+        static List<Slot> GenerateAttempt(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked)
+        {
             var rng = new System.Random(seed);
             var result = new List<Slot>();
             var paired = new HashSet<int>();
@@ -67,7 +86,7 @@ namespace Vampire
             }
             bool Allowed(Vector2 p, Kind kind, int partner)
             {
-                if (map.NavigationDistance(p, out _) < WallInset || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
+                if (map.NavigationDistance(p, out _) < (map.IsColon?map.WallWidth+1.5f:WallInset) || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
                 if(reservedColonHome.HasValue&&Vector2.Distance(p,reservedColonHome.Value)<ColonBossDirector.PropClearance+2.05f)return false;
                 for (int j = 0; j < result.Count; j++)
                 {
@@ -76,6 +95,7 @@ namespace Vampire
                     if (j != partner && kind == other.kind)
                         gap = kind == Kind.BloodClot ? 16 : kind == Kind.Merchant || kind == Kind.EliteAltar ? 13 : 8;
                     if (j == partner && (kind == Kind.BloodClot || kind == Kind.EliteAltar || other.kind == Kind.BloodClot || other.kind == Kind.EliteAltar)) gap = 6;
+                    if(map.IsColon&&j!=partner)gap*=.8f;
                     if ((p - other.position).sqrMagnitude < gap * gap) return false;
                 }
                 return true;

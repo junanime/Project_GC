@@ -24,10 +24,13 @@ namespace Vampire.Tests.Editor
         public static void Run()
         {
             Directory.CreateDirectory(Output);Restore();checks=0;
+            File.WriteAllText(Output+"/result.txt","RUNNING");
             File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
             File.WriteAllText(Output+"/patterns.csv","kind,index,seconds,completed,health,width,height\n");
             var entries=JsonUtility.FromJson<Catalog>(Resources.Load<TextAsset>("TutorialClips/catalog").text).entries;
-            var keys=entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{CapsuleDoctorDialogue.SeenKey,"Coins","LobbySilverCoins"}).Distinct().ToArray();
+            var fixtureNeedles=new[]{"WindNeedle","Homing","AcupunctureFormation"};
+            var keys=entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{CapsuleDoctorDialogue.SeenKey,"Coins","LobbySilverCoins"})
+                .Concat(fixtureNeedles.SelectMany(n=>new[]{"LobbyUnlock.Needle."+n,"October.NeedleEnabled."+n})).Distinct().ToArray();
             File.WriteAllText(Output+"/prefs.json",JsonUtility.ToJson(new Backup{prefs=keys.Select(k=>new Pref{key=k,had=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
             foreach(var e in entries)PlayerPrefs.SetInt(TutorialGuide.SeenKey(e.id),1);
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
@@ -250,6 +253,10 @@ namespace Vampire.Tests.Editor
             const string snapshot="Documentation/QA/Stage2CarryoverFixtures/Main-stage1-build.json";
             Check(File.Exists(snapshot),"recorded stage-one carryover build is available");
             var build=JsonUtility.FromJson<RunSceneTransferSnapshot>(File.ReadAllText(snapshot));
+            // The recorded run owns these needles. Isolate the fixture from the
+            // developer's lobby unlock/enable choices, and restore them in Restore().
+            foreach(var n in new[]{"WindNeedle","Homing","AcupunctureFormation"})
+            {PlayerPrefs.SetInt("LobbyUnlock.Needle."+n,1);PlayerPrefs.SetInt("October.NeedleEnabled."+n,1);}
             build.CharacterState.SkillActiveRemaining=0;build.CharacterState.SkillCooldownRemaining=0;
             var abilities=Object.FindObjectOfType<AbilityManager>();int restored=abilities.RestoreRunSceneAbilities(build.AbilityStates);
             Check(restored==build.AbilityStates.Count,"recorded entry ability build restored in full");

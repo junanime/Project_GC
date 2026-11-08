@@ -14,8 +14,8 @@ namespace Vampire
             public bool clustered;
             public int partner;
         }
-        public const float PreferredSeparation=26f, MinimumSeparation=10f, ClosePairChance=.025f;
-        public const float EntryClearance=14f, PropClearance=7f;
+        public const float PreferredSeparation=20.8f, MinimumSeparation=10f, ClosePairChance=.025f;
+        public const float EntryClearance=14f, PropClearance=5.6f;
         public const float ManateeHouseHalfWidth=6.5f, ManateeHouseHalfDepth=2.4f;
         public bool Ready { get; private set; }
         public bool Failed { get; private set; }
@@ -46,8 +46,9 @@ namespace Vampire
             try
             {
                 Clear();
-                Seed=UnityEngine.Random.Range(0,int.MaxValue);
                 var layout=level.GetComponent<FieldObjectLayout>();
+                // Reuse the habitat seed validated with the field layout under the loading screen.
+                Seed=layout!=null?layout.Seed^0x62B7:UnityEngine.Random.Range(0,int.MaxValue);
                 placements.AddRange(Generate(map,entry,Seed,layout?.Slots));
                 if(placements.Count!=6)throw new InvalidOperationException("Colon encounter layout must contain six homes.");
                 root=new GameObject("Stage 2 · six optional boss habitats").transform;root.SetParent(transform,false);
@@ -160,12 +161,19 @@ namespace Vampire
             return result;
         }
 
+        static FiniteStomachMap siteMap;
+        static StomachMapDefinition siteDefinition;
+        static Rect siteRect;
+        static Vector2 siteEntry;
+        static List<HabitatPlacement> siteCache;
         public static List<HabitatPlacement> FindManateeSites(FiniteStomachMap map,Vector2 entry)
         {
             var candidates=new List<HabitatPlacement>();
             if(map==null||!map.IsColon)return candidates;
-            // A wide home follows a tangent of the central S ridge, never the outer rim or peninsula.
-            var ridge=ColonMapGeometry.CentralRidge(map);
+            if(siteCache!=null&&siteMap==map&&siteDefinition==map.Definition&&siteRect==map.WorldRect&&siteEntry==entry)
+                return new List<HabitatPlacement>(siteCache);
+            // Both detached central ridges provide sockets; attached side branches do not.
+            foreach(var ridge in ColonMapGeometry.HabitatRidges(map))
             for(int i=3;i<ridge.Length-4;i++)
             {
                 var tangent=(ridge[Mathf.Min(ridge.Length-1,i+2)]-ridge[Mathf.Max(0,i-2)]).normalized;
@@ -173,11 +181,13 @@ namespace Vampire
                 var normal=new Vector2(-tangent.y,tangent.x);
                 for(int side=-1;side<=1;side+=2)
                 {
-                    var n=normal*side;var p=ridge[i]+n*(map.WallWidth+3.6f);
+                    var n=normal*side;var p=ridge[i]+n*(map.WallWidth+2.5f);
                     if(Vector2.Distance(p,entry)<EntryClearance||!HouseFits(map,p,n))continue;
                     candidates.Add(new HabitatPlacement{kind=ColonBossKind.Manatee,position=p,wallNormal=n,partner=-1});
                 }
             }
+            siteMap=map;siteDefinition=map.Definition;siteRect=map.WorldRect;siteEntry=entry;
+            siteCache=new List<HabitatPlacement>(candidates);
             return candidates;
         }
 
@@ -203,7 +213,7 @@ namespace Vampire
                 q=p+new Vector2(x*ManateeHouseHalfWidth/2,y*ManateeHouseHalfDepth);
                 if(map.NavigationDistance(q,out _,true)<map.ClimbLimit+1.5f)return false;
             }
-            for(int door=0;door<3;door++)for(int step=0;step<=4;step++)
+            for(int door=0;door<3;door++)for(int step=0;step<=3;step++)
             {
                 // Use the actual art sockets, including the raised center opening. The first
                 // sample is precisely the arrival/exit point used by the live habitat.
@@ -216,7 +226,8 @@ namespace Vampire
         {
             Vector2 n=outward.sqrMagnitude>.1f?outward.normalized:Vector2.down;
             Vector2 right=new Vector2(n.y,-n.x);
-            Vector2 local=index<=0?new Vector2(-4.5958f,1.489f):index>=2?new Vector2(4.6022f,1.4954f):new Vector2(-.0064f,2.5138f);
+            // Socket centers measured from the current house/mask pixels (720 x 240).
+            Vector2 local=index<=0?new Vector2(-4.64271f,1.55056f):index>=2?new Vector2(4.58318f,1.55084f):new Vector2(-.02678f,2.54156f);
             return center+(right*local.x+n*local.y)*(13f/14f);
         }
         void Clear()

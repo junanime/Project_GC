@@ -22,7 +22,7 @@ namespace Vampire.Tests.Editor
         public static void RunChecksOnly(){SessionState.SetBool(Key+"NoImages",true);Start();}
         static void Start()
         {
-            Directory.CreateDirectory(Output);Restore();File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
+            Directory.CreateDirectory(Output);Restore();File.WriteAllText(Output+"/result.txt","RUNNING");File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
             // Do not rewrite the approved art/import settings every time the regression test runs.
             if(Resources.LoadAll<Sprite>("AmphibiousCapsule/Body").Length==0||Resources.LoadAll<Sprite>("AmphibiousCapsule/Doctor").Length==0)
                 Vampire.Editor.AmphibiousCapsuleInstaller.Install();
@@ -150,7 +150,7 @@ namespace Vampire.Tests.Editor
             Check(player==originalPlayer&&inventory==level.PlayerInventory&&skills==player.Skills,"same player inventory and skill objects retained");
             Check(player.DamageMultiplier==damage&&player.ReviveCount==revives,"combat upgrades and revival count retained");
             Check(bombSlot.Count==bombCount&&bomb!=null&&!bomb.gameObject.activeSelf,"stored consumable object and count retained");
-            Check(map.IsColon&&map.WorldRect==originalRect&&map.Definition.pixelWorldSize==Resources.Load<StomachMapDefinition>("StomachMap/Stage1").pixelWorldSize,"same world bounds and pixel size");
+            Check(map.IsColon&&Vector2.Distance(map.WorldRect.size,originalRect.size*.8f)<.001f&&map.Definition.pixelWorldSize==Resources.Load<StomachMapDefinition>("StomachMap/Stage1").pixelWorldSize,"colon uses 80% width/height and unchanged world pixel density");
             Check(level.CurrentLevelBlueprint.monsters.Length==originalBlueprint.monsters.Length+1&&level.CurrentLevelBlueprint.levelTime==originalBlueprint.levelTime,"colon adds a dedicated ordinary and elite pool while preserving duration");
             for(int i=0;i<originalBlueprint.monsters.Length;i++)Check(level.CurrentLevelBlueprint.monsters[i].monstersPrefab==originalBlueprint.monsters[i].monstersPrefab,"same monster prefab "+i);
             Check(level.InitialFieldObjectsReady&&level.GetComponent<FieldObjectLayout>().SpawnedObjects.Count==86,"stage two initial layout completes before play");
@@ -165,7 +165,7 @@ namespace Vampire.Tests.Editor
             // Capture the actual full terrain material without changing the gameplay camera.
             var full=(RenderTexture)map.OverviewTexture;var active=RenderTexture.active;RenderTexture.active=full;var tex=new Texture2D(full.width,full.height,TextureFormat.RGB24,false);tex.ReadPixels(new Rect(0,0,full.width,full.height),0,0);tex.Apply();File.WriteAllBytes(Output+"/map.png",tex.EncodeToPNG());Object.Destroy(tex);RenderTexture.active=active;
             Check(map.AppliesAt(player.transform.position)&&map.NavigationDistance(player.transform.position,out _)>=map.WallWidth,"spawn lands on reachable flat floor");
-            var ridge=map.UVToWorld(new Vector2(795f/1536,1-360f/1024));Check(!map.Contains(ridge),"approved central ridge is solid");
+            var ridge=map.UVToWorld(new Vector2(700f/1536,1-350f/1024));Check(!map.Contains(ridge),"approved central ridge is solid");
             var from=map.UVToWorld(new Vector2(.5f,.74f));var to=map.UVToWorld(new Vector2(.5f,.50f));
             var dash=FiniteStomachMap.ClampDash(from,to);Check((dash-to).sqrMagnitude>1,"dash cannot cross internal ridge");
             var direction=ColonNavigation.Toward(from,to);Check(Mathf.Abs(direction.x)>.1f,"horde steers around ridge rather than through it");
@@ -173,8 +173,9 @@ namespace Vampire.Tests.Editor
             level.enabled=true;float clock=level.CurrentLevelTime;yield return new WaitForSeconds(2);Check(level.CurrentLevelTime>clock+1.5f,"stage two clock runs after entry");
             Check(level.NormalMonstersSpawned>0,"stage two normal monsters actually spawn");
             level.enabled=false;Vector2 ramp=Vector2.zero;bool found=false;
+            float rampDistance=map.WallWidth-(map.Definition.climbableWidth-player.GetComponent<StomachSlopeBody>().Radius)*.68f;
             for(int y=5;y<95&&!found;y++)for(int x=5;x<95;x++)
-            {var p=map.UVToWorld(new Vector2(x/100f,y/100f));float d=map.NavigationDistance(p,out _);if(d>3.8f&&d<4.2f){ramp=p;found=true;break;}}
+            {var p=map.UVToWorld(new Vector2(x/100f,y/100f));float d=map.NavigationDistance(p,out _);if(Mathf.Abs(d-rampDistance)<.1f){ramp=p;found=true;break;}}
             Check(found,"reachable slope sample exists");Position(player,ramp);map.NavigationDistance(ramp,out var inward);
             Check(player.GetComponent<StomachSlopeBody>().MovementMultiplier(-inward)<.5f,"actual player uphill multiplier reduced on colon wall");
             player.Move(-inward);Check(player.TryDash(),"actual dash remains usable on colon slope");yield return new WaitForSeconds(.7f);player.Move(Vector2.zero);Position(player,ramp);

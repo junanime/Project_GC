@@ -186,20 +186,29 @@ namespace Vampire
         void BuildDistanceField()
         {
             distanceSamples=new Color[FieldResolution*FieldResolution];
+            var visualSamples=IsColon?new Color[distanceSamples.Length]:distanceSamples;
             var wallCoordinates=new Color[distanceSamples.Length];
             for(int y=0;y<FieldResolution;y++)for(int x=0;x<FieldResolution;x++)
             {
-                float d=ExactDistance(UVToWorld(new Vector2(x/(float)(FieldResolution-1),y/(float)(FieldResolution-1))),out var n,out float along);
-                distanceSamples[y*FieldResolution+x]=new Color(d,n.x,n.y,1);
+                var at=UVToWorld(new Vector2(x/(float)(FieldResolution-1),y/(float)(FieldResolution-1)));
+                float exterior=1;
+                float d=IsColon?ColonMapGeometry.Distance(this,at,out var n,out float along,out exterior):ExactDistance(at,out n,out along);
+                distanceSamples[y*FieldResolution+x]=new Color(d,n.x,n.y,exterior);
                 // Periodic coordinates interpolate across the closed-loop seam without a UV jump.
-                float phase=along/boundaryLength*Mathf.PI*2*32;
+                float phase=IsColon?along/24f*Mathf.PI*2:along/boundaryLength*Mathf.PI*2*32;
                 wallCoordinates[y*FieldResolution+x]=new Color(Mathf.Cos(phase),Mathf.Sin(phase),0,1);
+                if(IsColon)
+                {
+                    ColonMapGeometry.VisualDirections(this,at,out var vn,out var vp,out var outer);
+                    visualSamples[y*FieldResolution+x]=new Color(d,vn.x,vn.y,outer);
+                    wallCoordinates[y*FieldResolution+x]=new Color(vp.x,vp.y,0,1);
+                }
             }
             // This is numerical geometry data, not a resized background image.
             distanceTexture=new Texture2D(FieldResolution,FieldResolution,TextureFormat.RGBAFloat,false,true);
             distanceTexture.name="Stomach signed distance / inward normal";
             distanceTexture.wrapMode=TextureWrapMode.Clamp;distanceTexture.filterMode=FilterMode.Bilinear;
-            distanceTexture.SetPixels(distanceSamples);distanceTexture.Apply(false,false);
+            distanceTexture.SetPixels(visualSamples);distanceTexture.Apply(false,false);
             material.SetTexture("_DistanceTex",distanceTexture);
             wallCoordinateTexture=new Texture2D(FieldResolution,FieldResolution,TextureFormat.RGFloat,false,true);
             wallCoordinateTexture.name="Stomach wall periodic boundary coordinates";
