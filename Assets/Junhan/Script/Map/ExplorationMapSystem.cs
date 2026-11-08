@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -41,13 +42,13 @@ namespace Vampire
             if(UsesStomachMap)
             {
                 UpdateMarkerDiscovery();
-                foreach(var marker in markers)
+                foreach(var marker in markers.OrderBy(m=>m!=null&&m.GetComponent<ColonBossHabitat>()!=null?1:0))
                 {
                     if(marker==null || !marker.gameObject.activeInHierarchy || !marker.ShowOnFullMap)continue;
                     if(!marker.AlwaysVisible && marker.HideUntilDiscovered && !marker.IsDiscovered)continue;
                     var point=WorldToMapNormalized(marker.transform.position);
                     if(point.x<0 || point.y<0 || point.x>1 || point.y>1)continue;
-                    AddBookIcon(parent,marker.Icon,point,20);
+                    var icon=AddBookIcon(parent,marker.Icon,point,marker.GetComponent<ColonBossHabitat>()!=null?24:20);StyleEncounter(icon,marker);
                 }
                 if(playerCharacter!=null)
                 {
@@ -73,12 +74,22 @@ namespace Vampire
             }
         }
 
-        static void AddBookIcon(RectTransform parent,Sprite sprite,Vector2 point,float size)
+        static void StyleEncounter(Image image,MapMarker marker){
+            if(marker.GetComponent<ColonBossHabitat>()==null)return;
+            image.color=marker.FullMapColor;
+            var t=image.transform.Find("Encounter state");
+            if(t==null){var go=new GameObject("Encounter state",typeof(RectTransform),typeof(Text));go.transform.SetParent(image.transform,false);t=go.transform;
+                var label=go.GetComponent<Text>();label.font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");label.alignment=TextAnchor.MiddleCenter;label.fontSize=14;label.raycastTarget=false;
+                var outline=go.AddComponent<Outline>();outline.effectColor=new Color(.15f,.06f,.07f);outline.effectDistance=new Vector2(1,-1);
+                var rect=(RectTransform)t;rect.anchorMin=rect.anchorMax=new Vector2(1,1);rect.sizeDelta=new Vector2(18,18);}
+            var text=t.GetComponent<Text>();text.text=marker.EncounterBadge;text.color=marker.GetComponent<ColonBossHabitat>().Defeated?new Color(.3f,1,.5f):new Color(1,.35f,.2f);
+        }
+        static Image AddBookIcon(RectTransform parent,Sprite sprite,Vector2 point,float size)
         {
             var go=new GameObject("Stomach map marker",typeof(RectTransform),typeof(CanvasRenderer),typeof(Image));
             go.transform.SetParent(parent,false);var image=go.GetComponent<Image>();
             image.sprite=sprite;image.raycastTarget=false;image.preserveAspect=true;
-            image.rectTransform.anchorMin=image.rectTransform.anchorMax=point;image.rectTransform.sizeDelta=Vector2.one*size;
+            image.rectTransform.anchorMin=image.rectTransform.anchorMax=point;image.rectTransform.sizeDelta=Vector2.one*size;return image;
         }
 
         // ========================================
@@ -1494,7 +1505,7 @@ namespace Vampire
                         if (image != null)
                         {
                             image.sprite=marker.Icon??GetRuntimeWhiteSprite();image.preserveAspect=true;
-                            image.color=marker.Icon!=null?Color.white:marker.MiniMapColor;
+                            image.color=marker.Icon!=null?Color.white:marker.MiniMapColor;StyleEncounter(image,marker);
                         }
                     }
                 }
@@ -1601,7 +1612,7 @@ namespace Vampire
                 if (image != null)
                 {
                     image.sprite=marker.Icon??GetRuntimeWhiteSprite();image.preserveAspect=true;
-                    image.color=marker.Icon!=null?Color.white:marker.FullMapColor;
+                    image.color=marker.Icon!=null?Color.white:marker.FullMapColor;StyleEncounter(image,marker);
                 }
             }
         }

@@ -40,15 +40,17 @@ namespace Vampire.Tests.Editor
     var passage=map.UVToWorld(new Vector2(410f/1536,1-824f/1024));Require(map.NavigationDistance(passage,out _,true)>map.ClimbLimit+2.3f,"Outlet-right passage blocked");
     for(int sample=0;sample<256;sample++)
     {
-     if(sample%16==0)File.WriteAllText(Output+"/progress.txt",sample+"/256"); int seed=11717+sample*7919;
+     File.WriteAllText(Output+"/progress.txt",sample+"/256"); int seed=11717+sample*7919;
      try{
       var props=FieldObjectLayout.Generate(map,entry,seed);Require(props.Count==86,"Missing field object");
       var bosses=ColonBossDirector.Generate(map,entry,seed^0x62B7,props);Require(bosses.Count==6,"Missing habitat");
       foreach(var b in bosses){homes++;Require(b.kind==ColonBossKind.Manatee?ColonBossDirector.HouseFits(map,b.position,b.wallNormal):ColonBossDirector.GroundFits(map,b.position,ColonBossDefinition.Get(b.kind).HabitatRadius),"Unsafe habitat");}
-      foreach(var p in props){int at=(int)p.position.y*w+(int)p.position.x;Require(at>=0&&at<reached.Length&&reached[at],"Unreachable prop");}
+      foreach(var p in props){Require(map.FloorClearance(p.position,true)>=1.99f,"Prop overlaps visible wall");int at=(int)p.position.y*w+(int)p.position.x;Require(at>=0&&at<reached.Length&&reached[at],"Unreachable prop");}
       for(int i=0;i<bosses.Count;i++)for(int j=0;j<i;j++){float gap=Vector2.Distance(bosses[i].position,bosses[j].position);minGap=Mathf.Min(minGap,gap);Require(gap+0.001f>=(bosses[i].partner==j?ColonBossDirector.MinimumSeparation:ColonBossDirector.PreferredSeparation),"Home spacing failure");}
-     }catch(Exception ex){errors.Add(seed+": "+ex.Message);}
+     }catch(Exception ex){if(sample==0)throw;errors.Add(seed+": "+ex.Message);}
     }
+    for(int i=0;i<1024;i++){var at=map.UVToWorld(new Vector2((i%32)/31f,(i/32)/31f));var safePoint=map.ClampToFloor(at,1.2f);
+     Require(map.FloorClearance(safePoint,true)>=1.199f,"Unsafe corner projection "+i);}
     // Render exactly the material used by the game, at overview and gameplay scale.
     var quad=GameObject.CreatePrimitive(PrimitiveType.Quad);quad.transform.position=def.Size*.5f;quad.transform.localScale=new Vector3(def.Size.x,def.Size.y,1);quad.GetComponent<Renderer>().sharedMaterial=mat;
     var c=new GameObject("Map render camera").AddComponent<Camera>();c.enabled=false;c.orthographic=true;c.clearFlags=CameraClearFlags.SolidColor;c.backgroundColor=new Color(.29f,.065f,.13f);c.nearClipPlane=.1f;c.farClipPlane=50;

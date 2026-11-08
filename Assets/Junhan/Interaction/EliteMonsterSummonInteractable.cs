@@ -127,7 +127,7 @@ namespace Vampire
                 if(elite!=null && container.monstersPrefab.GetComponent<MeleeMonster>()!=null)
                 {
                     if(ColonMonsterRoster.InColon && !ColonMonsterRoster.Active.IsNewElite(pair.Key))continue;
-                    if(ColonMonsterRoster.InColon && ColonMonsterRoster.IntroductionSeconds[pair.Key-ColonMonsterRoster.Active.NormalFlatStart-8]>levelManager.CurrentLevelTime)continue;
+                    if(ColonMonsterRoster.InColon && !ColonMonsterRoster.Active.EliteUnlocked(pair.Key-ColonMonsterRoster.Active.NormalFlatStart-8,levelManager.CurrentLevelTime))continue;
                     // The large hopping cookie joins the middle/late groups.
                     if(container.monstersPrefab.name.Contains("Dubai") && levelManager.CurrentLevelTime<360)continue;
                     eligible.Add(pair.Key);

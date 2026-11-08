@@ -21,6 +21,9 @@ namespace Vampire
         public bool Failed { get; private set; }
         public int Seed { get; private set; }
         public int DefeatedCount => defeated.Count;
+        public string Objective => "선택 미니보스 토벌 "+DefeatedCount+"/6 · 전부 처치할 필요는 없습니다";
+        public static void ShowNotice(string title,string detail){var toast=UnityEngine.Object.FindObjectOfType<StageEventToastUI>();if(toast!=null)toast.Show(title+"|"+detail);}
+
         public IReadOnlyList<ColonBossHabitat> Habitats => habitats;
         public IReadOnlyList<HabitatPlacement> Placements => placements;
         public LevelManager Level => level;
@@ -104,6 +107,10 @@ namespace Vampire
                 return true;
             }
             bool EntrySafe(Vector2 p)=>Vector2.Distance(p,entry)>=EntryClearance;
+            if(props!=null) {
+                var reserved=Generate(map,entry,seed);
+                if(reserved.TrueForAll(h=>ClearProps(h.position,PropClearance+(h.kind==ColonBossKind.Manatee?2:0))))return reserved;
+            }
 
             // FieldObjectLayout reserves at least one of these narrow wall opportunities first.
             var candidates=FindManateeSites(map,entry);
@@ -193,11 +200,11 @@ namespace Vampire
 
         public static bool GroundFits(FiniteStomachMap map,Vector2 p,float radius)
         {
-            if(map.NavigationDistance(p,out _,true)<map.WallWidth+radius)return false;
+            if(map.FloorClearance(p)<radius-.35f||map.FloorClearance(p,true)<radius)return false;
             for(int i=0;i<12;i++)
             {
                 float a=i*Mathf.PI*2/12;var q=p+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*radius;
-                if(map.NavigationDistance(q,out _,true)<map.WallWidth)return false;
+                if(map.FloorClearance(q,true)<0)return false;
             }
             return true;
         }
@@ -218,7 +225,7 @@ namespace Vampire
                 // Use the actual art sockets, including the raised center opening. The first
                 // sample is precisely the arrival/exit point used by the live habitat.
                 var q=ManateeDoorPosition(p,n,door)+n*(step==0?1.5f:step*2.5f);
-                if(map.NavigationDistance(q,out _,true)<map.WallWidth+1.5f)return false;
+                if(map.FloorClearance(q,true)<1.5f)return false;
             }
             return true;
         }

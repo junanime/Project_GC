@@ -5,11 +5,12 @@ namespace Vampire
 {
     public static class ColonBossEffects
     {
-        public static LineRenderer Warning(ColonBossRuntime boss,Vector2[] outline)
+        public static LineRenderer Warning(ColonBossRuntime boss,Vector2[] outline,Vector2? origin=null)
         {
             var c=boss.Definition.Warning;c.a=.70f;
             // Existing hazard shader adds diagonal hatching and translucent interior, not a decorative outline alone.
-            return FoodBossEffects.Line(boss.Effects,outline,.075f,c,false,480);
+            var line=FoodBossEffects.Line(boss.Effects,outline,.075f,c,false,480);
+            ColonAttackWall.Mask(line.gameObject,origin??(Vector2)boss.transform.position);return line;
         }
         public static Vector2[] Circle(Vector2 at,float radius)=>FoodBossEffects.Arc(at,radius);
         public static Vector2[] Lane(Vector2 a,Vector2 b,float width)
@@ -22,7 +23,7 @@ namespace Vampire
         public static void Burst(ColonBossRuntime b,Vector2 at,float radius)
         {
             var p=Circle(at,radius);var c=b.Definition.Warning;c.a=.8f;
-            var r=FoodBossEffects.Line(b.Effects,p,.17f,c,false,485);r.gameObject.AddComponent<FoodBossFade>().Lifetime=.35f;
+            var r=FoodBossEffects.Line(b.Effects,p,.17f,c,false,485,true);r.gameObject.AddComponent<FoodBossFade>().Lifetime=.35f;ColonAttackWall.Mask(r.gameObject,at);
             var sprite=Prop(b,"Impact",radius*1.6f,at,522);
             sprite.gameObject.AddComponent<ColonBossImpact>().Initialize(b,ColonBossVisual.Load(b.Definition.Id,"Impact"));
         }
@@ -51,18 +52,19 @@ namespace Vampire
             var c=b.Definition.Warning;c.a=.85f;
             var r=FoodBossEffects.Line(b.Effects,new[]{origin,origin},.30f,c,false,486,true);
             var inner=FoodBossEffects.Line(b.Effects,new[]{origin,origin},.07f,new Color(1,.96f,.74f,.9f),false,487,true);
+            ColonAttackWall.Mask(r.gameObject,origin);ColonAttackWall.Mask(inner.gameObject,origin);
             yield return b.Tween(duration,q=>{
                 float radius=Mathf.Lerp(.25f,range,q);var p=FoodBossEffects.Arc(origin,radius,heading-angle/2,angle,40);
                 r.positionCount=inner.positionCount=p.Length;for(int i=0;i<p.Length;i++){r.SetPosition(i,p[i]);inner.SetPosition(i,p[i]);}
                 var delta=(Vector2)b.Player.transform.position-origin;
-                if(!hit&&Mathf.Abs(delta.magnitude-radius)<.45f&&Vector2.Angle(direction,delta)<=angle/2){b.TryHit(damage);hit=true;}
+                if(!hit&&ColonAttackWall.Clear(origin,b.Player.transform.position)&&Mathf.Abs(delta.magnitude-radius)<.45f&&Vector2.Angle(direction,delta)<=angle/2){b.TryHit(damage);hit=true;}
             });
             Fade(r);Fade(inner);
         }
         public static IEnumerator Liquid(ColonBossRuntime b,Vector2 a,Vector2 end,float width,float duration,float damage)
         {
             var ribbon=FoodBossFlowRibbon.Create(b.Effects,new Color(.7f,.84f,.36f,.85f),484,1);
-            var line=ribbon.gameObject.AddComponent<ColonLiquidZone>();line.Init(b,a,end,width,duration,damage,ribbon);
+            var line=ribbon.gameObject.AddComponent<ColonLiquidZone>();line.Init(b,a,end,width,duration,damage,ribbon);ColonAttackWall.Mask(ribbon.gameObject,a);
             yield return b.Wait(duration);
         }
     }
@@ -84,7 +86,7 @@ namespace Vampire
         {
             if(owner==null||owner.Dead){Destroy(gameObject);return;}if(owner.EncounterPaused)return;
             float dt=Time.deltaTime;age+=dt;Vector2 before=transform.position;transform.position+=(Vector3)velocity*dt;
-            if(age>6||FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.NavigationDistance(transform.position,out _) < FiniteStomachMap.Instance.ClimbLimit){Destroy(gameObject);return;}
+            if(age>6||!ColonAttackWall.Clear(before,transform.position,radius)){Destroy(gameObject);return;}
             if(SnailBossProjectile.SegmentDistance(owner.Player.transform.position,before,transform.position)<radius+.16f){owner.TryHit(damage);ColonBossEffects.Burst(owner,transform.position,radius*1.5f);Destroy(gameObject);}
         }
     }
@@ -97,7 +99,7 @@ namespace Vampire
     public sealed class ColonLiquidZone:MonoBehaviour
     {
         ColonBossRuntime owner;Vector2 start,end;float width,duration,age,damage,next;FoodBossFlowRibbon ribbon;
-        public void Init(ColonBossRuntime b,Vector2 a,Vector2 z,float w,float seconds,float hit,FoodBossFlowRibbon r){owner=b;start=a;end=z;width=w;duration=seconds;damage=hit;ribbon=r;}
+        public void Init(ColonBossRuntime b,Vector2 a,Vector2 z,float w,float seconds,float hit,FoodBossFlowRibbon r){owner=b;start=a;end=ColonAttackWall.Stop(a,z,w*.5f+.1f);width=w;duration=seconds;damage=hit;ribbon=r;}
         void Update()
         {
             if(owner==null||owner.Dead){Destroy(gameObject);return;}if(owner.EncounterPaused)return;age+=Time.deltaTime;
@@ -105,7 +107,7 @@ namespace Vampire
             var p=new Vector2[41];float advance=Mathf.Clamp01(age/1.5f);var normal=Vector2.Perpendicular((end-start).normalized);
             for(int i=0;i<p.Length;i++){float u=i/40f*advance;p[i]=Vector2.Lerp(start,end,u)+normal*Mathf.Sin(u*11-age*6)*.10f*Mathf.Sin(u*Mathf.PI);}
             ribbon.Set(p,width,age,Mathf.Clamp01((duration-age)/.55f));
-            if(owner.Player==null||Time.time<next)return;for(int i=1;i<p.Length;i++)if(SnailBossProjectile.SegmentDistance(owner.Player.transform.position,p[i-1],p[i])<width*.5f+.15f){owner.TryHit(damage);next=Time.time+.7f;break;}
+            if(owner.Player==null||Time.time<next||!ColonAttackWall.Clear(start,owner.Player.transform.position))return;for(int i=1;i<p.Length;i++)if(SnailBossProjectile.SegmentDistance(owner.Player.transform.position,p[i-1],p[i])<width*.5f+.15f){owner.TryHit(damage);next=Time.time+.7f;break;}
         }
     }
     public sealed partial class ColonBossRuntime

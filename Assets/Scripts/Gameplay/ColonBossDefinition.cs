@@ -41,6 +41,18 @@ namespace Vampire
             new ColonBossDefinition(ColonBossKind.Turtle,"turtle","멜론바다거북",36000,18,26,.52f,4.3f,3.5f,new Color(.4f,.9f,.45f),4),
             new ColonBossDefinition(ColonBossKind.Manatee,"manatee","배매너티",30000,16,24,.7f,4.4f,5.8f,new Color(.27f,.8f,1),5)
         };
+        public static ColonBossDefinition ForCurrentRun(ColonBossKind kind)
+        {
+            var original=Get(kind);var roster=ColonMonsterRoster.Active;
+            if(roster==null||!roster.DirectStart)return original;
+            var copy=(ColonBossDefinition)original.MemberwiseClone();
+            copy.Health=roster.DirectMiniBossHealth;
+            // Slow, clearly warned heavy hits are stronger than repeated projectiles.
+            copy.ContactDamage=kind==ColonBossKind.Shark||kind==ColonBossKind.Turtle?14:12;
+            copy.AttackDamage=kind==ColonBossKind.Shark?20:kind==ColonBossKind.Flamingo?16:18;
+            copy.GoldReward=40;copy.ExperienceReward=60;
+            return copy;
+        }
         public static ColonBossDefinition Get(ColonBossKind kind)
         {
             int index=(int)kind;

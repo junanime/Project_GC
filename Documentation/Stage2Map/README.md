@@ -14,7 +14,9 @@
 
 The entire field/home plan is checked before objects are instantiated. An exhausted proposal is discarded and rerolled deterministically, up to 32 proposals; counts and wall clearances are never silently reduced. The director uses the exact habitat seed validated with the accepted field plan. Loading ends only after the existing readiness checks finish.
 
-- Field wall clearance: 6 units; same-kind spacing retains the Stage 1 rules scaled to 80% (close pairs retain minimum clearances).
+- Field objects require at least 2 units of flat-floor clearance beyond the full visible wall footprint (outer wall 7.425, inner wall 4.5). This is separate from player uphill/sliding collision.
+- Reserve all six large homes before the 86 props. Place widely spaced blood clots first, then merchants/altars, then small props. Stage 2 regular minimum gaps: 11.2 clot-to-clot, 9.1 merchant-to-merchant / altar-to-altar, 5.2 otherwise. Rare close pairs retain 4 units, or 6 when a clot/altar is involved.
+- General monster spawns, elite spawns, drops and dynamic NPC spawns use the same safe-floor projection; monster footprints are checked again after sprite/size setup.
 - Normal boss-home separation: 20.8 units; intended rare pair minimum 10; pair proposal probability 2.5%, subject to geometry.
 - Entry clearance: 14 units. Habitat-to-prop clearance: 5.6, manatee 7.6.
 - Manatee attaches only to the two detached inner walls. Entire house footprint and all three exit approaches are checked.
@@ -29,7 +31,7 @@ House and wall art were produced with built-in image generation using the approv
 
 See the accompanying validation report and in-game screenshots. Placement validation checks 256 deterministic seeds, all 86 object positions, six safe habitats, spacing, whole-floor connectivity with boss clearance, and the lower-left passage. Full game tests cover Stage 1 carry-over, loading readiness, all six arrivals/patterns, house masking and capsule travel.
 
-Final Unity 2022.3.62f3 results, 2026-11-09:
+Earlier map-revision Unity 2022.3.62f3 results, 2026-11-09 (before the wall/score changes below):
 
 - Map validation: PASS, 256 layouts / 1,536 homes; zero disconnected floor cells, no placement failures.
 - CapsuleStageSmoke: PASS, 77 checks. Includes real capsule travel, paused entry, original pixel density, uphill slowdown, downhill slide, internal-wall dash stop and optional-home interaction.
@@ -41,3 +43,11 @@ Final Unity 2022.3.62f3 results, 2026-11-09:
 The tests now mark their result RUNNING before execution. Capsule slope sampling is relative to wall width, and the recorded carry-over fixture temporarily unlocks its owned needles with preference backup/restore; the tests no longer depend on the developer's lobby unlock choices. No production ability balance or unlock rules changed.
 
 Screenshots are Unity material renders (`overview`, `floor-detail`, `inner-wall-detail`) and live game captures (`manatee-home`, `manatee-entry`), not concept mockups. These are automated regression checks, not a human clear-rate or long-session performance study.
+
+## Wall combat, mini-boss scoring and guidance — 2026-11-09
+
+Ground attacks and player needles sweep their path against the visible wall footprint. Warning fills and continuous ground VFX clip to reachable floor on the attack side of a wall. Airborne lob/landing attacks may cross a wall in flight, but landing damage stays local and respects occlusion from the landing point. Player wall climbing/sliding remains unchanged.
+
+All six optional encounters use the existing miniBoss ranking category (500 points each), as do the four Stage 1 chameleons. They do not increment final-boss kills or clear Stage 2. Discovered homes remain on the map with active/completed indicators; the Tab map shows optional progress out of six. Final boss 변비왕 remains reserved.
+
+See [wall/score verification](../QA/Stage2WallScore20261109/README.md) for the checks run on this change.

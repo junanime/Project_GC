@@ -338,7 +338,7 @@ namespace Vampire
                         Vector2 previousPosition = transform.position;
 
                         float normalStep = Mathf.Min(speed * Time.deltaTime, effectiveMaxDistance - distanceTravelled);
-                        transform.position += normalStep * (Vector3)direction;
+                        if(!MoveAgainstColonWall(previousPosition+normalStep*direction))yield break;
                         distanceTravelled += normalStep;
 
                         TrySpawnFiberTrailSegment(previousPosition, transform.position);
@@ -1289,7 +1289,7 @@ namespace Vampire
             }
 
             float step = speed * Time.deltaTime;
-            transform.position += step * (Vector3)returnForwardDirection;
+            if(!MoveAgainstColonWall((Vector2)transform.position+step*returnForwardDirection))return;
             returnForwardTravelled += step;
 
             direction = returnForwardDirection;
@@ -1371,7 +1371,7 @@ namespace Vampire
             returnCurveEnd = ReturnCatchPosition;
             Vector2 nextPosition = CubicBezier(returnCurveStart, returnCurveControl1, returnCurveControl2, returnCurveEnd, easedT);
 
-            transform.position = nextPosition;
+            if(!MoveAgainstColonWall(nextPosition))return;
             Vector2 moveDirection = nextPosition - previousPosition;
 
             if (moveDirection.sqrMagnitude > 0.0001f)
@@ -1423,7 +1423,7 @@ namespace Vampire
 
             direction = toPlayer.normalized;
             float returnStep = speed * Mathf.Max(0.01f, specials.returnNeedleSpeedMultiplier) * Time.deltaTime;
-            transform.position = Vector2.MoveTowards(currentPosition, targetPosition, returnStep);
+            if(!MoveAgainstColonWall(Vector2.MoveTowards(currentPosition,targetPosition,returnStep)))return false;
             ApplyVisualRotationToDirection(direction);
 
             return true;

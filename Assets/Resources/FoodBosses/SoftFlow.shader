@@ -1,6 +1,6 @@
 Shader "FoodBosses/SoftFlow"
 {
-    Properties { _MainTex("Texture",2D)="white"{} _Clock("Clock",Float)=0 _Mode("Material",Float)=0 }
+    Properties { _ColonClip("Colon walls",Float)=0  _MainTex("Texture",2D)="white"{} _Clock("Clock",Float)=0 _Mode("Material",Float)=0 }
     SubShader
     {
         Tags { "Queue"="Transparent" "RenderType"="Transparent" "IgnoreProjector"="True" }
@@ -11,12 +11,15 @@ Shader "FoodBosses/SoftFlow"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+ #include "ColonFloorClip.cginc"
+ #pragma target 3.0
             struct appdata { float4 vertex:POSITION; float4 color:COLOR; float2 uv:TEXCOORD0; };
-            struct v2f { float4 vertex:SV_POSITION; float4 color:COLOR; float2 uv:TEXCOORD0; };
+            struct v2f { float4 vertex:SV_POSITION; float4 color:COLOR; float2 uv:TEXCOORD0; float2 world:TEXCOORD1; };
             float _Clock,_Mode;
-            v2f vert(appdata v) { v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.color=v.color;o.uv=v.uv;return o; }
+            v2f vert(appdata v) { v2f o;o.vertex=UnityObjectToClipPos(v.vertex);o.color=v.color;o.uv=v.uv;o.world=mul(unity_ObjectToWorld,v.vertex).xy;return o; }
             fixed4 frag(v2f i):SV_Target
             {
+                ClipColonFloor(i.world);
                 // Material follows arc length, so curved ribbons never stretch a repeating tile.
                 float s=floor(i.uv.x*28)/28, v=floor(saturate(i.uv.y)*22)/22;
                 float edge=abs(v-.5)*2;

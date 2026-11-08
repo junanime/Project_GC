@@ -30,14 +30,15 @@ namespace Vampire
         bool running, ownsPause, ownsFont;
         AsyncOperation operation;
         Action failed;
+        int entryStage=1;
         StageEntryLoadingArt art;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset() { Instance = null; }
 
-        public static bool Begin(CharacterBlueprint character, Action onFailure = null)
+        public static bool Begin(CharacterBlueprint character, Action onFailure = null, int stage = 1)
         {
-            if (IsLoading) return false;
+            if (IsLoading || (stage!=1&&stage!=2) || (stage==2&&!StageProgression.StageTwoEnabled)) return false;
             if (!Application.CanStreamedLevelBeLoaded(1)) { Debug.LogError("[StageEntryLoading] Level 1 is not in the build."); return false; }
             StageEntryLoading view;
             try { view = Create(character); }
@@ -48,6 +49,8 @@ namespace Vampire
                 return false;
             }
             view.failed = onFailure;
+            view.entryStage=stage;
+            if(stage==2)view.SetColonLabels();
             view.running = true;
             DontDestroyOnLoad(view.gameObject);
             view.StartCoroutine(view.Load());
@@ -72,6 +75,11 @@ namespace Vampire
                 if(label.name=="Stage")label.text="STAGE 02  ·  대장";
             return view;
         }
+        void SetColonLabels()
+        {
+            heading.text="대장으로 이동 중…";
+            foreach(var label in GetComponentsInChildren<TextMeshProUGUI>())if(label.name=="Stage")label.text="STAGE 02  ·  대장";
+        }
         public void CompleteStageTransfer(){running=false;Destroy(gameObject);}
 
         IEnumerator Load()
@@ -90,7 +98,7 @@ namespace Vampire
                 yield return null;
             }
             // The last 6% includes actual world placement, not only scene deserialization.
-            heading.text = "위장과 필드 오브젝트를 준비하고 있습니다…";
+            heading.text = entryStage==2?"대장 진입과 필드 오브젝트를 준비하고 있습니다…":"위장과 필드 오브젝트를 준비하고 있습니다…";
             ownsPause = true;
             Time.timeScale = 0; // No combat or timer elapses beneath the activation frame.
             operation.allowSceneActivation = true;
@@ -110,6 +118,17 @@ namespace Vampire
                     Fail();yield break;
                 }
                 yield return null;
+            }
+            if(entryStage==2)
+            {
+                var level=FindObjectOfType<LevelManager>();
+                // Hand off without exposing a playable stage-one frame. The normal
+                // colon transfer owns loading, full placement and the inlet opening.
+                level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+                RunScore.Exclude("스테이지 2 임시 직접 입장");
+                running=false;ownsPause=false;Time.timeScale=1;
+                if(!StageProgression.Ensure(level).BeginDirectColon()) { Fail();yield break; }
+                Destroy(gameObject);yield break;
             }
             heading.text="필드 배치 완료 · 출전 준비 완료";
             while(Progress<1)

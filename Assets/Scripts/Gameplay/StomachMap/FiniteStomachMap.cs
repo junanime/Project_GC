@@ -26,6 +26,7 @@ namespace Vampire
             foreach(var c in chunks) { c.SetActive(false); Destroy(c); } chunks.Clear();
             foreach(var mesh in meshes) Destroy(mesh); meshes.Clear();
             if(material!=null)Destroy(material);
+            if(FloorTexture!=null)Destroy(FloorTexture);
             if(distanceTexture!=null)Destroy(distanceTexture);
             if(wallCoordinateTexture!=null)Destroy(wallCoordinateTexture);
             var previous=WorldRect;
@@ -216,6 +217,15 @@ namespace Vampire
             wallCoordinateTexture.SetPixels(wallCoordinates);wallCoordinateTexture.Apply(false,true);
             material.SetTexture("_WallCoordinateTex",wallCoordinateTexture);
             material.SetFloat("_WallWidth",WallWidth);
+            if(!IsColon){floorSamples=null;if(FloorTexture!=null)Destroy(FloorTexture);FloorTexture=null;return;}
+            floorSamples=new float[FieldResolution*FieldResolution];var colors=new Color[floorSamples.Length];
+            for(int y=0;y<FieldResolution;y++)for(int x=0;x<FieldResolution;x++){
+                float d=FloorClearance(UVToWorld(new Vector2(x/(float)(FieldResolution-1),y/(float)(FieldResolution-1))),true);
+                floorSamples[y*FieldResolution+x]=d;colors[y*FieldResolution+x]=new Color(d,0,0,1);}
+            if(FloorTexture!=null)Destroy(FloorTexture);
+            FloorTexture=new Texture2D(FieldResolution,FieldResolution,TextureFormat.RFloat,false,true);
+            FloorTexture.wrapMode=TextureWrapMode.Clamp;FloorTexture.filterMode=FilterMode.Bilinear;
+            FloorTexture.SetPixels(colors);FloorTexture.Apply();
         }
 
         public float DistanceToRim(Vector2 p,out Vector2 inward)
@@ -262,6 +272,35 @@ namespace Vampire
             }
             return to;
         }
+        public Texture2D FloorTexture {get;private set;}
+        float[] floorSamples;
+        public float FloorClearance(Vector2 p,bool exact=false)
+        {
+            if(!IsColon)return NavigationDistance(p,out _,exact)-WallWidth;
+            if(exact||floorSamples==null||!WorldRect.Contains(p))
+                return Mathf.Min(ColonMapGeometry.FloorDistance(this,p,out _),NavigationDistance(p,out _,true)-WallWidth);
+            var uv=(p-WorldRect.min)/WorldRect.size*(FieldResolution-1);
+            int x=Mathf.Clamp((int)uv.x,0,FieldResolution-2),y=Mathf.Clamp((int)uv.y,0,FieldResolution-2),i=y*FieldResolution+x;
+            return Mathf.Lerp(Mathf.Lerp(floorSamples[i],floorSamples[i+1],uv.x-x),Mathf.Lerp(floorSamples[i+FieldResolution],floorSamples[i+FieldResolution+1],uv.x-x),uv.y-y);
+        }
+        public Vector2 ClampToFloor(Vector2 p,float radius)
+        {
+            var original=p;radius=Mathf.Max(.25f,radius);
+            for(int i=0;i<24;i++){
+                float d=ColonMapGeometry.FloorDistance(this,p,out var n);
+                float opening=NavigationDistance(p,out var on,true)-WallWidth;
+                if(opening<d){d=opening;n=on;}
+                if(d>=radius)return p;
+                p+=n*(radius-d+.03f);
+            }
+            // Never return an unchecked projection from concave corners.
+            float best=float.PositiveInfinity;Vector2 found=default;
+            for(float y=WorldRect.yMin+1;y<WorldRect.yMax;y+=1)
+                for(float x=WorldRect.xMin+1;x<WorldRect.xMax;x+=1){var q=new Vector2(x,y);float sq=(q-original).sqrMagnitude;
+                    if(sq<best&&FloorClearance(q)>=radius+.4f&&FloorClearance(q,true)>=radius){best=sq;found=q;}}
+            if(float.IsInfinity(best))throw new System.InvalidOperationException("No safe colon floor for footprint "+radius);
+            return found;
+        }
         public static Vector2 SafeSpawn(Vector2 position,float radius=.5f,bool miniStageOwned=false)
         {
             var map=Instance;
@@ -269,7 +308,7 @@ namespace Vampire
             // Room OnInit may run during the portal animation, before the global entered flag.
             if(map.level.IsRunFlowPaused && !map.AppliesAt(position))return position;
             // Interactables and stationary snipers start on the flat floor, not an inaccessible slope.
-            return map.ClampToField(position,map.WallWidth+Mathf.Max(.25f,radius));
+            return map.IsColon?map.ClampToFloor(position,radius):map.ClampToField(position,map.WallWidth+Mathf.Max(.25f,radius));
         }
 
         RenderTexture overviewTexture;

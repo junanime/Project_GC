@@ -63,6 +63,16 @@ namespace Vampire
             exterior=1-Mathf.SmoothStep(0,1,(outerDistance-d)/4f);
             if(inward.sqrMagnitude<.001f)inward=Vector2.down;return d;
         }
+        // Conservative visible floor: outer tissue is 1.65 times wider than inner ridges.
+        public static float FloorDistance(FiniteStomachMap m,Vector2 p,out Vector2 inward)
+        {
+            bool inside=Inside((p-m.WorldRect.min)/m.WorldRect.size);
+            float d=Nearest(m,outer,p,true,out var q,out _);inward=(inside?p-q:q-p).normalized;
+            d=(inside?d:-d)-m.WallWidth*1.65f;
+            foreach(var ridge in ridges){float rd=Nearest(m,ridge,p,false,out var at,out _)-.55f-m.WallWidth;
+                if(rd<d){d=rd;inward=(p-at).normalized;}}
+            return d;
+        }
         public static bool Contains(FiniteStomachMap m,Vector2 p)=>Distance(m,p,out _,out _)>=0;
         // Rendering blends wall directions at ridge/rim junctions. Physical
         // distance and its nearest-surface normal are deliberately left unchanged.

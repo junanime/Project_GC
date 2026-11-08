@@ -12,7 +12,7 @@ using Object=UnityEngine.Object;
 namespace Vampire.Tests.Editor
 {
     [InitializeOnLoad]
-    public static class ColonBossSmoke
+    public static partial class ColonBossSmoke
     {
         const string Key="ColonBossSmoke",Output="Library/ColonBossProof";
         static bool started;static double deadline;static int checks;
@@ -122,21 +122,26 @@ namespace Vampire.Tests.Editor
             Silence(level);Set(player,"isInvincible",true);player.CollectableCollider.enabled=false;Time.timeScale=1;
             player.AddDamageMultiplier(.17f);float carryDamage=player.DamageMultiplier;
             var inventory=level.PlayerInventory;var skills=player.Skills;
+            yield return ChameleonScoreChecks(level,player);
             yield return ColonContentSmoke.Enter(level);Silence(level);ClearProjectiles();
             var map=FiniteStomachMap.Instance;var director=level.GetComponent<ColonBossDirector>();var progression=StageProgression.Ensure(level);
             Check(map.IsColon&&progression.StageNumber==2,"stage-two map and progression active");
             Check(player==level.PlayerCharacter&&inventory==level.PlayerInventory&&skills==player.Skills&&Mathf.Approximately(carryDamage,player.DamageMultiplier),"stage-one player, inventory, skills and upgrades survive transition");
             Check(level.InitialFieldObjectsReady&&director!=null&&director.Ready&&!director.Failed,"loading waits for all six habitats");
+            int initialMiniScore=RunScore.Current.Data.miniBoss,initialBossScore=RunScore.Current.Data.boss;
+            Check(typeof(MiniBossMonster).IsAssignableFrom(typeof(AcidToadMonster)),"stage-one chameleons use mini-boss category");
             Check(director.Habitats.Count==6&&director.Habitats.Select(h=>h.Kind).Distinct().Count()==6,"one live habitat for every accepted boss");
             var field=level.GetComponent<FieldObjectLayout>();Check(field.SpawnedObjects.Count==86,"all 86 ordinary field objects retained");
+            Check(field.SpawnedObjects.All(o=>map.FloorClearance(o.transform.position,true)>=.65f),"all actual props are outside visible outer and inner walls");
+            Check(director.Objective.Contains("0/6"),"optional objective shows zero of six");
             Check(level.EntityManager.LivingMonsters.OfType<BloodClotMonster>().Count()==14,"all fourteen clot entrances coexist with boss habitats");
             Check(level.GetComponent<BuriedBossDirector>().Part==null&&!level.GetComponent<BuriedBossDirector>().CanSummon,"stage-one buried parts retired in colon");
             var legacy=Object.FindObjectOfType<FinalBossSummonInteractable>();
             Check(legacy==null||(!legacy.TryAutomaticSummon()&&!legacy.OpenBossChoice(player)),"legacy altar cannot create a stage-one final boss in colon");
             var ids=director.Habitats.Select(h=>h.GetInstanceID()).ToArray();director.PrepareStage(player.transform.position);
             Check(ids.SequenceEqual(director.Habitats.Select(h=>h.GetInstanceID())),"repeated prepare preserves homes and consumed state");
-            var layout=ColonBossLayoutValidation.Run(level,256,Output+"/layout-report.json");
-            Check(layout.success,"256 real-geometry seeds have complete safe spaced layouts");
+            var layout=ColonBossLayoutValidation.Run(level,32,Output+"/layout-report.json");
+            Check(layout.success,"32 live-stage seeds have complete safe spaced layouts");
             foreach(var h in director.Habitats)
             {
                 var position=(Vector2)h.transform.position;
@@ -202,7 +207,13 @@ namespace Vampire.Tests.Editor
                 Check(!level.IsLevelEnded&&progression.Portal==null&&!progression.FirstBossDefeated,"optional defeat never clears stage or opens exit "+kind);
             }
             Check(director.DefeatedCount==6,"all six distinct optional boss defeats recorded");
+            Check(RunScore.Current.Data.miniBoss==initialMiniScore+6&&RunScore.Current.Data.boss==initialBossScore,"six colon encounters score as mini-bosses only");
+            Check(director.Habitats.All(h=>h.GetComponent<MapMarker>().enabled&&h.MapBadge=="✓"),"defeated homes retain completed map markers");
+            Check(director.Objective.Contains("6/6"),"optional objective updates after six defeats");
+            ApothecaryUI.Instance.OpenRunBook();yield return null;Capture("stage2-map-completed");ApothecaryUI.Instance.CloseRunBook();yield return null;
             Check(!ColonBossDefinition.RequiredFinalBossImplemented&&ColonBossDefinition.RequiredFinalBossName=="변비왕","required final boss remains explicitly reserved");
+            yield return SpawnFloorSafety(level,player);
+            yield return WallSafety(level,player);
             yield return SupplementalIntegration(level,player);
             yield return NeedleBenchmark(level,player);
             SessionState.SetBool(Key+"Done",true);

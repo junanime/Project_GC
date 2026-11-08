@@ -56,7 +56,7 @@ namespace Vampire
             {
                 try
                 {
-                    var result=GenerateAttempt(map,start,unchecked(seed+attempt*104729),blocked);
+                    var result=GenerateAttempt(map,start,unchecked(seed+attempt*104729),blocked,seed^0x62B7);
                     ColonBossDirector.Generate(map,start,seed^0x62B7,result);
                     return result;
                 }
@@ -64,20 +64,14 @@ namespace Vampire
             }
             throw new InvalidOperationException("No complete colon layout after 32 proposals; seed="+seed,last);
         }
-        static List<Slot> GenerateAttempt(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked)
+        static List<Slot> GenerateAttempt(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked,int? habitatSeed=null)
         {
             var rng = new System.Random(seed);
             var result = new List<Slot>();
             var paired = new HashSet<int>();
-            Vector2? reservedColonHome=null;
-            if(map.IsColon)
-            {
-                // The unique wall-mounted home has fewer valid sites than ordinary props.
-                // Reserve one first so 86 props can never fill every valid manatee wall segment.
-                var sites=ColonBossDirector.FindManateeSites(map,start);
-                if(sites.Count==0)throw new InvalidOperationException("No valid central-wall home footprint in colon geometry.");
-                reservedColonHome=sites[rng.Next(sites.Count)].position;
-            }
+            // Reserve large encounter footprints before distributing small props.
+            // The same habitat seed is used when the validated plan is instantiated.
+            var reserved=map.IsColon?ColonBossDirector.Generate(map,start,habitatSeed??(seed^0x62B7)):null;
             float roll() => (float)rng.NextDouble();
             int Sector(Vector2 p)
             {
@@ -86,8 +80,9 @@ namespace Vampire
             }
             bool Allowed(Vector2 p, Kind kind, int partner)
             {
-                if (map.NavigationDistance(p, out _) < (map.IsColon?map.WallWidth+1.5f:WallInset) || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
-                if(reservedColonHome.HasValue&&Vector2.Distance(p,reservedColonHome.Value)<ColonBossDirector.PropClearance+2.05f)return false;
+                if ((map.IsColon?map.FloorClearance(p)<1.65f:map.NavigationDistance(p,out _) < WallInset) || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
+                if(reserved!=null)foreach(var home in reserved)
+                    if(Vector2.Distance(p,home.position)<ColonBossDirector.PropClearance+(home.kind==ColonBossKind.Manatee?2.05f:.05f))return false;
                 for (int j = 0; j < result.Count; j++)
                 {
                     var other = result[j];
@@ -95,10 +90,11 @@ namespace Vampire
                     if (j != partner && kind == other.kind)
                         gap = kind == Kind.BloodClot ? 16 : kind == Kind.Merchant || kind == Kind.EliteAltar ? 13 : 8;
                     if (j == partner && (kind == Kind.BloodClot || kind == Kind.EliteAltar || other.kind == Kind.BloodClot || other.kind == Kind.EliteAltar)) gap = 6;
-                    if(map.IsColon&&j!=partner)gap*=.8f;
+                    if(map.IsColon&&j!=partner)
+                        gap*=kind==other.kind&&(kind==Kind.BloodClot||kind==Kind.Merchant||kind==Kind.EliteAltar)?.7f:.65f;
                     if ((p - other.position).sqrMagnitude < gap * gap) return false;
                 }
-                return true;
+                return !map.IsColon || map.FloorClearance(p,true)>=2f;
             }
             // Short first exploration goals, rotated each run; no objects under the spawn point.
             float rotation = roll() * Mathf.PI * 2;
@@ -116,6 +112,9 @@ namespace Vampire
             foreach (Kind kind in Enum.GetValues(typeof(Kind)))
                 for (int i = result.Count(s => s.kind == kind); i < Counts[(int)kind]; i++) pending.Add(kind);
             for (int i = pending.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); var k = pending[i]; pending[i] = pending[j]; pending[j] = k; }
+            // Clots need the widest spacing. Placing them after coins can exhaust
+            // all viable lanes even though there is room for the complete layout.
+            if(map.IsColon)pending=pending.OrderBy(k=>k==Kind.BloodClot?0:k==Kind.Merchant||k==Kind.EliteAltar?1:2).ToList();
             foreach (var kind in pending)
             {
                 int sector = rng.Next(8);

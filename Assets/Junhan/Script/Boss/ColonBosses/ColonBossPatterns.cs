@@ -25,9 +25,9 @@ namespace Vampire
             }
             yield return Wait(.35f);
         }
-        IEnumerator Warn(Vector2[] outline,float seconds,int pose=1)
+        IEnumerator Warn(Vector2[] outline,float seconds,int pose=1,Vector2? origin=null)
         {
-            Visual.Pose=pose;var warning=ColonBossEffects.Warning(this,outline);
+            Visual.Pose=pose;var warning=ColonBossEffects.Warning(this,outline,origin);
             yield return Wait(seconds);ColonBossEffects.Fade(warning,.15f);
         }
         IEnumerator Dash(Vector2 direction,float distance,float duration,int pose,bool roll=false,bool trail=false)
@@ -38,7 +38,7 @@ namespace Vampire
             yield return Tween(duration,q=>{
                 var before=At;MoveTo(Vector2.Lerp(start,end,Ease(q)));
                 if(roll){if(Kind==ColonBossKind.Turtle){Visual.GroundSpin=q*720;Visual.Roll=Mathf.Sin(q*8*Mathf.PI)*5;}else Visual.Roll=q*720;}
-                if(!hit&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,At)<Definition.Size*.4f){TryHit(Hit);hit=true;}
+                if(!hit&&ColonAttackWall.Clear(At,Player.transform.position)&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,At)<Definition.Size*.4f){TryHit(Hit);hit=true;}
                 if(trail&&q>step){step+=.12f;ColonBossEffects.Stain(this,At,Definition.Size*.52f);}
             });
             Visual.Roll=Visual.GroundSpin=0;Sound("Land",.32f);
@@ -46,7 +46,7 @@ namespace Vampire
         }
         IEnumerator FanStrike(Vector2 origin,Vector2 dir,float range,float spread,float windup,int pose,float damage)
         {
-            yield return Warn(ColonBossEffects.Fan(origin,dir,range,spread),windup,pose);
+            yield return Warn(ColonBossEffects.Fan(origin,dir,range,spread),windup,pose,origin);
             Sound("Skill1");
             yield return ColonBossEffects.Wave(this,origin,dir,spread,range,.65f,damage);
         }
@@ -57,9 +57,9 @@ namespace Vampire
         }
         IEnumerator Impact(Vector2 position,float radius,float wait,int pose,float damage)
         {
-            yield return Warn(ColonBossEffects.Circle(position,radius),wait,pose);
+            yield return Warn(ColonBossEffects.Circle(position,radius),wait,pose,position);
             Sound("Land");ColonBossEffects.Burst(this,position,radius);
-            if(Vector2.Distance(Player.transform.position,position)<radius+.15f)TryHit(damage);
+            if(ColonAttackWall.Clear(position,Player.transform.position)&&Vector2.Distance(Player.transform.position,position)<radius+.15f)TryHit(damage);
         }
         IEnumerator Flamingo(int index)
         {
@@ -111,9 +111,9 @@ namespace Vampire
                 Visual.Pose=2;
                 for(int i=0;i<fins.Count;i++)
                 {
-                    var fin=fins[i];Vector2 start=fin.transform.position,end=center+directions[i]*1.7f;
-                    var warn=ColonBossEffects.Warning(this,ColonBossEffects.Lane(start,end,.85f));yield return Wait(.65f);ColonBossEffects.Fade(warn);
-                    bool hit=false;yield return Tween(.65f,q=>{Vector2 before=fin.transform.position;fin.transform.position=Vector2.Lerp(start,end,q);if(!hit&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,fin.transform.position)<.6f){TryHit(Hit*.8f);hit=true;}});
+                    var fin=fins[i];Vector2 start=fin.transform.position,end=ColonAttackWall.Stop(start,center+directions[i]*1.7f,.43f);
+                    var warn=ColonBossEffects.Warning(this,ColonBossEffects.Lane(start,end,.85f),start);yield return Wait(.65f);ColonBossEffects.Fade(warn);
+                    bool hit=false;yield return Tween(.65f,q=>{Vector2 before=fin.transform.position;fin.transform.position=Vector2.Lerp(start,end,q);if(!hit&&ColonAttackWall.Clear(fin.transform.position,Player.transform.position)&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,fin.transform.position)<.6f){TryHit(Hit*.8f);hit=true;}});
                     Destroy(fin.gameObject);
                 }
                 yield break;
@@ -121,10 +121,10 @@ namespace Vampire
             var movingFin=ColonBossEffects.Prop(this,"Fin",1.6f,At);SetHidden(true);
             yield return Tween(.8f,q=>{MoveTo(At+Aim*Time.deltaTime*2);movingFin.transform.position=At;});
             Destroy(movingFin.gameObject);Vector2 landing=FiniteStomachMap.SafeSpawn(Player.transform.position,Definition.Size*.35f);
-            var warning=ColonBossEffects.Warning(this,ColonBossEffects.Circle(landing,2.4f));yield return Wait(1.15f);ColonBossEffects.Fade(warning);
+            var warning=ColonBossEffects.Warning(this,ColonBossEffects.Circle(landing,2.4f),landing);yield return Wait(1.15f);ColonBossEffects.Fade(warning);
             // Ground-point is locked before the leap, so the final strike never follows a dodging player.
             body.position=landing;transform.position=landing;SetHidden(false);Visual.Pose=4;Sound("Skill2");
-            if(Vector2.Distance(Player.transform.position,landing)<2.4f)TryHit(Hit*1.1f);
+            if(ColonAttackWall.Clear(landing,Player.transform.position)&&Vector2.Distance(Player.transform.position,landing)<2.4f)TryHit(Hit*1.1f);
             yield return Tween(1.05f,q=>{Visual.Pose=q<.18f?4:q<.46f?5:q<.86f?6:7;Visual.Lift=Mathf.Sin(q*Mathf.PI)*3.2f;Visual.Roll=Mathf.Sin(q*Mathf.PI)*-9;});
             ColonBossEffects.Burst(this,landing,2.4f);yield return Wait(.5f);
         }
@@ -161,12 +161,12 @@ namespace Vampire
         }
         IEnumerator PuddingLob(Vector2 from,Vector2 target,float radius,float damage)
         {
-            var marker=ColonBossEffects.Warning(this,ColonBossEffects.Circle(target,radius));
+            var marker=ColonBossEffects.Warning(this,ColonBossEffects.Circle(target,radius),target);
             var ball=ColonBossEffects.PuddingBall(this,from,.68f);
             yield return Tween(.95f,q=>ball.transform.position=Vector2.Lerp(from,target,q)+Vector2.up*Mathf.Sin(q*Mathf.PI)*2.4f);
             Sound("Land",.22f);yield return Tween(.5f,q=>ball.transform.position=target+Vector2.up*Mathf.Sin(q*Mathf.PI)*.9f);
             if(ball!=null)Destroy(ball.gameObject);ColonBossEffects.Fade(marker);ColonBossEffects.Burst(this,target,radius);
-            if(Vector2.Distance(Player.transform.position,target)<radius+.15f)TryHit(damage);
+            if(ColonAttackWall.Clear(target,Player.transform.position)&&Vector2.Distance(Player.transform.position,target)<radius+.15f)TryHit(damage);
         }
         IEnumerator Hedgehog(int index)
         {
@@ -198,8 +198,8 @@ namespace Vampire
             }
             Visual.Pose=6;chestnuts.RemoveAll(n=>n==null||n.HP<=0);
             var original=new List<Vector2>();foreach(var n in chestnuts)original.Add(n.transform.position);
-            yield return Tween(1.0f,q=>{for(int i=0;i<chestnuts.Count;i++){var n=chestnuts[i];if(n==null||n.HP<=0)continue;var target=FiniteStomachMap.SafeSpawn(At+Rotate(Aim,(i-1)*60)*2.6f,.4f);var p=Vector2.Lerp(original[i],target,Ease(q));n.transform.position=p;var rb=n.GetComponent<Rigidbody2D>();if(rb!=null)rb.position=p;}});
-            for(int i=0;i<chestnuts.Count;i++)if(chestnuts[i]!=null)ColonBossEffects.Warning(this,ColonBossEffects.Lane(chestnuts[i].transform.position,(Vector2)chestnuts[i].transform.position+Rotate(Aim,(i-1)*45)*5,.6f)).gameObject.AddComponent<FoodBossFade>().Lifetime=.65f;
+            yield return Tween(1.0f,q=>{for(int i=0;i<chestnuts.Count;i++){var n=chestnuts[i];if(n==null||n.HP<=0)continue;var target=FiniteStomachMap.SafeSpawn(At+Rotate(Aim,(i-1)*60)*2.6f,.4f);var p=ColonAttackWall.Stop(n.transform.position,Vector2.Lerp(original[i],target,Ease(q)),Mathf.Max(.25f,n.Size.magnitude*.5f));n.transform.position=p;var rb=n.GetComponent<Rigidbody2D>();if(rb!=null)rb.position=p;}});
+            for(int i=0;i<chestnuts.Count;i++)if(chestnuts[i]!=null)ColonBossEffects.Warning(this,ColonBossEffects.Lane(chestnuts[i].transform.position,(Vector2)chestnuts[i].transform.position+Rotate(Aim,(i-1)*45)*5,.6f),chestnuts[i].transform.position).gameObject.AddComponent<FoodBossFade>().Lifetime=.65f;
             yield return Wait(.65f);Sound("Skill2");yield return Wait(.4f);
         }
         IEnumerator Turtle(int index)
@@ -215,7 +215,7 @@ namespace Vampire
             {
                 Vector2 dir=Aim,side=Rotate(dir,90);Vector2 a=At+side*1.1f,z=At-side*1.1f;
                 Vector2 endA=FiniteStomachMap.ClampDash(a,At+dir*7-side*2,.3f),endB=FiniteStomachMap.ClampDash(z,At+dir*7+side*2,.3f);
-                var w1=ColonBossEffects.Warning(this,ColonBossEffects.Lane(a,endA,.85f));var w2=ColonBossEffects.Warning(this,ColonBossEffects.Lane(z,endB,.85f));Visual.Pose=7;
+                var w1=ColonBossEffects.Warning(this,ColonBossEffects.Lane(a,endA,.85f),a);var w2=ColonBossEffects.Warning(this,ColonBossEffects.Lane(z,endB,.85f),z);Visual.Pose=7;
                 yield return Wait(1.0f);ColonBossEffects.Fade(w1);ColonBossEffects.Fade(w2);Sound("Skill2");
                 StartCoroutine(ColonBossEffects.Liquid(this,a,endA,.7f,3.5f,Hit*.65f));yield return Wait(.25f);
                 StartCoroutine(ColonBossEffects.Liquid(this,z,endB,.7f,3.5f,Hit*.65f));yield return Wait(3.1f);yield break;
@@ -224,7 +224,7 @@ namespace Vampire
             for(int i=0;i<4;i++)
             {
                 Vector2 origin=At+perp*(i%2==0?1:-1);Vector2 direction=Rotate(forward,i%2==0?-7:7);
-                yield return Warn(ColonBossEffects.Lane(origin,origin+direction*8,1.0f),i==0?.9f:.40f,i%2==0?4:5);
+                yield return Warn(ColonBossEffects.Lane(origin,origin+direction*8,1.0f),i==0?.9f:.40f,i%2==0?4:5,origin);
                 ShootFan(origin,direction,1,0,4.4f,Hit*.65f,"crescent",.40f);yield return Wait(.28f);
             }
         }
@@ -238,10 +238,10 @@ namespace Vampire
                 SetHidden(true);int exit=(entrance+Random.Range(1,3))%3;Habitat.Door(exit,1);yield return Wait(.45f);
                 Vector2 point=Habitat.DoorExit(exit),dir=((Vector2)Player.transform.position-point).normalized;
                 Vector2 dashEnd=FiniteStomachMap.ClampDash(point,Habitat.ClampTerritory(point+dir*5),Definition.Size*.32f);
-                var warning=ColonBossEffects.Warning(this,ColonBossEffects.Lane(point,dashEnd,2.4f));yield return Wait(.9f);ColonBossEffects.Fade(warning);
+                var warning=ColonBossEffects.Warning(this,ColonBossEffects.Lane(point,dashEnd,2.4f),point);yield return Wait(.9f);ColonBossEffects.Fade(warning);
                 body.position=point;transform.position=point;Visual.Opacity=1;SetHidden(false);Visual.Pose=2;Sound("Dash");
                 bool hit=false;
-                yield return Tween(.9f,q=>{Vector2 before=At;MoveTo(Vector2.Lerp(point,dashEnd,Ease(q)));Visual.Lift=Mathf.Sin(q*Mathf.PI)*.4f;if(!hit&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,At)<1.2f){hit=TryHit(Hit);}});yield break;
+                yield return Tween(.9f,q=>{Vector2 before=At;MoveTo(Vector2.Lerp(point,dashEnd,Ease(q)));Visual.Lift=Mathf.Sin(q*Mathf.PI)*.4f;if(!hit&&ColonAttackWall.Clear(At,Player.transform.position)&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,At)<1.2f){hit=TryHit(Hit);}});yield break;
             }
             if(index==1){yield return FanStrike(At,-Aim,4.3f,220,1.05f,5,Hit);yield break;}
             if(index==2)
@@ -257,9 +257,9 @@ namespace Vampire
                 if(index==3){ShootFan(HitCenter,Aim,3,18,3.1f,Hit*.65f,"pear seed",.18f);yield return Wait(.75f);}
                 else
                 {
-                    var warn=ColonBossEffects.Warning(this,ColonBossEffects.Circle(p,1.8f));yield return Wait(.8f);ColonBossEffects.Fade(warn);
+                    var warn=ColonBossEffects.Warning(this,ColonBossEffects.Circle(p,1.8f),p);yield return Wait(.8f);ColonBossEffects.Fade(warn);
                     SetHidden(true);Habitat.Door(slot,0);Sound("Land",.4f);ColonBossEffects.Burst(this,p,1.8f);
-                    if(Vector2.Distance(Player.transform.position,p)<1.8f)TryHit(Hit*.8f);
+                    if(ColonAttackWall.Clear(p,Player.transform.position)&&Vector2.Distance(Player.transform.position,p)<1.8f)TryHit(Hit*.8f);
                 }
                 SetHidden(true);yield return Wait(.25f);
             }

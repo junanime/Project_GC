@@ -22,6 +22,7 @@ namespace Vampire
         public static bool PreviewWebDemoEnding;
 #endif
         public int StageNumber {get;private set;}=1;
+        public bool IsDirectColonStart {get;private set;}
         public bool FirstBossDefeated {get;private set;}
         public bool Travelling {get;private set;}
         public bool CapsuleBoarded {get;private set;}
@@ -126,6 +127,15 @@ namespace Vampire
             iris=SpiralStageTransition.Create();TransitionPhase="iris-close";yield return iris.Animate(true);if(exitShot!=null)Destroy(exitShot);
             AtOutlet=false;entering=true;yield return EnterColon(player,outlet);
         }
+        public bool BeginDirectColon()
+        {
+            if(!StageTwoEnabled||level==null||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling)return false;
+            IsDirectColonStart=true;
+            Travelling=true;entering=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+            TutorialGuide.Instance?.Close();
+            iris=SpiralStageTransition.Create();iris.SetClosed(1);
+            StartCoroutine(EnterColon(level.PlayerCharacter,null));return true;
+        }
         IEnumerator EnterColon(Character player,StomachOpening outlet)
         {
             var travel=BloodClotTravel.Ensure(player);Transform anchor;
@@ -162,6 +172,7 @@ namespace Vampire
             TransitionPhase="eject";yield return travel.Eject(anchor,landing);Destroy(anchor.gameObject);
             travel.HoldForInteraction();if(shot!=null)shot.Release();TransitionPhase="settle";yield return new WaitForSeconds(1);
             travel.ReleasePose();Travelling=false;entering=false;TransitionPhase="field";level.EntityManager.SetFieldMonsterRuntimeSuspended(false);level.SetRunFlowPaused(false);GameAudioManager.ExitMiniStageAudio();
+            ColonBossDirector.ShowNotice("대장 탐험 시작","거주지를 깨워 선택 미니보스에 도전하세요 · 전부 처치는 선택사항");
         }
         void RestorePassenger(){if(hiddenPassenger==null)return;for(int i=0;i<hiddenPassenger.Length;i++)if(hiddenPassenger[i]!=null)hiddenPassenger[i].forceRenderingOff=hiddenStates[i];hiddenPassenger=null;}
         void OnDestroy(){RestorePassenger();if(stageTwo!=null)Destroy(stageTwo);if(Capsule!=null)Destroy(Capsule.gameObject);if(iris!=null)Destroy(iris.gameObject);}

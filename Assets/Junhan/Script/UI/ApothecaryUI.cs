@@ -143,6 +143,13 @@ namespace Vampire
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
             if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading || level!=null && StageProgression.Ensure(level).Travelling) return;
+            if (stageChoiceOpen)
+            {
+                if (GameInput.GetKeyDown(KeyCode.Escape)) CloseStageChoice();
+                else if (GameInput.GetKeyDown(KeyCode.Alpha1)) LaunchStage(1);
+                else if (GameInput.GetKeyDown(KeyCode.Alpha2)) LaunchStage(2);
+                return;
+            }
             if (UpdateKeyboardSelection()) return;
             if (level != null && GameInput.Pressed(GameKeyAction.Journal))
             {
@@ -154,6 +161,7 @@ namespace Vampire
         }
         public void Show(string page, int tab = 0)
         {
+            stageChoiceOpen=false;
             page = SteamGuardPage(page);
             if(page=="settings" && Page!="settings")BeginSettings();
             Page = page; Tab = tab;
@@ -162,6 +170,7 @@ namespace Vampire
         }
         public void Back()
         {
+            if(stageChoiceOpen){CloseStageChoice();return;}
             if(Page=="bossChoice"){CloseBossChoice();return;}
             if(Page=="supplyRelic"){CloseSupplyRelics(false);return;}
             if(Page=="merchant"){merchant?.CloseShop();return;}
@@ -174,6 +183,7 @@ namespace Vampire
         {
             RenderContent();
             ApplyStitchTheme();
+            if(stageChoiceOpen) BuildStageChoice();
         }
         void RenderContent()
         {
@@ -324,9 +334,14 @@ namespace Vampire
         public void StartRun()
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
+            stageChoiceOpen=true;Render();
+        }
+        void LaunchStage(int stage)
+        {
+            if(starting || StageEntryLoading.IsLoading || !Owned(character) || (stage==2&&!StageProgression.StageTwoEnabled)) return;
             CrossSceneData.CharacterBlueprint=character;
-            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;})) return;
-            starting=true;
+            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage)) return;
+            stageChoiceOpen=false;starting=true;
             CrossSceneData.StartingLobbyItems=LobbyLoadoutData.ConsumeSelectedCarryItems();
             Time.timeScale=1;
         }

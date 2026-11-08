@@ -191,6 +191,15 @@ namespace Vampire
             moveCoroutine = StartCoroutine(Move());
         }
 
+        // Sweep every movement segment before physics can register a hit beyond a colon wall.
+        protected bool MoveAgainstColonWall(Vector2 target)
+        {
+            Vector2 from=transform.position,stop=ColonAttackWall.Stop(from,target,.06f);
+            transform.position=new Vector3(stop.x,stop.y,transform.position.z);
+            if((stop-target).sqrMagnitude<.00001f)return true;
+            HitNothing();return false;
+        }
+
         public virtual IEnumerator Move()
         {
             float distanceTravelled = 0;
@@ -208,8 +217,7 @@ namespace Vampire
                     ApplyVisualRotationToDirection();
                 }
 
-                transform.position +=
-                    step * (Vector3)direction;
+                if(!MoveAgainstColonWall((Vector2)transform.position+step*direction))yield break;
 
                 distanceTravelled += step;
 

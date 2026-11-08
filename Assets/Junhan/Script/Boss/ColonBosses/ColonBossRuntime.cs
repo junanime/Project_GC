@@ -43,7 +43,7 @@ namespace Vampire
             go.layer = LayerMask.NameToLayer("Monster Full");
             go.transform.position = position;
             var b = go.AddComponent<ColonBossRuntime>();
-            b.Kind = kind; b.Definition = ColonBossDefinition.Get(kind); b.Player = player; b.Habitat = habitat;
+            b.Kind = kind; b.Definition = ColonBossDefinition.ForCurrentRun(kind); b.Player = player; b.Habitat = habitat;
             b.level = FindObjectOfType<LevelManager>(); b.MaxHealth = b.Health = b.Definition.Health;
             b.body = go.AddComponent<Rigidbody2D>(); b.body.gravityScale = 0; b.body.constraints = RigidbodyConstraints2D.FreezeRotation;
             b.body.bodyType = RigidbodyType2D.Kinematic;
@@ -54,7 +54,7 @@ namespace Vampire
             b.Effects = new GameObject(b.Definition.Name + " · encounter effects").transform;
             b.Visual = new GameObject("Approved fixed-scale artwork").AddComponent<ColonBossVisual>(); b.Visual.transform.SetParent(go.transform, false); b.Visual.Initialize(b);
             b.voice = go.AddComponent<AudioSource>(); b.voice.playOnAwake = false; b.voice.spatialBlend = 0;
-            go.AddComponent<MapMarker>().Configure(MapMarkerKind.Boss, b.Definition.Name);
+            go.AddComponent<MapMarker>().Configure(MapMarkerKind.MiniBoss, b.Definition.Name);
             go.AddComponent<ColonBossHealthHud>().Initialize(b);
             Active.Add(b); b.BeginArrival(); return b;
         }
@@ -101,7 +101,11 @@ namespace Vampire
         {
             Vector2 before = transform.position;
             if (Kind == ColonBossKind.Manatee && Habitat != null) target = Habitat.ClampTerritory(target);
-            target = FiniteStomachMap.ClampDash(before, target, Definition.Size * .32f);
+            var map=FiniteStomachMap.Instance;
+            if(map!=null&&map.IsColon&&map.FieldActive){
+                if(map.FloorClearance(before)<Definition.Size*.32f+.1f)before=map.ClampToFloor(before,Definition.Size*.32f+.15f);
+                target=ColonAttackWall.Stop(before,target,Definition.Size*.32f);
+            }else target=FiniteStomachMap.ClampDash(before,target,Definition.Size*.32f);
             Moving = Vector2.Distance(before, target) > .0001f;
             if (Moving) Visual.Face(target - before);
             body.position = target; transform.position = target;
@@ -153,7 +157,7 @@ namespace Vampire
             if (Health > 0) return;
             Dead = true; hitbox.enabled = false; body.velocity = Vector2.zero;
             StopAllCoroutines(); action = null;
-            ClearEffects(); GetComponent<FoodBossCombatStatus>()?.Defeated(); RunScore.Current?.BossKill();
+            ClearEffects(); GetComponent<FoodBossCombatStatus>()?.Defeated(); RunScore.Current?.MiniBossKill();
             Habitat?.OnDefeated(); StartCoroutine(Defeat());
         }
         IEnumerator Defeat()
@@ -166,6 +170,9 @@ namespace Vampire
                 // A manatee can be defeated while its root is behind a pipe wall.
                 // Rewards must land on reachable ground rather than inside that wall.
                 for (int i = 0; i < Definition.ExperienceReward / 50; i++) entities.SpawnExpGem(FiniteStomachMap.SafeSpawn((Vector2)transform.position + Random.insideUnitCircle * 1.4f,.18f), GemType.Red50, true);
+                int remainingExperience=Definition.ExperienceReward%50;
+                while(remainingExperience>=10){entities.SpawnExpGem(FiniteStomachMap.SafeSpawn((Vector2)transform.position+Random.insideUnitCircle*1.4f,.18f),GemType.Green10,true);remainingExperience-=10;}
+                while(remainingExperience>0){entities.SpawnExpGem(FiniteStomachMap.SafeSpawn((Vector2)transform.position+Random.insideUnitCircle*1.4f,.18f),GemType.White1,true);remainingExperience--;}
                 for (int i = 0; i < Definition.GoldReward / 5; i++) entities.SpawnCoin(FiniteStomachMap.SafeSpawn((Vector2)transform.position + Random.insideUnitCircle * 1.4f,.18f), CoinType.Gold5, true);
             }
             Destroy(gameObject);
@@ -175,7 +182,7 @@ namespace Vampire
         {
             if (Dead || Hidden || Arriving || EncounterPaused || Immobilized || Time.time < nextContact || Visual.Lift > 1f) return;
             var p = other.GetComponentInParent<Character>(); if (p == null || !p.IsAlive) return;
-            if (TryHit(Definition.ContactDamage)) nextContact = Time.time + .9f;
+            if (ColonAttackWall.Clear(HitCenter,Player.transform.position)&&TryHit(Definition.ContactDamage)) nextContact = Time.time + .9f;
         }
         public void Sound(string actionName, float gain = .5f)
         {

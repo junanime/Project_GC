@@ -29,6 +29,8 @@ namespace Vampire
         readonly Dictionary<MonsterBlueprint, Entry> entries = new Dictionary<MonsterBlueprint, Entry>();
         readonly List<ScriptableObject> owned = new List<ScriptableObject>();
         public LevelBlueprint Level { get; private set; }
+        public bool DirectStart { get; private set; }
+        public float DirectMiniBossHealth { get; private set; }
         public int NormalFlatStart { get; private set; }
         public int PoolIndex { get; private set; }
         public float EntryDamageMultiplier { get; private set; }
@@ -57,6 +59,7 @@ namespace Vampire
         {
             if (Level != null) throw new InvalidOperationException("Colon roster already created");
             owner = manager; Active = this;
+            DirectStart=StageProgression.Ensure(manager).IsDirectColonStart;
             var source = manager.CurrentLevelBlueprint;
             Level = Copy(source); Level.name = "Stage 2 · 대장 · 8종 단계별 스폰";
             EntryDamageMultiplier = manager.PlayerCharacter.DamageMultiplier;
@@ -107,9 +110,70 @@ namespace Vampire
             }
             // Clots are stationary mini-stage entrances, not enemy wave units.
             var clot=Copy(flat[19]);clot.hp=180;replacements[flat[19]]=clot;
+            if(DirectStart)ApplyDirectStartBalance(flat);
             Level.monsters=source.monsters.Concat(new[]{new LevelBlueprint.MonstersContainer{monstersPrefab=source.monsters[0].monstersPrefab,monsterBlueprints=normals.ToArray()}}).ToArray();
             Level.monsterSpawnTable=BuildSpawnTable(source.monsterSpawnTable,NormalFlatStart,normals.Count);
+            if(DirectStart)
+            {
+                Level.name="Stage 2 · 대장 · 기본 장비 직접 입장";
+                // Match stage-one tier timing as well as HP; otherwise late colon types
+                // arriving early would exceed the requested 10-20% difficulty step.
+                Level.monsterSpawnTable.spawnChanceKeyframes=source.monsterSpawnTable.spawnChanceKeyframes.Select(key=>
+                {
+                    var weights=new float[NormalFlatStart+normals.Count];
+                    for(int i=0;i<DirectNormalSources.Length;i++)
+                    {int index=DirectNormalSources[i];if(index<key.spawnChances.Length)weights[NormalFlatStart+i]=key.spawnChances[index];}
+                    return new MonsterSpawnTable.SpawnChanceKeyframe{t=key.t,spawnChances=weights};
+                }).ToArray();
+                foreach(var key in Level.monsterSpawnTable.spawnRateKeyframes)key.spawnRate*=DirectSpawnMultiplier(key.t);
+                Level.normalSpawnPopulationLimit=Mathf.CeilToInt(source.normalSpawnPopulationLimit*1.3f);
+            }
             return Level;
+        }
+        // This profile is selected only by the temporary preparation-stage picker.
+        // Copies are modified here; stage-one assets and the grown-player colon run stay intact.
+        public static float DirectHealthMultiplier(int tier)=>Mathf.Lerp(1.10f,1.20f,Mathf.Clamp01(tier/7f));
+        public static float DirectSpawnMultiplier(float normalizedTime)=>Mathf.Lerp(1.15f,1.30f,Mathf.Clamp01(normalizedTime));
+        public static readonly int[] DirectNormalSources={0,1,4,5,6,7,31,32};
+        void ApplyDirectStartBalance(MonsterBlueprint[] flat)
+        {
+            for(int i=0;i<Normals.Count;i++)
+            {
+                var baseline=flat[DirectNormalSources[i]];var bp=Normals[i].blueprint;
+                bp.hp=Mathf.Round(baseline.hp*DirectHealthMultiplier(i)*10f)/10f;bp.atk=baseline.atk;
+                bp.movespeed=baseline.movespeed;bp.atkspeed=baseline.atkspeed;bp.acceleration=baseline.acceleration;
+                bp.gemLootTable=baseline.gemLootTable;bp.coinLootTable=baseline.coinLootTable;
+                var elite=(EliteMonsterBlueprint)Elites[i].blueprint;
+                var baseElite=(EliteMonsterBlueprint)flat[i<6?8+i:26];
+                elite.hp=bp.hp;elite.hpMultiplier=baseElite.hpMultiplier;
+                elite.atk=bp.atk*1.2f;elite.movespeed=bp.movespeed*1.04f;elite.atkspeed=bp.atkspeed;
+                elite.gemLootTable=baseline.gemLootTable;elite.coinLootTable=baseline.coinLootTable;
+                elite.silverRewardCalls=baseElite.silverRewardCalls;
+                elite.guaranteedExtraCoinCount=baseElite.guaranteedExtraCoinCount;elite.guaranteedExtraCoinType=baseElite.guaranteedExtraCoinType;
+            }
+            foreach(int index in new[]{2,3,14,15,21,22,24,25})
+            {
+                var source=flat[index];var bp=replacements[source];
+                bp.hp=Mathf.Ceil(source.hp*1.15f);bp.atk=source.atk;
+                bp.gemLootTable=source.gemLootTable;bp.coinLootTable=source.coinLootTable;
+                if(bp is SugarCubeMonsterBlueprint sugar&&source is SugarCubeMonsterBlueprint original)
+                    BalanceChildren(sugar,original);
+            }
+            var spore=(ExplodingMonsterBlueprint)replacements[flat[15]];
+            spore.explosionDamage=((ExplodingMonsterBlueprint)flat[15]).explosionDamage;
+            replacements[flat[19]].hp=Mathf.Ceil(flat[19].hp*1.10f);
+            var chameleon=Resources.Load<MonsterBlueprint>("Chameleons/DriftBlueprint");
+            if(chameleon==null)throw new InvalidOperationException("Missing stage-one chameleon baseline");
+            DirectMiniBossHealth=Mathf.Ceil(chameleon.hp*1.20f);
+            foreach(var pair in entries){pair.Value.hp=pair.Key.hp;pair.Value.speed=pair.Key.movespeed;}
+        }
+        static void BalanceChildren(SugarCubeMonsterBlueprint copy,SugarCubeMonsterBlueprint source)
+        {
+            if(copy.splitChildBlueprint==null||source.splitChildBlueprint==null)return;
+            var child=copy.splitChildBlueprint;var baseline=source.splitChildBlueprint;
+            child.hp=Mathf.Ceil(baseline.hp*1.15f);child.atk=baseline.atk;child.movespeed=baseline.movespeed;
+            child.gemLootTable=baseline.gemLootTable;child.coinLootTable=baseline.coinLootTable;
+            BalanceChildren(child,baseline);
         }
         MonsterBlueprint AddSpecial(MonsterBlueprint source,string id,float hp,float speed,float damage)
         {
@@ -182,12 +246,18 @@ namespace Vampire
             if(bp==null||!entries.TryGetValue(bp,out var entry)||!entry.elite)return false;
             // Current fields may only install the pickup tracker when a jar is broken.
             // Pay these elites explicitly without enabling silver for every ordinary kill.
-            for(int i=0;i<3;i++)SilverRunRewarder.RewardPickup(UnityEngine.Random.Range(1,3));
+            for(int i=0;i<((EliteMonsterBlueprint)bp).silverRewardCalls;i++)SilverRunRewarder.RewardPickup(UnityEngine.Random.Range(1,3));
             return true;
         }
         public bool TryEliteIndex(int normalIndex,out int eliteIndex)
         {
             int tier=normalIndex-NormalFlatStart;eliteIndex=tier>=0&&tier<8?NormalFlatStart+8+tier:-1;return eliteIndex>=0;
+        }
+        public bool EliteUnlocked(int tier,float seconds)
+        {
+            if(tier<0||tier>=Normals.Count)return false;
+            if(!DirectStart)return IntroductionSeconds[tier]<=seconds;
+            return Level.monsterSpawnTable.GetProbability(Mathf.Clamp01(seconds/Level.levelTime),NormalFlatStart+tier)>0;
         }
         public bool IsNewElite(int flat)=>flat>=NormalFlatStart+8&&flat<NormalFlatStart+16;
         public bool Allowed(MonsterBlueprint bp)=>!(bp is AttackSpeedDebufferMonsterBlueprint)&&bp.name!="필드 미니 롤케이크";

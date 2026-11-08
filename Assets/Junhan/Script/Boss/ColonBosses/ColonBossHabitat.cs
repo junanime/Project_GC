@@ -8,6 +8,12 @@ namespace Vampire
         public Vector2 WallNormal { get; private set; }
         public Vector2[] Doors { get; private set; }
         public bool Defeated { get; private set; }
+        public bool Summoned { get; private set; }
+        bool discoveryAnnounced;
+        public Color MapTint => Defeated?new Color(.55f,.65f,.58f,.7f):Summoned?new Color(1,.62f,.45f):Color.white;
+        public string MapBadge => Defeated?"✓":Summoned?"!":"";
+        void LateUpdate(){var marker=GetComponent<MapMarker>();if(!discoveryAnnounced&&!Summoned&&marker!=null&&marker.IsDiscovered){discoveryAnnounced=true;ColonBossDirector.ShowNotice("미니보스 거주지 발견",ColonBossDefinition.Get(Kind).Name+" · 가까이서 상호작용하면 전투 시작");}}
+
         ColonBossDirector director;
         SpriteRenderer dormant, house, houseLip;
         Transform houseRig;
@@ -97,7 +103,7 @@ namespace Vampire
         }
         protected override bool ExecuteInteraction(Character player) => director.TrySummon(this,player);
         public bool Activate(Character player) { if(HasInteracted||!ExecuteInteraction(player))return false;CompleteInteraction();return true; }
-        public void BeginEmergence() { if(dormant!=null)dormant.enabled=false;var marker=GetComponent<MapMarker>();if(marker!=null)marker.enabled=false; }
+        public void BeginEmergence() { Summoned=true;if(dormant!=null)dormant.enabled=false;var marker=GetComponent<MapMarker>();if(marker!=null){marker.enabled=true;marker.Configure(MapMarkerKind.Event,ColonBossDefinition.Get(Kind).Name+" · 전투 중");marker.SetDiscovered(true);} }
         public void OnArrivalComplete() { BeginEmergence(); }
         public void ClipToPipe(ColonBossVisual visual,bool inside)
         {
@@ -123,7 +129,7 @@ namespace Vampire
             if(clippedBody!=null){clippedBody.sortingLayerID=clippedBodyLayer;clippedBody.maskInteraction=SpriteMaskInteraction.None;}
             clippedBody=null;
         }
-        public void OnDefeated() { Defeated=true;director.NotifyDefeated(this);for(int i=0;i<3;i++)Door(i,0); }
+        public void OnDefeated() { Defeated=true;var marker=GetComponent<MapMarker>();if(marker!=null)marker.Configure(MapMarkerKind.Event,ColonBossDefinition.Get(Kind).Name+" · 처치 완료");director.NotifyDefeated(this);for(int i=0;i<3;i++)Door(i,0); }
         public void Door(int index,float open)
         {
             if(doors==null||index<0||index>=doors.Length||doors[index]==null)return;

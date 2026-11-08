@@ -14,7 +14,7 @@ namespace Vampire
         int w,h;long sequence;bool[] walk;
         readonly Dictionary<int,FlowField> fields=new Dictionary<int,FlowField>();
         readonly Queue<int> queue=new Queue<int>();
-        float Limit=>map.ClimbLimit+BodyRadius+.05f;
+        float Limit=>BodyRadius+.1f;
         public static Vector2 Toward(Vector2 from,Vector2 target)
         {
             var m=FiniteStomachMap.Instance;
@@ -31,12 +31,12 @@ namespace Vampire
         bool SegmentClear(Vector2 a,Vector2 b)
         {
             int steps=Mathf.Max(1,Mathf.CeilToInt(Vector2.Distance(a,b)/.65f));
-            for(int i=1;i<=steps;i++)if(map.NavigationDistance(Vector2.Lerp(a,b,i/(float)steps),out _,true)<Limit)return false;
+            for(int i=1;i<=steps;i++)if(map.FloorClearance(Vector2.Lerp(a,b,i/(float)steps))<Limit)return false;
             return true;
         }
         int Goal(Vector2 target)
         {
-            int at=Index(map.ClampToField(target,Limit+GridMargin));
+            int at=Index(map.ClampToFloor(target,Limit+GridMargin));
             if(walk[at])return at;
             int best=-1;float nearest=float.MaxValue;
             for(int dy=-5;dy<=5;dy++)for(int dx=-5;dx<=5;dx++)
@@ -78,7 +78,7 @@ namespace Vampire
             {
                 map=m;definition=m.Definition;w=Mathf.CeilToInt(map.WorldRect.width/Cell);h=Mathf.CeilToInt(map.WorldRect.height/Cell);
                 walk=new bool[w*h];fields.Clear();queue.Clear();sequence=0;
-                for(int i=0;i<walk.Length;i++)walk[i]=map.NavigationDistance(Point(i),out _,true)>=Limit+GridMargin;
+                for(int i=0;i<walk.Length;i++)walk[i]=map.FloorClearance(Point(i),true)>=Limit+GridMargin;
             }
             if(SegmentClear(from,target))return(target-from).normalized;
             int goal=Goal(target);if(goal<0)return Vector2.zero;
@@ -93,7 +93,7 @@ namespace Vampire
             }
             if(best>=0)return(Point(best)-from).normalized;
             // Never repeatedly push into the ridge when a target moves along its opposite side.
-            Vector2 safe=map.ClampToField(from,Limit+GridMargin);
+            Vector2 safe=map.ClampToFloor(from,Limit+GridMargin);
             return(safe-from).sqrMagnitude>.0001f?(safe-from).normalized:Vector2.zero;
         }
     }
