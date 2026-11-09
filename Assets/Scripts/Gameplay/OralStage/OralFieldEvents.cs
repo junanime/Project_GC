@@ -243,13 +243,14 @@ namespace Vampire
             if (triggered || Elapsed < 2.37f) return;
             triggered = true;
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.TrapActivate);
-            if (!OralStageRuntime.Instance.IsAirborne && JawThreatens(player.Position)) player.TakeDamage(player.MaxHealth * .25f);
+            if (!OralStageRuntime.Instance.IsAirborne && JawThreatens(player.Position))
+                JawCrushVisual.ApplyDamage(player, player.MaxHealth * .25f);
             SnapshotMonsters();
             foreach (var monster in monsterScratch)
                 if (Live(monster) && !monster.IsFieldRuntimeSuspended && JawThreatens(monster.Position))
                 {
                     bool boss = monster is BossMonster || monster.Blueprint is EliteMonsterBlueprint;
-                    monster.TakeDamage(boss ? monster.SpawnMaxHealth * .12f : monster.HP + 1f);
+                    JawCrushVisual.ApplyDamage(monster, boss ? monster.SpawnMaxHealth * .12f : monster.HP + 1f);
                 }
         }
 

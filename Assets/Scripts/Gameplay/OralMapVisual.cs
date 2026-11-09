@@ -22,6 +22,12 @@ namespace Vampire
 
         Material cavityMaterial,approvedFloorMaterial,upperJawMaterial;
         MeshRenderer upperJaw;
+        MeshRenderer[] warningFills;Material warningFillMaterial;float warningFillOpacity;
+        static readonly int WarningClockId=Shader.PropertyToID("_Clock"),WarningColorId=Shader.PropertyToID("_Color");
+        public MeshRenderer[] JawWarningFills=>warningFills;
+        public Material JawWarningFillMaterial=>warningFillMaterial;
+        public float JawWarningFillOpacity=>warningFillOpacity;
+        public int JawWarningFillCount {get {int count=0;if(warningFills!=null)foreach(var fill in warningFills)if(fill!=null&&fill.enabled)count++;return count;}}
         public bool UpperJawVisible=>upperJaw!=null&&upperJaw.enabled;
         public int JawWarningCount=>warnings==null?0:System.Array.FindAll(warnings,w=>w.enabled).Length;
         public LineRenderer[] JawWarningLines=>warnings;
@@ -57,6 +63,7 @@ namespace Vampire
                 for(int j=0;j<absolute.Length;j++)toothContours[i][j]=absolute[j]-toothPositions[i];
                 warnings[i]=Line("압착 예고 "+i,.10f,new Color(1,.65f,.2f),16);
             }
+            BuildWarningFills(shader);
             // Same superior view as the lower jaw. The smooth crown sides hang
             // below the upper gum; no reversed lower-tooth sprites or occlusal faces.
             upperJawMaterial=new Material(spriteMaterial);upperJawMaterial.mainTexture=Resources.Load<Texture2D>("OralMap/UpperJawTop");
@@ -88,6 +95,78 @@ namespace Vampire
             go.GetComponent<MeshFilter>().sharedMesh=mesh;var r=go.GetComponent<MeshRenderer>();r.sharedMaterial=mat;
             r.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;r.receiveShadows=false;GroundVisualSorting.ApplyBackground(r,order);return r;
         }
+        void BuildWarningFills(Shader shader)
+        {
+            warningFillMaterial=new Material(shader){name="치아별 반투명 RGB 압착 경고"};
+            warningFillMaterial.SetFloat("_Mode",9);
+            warningFillMaterial.SetFloat("_StripeWidth",.85f);
+            warningFillMaterial.SetFloat("_HatchContrast",.75f);
+            warningFillMaterial.SetColor("_Color",new Color(1,1,1,.22f));
+            warningFills=new MeshRenderer[OralMapGeometry.ToothCount];
+            for(int tooth=0;tooth<warningFills.Length;tooth++)
+            {
+                // Use the exact damage contour, not a bounding box or a triangle
+                // fan: both would paint over the concave tooth edges / safe seams.
+                var polygon=OralMapGeometry.ToothDamagePolygon(map,tooth);
+                var vertices=new Vector3[polygon.Length];var colors=new Color[polygon.Length];
+                for(int i=0;i<polygon.Length;i++){vertices[i]=polygon[i];colors[i]=Color.white;}
+                var mesh=new Mesh{name="치아 "+tooth+" · 실제 피해 영역 빗금"};
+                mesh.vertices=vertices;mesh.colors=colors;mesh.triangles=TriangulateWarningPolygon(polygon);mesh.RecalculateBounds();meshes.Add(mesh);
+                var fill=Render("압착 위험면 "+tooth,mesh,warningFillMaterial,15);
+                GroundVisualSorting.Apply(fill,15);fill.enabled=false;warningFills[tooth]=fill;
+            }
+        }
+        // Ear clipping handles concave authored contours. Collinear contour
+        // vertices remain in the mesh but need no triangle; nothing is expanded.
+        internal static int[] TriangulateWarningPolygon(Vector2[] polygon)
+        {
+            if(polygon==null||polygon.Length<3)return new int[0];
+            var remaining=new List<int>(polygon.Length);var triangles=new List<int>((polygon.Length-2)*3);
+            float area=0;var origin=polygon[0];
+            for(int i=0;i<polygon.Length;i++)area+=Cross(polygon[i]-origin,polygon[(i+1)%polygon.Length]-origin);
+            for(int i=0;i<polygon.Length;i++)remaining.Add(area>=0?i:polygon.Length-1-i);
+            int guard=polygon.Length*polygon.Length;
+            while(remaining.Count>3&&guard-->0)
+            {
+                bool clipped=false;
+                for(int k=0;k<remaining.Count;k++)
+                {
+                    int a=remaining[(k+remaining.Count-1)%remaining.Count],b=remaining[k],c=remaining[(k+1)%remaining.Count];
+                    float corner=Cross(polygon[b]-polygon[a],polygon[c]-polygon[b]);
+                    if(Mathf.Abs(corner)<.0000001f){remaining.RemoveAt(k);clipped=true;break;}
+                    if(corner<0)continue;
+                    bool contains=false;
+                    for(int j=0;j<remaining.Count;j++)
+                    {
+                        int v=remaining[j];if(v==a||v==b||v==c)continue;
+                        var p=polygon[v];
+                        if(Cross(polygon[b]-polygon[a],p-polygon[a])>=-.0000001f&&
+                           Cross(polygon[c]-polygon[b],p-polygon[b])>=-.0000001f&&
+                           Cross(polygon[a]-polygon[c],p-polygon[c])>=-.0000001f){contains=true;break;}
+                    }
+                    if(contains)continue;
+                    triangles.Add(a);triangles.Add(b);triangles.Add(c);remaining.RemoveAt(k);clipped=true;break;
+                }
+                if(!clipped)throw new System.InvalidOperationException("Invalid oral jaw warning contour: cannot triangulate without covering a safe seam.");
+            }
+            if(remaining.Count==3){triangles.Add(remaining[0]);triangles.Add(remaining[1]);triangles.Add(remaining[2]);}
+            return triangles.ToArray();
+        }
+        static float Cross(Vector2 a,Vector2 b)=>a.x*b.y-a.y*b.x;
+        void UpdateWarningFills(OralEventKind kind,float elapsed)
+        {
+            if(warningFills==null)return;
+            bool active=kind==OralEventKind.Jaw&&elapsed<2.86f;
+            for(int i=0;i<warningFills.Length;i++)warningFills[i].enabled=active;
+            warningFillOpacity=0;if(!active)return;
+            float urgency=Mathf.InverseLerp(.9f,2f,elapsed);
+            float pulse=.5f+.5f*Mathf.Sin(elapsed*Mathf.PI*1.6f);
+            warningFillOpacity=.22f+urgency*(.035f+.065f*pulse);
+            // Event time stops with game pause, unlike shader _Time animations.
+            warningFillMaterial.SetFloat(WarningClockId,elapsed);
+            warningFillMaterial.SetColor(WarningColorId,new Color(1,1,1,warningFillOpacity));
+        }
+
         void BuildTongue()
         {
             const int rings=20,segments=128;var c=OralMapGeometry.TongueCenter(map);var r=OralMapGeometry.TongueRadii(map);
@@ -172,7 +251,7 @@ namespace Vampire
             var events=GetComponent<OralFieldEvents>();var kind=events!=null?events.CurrentEvent:OralEventKind.None;
             float elapsed=events!=null?events.Elapsed:0;bool ceiling=runtime.OnCeiling;
             AnimateTongue(kind,elapsed,ceiling);
-            AnimateTeeth(events,kind,elapsed);AnimateFood(events,kind,elapsed);AnimateFluid(kind,elapsed);AnimateWind(kind,elapsed);AnimateBubbles(events,kind);AnimateCavities(events);AnimateJump();
+            AnimateTeeth(events,kind,elapsed);UpdateWarningFills(kind,elapsed);AnimateFood(events,kind,elapsed);AnimateFluid(kind,elapsed);AnimateWind(kind,elapsed);AnimateBubbles(events,kind);AnimateCavities(events);AnimateJump();
             bool showHud=!StageEntryLoading.IsLoading&&!runtime.Level.IsLevelEnded&&(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
             hud.SetActive(showHud);
             title.text=events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
@@ -257,6 +336,6 @@ namespace Vampire
         }
         void OnDestroy()
         {if(root!=null)Destroy(root.gameObject);foreach(var m in meshes)if(m!=null)Destroy(m);foreach(var s in sprites)if(s!=null)Destroy(s);
-            foreach(var m in new[]{surface,spriteMaterial,tongueMaterial,fluidMaterial,lineMaterial,bubbleMaterial,backdrop,cavityMaterial,approvedFloorMaterial,upperJawMaterial})if(m!=null)Destroy(m);}
+            foreach(var m in new[]{surface,spriteMaterial,tongueMaterial,fluidMaterial,lineMaterial,bubbleMaterial,backdrop,cavityMaterial,approvedFloorMaterial,upperJawMaterial,warningFillMaterial})if(m!=null)Destroy(m);}
     }
 }

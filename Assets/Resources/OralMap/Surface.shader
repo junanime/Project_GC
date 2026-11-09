@@ -1,16 +1,30 @@
 Shader "OralStage/Surface" {
- Properties { _MainTex("Texture",2D)="white"{} _SecondTex("Palate",2D)="white"{} _DetailTex("Fine Surface",2D)="gray"{} _Color("Tint",Color)=(1,1,1,1) _Mode("Mode",Float)=0 _Clock("Clock",Float)=0 _Fluid("Fluid",Float)=0 _Progress("Progress",Float)=0 _Ceiling("Ceiling",Float)=0 }
+ Properties { _MainTex("Texture",2D)="white"{} _SecondTex("Palate",2D)="white"{} _DetailTex("Fine Surface",2D)="gray"{} _Color("Tint",Color)=(1,1,1,1) _Mode("Mode",Float)=0 _Clock("Clock",Float)=0 _Fluid("Fluid",Float)=0 _Progress("Progress",Float)=0 _Ceiling("Ceiling",Float)=0 _StripeWidth("Hatch world width",Float)=.85 _HatchContrast("Hatch contrast",Range(0,1))=.75 }
  SubShader { Tags {"Queue"="Transparent" "RenderType"="Transparent"} Cull Off ZWrite Off Blend SrcAlpha OneMinusSrcAlpha
  Pass { CGPROGRAM
  #pragma vertex vert
  #pragma fragment frag
  #include "UnityCG.cginc"
- sampler2D _MainTex,_SecondTex,_DetailTex; float4 _Color,_HoleRect,_TongueCenter,_TongueRadii; float _Mode,_Clock,_Fluid,_Progress,_Ceiling,_Slant,_SolidFloor,_SouthFloor;
+ sampler2D _MainTex,_SecondTex,_DetailTex; float4 _Color,_HoleRect,_TongueCenter,_TongueRadii; float _Mode,_Clock,_Fluid,_Progress,_Ceiling,_Slant,_SolidFloor,_SouthFloor,_StripeWidth,_HatchContrast;
  struct app {float4 vertex:POSITION;float2 uv:TEXCOORD0;float2 roofUV:TEXCOORD1;float4 color:COLOR;};
- struct vary {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;float2 roofUV:TEXCOORD1;float4 color:COLOR;};
- vary vert(app v){vary o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;o.roofUV=v.roofUV;o.color=v.color;return o;}
+ struct vary {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;float2 roofUV:TEXCOORD1;float2 world:TEXCOORD2;float4 color:COLOR;};
+ vary vert(app v){vary o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;o.roofUV=v.roofUV;o.world=mul(unity_ObjectToWorld,v.vertex).xy;o.color=v.color;return o;}
  fixed4 frag(vary i):SV_Target {
  float2 uv=i.uv;
+ if(_Mode>8.5){
+ // Only the exact tooth damage meshes use this mode. World-space hatching
+ // keeps equal physical stripe widths on molars, canines and narrow incisors.
+ float hue=dot(i.world,float2(.035,.018))+_Clock*.12;
+ float3 rgb=.16+.84*(.5+.5*cos(6.2831853*(hue+float3(0,.6666667,.3333333))));
+ float stripeCoord=dot(i.world,float2(.70710678,.70710678))/max(.1,_StripeWidth)-_Clock*.28;
+ float wave=sin(stripeCoord*6.2831853);
+ float aa=max(.03,fwidth(stripeCoord)*6.2831853);
+ float stripe=smoothstep(-aa,aa,wave);
+ float3 dark=rgb*.22;
+ float3 bright=lerp(rgb,float3(1,.98,.87),.72);
+ float3 hatch=lerp(dark,bright,stripe);
+ return float4(lerp(rgb,hatch,saturate(_HatchContrast))*_Color.rgb,_Color.a)*i.color;
+ }
  if(_Mode>7.5){fixed4 floor=tex2D(_MainTex,uv);fixed4 roof=tex2D(_SecondTex,i.roofUV);roof.rgb=lerp(float3(.65,.32,.48),roof.rgb,roof.a);return float4(lerp(floor.rgb,roof.rgb,_Ceiling),1)*_Color*i.color;}
  if(_Mode<.5){
  float2 q=(uv-float2(.5,.45)); float inner=length(q/float2(.33,.29));

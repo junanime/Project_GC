@@ -1214,6 +1214,7 @@ namespace Vampire
         private IEnumerator DeathAnimation()
         {
             bool submerged = AcidLakeEvent.Contains(transform.position);
+            bool jawCrushed = JawCrushVisual.IsApplyingDamageTo(this);
             alive = false;
             currentHealth = 0;
             moveDirection = Vector2.zero;
@@ -1241,7 +1242,13 @@ namespace Vampire
             if (deathParticles != null) deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             if (dustParticles != null) dustParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             Time.timeScale = 0;
-            if (!submerged)
+            if (jawCrushed)
+            {
+                // The jaw already owns a detached snapshot of the exact impact pose.
+                // Finish that flat silhouette instead of creating an upright exit actor.
+                yield return JawCrushVisual.FinishPlayerDeath(this, spriteRenderer);
+            }
+            else if (!submerged)
             {
                 var exit = GetComponent<CharacterExitSequence>();
                 if (exit == null) exit = gameObject.AddComponent<CharacterExitSequence>();
