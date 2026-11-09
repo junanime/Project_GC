@@ -364,6 +364,9 @@ namespace Vampire
             );
             if (colon != null && colon.TryGet(monsterBlueprint, out var colonEntry))
                 (newMonster.GetComponent<ColonMonsterVisual>() ?? newMonster.gameObject.AddComponent<ColonMonsterVisual>()).Configure(newMonster, colonEntry);
+            if(colon!=null&&colon.TryGet(monsterBlueprint,out var specialEntry))
+                for(int i=0;i<5;i++)if(specialEntry.id=="S"+(7+i).ToString("00"))
+                    (newMonster.GetComponent<ColonSpecialRuntime>()??newMonster.gameObject.AddComponent<ColonSpecialRuntime>()).Configure(newMonster,ColonMonsterRoster.NewKinds[i]);
             newMonster.ConfigureGroundShadow(monsterBlueprint);
             newMonster.FitVisibleBody();
             OralMonsterRoster.ApplySpawn(newMonster);

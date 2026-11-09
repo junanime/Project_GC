@@ -483,6 +483,16 @@ namespace Vampire
             }
 
             int count = Mathf.Max(1, runtimeEvent.spawnCount);
+            bool paired=false;MonsterBlueprint partner=null;int partnerPool=-1;
+            if(ColonMonsterRoster.InColon){var roster=ColonMonsterRoster.Active;var bp=roster.Resolve(entry.monsterBlueprint);
+                if(roster.TryGet(bp,out var e)){
+                    if(e.id=="S05")yield break;
+                    paired=e.id=="S04";
+                    if(paired){foreach(var x in roster.Specials)if(x.id=="S05")partner=x.blueprint;
+                        for(int k=0;k<levelBlueprint.monsters.Length;k++)foreach(var candidate in levelBlueprint.monsters[k].monsterBlueprints)if(roster.Resolve(candidate)==partner)partnerPool=k;}
+                    count=ColonSpecialDirector.LegacyCount(count,e.id=="S01",paired);
+                }else count=ColonSpecialDirector.LegacyCount(count,false,false);
+            }
 
             if (debugLog)
             {
@@ -507,6 +517,7 @@ namespace Vampire
             {
                 yield return WaitUntilMiniStageUnblocked();
                 MonsterBlueprint waveBlueprint = entry.companionBlueprint != null && (firstType + i) % 2 == 1 ? entry.companionBlueprint : entry.monsterBlueprint;
+                if(paired)waveBlueprint=entry.monsterBlueprint;
                 if (!TryFindPoolIndexByBlueprint(waveBlueprint, out resolvedPoolIndex)) continue;
 
                 Monster monster = entityManager.SpawnMonsterRandomPosition(
@@ -515,6 +526,8 @@ namespace Vampire
                     entry.hpBuff
                 );
 
+                if(paired&&monster!=null&&partner!=null&&partnerPool>=0)
+                    entityManager.SpawnMonster(partnerPool,FiniteStomachMap.SafeSpawn((Vector2)monster.transform.position+Vector2.right*.8f,.8f),partner,entry.hpBuff);
                 if (debugLog)
                 {
                     string monsterName = monster != null ? monster.name : "NULL";

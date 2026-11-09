@@ -196,10 +196,12 @@ namespace Vampire.Tests.Editor
                 }
                 Check(directMean/sourceMean>=1.099f&&directMean/sourceMean<=1.201f,"same-time mean HP remains within +10-20%");
                 File.AppendAllText(Output+"/time-balance.csv",(t*900)+","+sourceMean+","+directMean+","+(directMean/sourceMean)+","+ratio+"\n");
-                Check(ratio>=1.149f&&ratio<=1.301f,"spawn-rate ratio bounded at "+(t*900).ToString("F0")+"s: "+ratio.ToString("F3"));
+                Check(ratio>=.999f&&ratio<=1.051f,"spawn-rate ratio bounded at "+(t*900).ToString("F0")+"s: "+ratio.ToString("F3"));
             }
-            Check(Mathf.Approximately(roster.Level.monsterSpawnTable.GetSpawnRate(0),.805f),"initial spawn rate is 0.805 per second");
+            Check(Mathf.Approximately(roster.Level.monsterSpawnTable.GetSpawnRate(0),.7f),"initial spawn rate matches stage one at 0.7 per second");
             Check(flat[0].hp==25&&flat[32].hp==260&&ColonBossDefinition.Get(ColonBossKind.Flamingo).Health==26000,"serialized stage-one and normal-transition boss values remain unchanged");
+            float directSpecials=0;for(int i=0;i<20000;i++)directSpecials+=ColonSpecialDirector.LegacyCount(2,false,false);
+            Check(Mathf.Abs(directSpecials/20000-1.7f)<.03f,"direct legacy specials use 85 percent before new additions");
             Set(player,"isInvincible",true);player.CollectableCollider.enabled=false;
             foreach(var behaviour in Object.FindObjectsOfType<MonoBehaviour>())if(behaviour is StageEventDirector||behaviour is TimedSpecialMonsterSpawner||behaviour is AcidToadSpawn||behaviour is NPCSpawner||behaviour is SnailBossDebugSpawn){behaviour.enabled=false;behaviour.StopAllCoroutines();}
             var map=FiniteStomachMap.Instance;Position(player,map.ClampToFloor(map.UVToWorld(new Vector2(.72f,.68f)),5));

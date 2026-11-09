@@ -17,6 +17,7 @@ namespace Vampire
     /// - 흡수할수록 크기/이동속도 증가
     /// - 처치 시 저장한 경험치/골드 반환
     /// </summary>
+    [DefaultExecutionOrder(730)]
     public class NutritionThiefBacteriaMonster : Monster
     {
         [Header("Nutrition Thief Targeting")]
@@ -74,6 +75,10 @@ namespace Vampire
         [SerializeField] private Sprite[] eatSprites;
         [SerializeField, Min(0.01f)] private float runFrameTime = 0.09f;
         [SerializeField, Min(0.01f)] private float eatFrameTime = 0.08f;
+        public bool IsMole=>ColonMonsterRoster.InColon&&!IsMiniStageOwned;
+        public bool Underground=>IsMole&&burrowRemaining>0;
+        float burrowRemaining,burrowTotal=2.2f,moleClock;Vector2 burrowFrom,burrowTo;
+        public float EatingRemaining=>eatingRemaining;
         private float eatingRemaining;
         private float motionElapsed;
         private int motionState = -1;
@@ -120,9 +125,11 @@ namespace Vampire
                 return;
             }
 
+            if(IsMole){moleClock+=Time.deltaTime;if(burrowRemaining>0){TickBurrow();return;}}
             if (eatingRemaining > 0f)
             {
                 eatingRemaining = Mathf.Max(0f, eatingRemaining - Time.deltaTime);
+                if(IsMole&&eatingRemaining<=0)StartBurrow();
                 return;
             }
 
@@ -143,7 +150,7 @@ namespace Vampire
                 return;
             }
 
-            if (eatingRemaining > 0f)
+            if (eatingRemaining > 0f || Underground)
             {
                 rb.velocity = Vector2.zero;
                 return;
@@ -183,14 +190,17 @@ namespace Vampire
                 DropStoredReward();
             }
 
-            // 중요:
-            // base.Killed(true)를 호출하면 MonsterBlueprint 기본 DropLoot까지 같이 떨어집니다.
-            // 영양 도둑균은 저장한 보상만 반환해야 하므로 base.Killed(false)로 풀 반환만 사용합니다.
-            yield return base.Killed(false);
+            // Preserve kill attribution and quest/score events. DropLoot/RewardSilver
+            // are overridden below because stored pickups have already been returned.
+            yield return base.Killed(killedByPlayer);
         }
+
+        protected override void DropLoot() { } // Stored pickups are returned once in Killed.
+        protected override void RewardSilver() { }
 
         private void ResetNutritionRuntime()
         {
+            burrowRemaining=0;moleClock=0;if(monsterHitbox!=null)monsterHitbox.enabled=true;
             targetGem = null;
             targetCoin = null;
             nextRetargetTime = 0f;
@@ -213,6 +223,7 @@ namespace Vampire
 
         private void BeginEatingAnimation()
         {
+            if(IsMole){eatingRemaining=2;motionElapsed=0;if(rb!=null)rb.velocity=Vector2.zero;return;}
             if (eatSprites == null || eatSprites.Length == 0) return;
             eatingRemaining = eatSprites.Length * Mathf.Max(0.01f, eatFrameTime);
             motionElapsed = 0f;
@@ -222,6 +233,7 @@ namespace Vampire
 
         private void LateUpdate()
         {
+            if(IsMole){MoleVisual();return;}
             if (!alive || deathHandled || IsFieldRuntimeSuspended || !HasDirectionalAnimation ||
                 monsterSpriteRenderer == null) return;
 
@@ -334,7 +346,7 @@ namespace Vampire
             {
                 float distance = Vector2.Distance(transform.position, targetGem.transform.position);
 
-                if (distance <= absorbRadius)
+                if (distance <= absorbRadius && (!IsMole||ColonAttackWall.Clear(transform.position,GetCurrentTargetTransform().position)))
                 {
                     AbsorbGem(targetGem);
                     targetGem = null;
@@ -346,7 +358,7 @@ namespace Vampire
             {
                 float distance = Vector2.Distance(transform.position, targetCoin.transform.position);
 
-                if (distance <= absorbRadius)
+                if (distance <= absorbRadius && (!IsMole||ColonAttackWall.Clear(transform.position,GetCurrentTargetTransform().position)))
                 {
                     AbsorbCoin(targetCoin);
                     targetCoin = null;
@@ -472,6 +484,7 @@ namespace Vampire
 
         private float GetCurrentMoveSpeed()
         {
+            if(IsMole)return moveSpeed;
             float multiplier = 1f + storedItemCount * speedIncreasePerStoredItem;
             multiplier = Mathf.Clamp(multiplier, 1f, maxSpeedMultiplier);
 
@@ -480,6 +493,7 @@ namespace Vampire
 
         private void ApplyGrowthVisual()
         {
+            if(IsMole)return;
             float multiplier = 1f + storedItemCount * scaleIncreasePerStoredItem;
             multiplier = Mathf.Clamp(multiplier, 1f, maxScaleMultiplier);
 
@@ -577,7 +591,7 @@ namespace Vampire
             }
 
             Vector2 offset = randomDirection.normalized * Random.Range(0.15f, 0.85f);
-            return (Vector2)transform.position + offset;
+            return FiniteStomachMap.SafeSpawn((Vector2)transform.position + offset,.2f,IsMiniStageOwned);
         }
 
         private static void CacheExpGemField()
@@ -608,6 +622,12 @@ namespace Vampire
 
             return GemType.White1;
         }
+
+
+        void StartBurrow(){burrowRemaining=burrowTotal;burrowFrom=transform.position;FindNearestCollectableTarget();var target=GetCurrentTargetTransform();burrowTo=FiniteStomachMap.SafeSpawn(target!=null?(Vector2)target.position:burrowFrom+Random.insideUnitCircle*2,.8f);burrowTo=ColonAttackWall.Stop(burrowFrom,burrowTo,.5f);if(monsterHitbox!=null)monsterHitbox.enabled=false;ColonSpecialEffects.Puff(burrowFrom,new Color(.66f,.36f,.36f),.4f);}
+        void TickBurrow(){burrowRemaining=Mathf.Max(0,burrowRemaining-Time.deltaTime);float elapsed=burrowTotal-burrowRemaining;float t=Mathf.Clamp01((elapsed-.35f)/1.5f);var at=Vector2.Lerp(burrowFrom,burrowTo,t);transform.position=at;if(rb!=null)rb.position=at;if(burrowRemaining<=0){if(monsterHitbox!=null)monsterHitbox.enabled=true;ColonSpecialEffects.Puff(at,new Color(.66f,.36f,.36f),.4f);}entityManager?.Grid?.UpdateClient(this);}
+        void MoleVisual(){if(!enabled||!alive||monsterSpriteRenderer==null||IsFieldRuntimeSuspended)return;var r=monsterSpriteRenderer;float scale=1;float elapsed=burrowTotal-burrowRemaining;if(Underground)scale=elapsed<.35f?1-elapsed/.35f:burrowRemaining<.35f?1-burrowRemaining/.35f:0;r.enabled=scale>.01f;
+            var s=r.transform.localScale;s.y*=Mathf.Max(.01f,scale)*(eatingRemaining>0?1+Mathf.Sin(moleClock*16)*.035f:1);r.transform.localScale=s;if(eatingRemaining>0)r.transform.localRotation=Quaternion.Euler(0,0,Mathf.Sin(moleClock*12)*6);}
 
         private void OnDrawGizmosSelected()
         {

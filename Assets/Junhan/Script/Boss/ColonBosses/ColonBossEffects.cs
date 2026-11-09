@@ -36,7 +36,7 @@ namespace Vampire
         {
             var art=ColonBossVisual.Load(b.Definition.Id,sheet);
             var r=new GameObject(sheet).AddComponent<SpriteRenderer>();r.transform.SetParent(b.Effects,true);r.transform.position=position;r.sortingOrder=order;
-            if(art.Length>0){r.sprite=art[0];r.transform.localScale=Vector3.one*size/r.sprite.bounds.size.x;}return r;
+            if(art.Length>0){r.sprite=art[0];r.transform.localScale=Vector3.one*size/r.sprite.bounds.size.x;}if(sheet=="Fin")r.gameObject.AddComponent<ColonFinWake>();return r;
         }
         public static ColonBossProjectile Projectile(ColonBossRuntime b,Vector2 position,Vector2 direction,float speed,float damage,float radius=.20f,string shape="seed")
             =>ColonBossProjectile.Create(b,position,direction,speed,damage,radius,shape);

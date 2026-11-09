@@ -89,6 +89,9 @@ namespace Vampire
             }
         }
         public float SpawnMaxHealth { get; protected set; }
+        public void ScaleHealthCapacity(float factor){SpawnMaxHealth*=factor;currentHealth=Mathf.Max(0,currentHealth*factor);}
+        public void RestoreLinkedHealth(float fraction){currentHealth=SpawnMaxHealth*Mathf.Clamp01(fraction);alive=true;deathStarted=false;if(monsterHitbox!=null)monsterHitbox.enabled=true;}
+        public bool IsAlive=>alive;
         // Environmental removal must not call derived Killed routines: blood clots would
         // open new portals, elites would drop chests, and player kill passives would proc.
         public void DissolveInAcidLake()
@@ -225,6 +228,10 @@ namespace Vampire
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
             GetComponent<MonsterNeedleBarrier>()?.ResetBarrier();
+            GetComponent<ColonSpecialRuntime>()?.ResetForPool();
+            GetComponent<ColonRevivalLink>()?.ResetForSpawn();
+            GetComponent<MonsterCombatBuffRuntime>()?.ClearBuffs();
+            foreach(var v in GetComponentsInChildren<MonsterSupportBuffVisual>(true))Destroy(v.gameObject);
             StomachSlopeBody.Ensure(gameObject);
             // A pool return can interrupt the .06s hit coroutine before it restores the
             // material. The next spawn must not inherit a white silhouette or hidden body.
@@ -545,6 +552,7 @@ namespace Vampire
         public override void Knockback(Vector2 knockback)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
+            var mole=GetComponent<NutritionThiefBacteriaMonster>();if(mole!=null&&mole.Underground&&!SuppressHitFlash)return;
             if (fieldRuntimeSuspended || rb == null)
             {
                 return;
@@ -565,6 +573,7 @@ namespace Vampire
     bool isCritical = false)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
+            var mole=GetComponent<NutritionThiefBacteriaMonster>();if(mole!=null&&mole.Underground&&!SuppressHitFlash)return;
             if (!alive || fieldRuntimeSuspended)
 
             {
@@ -645,6 +654,9 @@ namespace Vampire
         {
             if (deathStarted) yield break;
             deathStarted = true;
+            var revival=GetComponent<ColonRevivalLink>();
+            if(killedByPlayer&&revival!=null&&revival.CanRevive){alive=false;if(monsterHitbox!=null)monsterHitbox.enabled=false;yield return revival.Revive(this);if(currentHealth>0)yield break;}
+            GetComponent<ColonSpecialRuntime>()?.OnDeath();
             alive = false;
             WasKilledByPlayer = killedByPlayer;
             if (killedByPlayer) RecordRankingKill();

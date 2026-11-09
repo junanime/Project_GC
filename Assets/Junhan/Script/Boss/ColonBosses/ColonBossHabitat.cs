@@ -38,6 +38,7 @@ namespace Vampire
         {
             var d = ColonBossDefinition.Get(Kind);
             dormant = Sprite("잠든 보스", ColonBossVisual.Load(d.Id,"Dormant"), transform, d.Size, 505);
+            if(Kind==ColonBossKind.Shark)dormant.gameObject.AddComponent<ColonFinWake>();
             if (Kind != ColonBossKind.Manatee) { Doors = new[] { (Vector2)transform.position }; return; }
             dormant.enabled = false;
             Vector2 normal = WallNormal.sqrMagnitude > .1f ? WallNormal.normalized : Vector2.down;

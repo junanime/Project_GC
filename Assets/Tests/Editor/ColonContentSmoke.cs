@@ -100,7 +100,7 @@ namespace Vampire.Tests.Editor
             Check(oldPortal!=null,"stage-one entrance exists before transfer");
             yield return Enter(level);Check(oldPortal==null||!oldPortal.gameObject.activeInHierarchy,"stage-one entrance removed on field transfer");var roster=ColonMonsterRoster.Active;var map=FiniteStomachMap.Instance;var player=level.PlayerCharacter;
             if(SessionState.GetBool(Key+"Navigation",false)){NavigationProfile(map);SessionState.SetBool(Key+"Done",true);yield break;}
-            Check(roster.Normals.Count==8&&roster.Elites.Count==8&&roster.Specials.Count==6,"8 ordinary, 8 elite variants and 6 newly illustrated specials");
+            Check(roster.Normals.Count==8&&roster.Elites.Count==8&&roster.Specials.Count==12,"8 ordinary, 8 elite variants and 12 illustrated specials including mole");
             Check(original.monsters[0].monsterBlueprints[0].hp==slimeHp,"source stage-one blueprint is immutable");
             var layout=level.GetComponent<FieldObjectLayout>();Check(layout.Ready&&layout.SpawnedObjects.Count==86,"all 86 initial objects active");
             for(int k=0;k<FieldObjectLayout.Counts.Length;k++)Check(layout.Slots.Count(s=>(int)s.kind==k)==FieldObjectLayout.Counts[k],"initial object quantity "+(FieldObjectLayout.Kind)k);

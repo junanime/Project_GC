@@ -58,6 +58,7 @@ namespace Vampire
                 return;
             }
 
+            if (GetComponent<ColonSpecialRuntime>()?.ControlsMovement==true) return;
             Vector2 moveDirection =
                 ColonNavigation.Toward(transform.position,playerCharacter.transform.position);
 
