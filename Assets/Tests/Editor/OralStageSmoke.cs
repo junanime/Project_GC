@@ -187,6 +187,13 @@ namespace Vampire.Tests.Editor
             Check(OralMapGeometry.ZoneAt(map,south-Vector2.up*.5f)!=OralZone.Tongue,"south wall is not walkable");
             for(int i=0;i<12;i++)Check(OralMapGeometry.ZoneAt(map,Vector2.Lerp(center,south+Vector2.up*.6f,i/11f))==OralZone.Tongue,"continuous tongue root approach "+i);
             Check(teeth.Count() >= 3, "multiple accessible lower teeth exist");
+            Check(Mathf.Approximately(OralMapGeometry.ToothScale,26.4f*2/3),"teeth reduced to two thirds of prior scale");
+            Check(Enumerable.Range(0,teeth.Length).Count(i=>OralMapGeometry.ToothKind(i)==OralToothKind.Incisor)==4,"four central incisors");
+            Check(Enumerable.Range(0,teeth.Length).Count(i=>OralMapGeometry.ToothKind(i)==OralToothKind.Canine)==2,"paired canines next to incisors");
+            for(int i=0;i<teeth.Length;i++) {
+                Check(OralMapGeometry.ToothContour(i)!=null,"anatomical tooth contour "+i);
+                if(i>0){var seam=OralMapGeometry.ToothSafeGap(map,i-1);Check(OralMapGeometry.TeethDistance(map,seam,out _)>=OralMapGeometry.ToothFootRadius,"continuous flat-crown seam "+i);Check(!OralMapGeometry.IsJawDanger(map,seam),"seam is outside jaw damage "+i);}
+            }
             Check(events.Cavities.Count == 3 && events.Cavities.Select(c => c.ToothIndex).Distinct().Count() == 3, "exactly three distinct initial cavities");
             Check(events.Cavities.All(c => OralMapGeometry.ZoneAt(map, c.Position) == OralZone.Teeth), "all treatment targets are on reachable lower teeth");
             int clamped = 0;
@@ -198,6 +205,12 @@ namespace Vampire.Tests.Editor
             }
             Place(player, center); Focus(map.WorldRect.center, map.WorldRect.height * .56f);
             yield return Clip("01-map-overview", 3, () => true);
+            CaptureMapDesign(map);
+            if(Environment.GetCommandLineArgs().Contains("-oralJawDesign=1")) {
+                yield return JawDesignChecks(map,player,events);
+                SessionState.SetBool(Key+"Done",true);yield break;
+            }
+            if(Environment.GetCommandLineArgs().Contains("-oralDesignOnly=1")){SessionState.SetBool(Key+"Done",true);yield break;}
             yield return JumpChecks(player, map, runtime, center, radii);
             Place(player, center); Check(!events.ForceEvent(OralEventKind.Jaw), "jaw refuses to trigger while player is on tongue");
             Place(player, teeth.First()); Focus(player.transform.position, 4.5f); yield return null;
@@ -437,6 +450,53 @@ namespace Vampire.Tests.Editor
                 if(!CaptureEnabled&&(frame==0||frame==24))Frame(name+"/review-"+frame);
                 frame++; yield return new WaitForSeconds(1f / 12f);
             } while (keepGoing() && Time.time - start < limit);
+        }
+        static IEnumerator JawDesignChecks(FiniteStomachMap map,Character player,OralFieldEvents events)
+        {
+            var visual=Object.FindObjectOfType<OralMapVisual>();
+            var warnings=visual.JawWarningLines;
+            Check(!visual.UpperJawVisible,"upper jaw hidden during normal play");
+            Check(warnings.Length==OralMapGeometry.ToothCount&&warnings.All(r=>!r.enabled),"per-tooth warnings hidden during normal play");
+            Place(player,OralMapGeometry.ToothWalkCenter(map,0));
+            Check(events.ForceEvent(OralEventKind.Jaw),"real jaw event starts on lower teeth");
+            while(events.Elapsed<1)yield return null;yield return null;
+            Check(!visual.UpperJawVisible&&warnings.All(r=>r.enabled),"warning appears before hidden upper jaw descends");
+            for(int i=0;i<warnings.Length;i++) {
+                var polygon=OralMapGeometry.ToothDamagePolygon(map,i);
+                Check(warnings[i].loop&&warnings[i].positionCount==polygon.Length,"warning traces one tooth damage boundary "+i);
+                for(int j=0;j<polygon.Length;j++)Check(((Vector2)warnings[i].GetPosition(j)-polygon[j]).sqrMagnitude<.000001f,"visible warning matches actual damage boundary "+i+"/"+j);
+                if(i<warnings.Length-1)Check(!events.JawThreatens(OralMapGeometry.ToothSafeGap(map,i)),"warning leaves safe seam "+i);
+            }
+            CaptureMapDesign(map,"02-warning-");
+            while(events.Elapsed<2.16f)yield return null;yield return null;
+            Check(visual.UpperJawVisible,"upper jaw top-view artwork descends as one attached piece");
+            CaptureMapDesign(map,"03-descending-");
+            while(events.Elapsed<2.48f)yield return null;yield return null;
+            Check(events.JawAmount>.99f,"upper teeth finish closing on lower teeth");
+            CaptureMapDesign(map,"04-closed-");
+            float deadline=Time.realtimeSinceStartup+10;
+            while(events.CurrentEvent!=OralEventKind.None&&Time.realtimeSinceStartup<deadline)yield return null;yield return null;
+            Check(events.CurrentEvent==OralEventKind.None&&!visual.UpperJawVisible&&warnings.All(r=>!r.enabled),"upper jaw and warning disappear after release");
+        }
+        static void CaptureMapDesign(FiniteStomachMap map,string prefix="")
+        {
+            var camera=Camera.main;var position=camera.transform.position;float zoom=camera.orthographicSize;
+            var canvases=Object.FindObjectsOfType<Canvas>().Where(c=>c.enabled).ToArray();
+            var target=camera.targetTexture;var active=RenderTexture.active;
+            var rt=RenderTexture.GetTemporary(1800,1440,24);Texture2D image=null;
+            try {
+                foreach(var canvas in canvases)canvas.enabled=false;
+                camera.targetTexture=rt;
+                var centers=new[]{map.WorldRect.center+Vector2.up*3,OralMapGeometry.ArchCenter(map)+Vector2.up*map.WorldRect.height*.355f,new Vector2(map.WorldRect.center.x,OralMapGeometry.SouthFloor(map)+4)};
+                var sizes=new[]{40f,18f,22f};var names=new[]{"map-design","front-teeth-detail","tongue-root-detail"};
+                for(int i=0;i<centers.Length;i++) {
+                    camera.transform.position=new Vector3(centers[i].x,centers[i].y,position.z);camera.orthographicSize=sizes[i];camera.Render();RenderTexture.active=rt;
+                    image=new Texture2D(1800,1440,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1800,1440),0,0);image.Apply();File.WriteAllBytes(Output+"/"+prefix+names[i]+".png",image.EncodeToPNG());Object.Destroy(image);image=null;
+                }
+            } finally {
+                foreach(var canvas in canvases)if(canvas!=null)canvas.enabled=true;
+                camera.targetTexture=target;camera.transform.position=position;camera.orthographicSize=zoom;RenderTexture.active=active;RenderTexture.ReleaseTemporary(rt);if(image!=null)Object.Destroy(image);
+            }
         }
         static void Frame(string name)
         {

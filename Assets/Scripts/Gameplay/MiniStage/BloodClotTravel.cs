@@ -38,7 +38,7 @@ namespace Vampire
         public static BloodClotTravel Ensure(Character actor) => actor.GetComponent<BloodClotTravel>() ?? actor.gameObject.AddComponent<BloodClotTravel>();
         static Sprite[] RawFrames(string key) => Resources.LoadAll<Sprite>("BloodClotTravel/" + key).OrderBy(s => s.name).ToArray();
         public static Sprite[] Frames(string key) => RawFrames(key == "Hyuki" ? "HyukiApproved" : key);
-        public static bool CanTravel(Character actor) => actor != null && actor.IsAlive && !actor.IsDashing && !actor.IsTrapBound &&
+        public static bool CanTravel(Character actor) => actor != null && actor.IsAlive && !actor.IsDashing && !actor.IsTrapBound && !actor.IsOralSliding &&
             !(actor.GetComponent<PlayerMiniStageStunRuntime>()?.IsStunned ?? false) && !(actor.Skills?.IsCutin ?? false) && !actor.IsPortalTravelling;
 
         public void Begin()

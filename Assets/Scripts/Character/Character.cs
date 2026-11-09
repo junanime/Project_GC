@@ -164,7 +164,8 @@ namespace Vampire
         public bool IsPortalTravelling => TryGetComponent<BloodClotTravel>(out var travel) && travel.Busy;
         public bool IsPortalDamageProtected => TryGetComponent<BloodClotTravel>(out var travel) && travel.IsDamageProtected;
         public bool IsPortalPoseHeld => TryGetComponent<BloodClotTravel>(out var travel) && travel.HoldingPose;
-        public Vector2 EffectiveMoveDirection => IsTrapBound ? Vector2.zero :
+        public bool IsOralSliding => OralStageRuntime.IsSlidingActor(this);
+        public Vector2 EffectiveMoveDirection => IsTrapBound || IsOralSliding ? Vector2.zero :
             (movementControlsReversed ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
@@ -218,7 +219,7 @@ namespace Vampire
         public void GainPickupHealth(float amount)
         {float before=currentHealth;GainHealth(Relics != null ? Relics.PickupHealing(amount) : amount);Relics?.PickupHealed(currentHealth-before);}
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
-        public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
+        public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && !IsOralSliding && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
         public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
         private float SnailSlowMultiplier => GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f;
         public float CurrentArmor => armor != null ? armor.Value : 0f;
@@ -326,7 +327,7 @@ namespace Vampire
             movementControlsReversed = false;
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
-            OralStageRuntime.Instance?.EndJump();
+            OralStageRuntime.CancelPlayerTravel(this);
 
             isDashing = false;
             dashCoroutine = null;
@@ -421,7 +422,7 @@ namespace Vampire
 
         private void HandleHealOnIdle()
         {
-            if(IsPortalTravelling)return;
+            if(IsPortalTravelling || IsOralSliding)return;
             if (healOnIdlePerSecond > 0 && Velocity.magnitude < 0.1f)
             {
                 float healAmount = GetMaxHealth() * healOnIdlePerSecond;
@@ -432,7 +433,7 @@ namespace Vampire
         protected virtual void FixedUpdate()
         {
             if (!alive) return;
-            if (IsPortalTravelling || IsPortalPoseHeld)
+            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
                 return;
@@ -515,7 +516,7 @@ namespace Vampire
 
         public bool TryDash()
         {
-            if (IsPortalTravelling || IsPortalPoseHeld) return false;
+            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding) return false;
             if (Time.timeScale <= 0f || (abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen)) return false;
             if (IsTrapBound) return false;
             if (!enableDash)
@@ -630,7 +631,7 @@ namespace Vampire
 
             while (elapsed < safeDuration)
             {
-                if (IsTrapBound)
+                if (IsTrapBound || IsOralSliding)
                 {
                     targetPosition = rb != null ? rb.position : (Vector2)transform.position;
                     break; // Finish collision/visual cleanup without completing the dash displacement.
@@ -1223,7 +1224,7 @@ namespace Vampire
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
-            OralStageRuntime.Instance?.EndJump();
+            OralStageRuntime.CancelPlayerTravel(this);
 
             isDashing = false;
             dashInvincibleEndTime = -1f;

@@ -5,6 +5,7 @@ using UnityEngine.UI;
 namespace Vampire
 {
     // Screen-sized meters follow stable idle-art landmarks, not animation bounds.
+    [DefaultExecutionOrder(1300)]
     public sealed class PlayerCombatBars : MonoBehaviour
     {
         public const float Width=76, Height=12, RowGap=3, DividerWidth=3;
@@ -156,8 +157,11 @@ namespace Vampire
             active.root.gameObject.SetActive(skill?.Definition!=null);
             if(skill?.Definition!=null)Fill(active,0,skill.IsShini&&skill.Breath!=null?(float)skill.Breath.Fuel/skill.Breath.Capacity:1-skill.CooldownRemaining/Mathf.Max(.01f,skill.EffectiveCooldown));
             Vector2 head,feet;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)),null,out head);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)),null,out feet);
+            var oral=OralStageRuntime.Instance;
+            var travelOffset=oral!=null && oral.Level!=null && oral.Level.PlayerCharacter==owner
+                ? oral.TravelVisualWorldOffset : Vector3.zero;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)+travelOffset),null,out head);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)+travelOffset),null,out feet);
             health.root.anchoredPosition=head+Vector2.up*(Height*.5f+5);
             dash.root.anchoredPosition=feet-Vector2.up*(Height*.5f+6);
             active.root.anchoredPosition=dash.root.anchoredPosition-Vector2.up*(Height+RowGap);

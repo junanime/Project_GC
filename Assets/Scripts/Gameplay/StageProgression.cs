@@ -88,7 +88,7 @@ namespace Vampire
         public bool BeginOralToStomach()
         {
             if(StageNumber!=0||Travelling||level==null||level.IsLevelEnded||level.IsRunFlowPaused||preOralBlueprint==null)return false;
-            if(OralStageRuntime.Instance!=null&&(OralStageRuntime.Instance.OnCeiling||OralStageRuntime.Instance.IsJumping))return false;
+            if(OralStageRuntime.Instance!=null&&(OralStageRuntime.Instance.OnCeiling||OralStageRuntime.Instance.IsAirborne))return false;
             Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             StartCoroutine(ReturnFromOral());return true;
         }

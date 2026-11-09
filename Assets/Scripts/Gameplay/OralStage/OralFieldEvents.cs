@@ -208,7 +208,7 @@ namespace Vampire
         public bool ForceEvent(OralEventKind kind)
         {
             if (!Available || kind == OralEventKind.None || CurrentEvent != OralEventKind.None || player.IsPortalTravelling ||
-                player.IsChoosingAugment || OralStageRuntime.Instance.IsJumping || level.IsRunFlowPaused) return false;
+                player.IsChoosingAugment || OralStageRuntime.Instance.IsAirborne || level.IsRunFlowPaused) return false;
             if (kind == OralEventKind.Jaw && !IsTeeth(player.Position)) return false;
             if (kind == OralEventKind.Ceiling && OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue) return false;
             CurrentEvent = kind; sodaCoated.Clear(); Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
@@ -217,7 +217,7 @@ namespace Vampire
             flowDirection = new Vector2(UnityEngine.Random.value > .5f ? .45f : -.45f, -1).normalized;
             switch (kind)
             {
-                case OralEventKind.Jaw: Duration = 3.6f; TargetPosition = player.Position; Banner = "와작! | 윗니가 내려와요. 혀로 뛰어 피하세요"; break;
+                case OralEventKind.Jaw: Duration = 3.6f; TargetPosition = player.Position; Banner = "와작! | 치아 사이의 빈틈이나 혀로 피하세요"; break;
                 case OralEventKind.Food: Duration = 6.5f; Banner = "한입 들어온다! | 그림자를 피하고 쏟아지는 음식 몬스터를 처치하세요"; break;
                 case OralEventKind.Water: Duration = 8f; Banner = "물이 들어온다! | 물살을 피해 아랫니로 이동할 수 있어요"; break;
                 case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피가 지나가면 몬스터들이 빨라집니다"; break;
@@ -243,7 +243,7 @@ namespace Vampire
             if (triggered || Elapsed < 2.37f) return;
             triggered = true;
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.TrapActivate);
-            if (!OralStageRuntime.Instance.IsJumping && JawThreatens(player.Position)) player.TakeDamage(player.MaxHealth * .25f);
+            if (!OralStageRuntime.Instance.IsAirborne && JawThreatens(player.Position)) player.TakeDamage(player.MaxHealth * .25f);
             SnapshotMonsters();
             foreach (var monster in monsterScratch)
                 if (Live(monster) && !monster.IsFieldRuntimeSuspended && JawThreatens(monster.Position))
@@ -255,8 +255,9 @@ namespace Vampire
 
         public bool JawThreatens(Vector2 point)
         {
-            if (!IsTeeth(point)) return false;
-            return true;
+            // Warning contours and damage share the exact same per-tooth polygon.
+            // Foot position, rather than the entire sprite, decides safety in the seams.
+            return map!=null && OralMapGeometry.IsJawDanger(map,point);
         }
 
         void TickFood()
@@ -264,7 +265,7 @@ namespace Vampire
             if (!triggered && Elapsed >= FoodImpactTime)
             {
                 triggered = true;
-                if (!OralStageRuntime.Instance.IsJumping && (player.Position - TargetPosition).sqrMagnitude < 3f * 3f)
+                if (!OralStageRuntime.Instance.IsAirborne && (player.Position - TargetPosition).sqrMagnitude < 3f * 3f)
                     player.TakeDamage(Mathf.Max(4, player.MaxHealth * .09f), (player.Position - TargetPosition).normalized * 3);
             }
             while (foodSpawned < 12 && Elapsed >= FoodImpactTime + .12f + foodSpawned * .16f)
@@ -310,7 +311,7 @@ namespace Vampire
         void ApplyFlow(float dt, float force)
         {
             dt = Mathf.Min(dt, .1f); // A stalled frame must not throw actors across the arena.
-            if (!OralStageRuntime.Instance.IsJumping && !player.IsDashing)
+            if (!OralStageRuntime.Instance.IsAirborne && !player.IsDashing)
                 PushActor(player.transform, flowDirection * (force * dt * (IsTeeth(player.Position) ? .18f : 1)));
             SnapshotMonsters();
             foreach (var monster in monsterScratch)
@@ -322,7 +323,9 @@ namespace Vampire
         {
             var old = (Vector2)actor.position;
             var zone = OralMapGeometry.ZoneAt(map, old);
-            var position = OralMapGeometry.Clamp(map, old + delta, .55f, zone == OralZone.Teeth ? OralZone.Teeth : OralZone.Tongue);
+            var position = actor==player.transform && OralStageRuntime.Instance!=null
+                ? OralStageRuntime.Instance.ConstrainPlayer(old+delta,.55f)
+                : OralMapGeometry.Clamp(map, old + delta, .55f, zone == OralZone.Teeth ? OralZone.Teeth : OralZone.Tongue);
             var body = actor.GetComponent<Rigidbody2D>();
             // Add environmental displacement to locomotion; clearing velocity here would
             // stop normal pursuit on every flow tick and during ceiling bounds checks.
@@ -346,7 +349,7 @@ namespace Vampire
                         if (m != null) cavity.Children.Add(m);
                     }
                 }
-                if (!cavity.Active || !IsTeeth(player.Position) || OralStageRuntime.Instance.IsJumping ||
+                if (!cavity.Active || !IsTeeth(player.Position) || OralStageRuntime.Instance.IsAirborne ||
                     (player.Position - cavity.Position).sqrMagnitude > TreatmentRadius * TreatmentRadius ||
                     (CurrentEvent == OralEventKind.Jaw && Elapsed > 1.5f && Elapsed < 3.2f)) continue;
                 cavity.Progress = Mathf.Min(1, cavity.Progress + dt / TreatmentSeconds);
@@ -357,7 +360,7 @@ namespace Vampire
         public bool TryStartTreatment(int index)
         {
             if (!Available || OnCeiling || index < 0 || index >= cavities.Count || level.IsRunFlowPaused ||
-                OralStageRuntime.Instance.IsJumping || !IsTeeth(player.Position)) return false;
+                OralStageRuntime.Instance.IsAirborne || !IsTeeth(player.Position)) return false;
             var cavity = cavities[index];
             if (cavity.Healed || (player.Position - cavity.Position).sqrMagnitude > TreatmentRadius * TreatmentRadius) return false;
             cavity.Active = true;
@@ -398,7 +401,7 @@ namespace Vampire
             ceilingPhaseAge += dt;
             if (CeilingPhase == 0 && ceilingPhaseAge >= 1.4f)
             {
-                if (OralStageRuntime.Instance.IsJumping || OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue)
+                if (OralStageRuntime.Instance.IsAirborne || OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue)
                 { FinishEvent(); return; }
                 BeginCeiling(); CeilingPhase = 1; ceilingPhaseAge = 0;
             }
@@ -654,7 +657,7 @@ namespace Vampire
                 if (!isActiveAndEnabled || owner == null || owner.OnCeiling || index >= owner.Cavities.Count || stage == null || stage.Level == null) return false;
                 var p = stage.Level.PlayerCharacter;
                 var cavity = owner.Cavities[index];
-                return p != null && p.IsAlive && !p.IsChoosingAugment && !stage.Level.IsRunFlowPaused && !stage.IsJumping &&
+                return p != null && p.IsAlive && !p.IsChoosingAugment && !stage.Level.IsRunFlowPaused && !stage.IsAirborne &&
                     !cavity.Healed && !cavity.Active && (p.Position - cavity.Position).sqrMagnitude <= OralFieldEvents.TreatmentRadius * OralFieldEvents.TreatmentRadius;
             }
         }

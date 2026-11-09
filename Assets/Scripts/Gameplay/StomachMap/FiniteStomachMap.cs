@@ -268,6 +268,7 @@ namespace Vampire
             if(map.IsOral){
                 var oral=OralStageRuntime.Instance;
                 if(oral!=null&&oral.IsJumping)return to;
+                if(oral!=null)return oral.ConstrainPlayer(to,radius);
                 var zone=OralMapGeometry.ZoneAt(map,from);
                 return OralMapGeometry.Clamp(map,to,radius,zone);
             }

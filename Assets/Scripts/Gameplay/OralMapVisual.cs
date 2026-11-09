@@ -11,16 +11,20 @@ namespace Vampire
         OralStageRuntime runtime; FiniteStomachMap map; Transform root;
         Material surface, spriteMaterial, tongueMaterial, fluidMaterial, backdrop;
         Mesh tongue; Vector3[] tongueBase, tongueVertices; MeshRenderer fluid;
-        Sprite[] toothArt, foodArt; SpriteRenderer[] lower, upper, food, shards;
+        Sprite[] toothArt, foodArt; SpriteRenderer[] food, shards;
         Vector2[] toothPositions; LineRenderer[] warnings, bubbleRings, wind, jumpArcs;
         readonly List<Mesh> meshes=new List<Mesh>(); readonly List<Sprite> sprites=new List<Sprite>();
         readonly List<LineRenderer> cavityProgress=new List<LineRenderer>();
         readonly List<SpriteRenderer> cavities=new List<SpriteRenderer>();
         LineRenderer tongueOutline, tongueHighlight; GameObject hud; Text title, hint;
         LineRenderer foodWarning; MeshRenderer[] bubbleDiscs;Material bubbleMaterial; Sprite[] fragments;
-        float clock; bool configured; Vector2[] cavityCrown;
-        LineRenderer lowerGum,upperGum,upperGumEdge;
-        Material gumMaterial,southWallMaterial;
+        float clock; bool configured; Vector2[][] toothContours; Sprite cavityHole;
+
+        Material cavityMaterial,approvedFloorMaterial,upperJawMaterial;
+        MeshRenderer upperJaw;
+        public bool UpperJawVisible=>upperJaw!=null&&upperJaw.enabled;
+        public int JawWarningCount=>warnings==null?0:System.Array.FindAll(warnings,w=>w.enabled).Length;
+        public LineRenderer[] JawWarningLines=>warnings;
         public bool Ready=>configured;
         public Transform VisualRoot=>root;
         public void Configure(OralStageRuntime owner)
@@ -34,38 +38,30 @@ namespace Vampire
             var backdropRect=map.WorldRect;backdropRect.xMin-=32;backdropRect.xMax+=32;backdropRect.yMin-=32;backdropRect.yMax+=32;
             Quad("입안 바깥의 어둠",backdropRect,backdrop,-930);
             spriteMaterial=new Material(shader);spriteMaterial.SetFloat("_Mode",1);
-            tongueMaterial=new Material(spriteMaterial);tongueMaterial.mainTexture=Resources.Load<Texture2D>("OralMap/Tongue");
+            approvedFloorMaterial=new Material(spriteMaterial);approvedFloorMaterial.mainTexture=Resources.Load<Texture2D>("OralMap/ApprovedFloor");
+            Quad("승인된 구강 · 아랫니와 협곡",map.WorldRect,approvedFloorMaterial,-920);
+            tongueMaterial=new Material(spriteMaterial);tongueMaterial.SetFloat("_Mode",8);
+            tongueMaterial.mainTexture=approvedFloorMaterial.mainTexture;
             tongueMaterial.SetTexture("_SecondTex",Resources.Load<Texture2D>("OralMap/Palate"));
-            tongueMaterial.SetTexture("_DetailTex",Resources.Load<Texture2D>("OralMap/TongueDetail"));
-            tongueMaterial.SetFloat("_SolidFloor",1);
             fluidMaterial=new Material(shader);fluidMaterial.SetFloat("_Mode",2);
-            Quad("깊은 협곡과 잇몸",map.WorldRect,surface,-920);
-            var wallMaterial=new Material(shader);wallMaterial.SetFloat("_Mode",6);
-            wallMaterial.mainTexture=Resources.Load<Texture2D>("ColonMap/WallTissue");
-            southWallMaterial=wallMaterial;
-            Quad("혀 뿌리 남쪽 외곽 벽",new Rect(map.WorldRect.xMin,map.WorldRect.yMin,map.WorldRect.width,OralMapGeometry.SouthWallWidth),wallMaterial,-750);
-            var wallEdge=Line("남쪽 벽 앞 경계",.22f,new Color(.36f,.08f,.16f),-749,true);
-            wallEdge.enabled=true;wallEdge.positionCount=2;
-            wallEdge.SetPosition(0,new Vector2(map.WorldRect.xMin,OralMapGeometry.SouthFloor(map)));
-            wallEdge.SetPosition(1,new Vector2(map.WorldRect.xMax,OralMapGeometry.SouthFloor(map)));
-            fluidMaterial.SetFloat("_SouthFloor",OralMapGeometry.SouthWallWidth/map.WorldRect.height);
+            var tongueCenter=OralMapGeometry.TongueCenter(map);var tongueRadii=OralMapGeometry.TongueRadii(map);
+            fluidMaterial.SetVector("_TongueCenter",new Vector4((tongueCenter.x-map.WorldRect.xMin)/map.WorldRect.width,(tongueCenter.y-map.WorldRect.yMin)/map.WorldRect.height,0,0));
+            fluidMaterial.SetVector("_TongueRadii",new Vector4(tongueRadii.x/map.WorldRect.width,tongueRadii.y/map.WorldRect.height,0,0));
+            fluidMaterial.SetFloat("_SouthFloor",(OralMapGeometry.SouthFloor(map)-map.WorldRect.yMin)/map.WorldRect.height);
             BuildTongue();
             toothArt=Atlas("OralMap/Teeth");foodArt=Atlas("OralMap/Food");
-            BuildCrown(); toothPositions=OralMapGeometry.ToothCenters(map);int n=toothPositions.Length;
-            lowerGum=Line("아랫잇몸 조직",19,new Color(.65f,.19f,.28f),-860,true);
-            upperGumEdge=Line("윗잇몸 윤곽",20,new Color(.30f,.055f,.12f),-836,true);
-            upperGum=Line("윗잇몸 조직",18.8f,new Color(.80f,.29f,.38f),-835,true);
-            gumMaterial=new Material(shader);gumMaterial.SetFloat("_Mode",5);gumMaterial.mainTexture=surface.mainTexture;
-            foreach(var gum in new[]{lowerGum,upperGum}){gum.sharedMaterial=gumMaterial;gum.numCapVertices=12;gum.textureMode=LineTextureMode.Stretch;}
-            lower=new SpriteRenderer[n];upper=new SpriteRenderer[n];warnings=new LineRenderer[n];
-            for(int i=0;i<n;i++)
-            {
-                int type=0;
-                lower[i]=Sprite("아랫니 "+i,toothArt[type],-850);Set(lower[i],toothPositions[i],OralMapGeometry.ToothScale);
-                upper[i]=Sprite("윗니 "+i,toothArt[type],-830);Set(upper[i],toothPositions[i]+Vector2.up*9f,OralMapGeometry.ToothScale);
-                upper[i].color=new Color(.91f,.79f,.82f,.30f);
-                warnings[i]=Line("압착 예고 "+i,.13f,new Color(1,.65f,.2f),16);warnings[i].enabled=false;
+            BuildCrown();toothPositions=OralMapGeometry.ToothCenters(map);int n=toothPositions.Length;
+            toothContours=new Vector2[n][];warnings=new LineRenderer[n];
+            for(int i=0;i<n;i++) {
+                var absolute=OralMapGeometry.ToothWalkPolygon(map,i);toothContours[i]=new Vector2[absolute.Length];
+                for(int j=0;j<absolute.Length;j++)toothContours[i][j]=absolute[j]-toothPositions[i];
+                warnings[i]=Line("압착 예고 "+i,.10f,new Color(1,.65f,.2f),16);
             }
+            // Same superior view as the lower jaw. The smooth crown sides hang
+            // below the upper gum; no reversed lower-tooth sprites or occlusal faces.
+            upperJawMaterial=new Material(spriteMaterial);upperJawMaterial.mainTexture=Resources.Load<Texture2D>("OralMap/UpperJawTop");
+            var jawRect=map.WorldRect;jawRect.yMin=map.WorldRect.yMax-(1121*1.327f-317)/1121*map.WorldRect.height;jawRect.height=map.WorldRect.height*1.327f;
+            upperJaw=Quad("윗잇몸과 윗니 · 위에서 내려다본 시점",jawRect,upperJawMaterial,-800);upperJaw.enabled=false;
             fluid=Quad("흐르는 음료",map.WorldRect,fluidMaterial,-740);fluid.enabled=false;
             food=new SpriteRenderer[4];shards=new SpriteRenderer[12];
             for(int i=0;i<food.Length;i++){food[i]=Sprite("낙하 음식 "+i,foodArt[i],12);food[i].enabled=false;GroundVisualSorting.Apply(food[i],12);}
@@ -97,10 +93,10 @@ namespace Vampire
             const int rings=20,segments=128;var c=OralMapGeometry.TongueCenter(map);var r=OralMapGeometry.TongueRadii(map);
             var tongueUv=JsonUtility.FromJson<SurfaceUV>(Resources.Load<TextAsset>("OralMap/TongueUV").text);
             var palateUv=JsonUtility.FromJson<SurfaceUV>(Resources.Load<TextAsset>("OralMap/PalateUV").text);
-            tongueBase=new Vector3[1+rings*segments];var uv=new Vector2[tongueBase.Length];var roofUv=new Vector2[tongueBase.Length];tongueBase[0]=c;uv[0]=tongueUv.Map(Vector2.zero);roofUv[0]=palateUv.Map(Vector2.zero);
+            tongueBase=new Vector3[1+rings*segments];var uv=new Vector2[tongueBase.Length];var roofUv=new Vector2[tongueBase.Length];tongueBase[0]=c;uv[0]=MapUV(c);roofUv[0]=palateUv.Map(Vector2.zero);
             for(int j=1;j<=rings;j++)for(int i=0;i<segments;i++)
             {float a=i*Mathf.PI*2/segments;var q=new Vector2(Mathf.Cos(a),Mathf.Sin(a))*j/rings;int k=1+(j-1)*segments+i;
-                tongueBase[k]=OralMapGeometry.TonguePoint(map,q);uv[k]=tongueUv.Map(q);roofUv[k]=palateUv.Map(q);}
+                tongueBase[k]=OralMapGeometry.TonguePoint(map,q);uv[k]=MapUV(tongueBase[k]);roofUv[k]=palateUv.Map(q);}
             var triangles=new List<int>();for(int i=0;i<segments;i++){triangles.Add(0);triangles.Add(1+(i+1)%segments);triangles.Add(1+i);}
             for(int j=1;j<rings;j++)for(int i=0;i<segments;i++){int a=1+(j-1)*segments+i,b=1+(j-1)*segments+(i+1)%segments,cc=a+segments,d=b+segments;triangles.Add(a);triangles.Add(b);triangles.Add(cc);triangles.Add(b);triangles.Add(d);triangles.Add(cc);}
             tongue=new Mesh{name="혀 · 2560개 정점의 연속 변형"};tongue.MarkDynamic();tongueVertices=(Vector3[])tongueBase.Clone();tongue.vertices=tongueVertices;tongue.uv=uv;tongue.uv2=roofUv;tongue.triangles=triangles.ToArray();tongue.RecalculateBounds();meshes.Add(tongue);
@@ -108,6 +104,7 @@ namespace Vampire
             tongueOutline=Line("움직이는 혀 외곽선",.24f,new Color(.43f,.10f,.20f),-870,true);
             tongueHighlight=Line("혀 안쪽 윤곽",.09f,new Color(1,.59f,.66f,.8f),-869,true);
         }
+        Vector2 MapUV(Vector2 p)=>new Vector2((p.x-map.WorldRect.xMin)/map.WorldRect.width,(p.y-map.WorldRect.yMin)/map.WorldRect.height);
         [System.Serializable] sealed class SurfaceUV
         {
             // Sampled from each source alpha contour; independently maps tongue and
@@ -144,21 +141,14 @@ namespace Vampire
         Material lineMaterial; Material LineMaterial=>lineMaterial??(lineMaterial=new Material(Shader.Find("Sprites/Default")));
         static void Circle(LineRenderer line,Vector2 c,Vector2 radii,float arc=1)
         {line.enabled=true;line.loop=arc>=.999f;const int count=65;line.positionCount=count;for(int i=0;i<count;i++){float a=i/(float)(count-1)*Mathf.PI*2*arc;line.SetPosition(i,c+Vector2.Scale(new Vector2(Mathf.Cos(a),Mathf.Sin(a)),radii));}}
-        void BuildCrown() { OralMapGeometry.Crown=SampleCrown(toothArt[0]);cavityCrown=SampleCrown(toothArt[3]); }
-        Vector2[] SampleCrown(Sprite art) {
-            var tex=art.texture;var rect=art.rect;
-            var points=new Vector2[128];
-            for(int i=0;i<points.Length;i++) {
-                float angle=i*Mathf.PI*2/points.Length;var dir=new Vector2(Mathf.Cos(angle),Mathf.Sin(angle));
-                float last=0;
-                for(float r=0;r<rect.width*.7f;r+=1) {
-                    var p=rect.center+dir*r;
-                    if(p.x<rect.xMin||p.x>=rect.xMax||p.y<rect.yMin||p.y>=rect.yMax)break;
-                    if(tex.GetPixel((int)p.x,(int)p.y).a>.5f)last=r;
-                }
-                points[i]=dir*(last/rect.width*OralMapGeometry.ToothScale);
-            }
-            return points;
+        void BuildCrown() {
+
+            // Reuse only the existing cavity mark, so treatment never turns an
+            // incisor or canine into a molar and never changes its walkable edge.
+            var tex=toothArt[3].texture;var rect=new Rect(1040f/1536*tex.width,256f/1024*tex.height,155f/1536*tex.width,128f/1024*tex.height);
+            cavityHole=UnityEngine.Sprite.Create(tex,rect,Vector2.one*.5f,tex.width*.5f);sprites.Add(cavityHole);
+            cavityMaterial=new Material(Resources.Load<Shader>("OralMap/Surface"));cavityMaterial.SetFloat("_Mode",7);
+            cavityMaterial.SetVector("_HoleRect",new Vector4(rect.x/tex.width,rect.y/tex.height,rect.width/tex.width,rect.height/tex.height));
         }
         static void TraceCrown(LineRenderer line,Vector2 center,float progress,Vector2[] contour=null) {
             var points=contour??OralMapGeometry.Crown;line.enabled=true;line.loop=progress>=1;
@@ -186,7 +176,7 @@ namespace Vampire
             bool showHud=!StageEntryLoading.IsLoading&&!runtime.Level.IsLevelEnded&&(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
             hud.SetActive(showHud);
             title.text=events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
-            hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 혀로 점프해 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"혀 가장자리에서 바깥 방향 대쉬 → 치아로 점프  |  충치 가까이에서 상호작용";
+            hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
         }
         void AnimateTongue(OralEventKind kind,float elapsed,bool ceiling)
         {
@@ -199,30 +189,28 @@ namespace Vampire
             var e=GetComponent<OralFieldEvents>();float ceilingBlend=ceiling?1:0;
             if(e!=null&&kind==OralEventKind.Ceiling){if(e.CeilingPhase==1||e.CeilingPhase==3)ceilingBlend=e.CeilingTravel01;}
             tongueMaterial.SetFloat("_Ceiling",ceilingBlend);
-            foreach(var outline in new[]{tongueOutline,tongueHighlight}) {
-                outline.enabled=true;outline.loop=true;outline.positionCount=128;
-                for(int i=0;i<128;i++){float a=i*Mathf.PI*2/128;var q=new Vector2(Mathf.Cos(a),Mathf.Sin(a));
-                    outline.SetPosition(i,OralMapGeometry.TonguePoint(map,q*(outline==tongueHighlight?.99f:1)));}
-            }
+            // The approved art already contains the tongue edge; do not add a
+            // second floating outline over the continuous painted surface.
+            tongueOutline.enabled=false;tongueHighlight.enabled=false;
         }
         void AnimateTeeth(OralFieldEvents events,OralEventKind kind,float t)
         {
             float close=events!=null?events.JawAmount:0;
-            foreach(var line in new[]{lowerGum,upperGum,upperGumEdge}) {
-                line.enabled=true;
-                if(line!=lowerGum)GroundVisualSorting.ApplyBackground(line,kind==OralEventKind.Jaw?(line==upperGum?-835:-836):(line==upperGum?-905:-906));
-                line.positionCount=toothPositions.Length;
-                for(int j=0;j<toothPositions.Length;j++)line.SetPosition(j,toothPositions[j]+(line==lowerGum?Vector2.zero:Vector2.up*Mathf.Lerp(9,0,close)));
+            bool dropping=kind==OralEventKind.Jaw&&t>=2&&t<3.51f;
+            upperJaw.enabled=dropping;
+            if(dropping) {
+                upperJaw.transform.localPosition=Vector3.up*(map.WorldRect.height*250/1121*(1-close));
+                float opacity=Mathf.InverseLerp(2,2.07f,t)*(1-Mathf.InverseLerp(3.35f,3.51f,t));
+                upperJawMaterial.SetColor("_Color",new Color(1,1,1,opacity));
             }
-            for(int i=0;i<lower.Length;i++)
-            {
-                float shake=kind==OralEventKind.Jaw&&t<2?Mathf.Sin(t*40)*.075f:0;
-                upper[i].transform.position=toothPositions[i]+new Vector2(shake,Mathf.Lerp(9f,0,close));
-                GroundVisualSorting.ApplyBackground(upper[i],kind==OralEventKind.Jaw?-830:-900);
-                upper[i].color=kind==OralEventKind.Jaw?Color.Lerp(new Color(.76f,.64f,.61f),Color.white,close):new Color(.76f,.64f,.61f);
-                upper[i].transform.localScale=new Vector3(OralMapGeometry.ToothScale,OralMapGeometry.ToothScale,1);
-                if(kind==OralEventKind.Jaw){TraceCrown(warnings[i],toothPositions[i],1);warnings[i].startColor=warnings[i].endColor=new Color(1,.45f+.25f*Mathf.Sin(t*10),.16f,.8f);}
-                else warnings[i].enabled=false;
+            for(int i=0;i<warnings.Length;i++) {
+                var line=warnings[i];line.enabled=kind==OralEventKind.Jaw&&t<2.86f;
+                if(!line.enabled)continue;
+                // Exactly the same per-tooth polygon is queried by jaw damage.
+                var points=OralMapGeometry.ToothDamagePolygon(map,i);
+                line.loop=true;line.positionCount=points.Length;
+                for(int j=0;j<points.Length;j++)line.SetPosition(j,points[j]);
+                line.startColor=line.endColor=new Color(1,.45f+.25f*Mathf.Sin(t*10),.16f,.9f);
             }
         }
         void AnimateFood(OralFieldEvents e,OralEventKind kind,float t)
@@ -251,24 +239,24 @@ namespace Vampire
         void AnimateCavities(OralFieldEvents events)
         {
             int liveCount=events!=null?events.Cavities.Count:0;
-            if(liveCount==0)foreach(var tooth in lower)if(tooth!=null)tooth.enabled=true;
+
             for(int i=liveCount;i<cavities.Count;i++)
             {if(cavities[i]!=null)cavities[i].enabled=false;if(cavityProgress[i]!=null)cavityProgress[i].enabled=false;}
             if(events==null)return;
-            while(cavities.Count<events.Cavities.Count){int i=cavities.Count;var sr=Sprite("충치와 치료 "+i,toothArt[3],-840);var state=events.Cavities[i];if(state.Anchor!=null)sr.transform.SetParent(state.Anchor,true);cavities.Add(sr);cavityProgress.Add(Line("치료 진행 "+i,.16f,new Color(.45f,1,.69f),22));}
-            for(int i=0;i<liveCount;i++){var state=events.Cavities[i];var sr=cavities[i];if(sr==null)continue;sr.enabled=true;sr.sprite=state.Healed?toothArt[0]:toothArt[3];Set(sr,state.Position,OralMapGeometry.ToothScale);sr.color=state.Healed?new Color(.83f,1,.90f):Color.white;lower[state.ToothIndex].enabled=false;
-                var ring=cavityProgress[i];if(state.Progress>0&&!state.Healed)TraceCrown(ring,state.Position,state.Progress,cavityCrown);else ring.enabled=false;}
+            while(cavities.Count<events.Cavities.Count){int i=cavities.Count;var state=events.Cavities[i];var sr=Sprite("충치와 치료 "+i,cavityHole,-849+OralMapGeometry.ToothDepth(state.ToothIndex));sr.sharedMaterial=cavityMaterial;if(state.Anchor!=null)sr.transform.SetParent(state.Anchor,true);cavities.Add(sr);cavityProgress.Add(Line("치료 진행 "+i,.16f,new Color(.45f,1,.69f),22));}
+            for(int i=0;i<liveCount;i++){var state=events.Cavities[i];var sr=cavities[i];if(sr==null)continue;sr.enabled=!state.Healed;Set(sr,state.Position,8);sr.transform.rotation=Quaternion.Euler(0,0,OralMapGeometry.ToothAngle(state.ToothIndex));
+                var ring=cavityProgress[i];if(state.Progress>0&&!state.Healed)TraceCrown(ring,state.Position,state.Progress,toothContours[state.ToothIndex]);else ring.enabled=false;}
         }
         void AnimateJump()
         {
             var player=runtime.Level.PlayerCharacter;var c=OralMapGeometry.TongueCenter(map);var p=(Vector2)player.transform.position;var direction=(p-c).normalized;
             if(OralMapGeometry.ZoneAt(map,p)==OralZone.Teeth)direction=-direction;
             Vector2 landing=p;
-            bool show=!runtime.OnCeiling&&OralMapGeometry.TryJump(map,p,direction,out landing);
+            bool show=!runtime.OnCeiling&&!runtime.IsSliding&&OralMapGeometry.TryJump(map,p,direction,out landing);
             for(int i=0;i<jumpArcs.Length;i++){var l=jumpArcs[i];l.enabled=show;if(!show)continue;l.positionCount=8;for(int j=0;j<8;j++){float u=(i/3f)+(j/7f)*.23f;var q=Vector2.Lerp(p,landing,u)+Vector2.up*(Mathf.Sin(u*Mathf.PI)*1.1f);l.SetPosition(j,q);}}
         }
         void OnDestroy()
         {if(root!=null)Destroy(root.gameObject);foreach(var m in meshes)if(m!=null)Destroy(m);foreach(var s in sprites)if(s!=null)Destroy(s);
-            foreach(var m in new[]{surface,spriteMaterial,tongueMaterial,fluidMaterial,lineMaterial,bubbleMaterial,backdrop,gumMaterial,southWallMaterial})if(m!=null)Destroy(m);}
+            foreach(var m in new[]{surface,spriteMaterial,tongueMaterial,fluidMaterial,lineMaterial,bubbleMaterial,backdrop,cavityMaterial,approvedFloorMaterial,upperJawMaterial})if(m!=null)Destroy(m);}
     }
 }
