@@ -31,6 +31,7 @@ namespace Vampire
         AsyncOperation operation;
         Action failed;
         int entryStage=1;
+        float transferProgressStart;
         StageEntryLoadingArt art;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -96,6 +97,17 @@ namespace Vampire
             foreach(var label in GetComponentsInChildren<TextMeshProUGUI>())if(label.name=="Stage")label.text="STAGE 02  ·  대장";
         }
         public void CompleteStageTransfer(){running=false;Destroy(gameObject);}
+        // Keep the departure overlay and its progress when the shared scene becomes stage two.
+        public void ContinueAsColonTransfer()
+        {
+            transferProgressStart=Progress;
+            ownsPause=false;
+            SetColonLabels();
+        }
+        public void SetTransferProgress(float progress)
+        {
+            SetProgress(Mathf.Max(Progress,Mathf.Lerp(transferProgressStart,1,Mathf.Clamp01(progress))));
+        }
         public void ReturnToMenu(string message)
         {
             running=true;
@@ -156,10 +168,12 @@ namespace Vampire
                 // colon transfer owns loading, full placement and the inlet opening.
                 level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
                 RunScore.Exclude(entryStage==0?"스테이지 0 구강 직접 입장":"스테이지 2 임시 직접 입장");
-                running=false;ownsPause=false;Time.timeScale=1;
-                if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral():StageProgression.Ensure(level).BeginDirectColon()))
+                ownsPause=false;Time.timeScale=1;
+                if(entryStage==0)running=false;
+                if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral():StageProgression.Ensure(level).BeginDirectColon(this)))
                 {ReturnToMenu("스테이지 진입에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
-                Destroy(gameObject);yield break;
+                if(entryStage==0)Destroy(gameObject);
+                yield break;
             }
             heading.text="필드 배치 완료 · 출전 준비 완료";
             while(Progress<1)

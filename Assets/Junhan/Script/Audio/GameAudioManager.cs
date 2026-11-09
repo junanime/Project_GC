@@ -446,10 +446,16 @@ namespace Vampire
         }
 
         private bool bgmRequested;
+        private bool pendingGameplayBgm;
         private float nextBgmCheck;
 
         private void Update()
         {
+            if (pendingGameplayBgm && !StageEntryLoading.IsLoading)
+            {
+                pendingGameplayBgm=false;
+                if(SceneManager.GetActiveScene().name==gameplaySceneName)PlayIngameBgm();
+            }
             // Web audio decoding and browser sound permission can finish after the
             // initial Play call. Retry only the currently requested music layer.
             // Never revive a stopped run, or the field track underneath a modal.
@@ -614,6 +620,7 @@ namespace Vampire
         private void RouteSceneBgm(
             Scene scene)
         {
+            pendingGameplayBgm=false;
             if (scene.buildIndex ==
                 lobbySceneBuildIndex)
             {
@@ -625,7 +632,12 @@ namespace Vampire
                     gameplaySceneName) &&
                 scene.name == gameplaySceneName)
             {
-                PlayIngameBgm();
+                if(StageEntryLoading.IsLoading)
+                {
+                    StopAllBgmInternal();
+                    pendingGameplayBgm=true;
+                }
+                else PlayIngameBgm();
             }
         }
 

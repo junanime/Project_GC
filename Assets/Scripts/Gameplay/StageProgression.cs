@@ -231,19 +231,20 @@ namespace Vampire
             iris=SpiralStageTransition.Create();TransitionPhase="iris-close";yield return iris.Animate(true);if(exitShot!=null)Destroy(exitShot);
             AtOutlet=false;entering=true;yield return EnterColon(player,outlet);
         }
-        public bool BeginDirectColon()
+        public bool BeginDirectColon(StageEntryLoading departureLoading=null)
         {
             if(!StageTwoEnabled||level==null||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling)return false;
             IsDirectColonStart=true;
             Travelling=true;entering=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             TutorialGuide.Instance?.Close();
             iris=SpiralStageTransition.Create();iris.SetClosed(1);
-            StartCoroutine(EnterColon(level.PlayerCharacter,null));return true;
+            if(departureLoading!=null)departureLoading.ContinueAsColonTransfer();
+            StartCoroutine(EnterColon(level.PlayerCharacter,null,departureLoading));return true;
         }
-        IEnumerator EnterColon(Character player,StomachOpening outlet)
+        IEnumerator EnterColon(Character player,StomachOpening outlet,StageEntryLoading departureLoading=null)
         {
             var travel=BloodClotTravel.Ensure(player);Transform anchor;
-            TransitionPhase="loading";var loading=StageEntryLoading.CreateStageTransfer(player.Blueprint);yield return null;if(iris!=null)iris.SetVisible(false);yield return null;
+            TransitionPhase="loading";var loading=departureLoading!=null?departureLoading:StageEntryLoading.CreateStageTransfer(player.Blueprint);yield return null;if(iris!=null)iris.SetVisible(false);yield return null;
             if(Capsule!=null){Destroy(Capsule.gameObject);Capsule=null;}
             foreach(var chest in FindObjectsOfType<Chest>())level.EntityManager.DespawnChest(chest);
             foreach(var p in FindObjectsOfType<Collectable>())p.DissolveInAcidLake();
@@ -253,7 +254,7 @@ namespace Vampire
             StageNumber=2;FirstBossDefeated=false;CapsuleBoarded=false;
             var map=FiniteStomachMap.Instance;var nextMap=Resources.Load<StomachMapDefinition>("ColonMap/Stage2");
             if(nextMap==null)throw new System.InvalidOperationException("ColonMap/Stage2 is missing");
-            map.ChangeDefinition(nextMap);loading.SetProgress(.4f);yield return null;
+            map.ChangeDefinition(nextMap);loading.SetTransferProgress(.4f);yield return null;
             foreach(var altar in FindObjectsOfType<FinalBossSummonInteractable>())
             {
                 altar.gameObject.SetActive(false);Destroy(altar.gameObject);
@@ -261,10 +262,11 @@ namespace Vampire
             stageTwo=ColonMonsterRoster.Create(level);
             level.BeginNextStage(stageTwo);level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);level.GetComponent<SupplyCapsuleDirector>()?.RestartForStage();
             var inlet=StomachOpening.Find(true);inlet.SetOpened(0);var landing=map.ClampToField(inlet.FrontLip+Vector2.down*2,map.WallWidth+.6f);
-            travel.SwimPose(landing,0);travel.Visual.color=Color.clear;loading.SetProgress(.7f);
+            travel.SwimPose(landing,0);travel.Visual.color=Color.clear;loading.SetTransferProgress(.7f);
             yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
             if(!level.InitialFieldObjectsReady)throw new System.InvalidOperationException("Stage 2 field placement failed");
-            for(float t=0;t<.7f;t+=Time.unscaledDeltaTime){loading.SetProgress(Mathf.Lerp(.7f,1,t/.7f));yield return null;}
+            for(float t=0;t<.7f;t+=Time.unscaledDeltaTime){loading.SetTransferProgress(Mathf.Lerp(.7f,1,t/.7f));yield return null;}
+            loading.SetTransferProgress(1);
             var shot=StageTravelCamera.Begin(inlet,landing);
             if(iris!=null){iris.SetClosed(1);iris.SetVisible(true);}
             loading.CompleteStageTransfer();yield return null;TransitionPhase="iris-open";
