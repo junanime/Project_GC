@@ -24,6 +24,14 @@ namespace Vampire
         public void RestartForStage()
         {
             foreach (var module in Modules) module?.Dispose();
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsColon)
+            {
+                // Stomach event templates must not leak into the colon schedule.
+                basicEvents.Clear(); advancedEvents.Clear(); antacidEvents.Clear();
+                if (cornerUI != null) cornerUI.Hide();
+                ColonFieldEvents.Install(FindObjectOfType<LevelManager>());
+                return;
+            }
             basicEvents = initialBasic.ConvertAll(StageEventTemplate.Copy);
             advancedEvents = initialAdvanced.ConvertAll(StageEventTemplate.Copy);
             antacidEvents = initialAntacid.ConvertAll(StageEventTemplate.Copy);
