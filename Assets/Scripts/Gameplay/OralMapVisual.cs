@@ -21,6 +21,10 @@ namespace Vampire
         float clock; bool configured; Vector2[][] toothContours; Sprite cavityHole;
 
         Material cavityMaterial,approvedFloorMaterial,upperJawMaterial;
+        Material toothSurfaceLightingMaterial;
+        MeshRenderer toothSurfaceLighting;
+        public MeshRenderer ToothSurfaceLighting=>toothSurfaceLighting;
+        public Material ToothSurfaceLightingMaterial=>toothSurfaceLightingMaterial;
         MeshRenderer upperJaw;
         MeshRenderer[] warningFills;Material warningFillMaterial;float warningFillOpacity;
         static readonly int WarningClockId=Shader.PropertyToID("_Clock"),WarningColorId=Shader.PropertyToID("_Color");
@@ -46,6 +50,7 @@ namespace Vampire
             spriteMaterial=new Material(shader);spriteMaterial.SetFloat("_Mode",1);
             approvedFloorMaterial=new Material(spriteMaterial);approvedFloorMaterial.mainTexture=Resources.Load<Texture2D>("OralMap/ApprovedFloor");
             Quad("승인된 구강 · 아랫니와 협곡",map.WorldRect,approvedFloorMaterial,-920);
+            BuildToothSurfaceLighting(shader);
             tongueMaterial=new Material(spriteMaterial);tongueMaterial.SetFloat("_Mode",8);
             tongueMaterial.mainTexture=approvedFloorMaterial.mainTexture;
             tongueMaterial.SetTexture("_SecondTex",Resources.Load<Texture2D>("OralMap/Palate"));
@@ -115,6 +120,46 @@ namespace Vampire
                 var fill=Render("압착 위험면 "+tooth,mesh,warningFillMaterial,15);
                 GroundVisualSorting.Apply(fill,15);fill.enabled=false;warningFills[tooth]=fill;
             }
+        }
+        void BuildToothSurfaceLighting(Shader shader)
+        {
+            // A: diffuse ivory light on the actual walkable top. C: a narrow,
+            // soft apricot shadow on the inward slope. E: faint reflected light
+            // through the safe contacts. Keep the approved painting and its UVs;
+            // no rescaled concept-board art or separate navigation outline.
+            toothSurfaceLightingMaterial=new Material(shader){name="치아 윗면 조명 · 비탈 그림자 · 은은한 연결"};
+            toothSurfaceLightingMaterial.SetFloat("_Mode",10);
+            toothSurfaceLightingMaterial.mainTexture=approvedFloorMaterial.mainTexture;
+            float[] rows={0,.08f,.2f,.5f,.8f,.92f,1,1.15f,1.4f,1.7f,2};
+            int sections=OralMapGeometry.ToothCount*OralMapGeometry.ToothSurfaceSamplesPerTooth;
+            var vertices=new Vector3[(sections+1)*rows.Length];
+            var uv=new Vector2[vertices.Length];var surfaceUv=new Vector2[vertices.Length];
+            var colors=new Color[vertices.Length];var triangles=new int[sections*(rows.Length-1)*6];
+            float minSlope=map.WorldRect.height*12/1121f,maxSlope=map.WorldRect.height*22/1121f;
+            for(int section=0;section<=sections;section++)
+            {
+                float toothT=section/(float)OralMapGeometry.ToothSurfaceSamplesPerTooth;
+                var outer=OralMapGeometry.ToothSurfacePoint(map,toothT,0);
+                var inner=OralMapGeometry.ToothSurfacePoint(map,toothT,1);
+                var inward=(inner-outer).normalized;
+                float slopeWidth=Mathf.Clamp(Vector2.Distance(outer,inner)*.85f,minSlope,maxSlope);
+                for(int row=0;row<rows.Length;row++)
+                {
+                    int k=section*rows.Length+row;float across=rows[row];
+                    Vector2 p=across<=1?OralMapGeometry.ToothSurfacePoint(map,toothT,across):inner+inward*(slopeWidth*(across-1));
+                    vertices[k]=p;uv[k]=MapUV(p);surfaceUv[k]=new Vector2(toothT,across);colors[k]=Color.white;
+                }
+            }
+            int index=0;
+            for(int section=0;section<sections;section++)for(int row=0;row<rows.Length-1;row++)
+            {
+                int a=section*rows.Length+row,b=a+rows.Length;
+                triangles[index++]=a;triangles[index++]=b;triangles[index++]=a+1;
+                triangles[index++]=a+1;triangles[index++]=b;triangles[index++]=b+1;
+            }
+            var mesh=new Mesh{name="이동면과 일치하는 부드러운 치아 명암"};
+            mesh.vertices=vertices;mesh.uv=uv;mesh.uv2=surfaceUv;mesh.colors=colors;mesh.triangles=triangles;mesh.RecalculateBounds();meshes.Add(mesh);
+            toothSurfaceLighting=Render("치아 윗면 · 자연스러운 이동 경계",mesh,toothSurfaceLightingMaterial,-919);
         }
         // Ear clipping handles concave authored contours. Collinear contour
         // vertices remain in the mesh but need no triangle; nothing is expanded.
@@ -336,6 +381,6 @@ namespace Vampire
         }
         void OnDestroy()
         {if(root!=null)Destroy(root.gameObject);foreach(var m in meshes)if(m!=null)Destroy(m);foreach(var s in sprites)if(s!=null)Destroy(s);
-            foreach(var m in new[]{surface,spriteMaterial,tongueMaterial,fluidMaterial,lineMaterial,bubbleMaterial,backdrop,cavityMaterial,approvedFloorMaterial,upperJawMaterial,warningFillMaterial})if(m!=null)Destroy(m);}
+            foreach(var m in new[]{surface,spriteMaterial,tongueMaterial,fluidMaterial,lineMaterial,bubbleMaterial,backdrop,cavityMaterial,approvedFloorMaterial,upperJawMaterial,warningFillMaterial,toothSurfaceLightingMaterial})if(m!=null)Destroy(m);}
     }
 }

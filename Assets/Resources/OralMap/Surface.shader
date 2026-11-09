@@ -11,6 +11,26 @@ Shader "OralStage/Surface" {
  vary vert(app v){vary o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;o.roofUV=v.roofUV;o.world=mul(unity_ObjectToWorld,v.vertex).xy;o.color=v.color;return o;}
  fixed4 frag(vary i):SV_Target {
  float2 uv=i.uv;
+ if(_Mode>9.5){
+ // UV2 follows the shared navigation surface: 0..1 is the chewing top,
+ // 1..2 is only the inward enamel slope. The original art remains registered
+ // pixel-for-pixel, including the very narrow incisor ridge.
+ float4 enamel=tex2D(_MainTex,uv);
+ float t=i.roofUV.x,across=i.roofUV.y;
+ float endFade=smoothstep(0,.08,t)*(1-smoothstep(13.92,14,t));
+ if(across<=1){
+   float softTop=smoothstep(0,.18,across)*(1-smoothstep(.76,1,across));
+   float contact=pow(saturate(.5+.5*cos(t*6.2831853)),18);
+   float light=(.19+.035*contact)*softTop*endFade;
+   return float4(lerp(enamel.rgb,float3(1,.95,.80),light),enamel.a)*_Color*i.color;
+ }
+ float slope=across-1;
+ // Broad overlapping falloffs avoid the brown contour stripe produced by a
+ // narrow, flat-topped shadow. This reads as material volume at gameplay zoom.
+ float shade=smoothstep(0,.55,slope)*(1-smoothstep(.20,1,slope))*endFade;
+ float3 shadow=enamel.rgb*float3(.80,.73,.65);
+ return float4(lerp(enamel.rgb,shadow,shade*.28),enamel.a)*_Color*i.color;
+ }
  if(_Mode>8.5){
  // Only the exact tooth damage meshes use this mode. World-space hatching
  // keeps equal physical stripe widths on molars, canines and narrow incisors.

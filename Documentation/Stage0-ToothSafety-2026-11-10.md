@@ -16,6 +16,18 @@ The approved 1403 × 1121 oral map is the shared art/geometry coordinate system.
 
 `ApprovedFloor.png` was edited from the approved map solely to remove baked tiny props. `UpperJawTop.png` is the approved generated upper-jaw layer, rendered with the reviewed superior-view projection. Both were produced using the built-in image generation tool; no downloaded third-party artwork was added.
 
+## Subtle tooth readability: approved A + C + restrained E
+
+The selected concept is applied as a geometry-aligned terrain shading layer, not as a resized presentation board. The approved floor, fourteen tooth silhouettes, tongue and gum remain registered to the original artwork. A soft warm-ivory lift marks the flat chewing surfaces (A), a feathered apricot shadow falls down the inner enamel slope (C), and a small reflected-light accent carries the route through tooth contacts (E). There is no permanent bright outline, RGB warning color, hatch pattern or mint treatment color in the navigation lighting.
+
+`ToothSurfacePoint` exposes the same authored cross-sections used by walk polygons. The new light mesh samples them at the same 24 sections per tooth. Narrow incisors illuminate only their upper ridge; the large vertical face is not treated as a floor. The inward shadow fades across 12–22 source-image pixels with broad overlapping falloffs, avoiding a dark drawn stripe at normal gameplay zoom. Source UVs remain one-to-one with the painting. Lighting is static and sits behind actors, the descending jaw, cavity marks and danger warnings. The single mesh and material are built once and released with the stage.
+
+The existing walk bounds were checked against the approved painting and retained. The jaw outline and RGB hatch continue to use the exact per-tooth damage polygons derived from those same sections, excluding all thirteen safe contacts. Dash access remains restricted to the rear eight teeth; the canine/incisor inward slope still returns the player to the tongue. This change does not alter crush damage or player/enemy size.
+
+Run `Vampire.Tests.Editor.OralWalkabilitySmoke.Run` in a fresh Unity editor process for actual camera comparisons, top/shadow alignment, fourteen damage warnings, thirteen safe seams, real escape movement, restricted dash jump, slide/hop/landing and stage-exit cleanup. The comparisons disable/enable only the new lighting in one frame; they are not generated mockups. Results are written to `Library/OralWalkabilityProof`.
+
+Final verification on 2026-11-10 passed 126 checks with zero logged errors. Real movement into a safe contact preserved player health (120 → 120), while remaining in the narrow front warning still caused damage. Tongue pixels were unchanged in the same-frame lighting comparison. Camera review led to softer, broader slope shading before the retained successful run; the initial dark contour-like shadow was rejected. Full-map, molar/incisor gameplay views and an actual jaw-closure sequence are retained under `output/stage0-walkability-concepts-20261110/qa-final` in the continuation workspace.
+
 ## Reproducible checks
 
 Run Unity 2022.3.62f3 with `-batchmode -executeMethod Vampire.Tests.Editor.OralToothSafetySmoke.Run -oralCapture=1` and the project path. Results and actual play-mode camera PNG sequences are written under the project's `Library` proof folder. Scripted setup isolates the mechanisms but uses the real gameplay movement, jaw event, health and transition code. The separate `OralStageSmoke` suite exercises other Stage 0 events and stage transitions.

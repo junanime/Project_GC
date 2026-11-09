@@ -13,7 +13,8 @@ namespace Vampire
         public const float ToothScale = 17.6f;
         public const float ToothFootRadius = .12f;
         public const float JawSeamHalfWidth = .70f;
-        const int SamplesPerTooth = 24;
+        public const int ToothSurfaceSamplesPerTooth = 24;
+        const int SamplesPerTooth = ToothSurfaceSamplesPerTooth;
         static Rect cachedRect;
         static Vector2[] cachedCenters, band, centerSamples;
         static Vector2[][] walkPolygons, damagePolygons;
@@ -74,6 +75,11 @@ namespace Vampire
             return .5f*((2*b)+(-a+c)*u+(2*a-5*b+4*c-d)*u*u+(-a+3*b-3*c+d)*u*u*u);
         }
         static Vector2 Section(FiniteStomachMap map,float t,float across) => PixelToWorld(map,Vector2.Lerp(Spline(OuterPixels,t),Spline(InnerPixels,t),across));
+        // Shared by walkability lighting and navigation. Integer t values are
+        // safe tooth contacts, half-integers are crown centers. Across 0..1 is
+        // the authored flat top only, never the steep enamel side or gum.
+        public static Vector2 ToothSurfacePoint(FiniteStomachMap map,float toothT,float across)
+            => Section(map,Mathf.Clamp(toothT,0,ToothCount),Mathf.Clamp01(across));
         static Vector2[] Surface(FiniteStomachMap map,float start,float end,float edgeInset=0) {
             int samples=Mathf.Max(8,Mathf.CeilToInt((end-start)*SamplesPerTooth));
             var result=new Vector2[(samples+1)*2];
