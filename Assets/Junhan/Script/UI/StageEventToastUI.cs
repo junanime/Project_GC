@@ -55,6 +55,13 @@ namespace Vampire
             if (debugLog) Debug.Log("[StageEventToastUI] " + message, this);
         }
 
+        public void ShowImmediateEncounter(string message)
+        {
+            // A current attack warning must not wait behind an earlier reward notice.
+            ResetForStage();
+            Show(message);
+        }
+
         public void ShowSupply(string message)
         {
             EnsureBanner();
@@ -118,7 +125,8 @@ namespace Vampire
             if (level != null && level.IsLevelEnded) { pending.Clear(); showing = false; bannerGroup.alpha = 0; return; }
             if (MiniStageRuntimeState.IsInsideMiniStage) { bannerGroup.alpha = 0; return; }
             if (!showing) return;
-            if (level == null || !level.IsRunFlowPaused) age += Time.deltaTime;
+            bool oralCombat=OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling;
+            if (level == null || !level.IsRunFlowPaused || oralCombat) age += Time.deltaTime;
             float enter = Mathf.Max(.01f, fadeInDuration), leave = Mathf.Max(.01f, fadeOutDuration);
             float end = enter + (emergency?7f:encounterNotice?4f:Mathf.Max(1.6f, visibleDuration)) + leave;
             bannerGroup.alpha = Mathf.Min(Mathf.Clamp01(age / enter), Mathf.Clamp01((end - age) / leave));

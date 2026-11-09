@@ -9,17 +9,36 @@ namespace Vampire
         public const float FlightSeconds=.65f;
         Vector2 from;float age,damage;EntityManager entities;LevelManager level;SpriteRenderer visual;
         bool exploded;static Sprite[] explosionFrames;
+        OralStageRuntime oralLaunchStage;
+        bool launchedInOral,launchedOnCeiling,hiddenForSurface,wasHidden;
         public static ThrownConsumableBomb Launch(Character player,EntityManager entities,Vector2 target,float damage,Sprite sprite)
         {
             var bomb=new GameObject("Thrown consumable bomb").AddComponent<ThrownConsumableBomb>();
             bomb.from=player.CenterTransform.position;bomb.Target=target;bomb.damage=damage;bomb.entities=entities;bomb.level=FindObjectOfType<LevelManager>();
+            bomb.oralLaunchStage=OralStageRuntime.Instance;bomb.launchedInOral=bomb.oralLaunchStage!=null;
+            bomb.launchedOnCeiling=bomb.launchedInOral&&bomb.oralLaunchStage.OnCeiling;
             bomb.visual=bomb.gameObject.AddComponent<SpriteRenderer>();bomb.visual.sprite=sprite;bomb.visual.sortingLayerName="Monster Full";bomb.visual.sortingOrder=250;
             bomb.transform.localScale=Vector3.one*(.45f/Mathf.Max(.01f,sprite!=null?sprite.bounds.size.x:1));bomb.transform.position=bomb.from;return bomb;
         }
         void Update()
         {
             if(level==null||level.IsLevelEnded){Destroy(gameObject);return;}
-            if(Time.timeScale<=0||level.IsRunFlowPaused)return;
+            if(launchedInOral)
+            {
+                // A bomb belongs to the surface on which it was thrown. Lower bombs
+                // resume from the same flight frame; ceiling bombs never hit the floor.
+                if(oralLaunchStage==null||OralStageRuntime.Instance!=oralLaunchStage){Destroy(gameObject);return;}
+                bool ceiling=OralFieldEvents.Instance!=null&&OralFieldEvents.Instance.OnCeiling;
+                if(launchedOnCeiling&&!ceiling){Destroy(gameObject);return;}
+                if(!launchedOnCeiling&&ceiling)
+                {
+                    if(!hiddenForSurface){wasHidden=visual.forceRenderingOff;visual.forceRenderingOff=true;hiddenForSurface=true;}
+                    return;
+                }
+                if(hiddenForSurface){visual.forceRenderingOff=wasHidden;hiddenForSurface=false;}
+            }
+            bool ceilingCombat=OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling;
+            if(Time.timeScale<=0||level.IsRunFlowPaused&&!ceilingCombat)return;
             if(exploded)
             {
                 age+=Time.deltaTime;int frame=Mathf.FloorToInt(age/.06f);

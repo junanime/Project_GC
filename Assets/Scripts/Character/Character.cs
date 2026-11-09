@@ -326,6 +326,7 @@ namespace Vampire
             movementControlsReversed = false;
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
+            OralStageRuntime.Instance?.EndJump();
 
             isDashing = false;
             dashCoroutine = null;
@@ -620,8 +621,12 @@ namespace Vampire
             var itemRuntime=GetComponent<OctoberItemRuntime>();
             if(itemRuntime!=null)targetPosition=itemRuntime.DashDestination(targetPosition);
 
+            var oralJump=OralStageRuntime.Instance;
+            Vector2 jumpLanding=targetPosition;
+            bool jumping=oralJump!=null&&oralJump.BeginJump(this,dashDirection,out jumpLanding);
+            if(jumping)targetPosition=jumpLanding;
             float elapsed = 0f;
-            float safeDuration = Mathf.Max(0.01f, dashDuration);
+            float safeDuration = jumping ? .55f : Mathf.Max(0.01f, dashDuration);
 
             while (elapsed < safeDuration)
             {
@@ -679,6 +684,7 @@ namespace Vampire
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
+            OralStageRuntime.Instance?.EndJump();
 
             isDashing = false;
             dashCoroutine = null;
@@ -1217,6 +1223,7 @@ namespace Vampire
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
+            OralStageRuntime.Instance?.EndJump();
 
             isDashing = false;
             dashInvincibleEndTime = -1f;

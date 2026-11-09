@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 namespace Vampire
 {
@@ -22,6 +23,109 @@ namespace Vampire
         public static bool PreviewWebDemoEnding;
 #endif
         public int StageNumber {get;private set;}=1;
+        public static bool StageZeroEnabled => StageTwoEnabled;
+        StomachMapDefinition oralDefinition;
+        LevelBlueprint oralBlueprint;
+        LevelBlueprint preOralBlueprint;
+        readonly Dictionary<Behaviour,bool> preOralDirectors=new Dictionary<Behaviour,bool>();
+        public bool BeginDirectOral()
+        {
+            if(!StageZeroEnabled||level==null||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling)return false;
+            if(FiniteStomachMap.Instance==null||Resources.Load<StomachMapDefinition>("StomachMap/Stage1")==null||level.CurrentLevelBlueprint==null||level.GetComponent<FieldObjectLayout>()==null)return false;
+            Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+            TutorialGuide.Instance?.Close();
+            RunScore.Exclude("스테이지 0 구강 직접 입장");
+            StartCoroutine(EnterOral());return true;
+        }
+        IEnumerator EnterOral()
+        {
+            var loading=StageEntryLoading.CreateOralTransfer(level.PlayerCharacter.Blueprint);
+            TransitionPhase="oral-loading";yield return null;
+            var map=FiniteStomachMap.Instance;
+            var source=Resources.Load<StomachMapDefinition>("StomachMap/Stage1");
+            oralDefinition=Instantiate(source);oralDefinition.name="Stage0 Oral Runtime";
+            oralDefinition.oral=true;oralDefinition.colon=false;
+            oralDefinition.worldWidth=source.worldWidth/Mathf.Sqrt(6);oralDefinition.wallWidth=0;oralDefinition.climbableWidth=.5f;
+            oralDefinition.startUV=new Vector2(.5f,.44f);
+            StageNumber=0;
+            map.ChangeDefinition(oralDefinition);
+            var landing=OralMapGeometry.TongueCenter(map);
+            level.PlayerCharacter.transform.position=landing;
+            var rb=level.PlayerCharacter.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=landing;rb.velocity=Vector2.zero;}
+            foreach(var collectable in FindObjectsOfType<Collectable>())collectable.DissolveInAcidLake();
+            foreach(var altar in FindObjectsOfType<FinalBossSummonInteractable>()){altar.gameObject.SetActive(false);Destroy(altar.gameObject);}
+            preOralBlueprint=level.CurrentLevelBlueprint;
+            try { oralBlueprint=OralMonsterRoster.Create(preOralBlueprint); }
+            catch(System.Exception error)
+            {Debug.LogException(error);loading.ReturnToMenu("구강 몬스터 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");}
+            if(oralBlueprint==null)yield break;
+            oralBlueprint.name="Stage0 Oral Field";
+            oralBlueprint.levelTime=360;oralBlueprint.normalSpawnPopulationLimit=90;
+            level.BeginNextStage(oralBlueprint);
+            preOralDirectors.Clear();
+            foreach(var director in FindObjectsOfType<StageEventDirector>())SuspendOralDirector(director);
+
+
+            SuspendOralDirector(level.GetComponent<SupplyCapsuleDirector>());
+            // Blood clots, elite terminals and stage-one special encounters remain active.
+            // Only stomach-specific environmental events are suspended.
+
+            level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+            loading.SetProgress(.55f);yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
+            if(!level.InitialFieldObjectsReady)
+            {Debug.LogError("[OralStage] Field placement failed; returning to the menu.");loading.ReturnToMenu("구강 필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
+            OralStageRuntime runtime=null;
+            try { runtime=OralStageRuntime.Install(level); }
+            catch(System.Exception error)
+            {Debug.LogException(error);loading.ReturnToMenu("구강 이벤트 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");}
+            if(runtime==null)yield break;
+            runtime.TeleportPlayer(landing,OralZone.Tongue);
+            loading.SetProgress(1);yield return null;
+            Travelling=false;TransitionPhase="field";
+            level.EntityManager.SetFieldMonsterRuntimeSuspended(false);level.SetRunFlowPaused(false);
+            loading.CompleteStageTransfer();
+        }
+        public bool BeginOralToStomach()
+        {
+            if(StageNumber!=0||Travelling||level==null||level.IsLevelEnded||level.IsRunFlowPaused||preOralBlueprint==null)return false;
+            if(OralStageRuntime.Instance!=null&&(OralStageRuntime.Instance.OnCeiling||OralStageRuntime.Instance.IsJumping))return false;
+            Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+            StartCoroutine(ReturnFromOral());return true;
+        }
+        IEnumerator ReturnFromOral()
+        {
+            var loading=StageEntryLoading.CreateStomachTransfer(level.PlayerCharacter.Blueprint);
+            TransitionPhase="stomach-loading";yield return null;
+            var oral=GetComponent<OralStageRuntime>();var events=GetComponent<OralFieldEvents>();var visual=GetComponent<OralMapVisual>();
+            if(events!=null){events.enabled=false;Destroy(events);}
+            if(visual!=null){visual.enabled=false;Destroy(visual);}
+            if(oral!=null){oral.enabled=false;Destroy(oral);}
+            yield return null;
+            foreach(var collectable in FindObjectsOfType<Collectable>())collectable.DissolveInAcidLake();
+            StageNumber=1;FirstBossDefeated=false;
+            var map=FiniteStomachMap.Instance;var definition=Resources.Load<StomachMapDefinition>("StomachMap/Stage1");
+            map.ChangeDefinition(definition);var landing=map.UVToWorld(definition.startUV);
+            level.PlayerCharacter.transform.position=landing;var rb=level.PlayerCharacter.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=landing;rb.velocity=Vector2.zero;}
+            level.BeginNextStage(preOralBlueprint);
+            foreach(var prior in preOralDirectors)if(prior.Key!=null)prior.Key.enabled=prior.Value;
+            preOralDirectors.Clear();
+            var supplies=level.GetComponent<SupplyCapsuleDirector>();if(supplies!=null&&supplies.enabled)supplies.RestartForStage();
+            level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+            yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
+            if(!level.InitialFieldObjectsReady)
+            {Debug.LogError("[OralStage] Stomach placement failed; returning to the menu.");loading.ReturnToMenu("위장 필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
+            OralMonsterRoster.Release(oralBlueprint);oralBlueprint=null;
+            if(oralDefinition!=null)Destroy(oralDefinition);oralDefinition=null;
+            loading.SetProgress(1);yield return null;
+            Travelling=false;TransitionPhase="field";level.EntityManager.SetFieldMonsterRuntimeSuspended(false);level.SetRunFlowPaused(false);
+            loading.CompleteStageTransfer();
+        }
+        void SuspendOralDirector(Behaviour director)
+        {
+            if(director==null)return;
+            preOralDirectors[director]=director.enabled;
+            director.enabled=false;
+        }
         public bool IsDirectColonStart {get;private set;}
         public bool FirstBossDefeated {get;private set;}
         public bool Travelling {get;private set;}
@@ -52,7 +156,7 @@ namespace Vampire
         {
             // This callback belongs to the five stage-one food bosses. Optional colon bosses
             // never open an exit; Byunbi King is the mandatory stage-two final boss (separate work).
-            if(StageNumber>=2)return true;
+            if(StageNumber!=1)return true;
             if(FirstBossDefeated||level==null||level.IsLevelEnded)return true;
             if(definition==null||definition.crater==null)return false;
             FirstBossDefeated=true;DefeatedKind=kind;level.NotifyExternalFinalBossSpawned();
@@ -175,6 +279,6 @@ namespace Vampire
             ColonBossDirector.ShowNotice("대장 탐험 시작","거주지를 깨워 선택 미니보스에 도전하세요 · 전부 처치는 선택사항");
         }
         void RestorePassenger(){if(hiddenPassenger==null)return;for(int i=0;i<hiddenPassenger.Length;i++)if(hiddenPassenger[i]!=null)hiddenPassenger[i].forceRenderingOff=hiddenStates[i];hiddenPassenger=null;}
-        void OnDestroy(){RestorePassenger();if(stageTwo!=null)Destroy(stageTwo);if(Capsule!=null)Destroy(Capsule.gameObject);if(iris!=null)Destroy(iris.gameObject);}
+        void OnDestroy(){RestorePassenger();if(stageTwo!=null)Destroy(stageTwo);if(oralDefinition!=null)Destroy(oralDefinition);if(oralBlueprint!=null)OralMonsterRoster.Release(oralBlueprint);if(Capsule!=null)Destroy(Capsule.gameObject);if(iris!=null)Destroy(iris.gameObject);}
     }
 }

@@ -12,6 +12,8 @@ namespace Vampire
         public enum Kind { Chest, Merchant, BloodClot, EliteAltar, GoldJar, SilverJar }
         public struct Slot { public Kind kind; public Vector2 position; public int partner; }
         public static readonly int[] Counts = { 24, 12, 14, 8, 20, 8 };
+        static readonly int[] OralCounts = { 6, 2, 3, 3, 4, 2 };
+        static int[] ActiveCounts => FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsOral?OralCounts:Counts;
         public const float WallInset = 10f, StartClearance = 7f, ClusterChance = .20f;
         public IReadOnlyList<Slot> Slots => slots;
         public bool Ready { get; private set; }
@@ -42,7 +44,7 @@ namespace Vampire
             yield return null;
             foreach(var c in chests)if(c!=null)c.CompleteInitialPlacement();Physics2D.SyncTransforms();
             if(!Failed)PrepareBossHabitats();
-            Ready=!Failed&&objects.Count==Counts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
+            Ready=!Failed&&objects.Count==ActiveCounts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
         }
 
         public static List<Slot> Generate(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked = null)
@@ -80,7 +82,7 @@ namespace Vampire
             }
             bool Allowed(Vector2 p, Kind kind, int partner)
             {
-                if ((map.IsColon?map.FloorClearance(p)<1.65f:map.NavigationDistance(p,out _) < WallInset) || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
+                if ((map.IsOral?OralMapGeometry.ZoneAt(map,p)!=OralZone.Tongue||map.FloorClearance(p)<1.5f:map.IsColon?map.FloorClearance(p)<1.65f:map.NavigationDistance(p,out _) < WallInset) || Vector2.Distance(p, start) < (map.IsOral?3f:StartClearance) || blocked?.Invoke(p) == true) return false;
                 if(reserved!=null)foreach(var home in reserved)
                     if(Vector2.Distance(p,home.position)<ColonBossDirector.PropClearance+(home.kind==ColonBossKind.Manatee?2.05f:.05f))return false;
                 for (int j = 0; j < result.Count; j++)
@@ -90,6 +92,7 @@ namespace Vampire
                     if (j != partner && kind == other.kind)
                         gap = kind == Kind.BloodClot ? 16 : kind == Kind.Merchant || kind == Kind.EliteAltar ? 13 : 8;
                     if (j == partner && (kind == Kind.BloodClot || kind == Kind.EliteAltar || other.kind == Kind.BloodClot || other.kind == Kind.EliteAltar)) gap = 6;
+                    if(map.IsOral)gap*=.55f;
                     if(map.IsColon&&j!=partner)
                         gap*=kind==other.kind&&(kind==Kind.BloodClot||kind==Kind.Merchant||kind==Kind.EliteAltar)?.7f:.65f;
                     if ((p - other.position).sqrMagnitude < gap * gap) return false;
@@ -99,7 +102,7 @@ namespace Vampire
             // Short first exploration goals, rotated each run; no objects under the spawn point.
             float rotation = roll() * Mathf.PI * 2;
             foreach (var kind in new[] { Kind.Chest, Kind.Merchant, Kind.BloodClot })
-                for (int attempt = 0; attempt < 48; attempt++)
+                for (int attempt = 0; attempt < 48 && (!map.IsOral||OralCounts[(int)kind]>0); attempt++)
                 {
                     float a = rotation + attempt * Mathf.PI / 24 + (int)kind * 2.1f;
                     float r = kind == Kind.Chest ? 9 : kind == Kind.Merchant ? 15 : 21;
@@ -110,7 +113,7 @@ namespace Vampire
             // Shuffle types before balancing sectors so scarce objects are not pushed to leftovers.
             var pending = new List<Kind>();
             foreach (Kind kind in Enum.GetValues(typeof(Kind)))
-                for (int i = result.Count(s => s.kind == kind); i < Counts[(int)kind]; i++) pending.Add(kind);
+                for (int i = result.Count(s => s.kind == kind); i < (map.IsOral?OralCounts:Counts)[(int)kind]; i++) pending.Add(kind);
             for (int i = pending.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); var k = pending[i]; pending[i] = pending[j]; pending[j] = k; }
             // Clots need the widest spacing. Placing them after coins can exhaust
             // all viable lanes even though there is room for the complete layout.
@@ -161,7 +164,7 @@ namespace Vampire
             foreach(var chest in chests)chest.CompleteInitialPlacement();
             Physics2D.SyncTransforms();
             PrepareBossHabitats();
-            Ready = !Failed && objects.Count == Counts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
+            Ready = !Failed && objects.Count == ActiveCounts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
             if(!Ready){Failed=true;Debug.LogError("Initial field objects did not finish placing.",this);}
         }
         void PrepareBossHabitats()

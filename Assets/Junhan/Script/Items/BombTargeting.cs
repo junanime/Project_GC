@@ -25,7 +25,8 @@ namespace Vampire
         Vector2 target;
         bool oldCursorVisible,cursorCaptured;
         readonly List<RaycastResult> hits=new List<RaycastResult>();
-        bool CanUse => level!=null&&level.PlayerCharacter!=null&&level.PlayerCharacter.IsAlive&&!level.IsLevelEnded&&!level.IsRunFlowPaused&&Time.timeScale>0&&
+        bool CanUse => level!=null&&level.PlayerCharacter!=null&&level.PlayerCharacter.IsAlive&&!level.IsLevelEnded&&
+            (!level.IsRunFlowPaused||OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling)&&Time.timeScale>0&&
             (ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetState(){active=null;consumedFrame=-1;}

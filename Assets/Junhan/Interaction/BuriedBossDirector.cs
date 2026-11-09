@@ -36,7 +36,7 @@ namespace Vampire
             Cleanup();
             if (Part != null) { Part.gameObject.SetActive(false); Destroy(Part.gameObject); }
             Part = null;
-            if(stage>=2)
+            if(stage!=1)
             {
                 // Stage two has six permanent homes; its final boss is separately reserved.
                 Consumed=true;PreparedStage=stage;EntryPosition=start;

@@ -21,9 +21,9 @@ namespace Vampire
         {
             if (!useLevelBlueprintSchedule || levelManager == null || levelManager.IsRunFlowPaused ||
                 levelManager.IsLevelEnded || MiniStageRuntimeState.IsInsideMiniStage) return;
-            // Colon encounters wait for interaction. Do not inherit the stage-one timers,
-            // including its legacy mini boss or its automatic 15-minute final boss.
-            if(StageProgression.Ensure(levelManager).StageNumber>=2)return;
+            // Only the stomach uses this legacy schedule. Oral field events and colon
+            // encounters must never inherit its automatic mini/final bosses or BGM.
+            if(StageProgression.Ensure(levelManager).StageNumber!=1)return;
             var data = levelManager.CurrentLevelBlueprint;
             var entity = levelManager.EntityManager;
             var player = levelManager.PlayerCharacter;

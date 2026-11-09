@@ -146,6 +146,7 @@ namespace Vampire
             if (stageChoiceOpen)
             {
                 if (GameInput.GetKeyDown(KeyCode.Escape)) CloseStageChoice();
+                else if (GameInput.GetKeyDown(KeyCode.Alpha0)) LaunchStage(0);
                 else if (GameInput.GetKeyDown(KeyCode.Alpha1)) LaunchStage(1);
                 else if (GameInput.GetKeyDown(KeyCode.Alpha2)) LaunchStage(2);
                 return;
@@ -338,7 +339,7 @@ namespace Vampire
         }
         void LaunchStage(int stage)
         {
-            if(starting || StageEntryLoading.IsLoading || !Owned(character) || (stage==2&&!StageProgression.StageTwoEnabled)) return;
+            if(starting || StageEntryLoading.IsLoading || !Owned(character) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return;
             CrossSceneData.CharacterBlueprint=character;
             if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage)) return;
             stageChoiceOpen=false;starting=true;

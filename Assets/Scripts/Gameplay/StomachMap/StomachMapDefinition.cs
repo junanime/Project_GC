@@ -7,6 +7,7 @@ namespace Vampire
     {
         public Material terrainMaterial;
         public bool colon;
+        public bool oral;
         public Vector4 inlet = StomachOpening.Inlet;
         public Vector4 outlet = StomachOpening.Outlet;
         // Reference: 1164px-wide map, 7px yellow marker, Ashi visible width = 3.5px.

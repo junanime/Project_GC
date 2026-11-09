@@ -18,6 +18,7 @@ namespace Vampire
             get { if(level==null)return false;if(progression==null)progression=level.GetComponent<StageProgression>();return progression==null || progression.StageNumber==1; }
         }
         public bool FieldActive => level != null && (progression == null || progression.StageNumber <= 2);
+        public bool IsOral => Definition != null && Definition.oral;
         public bool IsColon => Definition != null && Definition.colon;
         public Vector4 OpeningShape(bool upper) => upper ? Definition.inlet : Definition.outlet;
         public void ChangeDefinition(StomachMapDefinition definition)
@@ -34,7 +35,7 @@ namespace Vampire
             nextOverview=0;
         }
         public float WallWidth => Definition.wallWidth;
-        public float ClimbLimit => Mathf.Max(.5f, WallWidth-Definition.climbableWidth);
+        public float ClimbLimit => IsOral ? 0 : Mathf.Max(.5f, WallWidth-Definition.climbableWidth);
         public Material TerrainMaterial => material;
         public Texture2D BoundaryDistanceTexture => distanceTexture;
         Texture2D distanceTexture;
@@ -87,6 +88,7 @@ namespace Vampire
                 var renderer=go.AddComponent<MeshRenderer>(); renderer.sharedMaterial=material;
                 renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
                 renderer.receiveShadows=false; GroundVisualSorting.ApplyBackground(renderer,-1000);
+                if(IsOral)renderer.enabled=false;
                 chunks.Add(go); meshes.Add(mesh);
             }
             boundary=CreateBoundary();
@@ -107,7 +109,7 @@ namespace Vampire
             }
             foreach(var director in FindObjectsOfType<MiniStageDirector>()) director.KeepRoomsOutside(WorldRect);
             FieldVisible=true;
-            StomachOpening.Install(this);
+            if(!IsOral)StomachOpening.Install(this);
         }
 
         public Vector2 UVToWorld(Vector2 uv) => WorldRect.min+Vector2.Scale(uv,WorldRect.size);
@@ -117,6 +119,7 @@ namespace Vampire
         // visual landmarks until their travel mechanics are designed; they are not stage portals.
         Vector2[] CreateBoundary()
         {
+            if(IsOral)return OralMapGeometry.Outer(this);
             if(IsColon)return ColonMapGeometry.Outer(this);
             Vector2[] uv={new Vector2(.032f,.49f),new Vector2(.055f,.70f),new Vector2(.13f,.85f),
                 new Vector2(.245f,.927f),new Vector2(.37f,.87f),new Vector2(.445f,.79f),
@@ -140,6 +143,7 @@ namespace Vampire
 
         public bool Contains(Vector2 p)
         {
+            if(IsOral)return OralMapGeometry.Contains(this,p);
             if(IsColon)return ColonMapGeometry.Contains(this,p);
             bool inside=false;
             for(int i=0,j=boundary.Length-1;i<boundary.Length;j=i++)
@@ -152,6 +156,7 @@ namespace Vampire
 
         public Vector2 ClampToField(Vector2 p, float radius=.25f)
         {
+            if(IsOral)return OralMapGeometry.Clamp(this,p,radius);
             // Project repeatedly: a concave corner may have more than one nearest segment.
             for(int pass=0;pass<12;pass++)
             {
@@ -167,6 +172,7 @@ namespace Vampire
 
         float ExactDistance(Vector2 p,out Vector2 inward,out float along)
         {
+            if(IsOral){along=0;return OralMapGeometry.Distance(this,p,out inward);}
             if(IsColon)return ColonMapGeometry.Distance(this,p,out inward,out along);
             along=0;
             bool inside=Contains(p); float nearest=float.MaxValue; Vector2 result=p; inward=Vector2.zero;
@@ -241,6 +247,7 @@ namespace Vampire
         }
         public float NavigationDistance(Vector2 p, out Vector2 inward, bool exact = false)
         {
+            if(IsOral)return OralMapGeometry.Distance(this,p,out inward);
             float distance = exact ? ExactDistance(p, out inward) : DistanceToRim(p, out inward);
             for (int i = 0; i < 2; i++)
             {
@@ -252,12 +259,18 @@ namespace Vampire
             }
             return distance;
         }
-        public float SlopeProgress(Vector2 p) => Mathf.Clamp01((WallWidth-DistanceToRim(p,out _))/Definition.climbableWidth);
+        public float SlopeProgress(Vector2 p) => IsOral ? 0 : Mathf.Clamp01((WallWidth-DistanceToRim(p,out _))/Definition.climbableWidth);
         public static float UphillMultiplier(float progress) => progress<=.5f ? Mathf.Lerp(1,.5f,Mathf.SmoothStep(0,1,progress*2)) : Mathf.Lerp(.5f,.1f,Mathf.SmoothStep(0,1,(progress-.5f)*2));
         public bool AppliesAt(Vector2 p) => FieldActive && !MiniStageRuntimeState.IsInsideMiniStage && Vector2.Distance(p,WorldRect.center)<WorldRect.width;
         public static Vector2 ClampDash(Vector2 from,Vector2 to,float radius=.25f)
         {
             var map=Instance;if(map==null || !map.AppliesAt(from))return to;
+            if(map.IsOral){
+                var oral=OralStageRuntime.Instance;
+                if(oral!=null&&oral.IsJumping)return to;
+                var zone=OralMapGeometry.ZoneAt(map,from);
+                return OralMapGeometry.Clamp(map,to,radius,zone);
+            }
             // Sweep the whole segment: long dashes must not cut across the concave outer edge.
             float limit=map.ClimbLimit+Mathf.Max(.12f,radius);
             int steps=Mathf.Max(1,Mathf.CeilToInt(Vector2.Distance(from,to)/.2f));
@@ -276,6 +289,7 @@ namespace Vampire
         float[] floorSamples;
         public float FloorClearance(Vector2 p,bool exact=false)
         {
+            if(IsOral)return OralMapGeometry.Distance(this,p,out _);
             if(!IsColon)return NavigationDistance(p,out _,exact)-WallWidth;
             if(exact||floorSamples==null||!WorldRect.Contains(p))
                 return Mathf.Min(ColonMapGeometry.FloorDistance(this,p,out _),NavigationDistance(p,out _,true)-WallWidth);
@@ -285,6 +299,7 @@ namespace Vampire
         }
         public Vector2 ClampToFloor(Vector2 p,float radius)
         {
+            if(IsOral)return OralMapGeometry.Clamp(this,p,radius);
             var original=p;radius=Mathf.Max(.25f,radius);
             for(int i=0;i<24;i++){
                 float d=ColonMapGeometry.FloorDistance(this,p,out var n);
@@ -307,6 +322,7 @@ namespace Vampire
             if(map==null || !map.FieldActive || miniStageOwned || MiniStageRuntimeState.IsInsideMiniStage)return position;
             // Room OnInit may run during the portal animation, before the global entered flag.
             if(map.level.IsRunFlowPaused && !map.AppliesAt(position))return position;
+            if(map.IsOral)return OralMapGeometry.Clamp(map,position,radius);
             // Interactables and stationary snipers start on the flat floor, not an inaccessible slope.
             return map.IsColon?map.ClampToFloor(position,radius):map.ClampToField(position,map.WallWidth+Mathf.Max(.25f,radius));
         }
@@ -340,15 +356,27 @@ namespace Vampire
             var surface=water!=null?water.SurfaceRenderer:null;
             int waterLayer=surface!=null?surface.gameObject.layer:0;
             bool waterEnabled=surface!=null&&surface.enabled;
+            var oralVisual=IsOral?GetComponent<OralMapVisual>():null;
+            var oralRenderers=new List<Renderer>();
+            if(oralVisual!=null&&oralVisual.VisualRoot!=null)
+                oralRenderers.AddRange(oralVisual.VisualRoot.GetComponentsInChildren<Renderer>(true));
+            // Cavity art is parented to its interaction anchor so touch targeting follows
+            // the visible tooth. Those anchors live outside the main visual hierarchy.
+            var oralEvents=IsOral?GetComponent<OralFieldEvents>():null;
+            if(oralEvents!=null)foreach(var cavity in oralEvents.Cavities)
+                if(cavity.Anchor!=null)oralRenderers.AddRange(cavity.Anchor.GetComponentsInChildren<Renderer>(true));
+            var oralLayers=new int[oralRenderers.Count];
             try
             {
                 for(int i=0;i<chunks.Count;i++){layers[i]=chunks[i].layer;chunks[i].layer=31;}
+                for(int i=0;i<oralRenderers.Count;i++){oralLayers[i]=oralRenderers[i].gameObject.layer;oralRenderers[i].gameObject.layer=31;}
                 if(surface!=null){surface.gameObject.layer=31;surface.enabled=water.Flooding;}
                 cam.targetTexture=overviewTexture;cam.Render();nextOverview=Time.unscaledTime+.1f;
             }
             finally
             {
                 for(int i=0;i<chunks.Count;i++)chunks[i].layer=layers[i];
+                for(int i=0;i<oralRenderers.Count;i++)oralRenderers[i].gameObject.layer=oralLayers[i];
                 if(surface!=null){surface.gameObject.layer=waterLayer;surface.enabled=waterEnabled;}
                 cam.targetTexture=null;
             }
@@ -373,12 +401,14 @@ namespace Vampire
                 legacy.enabled=stageOne?false:legacyEnabled;
                 if(legacyRenderer!=null)legacyRenderer.enabled=!stageOne && legacyRendererEnabled;
             }
-            if(!atField || player.IsPortalTravelling || player.IsPortalPoseHeld || MiniStageRuntimeState.IsInsideMiniStage || level.IsRunFlowPaused) return;
+            bool oralCeiling=IsOral&&OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling;
+            if(!atField || player.IsPortalTravelling || player.IsPortalPoseHeld || MiniStageRuntimeState.IsInsideMiniStage || (level.IsRunFlowPaused&&!oralCeiling)) return;
             var body=player.GetComponent<Rigidbody2D>();
             Vector2 position=player.transform.position;
             var collider=player.GetComponent<Collider2D>();
             float radius=collider!=null?Mathf.Max(collider.bounds.extents.x,collider.bounds.extents.y):.25f;
-            Vector2 clamped=ClampToField(position,ClimbLimit+radius);
+            if(IsOral && OralStageRuntime.Instance!=null && OralStageRuntime.Instance.IsJumping)return;
+            Vector2 clamped=IsOral && OralStageRuntime.Instance!=null?OralStageRuntime.Instance.ConstrainPlayer(position,radius):ClampToField(position,ClimbLimit+radius);
             if((position-clamped).sqrMagnitude>.000001f)
             {
                 if(body!=null){body.position=clamped;var normal=(clamped-position).normalized;

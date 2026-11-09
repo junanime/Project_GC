@@ -221,6 +221,7 @@ namespace Vampire
         // UFO bosses own their five-core health and rewards; they are not MonsterPool entries.
         public GameObject SpawnFinalBoss(LevelBlueprint blueprint, Vector2 position, float hpBuff = 0f, FoodBossKind? selectedBoss = null)
         {
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral) return null;
             if (ShouldBlockFieldMonsterSpawn(false) || blueprint == null ||
                 blueprint.finalBoss == null || blueprint.finalBoss.bossPrefab == null) return null;
             GameObject prefab = blueprint.finalBoss.bossPrefab;
@@ -273,6 +274,9 @@ namespace Vampire
                 return null;
             }
 
+            if(!allowDuringMiniStage && FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.IsOral)
+                monsterBlueprint=OralMonsterRoster.Resolve(monsterBlueprint);
+
             Vector2 spawnPosition = (playerCharacter.Velocity != Vector2.zero)
                 ? GetRandomMonsterSpawnPositionPlayerVelocity()
                 : GetRandomMonsterSpawnPosition();
@@ -310,6 +314,10 @@ namespace Vampire
             bool allowDuringMiniStage
         )
         {
+            // Stage zero owns a deliberately small food roster. Legacy debug/event
+            // spawners must not leak specialized stage-one monsters into this field.
+            if (!allowDuringMiniStage && FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&
+                (monsterBlueprint is BossMonsterBlueprint || monsterBlueprint is MiniBossMonsterBlueprint)) return null;
             if (ShouldBlockFieldMonsterSpawn(allowDuringMiniStage))
             {
                 Debug.Log(
@@ -320,6 +328,8 @@ namespace Vampire
                 return null;
             }
 
+            if(!allowDuringMiniStage && FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.IsOral)
+                monsterBlueprint=OralMonsterRoster.Resolve(monsterBlueprint);
             var colon = ColonMonsterRoster.InColon && !allowDuringMiniStage ? ColonMonsterRoster.Active : null;
             if (colon != null)
             {
@@ -334,6 +344,7 @@ namespace Vampire
                 if (snipers>=5) return null;
             }
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
+            newMonster.GetComponent<OralMonsterMotion>()?.ResetForPool();
             newMonster.GetComponent<ColonMonsterVisual>()?.ResetForPool();
             position = FiniteStomachMap.SafeSpawn(position, .8f, allowDuringMiniStage);
 
@@ -355,6 +366,7 @@ namespace Vampire
                 (newMonster.GetComponent<ColonMonsterVisual>() ?? newMonster.gameObject.AddComponent<ColonMonsterVisual>()).Configure(newMonster, colonEntry);
             newMonster.ConfigureGroundShadow(monsterBlueprint);
             newMonster.FitVisibleBody();
+            OralMonsterRoster.ApplySpawn(newMonster);
 
             // Some stationary monster Setup methods recalculate their own spawn position.
             Vector2 safePosition=FiniteStomachMap.SafeSpawn(newMonster.transform.position,

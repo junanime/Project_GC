@@ -246,6 +246,7 @@ namespace Vampire
 
         private bool CanBeFocusedBy(Character player)
         {
+            if(OralStageRuntime.Instance!=null && (OralStageRuntime.Instance.OnCeiling || OralStageRuntime.Instance.IsJumping))return false;
             if (AcidLakeEvent.Contains(transform.position) && !AllowSubmergedInteraction) return false;
             if (!InteractionAvailable || (MiniStageRuntimeState.IsInsideMiniStage && !AllowMiniStageInteraction))
             {

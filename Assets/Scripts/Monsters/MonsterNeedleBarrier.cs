@@ -15,6 +15,7 @@ namespace Vampire
         public int AttachedNeedles => needles.Count;
         public Transform VisualRoot => view;
         public Vector2 Radii => radii;
+        public bool SodaTint {get;set;}
         bool armed;
         Monster owner;
         SpriteRenderer body;
@@ -85,7 +86,7 @@ namespace Vampire
         }
         public void ResetBarrier()
         {
-            armed = false; Hits = 0; popAge = 0;
+            SodaTint=false; armed = false; Hits = 0; popAge = 0;
             if (surface != null) surface.enabled = false;
             foreach (var needle in needles) if (needle.sprite != null) { needle.sprite.gameObject.SetActive(false); Destroy(needle.sprite.gameObject); }
             needles.Clear();
@@ -190,6 +191,7 @@ namespace Vampire
         void Quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d,Color color)
         {
             int n=vertices.Count; vertices.Add(a);vertices.Add(b);vertices.Add(c);vertices.Add(d);
+            if(SodaTint){float opacity=color.a;color=Color.Lerp(new Color(.96f,.68f,.19f),Color.white,Mathf.Clamp01((color.r-.24f)*.9f));color.a=opacity;}
             for(int i=0;i<4;i++)colors.Add(color);
             triangles.Add(n);triangles.Add(n+1);triangles.Add(n+2);triangles.Add(n);triangles.Add(n+2);triangles.Add(n+3);
         }

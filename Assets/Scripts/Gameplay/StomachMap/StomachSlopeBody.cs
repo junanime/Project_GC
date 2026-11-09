@@ -28,7 +28,7 @@ namespace Vampire
         bool CanApply(FiniteStomachMap map)
         {
             return Time.timeScale>0 && map!=null && body!=null && body.simulated && map.AppliesAt(body.position) &&
-                (level==null || !level.IsRunFlowPaused && !level.IsLevelEnded) &&
+                (level==null || (!level.IsRunFlowPaused || map.IsOral&&OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling) && !level.IsLevelEnded) &&
                 (player==null || player.IsAlive && !player.IsPortalTravelling && !player.IsPortalPoseHeld && !player.IsTrapBound && !player.IsDashing) &&
                 (monster==null || !monster.IsMiniStageOwned && !monster.IsFieldRuntimeSuspended && monster.HP>0) &&
                 (snail==null || !snail.Dead) && (enzyme==null || enzyme.IsAlive);
@@ -36,7 +36,7 @@ namespace Vampire
         public float MovementMultiplier(Vector2 direction)
         {
             var map=FiniteStomachMap.Instance;
-            if(map==null || !map.AppliesAt(body.position))return 1;
+            if(map==null || map.IsOral || !map.AppliesAt(body.position))return 1;
             float d=map.NavigationDistance(body.position,out var inward);
             if(Vector2.Dot(direction,inward)>=0)return 1;
             float progress=Mathf.Clamp01((map.WallWidth-d)/Mathf.Max(.1f,map.Definition.climbableWidth-Radius));
@@ -46,6 +46,7 @@ namespace Vampire
         {
             var map=FiniteStomachMap.Instance;
             if(!CanApply(map)){slideSpeed=0;return;}
+            if(map.IsOral){Constrain(map);return;}
             float distance=map.NavigationDistance(body.position,out var inward);
             // Normalize against this actor's actual stopping point, including its footprint.
             // Otherwise a large monster would stop before ever reaching the intended 90% reduction.
@@ -89,7 +90,7 @@ namespace Vampire
         {
             float limit=map.ClimbLimit+Radius;
             if(map.NavigationDistance(body.position,out _)>=limit+.05f)return;
-            Vector2 p=map.ClampToField(body.position,limit);
+            Vector2 p=map.IsOral && player!=null && OralStageRuntime.Instance!=null?OralStageRuntime.Instance.ConstrainPlayer(body.position,Radius):map.ClampToField(body.position,limit);
             if((p-body.position).sqrMagnitude<.000001f)return;
             body.position=p;transform.position=new Vector3(p.x,p.y,transform.position.z);
             map.NavigationDistance(p,out var inward);
