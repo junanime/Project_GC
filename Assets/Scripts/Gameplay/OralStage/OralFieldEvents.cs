@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public enum OralEventKind { None, Jaw, Food, Water, Coffee, Soda, Sneeze, Ceiling }
+    public enum OralEventKind { None, Jaw, Food, Water, Coffee, Soda, Sneeze, Ceiling, Hiccup, Brush, BalloonDelivery }
 
     [Serializable]
     public sealed class OralCavityState
@@ -45,6 +45,7 @@ namespace Vampire
         public int CeilingRemaining => CountLive(ceilingMonsters);
         public string Banner { get; private set; } = "";
         public bool AutoSchedule = true;
+        public OralEventAdditions Additions { get; private set; }
         public int CompletedEvents { get; private set; }
         public int HealedCavities { get { int count = 0; foreach (var c in cavities) if (c.Healed) count++; return count; } }
         public IReadOnlyList<OralCavityState> Cavities => cavities;
@@ -75,7 +76,8 @@ namespace Vampire
         Vector2 flowDirection, ceilingLanding;
         float currentCeilingLift;
         SpriteRenderer ceilingPlayerVisual;
-        readonly OralEventKind[] cycle = { OralEventKind.Food, OralEventKind.Water, OralEventKind.Sneeze,
+        readonly OralEventKind[] cycle = { OralEventKind.Food, OralEventKind.Hiccup, OralEventKind.BalloonDelivery,
+            OralEventKind.Water, OralEventKind.Brush, OralEventKind.Sneeze,
             OralEventKind.Soda, OralEventKind.Food, OralEventKind.Coffee, OralEventKind.Ceiling };
 
         struct SpawnChoice { public int Pool; public MonsterBlueprint Blueprint; }
@@ -142,6 +144,9 @@ namespace Vampire
                     if (choices.Count >= 6) break;
                 }
             BuildCavities();
+            var additionsObject = new GameObject("구강 추가 이벤트");
+            additionsObject.transform.SetParent(transform, false);
+            Additions = additionsObject.AddComponent<OralEventAdditions>(); Additions.Configure(this, level);
             Monster.Died += OnMonsterDied;
             nextEvent = 12; cooldown = 0; scheduleIndex = 0;
         }
@@ -172,7 +177,7 @@ namespace Vampire
                 if (configured && (player == null || !player.IsAlive || level == null || level.IsLevelEnded)) CancelAll();
                 return;
             }
-            if (Time.deltaTime <= 0 || player.IsChoosingAugment || (level.IsRunFlowPaused && !ownsPause)) return;
+            if (Time.deltaTime <= 0 || player.IsChoosingAugment || player.IsPortalTravelling || (level.GetComponent<StageProgression>()?.Travelling??false) || (level.IsRunFlowPaused && !ownsPause)) return;
             float dt = Time.deltaTime;
             cooldown = Mathf.Max(0, cooldown - dt);
             if (!OnCeiling) UpdateCavities(dt);
@@ -201,6 +206,8 @@ namespace Vampire
                 case OralEventKind.Soda: TickSoda(dt); break;
                 case OralEventKind.Sneeze: if (Elapsed >= 1.6f && Elapsed < 3.1f) ApplyFlow(dt, 8f); break;
                 case OralEventKind.Ceiling: TickCeiling(dt); return;
+                case OralEventKind.Hiccup: case OralEventKind.Brush: case OralEventKind.BalloonDelivery:
+                    Additions.Tick(CurrentEvent, Elapsed); break;
             }
             if (Elapsed >= Duration) FinishEvent();
         }
@@ -208,7 +215,7 @@ namespace Vampire
         public bool ForceEvent(OralEventKind kind)
         {
             if (!Available || kind == OralEventKind.None || CurrentEvent != OralEventKind.None || player.IsPortalTravelling ||
-                player.IsChoosingAugment || OralStageRuntime.Instance.IsAirborne || level.IsRunFlowPaused) return false;
+                player.IsChoosingAugment || OralStageRuntime.Instance.IsAirborne || level.IsRunFlowPaused || (level.GetComponent<StageProgression>()?.Travelling??false)) return false;
             if (kind == OralEventKind.Jaw && !IsTeeth(player.Position)) return false;
             if (kind == OralEventKind.Ceiling && OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue) return false;
             CurrentEvent = kind; sodaCoated.Clear(); Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
@@ -224,6 +231,9 @@ namespace Vampire
                 case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 탄산에 닿은 몬스터의 막은 침 3회로 깨세요"; break;
                 case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아 주변으로 피하거나 바람을 타세요"; break;
                 case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장 몬스터를 모두 처치하면 내려옵니다"; break;
+                case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 몬스터들이 3초 동안 공중에 뜹니다"; break;
+                case OralEventKind.Brush: Duration = Additions.Begin(kind); Banner = "칫솔 청소! | 가로 → 세로 → 가로, 세 번의 경로를 피하세요"; break;
+                case OralEventKind.BalloonDelivery: Duration = Additions.Begin(kind); Banner = "풍선껌 보물배송! | 풍선을 맞히면 레벨업 상자가 내려옵니다"; break;
             }
             GameAudioManager.PlaySfx(kind == OralEventKind.Jaw ? GameAudioManager.GameSfxId.DangerWave :
                 kind == OralEventKind.Ceiling ? GameAudioManager.GameSfxId.PeristalsisTilt :
@@ -616,6 +626,7 @@ namespace Vampire
         }
         void FinishEvent()
         {
+            Additions?.EndEvent();
             foreach (var monster in coffeeMonsters) if (monster != null) monster.GetComponent<CoffeeMonsterBuffRuntime>()?.RemoveEventBuff();
             coffeeMonsters.Clear(); bubbles.Clear();
             CurrentEvent = OralEventKind.None; JawAmount = 0; Elapsed = 0; Duration = 0; CeilingPhase = 0;
@@ -624,6 +635,7 @@ namespace Vampire
         }
         public void CancelAll()
         {
+            if (Additions != null) { Additions.EndEvent(); Additions.gameObject.SetActive(false); Destroy(Additions.gameObject); Additions = null; }
             Monster.Died -= OnMonsterDied;
             RestoreCeiling();
             foreach (var monster in coffeeMonsters) if (monster != null) monster.GetComponent<CoffeeMonsterBuffRuntime>()?.RemoveEventBuff();

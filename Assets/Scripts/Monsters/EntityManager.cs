@@ -33,6 +33,7 @@ namespace Vampire
         [SerializeField] private GameObject coinPrefab;
         [SerializeField] private CoinPool coinPool;
         [SerializeField] private GameObject chestPrefab;
+        public Vector3 ChestVisualScale => chestPrefab != null ? chestPrefab.GetComponentInChildren<SpriteRenderer>().transform.localScale : Vector3.one;
         [SerializeField] private ChestPool chestPool;
         [SerializeField] private GameObject textPrefab;
         [SerializeField] private DamageTextPool textPool;

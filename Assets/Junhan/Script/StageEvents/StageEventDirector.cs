@@ -21,6 +21,9 @@ namespace Vampire
         List<StageEventSchedule> initialBasic;
         List<AdvancedStageFieldEventDirector> initialAdvanced;
         List<AntacidBubbleSurgeEventController> initialAntacid;
+        public AdvancedStageFieldEventDirector ReferenceFieldEvents =>
+            initialAdvanced != null && initialAdvanced.Count > 0 ? initialAdvanced[0] :
+            advancedEvents != null && advancedEvents.Count > 0 ? advancedEvents[0] : null;
         public void RestartForStage()
         {
             foreach (var module in Modules) module?.Dispose();

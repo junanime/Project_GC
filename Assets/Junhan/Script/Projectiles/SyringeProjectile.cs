@@ -1021,6 +1021,12 @@ namespace Vampire
                 if (!IsReturnMode) HitNothing();
                 return;
             }
+            if (damageable is OralBalloonDelivery delivery)
+            {
+                delivery.TakeDamage(damage);
+                if (!IsReturnMode) HitNothing();
+                return;
+            }
 
             // --------------------------------------------------
             // 이 대상이 테스트용 보스 파츠인지 확인합니다.
