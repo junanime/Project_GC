@@ -16,8 +16,22 @@ namespace Vampire
         static readonly Dictionary<MonsterBlueprint,MonsterBlueprint> replacements=new Dictionary<MonsterBlueprint,MonsterBlueprint>();
         public static MonsterBlueprint Resolve(MonsterBlueprint source) => source!=null&&replacements.TryGetValue(source,out var value)?value:source;
         static readonly Dictionary<LevelBlueprint, List<UnityEngine.Object>> owned = new Dictionary<LevelBlueprint, List<UnityEngine.Object>>();
+        static readonly Dictionary<LevelBlueprint, Dictionary<int, int>> eliteIndices = new Dictionary<LevelBlueprint, Dictionary<int, int>>();
+        static readonly Dictionary<LevelBlueprint, Dictionary<int, int>> sourceEliteIndices = new Dictionary<LevelBlueprint, Dictionary<int, int>>();
 
         public static bool IsBlueprint(MonsterBlueprint blueprint) => blueprint != null && kinds.ContainsKey(blueprint);
+        public static bool IsLevel(LevelBlueprint level) => level != null && owned.ContainsKey(level);
+        public static bool IsEliteBlueprint(MonsterBlueprint blueprint) => blueprint is EliteMonsterBlueprint elite && IsBlueprint(elite.sourceNormalBlueprint);
+        public static bool TryEliteIndex(LevelBlueprint level, int normalIndex, out int eliteIndex)
+        {
+            eliteIndex = -1;
+            return level != null && eliteIndices.TryGetValue(level, out var indices) && indices.TryGetValue(normalIndex, out eliteIndex);
+        }
+        public static bool TryRemapSourceEliteIndex(LevelBlueprint level, int sourceIndex, out int eliteIndex)
+        {
+            eliteIndex = -1;
+            return level != null && sourceEliteIndices.TryGetValue(level, out var indices) && indices.TryGetValue(sourceIndex, out eliteIndex);
+        }
 
         public static LevelBlueprint Create(LevelBlueprint source)
         {
@@ -103,6 +117,25 @@ namespace Vampire
             // Preserve stage-one special species and their actual introduction times.
             // The six oral normals replace only the ordinary portion of each wave.
             var originalFlat=source.monsters.SelectMany(g=>g.monsterBlueprints).ToArray();
+            var resultFlat=result.monsters.SelectMany(g=>g.monsterBlueprints).ToArray();
+            var byNormal=new Dictionary<int,int>();
+            var bySource=new Dictionary<int,int>();
+            for(int i=0;i<resultFlat.Length;i++)
+            {
+                if(!(resultFlat[i] is EliteMonsterBlueprint elite) || !IsBlueprint(elite.sourceNormalBlueprint))continue;
+                int normalIndex=Array.IndexOf(resultFlat,elite.sourceNormalBlueprint);
+                if(normalIndex>=0 && !byNormal.ContainsKey(normalIndex))byNormal.Add(normalIndex,i);
+            }
+            for(int i=0;i<originalFlat.Length;i++)
+                if(originalFlat[i] is EliteMonsterBlueprint && replacements.TryGetValue(originalFlat[i],out var elite))
+                {
+                    int index=Array.IndexOf(resultFlat,elite);
+                    if(index>=0)bySource.Add(i,index);
+                }
+            if(flatIndices.Any(index=>!byNormal.ContainsKey(index)))
+            { Release(result); throw new InvalidOperationException("Every oral normal must have a matching oral elite"); }
+            eliteIndices.Add(result,byNormal);
+            sourceEliteIndices.Add(result,bySource);
             var specialPairs=new List<KeyValuePair<int,int>>();int resultIndex=0;
             foreach(var group in result.monsters)foreach(var bp in group.monsterBlueprints) {
                 var actor=group.monstersPrefab.GetComponent<Monster>();
@@ -159,6 +192,7 @@ namespace Vampire
                 if (value != null) UnityEngine.Object.Destroy(value);
             }
             owned.Remove(level); UnityEngine.Object.Destroy(level);
+            eliteIndices.Remove(level); sourceEliteIndices.Remove(level);
             replacements.Clear();
         }
     }

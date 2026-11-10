@@ -248,6 +248,8 @@ namespace Vampire
         {
             runtimeTimedSpawnEvents.Clear();
             runtimeTrapFieldStates.Clear();
+            bool oral = FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral;
+            if (oral) ResolveReferences();
 
             if (spawnEntries == null)
             {
@@ -257,6 +259,7 @@ namespace Vampire
             for (int entryIndex = 0; entryIndex < spawnEntries.Length; entryIndex++)
             {
                 TimedSpawnEntry entry = spawnEntries[entryIndex];
+                if (oral) entry = OralSpecialSpawnProfile.Adapt(entry, levelBlueprint);
 
                 if (ColonMonsterRoster.InColon && entry != null && entry.monsterBlueprint != null && !ColonMonsterRoster.Active.Allowed(entry.monsterBlueprint)) continue;
 
@@ -483,6 +486,11 @@ namespace Vampire
             }
 
             int count = Mathf.Max(1, runtimeEvent.spawnCount);
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral)
+            {
+                count = OralSpecialSpawnProfile.SpawnAllowance(levelManager, entry, count);
+                if (count == 0) yield break;
+            }
             bool paired=false;MonsterBlueprint partner=null;int partnerPool=-1;
             if(ColonMonsterRoster.InColon){var roster=ColonMonsterRoster.Active;var bp=roster.Resolve(entry.monsterBlueprint);
                 if(roster.TryGet(bp,out var e)){
@@ -670,6 +678,9 @@ namespace Vampire
 
         private void SpawnOneTrap(RuntimeTrapFieldState state)
         {
+            // Also cover a delayed first activation, not only the respawn coroutine.
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&
+                levelManager != null && levelManager.CurrentLevelTime >= OralSpecialSpawnProfile.Duration) return;
             if (IsMiniStageSpawnBlocked())
             {
                 if (logMiniStageBlock)
@@ -818,6 +829,9 @@ namespace Vampire
 
             yield return WaitSecondsRespectingMiniStagePause(delay);
             yield return WaitUntilMiniStageUnblocked();
+
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&
+                levelManager != null && levelManager.CurrentLevelTime >= OralSpecialSpawnProfile.Duration) yield break;
 
             if (state == null || state.entry == null || !state.activated)
             {
