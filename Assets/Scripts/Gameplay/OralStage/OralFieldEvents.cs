@@ -45,6 +45,9 @@ namespace Vampire
         public int CeilingRemaining => CountLive(ceilingMonsters);
         public string Banner { get; private set; } = "";
         public bool AutoSchedule = true;
+        bool swallowSuppressed;
+        bool SwallowRequested => swallowSuppressed || (OralSwallowFinale.Instance != null &&
+            (OralSwallowFinale.Instance.Active || OralSwallowFinale.Instance.Pending));
         public OralEventAdditions Additions { get; private set; }
         public OralTasteEvents Tastes { get; private set; }
         public OralAmbientContent Ambient { get; private set; }
@@ -140,6 +143,7 @@ namespace Vampire
             map = FiniteStomachMap.Instance;
             if (level == null || player == null || map == null) return;
             Instance = this; configured = true; quitting = false;
+            swallowSuppressed = false;
             choices.Clear();
             var data = level.CurrentLevelBlueprint;
             if (data != null && data.monsters != null)
@@ -191,9 +195,10 @@ namespace Vampire
                 if (configured && (player == null || !player.IsAlive || level == null || level.IsLevelEnded)) CancelAll();
                 return;
             }
+            if (swallowSuppressed) return;
             if (Time.deltaTime <= 0 || player.IsChoosingAugment || player.IsPortalTravelling || (level.GetComponent<StageProgression>()?.Travelling??false) || (level.IsRunFlowPaused && !ownsPause)) return;
             float dt = Time.deltaTime;
-            if (AutoSchedule)
+            if (AutoSchedule && !SwallowRequested)
             {
                 nextEvent -= dt;
                 TickContentSchedule(dt);
@@ -202,7 +207,7 @@ namespace Vampire
             if (!OnCeiling) UpdateCavities(dt);
             if (CurrentEvent == OralEventKind.None)
             {
-                if (!AutoSchedule) return;
+                if (!AutoSchedule || SwallowRequested) return;
                 toothDwell = IsTeeth(player.Position) ? toothDwell + dt : 0;
                 if (cooldown <= 0 && toothDwell >= 3f && ForceEvent(OralEventKind.Jaw)) return;
                 if (nextEvent <= 0)
@@ -241,6 +246,7 @@ namespace Vampire
 
         public bool ForceEvent(OralEventKind kind)
         {
+            if (SwallowRequested) return false;
             if (kind >= OralEventKind.Sweet) return BeginContent(kind);
             if (!Available || kind == OralEventKind.None || CurrentEvent != OralEventKind.None || player.IsPortalTravelling ||
                 player.IsChoosingAugment || OralStageRuntime.Instance.IsAirborne || level.IsRunFlowPaused || (level.GetComponent<StageProgression>()?.Travelling??false)) return false;
@@ -301,6 +307,7 @@ namespace Vampire
 
         bool BeginContent(OralEventKind kind)
         {
+            if (SwallowRequested) return false;
             if (!Available || OralEventArt.Paused(level) || CurrentEvent == OralEventKind.Ceiling ||
                 OralStageRuntime.Instance.IsAirborne) return false;
             if (kind == OralEventKind.Spicy && (CurrentEvent == OralEventKind.Jaw || CurrentEvent == OralEventKind.Coffee)) return false;
@@ -456,6 +463,7 @@ namespace Vampire
 
         public bool TryStartTreatment(int index)
         {
+            if (SwallowRequested) return false;
             if (!Available || OnCeiling || index < 0 || index >= cavities.Count || level.IsRunFlowPaused ||
                 OralStageRuntime.Instance.IsAirborne || !IsTeeth(player.Position)) return false;
             var cavity = cavities[index];
@@ -733,6 +741,23 @@ namespace Vampire
         {
             foreach (var projectile in FindObjectsOfType<Projectile>()) projectile.RemoveForItem();
         }
+
+        public void PrepareForSwallow()
+        {
+            // Called only after ceiling travel and airborne events finish safely.
+            FinishEvent();
+            Tastes?.CancelAll();
+            Ambient?.CancelAll();
+            swallowSuppressed = true;
+            foreach (var cavity in cavities)
+            {
+                cavity.Active = false;
+                if (cavity.Anchor != null) cavity.Anchor.gameObject.SetActive(false);
+            }
+            Banner = "몸의 주인이 음식을 삼키려 합니다!";
+        }
+
+        public Monster SpawnFinaleMonster(Vector2 position) => SpawnAt(position, OralZone.Tongue, false);
 
         Monster SpawnAt(Vector2 position, OralZone zone, bool ceiling)
         {

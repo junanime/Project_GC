@@ -37,6 +37,7 @@ namespace Vampire
         public LineRenderer[] JawWarningLines=>warnings;
         public bool Ready=>configured;
         public Transform VisualRoot=>root;
+        OralSwallowFinale Swallow => OralSwallowFinale.Instance!=null&&OralSwallowFinale.Instance.Active&&map!=null&&map.IsOral?OralSwallowFinale.Instance:null;
         public void Configure(OralStageRuntime owner)
         {
             if(configured)return;runtime=owner;map=owner.Map;
@@ -201,7 +202,9 @@ namespace Vampire
         void UpdateWarningFills(OralEventKind kind,float elapsed)
         {
             if(warningFills==null)return;
-            bool active=kind==OralEventKind.Jaw&&elapsed<2.86f;
+            var swallow=Swallow;
+            bool active=swallow!=null?swallow.Age>=16&&swallow.Age<20:kind==OralEventKind.Jaw&&elapsed<2.86f;
+            if(swallow!=null)elapsed=(swallow.Age-16)*2f/3f;
             for(int i=0;i<warningFills.Length;i++)warningFills[i].enabled=active;
             warningFillOpacity=0;if(!active)return;
             float urgency=Mathf.InverseLerp(.9f,2f,elapsed);
@@ -297,7 +300,8 @@ namespace Vampire
             float elapsed=events!=null?events.Elapsed:0;bool ceiling=runtime.OnCeiling;
             AnimateTongue(kind,elapsed,ceiling);
             AnimateTeeth(events,kind,elapsed);UpdateWarningFills(kind,elapsed);AnimateFood(events,kind,elapsed);AnimateFluid(kind,elapsed);AnimateWind(kind,elapsed);AnimateBubbles(events,kind);AnimateCavities(events);AnimateJump();
-            if(events!=null&&events.OnCeiling)
+            var swallow=Swallow;
+            if((events!=null&&events.OnCeiling)||(swallow!=null&&swallow.Age>=16))
             {
                 foreach(var cavity in cavities)if(cavity!=null)cavity.enabled=false;
                 foreach(var progress in cavityProgress)if(progress!=null)progress.enabled=false;
@@ -307,6 +311,14 @@ namespace Vampire
             hud.SetActive(showHud);
             title.text=events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
             hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
+            if(swallow!=null)
+            {
+                // One existing HUD owns the finale too; two overlapping event
+                // banners never compete with the surviving actors and water.
+                float age=swallow.Age;
+                title.text=age<10?"꿀꺽 이벤트 · 음식 몬스터가 몰려옵니다!":age<16?"협곡에 물이 차오르고 있습니다!":age<20?"몸의 주인이 음식을 삼키려 합니다!":swallow.IsSwallowing?"꿀꺽! · 스테이지 1로 이동합니다":"꿀꺽 이벤트 · "+Mathf.CeilToInt(swallow.SurvivalRemaining)+"초만 더 버티세요!";
+                hint.text=age<16?"물살이 곧 혀 위까지 차오릅니다":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"물과 음식이 식도로 쓸려갑니다":"소용돌이를 피하세요 · 빨려들면 대쉬 한 번으로 탈출!";
+            }
         }
         void AnimateTongue(OralEventKind kind,float elapsed,bool ceiling)
         {
@@ -327,22 +339,24 @@ namespace Vampire
         }
         void AnimateTeeth(OralFieldEvents events,OralEventKind kind,float t)
         {
-            float close=events!=null?events.JawAmount:0;
-            bool dropping=kind==OralEventKind.Jaw&&t>=2&&t<3.51f;
+            var swallow=Swallow;
+            float close=swallow!=null?swallow.JawClosure01:events!=null?events.JawAmount:0;
+            bool dropping=swallow!=null?swallow.Age>=19:kind==OralEventKind.Jaw&&t>=2&&t<3.51f;
             upperJaw.enabled=dropping;
             if(dropping) {
                 upperJaw.transform.localPosition=Vector3.up*(map.WorldRect.height*250/1121*(1-close));
-                float opacity=Mathf.InverseLerp(2,2.07f,t)*(1-Mathf.InverseLerp(3.35f,3.51f,t));
+                float opacity=swallow!=null?Mathf.InverseLerp(19,19.08f,swallow.Age):Mathf.InverseLerp(2,2.07f,t)*(1-Mathf.InverseLerp(3.35f,3.51f,t));
                 upperJawMaterial.SetColor("_Color",new Color(1,1,1,opacity));
             }
             for(int i=0;i<warnings.Length;i++) {
-                var line=warnings[i];line.enabled=kind==OralEventKind.Jaw&&t<2.86f;
+                var line=warnings[i];line.enabled=swallow!=null?swallow.Age>=16&&swallow.Age<20:kind==OralEventKind.Jaw&&t<2.86f;
                 if(!line.enabled)continue;
                 // Exactly the same per-tooth polygon is queried by jaw damage.
                 var points=OralMapGeometry.ToothDamagePolygon(map,i);
                 line.loop=true;line.positionCount=points.Length;
                 for(int j=0;j<points.Length;j++)line.SetPosition(j,points[j]);
-                line.startColor=line.endColor=new Color(1,.45f+.25f*Mathf.Sin(t*10),.16f,.9f);
+                float pulseTime=swallow!=null?swallow.Age:t;
+                line.startColor=line.endColor=new Color(1,.45f+.25f*Mathf.Sin(pulseTime*10),.16f,.9f);
             }
         }
         void AnimateFood(OralFieldEvents e,OralEventKind kind,float t)
@@ -384,7 +398,7 @@ namespace Vampire
             var player=runtime.Level.PlayerCharacter;var c=OralMapGeometry.TongueCenter(map);var p=(Vector2)player.transform.position;var direction=(p-c).normalized;
             if(OralMapGeometry.ZoneAt(map,p)==OralZone.Teeth)direction=-direction;
             Vector2 landing=p;
-            bool show=!runtime.OnCeiling&&!runtime.IsSliding&&OralMapGeometry.TryJump(map,p,direction,out landing);
+            bool show=Swallow==null&&!runtime.OnCeiling&&!runtime.IsSliding&&OralMapGeometry.TryJump(map,p,direction,out landing);
             for(int i=0;i<jumpArcs.Length;i++){var l=jumpArcs[i];l.enabled=show;if(!show)continue;l.positionCount=8;for(int j=0;j<8;j++){float u=(i/3f)+(j/7f)*.23f;var q=Vector2.Lerp(p,landing,u)+Vector2.up*(Mathf.Sin(u*Mathf.PI)*1.1f);l.SetPosition(j,q);}}
         }
         void OnDestroy()

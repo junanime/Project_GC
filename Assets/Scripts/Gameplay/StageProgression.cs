@@ -97,9 +97,17 @@ namespace Vampire
             var loading=StageEntryLoading.CreateStomachTransfer(level.PlayerCharacter.Blueprint);
             TransitionPhase="stomach-loading";yield return null;
             var oral=GetComponent<OralStageRuntime>();var events=GetComponent<OralFieldEvents>();var visual=GetComponent<OralMapVisual>();
+            var finale=GetComponent<OralSwallowFinale>();var swallowVisual=GetComponent<OralSwallowVisual>();
+            var ceilingVisual=GetComponent<OralCeilingArenaVisual>();
+            if(finale!=null){finale.CancelForTransition();finale.enabled=false;Destroy(finale);}
+            if(swallowVisual!=null){swallowVisual.enabled=false;Destroy(swallowVisual);}
+            if(ceilingVisual!=null){ceilingVisual.enabled=false;Destroy(ceilingVisual);}
             if(events!=null){events.enabled=false;Destroy(events);}
             if(visual!=null){visual.enabled=false;Destroy(visual);}
             if(oral!=null){oral.enabled=false;Destroy(oral);}
+            // Event cancellation releases only its own temporary locks; the loading
+            // transition must continue to own the field pause until placement finishes.
+            level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             yield return null;
             foreach(var collectable in FindObjectsOfType<Collectable>())collectable.DissolveInAcidLake();
             StageNumber=1;FirstBossDefeated=false;

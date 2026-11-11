@@ -51,6 +51,8 @@ namespace Vampire
             (runtime.GetComponent<OralMapVisual>()??runtime.gameObject.AddComponent<OralMapVisual>()).Configure(runtime);
             (runtime.GetComponent<OralFieldEvents>()??runtime.gameObject.AddComponent<OralFieldEvents>()).Configure(level);
             (runtime.GetComponent<OralCeilingArenaVisual>()??runtime.gameObject.AddComponent<OralCeilingArenaVisual>()).Configure(runtime);
+            (runtime.GetComponent<OralSwallowFinale>()??runtime.gameObject.AddComponent<OralSwallowFinale>()).Configure(runtime);
+            (runtime.GetComponent<OralSwallowVisual>()??runtime.gameObject.AddComponent<OralSwallowVisual>()).Configure(runtime);
             runtime.lastSupportedPosition=level.PlayerCharacter.Position;
             runtime.hasSupportedPosition=true;runtime.Ready=true;return runtime;
         }
@@ -86,6 +88,7 @@ namespace Vampire
         public bool BeginJump(Character player,Vector2 direction,out Vector2 landing)
         {
             landing=player.transform.position;
+            if(OralSwallowFinale.Instance!=null&&OralSwallowFinale.Instance.Active)return false;
             if(!Ready||OnCeiling||IsAirborne||Level.IsRunFlowPaused||MiniStageRuntimeState.IsInsideMiniStage||player!=Level.PlayerCharacter)return false;
             if(!OralMapGeometry.TryJump(Map,player.transform.position,direction,out landing))return false;
             JumpLanding=landing;IsJumping=true;jumpStarted=Time.time;jumpDuration=.55f;
@@ -103,6 +106,8 @@ namespace Vampire
         }
         public Vector2 ConstrainPlayer(Vector2 position,float radius)
         {
+            var finale=OralSwallowFinale.Instance;
+            if(finale!=null&&finale.IsSwallowing)return position;
             if(IsSliding)return slidePosition;
             if(IsJumping)return position;
             var events=GetComponent<OralFieldEvents>();
@@ -112,6 +117,12 @@ namespace Vampire
                 playerZone=OralZone.Tongue;
                 var ceilingPoint=OralCeilingArenaGeometry.Clamp(Map,position,radius);
                 lastSupportedPosition=ceilingPoint;hasSupportedPosition=true;return ceilingPoint;
+            }
+            if(finale!=null&&finale.Active&&finale.Age>=18f)
+            {
+                playerZone=OralZone.Tongue;
+                var tonguePoint=OralMapGeometry.Clamp(Map,position,radius,OralZone.Tongue);
+                lastSupportedPosition=tonguePoint;hasSupportedPosition=true;return tonguePoint;
             }
             if(Ready && !OnCeiling && playerZone==OralZone.Teeth && hasSupportedPosition &&
                 Level!=null && Level.PlayerCharacter!=null && Level.PlayerCharacter.IsAlive &&
@@ -140,6 +151,14 @@ namespace Vampire
             if(slideBody!=null){slideBodyType=slideBody.bodyType;slideBody.velocity=Vector2.zero;slideBody.angularVelocity=0;slideBody.bodyType=RigidbodyType2D.Kinematic;}
             // Ground locomotion does not fight the glide; the small hop belongs only to its final phase.
             player.StartIdleAnimation();
+        }
+
+        public void ReturnToTongueForSwallow()
+        {
+            if(!Ready||Level==null||Level.PlayerCharacter==null||OnCeiling||IsAirborne)return;
+            var p=Level.PlayerCharacter.Position;
+            if(OralMapGeometry.ZoneAt(Map,p)==OralZone.Teeth)
+                BeginSlide(p,OralMapGeometry.Clamp(Map,p,.65f,OralZone.Tongue));
         }
         void TickSlide()
         {
@@ -191,7 +210,7 @@ namespace Vampire
         void LateUpdate()
         {
             if(!Ready||Level==null||Level.PlayerCharacter==null)return;
-            if(exit==null&&Level.CurrentLevelTime>=Level.LevelDuration&&!Level.IsLevelEnded)
+            if(GetComponent<OralSwallowFinale>()==null&&exit==null&&Level.CurrentLevelTime>=Level.LevelDuration&&!Level.IsLevelEnded)
                 exit=OralSwallowExit.Create(this);
             if(IsSliding)TickSlide();
             if(IsJumping)
