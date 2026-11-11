@@ -19,8 +19,36 @@ namespace Vampire
         private Character ownerCharacter;
         private Rigidbody2D cachedRigidbody;
         private Coroutine stunCoroutine;
+        private Object travelLockOwner;
+        private Vector3 travelLockPosition;
 
-        public bool IsStunned => stunned;
+        public bool IsStunned => stunned || travelLockOwner != null;
+
+        // Scripted travel locks input, but its author owns the moving position.
+        // It is not a timed debuff, so debuff-duration bonuses cannot release it early.
+        public void BeginTravelLock(Object source)
+        {
+            if(source==null)return;
+            travelLockOwner=source;travelLockPosition=transform.position;
+            if(ownerCharacter==null)ownerCharacter=GetComponent<Character>();
+            if(cachedRigidbody==null)cachedRigidbody=GetComponent<Rigidbody2D>();
+            if(ownerCharacter!=null){ownerCharacter.Move(Vector2.zero);ownerCharacter.StopWalkAnimation();}
+            ForceLockNow();
+        }
+
+        public bool MoveTravelLock(Object source,Vector3 position)
+        {
+            if(source==null||travelLockOwner!=source)return false;
+            travelLockPosition=position;ForceLockNow();return true;
+        }
+
+        public void EndTravelLock(Object source)
+        {
+            if(source==null||travelLockOwner!=source)return;
+            travelLockOwner=null;
+            // A separate stun can outlive travel; keep it at the new landing point.
+            lockedWorldPosition=transform.position;
+        }
 
         public static PlayerMiniStageStunRuntime GetOrCreate(Character character)
         {
@@ -120,7 +148,7 @@ namespace Vampire
 
         private void FixedUpdate()
         {
-            if (!stunned)
+            if (!IsStunned)
             {
                 return;
             }
@@ -130,7 +158,7 @@ namespace Vampire
 
         private void LateUpdate()
         {
-            if (!stunned)
+            if (!IsStunned)
             {
                 return;
             }
@@ -140,19 +168,21 @@ namespace Vampire
 
         private void ForceLockNow()
         {
-            transform.position = lockedWorldPosition;
+            var position=travelLockOwner!=null?travelLockPosition:lockedWorldPosition;
+            transform.position = position;
 
             if (cachedRigidbody != null)
             {
                 cachedRigidbody.velocity = Vector2.zero;
                 cachedRigidbody.angularVelocity = 0f;
-                cachedRigidbody.position = lockedWorldPosition;
+                cachedRigidbody.position = position;
             }
         }
 
         private void OnDisable()
         {
             stunned = false;
+            travelLockOwner = null;
 
             if (stunCoroutine != null)
             {

@@ -297,6 +297,12 @@ namespace Vampire
             float elapsed=events!=null?events.Elapsed:0;bool ceiling=runtime.OnCeiling;
             AnimateTongue(kind,elapsed,ceiling);
             AnimateTeeth(events,kind,elapsed);UpdateWarningFills(kind,elapsed);AnimateFood(events,kind,elapsed);AnimateFluid(kind,elapsed);AnimateWind(kind,elapsed);AnimateBubbles(events,kind);AnimateCavities(events);AnimateJump();
+            if(events!=null&&events.OnCeiling)
+            {
+                foreach(var cavity in cavities)if(cavity!=null)cavity.enabled=false;
+                foreach(var progress in cavityProgress)if(progress!=null)progress.enabled=false;
+                foreach(var arc in jumpArcs)if(arc!=null)arc.enabled=false;
+            }
             bool showHud=!StageEntryLoading.IsLoading&&!runtime.Level.IsLevelEnded&&(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
             hud.SetActive(showHud);
             title.text=events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
@@ -312,7 +318,9 @@ namespace Vampire
             tongue.vertices=tongueVertices;tongue.RecalculateBounds();
             var e=GetComponent<OralFieldEvents>();float ceilingBlend=ceiling?1:0;
             if(e!=null&&kind==OralEventKind.Ceiling){if(e.CeilingPhase==1||e.CeilingPhase==3)ceilingBlend=e.CeilingTravel01;}
-            tongueMaterial.SetFloat("_Ceiling",ceilingBlend);
+            // The ceiling is now its own compact arena, not the old palate stretched
+            // across the full tongue. Its independent visual handles the transition.
+            tongueMaterial.SetFloat("_Ceiling",0);
             // The approved art already contains the tongue edge; do not add a
             // second floating outline over the continuous painted surface.
             tongueOutline.enabled=false;tongueHighlight.enabled=false;

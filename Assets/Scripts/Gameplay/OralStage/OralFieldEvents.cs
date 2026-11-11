@@ -61,6 +61,8 @@ namespace Vampire
         readonly List<OralCavityState> cavities = new List<OralCavityState>();
         readonly List<OralBubbleState> bubbles = new List<OralBubbleState>();
         readonly List<Monster> ceilingMonsters = new List<Monster>();
+        MeleeMonsterBlueprint ceilingBatBlueprint;
+        int ceilingBatPool=-1;
         readonly List<Monster> monsterScratch = new List<Monster>();
         readonly List<Monster> coffeeMonsters = new List<Monster>();
         readonly List<SuspendedMonster> suspended = new List<SuspendedMonster>();
@@ -79,7 +81,7 @@ namespace Vampire
         readonly OralEventKind[] contentBag = { OralEventKind.Sweet, OralEventKind.Boulder, OralEventKind.Salty,
             OralEventKind.Sour, OralEventKind.Guard, OralEventKind.Bitter, OralEventKind.Spicy };
         bool triggered, ownsPause, priorPause, configured, quitting;
-        Vector2 flowDirection, ceilingLanding;
+        Vector2 flowDirection, ceilingLanding, ceilingReturnOrigin;
         float currentCeilingLift;
         SpriteRenderer ceilingPlayerVisual;
         readonly OralEventKind[] cycle = { OralEventKind.Food, OralEventKind.Hiccup, OralEventKind.BalloonDelivery,
@@ -248,6 +250,7 @@ namespace Vampire
             // Coffee's pursuit acceleration must not remove the full-floor fire's escape window.
             if (kind == OralEventKind.Coffee && Tastes != null && Tastes.Active && Tastes.Kind == OralTasteKind.Spicy) return false;
             if (kind == OralEventKind.Ceiling && OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue) return false;
+            if (kind == OralEventKind.Ceiling && !PrepareCeilingBats()) return false;
             if (kind == OralEventKind.Ceiling) Tastes?.CancelBounces();
             CurrentEvent = kind; sodaCoated.Clear(); Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
             nextEvent = UnityEngine.Random.Range(18f, 27f);
@@ -312,7 +315,7 @@ namespace Vampire
             if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 혀 전체가 달아오릅니다 · 치아로 피하세요" :
                 kind == OralEventKind.Sweet ? "벌꿀집 발견! | 먹으러 모인 몬스터를 먼저 처치하세요" :
                 kind == OralEventKind.Salty ? "짠맛! | 소금결정 무리가 몰려옵니다" :
-                kind == OralEventKind.Sour ? "신맛! | 레몬껍질의 반동으로 경로를 바꾸세요" :
+                kind == OralEventKind.Sour ? "신맛! | 통레몬 스프링을 밟아 더 멀리 튀어 오르세요" :
                 kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
                 kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
                 "구강 수호대! | 오토바이를 치아까지 안내하세요");
@@ -503,17 +506,13 @@ namespace Vampire
             {
                 CeilingTravel01 = Mathf.SmoothStep(0, 1, ceilingPhaseAge / 1.1f);
                 currentCeilingLift = Mathf.Sin(CeilingTravel01 * Mathf.PI) * 2.2f;
+                MoveCeilingPlayer(Vector2.Lerp(ceilingLanding,OralCeilingArenaGeometry.Center(map),CeilingTravel01));
                 if (ceilingPhaseAge >= 1.1f)
                 {
                     currentCeilingLift = 0; CeilingPhase = 2; ceilingPhaseAge = 0;
                     OralStageRuntime.Instance.SetCeiling(true);
-                    for (int i = 0; i < 8; i++)
-                    {
-                        var offset = new Vector2(Mathf.Cos(i * Mathf.PI / 4), Mathf.Sin(i * Mathf.PI / 4)) * (6f + i % 2 * 1.2f);
-                        var monster = SpawnAt(player.Position + offset, OralZone.Tongue, true);
-                        if (monster != null) { ceilingMonsters.Add(monster); AddInversion(monster.BodyRenderer); }
-                    }
-                    Banner = "입천장 전투 | 몬스터를 모두 처치하면 혀로 돌아갑니다";
+                    player.GetComponent<PlayerMiniStageStunRuntime>()?.EndTravelLock(this);
+                    Banner = "입천장 전투 | 매달린 박쥐 10마리가 깨어납니다 · 모두 처치하면 혀로 돌아갑니다";
                 }
             }
             else if (CeilingPhase == 2)
@@ -521,24 +520,43 @@ namespace Vampire
                 // Spawn failures cannot strand the player. Despawned/dead pool members no longer count.
                 if (CeilingRemaining == 0)
                 {
+                    ceilingReturnOrigin=player.Position;
                     CeilingPhase = 3; ceilingPhaseAge = 0; Banner = "입천장 탈출! | 혀로 안전하게 내려갑니다";
-                    PlayerMiniStageStunRuntime.GetOrCreate(player).ApplyStun(1.1f);
+                    PlayerMiniStageStunRuntime.GetOrCreate(player).BeginTravelLock(this);
                 }
                 else
                 {
                     // Keep all encounter actors reachable even after knockback/oversized hitboxes.
-                    foreach (var m in ceilingMonsters) if (Live(m)) PushActor(m.transform, Vector2.zero);
+                    foreach (var m in ceilingMonsters) if (Live(m))
+                    {
+                        var point=OralCeilingArenaGeometry.Clamp(map,m.Position,.30f);
+                        var rb=m.GetComponent<Rigidbody2D>();if(rb!=null)rb.position=point;
+                        m.transform.position=new Vector3(point.x,point.y,m.transform.position.z);
+                        level.EntityManager.Grid?.UpdateClient(m);
+                    }
                 }
             }
             else if (CeilingPhase == 3)
             {
                 CeilingTravel01 = 1 - Mathf.SmoothStep(0, 1, ceilingPhaseAge / 1.1f);
                 currentCeilingLift = Mathf.Sin(CeilingTravel01 * Mathf.PI) * 1.4f;
+                MoveCeilingPlayer(Vector2.Lerp(ceilingReturnOrigin,ceilingLanding,1-CeilingTravel01));
                 if (ceilingPhaseAge >= 1.1f)
                 {
                     RestoreCeiling(); FinishEvent();
                 }
             }
+        }
+
+        void MoveCeilingPlayer(Vector2 position)
+        {
+            if(player==null)return;
+            var world=new Vector3(position.x,position.y,player.transform.position.z);
+            var inputLock=player.GetComponent<PlayerMiniStageStunRuntime>();
+            if(inputLock!=null&&inputLock.MoveTravelLock(this,world))return;
+            var body=player.GetComponent<Rigidbody2D>();
+            if(body!=null){body.position=position;body.velocity=Vector2.zero;}
+            player.transform.position=world;
         }
 
         void BeginCeiling()
@@ -573,6 +591,7 @@ namespace Vampire
             var props = new HashSet<GameObject>();
             if (layout != null) foreach (var prop in layout.SpawnedObjects) if (prop != null) props.Add(prop);
             foreach (var chest in FindObjectsOfType<Chest>()) props.Add(chest.gameObject);
+            foreach (var portal in FindObjectsOfType<BloodClotMiniStagePortal>()) props.Add(portal.gameObject);
             foreach (var exit in FindObjectsOfType<OralSwallowExit>()) props.Add(exit.gameObject);
             foreach (var prop in props)
                 {
@@ -596,7 +615,44 @@ namespace Vampire
                     playerHurtboxes.Add(new HurtboxSnapshot { Collider = box, Offset = box.offset, Size = box.size,
                         Pivot = ceilingPlayerVisual != null ? (Vector2)box.transform.InverseTransformPoint(ceilingPlayerVisual.transform.position) : Vector2.zero,
                         FlipY = ceilingPlayerVisual != null && ceilingPlayerVisual.flipY });
-            PlayerMiniStageStunRuntime.GetOrCreate(player).ApplyStun(1.1f);
+            PlayerMiniStageStunRuntime.GetOrCreate(player).BeginTravelLock(this);
+            SpawnCeilingBats();
+        }
+
+        bool PrepareCeilingBats()
+        {
+            if(ceilingBatBlueprint!=null)return true;
+            if(!OralCeilingBatArt.Load()||choices.Count==0)return false;
+            foreach(var choice in choices)
+            {
+                if(!(choice.Blueprint is MeleeMonsterBlueprint template))continue;
+                ceilingBatBlueprint=Instantiate(template);ceilingBatPool=choice.Pool;
+                ceilingBatBlueprint.name="입천장 박쥐";
+                ceilingBatBlueprint.description="입천장에 거꾸로 매달렸다가 날개를 펴고 날아오는 박쥐.";
+                ceilingBatBlueprint.atk=4;ceilingBatBlueprint.movespeed=.9f;ceilingBatBlueprint.acceleration=5;
+                ceilingBatBlueprint.useGroundShadowFootprint=false;
+                ceilingBatBlueprint.walkSpriteSequence=new[]{OralCeilingBatArt.Body};
+                ceilingBatBlueprint.resultSprite=OralCeilingBatArt.Body;ceilingBatBlueprint.walkFrameTime=.1f;
+                return true;
+            }
+            return false;
+        }
+
+        void SpawnCeilingBats()
+        {
+            if(!PrepareCeilingBats())return;
+            for(int i=0;i<OralCeilingBatRuntime.Count;i++)
+            {
+                float angle=i*Mathf.PI*2/OralCeilingBatRuntime.Count;
+                var point=OralCeilingArenaGeometry.Point(map,new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*(i%2==0?.72f:.83f));
+                var monster=level.EntityManager.SpawnMonster(ceilingBatPool,point,ceilingBatBlueprint);
+                if(monster==null)continue;
+                point=OralCeilingArenaGeometry.Clamp(map,point,.30f);
+                monster.transform.position=new Vector3(point.x,point.y,monster.transform.position.z);
+                var rb=monster.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=point;rb.velocity=Vector2.zero;}
+                (monster.GetComponent<OralCeilingBatRuntime>()??monster.gameObject.AddComponent<OralCeilingBatRuntime>()).Configure(this,monster,i);
+                ceilingMonsters.Add(monster);level.EntityManager.Grid?.UpdateClient(monster);
+            }
         }
 
         void AddInversion(SpriteRenderer renderer)
@@ -666,9 +722,11 @@ namespace Vampire
             lowerProps.Clear();
             if (ownsPause && level != null) level.SetRunFlowPaused(priorPause);
             ownsPause = false;
-            foreach (var monster in ceilingMonsters) if (Live(monster)) monster.DespawnForStageTransfer();
+            foreach (var monster in ceilingMonsters) if (monster!=null&&monster.gameObject.activeInHierarchy) monster.DespawnForStageTransfer();
             ceilingMonsters.Clear();
-            if (player != null && map != null) PushActor(player.transform, Vector2.zero);
+            if (player != null && map != null)
+                MoveCeilingPlayer(OralMapGeometry.Clamp(map,ceilingLanding,1,OralZone.Tongue));
+            if(player!=null)player.GetComponent<PlayerMiniStageStunRuntime>()?.EndTravelLock(this);
         }
 
         static void ClearSurfaceProjectiles()
@@ -723,6 +781,7 @@ namespace Vampire
             if (Additions != null) { Additions.EndEvent(); Additions.gameObject.SetActive(false); Destroy(Additions.gameObject); Additions = null; }
             Monster.Died -= OnMonsterDied;
             RestoreCeiling();
+            if(ceilingBatBlueprint!=null){Destroy(ceilingBatBlueprint);ceilingBatBlueprint=null;}ceilingBatPool=-1;
             foreach (var monster in coffeeMonsters) if (monster != null) monster.GetComponent<CoffeeMonsterBuffRuntime>()?.RemoveEventBuff();
             coffeeMonsters.Clear(); bubbles.Clear();
             foreach (var cavity in cavities) if (cavity.Anchor != null) Destroy(cavity.Anchor.gameObject);

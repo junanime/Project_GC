@@ -58,7 +58,8 @@ namespace Vampire
         public bool CurrentEnhanced { get; private set; }
         public bool IsInsideMiniStage => isInsideMiniStage;
         public bool IsTransitioning => isTransitioning;
-        public bool CanEnterFromPortal => !isInsideMiniStage && !isTransitioning && BloodClotTravel.CanTravel(playerCharacter);
+        public bool CanEnterFromPortal => !isInsideMiniStage && !isTransitioning &&
+            !(OralFieldEvents.Instance!=null&&OralFieldEvents.Instance.OnCeiling) && BloodClotTravel.CanTravel(playerCharacter);
         public bool CanReturnFromInteractable(MiniStageReturnInteractable interactable)
         {
             return isInsideMiniStage && !isTransitioning && BloodClotTravel.CanTravel(playerCharacter) && currentRoom != null &&

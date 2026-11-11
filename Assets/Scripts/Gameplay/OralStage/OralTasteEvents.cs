@@ -22,6 +22,8 @@ namespace Vampire
         public Vector2 LemonPosition { get; private set; }
         public Vector2 LemonDirection { get; private set; }
         public float LemonLength { get; private set; }
+        public float LemonBounceDistance => Mathf.Max(2f, LemonLength * 1.7f) * 2f;
+        public OralLemonSpringVisual LemonVisual { get; private set; }
         public Vector2 BitterPosition { get; private set; }
         public float BitterRemaining { get; private set; }
         public int BitterRewards { get; private set; }
@@ -45,7 +47,7 @@ namespace Vampire
         readonly Dictionary<Monster, int> eaten = new Dictionary<Monster, int>();
         readonly Dictionary<Monster, float> bounceCooldown = new Dictionary<Monster, float>();
         readonly List<Monster> stale = new List<Monster>();
-        Sprite honey, lemon, bitter, salt;
+        Sprite honey, lemon, lemonSpring, bitter, salt;
         Texture2D spicy;
         SpriteRenderer bitterVisual;
         SnailSlowStatus slow;
@@ -59,7 +61,9 @@ namespace Vampire
         {
             CancelAll(); Level = level; map = FiniteStomachMap.Instance; Instance = this;
             honey = LoadArt("Honeycomb", new Vector2(.5f, .12f));
-            lemon = LoadArt("Lemon", new Vector2(.5f, .3f)); bitter = LoadArt("Bitter", new Vector2(.5f, .15f));
+            lemon = LoadArt("LemonWhole", new Vector2(.5f, 0));
+            lemonSpring = LoadArt("LemonSpring", new Vector2(.5f, 0));
+            bitter = LoadArt("Bitter", new Vector2(.5f, .15f));
             salt = LoadArt("Salt", new Vector2(.5f, 0)); spicy = Resources.Load<Texture2D>("OralMap/Events/Spicy");
             var config = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             var bp = config != null && config.characters.Length > 0 ? config.characters[0] : level.PlayerCharacter.Blueprint;
@@ -121,7 +125,8 @@ namespace Vampire
             {
                 LemonPosition=at;LemonDirection=(OralMapGeometry.TongueCenter(map)-at).normalized;
                 if(LemonDirection.sqrMagnitude<.5f)LemonDirection=Vector2.right;
-                var r=Prop(lemon,"레몬 껍질 · 반동 발판",at,LemonLength);r.transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(LemonDirection.y,LemonDirection.x)*Mathf.Rad2Deg);objects.Add(r);
+                var visualObject=new GameObject("통레몬 · 금속 스프링");visualObject.transform.SetParent(artRoot,false);
+                LemonVisual=visualObject.AddComponent<OralLemonSpringVisual>();LemonVisual.Configure(lemon,lemonSpring,at,LemonLength);
                 for(int i=0;i<3;i++){var line=OralEventArt.Line(artRoot,"반동 방향",new Color(1,.96f,.55f,.85f),.045f,15,true);line.positionCount=3;var q=at+LemonDirection*(LemonLength*.6f+i*.18f);var side=new Vector2(-LemonDirection.y,LemonDirection.x)*.09f;line.SetPosition(0,q-LemonDirection*.1f+side);line.SetPosition(1,q);line.SetPosition(2,q-LemonDirection*.1f-side);}
                 bouncePlayerCooldown=0;bounceCooldown.Clear();
             }
@@ -240,6 +245,7 @@ namespace Vampire
         }
         void TickLemon(float dt)
         {
+            LemonVisual?.Sample(dt);
             bouncePlayerCooldown=Mathf.Max(0,bouncePlayerCooldown-dt);var p=Level.PlayerCharacter;
             if(bouncePlayerCooldown<=0&&!p.IsDashing&&!OralStageRuntime.Instance.IsAirborne && Vector2.Distance(p.Position,LemonPosition)<LemonLength*.42f)
             {if(StartBounce(p.gameObject,p.Position)){bouncePlayerCooldown=1.5f;}}
@@ -250,16 +256,19 @@ namespace Vampire
                 if(bounceCooldown.TryGetValue(m,out float until)&&Age<until)continue;
                 if(StartBounce(m.gameObject,m.Position))bounceCooldown[m]=Age+1.5f;
             }
-            if(objects.Count>0){float pulse=Mathf.Max(0,1-bouncePlayerCooldown/.25f);objects[0].color=new Color(1,1,.86f,1);}
         }
         bool StartBounce(GameObject actor,Vector2 from)
         {
             var bounce=actor.GetComponent<OralTasteBounce>()??actor.AddComponent<OralTasteBounce>();if(bounce.Active)return false;
-            Vector2 landing=OralMapGeometry.Clamp(map,from+LemonDirection*Mathf.Max(2,LemonLength*1.7f),.55f,OralZone.Tongue);
-            bounce.Begin(this,landing);return true;
+            Vector2 landing=OralMapGeometry.Clamp(map,from+LemonDirection*LemonBounceDistance,.55f,OralZone.Tongue);
+            LemonVisual?.Pulse();bounce.Begin(this,landing);return true;
         }
         public bool TryBounceBoulder(Vector2 position,out Vector2 direction)
-        {direction=LemonDirection;return Active&&Kind==OralTasteKind.Sour&&!FloorUnavailable&&Vector2.Distance(position,LemonPosition)<LemonLength*.5f;}
+        {
+            direction=LemonDirection;
+            if(!Active||Kind!=OralTasteKind.Sour||FloorUnavailable||Vector2.Distance(position,LemonPosition)>=LemonLength*.5f)return false;
+            LemonVisual?.Pulse();return true;
+        }
         public bool TryEatBitter()
         {
             if(!Active||Kind!=OralTasteKind.Bitter||bitterEaten||FloorUnavailable||OralStageRuntime.Instance.IsAirborne||Vector2.Distance(Level.PlayerCharacter.Position,BitterPosition)>1.3f)return false;
@@ -294,7 +303,7 @@ namespace Vampire
         }
         void ClearEncounter()
         {
-            guests.Clear();honeyPositions.Clear();objects.Clear();honeyDrops.Clear();spiceRenderers.Clear();bounceCooldown.Clear();bitterVisual=null;
+            guests.Clear();honeyPositions.Clear();objects.Clear();honeyDrops.Clear();spiceRenderers.Clear();bounceCooldown.Clear();bitterVisual=null;LemonVisual=null;
             if(artRoot!=null){artRoot.gameObject.SetActive(false);Destroy(artRoot.gameObject);artRoot=null;}
             foreach(var item in encounterOwned)if(item!=null)Destroy(item);encounterOwned.Clear();
         }
@@ -359,7 +368,7 @@ namespace Vampire
             if(Owner==null||!gameObject.activeInHierarchy||monster!=null&&!monster.IsAlive||player!=null&&(!player.IsAlive||player.IsPortalTravelling)){Restore();return;}
             if(Owner.FloorUnavailable)
             {if(MiniStageRuntimeState.IsInsideMiniStage||StageEntryLoading.IsLoading||OralFieldEvents.Instance?.CurrentEvent==OralEventKind.Ceiling)Restore();return;}
-            age+=Time.deltaTime;float t=Mathf.Clamp01(age/.6f);var p=Vector2.Lerp(from,to,Mathf.SmoothStep(0,1,t));transform.position=new Vector3(p.x,p.y,transform.position.z);
+            age+=Time.deltaTime;float t=Mathf.Clamp01((age-OralLemonSpringVisual.CompressionSeconds)/.6f);var p=Vector2.Lerp(from,to,Mathf.SmoothStep(0,1,t));transform.position=new Vector3(p.x,p.y,transform.position.z);
             if(rb!=null){rb.position=p;rb.velocity=Vector2.zero;}
             if(body!=null){var world=Vector3.up*Mathf.Sin(t*Mathf.PI)*height;body.transform.localPosition=origin+(body.transform.parent!=null?body.transform.parent.InverseTransformVector(world):world);}
             if(monster!=null)Owner.Level.EntityManager.Grid?.UpdateClient(monster);

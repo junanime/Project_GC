@@ -50,6 +50,7 @@ namespace Vampire
             runtime.playerVisual=level.PlayerCharacter.GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
             (runtime.GetComponent<OralMapVisual>()??runtime.gameObject.AddComponent<OralMapVisual>()).Configure(runtime);
             (runtime.GetComponent<OralFieldEvents>()??runtime.gameObject.AddComponent<OralFieldEvents>()).Configure(level);
+            (runtime.GetComponent<OralCeilingArenaVisual>()??runtime.gameObject.AddComponent<OralCeilingArenaVisual>()).Configure(runtime);
             runtime.lastSupportedPosition=level.PlayerCharacter.Position;
             runtime.hasSupportedPosition=true;runtime.Ready=true;return runtime;
         }
@@ -78,7 +79,7 @@ namespace Vampire
             if(IsJumping)EndJump();EndSlide(false);OnCeiling=value;playerZone=OralZone.Tongue;
             if(Level==null||Map==null)return;
             var player=Level.PlayerCharacter;if(player==null)return;
-            var p=OralMapGeometry.Clamp(Map,player.transform.position,.5f,OralZone.Tongue);
+            var p=value?OralCeilingArenaGeometry.Clamp(Map,player.transform.position,.5f):OralMapGeometry.Clamp(Map,player.transform.position,.5f,OralZone.Tongue);
             lastSupportedPosition=p;hasSupportedPosition=true;
             player.transform.position=p;var rb=player.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=p;rb.velocity=Vector2.zero;}
         }
@@ -104,7 +105,14 @@ namespace Vampire
         {
             if(IsSliding)return slidePosition;
             if(IsJumping)return position;
-            if(OnCeiling)playerZone=OralZone.Tongue;
+            var events=GetComponent<OralFieldEvents>();
+            if(events!=null&&events.OnCeiling&&(events.CeilingPhase==1||events.CeilingPhase==3))return position;
+            if(OnCeiling)
+            {
+                playerZone=OralZone.Tongue;
+                var ceilingPoint=OralCeilingArenaGeometry.Clamp(Map,position,radius);
+                lastSupportedPosition=ceilingPoint;hasSupportedPosition=true;return ceilingPoint;
+            }
             if(Ready && !OnCeiling && playerZone==OralZone.Teeth && hasSupportedPosition &&
                 Level!=null && Level.PlayerCharacter!=null && Level.PlayerCharacter.IsAlive &&
                 !Level.IsRunFlowPaused && !Level.PlayerCharacter.IsPortalTravelling &&
@@ -175,7 +183,7 @@ namespace Vampire
         }
         public void TeleportPlayer(Vector2 position,OralZone zone)
         {
-            EndJump();EndSlide(false);playerZone=zone;position=OralMapGeometry.Clamp(Map,position,.5f,zone);
+            EndJump();EndSlide(false);playerZone=zone;position=OnCeiling?OralCeilingArenaGeometry.Clamp(Map,position,.5f):OralMapGeometry.Clamp(Map,position,.5f,zone);
             lastSupportedPosition=position;hasSupportedPosition=true;
             var player=Level.PlayerCharacter;player.transform.position=position;
             var rb=player.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=position;rb.velocity=Vector2.zero;}
