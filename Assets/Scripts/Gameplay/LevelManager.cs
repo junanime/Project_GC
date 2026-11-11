@@ -133,6 +133,7 @@ namespace Vampire
             foreach (var toast in FindObjectsOfType<StageEventToastUI>()) toast.ResetForStage();
             foreach (var toad in FindObjectsOfType<AcidToadSpawn>()) toad.ResetForStage();
             foreach (var altar in FindObjectsOfType<FinalBossSummonInteractable>()) altar.ResetForNextStage();
+            GameAudioManager.BeginNextStageMusic();
         }
 
         private void Start()

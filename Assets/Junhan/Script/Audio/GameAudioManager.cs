@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -114,9 +115,13 @@ namespace Vampire
         [SerializeField]
         private AudioClip lobbyBgm;
 
-        [Tooltip("일반 게임 플레이 중 반복 재생할 ingame_bgm_10입니다.")]
+        [Tooltip("기존 필드 BGM. 추가 필드 BGM과 함께 스테이지 진입 시 무작위로 선택합니다.")]
         [SerializeField]
         private AudioClip ingameBgm;
+
+        [Tooltip("스테이지 0·1·2 공용 필드 BGM. 기존 곡을 포함한 유효한 곡 중 하나를 같은 확률로 선택합니다.")]
+        [SerializeField]
+        private AudioClip[] additionalIngameBgms;
 
         [Tooltip("미니 스테이지 내부에서 반복 재생할 mini_stage_bgm_10입니다.")]
         [SerializeField]
@@ -449,6 +454,11 @@ namespace Vampire
         private bool pendingGameplayBgm;
         private float nextBgmCheck;
 
+        // Music must not consume the gameplay RNG used by spawns and rewards.
+        private readonly System.Random gameplayMusicRandom = new System.Random();
+        private AudioClip selectedGameplayBgm;
+        private int gameplayMusicSceneHandle = -1;
+
         private void Update()
         {
             if (pendingGameplayBgm && !StageEntryLoading.IsLoading)
@@ -661,6 +671,21 @@ namespace Vampire
             }
         }
 
+        /// <summary>
+        /// Stage 0, 1 and 2 share the same Unity scene. A real field transition
+        /// chooses fresh music; modal/mini-stage returns keep the paused clip.
+        /// </summary>
+        public static void BeginNextStageMusic()
+        {
+            if (Instance == null) return;
+            Instance.selectedGameplayBgm = null;
+            Instance.StopAllBgmInternal();
+            if (StageEntryLoading.IsLoading)
+                Instance.pendingGameplayBgm = true;
+            else
+                Instance.PlayIngameBgm();
+        }
+
         public static void EnterMiniStageAudio()
         {
             if (Instance == null)
@@ -785,6 +810,8 @@ namespace Vampire
 
         private void PlayLobbyBgm()
         {
+            selectedGameplayBgm = null;
+            gameplayMusicSceneHandle = -1;
             PlayBaseBgm(
                 lobbyBgm,
                 "Lobby");
@@ -792,8 +819,25 @@ namespace Vampire
 
         private void PlayIngameBgm()
         {
+            if (StageEntryLoading.IsLoading)
+            {
+                StopAllBgmInternal();
+                pendingGameplayBgm = true;
+                return;
+            }
+            int sceneHandle = SceneManager.GetActiveScene().handle;
+            if (selectedGameplayBgm == null || gameplayMusicSceneHandle != sceneHandle)
+            {
+                var pool = new List<AudioClip>();
+                if (ingameBgm != null) pool.Add(ingameBgm);
+                if (additionalIngameBgms != null)
+                    foreach (var candidate in additionalIngameBgms)
+                        if (candidate != null && !pool.Contains(candidate)) pool.Add(candidate);
+                selectedGameplayBgm = pool.Count > 0 ? pool[gameplayMusicRandom.Next(pool.Count)] : null;
+                gameplayMusicSceneHandle = sceneHandle;
+            }
             PlayBaseBgm(
-                ingameBgm,
+                selectedGameplayBgm,
                 "Ingame");
         }
 
@@ -1085,6 +1129,7 @@ namespace Vampire
         private void StopAllBgmInternal()
         {
             bgmRequested = false;
+            pendingGameplayBgm = false;
             if (modalBgmSource != null)
             {
                 modalBgmSource.Stop();
