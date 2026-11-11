@@ -92,7 +92,7 @@ namespace Vampire
                 line.numCapVertices = 3;
                 line.numCornerVertices = 2;
                 line.enabled = false;
-                GroundVisualSorting.ApplyBackground(line, -835);
+                GroundVisualSorting.ApplyBackground(line, -849);
                 streams.Add(line);
             }
             visualRoot.gameObject.SetActive(false);
@@ -148,7 +148,10 @@ namespace Vampire
             {
                 int index = whirlpools.Count;
                 var view = new WhirlpoolView();
-                view.Renderer = AddRenderer("흡인 반경과 같은 소용돌이 " + index, unitMesh, whirlpoolMaterial, -830);
+                // Equal transparent sorting keys can swap when moving discs cross.
+                // Keep all 47 discs above water (-850) and below the closed upper jaw (-800).
+                // Each disc's layer stays stable for its entire lifetime.
+                view.Renderer = AddRenderer("흡인 반경과 같은 소용돌이 " + index, unitMesh, whirlpoolMaterial, -848 + index);
                 view.Properties.SetTexture(MainTexId, whirlpoolArt[index % 4]);
                 view.Properties.SetTexture(SecondTexId, whirlpoolArt[(index + 1) % 4]);
                 view.Properties.SetFloat(PhaseId, index * 2.39996f);

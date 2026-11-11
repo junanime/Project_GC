@@ -42,7 +42,7 @@ namespace Vampire.Tests.Editor
             File.WriteAllText(Root + "/result.txt", "RUNNING"); File.WriteAllText(Root + "/checks.txt", ""); File.WriteAllText(Root + "/errors.txt", "");
             var keys = new[] { "Coins", "LobbySilverCoins" };
             File.WriteAllText(Root + "/prefs.json", JsonUtility.ToJson(new Backup { prefs = keys.Select(k => new Pref { key = k, had = PlayerPrefs.HasKey(k), value = PlayerPrefs.GetInt(k) }).ToArray() }));
-            File.WriteAllText(Root + "/capture-method.txt", "Actual Unity Level 1 scene, selected production CharacterBlueprint, actual runtime and Camera.Render. Controlled placement, game-clock seek and invincibility are QA fixtures only. Actual Character.TryDash executes the recorded escapes. Full-flow review uses a wider camera; close-ups use the same production renderer. Fixed 15 simulation frames per second while recording; no generated or interpolated frames. PlayerPrefs restored on completion.\n");
+            File.WriteAllText(Root + "/capture-method.txt", "Actual Unity Level 1 scene, selected production CharacterBlueprint, actual runtime and Camera.Render. Controlled placement, game-clock seek and explicit per-frame full health are QA fixtures only; percentage core damage bypasses ordinary invincibility. Actual Character.TryDash executes the recorded escapes. Full-flow review uses a wider camera; close-ups use the same production renderer. Fixed 15 simulation frames per second while recording; no generated or interpolated frames. PlayerPrefs restored on completion.\n");
             var arg = Environment.GetCommandLineArgs().FirstOrDefault(a => a.StartsWith("-swallowCharacter="));
             int index = arg == null ? 0 : int.Parse(arg.Substring("-swallowCharacter=".Length), CultureInfo.InvariantCulture);
             if (index < 0 || index >= Names.Length) throw new ArgumentOutOfRangeException("swallowCharacter");
@@ -237,7 +237,7 @@ namespace Vampire.Tests.Editor
             File.WriteAllText(Output + "/timeline.csv", "game_seconds,stage_seconds,stage,age,water01,vortices,jaw01,swallow01,monsters\n");
             yield return Record("01-full-finale-to-stage1", () => !sawStageOne || Time.time - transferredAt < 2f, () =>
             {
-                CloseDialogs(level); Set(player, "isInvincible", true); player.Move(Vector2.zero);
+                CloseDialogs(level); Set(player, "isInvincible", true); Set(player, "currentHealth", player.MaxHealth); player.Move(Vector2.zero);
                 if (stage.StageNumber == 0 && finale != null)
                 {
                     if (finale.Active && !sawStart) { sawStart = true; activatedAt = level.CurrentLevelTime; }
@@ -300,7 +300,7 @@ namespace Vampire.Tests.Editor
                 for (int mode = 0; mode < 2; mode++)
                 {
                     Physics2D.maxTranslationSpeed = mode == 0 ? normalCap : 1f;
-                    Place(player, center + new Vector2(-13, -4)); Set(player, "currentDashCharges", player.MaxDashCharges); Set(player, "isInvincible", true);
+                    Place(player, center + new Vector2(-13, -4)); Set(player, "currentDashCharges", player.MaxDashCharges); Set(player, "isInvincible", true); Set(player, "currentHealth", player.MaxHealth);
                     Vector2 start = player.Position;
                     Check(finale.TryGetDashExit(player, Vector2.right, out var target), "overlapping-chain fixture supplies a real vortex escape target");
                     float planned = Vector2.Distance(start, target);
@@ -334,7 +334,7 @@ namespace Vampire.Tests.Editor
             bool dashStarted = false, dashEnded = false; int chargesBefore = 0; Vector2 start = default, end = default; float endRadius = 0, endDistance = 0;
             yield return Record(name, () => Time.time - began < 3.5f, () =>
             {
-                CloseDialogs(level); Set(player, "isInvincible", true);
+                CloseDialogs(level); Set(player, "isInvincible", true); Set(player, "currentHealth", player.MaxHealth);
                 if (!dashStarted && Time.time - began >= .75f)
                 {
                     pullDistance = beforePull - Vector2.Distance(player.Position, vortex.Position);

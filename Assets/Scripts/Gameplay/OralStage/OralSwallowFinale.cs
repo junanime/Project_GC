@@ -7,6 +7,7 @@ namespace Vampire
     {
         public Vector2 Position;
         public float Radius, Angle;
+        public float CollisionRadius => Radius * .5f;
         internal Vector2 Direction;
         internal float TurnRemaining;
     }
@@ -27,10 +28,31 @@ namespace Vampire
         public bool IsSwallowing => Active && age >= SweepTime;
         public float Swallow01 => Active ? Mathf.Clamp01((age - SweepTime) / 3f) : 0;
         public bool VorticesActive => Active && age >= SurvivalTime && age < SweepTime;
+        public bool SuppressMonsterSpawns => Active && age >= SurvivalTime;
+        public bool IsPlayerCaptured => playerCapture != null && VorticesActive && player != null && !player.IsDashing;
+        public bool PlayerAtCenter => IsPlayerCaptured && playerCapture.AtCenter;
+        public int PlayerCoreDamageTicks { get; private set; }
+        public int SwallowedMonsters { get; private set; }
+        public int CapturedMonsterCount => monsterCaptures.Count;
+        public bool CapturesPlayer(Character actor) => actor == player && IsPlayerCaptured;
         public IReadOnlyList<OralWhirlpoolState> Whirlpools => whirlpools;
+        public int PairBounces { get; private set; }
+        public int BoundaryBounces { get; private set; }
 
         readonly List<OralWhirlpoolState> whirlpools = new List<OralWhirlpoolState>();
         readonly List<SweptMonster> swept = new List<SweptMonster>();
+        readonly Dictionary<Monster, SpiralCapture> monsterCaptures = new Dictionary<Monster, SpiralCapture>();
+        readonly List<Monster> monsterScratch = new List<Monster>();
+        readonly List<Monster> releasedMonsters = new List<Monster>();
+        SpiralCapture playerCapture;
+        const float SpiralSeconds = 2.6f, SpiralAngularSpeed = 3.2f, CoreRadius = .16f;
+        sealed class SpiralCapture
+        {
+            public OralWhirlpoolState Source;
+            public float Radius, Angle, DamageClock;
+            public bool AtCenter, WasSuspended;
+            public uint Generation;
+        }
         OralStageRuntime stage;
         OralFieldEvents events;
         LevelManager level;
@@ -55,6 +77,8 @@ namespace Vampire
             stage = owner; level = owner.Level; player = level.PlayerCharacter;
             events = owner.GetComponent<OralFieldEvents>();
             age = 0; spawnClock = 0; shortcutHeld = false; transferring = false;
+            PairBounces = BoundaryBounces = 0;
+            PlayerCoreDamageTicks = SwallowedMonsters = 0;
             Instance = this;
         }
 
@@ -91,7 +115,7 @@ namespace Vampire
                 if (Pending) TryBegin();
                 return;
             }
-            if (Time.deltaTime <= 0 || player.IsChoosingAugment || player.IsPortalTravelling ||
+            if (Time.timeScale <= 0 || Time.deltaTime <= 0 || player.IsChoosingAugment || player.IsPortalTravelling ||
                 StageEntryLoading.IsLoading || MiniStageRuntimeState.IsInsideMiniStage ||
                 (level.IsRunFlowPaused && !ownsPause)) return;
             float dt = Time.deltaTime;
@@ -101,7 +125,7 @@ namespace Vampire
             if (age < SweepTime)
             {
                 spawnClock -= dt;
-                if (spawnClock <= 0)
+                if (age < SurvivalTime && spawnClock <= 0)
                 {
                     spawnClock = .75f;
                     // Reuse the original oral roster, rewards, health and field population cap.
@@ -150,18 +174,47 @@ namespace Vampire
             {
                 var l = layout[i];
                 var w = new OralWhirlpoolState { Radius = l.z * scale, Angle = Random.Range(0, Mathf.PI * 2) };
-                w.Position = ClampVortex(OralMapGeometry.TonguePoint(stage.Map, new Vector2(l.x, l.y)), w.Radius);
+                // Keep the approved interior placement; new discs fill the unused regions.
+                w.Position = ClampVortex(OralMapGeometry.TonguePoint(stage.Map, new Vector2(l.x, l.y)), w.Radius, 1f);
                 Turn(w); whirlpools.Add(w);
             }
+            // 21 original discs + 26 additional discs: 18 around the rim and 8 in broad gaps.
+            // Coordinates are offsets from the tongue center, at its authored map scale.
+            Vector3[] additions = {
+                new Vector3(-14.235f,2.977f,2.3f), new Vector3(-12.095f,5.474f,2.4f),
+                new Vector3(-9.055f,7.456f,2.3f), new Vector3(-4.353f,8.941f,2.35f),
+                new Vector3(1.421f,9.382f,2.2f), new Vector3(7.019f,8.225f,2.4f),
+                new Vector3(10.975f,6.323f,2.4f), new Vector3(14.127f,3.117f,2.35f),
+                new Vector3(-14.979f,-.197f,2.4f), new Vector3(-14.879f,-2.867f,2.6f),
+                new Vector3(-15.029f,-5.783f,2.3f), new Vector3(-14.879f,-8.256f,2.6f),
+                new Vector3(-5.716f,-8.584f,2.4f), new Vector3(.899f,-8.585f,2.4f),
+                new Vector3(6.610f,-8.534f,2.5f), new Vector3(14.904f,-8.509f,2.55f),
+                new Vector3(14.929f,-5.319f,2.5f), new Vector3(15.004f,-1.194f,2.35f),
+                new Vector3(-2.513f,-5.119f,1.8f), new Vector3(5.287f,3.581f,2.1f),
+                new Vector3(-4.913f,-2.719f,2.5f), new Vector3(-9.713f,-3.319f,1.95f),
+                new Vector3(8.587f,-3.619f,2.3f), new Vector3(3.390f,6.256f,2.6f),
+                new Vector3(10.087f,-8.719f,1.8f), new Vector3(3.787f,.881f,2.1f)
+            };
+            Vector2 center = OralMapGeometry.TongueCenter(stage.Map);
+            float additionScale = OralMapGeometry.TongueRadii(stage.Map).x / 16.263145f;
+            foreach (var l in additions)
+            {
+                var w = new OralWhirlpoolState { Radius = l.z * additionScale, Angle = Random.Range(0, Mathf.PI * 2) };
+                w.Position = ClampVortex(center + new Vector2(l.x, l.y) * additionScale, w.Radius);
+                Turn(w); whirlpools.Add(w);
+            }
+            // Settle the half-radius cores before the warning becomes visible.
+            for (int pass = 0; pass < 32; pass++) SeparateCores(false);
         }
 
-        Vector2 ClampVortex(Vector2 point, float radius)
+        Vector2 ClampVortex(Vector2 point, float radius, float footprintRatio = .5f)
         {
             for (int i = 0; i < 16; i++)
             {
                 float d = OralMapGeometry.TongueDistance(stage.Map, point, out var inward);
-                if (d >= radius + .1f) break;
-                point += inward * (radius + .12f - d);
+                float clearance = radius * footprintRatio + .1f;
+                if (d >= clearance) break;
+                point += inward * (clearance + .02f - d);
             }
             return point;
         }
@@ -175,37 +228,200 @@ namespace Vampire
 
         void MoveWhirlpools(float dt)
         {
-            foreach (var w in whirlpools)
+            // Substeps prevent a long frame from tunnelling through another core.
+            int steps = Mathf.Max(1, Mathf.CeilToInt(dt / (1f / 30f)));
+            float step = dt / steps;
+            for (int s = 0; s < steps; s++)
             {
-                w.TurnRemaining -= dt;
-                if (w.TurnRemaining <= 0) Turn(w);
-                Vector2 next = w.Position + w.Direction * VortexSpeed * dt;
-                Vector2 bounded = ClampVortex(next, w.Radius);
-                if ((bounded - next).sqrMagnitude > .00001f) { Turn(w); next = bounded; }
-                w.Position = next;
-                w.Angle += dt * (1.7f + .8f / w.Radius);
+                foreach (var w in whirlpools)
+                {
+                    w.TurnRemaining -= step;
+                    if (w.TurnRemaining <= 0) Turn(w);
+                    w.Position += w.Direction * VortexSpeed * step;
+                    BounceAtBoundary(w, true);
+                    w.Angle += step * (1.7f + .8f / w.Radius);
+                }
+                for (int pass = 0; pass < 6; pass++) SeparateCores(true);
+            }
+        }
+
+        static Vector2 EightDirection(Vector2 direction)
+        {
+            float angle = Mathf.Round(Mathf.Atan2(direction.y, direction.x) / (Mathf.PI / 4)) * (Mathf.PI / 4);
+            return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+        }
+
+        static bool ReflectOutward(OralWhirlpoolState w, Vector2 outward)
+        {
+            float approach = Vector2.Dot(w.Direction, outward);
+            if (approach >= -.001f) return false;
+            Vector2 reflected = EightDirection(w.Direction - 2 * approach * outward);
+            // Quantization must never turn the reflected velocity back into the contact.
+            if (Vector2.Dot(reflected, outward) < .05f) reflected = EightDirection(outward);
+            w.Direction = reflected;
+            w.TurnRemaining = Mathf.Max(w.TurnRemaining, .65f);
+            return true;
+        }
+
+        void BounceAtBoundary(OralWhirlpoolState w, bool animate)
+        {
+            float clearance = w.CollisionRadius + .1f;
+            float d = OralMapGeometry.TongueDistance(stage.Map, w.Position, out var inward);
+            if (d >= clearance) return;
+            w.Position = ClampVortex(w.Position, w.Radius);
+            if (animate && ReflectOutward(w, inward)) BoundaryBounces++;
+        }
+
+        void SeparateCores(bool animate)
+        {
+            for (int i = 0; i < whirlpools.Count; i++)
+            {
+                var a = whirlpools[i];
+                for (int j = i + 1; j < whirlpools.Count; j++)
+                {
+                    var b = whirlpools[j];
+                    Vector2 delta = b.Position - a.Position;
+                    float contact = a.CollisionRadius + b.CollisionRadius;
+                    if (delta.sqrMagnitude >= contact * contact) continue;
+                    float distance = delta.magnitude;
+                    Vector2 normal = distance > .0001f ? delta / distance : EightDirection(new Vector2(i + 1, j + 1));
+                    Vector2 separation = normal * ((contact - distance) * .5f + .0005f);
+                    a.Position -= separation; b.Position += separation;
+                    // Corrections from a third disc can overlap a pair that is already
+                    // separating. Reflect only an approaching pair to avoid contact jitter.
+                    if (animate && Vector2.Dot(b.Direction - a.Direction, normal) < -.001f)
+                    {
+                        bool first = ReflectOutward(a, -normal);
+                        bool second = ReflectOutward(b, normal);
+                        if (first || second) PairBounces++;
+                    }
+                    BounceAtBoundary(a, animate); BounceAtBoundary(b, animate);
+                }
             }
         }
 
         void LateUpdate()
         {
-            if (!Active || player == null || !player.IsAlive || Time.deltaTime <= 0 || transferring) return;
+            if (!Active || player == null || !player.IsAlive || Time.timeScale <= 0 || Time.deltaTime <= 0 || transferring) return;
             if (sweeping) { TickSweep(); return; }
-            if (!VorticesActive || level.IsRunFlowPaused || player.IsChoosingAugment || player.IsDashing ||
-                pullGrace > 0 || stage.IsAirborne || StageEntryLoading.IsLoading) return;
+            if (!VorticesActive || level.IsRunFlowPaused || player.IsChoosingAugment ||
+                StageEntryLoading.IsLoading || MiniStageRuntimeState.IsInsideMiniStage) return;
+            TickMonsterCaptures(Time.deltaTime);
+            if (player.IsDashing || pullGrace > 0 || stage.IsAirborne) return;
+            if (playerCapture == null)
+            {
+                var source = FindContainingVortex(player.Position);
+                if (source == null) return;
+                playerCapture = Capture(source, player.Position);
+                player.StartIdleAnimation();
+            }
+            var capture = playerCapture;
+            Vector2 target = SpiralPosition(capture, Time.deltaTime);
+            target = OralMapGeometry.Clamp(stage.Map, target, PlayerRadius, OralZone.Tongue);
+            var body = player.GetComponent<Rigidbody2D>();
+            if (body != null)
+            {
+                target = BloodClotObstacle.ClampDash(body, target);
+                body.velocity = Vector2.zero; body.position = target;
+            }
+            player.transform.position = new Vector3(target.x, target.y, player.transform.position.z);
+            UpdatePolar(capture, target);
+            bool centered = Vector2.Distance(target, capture.Source.Position) <= CoreRadius;
+            // Moving centers can briefly meet an obstacle. Re-contact within the same
+            // capture must never reset the pulse cooldown and deal rapid duplicate hits.
+            capture.DamageClock = Mathf.Max(0, capture.DamageClock - Time.deltaTime);
+            capture.AtCenter = centered;
+            if (!centered) return;
+            capture.Radius = 0;
+            if (capture.DamageClock <= 0)
+            {
+                capture.DamageClock = 1.5f;
+                if (player.TakeWhirlpoolCoreDamage()) PlayerCoreDamageTicks++;
+            }
+        }
+
+        OralWhirlpoolState FindContainingVortex(Vector2 position)
+        {
             OralWhirlpoolState source = null; float deepest = 0;
             foreach (var w in whirlpools)
             {
-                float penetration = 1 - Vector2.Distance(player.Position, w.Position) / w.Radius;
+                float penetration = 1 - Vector2.Distance(position, w.Position) / w.Radius;
                 if (penetration > deepest) { source = w; deepest = penetration; }
             }
-            if (source == null) return;
-            Vector2 target = Vector2.MoveTowards(player.Position, source.Position,
-                (player.CurrentMoveSpeed + 1f) * Time.deltaTime * Mathf.Lerp(.8f, 1.6f, deepest));
-            target = OralMapGeometry.Clamp(stage.Map, target, PlayerRadius, OralZone.Tongue);
-            var body = player.GetComponent<Rigidbody2D>();
-            if (body != null) { target = BloodClotObstacle.ClampDash(body, target); body.position = target; }
-            player.transform.position = new Vector3(target.x, target.y, player.transform.position.z);
+            return source;
+        }
+
+        static SpiralCapture Capture(OralWhirlpoolState source, Vector2 position)
+        {
+            var capture = new SpiralCapture { Source = source };
+            UpdatePolar(capture, position);
+            return capture;
+        }
+
+        static void UpdatePolar(SpiralCapture capture, Vector2 position)
+        {
+            var offset = position - capture.Source.Position;
+            capture.Radius = offset.magnitude;
+            if (offset.sqrMagnitude > .000001f) capture.Angle = Mathf.Atan2(offset.y, offset.x);
+        }
+
+        static Vector2 SpiralPosition(SpiralCapture capture, float dt)
+        {
+            capture.Radius = Mathf.Max(0, capture.Radius - capture.Source.Radius / SpiralSeconds * dt);
+            // Positive texture sampling rotation looks clockwise, so orbit clockwise too.
+            capture.Angle -= SpiralAngularSpeed * dt;
+            return capture.Source.Position + new Vector2(Mathf.Cos(capture.Angle), Mathf.Sin(capture.Angle)) * capture.Radius;
+        }
+
+        void TickMonsterCaptures(float dt)
+        {
+            monsterScratch.Clear();
+            foreach (var monster in level.EntityManager.LivingMonsters) monsterScratch.Add(monster);
+            foreach (var monster in monsterScratch)
+            {
+                if (monster == null || !monster.IsAlive || !monster.gameObject.activeInHierarchy ||
+                    monster.IsMiniStageOwned || monster is BossMonster || monster is BloodClotMonster ||
+                    monster.IsFieldRuntimeSuspended || monsterCaptures.ContainsKey(monster)) continue;
+                var source = FindContainingVortex(monster.Position);
+                if (source == null) continue;
+                var capture = Capture(source, monster.Position);
+                capture.WasSuspended = monster.IsFieldRuntimeSuspended;
+                capture.Generation = monster.SpawnGeneration;
+                monsterCaptures.Add(monster, capture);
+                monster.SetFieldRuntimeSuspended(true);
+            }
+            releasedMonsters.Clear();
+            foreach (var entry in monsterCaptures)
+            {
+                var monster = entry.Key; var capture = entry.Value;
+                if (monster == null || monster.SpawnGeneration != capture.Generation || !monster.IsAlive || !monster.gameObject.activeInHierarchy)
+                { releasedMonsters.Add(monster); continue; }
+                var target = SpiralPosition(capture, dt);
+                target = OralMapGeometry.Clamp(stage.Map, target, .2f, OralZone.Tongue);
+                monster.transform.position = new Vector3(target.x, target.y, monster.transform.position.z);
+                var body = monster.GetComponent<Rigidbody2D>(); if (body != null) body.position = target;
+                level.EntityManager.Grid.UpdateClient(monster);
+                UpdatePolar(capture, target);
+                if (capture.Radius > CoreRadius) continue;
+                // Environmental death bypasses needle shields and does not trigger player kill attacks/splits.
+                monster.SwallowedByVortex();
+                SwallowedMonsters++;
+                releasedMonsters.Add(monster);
+            }
+            foreach (var monster in releasedMonsters) monsterCaptures.Remove(monster);
+        }
+
+        void ReleaseCaptures()
+        {
+            playerCapture = null;
+            foreach (var entry in monsterCaptures)
+            {
+                var monster = entry.Key;
+                if (monster != null && monster.SpawnGeneration == entry.Value.Generation && monster.IsAlive &&
+                    monster.gameObject.activeInHierarchy && !entry.Value.WasSuspended)
+                    monster.SetFieldRuntimeSuspended(false);
+            }
+            monsterCaptures.Clear(); monsterScratch.Clear(); releasedMonsters.Clear();
         }
 
         float PlayerRadius => player != null ? (player.GetComponent<StomachSlopeBody>()?.Radius ?? .25f) : .25f;
@@ -213,9 +429,10 @@ namespace Vampire
         public bool TryGetDashExit(Character actor, Vector2 direction, out Vector2 exit)
         {
             exit = actor != null ? actor.Position : Vector2.zero;
-            if (!VorticesActive || actor != player || OutsideAll(exit, 0)) return false;
+            if (!VorticesActive || actor != player || (playerCapture == null && OutsideAll(exit, 0))) return false;
             dashOwner = actor; dashDirection = direction.sqrMagnitude > .01f ? direction.normalized : Vector2.down;
             exit = FindExit(actor.Position, dashDirection);
+            playerCapture = null;
             return true;
         }
 
@@ -229,7 +446,7 @@ namespace Vampire
         public void NotifyDashFinished(Character actor)
         {
             if (actor != dashOwner) return;
-            dashOwner = null; pullGrace = .15f;
+            dashOwner = null; playerCapture = null; pullGrace = .15f;
         }
 
         bool OutsideAll(Vector2 p, float margin)
@@ -297,6 +514,7 @@ namespace Vampire
 
         void BeginSweep()
         {
+            ReleaseCaptures();
             sweeping = true; dashOwner = null;
             stage.ReturnToTongueForSwallow();
             OralStageRuntime.CancelPlayerTravel(player);
@@ -361,6 +579,7 @@ namespace Vampire
 
         public void CancelForTransition()
         {
+            ReleaseCaptures();
             ReleaseSweep(); Active = Pending = sweeping = false; dashOwner = null; pullGrace = 0;
             whirlpools.Clear();
         }

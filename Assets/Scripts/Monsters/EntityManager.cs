@@ -65,6 +65,24 @@ namespace Vampire
         private LevelManager barrierRunLevel;
         public SpatialHashGrid Grid { get => grid; }
 
+        // The oral finale closes every monster route once its whirlpools appear,
+        // including splits and explicitly positioned/event-owned spawns. Do not
+        // latch this state: changing maps must immediately restore stage-one spawns.
+        public static bool OralFinaleSuppressesMonsterSpawns
+        {
+            get
+            {
+                var map = FiniteStomachMap.Instance;
+                if (map == null || !map.IsOral) return false;
+                if (OralSwallowFinale.Instance != null && OralSwallowFinale.Instance.SuppressMonsterSpawns) return true;
+                // The finale component is destroyed one frame before the map changes.
+                // Keep that loading frame closed without blocking initial oral placement.
+                var progression = map.GetComponent<StageProgression>();
+                return progression != null && progression.StageNumber == 0 && progression.Travelling &&
+                    progression.TransitionPhase == "stomach-loading";
+            }
+        }
+
         public Monster SpawnOverchargeElite(Vector2 position)
         {
             if (remakeLevel == null || MiniStageRuntimeState.IsInsideMiniStage) return null;
@@ -265,6 +283,7 @@ namespace Vampire
             bool allowDuringMiniStage
         )
         {
+            if (OralFinaleSuppressesMonsterSpawns) return null;
             if (ShouldBlockFieldMonsterSpawn(allowDuringMiniStage))
             {
                 Debug.Log(
@@ -315,6 +334,7 @@ namespace Vampire
             bool allowDuringMiniStage
         )
         {
+            if (OralFinaleSuppressesMonsterSpawns) return null;
             // Stage zero owns a deliberately small food roster. Legacy debug/event
             // spawners must not leak specialized stage-one monsters into this field.
             if (!allowDuringMiniStage && FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&

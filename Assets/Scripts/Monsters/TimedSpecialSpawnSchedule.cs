@@ -192,6 +192,14 @@ namespace Vampire
 
         protected override void OnTick()
         {
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns)
+            {
+                // These are cancelled, not paused: delayed waves and trap respawns
+                // must not spill into the next stage when the finale releases its gate.
+                StopAllCoroutines();
+                RemoveAllTrapListeners();
+                return;
+            }
             if (!runtimeScheduleBuilt)
             {
                 BuildRuntimeSchedule();
@@ -472,6 +480,7 @@ namespace Vampire
         private IEnumerator SpawnTimedEventRoutine(RuntimeTimedSpawnEvent runtimeEvent)
         {
             yield return WaitUntilMiniStageUnblocked();
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) yield break;
 
             if (runtimeEvent == null || runtimeEvent.entry == null)
             {
@@ -524,6 +533,7 @@ namespace Vampire
             for (int i = 0; i < count; i++)
             {
                 yield return WaitUntilMiniStageUnblocked();
+                if (EntityManager.OralFinaleSuppressesMonsterSpawns) yield break;
                 MonsterBlueprint waveBlueprint = entry.companionBlueprint != null && (firstType + i) % 2 == 1 ? entry.companionBlueprint : entry.monsterBlueprint;
                 if(paired)waveBlueprint=entry.monsterBlueprint;
                 if (!TryFindPoolIndexByBlueprint(waveBlueprint, out resolvedPoolIndex)) continue;
@@ -678,6 +688,7 @@ namespace Vampire
 
         private void SpawnOneTrap(RuntimeTrapFieldState state)
         {
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) return;
             // Also cover a delayed first activation, not only the respawn coroutine.
             if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&
                 levelManager != null && levelManager.CurrentLevelTime >= OralSpecialSpawnProfile.Duration) return;
@@ -829,6 +840,7 @@ namespace Vampire
 
             yield return WaitSecondsRespectingMiniStagePause(delay);
             yield return WaitUntilMiniStageUnblocked();
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) yield break;
 
             if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&
                 levelManager != null && levelManager.CurrentLevelTime >= OralSpecialSpawnProfile.Duration) yield break;

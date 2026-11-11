@@ -163,6 +163,7 @@ namespace Vampire
 
         private bool CanSpawnNow()
         {
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) return false;
             ResolveReferences();
 
             if (levelManager == null)
@@ -190,6 +191,8 @@ namespace Vampire
 
         private void SpawnOne()
         {
+            // Enzymes instantiate directly instead of using the shared monster pool.
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) return;
             ResolveReferences();
             CleanupAliveList();
 

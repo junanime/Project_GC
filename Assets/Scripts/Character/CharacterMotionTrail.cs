@@ -37,7 +37,7 @@ namespace Vampire
             var displacement = transform.position - previous;
             previous = transform.position;
             if (owner == null || body == null || motif == null || Time.deltaTime <= 0 ||
-                !owner.IsAlive || owner.IsPortalTravelling || owner.IsPortalPoseHeld ||
+                !owner.IsAlive || owner.IsPortalTravelling || owner.IsPortalPoseHeld || owner.IsWhirlpoolCaptured ||
                 !body.enabled || !body.gameObject.activeInHierarchy) return;
             // Actual displacement prevents particles when walking against a wall;
             // reject teleports, and never fill the space between old/new positions.

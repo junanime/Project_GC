@@ -89,6 +89,7 @@ namespace Vampire
             }
         }
         public float SpawnMaxHealth { get; protected set; }
+        public uint SpawnGeneration { get; private set; }
         public void ScaleHealthCapacity(float factor){SpawnMaxHealth*=factor;currentHealth=Mathf.Max(0,currentHealth*factor);}
         public void RestoreLinkedHealth(float fraction){currentHealth=SpawnMaxHealth*Mathf.Clamp01(fraction);alive=true;deathStarted=false;if(monsterHitbox!=null)monsterHitbox.enabled=true;}
         public bool IsAlive=>alive;
@@ -101,6 +102,12 @@ namespace Vampire
             deathStarted = true; currentHealth = 0; alive = false; WasKilledByPlayer = false;
             if (notify) Died?.Invoke(this);
             DespawnForStageTransfer();
+        }
+        public void SwallowedByVortex()
+        {
+            // Same environmental-death policy as acid: death notification once, no
+            // player kill passives, rewards, child monsters or blood-clot portals.
+            DissolveInAcidLake();
         }
         public bool WasKilledByPlayer { get; private set; }
         bool rankingKillRecorded;
@@ -227,6 +234,7 @@ namespace Vampire
         /// </summary>
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
+            SpawnGeneration++;
             GetComponent<MonsterNeedleBarrier>()?.ResetBarrier();
             GetComponent<OralTartarArmor>()?.ResetForPool();
             GetComponent<ColonSpecialRuntime>()?.ResetForPool();

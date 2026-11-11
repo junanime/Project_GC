@@ -167,6 +167,7 @@ namespace Vampire
         public bool IsOralSwallowing => OralSwallowFinale.Instance?.IsSwallowing == true &&
             OralStageRuntime.Instance?.Level?.PlayerCharacter == this;
         public bool IsOralSliding => OralStageRuntime.IsSlidingActor(this);
+        public bool IsWhirlpoolCaptured => OralSwallowFinale.Instance?.CapturesPlayer(this) == true;
         public Vector2 EffectiveMoveDirection => IsTrapBound || IsOralSliding ? Vector2.zero :
             (movementControlsReversed ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
@@ -427,7 +428,7 @@ namespace Vampire
 
         private void HandleHealOnIdle()
         {
-            if(IsPortalTravelling || IsOralSliding)return;
+            if(IsPortalTravelling || IsOralSliding || IsWhirlpoolCaptured)return;
             if (healOnIdlePerSecond > 0 && Velocity.magnitude < 0.1f)
             {
                 float healAmount = GetMaxHealth() * healOnIdlePerSecond;
@@ -450,6 +451,14 @@ namespace Vampire
             }
             if (isDashing)
             {
+                return;
+            }
+
+            if (IsWhirlpoolCaptured)
+            {
+                // Keep directional input for choosing a dash, but never apply walking acceleration.
+                if (rb != null) rb.velocity = Vector2.zero;
+                StartIdleAnimation();
                 return;
             }
 
@@ -1026,7 +1035,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (IsPortalDamageProtected || IsDashInvincibilityActive() || IsOralSwallowing)
+            if (IsPortalDamageProtected || IsDashInvincibilityActive() || IsOralSwallowing || IsWhirlpoolCaptured)
             {
                 return;
             }
@@ -1230,6 +1239,32 @@ namespace Vampire
             if (currentHealth > 0) return;
             if (ReviveCount > 0) { Revive(); return; }
             StartCoroutine(DeathAnimation());
+        }
+
+        public bool TakeWhirlpoolCoreDamage()
+        {
+            if (!alive || !IsWhirlpoolCaptured || IsDashing || IsPortalDamageProtected || IsOralSwallowing) return false;
+            // A core pulse is a fixed environmental HP loss; armor/evasion/shields do
+            // not reduce the specified quarter of maximum HP. A dash always escapes it.
+            float loss = Mathf.Min(currentHealth, MaxHealth * .25f);
+            if (loss <= 0) return false;
+            currentHealth -= loss;
+            healthBar.SubtractPoints(loss);
+            statsManager.IncreaseDamageTaken(loss);
+            lastDamageMonsterBlueprint = null;
+            GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerHit);
+            if (currentHealth <= 0)
+            {
+                if (ReviveCount > 0) Revive();
+                else { GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerDeath); StartCoroutine(DeathAnimation()); }
+            }
+            else
+            {
+                if (hitAnimationCoroutine != null) StopCoroutine(hitAnimationCoroutine);
+                hitAnimationCoroutine = StartCoroutine(HitAnimation());
+            }
+            return true;
         }
 
         public void RelocateAfterAcidRevival(Vector2 position)

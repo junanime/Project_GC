@@ -192,6 +192,7 @@ namespace Vampire
 
         protected override void OnTick()
         {
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) return;
             if (!spawnEnabled)
             {
                 return;
