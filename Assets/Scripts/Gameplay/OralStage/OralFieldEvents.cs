@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public enum OralEventKind { None, Jaw, Food, Water, Coffee, Soda, Sneeze, Ceiling, Hiccup, Brush, BalloonDelivery }
+    public enum OralEventKind { None, Jaw, Food, Water, Coffee, Soda, Sneeze, Ceiling, Hiccup, Brush, BalloonDelivery, Sweet, Salty, Sour, Bitter, Spicy, Boulder, Guard }
 
     [Serializable]
     public sealed class OralCavityState
@@ -46,6 +46,8 @@ namespace Vampire
         public string Banner { get; private set; } = "";
         public bool AutoSchedule = true;
         public OralEventAdditions Additions { get; private set; }
+        public OralTasteEvents Tastes { get; private set; }
+        public OralAmbientContent Ambient { get; private set; }
         public int CompletedEvents { get; private set; }
         public int HealedCavities { get { int count = 0; foreach (var c in cavities) if (c.Healed) count++; return count; } }
         public IReadOnlyList<OralCavityState> Cavities => cavities;
@@ -72,6 +74,10 @@ namespace Vampire
         Character player;
         float nextEvent = 12f, cooldown, toothDwell, spawnClock, coffeeClock, ceilingPhaseAge;
         int scheduleIndex, foodSpawned;
+        float contentClock = 24f;
+        int contentIndex;
+        readonly OralEventKind[] contentBag = { OralEventKind.Sweet, OralEventKind.Boulder, OralEventKind.Salty,
+            OralEventKind.Sour, OralEventKind.Guard, OralEventKind.Bitter, OralEventKind.Spicy };
         bool triggered, ownsPause, priorPause, configured, quitting;
         Vector2 flowDirection, ceilingLanding;
         float currentCeilingLift;
@@ -147,8 +153,14 @@ namespace Vampire
             var additionsObject = new GameObject("구강 추가 이벤트");
             additionsObject.transform.SetParent(transform, false);
             Additions = additionsObject.AddComponent<OralEventAdditions>(); Additions.Configure(this, level);
+            var tasteObject = new GameObject("구강 맛 이벤트"); tasteObject.transform.SetParent(additionsObject.transform, false);
+            Tastes = tasteObject.AddComponent<OralTasteEvents>(); Tastes.Configure(level);
+            var ambientObject = new GameObject("구강 선택 상호작용"); ambientObject.transform.SetParent(additionsObject.transform, false);
+            Ambient = ambientObject.AddComponent<OralAmbientContent>(); Ambient.Configure(level);
             Monster.Died += OnMonsterDied;
             nextEvent = 12; cooldown = 0; scheduleIndex = 0;
+            contentClock = 24; contentIndex = 0;
+            Shuffle(cycle); Shuffle(contentBag);
         }
 
         void BuildCavities()
@@ -179,18 +191,31 @@ namespace Vampire
             }
             if (Time.deltaTime <= 0 || player.IsChoosingAugment || player.IsPortalTravelling || (level.GetComponent<StageProgression>()?.Travelling??false) || (level.IsRunFlowPaused && !ownsPause)) return;
             float dt = Time.deltaTime;
+            if (AutoSchedule)
+            {
+                nextEvent -= dt;
+                TickContentSchedule(dt);
+            }
             cooldown = Mathf.Max(0, cooldown - dt);
             if (!OnCeiling) UpdateCavities(dt);
             if (CurrentEvent == OralEventKind.None)
             {
                 if (!AutoSchedule) return;
-                nextEvent -= dt;
                 toothDwell = IsTeeth(player.Position) ? toothDwell + dt : 0;
-                if (cooldown <= 0 && toothDwell >= 3f) { ForceEvent(OralEventKind.Jaw); return; }
-                if (nextEvent <= 0 && cooldown <= 0)
+                if (cooldown <= 0 && toothDwell >= 3f && ForceEvent(OralEventKind.Jaw)) return;
+                if (nextEvent <= 0)
                 {
                     var kind = cycle[scheduleIndex % cycle.Length];
-                    if (ForceEvent(kind)) scheduleIndex++;
+                    // Ceiling travel requires the tongue. Skip its slot while the player
+                    // stays on teeth instead of blocking every later field event forever.
+                    bool skipCeiling = kind == OralEventKind.Ceiling &&
+                        OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue;
+                    if (skipCeiling || ForceEvent(kind))
+                    {
+                        scheduleIndex++;
+                        if (scheduleIndex % cycle.Length == 0) Shuffle(cycle);
+                        if (skipCeiling) nextEvent = 3;
+                    }
                     else nextEvent = 3;
                 }
                 return;
@@ -214,11 +239,18 @@ namespace Vampire
 
         public bool ForceEvent(OralEventKind kind)
         {
+            if (kind >= OralEventKind.Sweet) return BeginContent(kind);
             if (!Available || kind == OralEventKind.None || CurrentEvent != OralEventKind.None || player.IsPortalTravelling ||
                 player.IsChoosingAugment || OralStageRuntime.Instance.IsAirborne || level.IsRunFlowPaused || (level.GetComponent<StageProgression>()?.Travelling??false)) return false;
             if (kind == OralEventKind.Jaw && !IsTeeth(player.Position)) return false;
+            // Full-tongue fire must leave the teeth safe; do not close the escape route.
+            if (kind == OralEventKind.Jaw && Tastes != null && Tastes.Active && Tastes.Kind == OralTasteKind.Spicy) return false;
+            // Coffee's pursuit acceleration must not remove the full-floor fire's escape window.
+            if (kind == OralEventKind.Coffee && Tastes != null && Tastes.Active && Tastes.Kind == OralTasteKind.Spicy) return false;
             if (kind == OralEventKind.Ceiling && OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue) return false;
+            if (kind == OralEventKind.Ceiling) Tastes?.CancelBounces();
             CurrentEvent = kind; sodaCoated.Clear(); Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
+            nextEvent = UnityEngine.Random.Range(18f, 27f);
             JawAmount = 0; CeilingPhase = 0; ceilingPhaseAge = 0; CeilingTravel01 = 0;
             TargetPosition = OralMapGeometry.Clamp(map, player.Position + player.EffectiveMoveDirection.normalized * 3f, 2.5f, OralZone.Tongue);
             flowDirection = new Vector2(UnityEngine.Random.value > .5f ? .45f : -.45f, -1).normalized;
@@ -242,6 +274,57 @@ namespace Vampire
                 GameAudioManager.GameSfxId.FieldEventStart);
             Notify(Banner);
             return true;
+        }
+
+        void TickContentSchedule(float dt)
+        {
+            if (CurrentEvent == OralEventKind.Ceiling) return;
+            contentClock -= dt;
+            if (contentClock > 0) return;
+            if (BeginContent(contentBag[contentIndex % contentBag.Length]))
+            {
+                contentIndex++;
+                if (contentIndex % contentBag.Length == 0) Shuffle(contentBag);
+                contentClock = UnityEngine.Random.Range(20f, 28f);
+            }
+            else contentClock = 2f; // Retry one entry, never repay missed waves in a burst.
+        }
+
+        static void Shuffle(OralEventKind[] bag)
+        {
+            for (int i = bag.Length - 1; i > 0; i--)
+            { int j = UnityEngine.Random.Range(0, i + 1); var temp = bag[i]; bag[i] = bag[j]; bag[j] = temp; }
+        }
+
+        bool BeginContent(OralEventKind kind)
+        {
+            if (!Available || OralEventArt.Paused(level) || CurrentEvent == OralEventKind.Ceiling ||
+                OralStageRuntime.Instance.IsAirborne) return false;
+            if (kind == OralEventKind.Spicy && (CurrentEvent == OralEventKind.Jaw || CurrentEvent == OralEventKind.Coffee)) return false;
+            bool begun;
+            if (kind == OralEventKind.Boulder) begun = Ambient != null && Ambient.BeginBoulder();
+            else if (kind == OralEventKind.Guard) begun = Ambient != null && Ambient.BeginGuard();
+            else
+            {
+                if (Tastes == null || Tastes.Active) return false;
+                begun = Tastes.Begin((OralTasteKind)((int)kind - (int)OralEventKind.Sweet));
+            }
+            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 혀 전체가 달아오릅니다 · 치아로 피하세요" :
+                kind == OralEventKind.Sweet ? "벌꿀집 발견! | 먹으러 모인 몬스터를 먼저 처치하세요" :
+                kind == OralEventKind.Salty ? "짠맛! | 소금결정 무리가 몰려옵니다" :
+                kind == OralEventKind.Sour ? "신맛! | 레몬껍질의 반동으로 경로를 바꾸세요" :
+                kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
+                kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
+                "구강 수호대! | 오토바이를 치아까지 안내하세요");
+            return begun;
+        }
+
+        void NotifyContent(OralEventKind kind, string message)
+        {
+            var toast = FindObjectOfType<StageEventToastUI>();
+            if (toast == null) return;
+            if (kind == OralEventKind.Spicy) toast.ShowImmediateEncounter(message);
+            else Notify(message);
         }
 
         void TickJaw(float previous)
@@ -630,11 +713,13 @@ namespace Vampire
             foreach (var monster in coffeeMonsters) if (monster != null) monster.GetComponent<CoffeeMonsterBuffRuntime>()?.RemoveEventBuff();
             coffeeMonsters.Clear(); bubbles.Clear();
             CurrentEvent = OralEventKind.None; JawAmount = 0; Elapsed = 0; Duration = 0; CeilingPhase = 0;
-            cooldown = 10; nextEvent = 16; toothDwell = 0; CompletedEvents++;
+            cooldown = 10; nextEvent = Mathf.Max(2f, nextEvent); toothDwell = 0; CompletedEvents++;
             Banner = "혀와 아랫니를 탐험하세요 · 가장자리 대쉬로 점프 · 충치 치료 " + HealedCavities + "/3";
         }
         public void CancelAll()
         {
+            Tastes?.CancelAll(); Tastes = null;
+            Ambient?.CancelAll(); Ambient = null;
             if (Additions != null) { Additions.EndEvent(); Additions.gameObject.SetActive(false); Destroy(Additions.gameObject); Additions = null; }
             Monster.Died -= OnMonsterDied;
             RestoreCeiling();

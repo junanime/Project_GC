@@ -148,10 +148,10 @@ namespace Vampire
             }
             var oralTable=result.monsterSpawnTable;
             float sourceDuration=Mathf.Max(1,source.levelTime);
-            var times=keys.Select(k=>k.t).Concat(source.monsterSpawnTable.spawnChanceKeyframes.Select(k=>k.t*sourceDuration/360f)).Where(t=>t>=0&&t<=1).Distinct().OrderBy(t=>t);
+            var times=keys.Select(k=>k.t).Concat(source.monsterSpawnTable.spawnChanceKeyframes.Select(k=>k.t*sourceDuration/OralSpecialSpawnProfile.Duration)).Where(t=>t>=0&&t<=1).Distinct().OrderBy(t=>t);
             result.monsterSpawnTable.spawnChanceKeyframes=times.Select(t=> {
                 var weights=new float[flat];float specialTotal=0;
-                foreach(var pair in specialPairs){float probability=source.monsterSpawnTable.GetProbability(t*360/sourceDuration,pair.Key);weights[pair.Value]=probability;specialTotal+=probability;}
+                foreach(var pair in specialPairs){float probability=source.monsterSpawnTable.GetProbability(t*OralSpecialSpawnProfile.Duration/sourceDuration,pair.Key);weights[pair.Value]=probability;specialTotal+=probability;}
                 foreach(int index in flatIndices)weights[index]=oralTable.GetProbability(t,index)*Mathf.Max(0,1-specialTotal);
                 return new MonsterSpawnTable.SpawnChanceKeyframe{t=t,spawnChances=weights};
             }).ToArray();

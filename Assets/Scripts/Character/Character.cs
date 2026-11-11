@@ -221,7 +221,8 @@ namespace Vampire
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
         public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && !IsOralSliding && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
         public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
-        private float SnailSlowMultiplier => GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f;
+        private float SnailSlowMultiplier => (GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f) *
+            (OralAmbientContent.Instance != null && OralAmbientContent.Instance.Level != null && OralAmbientContent.Instance.Level.PlayerCharacter == this ? OralAmbientContent.Instance.PlayerMoveMultiplier : 1f);
         public float CurrentArmor => armor != null ? armor.Value : 0f;
 
         public string DisplayName =>
@@ -516,7 +517,7 @@ namespace Vampire
 
         public bool TryDash()
         {
-            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding) return false;
+            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || (GetComponent<OralTasteBounce>()?.Active ?? false)) return false;
             if (Time.timeScale <= 0f || (abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen)) return false;
             if (IsTrapBound) return false;
             if (!enableDash)

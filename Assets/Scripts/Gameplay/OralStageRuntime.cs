@@ -11,7 +11,7 @@ namespace Vampire
         public bool OnCeiling {get;private set;}
         public bool IsJumping {get;private set;}
         public bool IsSliding {get;private set;}
-        public bool IsAirborne => IsJumping || IsSliding;
+        public bool IsAirborne => IsJumping || IsSliding || (Level!=null && Level.PlayerCharacter!=null && (Level.PlayerCharacter.GetComponent<OralTasteBounce>()?.Active??false));
         public float SlideProgress => IsSliding ? Mathf.Clamp01(slideElapsed / SlideSeconds) : 0;
         public float SlideVisualHeight {get;private set;}
         public Vector2 SlideLanding {get;private set;}
@@ -21,6 +21,8 @@ namespace Vampire
         {
             get
             {
+                var tasteBounce=Level!=null&&Level.PlayerCharacter!=null?Level.PlayerCharacter.GetComponent<OralTasteBounce>():null;
+                if(tasteBounce!=null&&tasteBounce.Active)return tasteBounce.VisualWorldOffset;
                 var visual=IsSliding?slideVisual:IsJumping?jumpVisual:null;
                 if(visual==null)return Vector3.zero;
                 var origin=IsSliding?slideVisualOrigin:visualOrigin;

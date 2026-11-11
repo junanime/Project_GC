@@ -344,7 +344,7 @@ namespace Vampire.Tests.Editor
             typeof(LevelBossSchedule).GetMethod("OnTick",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(schedule,null);
             Check(Object.FindObjectOfType<BossController>()==null&&Object.FindObjectOfType<BossMonster>()==null&&Object.FindObjectOfType<SnailBossRuntime>()==null&&Object.FindObjectOfType<FoodBossRuntime>()==null,"legacy boss schedule cannot spawn a stomach boss in late oral stage");
             Check(GameAudioManager.Instance==null||Field(GameAudioManager.Instance,"currentOverrideBgm").GetValue(GameAudioManager.Instance).ToString()!="Boss","oral stage does not start legacy boss music");
-            Set(level,"levelTime",360f); yield return null; yield return null;
+            Set(level,"levelTime",OralSpecialSpawnProfile.Duration); yield return null; yield return null;
             Check(runtime.ExitReady,"six-minute oral exit becomes available");
             float healthBeforeExit = player.CurrentHealth;
             var originalPlayer = player; var originalInventory = level.PlayerInventory; var originalSkills = player.Skills;

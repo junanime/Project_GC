@@ -78,6 +78,7 @@ namespace Vampire
                 if (Time.timeScale <= 0f) return null;
                 if (player == null || !player.gameObject.activeInHierarchy) player = UnityEngine.Object.FindObjectOfType<Character>();
                 if (player == null || !player.IsAlive) return null;
+                if (player.GetComponent<OralTasteBounce>()?.Active == true) return null;
                 if(touched!=null && Time.frameCount-touchedFrame<=1)
                 {
                     var target=entries.Find(e=>e.owner==touched);

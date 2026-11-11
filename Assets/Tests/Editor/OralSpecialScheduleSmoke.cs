@@ -156,7 +156,7 @@ namespace Vampire.Tests.Editor
             for (int i = 0; i < expectedKinds.Length; i++)
             {
                 var kind = expectedKinds[i]; var scheduled = events.Where(e => OralSpecialSpawnProfile.Identify(level.CurrentLevelBlueprint, e.entry.monsterBlueprint) == kind).OrderBy(e => e.time).ToArray();
-                Check(Mathf.Abs(scheduled[0].time - introductions[i]) < .001f && scheduled.All(e => e.time < 360), kind + " first appearance and six-minute end");
+                Check(Mathf.Abs(scheduled[0].time - introductions[i]) < .001f && scheduled.All(e => e.time < OralSpecialSpawnProfile.Duration), kind + " first appearance and configured stage-duration end");
                 Check(scheduled.All(e => (int)Get(e.runtime, "spawnCount") == (kind == Kind.Support ? 2 : 1)), kind + " fixed wave size");
                 float minimum = kind == Kind.Popcorn || kind == Kind.Debuffer ? 110 : kind == Kind.Thief ? 120 : 90;
                 Check(kind == Kind.EliteSugar ? scheduled.Length == 1 : scheduled.Skip(1).Select((e, n) => e.time - scheduled[n].time).All(gap => gap >= minimum - .001f && gap <= minimum + 20.001f), kind + " repeat interval or one-shot");
@@ -210,15 +210,15 @@ namespace Vampire.Tests.Editor
             Time.timeScale = 1;
             Check(Living(level, Kind.Trap).Length == 2, "real trap death callback replaces one after sixty seconds");
             killed = Living(level, Kind.Trap)[0]; killed.OnKilled.Invoke(killed); killed.DespawnForStageTransfer();
-            Set(level, "levelTime", 360f); Time.timeScale = 20; began = Time.time;
+            Set(level, "levelTime", OralSpecialSpawnProfile.Duration); Time.timeScale = 20; began = Time.time;
             while (Time.time - began < 62) yield return null;
             Time.timeScale = 1;
-            Check(Living(level, Kind.Trap).Length == 1, "queued trap replenishment is blocked at six minutes");
-            Clear(level); Set(trap.state, "activated", false); ((IList)Get(trap.state, "activeTraps")).Clear(); Set(trap.module, "elapsedTime", 360f);
-            yield return Frames(); Check(Living(level, Kind.Trap).Length == 0, "late first trap activation cannot spawn after six minutes");
-            foreach (var kind in expectedKinds) { yield return Fire(level, first[kind], 360); Check(Total(level) == 0, kind + " has no overdue replenishment after six minutes"); }
+            Check(Living(level, Kind.Trap).Length == 1, "queued trap replenishment is blocked at the configured stage duration");
+            Clear(level); Set(trap.state, "activated", false); ((IList)Get(trap.state, "activeTraps")).Clear(); Set(trap.module, "elapsedTime", OralSpecialSpawnProfile.Duration);
+            yield return Frames(); Check(Living(level, Kind.Trap).Length == 0, "late first trap activation cannot spawn after the configured stage duration");
+            foreach (var kind in expectedKinds) { yield return Fire(level, first[kind], OralSpecialSpawnProfile.Duration); Check(Total(level) == 0, kind + " has no overdue replenishment after the configured stage duration"); }
             var oral = level.CurrentLevelBlueprint; var flat = oral.monsters.SelectMany(g => g.monsterBlueprints).ToArray();
-            Check(Enumerable.Range(0, 361).All(t => Enumerable.Range(0, flat.Length).All(i => oral.monsterSpawnTable.GetProbability(t / 360f, i) == 0 || OralMonsterRoster.IsBlueprint(flat[i]))), "ordinary spawn table cannot bypass timed-special schedule anywhere in six-minute field");
+            Check(Enumerable.Range(0, (int)OralSpecialSpawnProfile.Duration + 1).All(t => Enumerable.Range(0, flat.Length).All(i => oral.monsterSpawnTable.GetProbability(t / OralSpecialSpawnProfile.Duration, i) == 0 || OralMonsterRoster.IsBlueprint(flat[i]))), "ordinary spawn table cannot bypass timed-special schedule anywhere in ten-minute field");
             Check(Signature(host) == sourceSignature, "original stomach entries remain unchanged after all oral waves");
             Check(flow.BeginOralToStomach(), "real oral-to-stomach return accepted"); yield return TransferFinished(flow); Silence(level, host);
             Check(flow.StageNumber == 1 && level.CurrentLevelTime == 0 && Signature(host) == sourceSignature, "stomach return restores original source and resets stage clock");

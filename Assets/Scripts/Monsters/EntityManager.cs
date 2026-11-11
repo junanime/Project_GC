@@ -381,6 +381,7 @@ namespace Vampire
             if(spawnBody!=null)spawnBody.position=safePosition;
 
             MonsterNeedleBarrier.ConfigureSpawn(newMonster, barrierRunLevel != null ? barrierRunLevel.CurrentLevelTime : 0);
+            OralTartarArmor.ConfigureSpawn(newMonster);
             grid.InsertClient(newMonster);
 
             if (!allowDuringMiniStage)

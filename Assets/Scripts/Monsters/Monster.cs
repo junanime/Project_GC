@@ -228,6 +228,7 @@ namespace Vampire
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
             GetComponent<MonsterNeedleBarrier>()?.ResetBarrier();
+            GetComponent<OralTartarArmor>()?.ResetForPool();
             GetComponent<ColonSpecialRuntime>()?.ResetForPool();
             GetComponent<ColonRevivalLink>()?.ResetForSpawn();
             GetComponent<MonsterCombatBuffRuntime>()?.ClearBuffs();

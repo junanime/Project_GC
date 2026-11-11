@@ -2,10 +2,10 @@ using UnityEngine;
 
 namespace Vampire
 {
-    /// <summary>Six-minute oral encounters, copied from (never written into) the stomach schedule.</summary>
+    /// <summary>Ten-minute oral encounters, copied from (never written into) the stomach schedule.</summary>
     public static class OralSpecialSpawnProfile
     {
-        public const float Duration = 360f;
+        public const float Duration = 600f;
         public const int MaxLivingTimedSpecials = 6;
         public enum Kind { None, Sniper, Popcorn, Spore, Sugar, Thief, Trap, Support, Debuffer, EliteSugar }
 

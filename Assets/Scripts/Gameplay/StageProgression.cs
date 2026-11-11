@@ -60,7 +60,7 @@ namespace Vampire
             {Debug.LogException(error);loading.ReturnToMenu("구강 몬스터 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");}
             if(oralBlueprint==null)yield break;
             oralBlueprint.name="Stage0 Oral Field";
-            oralBlueprint.levelTime=360;oralBlueprint.normalSpawnPopulationLimit=90;
+            oralBlueprint.levelTime=OralSpecialSpawnProfile.Duration;oralBlueprint.normalSpawnPopulationLimit=90;
             level.BeginNextStage(oralBlueprint);
             preOralDirectors.Clear();
             foreach(var director in FindObjectsOfType<StageEventDirector>())SuspendOralDirector(director);
