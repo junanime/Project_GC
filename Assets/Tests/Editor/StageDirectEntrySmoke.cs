@@ -142,6 +142,7 @@ namespace Vampire.Tests.Editor
             Check(!StageProgression.Ensure(stageOne).IsDirectColonStart&&ColonMonsterRoster.Active==null,"stage-one selection uses original profile");
             Check(string.IsNullOrEmpty(RunScore.Current.Exclusion),"stage-one choice remains ranking eligible");RunScore.Exclude("direct entry regression stage-one baseline");
             var character=stageOne.PlayerCharacter;var baseline=stageOne.CurrentLevelBlueprint;
+            var sourceHealthBefore=baseline.monsters.SelectMany(p=>p.monsterBlueprints).Select(bp=>bp.hp).ToArray();
             float hp=character.MaxHealth,damage=character.DamageMultiplier,attack=character.AttackSpeedMultiplier;
             var equipment=character.GetComponent<OctoberItemRuntime>();
             Check(equipment!=null&&equipment.Has(carry.octoberId),"stage-one receives selected carry item");
@@ -174,13 +175,25 @@ namespace Vampire.Tests.Editor
             for(int i=0;i<8;i++)
             {
                 var source=flat[ColonMonsterRoster.DirectNormalSources[i]];var entry=roster.Normals[i];float ratio=entry.hp/source.hp;
-                Check(Mathf.Approximately(ratio,1.10f),"normal tier "+i+" HP is stage-one baseline +10%: "+entry.hp);
+                Check(Mathf.Approximately(ratio,.80f),"normal tier "+i+" HP is stage-one baseline -20%: "+entry.hp);
                 Check(entry.blueprint.atk==source.atk&&entry.blueprint.movespeed==source.movespeed,"normal tier "+i+" preserves stage-one speed and contact damage");
                 Check(entry.blueprint.gemLootTable.Equals(source.gemLootTable),"normal tier "+i+" uses basic-start experience rewards");
                 var elite=(EliteMonsterBlueprint)roster.Elites[i].blueprint;
-                Check(elite.hp==entry.hp&&elite.hpMultiplier>=2,"elite tier "+i+" uses matching direct HP baseline");
+                var sourceElite=(EliteMonsterBlueprint)flat[i<6?8+i:26];
+                Check(elite.hp==entry.hp&&elite.GetEffectiveBaseHP()==entry.hp&&elite.hpMultiplier==sourceElite.hpMultiplier,"elite tier "+i+" inherits reduced ordinary HP and preserves the elite multiplier");
                 File.AppendAllText(Output+"/balance.csv",entry.name+","+source.hp+","+entry.hp+","+entry.blueprint.atk+","+entry.speed+"\n");
             }
+            foreach(int index in new[]{2,3,14,15,21,22,24,25})
+            {
+                var source=flat[index];var special=roster.Resolve(source);
+                Check(Mathf.Approximately(special.hp,Mathf.Round(source.hp*1.10f*10)/10),"legacy special HP remains unchanged at stage-one +10%: "+special.name);
+                CheckSpecialChildren(special as SugarCubeMonsterBlueprint,source as SugarCubeMonsterBlueprint);
+            }
+            Check(roster.NewSpecials.Select(bp=>bp.hp).SequenceEqual(new[]{77f,60,98,52,66}),"five added special-monster HP values remain unchanged");
+            Check(flat.Select(bp=>bp.hp).SequenceEqual(sourceHealthBefore),"all stage-one source monster HP templates remain unchanged");
+            Check(roster.Level.levelTime==baseline.levelTime&&roster.Level.normalSpawnPopulationLimit==Mathf.CeilToInt(baseline.normalSpawnPopulationLimit*1.08f),"stage duration and existing +8% population cap remain unchanged");
+            Check(roster.Level.monsterSpawnTable.spawnRateKeyframes.Select(k=>k.t).SequenceEqual(baseline.monsterSpawnTable.spawnRateKeyframes.Select(k=>k.t))&&
+                roster.Level.monsterSpawnTable.spawnChanceKeyframes.Select(k=>k.t).SequenceEqual(baseline.monsterSpawnTable.spawnChanceKeyframes.Select(k=>k.t)),"spawn-rate and tier-introduction keyframe times remain unchanged");
             File.WriteAllText(Output+"/time-balance.csv","seconds,sourceMeanHP,directMeanHP,hpRatio,spawnRatio\n");
             for(int i=0;i<61;i++)
             {
@@ -194,14 +207,16 @@ namespace Vampire.Tests.Editor
                     Check(roster.EliteUnlocked(n,t*baseline.levelTime)==(directChance>0),"elite unlock follows direct time table");
                     sourceMean+=sourceChance*flat[ColonMonsterRoster.DirectNormalSources[n]].hp;directMean+=directChance*roster.Normals[n].hp;
                 }
-                Check(Mathf.Approximately(directMean/sourceMean,1.10f),"same-time mean HP is baseline +10%");
-                Check(Mathf.Abs((directMean/sourceMean)*ratio-1.188f)<.001f,"nominal HP throughput rises 18.8%, independent of entry route");
+                Check(Mathf.Approximately(directMean/sourceMean,.80f),"same-time ordinary mean HP is stage-one baseline -20%");
+                Check(Mathf.Abs((directMean/sourceMean)*ratio-.864f)<.001f,"nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity");
                 File.AppendAllText(Output+"/time-balance.csv",(t*900)+","+sourceMean+","+directMean+","+(directMean/sourceMean)+","+ratio+"\n");
                 Check(Mathf.Approximately(ratio,1.08f),"spawn-rate ratio +8% at "+(t*900).ToString("F0")+"s: "+ratio.ToString("F3"));
             }
             Check(Mathf.Approximately(roster.Level.monsterSpawnTable.GetSpawnRate(0),.756f),"initial spawn rate is 0.756 per second");
             Check(flat[0].hp==25&&flat[32].hp==260,"serialized stage-one monster values remain unchanged");
-            Check(ColonBossDefinition.Get(ColonBossKind.Flamingo).Health==3000,"shared mini-boss baseline is 3000");
+            var bossHealth=new[]{6500f,6000,8000,7000,9000,5500};
+            foreach(ColonBossKind kind in Enum.GetValues(typeof(ColonBossKind)))
+                Check(ColonBossDefinition.Get(kind).Health==bossHealth[(int)kind]&&ColonBossDefinition.Get(kind).Health>=5500&&ColonBossDefinition.Get(kind).Health<=9000,"optional boss uses its fixed 5500-9000 HP profile: "+kind);
             float directSpecials=0;for(int i=0;i<20000;i++)directSpecials+=ColonSpecialDirector.LegacyCount(2,false,false);
             Check(Mathf.Abs(directSpecials/20000-2f)<.03f,"legacy special schedule uses baseline count before new additions");
             Set(player,"isInvincible",true);player.CollectableCollider.enabled=false;
@@ -222,7 +237,7 @@ namespace Vampire.Tests.Editor
                 Position(player,map.ClampToFloor((Vector2)home.transform.position+Vector2.down*2.5f,1));yield return new WaitForSeconds(.2f);InteractionFocus.SelectTouched(home);home.TryInteract();yield return null;
                 var boss=ColonBossRuntime.Active.FirstOrDefault(b=>b!=null&&!b.Dead&&b.Kind==home.Kind);Check(boss!=null,"direct habitat interaction creates "+home.Kind);boss.AutoPatterns=false;
                 until=Time.time+25;while(boss.Arriving&&Time.time<until)yield return null;
-                Check(!boss.Arriving&&boss.MaxHealth==3000,"direct mini-boss is chameleon HP x1.2: "+home.Kind);
+                Check(!boss.Arriving&&boss.MaxHealth==ColonBossDefinition.Get(home.Kind).Health,"direct optional boss matches its fixed shared HP profile: "+home.Kind);
                 Check(boss.Definition.ContactDamage>=12&&boss.Definition.ContactDamage<=14&&boss.Definition.AttackDamage>=16&&boss.Definition.AttackDamage<=20,"direct pattern damage profile applied: "+home.Kind);
                 Check(boss.Definition.Size==ColonBossDefinition.Get(home.Kind).Size,"difficulty does not change art size: "+home.Kind);
                 int before=boss.CompletedPatterns;Check(boss.PlayPattern(0),"direct dash starts "+home.Kind);until=Time.time+35;while(boss.Busy&&Time.time<until)yield return null;
@@ -244,9 +259,15 @@ namespace Vampire.Tests.Editor
             level=Object.FindObjectOfType<LevelManager>();RunScore.Exclude("normal-after-direct regression");TutorialGuide.Instance?.Close();Silence(level);Set(level.PlayerCharacter,"isInvincible",true);
             yield return ColonContentSmoke.Enter(level);Silence(level);
             Check(!StageProgression.Ensure(level).IsDirectColonStart&&!ColonMonsterRoster.Active.DirectStart,"normal capsule transition does not inherit direct mode");
-            Check(ColonMonsterRoster.Active.Normals[0].hp==27.5f&&Mathf.Approximately(level.CurrentLevelBlueprint.monsterSpawnTable.GetSpawnRate(0),.756f),"normal transition shares direct-entry HP and spawn rate");
+            Check(ColonMonsterRoster.Active.Normals[0].hp==20f&&Mathf.Approximately(level.CurrentLevelBlueprint.monsterSpawnTable.GetSpawnRate(0),.756f),"normal transition shares direct-entry reduced HP and unchanged spawn rate");
             foreach(ColonBossKind kind in Enum.GetValues(typeof(ColonBossKind)))Check(ReferenceEquals(ColonBossDefinition.Get(kind),ColonBossDefinition.ForCurrentRun(kind)),"normal boss stats restored after direct run "+kind);
             SessionState.SetBool(Key+"Done",true);
+        }
+        static void CheckSpecialChildren(SugarCubeMonsterBlueprint copy,SugarCubeMonsterBlueprint source)
+        {
+            if(copy==null||source==null||copy.splitChildBlueprint==null||source.splitChildBlueprint==null)return;
+            Check(Mathf.Approximately(copy.splitChildBlueprint.hp,Mathf.Round(source.splitChildBlueprint.hp*1.10f*10)/10),"split special child HP remains unchanged: "+copy.splitChildBlueprint.name);
+            CheckSpecialChildren(copy.splitChildBlueprint,source.splitChildBlueprint);
         }
         static void Capture(string name)
         {

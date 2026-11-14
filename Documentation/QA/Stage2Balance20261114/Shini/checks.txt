@@ -1,0 +1,168 @@
+SKILL_CHECK new Shini runtime installed
+SKILL_CHECK inactive entry exact skill movement multiplier
+SKILL_CHECK inactive entry effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK inactive entry actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK retired lava and tornado never activated
+SKILL_CHECK all approved animation and numeral frames loaded
+SKILL_CHECK approved skill names
+SKILL_CHECK 69 percent exact drop boundary
+SKILL_CHECK capacity rank 1
+SKILL_CHECK damage rank 1 actual=1 expected=1
+SKILL_CHECK capacity rank 2
+SKILL_CHECK damage rank 2 actual=1.2 expected=1.2
+SKILL_CHECK capacity rank 3
+SKILL_CHECK damage rank 3 actual=1.4 expected=1.4
+SKILL_CHECK Shini both skills stop at rank 3
+SKILL_CHECK insufficient fuel has no side effects
+SKILL_CHECK rejected activation exact skill movement multiplier
+SKILL_CHECK rejected activation effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK rejected activation actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK tap debits six once
+SKILL_CHECK tap preparation exact skill movement multiplier
+SKILL_CHECK tap preparation effective movement includes existing modifiers actual=1.495 expected=1.495
+SKILL_CHECK tap preparation actual physics damping updates immediately actual=29.08245 expected=29.08245
+SKILL_CHECK repeated active input cannot stack movement or spend fuel
+SKILL_CHECK tap starts after inflated chest anticipation
+SKILL_CHECK tap emission exact skill movement multiplier
+SKILL_CHECK tap emission effective movement includes existing modifiers actual=1.495 expected=1.495
+SKILL_CHECK tap emission actual physics damping updates immediately actual=29.08245 expected=29.08245
+SKILL_CHECK tap ends without sustained charge
+SKILL_CHECK active recovery exact skill movement multiplier
+SKILL_CHECK active recovery effective movement includes existing modifiers actual=1.495 expected=1.495
+SKILL_CHECK active recovery actual physics damping updates immediately actual=29.08245 expected=29.08245
+SKILL_CHECK tap recovers
+SKILL_CHECK natural expiry exact skill movement multiplier
+SKILL_CHECK natural expiry effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK natural expiry actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK active starts with an independent speed boost and snail slow
+SKILL_CHECK stacked boost and slow exact skill movement multiplier
+SKILL_CHECK stacked boost and slow effective movement includes existing modifiers actual=1.612 expected=1.612
+SKILL_CHECK stacked boost and slow actual physics damping updates immediately actual=20.01121 expected=20.01121
+SKILL_CHECK cancel preserves independent boost and slow exact skill movement multiplier
+SKILL_CHECK cancel preserves independent boost and slow effective movement includes existing modifiers actual=1.24 expected=1.24
+SKILL_CHECK cancel preserves independent boost and slow actual physics damping updates immediately actual=26.01457 expected=26.01457
+SKILL_CHECK independent modifier cleanup exact skill movement multiplier
+SKILL_CHECK independent modifier cleanup effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK independent modifier cleanup actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK hold starts
+SKILL_CHECK hold buys three quarter-second intervals after 1.5 seconds
+SKILL_CHECK release stops channel
+SKILL_CHECK hold recovers
+SKILL_CHECK last six can cast
+SKILL_CHECK empty fuel ends cleanly even on long frame
+SKILL_CHECK fuel exhaustion exact skill movement multiplier
+SKILL_CHECK fuel exhaustion effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK fuel exhaustion actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK cap rejects extra collection
+SKILL_CHECK full-cap pickup stays on ground
+SKILL_CHECK pickup fills freed capacity using pickup range
+SKILL_CHECK scene snapshot begins during active movement boost
+SKILL_CHECK scene transfer retains fuel
+SKILL_CHECK scene restore does not revive an old channel
+SKILL_CHECK scene snapshot restore exact skill movement multiplier
+SKILL_CHECK scene snapshot restore effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK scene snapshot restore actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK fan hits front only and respects range
+SKILL_CHECK actual cone damages front but not rear
+SKILL_CHECK turning redirects actual damage without restarting cast
+SKILL_CHECK left turn flips pose and fire together
+SKILL_CHECK diagonal turn follows live facing
+SKILL_CHECK detached fading flame retains its final direction
+SKILL_CHECK north/south preparation, emission and recovery frames loaded
+SKILL_CHECK up begins
+SKILL_CHECK up cone hits aimed direction only
+SKILL_CHECK up uses upright directional pose
+SKILL_CHECK up keeps existing flame oriented to aim
+SKILL_CHECK up flame exactly at authored beak anchor actual=0 expected=0
+SKILL_CHECK up preserves side body calibration
+SKILL_CHECK up recovery restores normal body
+SKILL_CHECK down begins
+SKILL_CHECK down cone hits aimed direction only
+SKILL_CHECK down uses upright directional pose
+SKILL_CHECK down keeps existing flame oriented to aim
+SKILL_CHECK down flame exactly at authored beak anchor actual=0 expected=0
+SKILL_CHECK down preserves side body calibration
+SKILL_CHECK down recovery restores normal body
+SKILL_CHECK hold input preserves original button feedback
+SKILL_CHECK HUD pointer down casts once
+SKILL_CHECK pointer click does not double spend
+SKILL_CHECK two overhead digits for fuel 18
+SKILL_CHECK overhead digits match ledger
+SKILL_CHECK single digit updates without leading zero
+SKILL_CHECK pause clears held input
+SKILL_CHECK ordinary pause cancellation exact skill movement multiplier
+SKILL_CHECK ordinary pause cancellation effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK ordinary pause cancellation actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK actual reward opens and pauses 0
+SKILL_CHECK reward preserves held cast and fuel 0
+SKILL_CHECK reward freezes animation and damage clock actual=2.68 expected=2.68
+SKILL_CHECK reward preserves suspended active boost 0 exact skill movement multiplier
+SKILL_CHECK reward preserves suspended active boost 0 effective movement includes existing modifiers actual=1.495 expected=1.495
+SKILL_CHECK reward preserves suspended active boost 0 actual physics damping updates immediately actual=29.08245 expected=29.08245
+SKILL_CHECK reward resumes existing hold without new initial cost 0 emitting=True fuel=15 before=16 pointer=True
+SKILL_CHECK actual reward opens and pauses 1
+SKILL_CHECK reward preserves held cast and fuel 1
+SKILL_CHECK reward freezes animation and damage clock actual=2.954626 expected=2.954626
+SKILL_CHECK reward preserves suspended active boost 1 exact skill movement multiplier
+SKILL_CHECK reward preserves suspended active boost 1 effective movement includes existing modifiers actual=1.495 expected=1.495
+SKILL_CHECK reward preserves suspended active boost 1 actual physics damping updates immediately actual=29.08245 expected=29.08245
+SKILL_CHECK reward resumes existing hold without new initial cost 1 emitting=True fuel=14 before=15 pointer=True
+SKILL_CHECK release during reward retains suspended recovery
+SKILL_CHECK release during reward cannot latch pointer fire
+SKILL_CHECK held R survives real reward pause
+SKILL_CHECK held R resumes fuel and fire emitting=True fuel=15 before=16 held=True pressed=False current=True
+SKILL_CHECK R released in reward does not stick on resume
+SKILL_CHECK hidden HUD preserves physical mouse hold
+SKILL_CHECK physical mouse hold resumes after HUD returns
+SKILL_CHECK release while HUD hidden is detected without pointer-up event
+SKILL_CHECK HUD accepts next press after hidden release
+SKILL_CHECK existing passive details panel shows new description
+SKILL_CHECK existing active details panel shows consumption
+SKILL_CHECK actual active details panel explains the 30 percent movement boost
+SKILL_CHECK Ashi cooldown rank 1 actual=45 expected=45
+SKILL_CHECK Ashi fixed duration actual=12 expected=12
+SKILL_CHECK Ashi cooldown rank 2 actual=41 expected=41
+SKILL_CHECK Ashi fixed duration actual=12 expected=12
+SKILL_CHECK Ashi cooldown rank 3 actual=37 expected=37
+SKILL_CHECK Ashi fixed duration actual=12 expected=12
+SKILL_CHECK Ashi cooldown rank 4 actual=33 expected=33
+SKILL_CHECK Ashi fixed duration actual=12 expected=12
+SKILL_CHECK Ashi cooldown rank 5 actual=29 expected=29
+SKILL_CHECK Ashi fixed duration actual=12 expected=12
+SKILL_CHECK Ari duration rank 1 actual=8 expected=8
+SKILL_CHECK Ari damage fixed actual=1 expected=1
+SKILL_CHECK Ari duration rank 2 actual=10 expected=10
+SKILL_CHECK Ari damage fixed actual=1 expected=1
+SKILL_CHECK Ari duration rank 3 actual=12 expected=12
+SKILL_CHECK Ari damage fixed actual=1 expected=1
+SKILL_CHECK Ari duration rank 4 actual=14 expected=14
+SKILL_CHECK Ari damage fixed actual=1 expected=1
+SKILL_CHECK Ari duration rank 5 actual=16 expected=16
+SKILL_CHECK Ari damage fixed actual=1 expected=1
+SKILL_CHECK Hyuki bonus rank 1 actual=0.1 expected=0.1
+SKILL_CHECK Hyuki cooldown unchanged actual=60 expected=60
+SKILL_CHECK Hyuki bonus rank 2 actual=0.2 expected=0.2
+SKILL_CHECK Hyuki cooldown unchanged actual=46.15385 expected=46.15385
+SKILL_CHECK Hyuki bonus rank 3 actual=0.3 expected=0.3
+SKILL_CHECK Hyuki cooldown unchanged actual=35.50296 expected=35.50296
+SKILL_CHECK Hyuki bonus rank 4 actual=0.4 expected=0.4
+SKILL_CHECK Hyuki cooldown unchanged actual=27.30997 expected=27.30997
+SKILL_CHECK Hyuki bonus rank 5 actual=0.5 expected=0.5
+SKILL_CHECK Hyuki cooldown unchanged actual=21.00767 expected=21.00767
+SKILL_CHECK run cleanup begins with an active boost
+SKILL_CHECK run-end and death cleanup cancel channel
+SKILL_CHECK run-end cleanup exact skill movement multiplier
+SKILL_CHECK run-end cleanup effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK run-end cleanup actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK stage reset cancels channel
+SKILL_CHECK stage reset exact skill movement multiplier
+SKILL_CHECK stage reset effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK stage reset actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK actual mini-stage travel cancels channel
+SKILL_CHECK mini-stage travel exact skill movement multiplier
+SKILL_CHECK mini-stage travel effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK mini-stage travel actual physics damping updates immediately actual=37.80719 expected=37.80719
+SKILL_CHECK disable cancels channel
+SKILL_CHECK component disable exact skill movement multiplier
+SKILL_CHECK component disable effective movement includes existing modifiers actual=1.15 expected=1.15
+SKILL_CHECK component disable actual physics damping updates immediately actual=37.80719 expected=37.80719

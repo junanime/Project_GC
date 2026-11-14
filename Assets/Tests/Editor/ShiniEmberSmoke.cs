@@ -53,6 +53,12 @@ static object Get(object o,string n){for(var t=o.GetType();t!=null;t=t.BaseType)
 static void Set(object o,string n,object v){for(var t=o.GetType();t!=null;t=t.BaseType){var f=t.GetField(n,BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);if(f!=null){f.SetValue(o,v);return;}}throw new Exception("field "+n);}
 
 static void Near(float actual,float expected,string label){Check(Mathf.Abs(actual-expected)<.02f,label+" actual="+actual+" expected="+expected);}
+static void MovementState(Character player,float multiplier,float speed,float drag,string label)
+{
+ Check(Mathf.Abs(player.Skills.MovementMultiplier-multiplier)<.0001f,label+" exact skill movement multiplier");
+ Near(player.CurrentMoveSpeed,speed*multiplier,label+" effective movement includes existing modifiers");
+ Near(player.GetComponent<Rigidbody2D>().drag,drag/multiplier,label+" actual physics damping updates immediately");
+}
 static void SeedFailure(float chance){for(int i=0;i<10000;i++){UnityEngine.Random.InitState(i);if(UnityEngine.Random.value>=chance){UnityEngine.Random.InitState(i);return;}}throw new Exception("seed");}
 static IEnumerator Checks(LevelManager level){
  var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);Application.runInBackground=true;Time.timeScale=1;
@@ -62,6 +68,8 @@ static IEnumerator Checks(LevelManager level){
  var player=level.PlayerCharacter;Set(player,"isInvincible",true);var needle=Object.FindObjectOfType<SyringeDartAbility>();needle.enabled=false;needle.StopAllCoroutines();
  foreach(var m in level.EntityManager.LivingMonsters.ToArray())m.gameObject.SetActive(false);
  var skill=player.Skills;var breath=skill.Breath;Check(skill.IsShini&&breath!=null,"new Shini runtime installed");
+ player.UpdateMoveSpeed();float baseMove=player.CurrentMoveSpeed,baseDrag=player.GetComponent<Rigidbody2D>().drag;
+ MovementState(player,1,baseMove,baseDrag,"inactive entry");
  Check(player.GetComponent<ShiniSkillRuntime>()==null&&player.GetComponent<ShiniPhoenixWrapVisual>()==null,"retired lava and tornado never activated");
  var art=Resources.Load<ShiniEmberArt>("ShiniEmberArt");Check(art.cast.Length==12&&art.flames.Length==8&&art.digits.Length==10,"all approved animation and numeral frames loaded");
  Check(skill.Definition.passiveName=="잘 먹겠습니다!"&&skill.Definition.activeName=="후우우—!","approved skill names");
@@ -69,13 +77,27 @@ static IEnumerator Checks(LevelManager level){
  for(int rank=1;rank<=3;rank++){skill.RestoreLevels(rank,rank);Check(breath.Capacity==24+6*(rank-1),"capacity rank "+rank);Near(breath.DamagePower,1+.2f*(rank-1),"damage rank "+rank);}
  Check(!skill.TryUpgrade(false)&&!skill.TryUpgrade(true),"Shini both skills stop at rank 3");
  skill.RestoreLevels(1,1);breath.RestoreFuel(5);Check(!skill.TryActivate()&&breath.Fuel==5,"insufficient fuel has no side effects");
- breath.RestoreFuel(24);Check(breath.Tap()&&breath.Fuel==18,"tap debits six once");breath.Advance(.9f);Check(breath.Emitting,"tap starts after inflated chest anticipation");
- breath.Advance(1.6f);Check(breath.Fuel==18&&!breath.Emitting,"tap ends without sustained charge");breath.Advance(.6f);Check(!breath.Busy,"tap recovers");
+ MovementState(player,1,baseMove,baseDrag,"rejected activation");
+ breath.RestoreFuel(24);Check(breath.Tap()&&breath.Fuel==18,"tap debits six once");
+ MovementState(player,1.3f,baseMove,baseDrag,"tap preparation");
+ Check(!breath.Press()&&breath.Fuel==18,"repeated active input cannot stack movement or spend fuel");
+ breath.Advance(.9f);Check(breath.Emitting,"tap starts after inflated chest anticipation");
+ MovementState(player,1.3f,baseMove,baseDrag,"tap emission");
+ breath.Advance(1.6f);Check(breath.Fuel==18&&!breath.Emitting,"tap ends without sustained charge");
+ MovementState(player,1.3f,baseMove,baseDrag,"active recovery");
+ breath.Advance(.6f);Check(!breath.Busy,"tap recovers");MovementState(player,1,baseMove,baseDrag,"natural expiry");
+ player.AddMoveSpeedBoost(.4f);var slow=player.GetComponent<SnailSlowStatus>()??player.gameObject.AddComponent<SnailSlowStatus>();slow.Enter(-7341,.2f);
+ float modifiedMove=player.CurrentMoveSpeed,modifiedDrag=player.GetComponent<Rigidbody2D>().drag;
+ breath.RestoreFuel(24);Check(breath.Press(),"active starts with an independent speed boost and snail slow");
+ MovementState(player,1.3f,modifiedMove,modifiedDrag,"stacked boost and slow");
+ breath.Cancel();MovementState(player,1,modifiedMove,modifiedDrag,"cancel preserves independent boost and slow");
+ slow.Exit(-7341,0);player.AddMoveSpeedBoost(-.4f);MovementState(player,1,baseMove,baseDrag,"independent modifier cleanup");
  breath.RestoreFuel(24);Check(breath.Press(),"hold starts");breath.Advance(ShiniEmberRuntime.Preparation+2.01f);Check(breath.Fuel==15&&breath.Emitting,"hold buys three quarter-second intervals after 1.5 seconds");breath.ReleasePointer();breath.Advance(.02f);Check(!breath.Emitting,"release stops channel");breath.Advance(.5f);Check(!breath.Busy,"hold recovers");
- breath.RestoreFuel(6);Check(breath.Press(),"last six can cast");breath.Advance(3);Check(!breath.Busy&&breath.Fuel==0,"empty fuel ends cleanly even on long frame");
+ breath.RestoreFuel(6);Check(breath.Press(),"last six can cast");breath.Advance(3);Check(!breath.Busy&&breath.Fuel==0,"empty fuel ends cleanly even on long frame");MovementState(player,1,baseMove,baseDrag,"fuel exhaustion");
  breath.RestoreFuel(24);Check(!breath.AddFuel(),"cap rejects extra collection");breath.SpawnEmber(player.CenterTransform.position);int drops=breath.GroundCount;yield return new WaitForSeconds(.12f);Check(breath.GroundCount==drops,"full-cap pickup stays on ground");
  breath.RestoreFuel(23);yield return new WaitForSeconds(.4f);Check(breath.Fuel==24&&breath.GroundCount==drops-1,"pickup fills freed capacity using pickup range");
- breath.RestoreFuel(17);var snapshot=player.CaptureRunSceneState();breath.RestoreFuel(0);player.RestoreRunSceneState(snapshot);Check(breath.Fuel==17,"scene transfer retains fuel");
+ breath.RestoreFuel(23);Check(breath.Press(),"scene snapshot begins during active movement boost");var snapshot=player.CaptureRunSceneState();breath.RestoreFuel(0);player.RestoreRunSceneState(snapshot);Check(breath.Fuel==17,"scene transfer retains fuel");
+ Check(!breath.Busy,"scene restore does not revive an old channel");MovementState(player,1,baseMove,baseDrag,"scene snapshot restore");
  Check(ShiniEmberRuntime.InCone(Vector2.right*3,Vector2.right)&&!ShiniEmberRuntime.InCone(Vector2.left,Vector2.right)&&!ShiniEmberRuntime.InCone(Vector2.right*5,Vector2.right),"fan hits front only and respects range");
  var data=level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];var front=level.EntityManager.SpawnMonster(0,(Vector2)player.CenterTransform.position+Vector2.right*2,data,0);front.enabled=false;Set(front,"currentHealth",10000f);var rear=level.EntityManager.SpawnMonster(0,(Vector2)player.CenterTransform.position-Vector2.right*2,data,0);rear.enabled=false;Set(rear,"currentHealth",10000f);Physics2D.SyncTransforms();
  Set(player,"lookDirection",Vector2.right);breath.RestoreFuel(24);breath.Press();breath.Advance(1.1f);Check(front.HP<10000&&rear.HP==10000,"actual cone damages front but not rear");
@@ -122,7 +144,7 @@ static IEnumerator Checks(LevelManager level){
  yield return new WaitForSeconds(.64f);CaptureView("01-inflated-chest-and-digits");yield return new WaitForSeconds(.65f);CaptureView("02-fan-flame");
  var digits=player.GetComponentsInChildren<SpriteRenderer>().Where(x=>x.name.StartsWith("Shini flame fuel digit")).ToArray();Check(digits.Count(x=>x.enabled)==2,"two overhead digits for fuel 18");Check(digits[0].sprite==art.digits[1]&&digits[1].sprite==art.digits[8],"overhead digits match ledger");
  breath.Cancel();breath.RestoreFuel(9);yield return null;Check(digits.Count(x=>x.enabled)==1&&digits[0].sprite==art.digits[9],"single digit updates without leading zero");
- breath.RestoreFuel(24);breath.Press();Time.timeScale=0;yield return null;Check(!breath.Busy,"pause clears held input");Time.timeScale=1;
+ breath.RestoreFuel(24);breath.Press();Time.timeScale=0;yield return null;Check(!breath.Busy,"pause clears held input");MovementState(player,1,baseMove,baseDrag,"ordinary pause cancellation");Time.timeScale=1;
  var reward=level.EntityManager.AbilitySelectionDialog;
  breath.RestoreFuel(24);input.OnPointerDown(e);breath.Advance(ShiniEmberRuntime.Preparation+1.8f);
  for(int repeat=0;repeat<2;repeat++){
@@ -131,6 +153,7 @@ static IEnumerator Checks(LevelManager level){
   yield return new WaitForSecondsRealtime(.15f);breath.Advance(1);
   Check(breath.Busy&&breath.Emitting&&breath.Fuel==fuel,"reward preserves held cast and fuel "+repeat);
   Near((float)Get(breath,"age"),castAge,"reward freezes animation and damage clock");
+  MovementState(player,1.3f,baseMove,baseDrag,"reward preserves suspended active boost "+repeat);
   reward.Close();yield return new WaitForSeconds(.27f);
   Check(breath.Emitting&&breath.Fuel<fuel&&breath.Fuel>=fuel-3,"reward resumes existing hold without new initial cost "+repeat+" emitting="+breath.Emitting+" fuel="+breath.Fuel+" before="+fuel+" pointer="+Get(breath,"pointerHeld"));
  }
@@ -157,10 +180,16 @@ static IEnumerator Checks(LevelManager level){
  breath.RestoreFuel(24);input.OnPointerDown(physicalEvent);Check(breath.Busy&&breath.Fuel==18,"HUD accepts next press after hidden release");input.OnPointerUp(physicalEvent);breath.Cancel();UnityEngine.InputSystem.InputSystem.RemoveDevice(mouse);
  InputSystem.settings.backgroundBehavior=inputBackground;InputSystem.settings.editorInputBehaviorInPlayMode=editorInput;
  var ui=ApothecaryUI.Instance;ui.OpenSkillHelp();yield return null;var detail=ui.GetType().GetMethod("ShowSkillDetails",BindingFlags.Instance|BindingFlags.NonPublic);detail.Invoke(ui,new object[]{player.Blueprint,false});yield return null;CaptureView("03-passive-description");Check(Object.FindObjectsOfType<TMPro.TextMeshProUGUI>().Any(t=>t.text.Contains("69%")),"existing passive details panel shows new description");
- detail.Invoke(ui,new object[]{player.Blueprint,true});yield return null;CaptureView("04-active-description");Check(Object.FindObjectsOfType<TMPro.TextMeshProUGUI>().Any(t=>t.text.Contains("0.25초")),"existing active details panel shows consumption");ui.CloseRunBook();yield return null;
+ detail.Invoke(ui,new object[]{player.Blueprint,true});yield return null;CaptureView("04-active-description");Check(Object.FindObjectsOfType<TMPro.TextMeshProUGUI>().Any(t=>t.text.Contains("0.25초")),"existing active details panel shows consumption");
+ Check(Object.FindObjectsOfType<TMPro.TextMeshProUGUI>().Any(t=>t.text.Contains("이동속도 +30%")),"actual active details panel explains the 30 percent movement boost");ui.CloseRunBook();yield return null;
  var original=player.Blueprint;var bp=Object.Instantiate(original);Set(player,"characterBlueprint",bp);
  foreach(var key in new[]{"AshiSkills","AriSkills","HyukiSkills"}){bp.skills=Resources.Load<CharacterSkillDefinition>(key);for(int rank=1;rank<=5;rank++){skill.RestoreLevels(rank,rank);if(key=="AshiSkills"){Near(skill.EffectiveCooldown,45-4*(rank-1),"Ashi cooldown rank "+rank);Near(skill.EffectiveActiveDuration,12,"Ashi fixed duration");}else if(key=="AriSkills"){Near(skill.EffectiveActiveDuration,8+2*(rank-1),"Ari duration rank "+rank);Near(skill.ActivePower,1,"Ari damage fixed");}else{Near(skill.StatusDamageBonus,.1f*rank,"Hyuki bonus rank "+rank);Near(skill.EffectiveCooldown,60/Mathf.Pow(1.3f,rank-1),"Hyuki cooldown unchanged");}}}
- Set(player,"characterBlueprint",original);Object.Destroy(bp);skill.RestoreLevels(1,1);breath.RestoreFuel(24);breath.Press();breath.enabled=false;Check(!breath.Busy,"disable cancels channel");
+ Set(player,"characterBlueprint",original);Object.Destroy(bp);skill.RestoreLevels(1,1);
+ breath.RestoreFuel(24);Check(breath.Press(),"run cleanup begins with an active boost");skill.EndRun();Check(!breath.Busy,"run-end and death cleanup cancel channel");MovementState(player,1,baseMove,baseDrag,"run-end cleanup");
+ breath.RestoreFuel(24);breath.Press();breath.ClearStageDrops();Check(!breath.Busy,"stage reset cancels channel");MovementState(player,1,baseMove,baseDrag,"stage reset");
+ breath.RestoreFuel(24);breath.Press();var travel=player.GetComponent<BloodClotTravel>()??player.gameObject.AddComponent<BloodClotTravel>();travel.Begin();yield return null;yield return null;
+ Check(!breath.Busy,"actual mini-stage travel cancels channel");MovementState(player,1,baseMove,baseDrag,"mini-stage travel");travel.Cancel();
+ breath.RestoreFuel(24);breath.Press();breath.enabled=false;Check(!breath.Busy,"disable cancels channel");MovementState(player,1,baseMove,baseDrag,"component disable");
  Debug.Log("SHINI_EMBER_CHECKS "+checks);SessionState.SetBool(Key+"Done",true);
 }
         static void CaptureView(string filename)

@@ -1,0 +1,49 @@
+character,target,collider,type,offset_x,offset_y,world_size_x,world_size_y,world_center_x,world_center_y,scale_x,scale_y,rotation_z,axis
+Main,Stage2_Flamingo_6500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.42162,-29.92239,1,1,0,n/a
+Main,Stage2_Flamingo_6500,Full Hitbox,BoxCollider2D,-0.002777785,-0.04568864,0.5566711,0.4666672,-81.42439,-30.02517,1,0.8049657,0,n/a
+Main,Stage2_Shark_6000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-73.69014,-28.28204,1,1,0,n/a
+Main,Stage2_Shark_6000,Full Hitbox,BoxCollider2D,-0.002777785,-0.04568864,0.5566711,0.4666672,-73.69292,-28.38482,1,0.8049657,0,n/a
+Main,Stage2_Pudding_8000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.42162,-29.54289,1,1,0,n/a
+Main,Stage2_Pudding_8000,Full Hitbox,BoxCollider2D,-0.002777785,-0.04568864,0.5566711,0.4666672,-81.42439,-29.64567,1,0.8049657,0,n/a
+Main,Stage2_Hedgehog_7000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.42162,-29.58889,1,1,0,n/a
+Main,Stage2_Hedgehog_7000,Full Hitbox,BoxCollider2D,-0.002777785,-0.04568864,0.5566711,0.4666672,-81.42439,-29.69167,1,0.8049657,0,n/a
+Main,Stage2_Turtle_9000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.42162,-29.51989,1,1,0,n/a
+Main,Stage2_Turtle_9000,Full Hitbox,BoxCollider2D,-0.002777785,-0.04568864,0.5566711,0.4666672,-81.42439,-29.62267,1,0.8049657,0,n/a
+Main,Stage2_Manatee_5500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.79014,-28.28204,1,1,0,n/a
+Main,Stage2_Manatee_5500,Full Hitbox,BoxCollider2D,-0.002777785,-0.04568864,0.5566711,0.4666672,-81.79292,-28.38482,1,0.8049657,0,n/a
+Ari,Stage2_Flamingo_6500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.36162,-29.88239,1,1,0,n/a
+Ari,Stage2_Flamingo_6500,Full Hitbox,BoxCollider2D,-0.004652664,0.0534402,0.7420044,0.7436771,-81.36627,-29.90537,1,0.8049657,0,n/a
+Ari,Stage2_Shark_6000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-73.63014,-28.24204,1,1,0,n/a
+Ari,Stage2_Shark_6000,Full Hitbox,BoxCollider2D,-0.004652664,0.0534402,0.7420044,0.7436771,-73.6348,-28.26503,1,0.8049657,0,n/a
+Ari,Stage2_Pudding_8000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.36162,-29.50289,1,1,0,n/a
+Ari,Stage2_Pudding_8000,Full Hitbox,BoxCollider2D,-0.004652664,0.0534402,0.7420044,0.7436771,-81.36627,-29.52588,1,0.8049657,0,n/a
+Ari,Stage2_Hedgehog_7000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.36162,-29.54889,1,1,0,n/a
+Ari,Stage2_Hedgehog_7000,Full Hitbox,BoxCollider2D,-0.004652664,0.0534402,0.7420044,0.7436771,-81.36627,-29.57187,1,0.8049657,0,n/a
+Ari,Stage2_Turtle_9000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.73014,-28.26504,1,1,0,n/a
+Ari,Stage2_Turtle_9000,Full Hitbox,BoxCollider2D,-0.004652664,0.0534402,0.7420044,0.7436771,-81.73479,-28.28802,1,0.8049657,0,n/a
+Ari,Stage2_Manatee_5500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.73014,-28.24204,1,1,0,n/a
+Ari,Stage2_Manatee_5500,Full Hitbox,BoxCollider2D,-0.004652664,0.0534402,0.7420044,0.7436771,-81.73479,-28.26503,1,0.8049657,0,n/a
+Hyuki,Stage2_Flamingo_6500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.37161,-30.00239,1,1,0,n/a
+Hyuki,Stage2_Flamingo_6500,Full Hitbox,BoxCollider2D,0,0.1386053,0.7880402,0.7880344,-81.37161,-29.95682,1,0.8049657,0,n/a
+Hyuki,Stage2_Shark_6000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-73.91208,-28.03068,1,1,0,n/a
+Hyuki,Stage2_Shark_6000,Full Hitbox,BoxCollider2D,0,0.1386053,0.7880402,0.7880344,-73.91208,-27.98511,1,0.8049657,0,n/a
+Hyuki,Stage2_Pudding_8000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-82.01208,-28.07668,1,1,0,n/a
+Hyuki,Stage2_Pudding_8000,Full Hitbox,BoxCollider2D,0,0.1386053,0.7880402,0.7880344,-82.01208,-28.03111,1,0.8049657,0,n/a
+Hyuki,Stage2_Hedgehog_7000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.37161,-29.66889,1,1,0,n/a
+Hyuki,Stage2_Hedgehog_7000,Full Hitbox,BoxCollider2D,0,0.1386053,0.7880402,0.7880344,-81.37161,-29.62332,1,0.8049657,0,n/a
+Hyuki,Stage2_Turtle_9000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-82.01208,-28.05368,1,1,0,n/a
+Hyuki,Stage2_Turtle_9000,Full Hitbox,BoxCollider2D,0,0.1386053,0.7880402,0.7880344,-82.01208,-28.00811,1,0.8049657,0,n/a
+Hyuki,Stage2_Manatee_5500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-82.01208,-28.03068,1,1,0,n/a
+Hyuki,Stage2_Manatee_5500,Full Hitbox,BoxCollider2D,0,0.1386053,0.7880402,0.7880344,-82.01208,-27.98511,1,0.8049657,0,n/a
+Shini,Stage2_Flamingo_6500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.40162,-29.94239,1,1,0,n/a
+Shini,Stage2_Flamingo_6500,Full Hitbox,BoxCollider2D,-0.01847112,0.10788,0.7364502,0.7381058,-81.42009,-29.92155,1,0.8049657,0,n/a
+Shini,Stage2_Shark_6000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-73.94209,-27.97068,1,1,0,n/a
+Shini,Stage2_Shark_6000,Full Hitbox,BoxCollider2D,-0.01847112,0.10788,0.7364502,0.7381058,-73.96056,-27.94984,1,0.8049657,0,n/a
+Shini,Stage2_Pudding_8000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.77014,-28.34804,1,1,0,n/a
+Shini,Stage2_Pudding_8000,Full Hitbox,BoxCollider2D,-0.01847112,0.10788,0.7364502,0.7381058,-81.78861,-28.3272,1,0.8049657,0,n/a
+Shini,Stage2_Hedgehog_7000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.40162,-29.60889,1,1,0,n/a
+Shini,Stage2_Hedgehog_7000,Full Hitbox,BoxCollider2D,-0.01847112,0.10788,0.7364502,0.7381058,-81.42009,-29.58805,1,0.8049657,0,n/a
+Shini,Stage2_Turtle_9000,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-81.77014,-28.32504,1,1,0,n/a
+Shini,Stage2_Turtle_9000,Full Hitbox,BoxCollider2D,-0.01847112,0.10788,0.7364502,0.7381058,-81.78861,-28.3042,1,0.8049657,0,n/a
+Shini,Stage2_Manatee_5500,asshi,CircleCollider2D,0,0,0.4499969,0.4500008,-82.04208,-27.97068,1,1,0,n/a
+Shini,Stage2_Manatee_5500,Full Hitbox,BoxCollider2D,-0.01847112,0.10788,0.7364502,0.7381058,-82.06055,-27.94984,1,0.8049657,0,n/a

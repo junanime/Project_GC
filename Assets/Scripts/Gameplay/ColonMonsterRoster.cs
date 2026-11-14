@@ -21,8 +21,10 @@ namespace Vampire
         public const float SlimeHeight = .3f;
         public static readonly string[] NormalIds = { "N01", "N06", "N07", "N02", "N04", "N08", "N03", "N05" };
         public static readonly float[] IntroductionSeconds = { 0, 90, 180, 270, 360, 450, 570, 690 };
-        public static readonly float[] NormalHealth = { 27.5f, 38.5f, 71.5f, 132, 137.5f, 187, 242, 286 };
-        public const float HealthMultiplier = 1.10f, SpawnMultiplier = 1.08f;
+        public static readonly float[] NormalHealth = { 20, 28, 52, 96, 100, 136, 176, 208 };
+        // Ordinary tiers and their elite variants use 80% of corresponding stage-one
+        // HP. Specials and the established spawn volume stay unchanged.
+        public const float HealthMultiplier = .80f, SpecialHealthMultiplier = 1.10f, SpawnMultiplier = 1.08f;
         public readonly List<Entry> Normals = new List<Entry>();
         public readonly List<Entry> Elites = new List<Entry>();
         public readonly List<Entry> Specials = new List<Entry>();
@@ -31,7 +33,6 @@ namespace Vampire
         readonly List<ScriptableObject> owned = new List<ScriptableObject>();
         public LevelBlueprint Level { get; private set; }
         public bool DirectStart { get; private set; }
-        public float DirectMiniBossHealth { get; private set; }
         public int NormalFlatStart { get; private set; }
         public int PoolIndex { get; private set; }
         public static readonly string[] NewKinds={"gas","yogurt","stitch","salt","beetle"};
@@ -129,8 +130,8 @@ namespace Vampire
             // Every entrance starts from the same loadout and the same fixed difficulty.
             {
                 Level.name="Stage 2 · 대장 · 공통 기본 난도";
-                // Match stage-one tier timing as well as HP; otherwise late colon types
-                // arriving early would exceed the requested 10-20% difficulty step.
+                // Preserve the established tier timing, quantity and population cap.
+                // Lowering ordinary HP must not change when or how many enemies appear.
                 Level.monsterSpawnTable.spawnChanceKeyframes=source.monsterSpawnTable.spawnChanceKeyframes.Select(key=>
                 {
                     var weights=new float[NormalFlatStart+normals.Count];
@@ -152,7 +153,7 @@ namespace Vampire
             for(int i=0;i<Normals.Count;i++)
             {
                 var baseline=flat[DirectNormalSources[i]];var bp=Normals[i].blueprint;
-                bp.hp=Mathf.Round(baseline.hp*DirectHealthMultiplier(i)*10f)/10f;bp.atk=baseline.atk;
+                bp.hp=baseline.hp*DirectHealthMultiplier(i);bp.atk=baseline.atk;
                 bp.movespeed=baseline.movespeed;bp.atkspeed=baseline.atkspeed;bp.acceleration=baseline.acceleration;
                 bp.gemLootTable=baseline.gemLootTable;bp.coinLootTable=baseline.coinLootTable;
                 var elite=(EliteMonsterBlueprint)Elites[i].blueprint;
@@ -166,7 +167,7 @@ namespace Vampire
             foreach(int index in new[]{2,3,14,15,21,22,24,25})
             {
                 var source=flat[index];var bp=replacements[source];
-                bp.hp=Mathf.Round(source.hp*HealthMultiplier*10f)/10f;bp.atk=source.atk;
+                bp.hp=Mathf.Round(source.hp*SpecialHealthMultiplier*10f)/10f;bp.atk=source.atk;
                 bp.movespeed=source.movespeed;bp.atkspeed=source.atkspeed;bp.acceleration=source.acceleration;
                 bp.gemLootTable=source.gemLootTable;bp.coinLootTable=source.coinLootTable;
                 if(bp is SugarCubeMonsterBlueprint sugar&&source is SugarCubeMonsterBlueprint original)
@@ -175,16 +176,13 @@ namespace Vampire
             var spore=(ExplodingMonsterBlueprint)replacements[flat[15]];
             spore.explosionDamage=((ExplodingMonsterBlueprint)flat[15]).explosionDamage;
             replacements[flat[19]].hp=Mathf.Ceil(flat[19].hp*1.10f);
-            var chameleon=Resources.Load<MonsterBlueprint>("Chameleons/DriftBlueprint");
-            if(chameleon==null)throw new InvalidOperationException("Missing stage-one chameleon baseline");
-            DirectMiniBossHealth=Mathf.Ceil(chameleon.hp*1.20f);
             foreach(var pair in entries){pair.Value.hp=pair.Key.hp;pair.Value.speed=pair.Key.movespeed;}
         }
         static void BalanceChildren(SugarCubeMonsterBlueprint copy,SugarCubeMonsterBlueprint source)
         {
             if(copy.splitChildBlueprint==null||source.splitChildBlueprint==null)return;
             var child=copy.splitChildBlueprint;var baseline=source.splitChildBlueprint;
-            child.hp=Mathf.Round(baseline.hp*HealthMultiplier*10f)/10f;child.atk=baseline.atk;child.movespeed=baseline.movespeed;
+            child.hp=Mathf.Round(baseline.hp*SpecialHealthMultiplier*10f)/10f;child.atk=baseline.atk;child.movespeed=baseline.movespeed;
             child.gemLootTable=baseline.gemLootTable;child.coinLootTable=baseline.coinLootTable;
             BalanceChildren(child,baseline);
         }

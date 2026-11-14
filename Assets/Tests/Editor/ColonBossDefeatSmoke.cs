@@ -25,7 +25,7 @@ namespace Vampire.Tests.Editor
             Directory.CreateDirectory(Output);File.WriteAllText(Output+"/errors.txt","");
             if(File.Exists(Output+"/result.txt"))File.Delete(Output+"/result.txt");
             File.WriteAllText(Output+"/defeat.csv","character,boss_hp,game_seconds,wall_seconds,active_uses,outcome,stage_ended\n");
-            File.WriteAllText(Output+"/method.txt","Two historical Stage 1 automated carryover builds; full health restored, unchanged normal skill cooldowns, actual needle and active-skill damage. Maximum-HP Turtle (36,000) is fixed 2.5 units away, all field attackers/pickups disabled, player invulnerable. 240-game-second deadline, time scale 1.7. This measures finite offensive capacity, NOT real combat clear times or human success rates.\n");
+            File.WriteAllText(Output+"/method.txt","Two historical Stage 1 automated carryover builds; full health restored, unchanged normal skill cooldowns, actual needle and active-skill damage. Maximum-HP Turtle ("+ColonBossDefinition.Get(ColonBossKind.Turtle).Health.ToString("0",CultureInfo.InvariantCulture)+") is fixed 2.5 units away, all field attackers/pickups disabled, player invulnerable. 240-game-second deadline, time scale 1.7. This measures finite offensive capacity of historical grown builds, NOT current fresh Stage2 entry, real combat clear times or human success rates.\n");
             foreach(string pref in new[]{"Coins","LobbySilverCoins"}){SessionState.SetBool(Key+pref+"Had",PlayerPrefs.HasKey(pref));SessionState.SetInt(Key+pref,PlayerPrefs.GetInt(pref));}
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Failed",false);SessionState.SetInt(Key+"Round",0);Next();
         }

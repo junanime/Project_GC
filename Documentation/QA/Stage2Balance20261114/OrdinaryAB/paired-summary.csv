@@ -1,0 +1,5 @@
+character,kills_75,kills_80,mean_population_75,mean_population_80,end_population_75,end_population_80,hp_removed_75,hp_removed_80,spawned_each,route_distance_difference
+Main,46,40,34.596,36.349,77,83,4911.061,5048.278,123,0.00285
+Ari,62,56,28.293,29.104,61,67,5556.903,5718.322,123,0.00003
+Hyuki,65,59,26.402,28.269,58,64,5637.965,6083.488,123,0.00001
+Shini,14,13,46.540,48.015,109,110,2182.326,2171.692,123,0.00113

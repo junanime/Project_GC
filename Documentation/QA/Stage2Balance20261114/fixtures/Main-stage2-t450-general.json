@@ -1,0 +1,17 @@
+{
+    "pickupRangeMultiplier": 1.0,
+    "goldGainMultiplier": 1.0,
+    "goldDropChanceBonus": 0.0,
+    "bossDamageMultiplier": 1.0,
+    "critDamageMultiplier": 1.5,
+    "knockbackMultiplier": 1.0,
+    "defensePierceBonus": 0.0,
+    "damageReductionBonus": 0.0,
+    "evasionBonus": 0.0,
+    "statusDurationMultiplier": 1.0,
+    "statusDamageMultiplier": 1.0,
+    "cloneDamageMultiplier": 1.0,
+    "cloneAttackSpeedMultiplier": 1.0,
+    "extraCloneCount": 0,
+    "debugCriticalLog": false
+}

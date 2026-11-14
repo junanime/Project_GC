@@ -45,8 +45,8 @@ namespace Vampire.Editor
    foreach(var name in new[]{"Passive","Active"}){var imp=(TextureImporter)AssetImporter.GetAtPath("Assets/Junhan/Art/ShiniSkills/"+name+".png");imp.textureCompression=TextureImporterCompression.Uncompressed;imp.maxTextureSize=4096;imp.filterMode=FilterMode.Point;imp.SaveAndReimport();}
    var d=Resources.Load<CharacterSkillDefinition>("ShiniSkills");d.passiveName="잘 먹겠습니다!";d.activeName="후우우—!";
    d.passiveDescription="적 처치 시 69% 확률로 불씨 1개가 떨어집니다. 획득 범위 안에서 주울 수 있습니다.\n보유 한도 24 → 30 → 36개. 가득 차면 바닥에 남습니다.";
-   d.activeDescription="불씨 6개로 전방에 1.5초간 불을 뿜습니다. 꾹 누르면 이후 0.25초마다 1개를 소모해 지속합니다.\n재사용 대기시간 없음. 피해량 100% → 120% → 140%.";
-   d.activeDuration=1.5f;d.cooldown=0;d.shiniActiveMoveMultiplier=1;
+   d.activeDescription="불씨 6개로 전방에 1.5초간 불을 뿜습니다. 꾹 누르면 이후 0.25초마다 1개를 소모해 지속합니다.\n재사용 대기시간 없음. 피해량 100% → 120% → 140%.\n스킬 사용 중 이동속도 +30%.";
+   d.activeDuration=1.5f;d.cooldown=0;d.shiniActiveMoveMultiplier=1.3f;
    d.passiveIcon=AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Junhan/Art/ShiniSkills/Passive.png");d.activeIcon=AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Junhan/Art/ShiniSkills/Active.png");
    var ashi=Resources.Load<CharacterSkillDefinition>("AshiSkills");ashi.activeDescription="12초간 발사체 수·이동속도·발사체 속도 ×2.\n재사용 45 → 41 → 37 → 33 → 29초.";
    var ari=Resources.Load<CharacterSkillDefinition>("AriSkills");ari.activeDescription="암석 봉황으로 변신합니다. 대쉬 1회 즉시 충전, 충전시간 0.5초.\n접촉 피해 35, 밀치기 0.6. 지속 8 → 10 → 12 → 14 → 16초. 재사용 35초.";
