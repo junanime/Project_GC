@@ -1,0 +1,3 @@
+"test","seeds","homes","failures","runs_with_close_pair","close_pair_percent","total_close_pairs","minimum_home_gap","minimum_prop_gap","minimum_entry_gap","limitation"
+"Unity scene","256","1536","0","24","9.375","24","11.130048751831055","7.000424385070801","14.102920532226562","Before final door position alignment"
+"Final geometry","2048","12288","0","211","10.302734375","220","11.001336","7.0000463","14.04365","Exact layout and map calculations; not Unity physics/FPS"

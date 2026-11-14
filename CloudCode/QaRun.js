@@ -8,6 +8,8 @@ const weights = { normal: 30, special: 50, elite: 100, miniBoss: 500, boss: 1500
 function validate(data, elapsed) {
   if (data.rules !== BOARD || typeof data.success !== 'boolean') throw Error('RULES_MISMATCH');
   if (!Number.isFinite(data.seconds) || data.seconds < 0 || data.seconds > elapsed + 15 || elapsed > 86400) throw Error('INVALID_DURATION');
+  // Six optional colon encounters count as miniBoss (500), like stage-one chameleons.
+  // Keep the existing 20 mini-boss allowance plus six unique colon habitats.
   // Two fields each place 14 unique clots; stage transfer preserves the same run.
   const caps = { normal: Math.min(200000, Math.ceil(data.seconds * 120 + 100)), special: 2000, elite: 500, miniBoss: 20, boss: 2, entered: 28, cleared: 28, overcharge: 28 };
   let score = data.success ? 1000 : 0;

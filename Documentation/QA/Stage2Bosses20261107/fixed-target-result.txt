@@ -1,0 +1,1 @@
+PASS: both real-attack fixtures defeated maximum-HP optional boss; not a human clear-rate test

@@ -1,0 +1,106 @@
+{
+  "id": "turtle",
+  "kind": "Summon",
+  "frameCount": 12,
+  "frameWidth": 200,
+  "frameHeight": 160,
+  "columns": 8,
+  "rows": 2,
+  "atlasWidth": 1600,
+  "atlasHeight": 320,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.505,
+  "pivotY": 0.043749999999999956,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 150,
+  "referenceBaselineY": 338,
+  "frames": [
+    {
+      "name": "Summon_000",
+      "x": 0,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_001",
+      "x": 200,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_002",
+      "x": 400,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_003",
+      "x": 600,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_004",
+      "x": 800,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_005",
+      "x": 1000,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_006",
+      "x": 1200,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_007",
+      "x": 1400,
+      "y": 160,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_008",
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_009",
+      "x": 200,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_010",
+      "x": 400,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    },
+    {
+      "name": "Summon_011",
+      "x": 600,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+No final encounter at 899 seconds
+The 15-minute trigger waits for field pause to finish
+15-minute trigger spawns without any optional boss kills
+Repeated spawn calls cannot duplicate the king
+Fixed king health is 34000
+Mandatory final-boss readiness flag is enabled
+Legacy victory callback cannot bypass required king
+Spawn is the lower-left opening approach
+Arrival root is on navigable ground
+Arrival completes in real play mode
+Needle targeting and boss multipliers recognize king
+Damage accounting reads actual king HP
+Approved body is loaded with exactly one central water column
+Actual play camera recognizes the nearby final king
+Actual camera fits the full approved body without changing its world size
+first-clear seal is present and closed before boss defeat
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+first-clear real gate interaction cannot unlock a living boss seal
+first-clear reaches final phase before game ending
+first-clear final death disables body and ignores duplicate lethal hits
+first-clear final boss score increments exactly once
+first-clear existing defeat animation finishes before success is committed
+first-clear dropped key freezes with run pause
+first-clear intact key lands and becomes interactive after defeat
+first-clear defeating king cannot bypass key and demo confirmation
+first-clear key cannot be taken from outside interaction range
+Real trigger registers interaction focus: 지팡이 열쇠 줍기
+first-clear focused trigger interaction picks up exactly one key
+first-clear repeated pickup cannot duplicate carried key
+first-clear overhead key follows player movement
+Real carry visual blueprint exists: Main
+Main actual opaque character silhouette carries key just above head
+Main overhead carry tracks movement with own visual dimensions
+Real carry visual blueprint exists: Ari
+Ari actual opaque character silhouette carries key just above head
+Ari overhead carry tracks movement with own visual dimensions
+Real carry visual blueprint exists: Hyuki
+Hyuki actual opaque character silhouette carries key just above head
+Hyuki overhead carry tracks movement with own visual dimensions
+Real carry visual blueprint exists: Shini
+Shini actual opaque character silhouette carries key just above head
+Shini overhead carry tracks movement with own visual dimensions
+first-clear mini-stage hides carried key and disables exit
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+first-clear gate interaction begins controlled insertion
+first-clear unlock owns scoped damage and knockback protection without invincibility mutation
+first-clear unlock rejects portal travel dash and skills
+first-clear player stays at lock throughout controlled animation
+first-clear unlock respects pause and rejects repeated interactions
+first-clear lock fragments and chains clear before passage opens
+first-clear opening alone does not finish the run
+first-clear scoped protection and travel restriction release after opening
+first-clear ordinary damage works again after unlock
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+first-clear separate exit interaction shows exact festival demo message
+first-clear demo waits for explicit confirmation before saving success
+first-clear Escape and journal routes cannot cover or dismiss demo modal
+first-clear mandatory final completion recorded before returning
+first-clear confirmed demo returns to the actual preparation screen
+first-clear preserves defeat duration and never opens the success result panel
+first-clear duplicate completion callbacks were exercised before scene unload
+first-clear successful score survives scene unload and repeated finish calls
+first-clear earned gold is saved exactly once
+first-clear currency and original character, weapon and relic selections remain intact
+first-clear preparation is interactive with no old encounter, loading overlay or intro
+first-clear localized TMP font loads successfully after scene unload
+Returned preparation offers a working second departure
+Actual preparation button loads a fresh playable Stage 2
+Second departure fully initializes Ari through actual preparation launch
+Second departure gets its own mandatory final boss
+Second final encounter arrival finishes
+second-clear seal is present and closed before boss defeat
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+second-clear real gate interaction cannot unlock a living boss seal
+second-clear reaches final phase before game ending
+second-clear final death disables body and ignores duplicate lethal hits
+second-clear final boss score increments exactly once
+second-clear existing defeat animation finishes before success is committed
+second-clear dropped key freezes with run pause
+second-clear intact key lands and becomes interactive after defeat
+second-clear defeating king cannot bypass key and demo confirmation
+second-clear key cannot be taken from outside interaction range
+Real trigger registers interaction focus: 지팡이 열쇠 줍기
+second-clear focused trigger interaction picks up exactly one key
+second-clear repeated pickup cannot duplicate carried key
+second-clear overhead key follows player movement
+second-clear mini-stage hides carried key and disables exit
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+second-clear gate interaction begins controlled insertion
+second-clear unlock owns scoped damage and knockback protection without invincibility mutation
+second-clear unlock rejects portal travel dash and skills
+second-clear player stays at lock throughout controlled animation
+second-clear unlock respects pause and rejects repeated interactions
+second-clear lock fragments and chains clear before passage opens
+second-clear opening alone does not finish the run
+second-clear scoped protection and travel restriction release after opening
+second-clear ordinary damage works again after unlock
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+second-clear separate exit interaction shows exact festival demo message
+second-clear demo waits for explicit confirmation before saving success
+second-clear Escape and journal routes cannot cover or dismiss demo modal
+second-clear mandatory final completion recorded before returning
+second-clear confirmed demo returns to the actual preparation screen
+second-clear preserves defeat duration and never opens the success result panel
+second-clear duplicate completion callbacks were exercised before scene unload
+second-clear successful score survives scene unload and repeated finish calls
+second-clear earned gold is saved exactly once
+second-clear currency and original character, weapon and relic selections remain intact
+second-clear preparation is interactive with no old encounter, loading overlay or intro
+second-clear localized TMP font loads successfully after scene unload

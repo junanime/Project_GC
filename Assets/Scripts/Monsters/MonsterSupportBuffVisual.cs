@@ -71,6 +71,7 @@ namespace Vampire
 
         private void Update()
         {
+            if(GetComponentInParent<Monster>()?.IsFieldRuntimeSuspended==true)return;
             remainingTime -= Time.deltaTime;
 
             float angle = phase + Time.time * orbitSpeed;

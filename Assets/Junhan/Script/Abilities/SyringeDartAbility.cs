@@ -1253,7 +1253,9 @@ namespace Vampire
                     }
                 }
 
-                Vector2 targetPosition = damageableComponent.transform.position;
+                if (damageable is ColonBossRuntime colon && !NeedleTargeting.IsValidBossTarget(colon, monsterLayer)) continue;
+                if (damageable is ConstipationKingRuntime king && !NeedleTargeting.IsValidBossTarget(king, monsterLayer)) continue;
+                Vector2 targetPosition = NeedleTargeting.Position(damageableComponent);
 
                 if (monster != null && monster.CenterTransform != null)
                 {
@@ -1603,8 +1605,8 @@ namespace Vampire
 
             Vector2 spawnPosition = GetHeavySnipeChargePreviewPosition(chargeRatio, aimDirection);
 
-            var shed = SyringeAugmentVfx.PlayDirected("HeavySnipeImpact", spawnPosition, aimDirection, SyringeAugmentVfx.FindTarget(playerCharacter));
-            if (shed != null) shed.SetWorldSize(Vector2.one * Mathf.Lerp(.8f,2.4f,chargeRatio),Vector2.one);
+            PhoenixHeavyReleaseVisual.Play(spawnPosition, aimDirection, chargeRatio,
+                SyringeAugmentVfx.FindTarget(playerCharacter));
 
             // Charged needles normally fire once; character skills add/multiply this final count.
             int shots = GetHeavySnipeSkillProjectileCount();
@@ -1637,7 +1639,7 @@ namespace Vampire
             {
                 syringeProjectile.ConfigureSpecials(runtime);
                 syringeProjectile.ConfigureItemAttack(1,false);
-                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, true);
+                syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, true, chargeRatio);
             }
 
             projectile.OnHitDamageable.AddListener(

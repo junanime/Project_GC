@@ -1,0 +1,50 @@
+{
+  "id": "shark",
+  "kind": "Fin",
+  "frameCount": 4,
+  "frameWidth": 132,
+  "frameHeight": 108,
+  "columns": 4,
+  "rows": 1,
+  "atlasWidth": 528,
+  "atlasHeight": 108,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.29545454545454547,
+  "pivotY": 0.05555555555555558,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 0.5,
+  "referenceVisibleHeight": 140,
+  "referenceBaselineY": 308,
+  "frames": [
+    {
+      "name": "Fin_000",
+      "x": 0,
+      "y": 0,
+      "width": 132,
+      "height": 108
+    },
+    {
+      "name": "Fin_001",
+      "x": 132,
+      "y": 0,
+      "width": 132,
+      "height": 108
+    },
+    {
+      "name": "Fin_002",
+      "x": 264,
+      "y": 0,
+      "width": 132,
+      "height": 108
+    },
+    {
+      "name": "Fin_003",
+      "x": 396,
+      "y": 0,
+      "width": 132,
+      "height": 108
+    }
+  ]
+}

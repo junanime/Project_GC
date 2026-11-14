@@ -66,6 +66,9 @@ namespace Vampire
         }
         public static float Health(Component target)
         {
+            if(target is ConstipationKingRuntime king)return king.Health;
+            if(target is ConstipationKingMinion tribute)return tribute.Health;
+            if(target is ColonBossRuntime colon)return colon.Health;
             if(target is FoodBossRuntime food)return food.Health;
             if(target is FoodBossWeakpoint weak)return weak.Health;
             if(target is CurrencyJar jar)return jar.CanBreak ? 1 : 0;
@@ -76,6 +79,9 @@ namespace Vampire
         }
         public static float MaxHealth(Component target)
         {
+            if(target is ConstipationKingRuntime king)return king.MaxHealth;
+            if(target is ConstipationKingMinion tribute)return tribute.MaxHealth;
+            if(target is ColonBossRuntime colon)return colon.MaxHealth;
             if(target is FoodBossRuntime food)return food.MaxHealth;
             if(target is FoodBossWeakpoint weak)return weak.MaxHealth;
             if(target is SnailBossRuntime snail)return snail.settings!=null?snail.settings.maxHealth:1;
@@ -83,7 +89,7 @@ namespace Vampire
             if(target is BossPartDamageTestPart part) return part.MaxHealth;
             return 0;
         }
-        public static bool IsBoss(Component target) => target is FoodBossRuntime || target is FoodBossWeakpoint || target is SnailBossRuntime || target is BossMonster || target is MiniBossMonster || target is BossPartDamageTestPart;
+        public static bool IsBoss(Component target) => target is ConstipationKingRuntime || target is ColonBossRuntime || target is FoodBossRuntime || target is FoodBossWeakpoint || target is SnailBossRuntime || target is BossMonster || target is MiniBossMonster || target is BossPartDamageTestPart;
         public static List<Component> Nearby(Vector2 center,float radius,LayerMask layer,Character source)
         {
             var result=new List<Component>(); var ids=new HashSet<int>();

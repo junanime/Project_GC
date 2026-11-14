@@ -12,7 +12,7 @@ namespace Vampire.Tests.Editor
     [InitializeOnLoad]
     public static class CapsuleStageSmoke
     {
-        const string Key="CapsuleStageSmoke",Output="D:/Project_GC/work/capsule-proof-v3";
+        const string Key="CapsuleStageSmoke",Output="Library/CapsuleStageProof";
         static bool started;static int checks;static double deadline;
         static string pendingGroup;static int pendingFrame;
         [Serializable]class Entry{public string id;}[Serializable]class Catalog{public Entry[] entries;}
@@ -22,12 +22,15 @@ namespace Vampire.Tests.Editor
         public static void RunChecksOnly(){SessionState.SetBool(Key+"NoImages",true);Start();}
         static void Start()
         {
-            Directory.CreateDirectory(Output);Restore();File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
-            Vampire.Editor.AmphibiousCapsuleInstaller.Install();
+            Directory.CreateDirectory(Output);Restore();File.WriteAllText(Output+"/result.txt","RUNNING");File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
+            // Do not rewrite the approved art/import settings every time the regression test runs.
+            if(Resources.LoadAll<Sprite>("AmphibiousCapsule/Body").Length==0||Resources.LoadAll<Sprite>("AmphibiousCapsule/Doctor").Length==0)
+                Vampire.Editor.AmphibiousCapsuleInstaller.Install();
             var entries=JsonUtility.FromJson<Catalog>(Resources.Load<TextAsset>("TutorialClips/catalog").text).entries;
-            var keys=entries.Select(e=>TutorialGuide.SeenKey(e.id)).Concat(new[]{CapsuleDoctorDialogue.SeenKey}).ToArray();
+            var tutorialKeys=entries.Select(e=>TutorialGuide.SeenKey(e.id)).ToArray();
+            var keys=tutorialKeys.Concat(new[]{CapsuleDoctorDialogue.SeenKey,"Coins","LobbySilverCoins"}).ToArray();
             File.WriteAllText(Output+"/prefs.json",JsonUtility.ToJson(new Backup{prefs=keys.Select(k=>new Pref{key=k,had=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
-            foreach(var k in keys)PlayerPrefs.SetInt(k,1);PlayerPrefs.DeleteKey(CapsuleDoctorDialogue.SeenKey);
+            foreach(var k in tutorialKeys)PlayerPrefs.SetInt(k,1);PlayerPrefs.DeleteKey(CapsuleDoctorDialogue.SeenKey);
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
             CrossSceneData.CharacterBlueprint=AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/Main Character Blueprint.asset");
             EditorSceneManager.OpenScene("Assets/Scenes/Game/Level 1.unity");
@@ -93,6 +96,7 @@ namespace Vampire.Tests.Editor
             var progression=StageProgression.Ensure(level);var originalPlayer=player;var inventory=level.PlayerInventory;var skills=player.Skills;
             var bomb=Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Chest/Bomb.prefab")).GetComponent<Collectable>();bomb.gameObject.SetActive(false);
             var bombSlot=inventory.Slots.First(s=>s.IsBomb);bombSlot.AddItem(bomb);int bombCount=bombSlot.Count;
+            float launchDamage=player.DamageMultiplier;int launchRevives=player.ReviveCount;
             player.AddDamageMultiplier(.23f);float damage=player.DamageMultiplier;player.AddReviveCount(1);int revives=player.ReviveCount;float health=player.CurrentHealth;
             Vector2 origin=map.UVToWorld(new Vector2(.53f,.47f));Time.captureDeltaTime=1f/15;
             Set(level,"levelTime",1035f);var lake=level.GetComponent<AcidLakeEvent>();yield return new WaitForSeconds(.15f);
@@ -145,21 +149,25 @@ namespace Vampire.Tests.Editor
             Check(progression.StageNumber==2&&!progression.Travelling,"colon stage opens and completes entry");
             Check(sawClosed&&sawPaused,"closed inlet and stopped stage clock during opening");
             Check(player==originalPlayer&&inventory==level.PlayerInventory&&skills==player.Skills,"same player inventory and skill objects retained");
-            Check(player.DamageMultiplier==damage&&player.ReviveCount==revives,"combat upgrades and revival count retained");
-            Check(bombSlot.Count==bombCount&&bomb!=null&&!bomb.gameObject.activeSelf,"stored consumable object and count retained");
-            Check(map.IsColon&&map.WorldRect==originalRect&&map.Definition.pixelWorldSize==Resources.Load<StomachMapDefinition>("StomachMap/Stage1").pixelWorldSize,"same world bounds and pixel size");
+            Check(Mathf.Approximately(player.DamageMultiplier,launchDamage)&&player.ReviveCount==launchRevives,"stage-earned combat upgrades and revival count reset to departure baseline");
+            Check(bombSlot.Count==0&&bomb==null,"stored stage consumable and its object removed on transfer");
+            Check(level.GetComponent<StageGrowthReset>().ResetCount==1,"capsule performs exactly one growth reset");
+            Check(map.IsColon&&Vector2.Distance(map.WorldRect.size,originalRect.size*.8f)<.001f&&map.Definition.pixelWorldSize==Resources.Load<StomachMapDefinition>("StomachMap/Stage1").pixelWorldSize,"colon uses 80% width/height and unchanged world pixel density");
             Check(level.CurrentLevelBlueprint.monsters.Length==originalBlueprint.monsters.Length+1&&level.CurrentLevelBlueprint.levelTime==originalBlueprint.levelTime,"colon adds a dedicated ordinary and elite pool while preserving duration");
             for(int i=0;i<originalBlueprint.monsters.Length;i++)Check(level.CurrentLevelBlueprint.monsters[i].monstersPrefab==originalBlueprint.monsters[i].monstersPrefab,"same monster prefab "+i);
             Check(level.InitialFieldObjectsReady&&level.GetComponent<FieldObjectLayout>().SpawnedObjects.Count==86,"stage two initial layout completes before play");
             Check(!lake.Active&&!AcidLakeEvent.Contains(player.transform.position),"stage-one acid stops in colon");
-            Check(Object.FindObjectOfType<FinalBossSummonInteractable>()!=null,"stage-two boss altar survives or restores after stage-one flood");
+            var colonBosses=level.GetComponent<ColonBossDirector>();
+            Check(colonBosses!=null&&colonBosses.Ready&&!colonBosses.Failed&&colonBosses.Habitats.Count==6,"six optional homes finish loading before stage-two play");
+            Check(colonBosses.Habitats.Select(h=>h.Kind).Distinct().Count()==6,"stage-two home kinds are unique");
+            Check(Object.FindObjectOfType<FinalBossSummonInteractable>()==null,"legacy stage-one boss altar is removed in stage two");
             Check(!player.IsPortalTravelling&&!player.IsPortalPoseHeld&&player.GetComponent<Rigidbody2D>().simulated,"input and physics released after one-second settle");
             yield return new WaitForSeconds(.3f);
             Capture("stage2",0);
             // Capture the actual full terrain material without changing the gameplay camera.
             var full=(RenderTexture)map.OverviewTexture;var active=RenderTexture.active;RenderTexture.active=full;var tex=new Texture2D(full.width,full.height,TextureFormat.RGB24,false);tex.ReadPixels(new Rect(0,0,full.width,full.height),0,0);tex.Apply();File.WriteAllBytes(Output+"/map.png",tex.EncodeToPNG());Object.Destroy(tex);RenderTexture.active=active;
             Check(map.AppliesAt(player.transform.position)&&map.NavigationDistance(player.transform.position,out _)>=map.WallWidth,"spawn lands on reachable flat floor");
-            var ridge=map.UVToWorld(new Vector2(795f/1536,1-360f/1024));Check(!map.Contains(ridge),"approved central ridge is solid");
+            var ridge=map.UVToWorld(new Vector2(700f/1536,1-350f/1024));Check(!map.Contains(ridge),"approved central ridge is solid");
             var from=map.UVToWorld(new Vector2(.5f,.74f));var to=map.UVToWorld(new Vector2(.5f,.50f));
             var dash=FiniteStomachMap.ClampDash(from,to);Check((dash-to).sqrMagnitude>1,"dash cannot cross internal ridge");
             var direction=ColonNavigation.Toward(from,to);Check(Mathf.Abs(direction.x)>.1f,"horde steers around ridge rather than through it");
@@ -167,8 +175,9 @@ namespace Vampire.Tests.Editor
             level.enabled=true;float clock=level.CurrentLevelTime;yield return new WaitForSeconds(2);Check(level.CurrentLevelTime>clock+1.5f,"stage two clock runs after entry");
             Check(level.NormalMonstersSpawned>0,"stage two normal monsters actually spawn");
             level.enabled=false;Vector2 ramp=Vector2.zero;bool found=false;
+            float rampDistance=map.WallWidth-(map.Definition.climbableWidth-player.GetComponent<StomachSlopeBody>().Radius)*.68f;
             for(int y=5;y<95&&!found;y++)for(int x=5;x<95;x++)
-            {var p=map.UVToWorld(new Vector2(x/100f,y/100f));float d=map.NavigationDistance(p,out _);if(d>3.8f&&d<4.2f){ramp=p;found=true;break;}}
+            {var p=map.UVToWorld(new Vector2(x/100f,y/100f));float d=map.NavigationDistance(p,out _);if(Mathf.Abs(d-rampDistance)<.1f){ramp=p;found=true;break;}}
             Check(found,"reachable slope sample exists");Position(player,ramp);map.NavigationDistance(ramp,out var inward);
             Check(player.GetComponent<StomachSlopeBody>().MovementMultiplier(-inward)<.5f,"actual player uphill multiplier reduced on colon wall");
             player.Move(-inward);Check(player.TryDash(),"actual dash remains usable on colon slope");yield return new WaitForSeconds(.7f);player.Move(Vector2.zero);Position(player,ramp);
@@ -176,10 +185,20 @@ namespace Vampire.Tests.Editor
             Check(map.NavigationDistance(player.transform.position,out _)>beforeSlide+.02f,"actual player slides down colon wall after release");
             Position(player,map.ClampToField(map.UVToWorld(new Vector2(.75f,.3f)),10));
             foreach(var key in new[]{"Ashi","Ari","Hyuki","Shini"})Check(BloodClotTravel.Frames(key).Length==(key=="Hyuki"?5:16),"character-specific mini-stage exit art available "+key);
-            var final=level.EntityManager.SpawnFinalBoss(level.CurrentLevelBlueprint,(Vector2)player.transform.position+Vector2.right*3,0,FoodBossKind.Maribi).GetComponent<FoodBossRuntime>();
-            final.AutoPatterns=false;final.TakeDamage(final.MaxHealth+1);yield return new WaitForSeconds(3);
-            Check(progression.Portal!=null&&progression.Capsule==null,"actual stage-two boss leaves final exit without another capsule");
-            Check(progression.TryEnter(player,progression.Portal)&&level.IsLevelEnded,"stage two exit finishes the run");
+            var home=colonBosses.Habitats.First(h=>h.Kind==ColonBossKind.Flamingo);
+            Position(player,map.ClampToField((Vector2)home.transform.position+Vector2.down*2,map.WallWidth+.5f));
+            yield return new WaitForSeconds(.25f); // Let the real trigger/focus enter before pressing E/touch.
+            InteractionFocus.SelectTouched(home);home.TryInteract();yield return null;
+            var optional=ColonBossRuntime.Active.FirstOrDefault(b=>b!=null&&b.Kind==ColonBossKind.Flamingo);
+            Check(optional!=null,"actual E/touch interaction summons the chosen optional boss after capsule travel");
+            optional.AutoPatterns=false;deadline=Time.time+20;
+            while(optional.Arriving&&Time.time<deadline)yield return null;
+            Check(!optional.Arriving,"optional boss arrival finishes before combat");
+            optional.TakeDamage(optional.MaxHealth+1);yield return new WaitForSeconds(3);
+            Check(colonBosses.IsDefeated(home)&&colonBosses.DefeatedCount==1,"optional boss defeat is recorded only for its own home");
+            Check(progression.Portal==null&&progression.Capsule==null,"optional boss leaves no stage-exit portal or additional capsule");
+            Check(!level.IsLevelEnded&&!progression.TryEnter(player,progression.Portal),"optional boss defeat never clears stage two");
+            Check(ColonBossDefinition.RequiredFinalBossName=="변비왕"&&ColonBossDefinition.RequiredFinalBossImplemented&&level.GetComponent<ConstipationKingDirector>()!=null,"mandatory lower-left king has its own timed final encounter");
             Time.captureDeltaTime=0;SessionState.SetBool(Key+"Done",true);
         }
     }

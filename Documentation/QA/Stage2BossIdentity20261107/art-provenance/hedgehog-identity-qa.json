@@ -1,0 +1,13 @@
+{
+  "checks": {
+    "idleWalk": true,
+    "poseWalk": true,
+    "summonWalk": true,
+    "dormantSummon": true,
+    "bareIdleWalk": true
+  },
+  "walkFrames": 20,
+  "uniqueWalkFrames": 11,
+  "abovePawsChangedPixels": 0,
+  "canonicalNeutralRGBAHash": "ecd9b7f550e72fd742143df3e85c14877d2ac08f52769454b583fd0ed0f44292"
+}

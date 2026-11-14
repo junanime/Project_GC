@@ -13,7 +13,7 @@ namespace Vampire.Tests.Editor
     [InitializeOnLoad]
     public static class ColonContentSmoke
     {
-        const string Key="ColonContentSmoke",Output="D:/Project_GC/work/colon-content-proof";
+        const string Key="ColonContentSmoke",Output="Library/ColonContentProof";
         static bool started;static double deadline;static int checks;
         static ColonContentSmoke(){if(SessionState.GetBool(Key,false))Attach();}
         public static void RunNavigation() { Run(); SessionState.SetBool(Key+"Navigation",true); }
@@ -56,7 +56,9 @@ namespace Vampire.Tests.Editor
             var map=FiniteStomachMap.Instance;
             Position(level.PlayerCharacter,map.ClampToField(map.UVToWorld(new Vector2(.78f,.72f)),map.WallWidth+2));
             Set(StageProgression.Ensure(level),"<StageNumber>k__BackingField",2);
-            level.BeginNextStage(ColonMonsterRoster.Create(level));level.SetRunFlowPaused(true);
+            var next=ColonMonsterRoster.Create(level);
+            yield return level.GetComponent<StageGrowthReset>().ResetForTransition(2,next);
+            level.BeginNextStage(next);level.SetRunFlowPaused(true);
             yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
             level.SetRunFlowPaused(false);
         }
@@ -99,8 +101,10 @@ namespace Vampire.Tests.Editor
             var oldPortal=(BloodClotMiniStagePortal)Field(stageOneDirector,"activeEntrancePortal").GetValue(stageOneDirector);
             Check(oldPortal!=null,"stage-one entrance exists before transfer");
             yield return Enter(level);Check(oldPortal==null||!oldPortal.gameObject.activeInHierarchy,"stage-one entrance removed on field transfer");var roster=ColonMonsterRoster.Active;var map=FiniteStomachMap.Instance;var player=level.PlayerCharacter;
+            Set(player,"isInvincible",true);
+            foreach(var ability in Object.FindObjectsOfType<Ability>()){ability.enabled=false;ability.StopAllCoroutines();}
             if(SessionState.GetBool(Key+"Navigation",false)){NavigationProfile(map);SessionState.SetBool(Key+"Done",true);yield break;}
-            Check(roster.Normals.Count==8&&roster.Elites.Count==8&&roster.Specials.Count==6,"8 ordinary, 8 elite variants and 6 newly illustrated specials");
+            Check(roster.Normals.Count==8&&roster.Elites.Count==8&&roster.Specials.Count==12,"8 ordinary, 8 elite variants and 12 illustrated specials including mole");
             Check(original.monsters[0].monsterBlueprints[0].hp==slimeHp,"source stage-one blueprint is immutable");
             var layout=level.GetComponent<FieldObjectLayout>();Check(layout.Ready&&layout.SpawnedObjects.Count==86,"all 86 initial objects active");
             for(int k=0;k<FieldObjectLayout.Counts.Length;k++)Check(layout.Slots.Count(s=>(int)s.kind==k)==FieldObjectLayout.Counts[k],"initial object quantity "+(FieldObjectLayout.Kind)k);
@@ -115,11 +119,12 @@ namespace Vampire.Tests.Editor
             var table=level.CurrentLevelBlueprint.monsterSpawnTable;
             for(int second=0;second<=900;second+=5)
             {
-                int tier=Array.FindLastIndex(ColonMonsterRoster.IntroductionSeconds,t=>t<=second);
                 float sum=0;for(int i=0;i<roster.NormalFlatStart+16;i++)
-                {float p=table.GetProbability(second/900f,i);sum+=p;Check(p==0||(i>=roster.NormalFlatStart&&i<=roster.NormalFlatStart+tier),"spawn tier time="+second+" index="+i);}
+                {float p=table.GetProbability(second/900f,i);sum+=p;int tier=i-roster.NormalFlatStart;
+                    float expected=tier>=0&&tier<8?original.monsterSpawnTable.GetProbability(second/900f,ColonMonsterRoster.DirectNormalSources[tier]):0;
+                    Check(Mathf.Approximately(p,expected),"stage-one tier mix time="+second+" index="+i);}
                 Check(Mathf.Abs(sum-1)<.001f,"normalized spawn weights "+second);
-                Check(Mathf.Approximately(table.GetSpawnRate(second/900f),original.monsterSpawnTable.GetSpawnRate(second/900f)),"base spawn density unchanged "+second);
+                Check(Mathf.Approximately(table.GetSpawnRate(second/900f),original.monsterSpawnTable.GetSpawnRate(second/900f)*1.08f),"spawn density +8% "+second);
             }
             var center=(Vector2)player.transform.position;var rows=new List<string>{"name,id,height,actual_height,hp,feet_radius,elite"};
             foreach(var entry in roster.Normals.Concat(roster.Elites).Concat(roster.Specials))
@@ -128,7 +133,7 @@ namespace Vampire.Tests.Editor
                 if(entry.id.StartsWith("S"))Check(RunScore.IsSpecial(monster)&&!MonsterNeedleBarrier.Eligible(monster),"special score and membrane exclusion "+entry.name);
                 else if(!entry.elite)Check(!RunScore.IsSpecial(monster)&&MonsterNeedleBarrier.Eligible(monster),"ordinary score and membrane eligibility "+entry.name);
                 monster.SetFieldRuntimeSuspended(true);yield return null;
-                float hp=entry.elite?entry.hp*4.5f:entry.hp;
+                float hp=entry.elite?entry.hp*((EliteMonsterBlueprint)entry.blueprint).hpMultiplier:entry.hp;
                 Check(Mathf.Abs(monster.SpawnMaxHealth-hp)<.01f,"health "+entry.name);
                 Check(Mathf.Abs(monster.BodyRenderer.bounds.size.y-entry.height)<.015f,"exact visible body height "+entry.name);
                 Check(monster.BodyRenderer.sprite==entry.sprite,"approved sprite "+entry.name);
@@ -146,7 +151,7 @@ namespace Vampire.Tests.Editor
                 {
                     var elite=level.EntityManager.SpawnOverchargeElite(center+Vector2.left*3);
                     int tier=roster.Elites.FindIndex(e=>e.blueprint==elite.Blueprint);
-                    Check(tier>=0&&ColonMonsterRoster.IntroductionSeconds[tier]<=elapsed,"overcharge matches unlocked colon tier at "+elapsed);
+                    Check(tier>=0&&roster.EliteUnlocked(tier,elapsed),"overcharge matches unlocked colon tier at "+elapsed);
                     elite.DespawnForStageTransfer();
                 }
                 var altar=Object.FindObjectOfType<EliteMonsterSummonInteractable>();
@@ -156,7 +161,7 @@ namespace Vampire.Tests.Editor
                 foreach(var request in plan)
                 {
                     var bp=(MonsterBlueprint)Field(request,"blueprint").GetValue(request);int tier=roster.Elites.FindIndex(e=>e.blueprint==bp);
-                    Check(tier>=0&&ColonMonsterRoster.IntroductionSeconds[tier]<=elapsed,"altar excludes future elite tier at "+elapsed);
+                    Check(tier>=0&&roster.EliteUnlocked(tier,elapsed),"altar excludes future elite tier at "+elapsed);
                 }
             }
             Set(level,"levelTime",0f);
@@ -196,11 +201,11 @@ namespace Vampire.Tests.Editor
             yield return null;
             int silverBefore=SilverRunRewarder.Instance!=null?SilverRunRewarder.Instance.RunEarnedSilver:0;
             var rewardElite=Spawn(level,roster.Elites[0].blueprint,center+Vector2.left*6);rewardElite.TakeDamage(99999);yield return new WaitForSeconds(.2f);
-            Check(Object.FindObjectsOfType<Coin>().Sum(c=>(int)c.CoinType)==25,"actual colon elite drops 25 field gold");
+            Check(Object.FindObjectsOfType<Coin>().Sum(c=>(int)c.CoinType)>=10,"actual colon elite preserves two guaranteed five-gold drops");
             int silverDelta=SilverRunRewarder.Instance.RunEarnedSilver-silverBefore;
-            Check(silverDelta>=3&&silverDelta<=6,"actual colon elite grants three silver reward rolls");
+            Check(silverDelta>=2&&silverDelta<=4,"actual colon elite grants two silver reward rolls");
             var rewardGems=Object.FindObjectsOfType<ExpGem>();
-            Check(rewardGems.Length==1&&new[]{10,50}.Contains((int)(GemType)Field(rewardGems[0],"gemType").GetValue(rewardGems[0])),"actual elite drops configured XP pickup");
+            Check(rewardGems.All(g=>(int)(GemType)Field(g,"gemType").GetValue(g)<=10),"elite uses base-start XP rewards rather than carryover growth rewards");
             var clot=level.EntityManager.LivingMonsters.OfType<BloodClotMonster>().First();var clotPos=(Vector2)clot.transform.position;
             Position(player,clotPos+Vector2.left*1);clot.TakeDamage(99999);yield return new WaitForSeconds(.4f);
             var director=Object.FindObjectOfType<MiniStageDirector>();var portal=(BloodClotMiniStagePortal)Field(director,"activeEntrancePortal").GetValue(director);

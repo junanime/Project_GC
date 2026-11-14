@@ -1,0 +1,78 @@
+{
+  "id": "hedgehog",
+  "kind": "NutForeground",
+  "frameCount": 8,
+  "frameWidth": 160,
+  "frameHeight": 140,
+  "columns": 8,
+  "rows": 1,
+  "atlasWidth": 1280,
+  "atlasHeight": 140,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4375,
+  "pivotY": 0.05714285714285716,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 0,
+  "referenceVisibleHeight": 182,
+  "referenceBaselineY": 337,
+  "frames": [
+    {
+      "name": "NutForeground_000",
+      "x": 0,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_001",
+      "x": 160,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_002",
+      "x": 320,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_003",
+      "x": 480,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_004",
+      "x": 640,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_005",
+      "x": 800,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_006",
+      "x": 960,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    },
+    {
+      "name": "NutForeground_007",
+      "x": 1120,
+      "y": 0,
+      "width": 160,
+      "height": 140
+    }
+  ]
+}

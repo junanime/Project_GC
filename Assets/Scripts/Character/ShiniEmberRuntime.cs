@@ -59,6 +59,12 @@ namespace Vampire
         }
         public bool AddFuel(int amount=1){if(amount<=0||Fuel>=Capacity)return false;Fuel=Mathf.Min(Capacity,Fuel+amount);return true;}
         public void RestoreFuel(int value){Cancel();Fuel=Mathf.Clamp(value,0,Capacity);}
+        public void ClearStageDrops()
+        {
+            Cancel();
+            foreach(var drop in drops)if(drop.visual!=null){drop.visual.enabled=false;spare.Push(drop.visual);}
+            drops.Clear();
+        }
         public bool Press(bool keyboard=false,UnityEngine.InputSystem.Controls.ButtonControl pointerControl=null)
         {
             if(!skill.CanActivate||!CanStart)return false;
@@ -105,7 +111,7 @@ namespace Vampire
         public static bool InCone(Vector2 delta,Vector2 facing) => delta.sqrMagnitude<=Range*Range&&(delta.sqrMagnitude<.0001f||Vector2.Dot(delta.normalized,facing)>=Mathf.Cos(HalfAngle*Mathf.Deg2Rad));
         void DealTick(float seconds)
         {
-            var origin=(Vector2)owner.CenterTransform.position;
+            var origin=(Vector2)OralStageRuntime.MirrorVisualPoint(owner,owner.CenterTransform.position);
             foreach(var target in Ver4HitEffects.Nearby(origin,Range,LayerMask.GetMask("Monster Full","Chest"),owner))
             {
                 if(target is Monster m&&m.IsFieldRuntimeSuspended||!InCone((Vector2)target.transform.position-origin,direction))continue;
@@ -136,15 +142,20 @@ namespace Vampire
             if(stopped>=0&&age-stopped>.1f)frame=age-stopped<.24f?9:age-stopped<.37f?10:11;
             // Keep the authored side animation intact. North/south have their own
             // beak anchors; rotate only the flame, never the character sprite.
+            bool inverted=OralStageRuntime.IsVisualInverted(owner);
             bool vertical=Mathf.Abs(direction.y)>Mathf.Abs(direction.x);
-            var frames=vertical?(direction.y>0?art.castUp:art.castDown):art.cast;
-            var anchors=vertical?(direction.y>0?art.mouthsUp:art.mouthsDown):art.mouths;
+            bool authoredUp=direction.y>0;
+            if(inverted)authoredUp=!authoredUp;
+            var frames=vertical?(authoredUp?art.castUp:art.castDown):art.cast;
+            var anchors=vertical?(authoredUp?art.mouthsUp:art.mouthsDown):art.mouths;
             if(frames==null||frames.Length!=art.cast.Length||anchors==null||anchors.Length!=frames.Length)
             {frames=art.cast;anchors=art.mouths;vertical=false;}
-            bool left=!vertical&&direction.x<0;var feet=new Vector3(body.bounds.center.x,body.bounds.min.y,body.transform.position.z);
-            pose.sprite=frames[frame];pose.transform.position=feet;pose.transform.localScale=Vector3.one*poseScale;pose.flipX=left;pose.color=body.color;pose.enabled=visible&&body.enabled;body.forceRenderingOff=pose.enabled;
+            bool left=!vertical&&direction.x<0;
+            float uprightBottom=inverted?2*body.transform.position.y-body.bounds.max.y:body.bounds.min.y;
+            var feet=new Vector3(body.bounds.center.x,uprightBottom,body.transform.position.z);
+            pose.sprite=frames[frame];pose.transform.position=OralStageRuntime.MirrorVisualPoint(owner,feet);pose.transform.localScale=Vector3.one*poseScale;pose.flipX=left;pose.flipY=inverted;pose.color=body.color;pose.enabled=visible&&body.enabled;body.forceRenderingOff=pose.enabled;
             var mouth=anchors[frame]*poseScale;if(left)mouth.x=-mouth.x;
-            if(stopped<0)fireOrigin=feet+(Vector3)mouth;
+            if(stopped<0)fireOrigin=OralStageRuntime.MirrorVisualPoint(owner,feet+(Vector3)mouth);
             float firing=age-Preparation;fire.enabled=visible&&firing>=0;
             if(!fire.enabled)return;
             fire.sprite=art.flames[(int)(firing*10)%art.flames.Length];fire.transform.position=fireOrigin;

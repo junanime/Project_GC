@@ -1,0 +1,106 @@
+{
+  "id": "shark",
+  "kind": "Summon",
+  "frameCount": 12,
+  "frameWidth": 244,
+  "frameHeight": 180,
+  "columns": 8,
+  "rows": 2,
+  "atlasWidth": 1952,
+  "atlasHeight": 360,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.38934426229508196,
+  "pivotY": 0.02777777777777779,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.2,
+  "referenceVisibleHeight": 140,
+  "referenceBaselineY": 308,
+  "frames": [
+    {
+      "name": "Summon_000",
+      "x": 0,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_001",
+      "x": 244,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_002",
+      "x": 488,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_003",
+      "x": 732,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_004",
+      "x": 976,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_005",
+      "x": 1220,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_006",
+      "x": 1464,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_007",
+      "x": 1708,
+      "y": 180,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_008",
+      "x": 0,
+      "y": 0,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_009",
+      "x": 244,
+      "y": 0,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_010",
+      "x": 488,
+      "y": 0,
+      "width": 244,
+      "height": 180
+    },
+    {
+      "name": "Summon_011",
+      "x": 732,
+      "y": 0,
+      "width": 244,
+      "height": 180
+    }
+  ]
+}

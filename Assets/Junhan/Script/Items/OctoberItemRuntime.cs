@@ -89,6 +89,19 @@ namespace Vampire
             lastHurt=Time.time-state.hurtAge;lastHeal=Time.time-state.healAge;lastKill=Time.time-state.killAge;expDue=Time.time+state.expRemaining;LastBaseDamage=Mathf.Max(1,state.baseDamage);
             charge8=state.shield8;charge26=state.shield26;critReady=state.crit;walnut=state.walnut;drumReady=state.drum;dragonReady=state.dragon;
         }
+        public void ResetForStage()
+        {
+            OnDisable();
+            foreach(var fire in fires)if(fire!=null){fire.gameObject.SetActive(false);Destroy(fire.gameObject);}
+            fires.Clear();grazed.Clear();trail.Clear();projectileBuffer.Clear();
+            State=new OctoberItemState();System.Array.Clear(cooldown,0,cooldown.Length);
+            previous=transform.position;facing=Vector2.right;portal=Vector2.zero;
+            lastHurt=lastHeal=lastKill=Time.time;
+            movingDistance=drumDistance=expDue=portalUntil=scanClock=trailClock=damageCharge=0;
+            sameHits=lastTarget=grazes=lastHour=attacksRecent=hitsRecent=travelRecent=0;
+            charge8=charge26=critReady=walnut=drumReady=dragonReady=releasingExp=false;
+            weapon=null;pressureTarget=null;orb=guardian=pressureMark=null;LastBaseDamage=8;
+        }
         public bool Ready(int id,float interval)
         {if(!Has(id)||Time.time<cooldown[id])return false;cooldown[id]=Time.time+interval;return true;}
         public void Attack(SyringeDartAbility source)
@@ -348,9 +361,10 @@ namespace Vampire
         public static string Name(int id){var item=Resources.Load<MerchantItemBlueprint>("OctoberContent/Catalog/Item"+id.ToString("00"));return item!=null?item.itemName:"아이템";}
         public void Slow(Component t,float strength,float duration)
         {if(t==null)return;float s=1-SlowMultiplier(1-strength);(t.GetComponent<HoneySlowStatus>()??t.gameObject.AddComponent<HoneySlowStatus>()).Apply(duration*StatusDuration,1-s);}
-        public static bool IsSlow(Component t)=>t.GetComponent<HoneySlowStatus>()?.IsActive==true||(t.GetComponent<IceChillStatus>()?.Stacks??0)>0;
+        public static bool IsSlow(Component t)=>t.GetComponent<HoneySlowStatus>()?.IsActive==true||(t.GetComponent<IceChillStatus>()?.Stacks??0)>0||ColonHasStatus(t,CombatStatusTag.Slow);
         public static bool IsBurning(Component t)=>t.GetComponent<BurnStatus>()!=null||(t.GetComponent<Ver4NeedleStatus>()?.BurnStacks??0)>0||(t.GetComponent<OctoberItemTargetStatus>()?.BurnUntil??0)>Time.time;
-        static int StatusCount(Component t)=>(IsSlow(t)?1:0)+(IsBurning(t)?1:0)+(t.GetComponent<PoisonStatus>()!=null||(t.GetComponent<OctoberItemTargetStatus>()?.PoisonUntil??0)>Time.time?1:0)+(t.GetComponent<NeuralBlockedMonsterStatus>()?.Active==true?1:0);
-        static void ConsumeSlow(Component t){var honey=t.GetComponent<HoneySlowStatus>();if(honey!=null){honey.enabled=false;Destroy(honey);}var ice=t.GetComponent<IceChillStatus>();if(ice!=null){ice.enabled=false;Destroy(ice);}}
+        static int StatusCount(Component t)=>(IsSlow(t)?1:0)+(IsBurning(t)?1:0)+(t.GetComponent<PoisonStatus>()!=null||(t.GetComponent<OctoberItemTargetStatus>()?.PoisonUntil??0)>Time.time||ColonHasStatus(t,CombatStatusTag.Poison)?1:0)+(t.GetComponent<NeuralBlockedMonsterStatus>()?.Active==true?1:0);
+        static bool ColonHasStatus(Component t,CombatStatusTag tag)=>(t is ColonBossRuntime||t is ConstipationKingRuntime)&&(CombatStatusRules.ActiveTags(t)&tag)!=0;
+        static void ConsumeSlow(Component t){var honey=t.GetComponent<HoneySlowStatus>();if(honey!=null){honey.enabled=false;Destroy(honey);}var ice=t.GetComponent<IceChillStatus>();if(ice!=null){ice.enabled=false;Destroy(ice);}if(t is ColonBossRuntime||t is ConstipationKingRuntime)t.GetComponent<FoodBossCombatStatus>()?.ClearSlow();}
     }
 }

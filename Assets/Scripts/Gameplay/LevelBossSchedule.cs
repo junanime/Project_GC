@@ -21,6 +21,9 @@ namespace Vampire
         {
             if (!useLevelBlueprintSchedule || levelManager == null || levelManager.IsRunFlowPaused ||
                 levelManager.IsLevelEnded || MiniStageRuntimeState.IsInsideMiniStage) return;
+            // Only the stomach uses this legacy schedule. Oral field events and colon
+            // encounters must never inherit its automatic mini/final bosses or BGM.
+            if(StageProgression.Ensure(levelManager).StageNumber!=1)return;
             var data = levelManager.CurrentLevelBlueprint;
             var entity = levelManager.EntityManager;
             var player = levelManager.PlayerCharacter;
@@ -35,9 +38,14 @@ namespace Vampire
             if (!finalBossSpawned && !FinalBossSummonInteractable.IsSummoning && time >= data.levelTime &&
                 FindObjectOfType<BossController>() == null && FindObjectOfType<BossMonster>() == null && FindObjectOfType<SnailBossRuntime>() == null && FindObjectOfType<FoodBossRuntime>() == null)
             {
-                // Automatic expiry must go through the terminal's transmission and descent.
-                var terminal = FindObjectOfType<FinalBossSummonInteractable>();
-                if (terminal != null) terminal.TryAutomaticSummon();
+                // Natural arrival uses the kind selected when this stage was loaded.
+                var buried = levelManager.GetComponent<BuriedBossDirector>();
+                if(buried != null) buried.TryAutomaticSummon();
+                else
+                {
+                    var terminal = FindObjectOfType<FinalBossSummonInteractable>();
+                    if (terminal != null) terminal.TryAutomaticSummon();
+                }
                 // Completion is acknowledged by NotifyFinalBossSpawned, so cancellation can retry.
             }
         }

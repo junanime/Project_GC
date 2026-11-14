@@ -28,7 +28,7 @@ namespace Vampire
         private float timer;
         private bool configured;
         private bool isEmitting;
-        private SyringeAugmentVfx augmentVisual;
+        private PhoenixWindWaveVisual augmentVisual;
 
         /// <summary>
         /// SyringeDartAbility에서 호출한다.
@@ -92,9 +92,8 @@ namespace Vampire
         private IEnumerator EmitWaveRoutine()
         {
             isEmitting = true;
-            PhoenixSummonVisual.Play(ownerCharacter, true, Mathf.Max(1f,waveDuration+.3f));
-
-            GameObject visualObject = CreateWaveVisualObject();
+            augmentVisual = PhoenixWindWaveVisual.Play(ownerCharacter, maxRadius, waveDuration);
+            yield return new WaitForSeconds(PhoenixWindWaveVisual.UnfoldSeconds);
 
             HashSet<MonoBehaviour> hitTargets = new HashSet<MonoBehaviour>();
 
@@ -117,36 +116,20 @@ namespace Vampire
 
                 Vector3 center = ownerCharacter.transform.position;
 
-                if (visualObject != null) visualObject.transform.position = center;
-                UpdateRingVisual(currentRadius);
                 DamageTargetsOnRing(center, currentRadius, hitTargets);
 
                 yield return null;
             }
 
-            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            // The harmless visual continues beyond the combat radius to the screen corners.
             isEmitting = false;
-        }
-
-        private GameObject CreateWaveVisualObject()
-        {
-            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
-            augmentVisual = SyringeAugmentVfx.Play("GastricPeristalsisWave", ownerCharacter.transform.position);
-            if (augmentVisual == null) return null;
-            augmentVisual.SetStrength(waveColor.a);
-            augmentVisual.SetGroundRadius(0.15f, 0.92f);
-            return augmentVisual.gameObject;
-        }
-
-        private void UpdateRingVisual(float radius)
-        {
-            if (augmentVisual != null) augmentVisual.SetGroundRadius(radius, 0.92f);
         }
 
         private void OnDisable()
         {
             StopAllCoroutines();
-            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
+            foreach (var visual in GetComponentsInChildren<PhoenixWindWaveVisual>()) Destroy(visual.gameObject);
+            augmentVisual = null;
             isEmitting = false;
         }
 

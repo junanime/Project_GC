@@ -82,6 +82,10 @@ namespace Vampire
                 var visibleBounds = PromptSpriteGeometry.WorldBounds(body);
                 if (visibleBounds.max.y > top) { top = visibleBounds.max.y; centerX = visibleBounds.center.x; }
             }
+            if(focusOwner is BuriedBossPart buried && buried.Presentation!=null)
+            {
+                var bounds=buried.Presentation.PartBounds;top=bounds.max.y;centerX=bounds.center.x;
+            }
             if (float.IsNegativeInfinity(top)) top = transform.position.y;
             float press = focused ? EvaluatePress(Time.unscaledTime - shownAt) : 0f;
             keyRenderer.transform.position = new Vector3(centerX,

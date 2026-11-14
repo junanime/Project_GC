@@ -1,0 +1,1 @@
+PASS: idle, raised, slam, flush, mirrored and released poses; actual key center and release persistence.

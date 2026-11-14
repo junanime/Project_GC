@@ -1,0 +1,489 @@
+{
+  "date": "2026-11-12",
+  "method": "Numerical PCM analysis, FFmpeg integrated loudness and oversampled true peak, and MIDI score/event analysis. No subjective human listening claim.",
+  "baseline_sha256": "455ca1da91e28ca9aa8dbeb10ac207d678df2de56af0a40a885f9b1ebef188aa",
+  "tracks": [
+    {
+      "id": "clockwork_a",
+      "title": "태엽 추격 A",
+      "source_sha256": "1a2b47531834a8d8a3980d84c73846507a0b6e5d557d251702f4ab57647fdcff",
+      "output_sha256": "dab875e74d206bb73dddb7de3b8114348576dee9bb74345b6c8fc3512e55d4aa",
+      "adjustment": {
+        "type": "constant_linear_gain_only",
+        "gain_db": -0.5700000000000003,
+        "pitch_tempo_instruments_eq_compression_unchanged": true,
+        "muted_guitar_attack_ranges": [],
+        "explanation": "Only loudness matching."
+      },
+      "final_metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "bits": 16,
+        "frames": 2646000,
+        "duration_s": 60.0,
+        "peak_dbfs": -5.083741323344489,
+        "rms_dbfs": -21.182437548647176,
+        "dc_mean": [
+          -2.6377406159946617e-06,
+          -2.7105053175784204e-06
+        ],
+        "clipped_samples": 0,
+        "stereo_correlation": 0.9967268218920322,
+        "mono_rms_loss_db": -0.007114452507367339,
+        "side_mid_ratio_db": -27.8528705553621,
+        "max_adjacent_sample_delta": 0.16455078125,
+        "adjacent_delta_p999": 0.05328369140625,
+        "isolated_full_band_spikes_over_quarter_scale": 0,
+        "isolated_spike_times_s": [],
+        "boundary_jump": 0.0,
+        "first_frame": [
+          0.0,
+          0.0
+        ],
+        "last_frame": [
+          0.0,
+          0.0
+        ],
+        "first_50ms_rms_dbfs": -15.109321626685619,
+        "last_50ms_rms_dbfs": -29.43554310958308,
+        "silent_10ms_blocks": 0,
+        "spectral_energy_percent": {
+          "sub_30": 0.15885922565815758,
+          "low_30_120": 33.54637599551275,
+          "mid_120_4000": 65.86259248495232,
+          "presence_4000_8000": 0.354782510414513,
+          "high_8000_12000": 0.054552807241641174,
+          "air_above12000": 0.022836976220633083
+        },
+        "spectral_centroid_hz": 253.9165990728094,
+        "integrated_lufs": -19.57,
+        "true_peak_dbtp": -5.07,
+        "loudness_range_lu": 0.8
+      },
+      "midi_qa": {
+        "notes": 1400,
+        "hanging_notes": [],
+        "note_event_errors": [],
+        "same_pitch_legato_retriggers": [],
+        "pitch_bend_events": [],
+        "programs": {
+          "0": 80,
+          "1": 4,
+          "2": 33,
+          "3": 12,
+          "4": 10
+        },
+        "min_note": 36,
+        "max_note": 84,
+        "approved_melody_pitch_timing_duration_identical": true,
+        "lead_note_count": 236,
+        "lead_range": [
+          64,
+          84
+        ],
+        "sustained_strongbeat_nonchord_notes": [],
+        "bpm": 128,
+        "bars": 32
+      }
+    },
+    {
+      "id": "moon_b",
+      "title": "달빛 질주 B",
+      "source_sha256": "ac7d10abee84b47f0caaedcd72b4690d3f25fa87d93348c347223ff19d644380",
+      "output_sha256": "2c42e24b2007520665938199a1a46e219264eb2cf00e9724a90f7178168e2c7f",
+      "adjustment": {
+        "type": "constant_gain_and_narrow_guitar_attack_envelopes",
+        "gain_db": -0.030000000000001137,
+        "pitch_tempo_instruments_eq_compression_unchanged": true,
+        "muted_guitar_attack_ranges": [
+          {
+            "note_start_s": 18.095219999999966,
+            "processing_start_s": 18.09122448979592,
+            "processing_end_s": 18.155215419501133,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 18.33331499999997,
+            "processing_start_s": 18.329319727891157,
+            "processing_end_s": 18.393310657596373,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 18.57140999999997,
+            "processing_start_s": 18.567414965986394,
+            "processing_end_s": 18.63140589569161,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 21.904739999999986,
+            "processing_start_s": 21.900748299319726,
+            "processing_end_s": 21.964739229024943,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 22.380929999999992,
+            "processing_start_s": 22.376938775510204,
+            "processing_end_s": 22.44092970521542,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 25.71426000000002,
+            "processing_start_s": 25.710272108843537,
+            "processing_end_s": 25.774263038548753,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 25.952355000000026,
+            "processing_start_s": 25.948367346938774,
+            "processing_end_s": 26.01235827664399,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 26.190450000000027,
+            "processing_start_s": 26.186462585034015,
+            "processing_end_s": 26.250453514739228,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 29.523780000000052,
+            "processing_start_s": 29.519795918367347,
+            "processing_end_s": 29.583786848072563,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 29.761875000000057,
+            "processing_start_s": 29.757891156462584,
+            "processing_end_s": 29.8218820861678,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          },
+          {
+            "note_start_s": 29.999970000000058,
+            "processing_start_s": 29.995986394557825,
+            "processing_end_s": 30.059977324263038,
+            "attack_gain_db": -5.036239459875991,
+            "hold_ms": 20,
+            "recovery_ms": 40
+          }
+        ],
+        "explanation": "11 attack clusters were time-aligned with intended muted guitar MIDI notes, with waveform periodicity matching the score; not file corruption or pitch failure. Optional minimal attack softening authorized by supervising agent; source unchanged."
+      },
+      "final_metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "bits": 16,
+        "frames": 2688000,
+        "duration_s": 60.95238095238095,
+        "peak_dbfs": -4.753148320565522,
+        "rms_dbfs": -21.59465754861422,
+        "dc_mean": [
+          9.732104483104888e-05,
+          8.534632410321916e-05
+        ],
+        "clipped_samples": 0,
+        "stereo_correlation": 0.9804326913566235,
+        "mono_rms_loss_db": -0.04417798323929619,
+        "side_mid_ratio_db": -19.903676535711604,
+        "max_adjacent_sample_delta": 0.463409423828125,
+        "adjacent_delta_p999": 0.079254150390625,
+        "isolated_full_band_spikes_over_quarter_scale": 0,
+        "isolated_spike_times_s": [],
+        "boundary_jump": 0.0,
+        "first_frame": [
+          0.0,
+          0.0
+        ],
+        "last_frame": [
+          0.0,
+          0.0
+        ],
+        "first_50ms_rms_dbfs": -13.496969066695474,
+        "last_50ms_rms_dbfs": -29.353741713983773,
+        "silent_10ms_blocks": 0,
+        "spectral_energy_percent": {
+          "sub_30": 0.19907744523927134,
+          "low_30_120": 43.22368383231459,
+          "mid_120_4000": 56.10011218596793,
+          "presence_4000_8000": 0.3912610061687104,
+          "high_8000_12000": 0.059138327016225865,
+          "air_above12000": 0.02672720329326484
+        },
+        "spectral_centroid_hz": 350.1504149998577,
+        "integrated_lufs": -19.84,
+        "true_peak_dbtp": -4.74,
+        "loudness_range_lu": 0.8
+      },
+      "midi_qa": {
+        "notes": 1285,
+        "hanging_notes": [],
+        "note_event_errors": [],
+        "same_pitch_legato_retriggers": [],
+        "pitch_bend_events": [],
+        "programs": {
+          "0": 80,
+          "1": 4,
+          "2": 38,
+          "3": 28,
+          "4": 28
+        },
+        "min_note": 38,
+        "max_note": 86,
+        "approved_melody_pitch_timing_duration_identical": true,
+        "lead_note_count": 217,
+        "lead_range": [
+          69,
+          86
+        ],
+        "sustained_strongbeat_nonchord_notes": [],
+        "bpm": 126,
+        "bars": 32
+      }
+    },
+    {
+      "id": "grove_a",
+      "title": "포자 숲 A",
+      "source_sha256": "5001bca51079528e39975f2541bbac02b1b1a885f4f147c866e79e4dca9846fb",
+      "output_sha256": "04c63e011ffd994f5f63935211b09f4f6a7d39ab1cf13d291c036fe36b8df813",
+      "adjustment": {
+        "type": "constant_linear_gain_only",
+        "gain_db": -0.5599999999999987,
+        "pitch_tempo_instruments_eq_compression_unchanged": true,
+        "muted_guitar_attack_ranges": [],
+        "explanation": "Only loudness matching."
+      },
+      "final_metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "bits": 16,
+        "frames": 3024000,
+        "duration_s": 68.57142857142857,
+        "peak_dbfs": -9.273603761207719,
+        "rms_dbfs": -22.222535277534604,
+        "dc_mean": [
+          3.47167726546999e-07,
+          2.4988285448185353e-07
+        ],
+        "clipped_samples": 0,
+        "stereo_correlation": 0.9846902955169281,
+        "mono_rms_loss_db": -0.04157618769840295,
+        "side_mid_ratio_db": -20.168591790298322,
+        "max_adjacent_sample_delta": 0.071533203125,
+        "adjacent_delta_p999": 0.0408935546875,
+        "isolated_full_band_spikes_over_quarter_scale": 0,
+        "isolated_spike_times_s": [],
+        "boundary_jump": 0.0,
+        "first_frame": [
+          0.0,
+          0.0
+        ],
+        "last_frame": [
+          0.0,
+          0.0
+        ],
+        "first_50ms_rms_dbfs": -23.7884393937127,
+        "last_50ms_rms_dbfs": -32.12454858038156,
+        "silent_10ms_blocks": 0,
+        "spectral_energy_percent": {
+          "sub_30": 0.013342722415737779,
+          "low_30_120": 6.303505434669225,
+          "mid_120_4000": 93.37020059042885,
+          "presence_4000_8000": 0.21540756040927364,
+          "high_8000_12000": 0.0625687401320924,
+          "air_above12000": 0.034974951944806286
+        },
+        "spectral_centroid_hz": 776.8263272573286,
+        "integrated_lufs": -19.57,
+        "true_peak_dbtp": -9.27,
+        "loudness_range_lu": 1.6
+      },
+      "midi_qa": {
+        "notes": 1122,
+        "hanging_notes": [],
+        "note_event_errors": [],
+        "same_pitch_legato_retriggers": [
+          [
+            5760,
+            2,
+            43
+          ],
+          [
+            7680,
+            1,
+            62
+          ],
+          [
+            21120,
+            2,
+            43
+          ],
+          [
+            23040,
+            1,
+            62
+          ],
+          [
+            36480,
+            2,
+            43
+          ],
+          [
+            38400,
+            1,
+            62
+          ],
+          [
+            51840,
+            2,
+            43
+          ],
+          [
+            53760,
+            1,
+            62
+          ]
+        ],
+        "pitch_bend_events": [],
+        "programs": {
+          "0": 73,
+          "1": 46,
+          "2": 32,
+          "3": 48,
+          "4": 8
+        },
+        "min_note": 36,
+        "max_note": 88,
+        "approved_melody_pitch_timing_duration_identical": true,
+        "lead_note_count": 182,
+        "lead_range": [
+          71,
+          88
+        ],
+        "sustained_strongbeat_nonchord_notes": [],
+        "bpm": 112,
+        "bars": 32
+      }
+    },
+    {
+      "id": "glow_b",
+      "title": "빛나는 물방울 B",
+      "source_sha256": "82968d0ee35b759f44f9a91ec38f29b9196a935cfde9c2c1d2fa3c1c6da332cb",
+      "output_sha256": "dffcfba0860e502e2cd096861b3b872e39e30036915fe1830d008006e2e4c94c",
+      "adjustment": {
+        "type": "constant_linear_gain_only",
+        "gain_db": -0.5700000000000003,
+        "pitch_tempo_instruments_eq_compression_unchanged": true,
+        "muted_guitar_attack_ranges": [],
+        "explanation": "Only loudness matching."
+      },
+      "final_metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "bits": 16,
+        "frames": 2919724,
+        "duration_s": 66.20689342403628,
+        "peak_dbfs": -4.614069307639748,
+        "rms_dbfs": -21.80506515170153,
+        "dc_mean": [
+          -1.6251101292022807e-06,
+          -1.8188523555651151e-06
+        ],
+        "clipped_samples": 0,
+        "stereo_correlation": 0.9797317330349727,
+        "mono_rms_loss_db": -0.04884545343582896,
+        "side_mid_ratio_db": -19.465156040499863,
+        "max_adjacent_sample_delta": 0.108551025390625,
+        "adjacent_delta_p999": 0.066009521484375,
+        "isolated_full_band_spikes_over_quarter_scale": 0,
+        "isolated_spike_times_s": [],
+        "boundary_jump": 0.0,
+        "first_frame": [
+          0.0,
+          0.0
+        ],
+        "last_frame": [
+          0.0,
+          0.0
+        ],
+        "first_50ms_rms_dbfs": -15.898726439988808,
+        "last_50ms_rms_dbfs": -22.7486064453334,
+        "silent_10ms_blocks": 0,
+        "spectral_energy_percent": {
+          "sub_30": 0.061984445670964367,
+          "low_30_120": 12.192540778013427,
+          "mid_120_4000": 86.67248510044388,
+          "presence_4000_8000": 0.740410794037339,
+          "high_8000_12000": 0.2139870103781138,
+          "air_above12000": 0.11859187145627757
+        },
+        "spectral_centroid_hz": 544.5970569377428,
+        "integrated_lufs": -19.58,
+        "true_peak_dbtp": -4.6,
+        "loudness_range_lu": 1.1
+      },
+      "midi_qa": {
+        "notes": 1132,
+        "hanging_notes": [],
+        "note_event_errors": [],
+        "same_pitch_legato_retriggers": [],
+        "pitch_bend_events": [],
+        "programs": {
+          "0": 8,
+          "1": 4,
+          "2": 33,
+          "3": 48,
+          "4": 11
+        },
+        "min_note": 36,
+        "max_note": 88,
+        "approved_melody_pitch_timing_duration_identical": true,
+        "lead_note_count": 192,
+        "lead_range": [
+          71,
+          88
+        ],
+        "sustained_strongbeat_nonchord_notes": [],
+        "bpm": 116,
+        "bars": 32
+      }
+    }
+  ],
+  "unity_play_mode": {
+    "version": "2022.3.62f3",
+    "passed": 149,
+    "failures": 0,
+    "stages": [
+      0,
+      1,
+      2
+    ],
+    "cases": [
+      "actual departure and loading",
+      "five assigned decodable stereo clips",
+      "field/augment/mini/nested modal/boss resume position",
+      "music volume",
+      "listener pause",
+      "end-run silence",
+      "lobby restoration",
+      "128 draws cover five tracks without consuming Unity random state"
+    ]
+  }
+}

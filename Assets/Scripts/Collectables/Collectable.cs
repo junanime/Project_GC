@@ -64,6 +64,7 @@ namespace Vampire
 
         public virtual void Collect(CollectionMode collectionMode = CollectionMode.FromGround)
         {
+            if(OralFieldEvents.Instance!=null && OralFieldEvents.Instance.IsLowerPickup(this))return;
             if (AcidLakeEvent.Contains(transform.position)) return;
             // Don't collect again if already being collected
             if (beingCollected || waitingForSpawn)

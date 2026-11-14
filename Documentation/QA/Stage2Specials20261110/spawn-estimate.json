@@ -1,0 +1,8 @@
+{
+  "runs": 10000,
+  "seconds": 900,
+  "baseline_stage1": 103.7468,
+  "direct_stage2": 101.23993999939677,
+  "carry_stage2": 141.7465,
+  "method": "Schedule opportunities and expected fractional rounding; ignores alive caps, trap fields, child splits, mini-boss summons and player kills. Not observed population or win rate."
+}

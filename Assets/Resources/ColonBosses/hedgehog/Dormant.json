@@ -1,0 +1,29 @@
+{
+  "id": "hedgehog",
+  "kind": "Dormant",
+  "frameCount": 1,
+  "frameWidth": 188,
+  "frameHeight": 176,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 188,
+  "atlasHeight": 176,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.4946808510638298,
+  "pivotY": 0.03409090909090906,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 0,
+  "referenceVisibleHeight": 182,
+  "referenceBaselineY": 337,
+  "frames": [
+    {
+      "name": "Dormant_000",
+      "x": 0,
+      "y": 0,
+      "width": 188,
+      "height": 176
+    }
+  ]
+}

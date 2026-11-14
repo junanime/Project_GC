@@ -28,7 +28,7 @@ namespace Vampire
         [SerializeField] private bool disableBossLevelSpawnersAfterSpawn = true;
 
         private static FinalBossSummonInteractable pendingSummon;
-        public static bool IsSummoning => pendingSummon != null;
+        public static bool IsSummoning => pendingSummon != null || BuriedBossDirector.Pending != null;
         private BossSummonPresentation presentation;
         private bool summoning;
         private FoodBossKind selectedBoss;
@@ -82,11 +82,13 @@ namespace Vampire
 
         public bool TryAutomaticSummon()
         {
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if (!isActiveAndEnabled || HasInteracted || Time.timeScale <= 0f ||
                 MiniStageRuntimeState.IsInsideMiniStage) return false;
             if (levelManager == null) levelManager = FindObjectOfType<LevelManager>();
             if (levelManager == null || levelManager.IsRunFlowPaused || levelManager.IsLevelEnded) return false;
-            selectedBoss=(FoodBossKind)Random.Range(0,5);
+            var buried = levelManager.GetComponent<BuriedBossDirector>();
+            selectedBoss=buried!=null ? buried.SelectedKind : (FoodBossKind)Random.Range(0,5);
             if (!BeginSummon(levelManager.PlayerCharacter)) return false;
             // A player can leave the terminal far behind. Keep automatic transmission visible.
             Camera camera = Camera.main;
@@ -112,6 +114,7 @@ namespace Vampire
 
         public bool OpenBossChoice(Character player)
         {
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if(player==null||summoning||IsSummoning||HasInteracted||IsBossAlreadyPresent()||ApothecaryUI.Instance==null)return false;
             pendingSummon=this;
             bool opened=ApothecaryUI.Instance.ShowBossChoice(this,kind=>
@@ -127,6 +130,7 @@ namespace Vampire
 
         private bool BeginSummon(Character player)
         {
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if (levelManager == null)
             {
                 Debug.LogError("[FinalBossSummonInteractable] LevelManager를 찾지 못했습니다.", this);
@@ -218,6 +222,7 @@ namespace Vampire
             Monster legacyBoss = spawnedBoss.GetComponent<Monster>();
             if (legacyBoss != null) legacyBoss.OnKilled.AddListener(levelManager.LevelPassed);
             levelManager.NotifyExternalFinalBossSpawned();
+            levelManager.GetComponent<BuriedBossDirector>()?.NotifySpawned();
 
             BossController bossController = spawnedBoss.GetComponent<BossController>();
 

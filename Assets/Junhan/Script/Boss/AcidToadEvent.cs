@@ -47,12 +47,23 @@ namespace Vampire
             Spawned=false;selected=false;Lottery=new ChameleonLottery();
             var s=ChameleonSettings.Current;SpawnAt=Random.Range(s!=null?s.spawnMin:420,s!=null?s.spawnMax:450);
         }
-        public void Record(ChameleonKind kind){if(!Spawned&&!selected)Lottery.Record(kind);}
+        bool IsStomachStage()
+        {
+            if(level==null)level=FindObjectOfType<LevelManager>();
+            return level!=null&&StageProgression.Ensure(level).StageNumber==1;
+        }
+        public void Record(ChameleonKind kind)
+        {
+            if(IsStomachStage()&&!Spawned&&!selected)Lottery.Record(kind);
+        }
         void Update()
         {
-            if(Spawned||ChameleonTime.Paused)return;
-            if(level==null)level=FindObjectOfType<LevelManager>();
-            if(level==null||level.CurrentLevelTime<SpawnAt||level.PlayerCharacter==null||level.EntityManager==null)return;
+            // This component survives field transfers. Reject other stages before drawing
+            // a variant or asking EntityManager to spawn, even after a long overdue wait.
+            if(Spawned||!IsStomachStage()||ChameleonTime.Paused||StageEntryLoading.IsLoading||
+                level.IsRunFlowPaused||level.IsLevelEnded||StageProgression.Ensure(level).Travelling)return;
+            if(level.CurrentLevelTime<SpawnAt||level.PlayerCharacter==null||!level.PlayerCharacter.IsAlive||
+                level.EntityManager==null||level.CurrentLevelBlueprint==null||level.CurrentLevelBlueprint.monsters==null)return;
             if(!selected){Selected=Lottery.Pick(Random.value);selected=true;}
             var containers=level.CurrentLevelBlueprint.monsters;
             for(int i=0;i<containers.Length;i++)

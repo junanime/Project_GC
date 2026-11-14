@@ -163,8 +163,13 @@ namespace Vampire
         public bool IsTrapBound => TryGetComponent<PlayerTrapBindRuntime>(out var bind) && bind.IsBound;
         public bool IsPortalTravelling => TryGetComponent<BloodClotTravel>(out var travel) && travel.Busy;
         public bool IsPortalDamageProtected => TryGetComponent<BloodClotTravel>(out var travel) && travel.IsDamageProtected;
+        public bool IsColonExitProtected => ColonExitSequence.Active != null && ColonExitSequence.Active.Protects(this);
         public bool IsPortalPoseHeld => TryGetComponent<BloodClotTravel>(out var travel) && travel.HoldingPose;
-        public Vector2 EffectiveMoveDirection => IsTrapBound ? Vector2.zero :
+        public bool IsOralSwallowing => OralSwallowFinale.Instance?.IsSwallowing == true &&
+            OralStageRuntime.Instance?.Level?.PlayerCharacter == this;
+        public bool IsOralSliding => OralStageRuntime.IsSlidingActor(this);
+        public bool IsWhirlpoolCaptured => OralSwallowFinale.Instance?.CapturesPlayer(this) == true;
+        public Vector2 EffectiveMoveDirection => IsTrapBound || IsOralSliding ? Vector2.zero :
             (movementControlsReversed ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
@@ -172,6 +177,7 @@ namespace Vampire
         protected bool isInvincible = false;
         protected int currentDashCharges = 1;
         protected Coroutine dashCoroutine = null;
+        private OralSwallowFinale swallowDashOwner;
         protected Coroutine dashRechargeCoroutine = null;
 
         private float dashInvincibleEndTime = -1f;
@@ -218,9 +224,10 @@ namespace Vampire
         public void GainPickupHealth(float amount)
         {float before=currentHealth;GainHealth(Relics != null ? Relics.PickupHealing(amount) : amount);Relics?.PickupHealed(currentHealth-before);}
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
-        public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
+        public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && !IsOralSliding && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
         public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
-        private float SnailSlowMultiplier => GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f;
+        private float SnailSlowMultiplier => (GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f) *
+            (OralAmbientContent.Instance != null && OralAmbientContent.Instance.Level != null && OralAmbientContent.Instance.Level.PlayerCharacter == this ? OralAmbientContent.Instance.PlayerMoveMultiplier : 1f);
         public float CurrentArmor => armor != null ? armor.Value : 0f;
 
         public string DisplayName =>
@@ -326,8 +333,10 @@ namespace Vampire
             movementControlsReversed = false;
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
+            OralStageRuntime.CancelPlayerTravel(this);
 
             isDashing = false;
+            FinishSwallowDash();
             dashCoroutine = null;
             dashInvincibleEndTime = -1f;
         }
@@ -400,6 +409,39 @@ namespace Vampire
             if (GetComponent<PlayerCombatBars>() == null) gameObject.AddComponent<PlayerCombatBars>().Bind(this,healthBar);
         }
 
+        public void RegisterStageUpgradeableValues(AbilityManager manager)
+        {
+            if (movementSpeed != null) manager.RegisterUpgradeableValue(movementSpeed, true);
+            if (armor != null) manager.RegisterUpgradeableValue(armor, true);
+        }
+
+        public void PrepareStageGrowthReset()
+        {
+            // Do not call Init twice: its damage/death listeners belong to the entire run.
+            StopAllCoroutines();
+            hitAnimationCoroutine = dashCoroutine = dashRechargeCoroutine = null;
+            RestoreDashCollisionGhost(); RestoreDashSpriteVisual();
+            isDashing = isInvincible = movementControlsReversed = false;
+            dashInvincibleEndTime = -1;
+            pendingDamageMonsterBlueprint = lastDamageMonsterBlueprint = null;
+            moveDirection = Vector2.zero;
+            Skills?.EndRun();
+            Skills?.Breath?.ClearStageDrops();
+            GetComponent<PhoenixSkillVisual>()?.CancelForStage();
+            abilitySelectionDialog?.CancelForStageTransition();
+            GetComponent<PlayerAttackSpeedDebuffRuntime>()?.ClearDebuff();
+            if (spriteRenderer != null) spriteRenderer.sharedMaterial = defaultMaterial;
+            if (rb != null) { rb.velocity = Vector2.zero; rb.angularVelocity = 0; }
+        }
+
+        public void ResetStageGrowth(RunSceneCharacterSnapshot launchState)
+        {
+            PrepareStageGrowthReset();
+            RestoreRunSceneState(launchState);
+            coroutineQueue = new CoroutineQueue(this);
+            coroutineQueue.StartLoop();
+        }
+
         protected virtual void Update()
         {
             if (!alive) return;
@@ -420,7 +462,7 @@ namespace Vampire
 
         private void HandleHealOnIdle()
         {
-            if(IsPortalTravelling)return;
+            if(IsPortalTravelling || IsOralSliding || IsWhirlpoolCaptured)return;
             if (healOnIdlePerSecond > 0 && Velocity.magnitude < 0.1f)
             {
                 float healAmount = GetMaxHealth() * healOnIdlePerSecond;
@@ -431,7 +473,7 @@ namespace Vampire
         protected virtual void FixedUpdate()
         {
             if (!alive) return;
-            if (IsPortalTravelling || IsPortalPoseHeld)
+            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || IsOralSwallowing || IsColonExitProtected)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
                 return;
@@ -443,6 +485,14 @@ namespace Vampire
             }
             if (isDashing)
             {
+                return;
+            }
+
+            if (IsWhirlpoolCaptured)
+            {
+                // Keep directional input for choosing a dash, but never apply walking acceleration.
+                if (rb != null) rb.velocity = Vector2.zero;
+                StartIdleAnimation();
                 return;
             }
 
@@ -514,7 +564,9 @@ namespace Vampire
 
         public bool TryDash()
         {
-            if (IsPortalTravelling || IsPortalPoseHeld) return false;
+            if (IsColonExitProtected) return false;
+            if (IsOralSwallowing) return false;
+            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || (GetComponent<OralTasteBounce>()?.Active ?? false)) return false;
             if (Time.timeScale <= 0f || (abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen)) return false;
             if (IsTrapBound) return false;
             if (!enableDash)
@@ -617,17 +669,30 @@ namespace Vampire
 
             Vector2 startPosition = rb != null ? rb.position : (Vector2)transform.position;
             Vector2 targetPosition = startPosition + dashDirection.normalized * dashDistance;
-            var itemRuntime=GetComponent<OctoberItemRuntime>();
-            if(itemRuntime!=null)targetPosition=itemRuntime.DashDestination(targetPosition);
+            var swallow=OralSwallowFinale.Instance;
+            bool escapingWhirlpool=swallow!=null&&swallow.TryGetDashExit(this,dashDirection,out targetPosition);
+            if(escapingWhirlpool)swallowDashOwner=swallow;
+            else
+            {
+                targetPosition=startPosition+dashDirection.normalized*dashDistance;
+                var itemRuntime=GetComponent<OctoberItemRuntime>();
+                if(itemRuntime!=null)targetPosition=itemRuntime.DashDestination(targetPosition);
+            }
 
+            var oralJump=OralStageRuntime.Instance;
+            Vector2 jumpLanding=targetPosition;
+            bool jumping=!escapingWhirlpool&&oralJump!=null&&oralJump.BeginJump(this,dashDirection,out jumpLanding);
+            if(jumping)targetPosition=jumpLanding;
             float elapsed = 0f;
-            float safeDuration = Mathf.Max(0.01f, dashDuration);
+            float safeDuration = jumping ? .55f : Mathf.Max(0.01f, dashDuration);
+            bool interrupted=false;
 
             while (elapsed < safeDuration)
             {
-                if (IsTrapBound)
+                if (IsTrapBound || IsOralSliding || IsOralSwallowing)
                 {
                     targetPosition = rb != null ? rb.position : (Vector2)transform.position;
+                    interrupted=true;
                     break; // Finish collision/visual cleanup without completing the dash displacement.
                 }
                 float normalizedTime = Mathf.Clamp01(elapsed / safeDuration);
@@ -657,11 +722,19 @@ namespace Vampire
                 yield return new WaitForFixedUpdate();
             }
 
+            // The vortex moves during the ordinary dash duration. Resolve its current
+            // boundary once at landing rather than leaving a large-vortex dash inside it.
+            if(escapingWhirlpool&&!interrupted&&alive&&swallow!=null)
+                targetPosition=swallow.ResolveDashExit(this,targetPosition);
+
             if (rb != null)
             {
                 var allowedPosition=FiniteStomachMap.ClampDash(rb.position,MiniStageArenaGeometry.ClampMovement(rb,BloodClotObstacle.ClampDash(rb,targetPosition)), GetComponent<StomachSlopeBody>()?.Radius ?? .25f);
                 Skills?.DashStep(rb.position,allowedPosition);
-                rb.MovePosition(allowedPosition);
+                // A connected group of swirls can exceed Physics2D's movement-speed
+                // cap. Commit the collision-checked exit so one dash still lands outside.
+                if (escapingWhirlpool && !interrupted) rb.position = allowedPosition;
+                else rb.MovePosition(allowedPosition);
 
                 if (stopVelocityAfterDash)
                 {
@@ -679,8 +752,10 @@ namespace Vampire
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
+            OralStageRuntime.Instance?.EndJump();
 
             isDashing = false;
+            FinishSwallowDash();
             dashCoroutine = null;
             if (alive && !IsTrapBound) Skills?.DashFinished();
 
@@ -717,6 +792,13 @@ namespace Vampire
             }
 
             return Time.time < dashInvincibleEndTime;
+        }
+
+        private void FinishSwallowDash()
+        {
+            var owner=swallowDashOwner;
+            swallowDashOwner=null;
+            if(owner!=null)owner.NotifyDashFinished(this);
         }
 
         private void ApplyDashSpriteVisual(Vector2 dashDirection)
@@ -988,7 +1070,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (IsPortalDamageProtected || IsDashInvincibilityActive())
+            if (IsPortalDamageProtected || IsDashInvincibilityActive() || IsOralSwallowing || IsWhirlpoolCaptured || IsColonExitProtected)
             {
                 return;
             }
@@ -1020,7 +1102,7 @@ namespace Vampire
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
-            if (IsPortalDamageProtected) return;
+            if (IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return;
             if (!alive)
             {
                 return;
@@ -1177,7 +1259,7 @@ namespace Vampire
 
         public void TakeAcidLakeDamage(float seconds, bool erosionLimitReached)
         {
-            if (!alive || IsPortalTravelling || seconds <= 0) return;
+            if (!alive || IsPortalTravelling || IsColonExitProtected || seconds <= 0) return;
             // Armor, evasion and on-hit grace do not turn continuous acid into tiny hits.
             // Temporary invulnerability may block HP loss; the lake separately tracks erosion.
             bool protectedNow = isInvincible || IsDashInvincibilityActive() || IsPortalDamageProtected ||
@@ -1194,11 +1276,38 @@ namespace Vampire
             StartCoroutine(DeathAnimation());
         }
 
+        public bool TakeWhirlpoolCoreDamage()
+        {
+            if (!alive || !IsWhirlpoolCaptured || IsDashing || IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return false;
+            // A core pulse is a fixed environmental HP loss; armor/evasion/shields do
+            // not reduce the specified quarter of maximum HP. A dash always escapes it.
+            float loss = Mathf.Min(currentHealth, MaxHealth * .25f);
+            if (loss <= 0) return false;
+            currentHealth -= loss;
+            healthBar.SubtractPoints(loss);
+            statsManager.IncreaseDamageTaken(loss);
+            lastDamageMonsterBlueprint = null;
+            GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerHit);
+            if (currentHealth <= 0)
+            {
+                if (ReviveCount > 0) Revive();
+                else { GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerDeath); StartCoroutine(DeathAnimation()); }
+            }
+            else
+            {
+                if (hitAnimationCoroutine != null) StopCoroutine(hitAnimationCoroutine);
+                hitAnimationCoroutine = StartCoroutine(HitAnimation());
+            }
+            return true;
+        }
+
         public void RelocateAfterAcidRevival(Vector2 position)
         {
             if (dashCoroutine != null) { StopCoroutine(dashCoroutine); dashCoroutine = null; }
             RestoreDashCollisionGhost(); RestoreDashSpriteVisual();
             isDashing = false; dashInvincibleEndTime = -1;
+            FinishSwallowDash();
             moveDirection = Vector2.zero;
             transform.position = new Vector3(position.x, position.y, transform.position.z);
             if (rb != null) { rb.position = position; rb.velocity = Vector2.zero; }
@@ -1207,6 +1316,7 @@ namespace Vampire
         private IEnumerator DeathAnimation()
         {
             bool submerged = AcidLakeEvent.Contains(transform.position);
+            bool jawCrushed = JawCrushVisual.IsApplyingDamageTo(this);
             alive = false;
             currentHealth = 0;
             moveDirection = Vector2.zero;
@@ -1217,9 +1327,11 @@ namespace Vampire
 
             RestoreDashCollisionGhost();
             RestoreDashSpriteVisual();
+            OralStageRuntime.CancelPlayerTravel(this);
 
             isDashing = false;
             dashInvincibleEndTime = -1f;
+            FinishSwallowDash();
 
             if (spriteRenderer != null) spriteRenderer.sharedMaterial = defaultMaterial;
             if (rb != null) { rb.velocity = Vector2.zero; rb.angularVelocity = 0; rb.simulated = false; }
@@ -1233,7 +1345,13 @@ namespace Vampire
             if (deathParticles != null) deathParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             if (dustParticles != null) dustParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             Time.timeScale = 0;
-            if (!submerged)
+            if (jawCrushed)
+            {
+                // The jaw already owns a detached snapshot of the exact impact pose.
+                // Finish that flat silhouette instead of creating an upright exit actor.
+                yield return JawCrushVisual.FinishPlayerDeath(this, spriteRenderer);
+            }
+            else if (!submerged)
             {
                 var exit = GetComponent<CharacterExitSequence>();
                 if (exit == null) exit = gameObject.AddComponent<CharacterExitSequence>();

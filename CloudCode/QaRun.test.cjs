@@ -23,6 +23,10 @@ const base={runId:id,rules:'qa_s1_v1',normal:10,special:2,elite:1,miniBoss:0,bos
 const call=(action,data)=>fn({params:{action,payload:JSON.stringify(data)},context});
 (async()=>{
  assert.equal(fn.validate(base,1),1100);
+ const stage2={...base,miniBoss:10,boss:1,seconds:1800}; // Four chameleons + six optional habitats.
+ assert.equal(fn.validate(stage2,1800),7600);
+ assert.throws(()=>fn.validate({...stage2,boss:7},1800),/INVALID_COUNTER_boss/);
+ assert.equal(fn.validate({...base,miniBoss:6},1),4100);
  const twoFields={...base,boss:2,entered:28,cleared:28,overcharge:28,seconds:1800,success:true};
  assert.equal(fn.validate(twoFields,1800),21300);
  for(const key of ['entered','cleared','overcharge'])assert.throws(()=>fn.validate({...twoFields,[key]:29},1800));

@@ -1,0 +1,29 @@
+{
+  "id": "turtle",
+  "kind": "Idle",
+  "frameCount": 1,
+  "frameWidth": 200,
+  "frameHeight": 160,
+  "columns": 1,
+  "rows": 1,
+  "atlasWidth": 200,
+  "atlasHeight": 160,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.505,
+  "pivotY": 0.043749999999999956,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 150,
+  "referenceBaselineY": 338,
+  "frames": [
+    {
+      "name": "Idle_000",
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 160
+    }
+  ]
+}

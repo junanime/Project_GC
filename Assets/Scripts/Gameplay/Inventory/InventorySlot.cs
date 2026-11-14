@@ -42,6 +42,13 @@ namespace Vampire
             itemsBeingAdded.Add(item);
         }
 
+        public void ResetForStage()
+        {
+            if(items!=null)foreach(var item in items)if(item!=null)Destroy(item.gameObject);
+            // In-flight field pickups are removed by the transfer before this method.
+            Init();
+        }
+
         public void FinalizeAddItemBeingCollected(Collectable item)
         {
             if (itemsBeingAdded.Contains(item))

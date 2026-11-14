@@ -1,0 +1,64 @@
+real loading started
+loading completed
+stage-one headbang rig 21
+stage-one headbang rig 22
+stage-one health buffer applies health capacity
+twelve reskinned/new specials plus trap and squirrel = fourteen
+86 initial objects preserved
+all initial props avoid inner and outer walls
+runtime spawn gas
+special ranking category 0
+visible sprite and size 0
+walkable spawn 0
+runtime spawn yogurt
+special ranking category 1
+visible sprite and size 1
+walkable spawn 1
+runtime spawn stitch
+special ranking category 2
+visible sprite and size 2
+walkable spawn 2
+runtime spawn salt
+special ranking category 3
+visible sprite and size 3
+walkable spawn 3
+runtime spawn beetle
+special ranking category 4
+visible sprite and size 4
+walkable spawn 4
+health capacity +25 percent
+refresh never stacks or heals
+health expiry restores capacity
+plus buff indicator visible
+salt crack at sixty percent
+salt crack at thirty percent
+salt emits nothing on nonlethal damage
+salt death uses exactly four actual body parts
+salt death rewards one special kill
+living normal linked
+pending revival gives no score, death event or loot
+linked target revives once
+final kill counted once after resurrection
+killing stitcher cancels pending revival
+mole meal exposes body for two seconds
+mole does not grow while eating
+mole burrows after meal
+underground mole blocks direct hits
+underground mole still takes DOT
+mole emerges and restores targetability
+mole returns rewards and kill attribution once
+hit interrupts dung throw
+uninterrupted throw completes after three seconds
+gas does not push player
+gas cannot push enemies into wall
+yogurt circles instead of contact rush
+carryover count +25 percent, corn half, paired budget preserved
+direct profile reserves population for new specials
+fin blends into ground with three liquid wakes
+no effect lifecycle exception
+actual timed wave spawns matched mushroom pairs
+paired supports spawn on valid ground
+run pause freezes preparation and animation
+pool return clears custom control and held prop
+sixty seconds of mixed specials, movement and DOT completed
+mixed encounter remains outside wall interiors

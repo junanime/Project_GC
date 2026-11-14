@@ -6,7 +6,8 @@ namespace Vampire
     /// 버퍼 몬스터가 주변 몬스터에게 부여한 전투 버프를 관리합니다.
     ///
     /// 이동속도 버프는 Monster.moveSpeed를 직접 조절하고,
-    /// 피해 감소 버프는 Monster.TakeDamage()에서 ModifyIncomingDamage()를 호출해 적용합니다.
+    /// 체력 버프는 최대/현재 체력을 같은 비율로 확대하며 갱신 시 회복하지 않습니다.
+    /// 기존 피해 감소 API는 다른 호출자와의 호환을 위해 유지합니다.
     ///
     /// 풀링으로 몬스터가 재사용될 때 버프가 남지 않도록 OnDisable에서 이동속도를 원복합니다.
     /// </summary>
@@ -14,6 +15,11 @@ namespace Vampire
     public class MonsterCombatBuffRuntime : MonoBehaviour
     {
         private Monster monster;
+        public bool HealthBuffActive {get;private set;} float healthRemaining;
+        public void ApplyHealthBuff(float duration){if(monster==null)monster=GetComponent<Monster>();if(monster==null||monster.HP<=0)return;if(!HealthBuffActive){monster.ScaleHealthCapacity(1.25f);HealthBuffActive=true;}healthRemaining=duration;
+            var visual=MonsterSupportBuffVisual.GetOrCreate(transform,"Health Buff Visual");visual.Play("+",new Color(1,.25f,.3f),duration,.25f,monster.Size.y+.15f,3,160,2.5f);
+        }
+        public void ClearBuffs(){if(HealthBuffActive&&monster!=null)monster.ScaleHealthCapacity(.8f);HealthBuffActive=false;healthRemaining=0;if(moveSpeedBuffActive&&monster!=null)monster.moveSpeed=baseMoveSpeedBeforeBuff;moveSpeedBuffActive=damageReductionBuffActive=false;}
 
         private bool moveSpeedBuffActive;
         private float baseMoveSpeedBeforeBuff;
@@ -36,6 +42,8 @@ namespace Vampire
                 monster = GetComponent<Monster>();
             }
 
+            if(monster!=null&&monster.IsFieldRuntimeSuspended)return;
+            if(HealthBuffActive&&(healthRemaining-=Time.deltaTime)<=0){monster.ScaleHealthCapacity(.8f);HealthBuffActive=false;}
             TickMoveSpeedBuff();
             TickDamageReductionBuff();
         }
@@ -171,6 +179,7 @@ namespace Vampire
 
         private void OnDisable()
         {
+            ClearBuffs();
             if (moveSpeedBuffActive && monster != null)
             {
                 monster.moveSpeed = baseMoveSpeedBeforeBuff;

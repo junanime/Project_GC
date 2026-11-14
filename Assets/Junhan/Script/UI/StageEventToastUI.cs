@@ -15,6 +15,7 @@ namespace Vampire
         [SerializeField] private float fadeInDuration = .15f;
         [SerializeField] private float fadeOutDuration = .35f;
         [SerializeField] private bool debugLog;
+        private bool encounterNotice;
         private readonly Queue<string> pending = new Queue<string>();
         private RectTransform root, titleRect;
         private CanvasGroup bannerGroup;
@@ -54,6 +55,13 @@ namespace Vampire
             if (debugLog) Debug.Log("[StageEventToastUI] " + message, this);
         }
 
+        public void ShowImmediateEncounter(string message)
+        {
+            // A current attack warning must not wait behind an earlier reward notice.
+            ResetForStage();
+            Show(message);
+        }
+
         public void ShowSupply(string message)
         {
             EnsureBanner();
@@ -68,7 +76,7 @@ namespace Vampire
         {
             if (pending.Count == 0) { showing = false; bannerGroup.alpha = 0; return; }
             string text = pending.Dequeue();
-            emergency=text==AcidEmergencyText;
+            emergency=text==AcidEmergencyText;encounterNotice=text.Contains("|");
             titleRect.sizeDelta=new Vector2(emergency?1120:760,105);
             title.rectTransform.anchoredPosition=new Vector2(emergency?560:408,72);
             title.rectTransform.sizeDelta=new Vector2(emergency?1080:610,emergency?76:58);
@@ -95,6 +103,7 @@ namespace Vampire
                 instruction.text="침수지역: 초당 최대 체력 25% 피해 · 침식 4초 한계";
                 underline.color=new Color(.69f,1,.04f);
             }
+            if(text.Contains("|")){var parts=text.Split('|');title.text=parts[0];instruction.text=parts[1];icon.enabled=false;underline.color=new Color(.55f,.88f,.7f);}
             age = 0; showing = true;
         }
 
@@ -116,9 +125,10 @@ namespace Vampire
             if (level != null && level.IsLevelEnded) { pending.Clear(); showing = false; bannerGroup.alpha = 0; return; }
             if (MiniStageRuntimeState.IsInsideMiniStage) { bannerGroup.alpha = 0; return; }
             if (!showing) return;
-            if (level == null || !level.IsRunFlowPaused) age += Time.deltaTime;
+            bool oralCombat=OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling;
+            if (level == null || !level.IsRunFlowPaused || oralCombat) age += Time.deltaTime;
             float enter = Mathf.Max(.01f, fadeInDuration), leave = Mathf.Max(.01f, fadeOutDuration);
-            float end = enter + (emergency?7f:Mathf.Max(1.6f, visibleDuration)) + leave;
+            float end = enter + (emergency?7f:encounterNotice?4f:Mathf.Max(1.6f, visibleDuration)) + leave;
             bannerGroup.alpha = Mathf.Min(Mathf.Clamp01(age / enter), Mathf.Clamp01((end - age) / leave));
             titleRect.localScale = Vector3.one * Mathf.Lerp(.94f, 1, Mathf.SmoothStep(0,1,age / enter));
             if (age >= end) Next();

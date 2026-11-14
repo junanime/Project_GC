@@ -70,6 +70,8 @@ namespace Vampire
         protected MonsterBlueprint sourceMonsterBlueprint;
 
         public UnityEvent<float> OnHitDamageable { get; private set; }
+        public bool IsPlayerAttack => sourceMonsterBlueprint == null && playerCharacter != null && !isDespawning;
+        public Vector2 TravelDirection => direction;
 
         public void ReleaseForPlayerExit(Character owner)
         {
@@ -191,6 +193,15 @@ namespace Vampire
             moveCoroutine = StartCoroutine(Move());
         }
 
+        // Sweep every movement segment before physics can register a hit beyond a colon wall.
+        protected bool MoveAgainstColonWall(Vector2 target)
+        {
+            Vector2 from=transform.position,stop=ColonAttackWall.Stop(from,target,.06f);
+            transform.position=new Vector3(stop.x,stop.y,transform.position.z);
+            if((stop-target).sqrMagnitude<.00001f)return true;
+            HitNothing();return false;
+        }
+
         public virtual IEnumerator Move()
         {
             float distanceTravelled = 0;
@@ -208,8 +219,7 @@ namespace Vampire
                     ApplyVisualRotationToDirection();
                 }
 
-                transform.position +=
-                    step * (Vector3)direction;
+                if(!MoveAgainstColonWall((Vector2)transform.position+step*direction))yield break;
 
                 distanceTravelled += step;
 
@@ -434,6 +444,7 @@ namespace Vampire
         protected virtual void OnTriggerEnter2D(
             Collider2D collider)
         {
+            if (ConstipationKingShield.TryReflect(this, collider)) return;
             CollisionCheck(collider);
         }
     }

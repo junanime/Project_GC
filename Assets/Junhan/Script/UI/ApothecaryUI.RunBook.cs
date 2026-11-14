@@ -137,7 +137,8 @@ namespace Vampire
         void RecordMap(Character player)
         {
             var map=ExplorationMapSystem.Instance;
-            var viewport=RecordRect("Record map viewport",content,.499f,.214f,.347f,.360f);viewport.gameObject.AddComponent<RectMask2D>();
+            bool colon=FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon;
+            var viewport=RecordRect("Record map viewport",content,.499f,.214f,.347f,colon?.316f:.360f);viewport.gameObject.AddComponent<RectMask2D>();
             var frame=viewport;frame.gameObject.AddComponent<Image>().color=Color.clear;
             viewport=Rect("Zoomable map",frame,0,0,1,1);
             if(map!=null && map.UsesStomachMap)
@@ -172,6 +173,9 @@ namespace Vampire
                 RecordText("Map zoom hint","휠 / 두 손가락 · 드래그",.70f,.165f,.24f,.022f,11,TextAlignmentOptions.Right);
             }
             else RecordText("Map unavailable","탐험 지도를 준비하고 있습니다",.515f,.355f,.305f,.065f,18,TextAlignmentOptions.Center);
+            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon){var director=FindObjectOfType<ColonBossDirector>();
+                RecordText("Colon objective",director!=null?$"선택 미니보스 {director.DefeatedCount}/6 · 전부 처치는 선택":"선택 미니보스를 찾아 성장하세요",.507f,.537f,.335f,.020f,12).color=new Color(1,.94f,.80f);
+                RecordText("Colon encounter legend","흰색: 대기   느낌표: 전투 중   초록 체크: 완료",.507f,.558f,.335f,.018f,11).color=new Color(.91f,.85f,.78f);}
             string[] labels={"플레이어","일반 몬스터","엘리트 몬스터","보스","보물상자","골드","경험치 보석","특수 오브젝트","혈전","상인","자판기","보스 제단","미니보스"};
             Sprite[] icons={CharacterProfile(player.Blueprint),RunBookArt.Icon(12),RunBookArt.Icon(13),OctoberArt.Get("OctoberUI/MapSymbols","Boss"),OctoberArt.Get("OctoberUI/ItemChestIcon"),RunBookArt.Icon(11),RunBookArt.Icon(14),RunBookArt.Icon(15),OctoberArt.Get("OctoberUI/MapSymbols","Portal"),OctoberArt.Get("OctoberUI/MapSymbols","Merchant"),OctoberArt.Get("OctoberUI/MapSymbols","Vending"),OctoberArt.Get("OctoberUI/BossAltarIcon"),ChameleonArt.Portrait(ChameleonKind.Fanta,0,true)};
             for(int i=0;i<labels.Length;i++)

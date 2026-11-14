@@ -70,6 +70,12 @@ namespace Vampire
                     continue;
                 }
 
+                if (candidate is ColonBossRuntime colon && (colon.Dead || colon.Arriving || colon.Hidden))
+                {
+                    continue;
+                }
+                if (candidate is ConstipationKingRuntime king && !king.Targetable) continue;
+
                 Monster monster = component as Monster;
 
                 if (monster != null && !IsValidMonsterTarget(monster))

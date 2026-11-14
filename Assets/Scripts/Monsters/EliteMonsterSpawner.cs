@@ -192,6 +192,7 @@ namespace Vampire
 
         protected override void OnTick()
         {
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) return;
             if (!spawnEnabled)
             {
                 return;
@@ -469,8 +470,8 @@ namespace Vampire
                 return false;
             }
 
-            if (phase.normalToEliteMappings == null ||
-                phase.normalToEliteMappings.Length == 0)
+            if (!OralMonsterRoster.IsLevel(levelManager.CurrentLevelBlueprint) &&
+                (phase.normalToEliteMappings == null || phase.normalToEliteMappings.Length == 0))
             {
                 if (debugLog)
                 {
@@ -541,6 +542,10 @@ namespace Vampire
         {
             eliteFlatIndex = -1;
 
+            // The oral roster expands one normal pool into six species. Scene flat
+            // indices still describe the stomach, so never fall back to them here.
+            if (levelManager != null && OralMonsterRoster.IsLevel(levelManager.CurrentLevelBlueprint))
+                return OralMonsterRoster.TryEliteIndex(levelManager.CurrentLevelBlueprint, normalFlatIndex, out eliteFlatIndex);
             if (ColonMonsterRoster.InColon && ColonMonsterRoster.Active.TryEliteIndex(normalFlatIndex, out eliteFlatIndex)) return true;
 
             if (phase.normalToEliteMappings == null)
@@ -585,10 +590,15 @@ namespace Vampire
             }
 
             List<int> candidates = new List<int>();
+            List<int> available = new List<int>();
+            var level = levelManager != null ? levelManager.CurrentLevelBlueprint : null;
+            bool oral = OralMonsterRoster.IsLevel(level);
 
             for (int i = 0; i < phase.eliteMonsterFlatIndices.Length; i++)
             {
                 int candidate = phase.eliteMonsterFlatIndices[i];
+                if (oral && !OralMonsterRoster.TryRemapSourceEliteIndex(level, candidate, out candidate)) continue;
+                available.Add(candidate);
 
                 if (phase.avoidDuplicateEliteInOneWave &&
                     selectedEliteIndicesThisWave != null &&
@@ -602,10 +612,7 @@ namespace Vampire
 
             if (candidates.Count <= 0)
             {
-                for (int i = 0; i < phase.eliteMonsterFlatIndices.Length; i++)
-                {
-                    candidates.Add(phase.eliteMonsterFlatIndices[i]);
-                }
+                candidates.AddRange(available);
             }
 
             if (candidates.Count <= 0)
@@ -638,7 +645,8 @@ namespace Vampire
                 return null;
             }
 
-            if (requireEliteMonsterBlueprint && !(entry.blueprint is EliteMonsterBlueprint))
+            if ((OralMonsterRoster.IsLevel(levelManager.CurrentLevelBlueprint) && !OralMonsterRoster.IsEliteBlueprint(entry.blueprint)) ||
+                (requireEliteMonsterBlueprint && !(entry.blueprint is EliteMonsterBlueprint)))
             {
                 Debug.LogWarning(
                     $"[EliteMonsterSpawner] flatIndex={flatIndex}는 EliteMonsterBlueprint가 아닙니다. " +

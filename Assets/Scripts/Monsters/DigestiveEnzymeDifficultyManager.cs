@@ -74,6 +74,13 @@ namespace Vampire
         private float monsterMoveSpeedBonusPercent;
         private float nextMoveSpeedApplyTime;
 
+        public void ResetForStage()
+        {
+            currentKillCount = enzymeMonsterKillCount = 0;
+            spawnRateBonusPercent = monsterHealthBonusPercent = monsterMoveSpeedBonusPercent = 0;
+            nextMoveSpeedApplyTime = 0;
+        }
+
         public static float SpawnRateMultiplier
         {
             get

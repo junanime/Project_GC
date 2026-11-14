@@ -22,6 +22,7 @@ MonoBehaviour:
   m_Metadata:
     m_Items:
     - rid: 7941200140158369859
+    - rid: 7941200140158369860
   m_KeyGenerator:
     rid: 7941200140158369858
   references:
@@ -43,3 +44,7 @@ MonoBehaviour:
           - ko
         m_TypeString: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
           PublicKeyToken=null
+    - rid: 7941200140158369860
+      type: {class: PreloadAssetTableMetadata, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_PreloadBehaviour: 0

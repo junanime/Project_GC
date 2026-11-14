@@ -18,7 +18,7 @@ namespace Vampire
             emitter.remaining=3;
         }
         void LateUpdate(){Advance(Time.deltaTime);}
-        static Transform Actor(SpriteRenderer target){var boss=target.GetComponentInParent<FoodBossRuntime>();return boss!=null?boss.transform:target.GetComponentInParent<Monster>()?.transform??target.transform;}
+        static Transform Actor(SpriteRenderer target){var king=target.GetComponentInParent<ConstipationKingRuntime>();if(king!=null)return king.transform;var colon=target.GetComponentInParent<ColonBossRuntime>();if(colon!=null)return colon.transform;var boss=target.GetComponentInParent<FoodBossRuntime>();return boss!=null?boss.transform:target.GetComponentInParent<Monster>()?.transform??target.transform;}
         public void Advance(float dt)
         {
             if(remaining<=0||body==null)return;
@@ -26,6 +26,9 @@ namespace Vampire
             if(MiniStageRuntimeState.IsInsideMiniStage || (body.GetComponentInParent<Monster>() is Monster m && m.IsFieldRuntimeSuspended))return;
             // Use actor movement, excluding animated body lifts, recoil and phase poses.
             var boss=body.GetComponentInParent<FoodBossRuntime>();
+            var colon=body.GetComponentInParent<ColonBossRuntime>();
+            var king=body.GetComponentInParent<ConstipationKingRuntime>();
+            if(king!=null&&king.EncounterPaused)return;
             var actor=Actor(body);
             Vector3 current=actor.position;
             Vector2 delta=current-previous;previous=current;
@@ -36,9 +39,9 @@ namespace Vampire
             if(untilStamp<=.0001f)
             {
                 untilStamp+=1;
-                if(distance>=size*.15f && body.enabled && (boss==null||!boss.Visual.Airborne))
+                if(distance>=size*.15f && body.enabled && (boss==null||!boss.Visual.Airborne) && (colon==null||!colon.Arriving&&!colon.Hidden&&colon.Visual.Lift<.15f))
                 {
-                    Vector3 foot=boss!=null?actor.position:new Vector3(body.bounds.center.x,body.bounds.min.y,body.transform.position.z);
+                    Vector3 foot=boss!=null||colon!=null||king!=null?actor.position:new Vector3(body.bounds.center.x,body.bounds.min.y,body.transform.position.z);
                     HoneyTrailStamp.Spawn(foot-(Vector3)direction*size*.3f,direction,size);Emitted++;
                 }
                 distance=0;

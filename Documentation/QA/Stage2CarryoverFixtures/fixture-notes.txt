@@ -1,0 +1,10 @@
+These four JSON fixtures are historical automated Stage 1 carryover snapshots from the project's 2026-10-23 colon-balance-soak test. They contain runtime combat progression only, not participant identities, account credentials, or observed human play statistics.
+
+Main-stage1-build.json: level 43, damage multiplier 2.84, attack-speed multiplier 1.77.
+Ari-stage1-build.json: level 54, damage multiplier 2.10, attack-speed multiplier 1.94.
+Hyuki-stage1-build.json: level 32, damage multiplier 1.56, attack-speed multiplier 1.46.
+Shini-stage1-build.json: level 58, damage multiplier 2.90, attack-speed multiplier 1.915.
+
+The old automated observer did not reliably collect mini-stage skill upgrades: active/passive skill level 1 and no dash upgrades. These are a reproducible, relatively low skill-growth baseline, NOT a measured average player's end-of-stage build. The test restores full HP for each encounter and does not collect additional pickups or upgrades during its measurement. Fixed-target DPS and a simple reactive-bot combat measurement must be reported separately; neither determines a human clear rate.
+
+Used by Vampire.Tests.Editor.ColonBossSmoke and ColonBossBalanceSmoke. Original fixture source: D:/Project_GC/work/colon-balance-soak. Copies are checked into the repository so other development machines can rerun the tests.

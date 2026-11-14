@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-09",
+  "method": "Built-in image generation; alpha-preserving atlas packing and measured aperture masks",
+  "house": {
+    "prompt": "Edit the FIRST image, a three-door pear manatee habitat game sprite, using the SECOND image only for coral wall material/color reference. Preserve the first image's exact wide low silhouette, three circular dark door centers and sizes, center door higher than left/right, identical opening geometry, identical composition and transparent canvas proportions. Repaint the organ tissue to warm coral/salmon chunky clean pixel clusters matching the second map's smooth rounded colon wall lobes. Eliminate slick white candy highlights and rectangular cream connecting pipes; instead connect the three circular salmon ring holes with organic softly scalloped tissue of the same wall material. Peach/apricot base shading, muted dark burgundy opening interiors, sparse subtle 2-pixel dots, restrained highlights. Edges crisp slightly pixel-stepped, consistent pixel scale, no noise, no blur. NO text, labels, characters, extra doors, leaves, scenery, no change to door positions or sizes. Output single isolated transparent game habitat sprite, wide canvas same ~3.13:1 proportions as input.",
+    "source": "exec-ff2e3f3f-0bc9-4830-b7e5-ce06deca41d8.png",
+    "outputs": [
+      "HouseBase.png",
+      "HouseLip.png",
+      "HouseMask.png"
+    ],
+    "atlas": [
+      720,
+      240
+    ]
+  },
+  "door": {
+    "source": "exec-d552253d-32c9-460a-8b37-07898bae25f0.png",
+    "description": "Three curved coral tissue membranes replacing the wooden house hatch; transparent 112x88 atlas"
+  },
+  "wall": {
+    "source": "exec-51b701a4-929c-4b2c-9dab-2fd5cd1c3dd8.png",
+    "description": "Four broad warm coral tissue lobes, packed to 720x240 and blended along world-space curved walls"
+  },
+  "floor": {
+    "method": "World-space shader at the original game's pixel density; no stretched overview image",
+    "reference": "Approved 05 quiet tissue material concept"
+  }
+}

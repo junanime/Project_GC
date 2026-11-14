@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Vampire
 {
     // A field-enemy mechanic, deliberately independent of the player's VFX opacity setting.
+    [DefaultExecutionOrder(21000)]
     public sealed class MonsterNeedleBarrier : MonoBehaviour
     {
         public const float StartTime = 630f, SpawnChance = .10f;
@@ -15,6 +16,8 @@ namespace Vampire
         public int AttachedNeedles => needles.Count;
         public Transform VisualRoot => view;
         public Vector2 Radii => radii;
+        public int MeshRebuildCount { get; private set; }
+        public bool SodaTint {get;set;}
         bool armed;
         Monster owner;
         SpriteRenderer body;
@@ -25,6 +28,9 @@ namespace Vampire
         static Material material;
         Vector2 radii;
         float popAge, hitAge, hitAngle;
+        bool meshDirty=true, drawnSodaTint;
+        int drawnHits=-1;
+        float drawnHitAge=-1, drawnPopAge=-1;
         readonly List<Vector3> vertices = new List<Vector3>(1800);
         readonly List<Color> colors = new List<Color>(1800);
         readonly List<int> triangles = new List<int>(2700);
@@ -35,7 +41,9 @@ namespace Vampire
         {
             if (target == null) return false;
             var barrier = target.GetComponentInParent<MonsterNeedleBarrier>();
-            return barrier != null && barrier.IsProtected;
+            if(barrier != null && barrier.IsProtected)return true;
+            var tartar=target.GetComponentInParent<OralTartarArmor>();
+            return tartar!=null&&tartar.IsProtected;
         }
         public static bool Eligible(Monster monster)
         {
@@ -85,7 +93,7 @@ namespace Vampire
         }
         public void ResetBarrier()
         {
-            armed = false; Hits = 0; popAge = 0;
+            SodaTint=false; armed = false; Hits = 0; popAge = 0; meshDirty=true;
             if (surface != null) surface.enabled = false;
             foreach (var needle in needles) if (needle.sprite != null) { needle.sprite.gameObject.SetActive(false); Destroy(needle.sprite.gameObject); }
             needles.Clear();
@@ -97,7 +105,12 @@ namespace Vampire
         // Called before any needle damage, item proc, status, pierce, reflection or return logic.
         public bool AbsorbNeedle(SpriteRenderer source, Vector2 incoming, Vector2 position)
         {
-            if (!IsProtected || owner.IsFieldRuntimeSuspended) return false;
+            if(!IsProtected)
+            {
+                var tartar=GetComponent<OralTartarArmor>();
+                return tartar!=null&&tartar.AbsorbNeedle(source,incoming,position);
+            }
+            if (owner.IsFieldRuntimeSuspended) return false;
             UpdatePose();
             Vector2 travel = incoming.sqrMagnitude > .0001f ? incoming.normalized : ((Vector2)view.position - position).normalized;
             if (travel == Vector2.zero) travel = Vector2.right;
@@ -166,6 +179,7 @@ namespace Vampire
             view.localScale = new Vector3(radii.x / SafeScale(scale.x), radii.y / SafeScale(scale.y), 1 / SafeScale(scale.z));
             renderer.sortingLayerID = body.sortingLayerID; renderer.sortingOrder = body.sortingOrder+6;
             renderer.enabled = body.enabled;
+            renderer.forceRenderingOff = body.forceRenderingOff;
             float burst = Mathf.Clamp01((popAge-PopDelay)/PopDuration);
             foreach (var needle in needles)
             {
@@ -176,6 +190,7 @@ namespace Vampire
                 t.localScale = new Vector3(needle.scale.x/SafeScale(scale.x),needle.scale.y/SafeScale(scale.y),needle.scale.z/SafeScale(scale.z));
                 needle.sprite.sortingLayerID = renderer.sortingLayerID; needle.sprite.sortingOrder = renderer.sortingOrder+1;
                 needle.sprite.enabled = body.enabled;
+                needle.sprite.forceRenderingOff = body.forceRenderingOff;
                 needle.sprite.color = new Color(1,1,1,1-burst);
             }
         }
@@ -190,6 +205,7 @@ namespace Vampire
         void Quad(Vector3 a,Vector3 b,Vector3 c,Vector3 d,Color color)
         {
             int n=vertices.Count; vertices.Add(a);vertices.Add(b);vertices.Add(c);vertices.Add(d);
+            if(SodaTint){float opacity=color.a;color=Color.Lerp(new Color(.96f,.68f,.19f),Color.white,Mathf.Clamp01((color.r-.24f)*.9f));color.a=opacity;}
             for(int i=0;i<4;i++)colors.Add(color);
             triangles.Add(n);triangles.Add(n+1);triangles.Add(n+2);triangles.Add(n);triangles.Add(n+2);triangles.Add(n+3);
         }
@@ -205,6 +221,9 @@ namespace Vampire
         void Draw()
         {
             if (mesh==null) return;
+            bool animated=hitAge<.24f||drawnHitAge<.24f||Hits>=RequiredHits;
+            if(!meshDirty&&drawnSodaTint==SodaTint&&drawnHits==Hits&&
+                (!animated||(Mathf.Approximately(drawnHitAge,hitAge)&&Mathf.Approximately(drawnPopAge,popAge))))return;
             vertices.Clear(); colors.Clear(); triangles.Clear();
             float burst=Mathf.Clamp01((popAge-PopDelay)/PopDuration);
             if(burst<=0)
@@ -245,6 +264,7 @@ namespace Vampire
                 }
             }
             mesh.Clear(); mesh.SetVertices(vertices); mesh.SetColors(colors); mesh.SetTriangles(triangles,0); mesh.RecalculateBounds();
+            MeshRebuildCount++;meshDirty=false;drawnSodaTint=SodaTint;drawnHits=Hits;drawnHitAge=hitAge;drawnPopAge=popAge;
         }
     }
 }

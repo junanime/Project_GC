@@ -30,6 +30,11 @@ namespace Vampire
             return false;
         }
 
+        public void ResetForStage()
+        {
+            foreach(var slot in inventorySlots)if(slot!=null)slot.ResetForStage();
+        }
+
         public void ApplyMobileLayout() => LightWoodHud.InstallMobile(inventorySlots);
 
         public bool TryGetInventorySlot(Collectable item, out InventorySlot inventorySlot)

@@ -1,0 +1,896 @@
+{
+  "canonicalSource": "D:\\GameDev\\Workspaces\\2026-10-07\\24tu-junhan2-continuation\\output\\boss-summoning-motion-20261105\\sprites\\hedgehog\\11.png",
+  "canonicalSHA256": "c00759f76c30cb603fff7236059132ec058f186a2f247b33bef76348294d39f7",
+  "patchSource": "C:/Users/junan/.codex/generated_images/01a1b228-1685-7012-898e-2403d75dd6df/exec-c2aa296a-6a63-4f87-bd2e-9fb593d9668a.png",
+  "patchSHA256": "217bb554203735b90ea0de6ecfc12aeeefe03e029d89e5e18599f09e054e4de5",
+  "description": "Original 20261105 summoning frame 11 is immutable canon. Only three baked chestnut rider footprints are replaced with generated matching quills. Original alpha, outer silhouette, face, ears, paws and every pixel outside mask are retained. Runtime chestnut riders use actual Stage2 S02.",
+  "maskPolygons": [
+    [
+      [
+        63,
+        62
+      ],
+      [
+        89,
+        42
+      ],
+      [
+        122,
+        49
+      ],
+      [
+        153,
+        77
+      ],
+      [
+        155,
+        123
+      ],
+      [
+        133,
+        143
+      ],
+      [
+        70,
+        139
+      ],
+      [
+        52,
+        104
+      ]
+    ],
+    [
+      [
+        159,
+        48
+      ],
+      [
+        192,
+        20
+      ],
+      [
+        218,
+        15
+      ],
+      [
+        250,
+        43
+      ],
+      [
+        264,
+        87
+      ],
+      [
+        238,
+        124
+      ],
+      [
+        187,
+        122
+      ],
+      [
+        153,
+        91
+      ]
+    ],
+    [
+      [
+        213,
+        132
+      ],
+      [
+        240,
+        112
+      ],
+      [
+        271,
+        123
+      ],
+      [
+        294,
+        151
+      ],
+      [
+        300,
+        186
+      ],
+      [
+        271,
+        212
+      ],
+      [
+        222,
+        205
+      ],
+      [
+        199,
+        174
+      ]
+    ],
+    [
+      [
+        130,
+        60
+      ],
+      [
+        180,
+        45
+      ],
+      [
+        201,
+        90
+      ],
+      [
+        207,
+        157
+      ],
+      [
+        171,
+        163
+      ],
+      [
+        141,
+        143
+      ]
+    ]
+  ],
+  "outsideMaskChangedPixels": 0,
+  "maskPixelCount": 27325,
+  "resultSHA256": "227e5b8fbd4942731ecc0d3ff88787b6e50e9131c9764e047e7633719704abc3",
+  "sourceScale": 0.6306306306306306,
+  "sharedChestnut": "ColonMonsters/S02",
+  "walkMethod": "20 frames / 0.8 seconds. Original-pixel local inverse warp of small paws only, alternating pairs, maximum 4.2 original-pixel stride and 2-pixel lift. Body height/face/paws remain canonical.",
+  "poseMethod": "Original-pixel deformation using the same canonical bare source; curl uses original summoning frame00. Pose0/Idle0/SummonFinal are the same neutral canvas, with actual S02 riders embedded. Pose1..7 are bare, with pose sockets and original-quill foreground occlusion.",
+  "poseConfigs": [
+    {
+      "name": "neutral",
+      "sx": 1,
+      "sy": 1,
+      "angle": 0,
+      "visible": false
+    },
+    {
+      "name": "crouch",
+      "sx": 1.025,
+      "sy": 0.91,
+      "angle": 0,
+      "visible": true
+    },
+    {
+      "name": "curl",
+      "sx": 1,
+      "sy": 1,
+      "angle": 0,
+      "visible": false,
+      "closed": true
+    },
+    {
+      "name": "settle",
+      "sx": 1.02,
+      "sy": 0.94,
+      "angle": 0,
+      "visible": true
+    },
+    {
+      "name": "rider launch",
+      "sx": 0.98,
+      "sy": 1.055,
+      "angle": 0.018,
+      "visible": true,
+      "backRise": 5
+    },
+    {
+      "name": "quill fan",
+      "sx": 1.025,
+      "sy": 0.97,
+      "angle": -0.06,
+      "visible": true
+    },
+    {
+      "name": "call",
+      "sx": 0.99,
+      "sy": 1.025,
+      "angle": 0.035,
+      "visible": true,
+      "headRise": 7
+    },
+    {
+      "name": "recover",
+      "sx": 1.015,
+      "sy": 0.97,
+      "angle": 0,
+      "visible": true
+    }
+  ],
+  "riderSeatsOriginalPixels": [
+    [
+      110,
+      126,
+      57
+    ],
+    [
+      211,
+      108,
+      58
+    ],
+    [
+      260,
+      204,
+      54
+    ]
+  ],
+  "qa": [
+    {
+      "kind": "Walk",
+      "bounds": [
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        }
+      ],
+      "atlas": [
+        1760,
+        576
+      ],
+      "cell": [
+        220,
+        192
+      ]
+    },
+    {
+      "kind": "WalkBare",
+      "bounds": [
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 336,
+          "width": 210,
+          "height": 181
+        }
+      ],
+      "atlas": [
+        1760,
+        576
+      ],
+      "cell": [
+        220,
+        192
+      ]
+    },
+    {
+      "kind": "Idle",
+      "bounds": [
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        }
+      ],
+      "atlas": [
+        220,
+        192
+      ],
+      "cell": [
+        220,
+        192
+      ]
+    },
+    {
+      "kind": "IdleBare",
+      "bounds": [
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        }
+      ],
+      "atlas": [
+        220,
+        192
+      ],
+      "cell": [
+        220,
+        192
+      ]
+    },
+    {
+      "kind": "Pose",
+      "bounds": [
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 148,
+          "top": 172,
+          "right": 363,
+          "bottom": 337,
+          "width": 216,
+          "height": 166
+        },
+        {
+          "left": 167,
+          "top": 172,
+          "right": 344,
+          "bottom": 337,
+          "width": 178,
+          "height": 166
+        },
+        {
+          "left": 149,
+          "top": 167,
+          "right": 362,
+          "bottom": 337,
+          "width": 214,
+          "height": 171
+        },
+        {
+          "left": 154,
+          "top": 142,
+          "right": 360,
+          "bottom": 337,
+          "width": 207,
+          "height": 196
+        },
+        {
+          "left": 145,
+          "top": 161,
+          "right": 359,
+          "bottom": 338,
+          "width": 215,
+          "height": 178
+        },
+        {
+          "left": 155,
+          "top": 151,
+          "right": 362,
+          "bottom": 336,
+          "width": 208,
+          "height": 186
+        },
+        {
+          "left": 149,
+          "top": 161,
+          "right": 362,
+          "bottom": 337,
+          "width": 214,
+          "height": 177
+        }
+      ],
+      "atlas": [
+        1824,
+        208
+      ],
+      "cell": [
+        228,
+        208
+      ]
+    },
+    {
+      "kind": "NutForeground",
+      "bounds": [
+        {
+          "left": 197,
+          "top": 216,
+          "right": 336,
+          "bottom": 294,
+          "width": 140,
+          "height": 79
+        },
+        {
+          "left": 195,
+          "top": 227,
+          "right": 338,
+          "bottom": 298,
+          "width": 144,
+          "height": 72
+        },
+        {
+          "left": 256,
+          "top": 338,
+          "right": 256,
+          "bottom": 338,
+          "width": 0,
+          "height": 0
+        },
+        {
+          "left": 196,
+          "top": 223,
+          "right": 338,
+          "bottom": 296,
+          "width": 143,
+          "height": 74
+        },
+        {
+          "left": 200,
+          "top": 210,
+          "right": 336,
+          "bottom": 293,
+          "width": 137,
+          "height": 84
+        },
+        {
+          "left": 190,
+          "top": 218,
+          "right": 336,
+          "bottom": 293,
+          "width": 147,
+          "height": 76
+        },
+        {
+          "left": 201,
+          "top": 214,
+          "right": 337,
+          "bottom": 296,
+          "width": 137,
+          "height": 83
+        },
+        {
+          "left": 196,
+          "top": 220,
+          "right": 338,
+          "bottom": 295,
+          "width": 143,
+          "height": 76
+        }
+      ],
+      "atlas": [
+        1280,
+        140
+      ],
+      "cell": [
+        160,
+        140
+      ]
+    },
+    {
+      "kind": "Summon",
+      "bounds": [
+        {
+          "left": 167,
+          "top": 172,
+          "right": 344,
+          "bottom": 337,
+          "width": 178,
+          "height": 166
+        },
+        {
+          "left": 168,
+          "top": 173,
+          "right": 343,
+          "bottom": 337,
+          "width": 176,
+          "height": 165
+        },
+        {
+          "left": 166,
+          "top": 174,
+          "right": 345,
+          "bottom": 337,
+          "width": 180,
+          "height": 164
+        },
+        {
+          "left": 165,
+          "top": 174,
+          "right": 346,
+          "bottom": 337,
+          "width": 182,
+          "height": 164
+        },
+        {
+          "left": 161,
+          "top": 167,
+          "right": 350,
+          "bottom": 337,
+          "width": 190,
+          "height": 171
+        },
+        {
+          "left": 161,
+          "top": 168,
+          "right": 350,
+          "bottom": 337,
+          "width": 190,
+          "height": 170
+        },
+        {
+          "left": 164,
+          "top": 171,
+          "right": 347,
+          "bottom": 337,
+          "width": 184,
+          "height": 167
+        },
+        {
+          "left": 160,
+          "top": 169,
+          "right": 351,
+          "bottom": 337,
+          "width": 192,
+          "height": 169
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        },
+        {
+          "left": 151,
+          "top": 158,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 180
+        },
+        {
+          "left": 151,
+          "top": 154,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 184
+        },
+        {
+          "left": 151,
+          "top": 156,
+          "right": 360,
+          "bottom": 337,
+          "width": 210,
+          "height": 182
+        }
+      ],
+      "atlas": [
+        1760,
+        392
+      ],
+      "cell": [
+        220,
+        196
+      ]
+    },
+    {
+      "kind": "Dormant",
+      "bounds": [
+        {
+          "left": 167,
+          "top": 172,
+          "right": 344,
+          "bottom": 337,
+          "width": 178,
+          "height": 166
+        }
+      ],
+      "atlas": [
+        188,
+        176
+      ],
+      "cell": [
+        188,
+        176
+      ]
+    }
+  ]
+}

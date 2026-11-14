@@ -1,0 +1,42 @@
+{
+  "id": "turtle",
+  "kind": "Impact",
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5,
+  "pivotY": 0.5,
+  "frameCount": 4,
+  "frameWidth": 96,
+  "frameHeight": 96,
+  "fps": 16,
+  "cycleSeconds": 0.25,
+  "frames": [
+    {
+      "name": "Impact_000",
+      "x": 0,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "name": "Impact_001",
+      "x": 96,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "name": "Impact_002",
+      "x": 192,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    },
+    {
+      "name": "Impact_003",
+      "x": 288,
+      "y": 0,
+      "width": 96,
+      "height": 96
+    }
+  ]
+}

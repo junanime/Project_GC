@@ -255,6 +255,9 @@ namespace Vampire
 
         [Header("1. Acid Reflux Wave Events / 산성 역류 파도")]
         [SerializeField] private List<AcidRefluxWaveEvent> acidRefluxWaveEvents = new List<AcidRefluxWaveEvent>();
+        // Other stages reference the effective (clamped) authored Fanta dimensions.
+        public float ReferenceFantaWidth => acidRefluxWaveEvents.Count>0 && acidRefluxWaveEvents[0]!=null ? Mathf.Clamp(acidRefluxWaveEvents[0].waveHeight,1,2) : 2f;
+        public float ReferenceFantaTravelSeconds => acidRefluxWaveEvents.Count>0 && acidRefluxWaveEvents[0]!=null ? Mathf.Max(1.4f,acidRefluxWaveEvents[0].travelDuration) : 1.4f;
 
         [Header("2. Peristalsis Drift Events / 연동운동 기류")]
         [SerializeField] private List<PeristalsisDriftEvent> peristalsisDriftEvents = new List<PeristalsisDriftEvent>();

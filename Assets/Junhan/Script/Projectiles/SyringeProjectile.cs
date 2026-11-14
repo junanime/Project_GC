@@ -39,12 +39,12 @@ namespace Vampire
             entityManager.DespawnProjectile(projectileIndex, this);
         }
 
-        public void ConfigureFlightVfx(bool bipolar, bool heavy)
+        public void ConfigureFlightVfx(bool bipolar, bool heavy, float charge = 1)
         {
             SyringeAugmentVfx.ReleaseOwned(ref bipolarVisual);
             heavyImpactVisual = heavy;
             if (heavy)
-                (GetComponent<PhoenixHeavyFlightVisual>() ?? gameObject.AddComponent<PhoenixHeavyFlightVisual>()).Bind(this, projectileSpriteRenderer);
+                (GetComponent<PhoenixHeavyFlightVisual>() ?? gameObject.AddComponent<PhoenixHeavyFlightVisual>()).Bind(this, projectileSpriteRenderer, charge);
             else GetComponent<PhoenixHeavyFlightVisual>()?.Clear();
             if (bipolar)
             {
@@ -338,7 +338,7 @@ namespace Vampire
                         Vector2 previousPosition = transform.position;
 
                         float normalStep = Mathf.Min(speed * Time.deltaTime, effectiveMaxDistance - distanceTravelled);
-                        transform.position += normalStep * (Vector3)direction;
+                        if(!MoveAgainstColonWall(previousPosition+normalStep*direction))yield break;
                         distanceTravelled += normalStep;
 
                         TrySpawnFiberTrailSegment(previousPosition, transform.position);
@@ -409,7 +409,7 @@ namespace Vampire
             var targetDamageable=target!=null?target.GetComponentInParent<IDamageable>():null;
             bool valid=NeedleTargeting.IsValid(monster,targetLayer)||NeedleTargeting.IsValidBossTarget(target,targetLayer);
             if (!valid || targetDamageable==null || hitTargetIds.Contains(targetDamageable.gameObject.GetInstanceID()) ||
-                ((Vector2)target.position - (Vector2)transform.position).sqrMagnitude > specials.homingRange * specials.homingRange)
+                (NeedleTargeting.Position(target) - (Vector2)transform.position).sqrMagnitude > specials.homingRange * specials.homingRange)
                 target = FindClosestTarget();
             ver4HomingTarget = target;
 
@@ -420,7 +420,7 @@ namespace Vampire
 
             Vector2 previousDirection = direction;
             Vector2 desiredDirection =
-                ((Vector2)target.position - (Vector2)transform.position).normalized;
+                (NeedleTargeting.Position(target) - (Vector2)transform.position).normalized;
 
             direction = NeedleTargeting.Curve(
                 direction,
@@ -880,7 +880,7 @@ namespace Vampire
             {
                 if(NeedleTargeting.IsValidBossTarget(hit,targetLayer))
                 {
-                    var bossTarget=hit.GetComponentInParent<IDamageable>();float bossDistance=Vector2.Distance(transform.position,hit.transform.position);
+                    var bossTarget=hit.GetComponentInParent<IDamageable>();float bossDistance=Vector2.Distance(transform.position,NeedleTargeting.Position(hit));
                     if(!hitTargetIds.Contains(bossTarget.gameObject.GetInstanceID())&&bossDistance<closestDistance){closestDistance=bossDistance;closestTarget=hit.transform;}
                     continue;
                 }
@@ -911,6 +911,7 @@ namespace Vampire
         protected override void OnTriggerEnter2D(
     Collider2D collider)
         {
+            if (ConstipationKingShield.TryReflect(this, collider)) return;
             if (isDespawning ||
                 !gameObject.activeInHierarchy)
             {
@@ -1018,6 +1019,12 @@ namespace Vampire
             if (damageable is CurrencyJar resourceJar)
             {
                 resourceJar.TakeDamage(damage);
+                if (!IsReturnMode) HitNothing();
+                return;
+            }
+            if (damageable is OralBalloonDelivery delivery)
+            {
+                delivery.TakeDamage(damage);
                 if (!IsReturnMode) HitNothing();
                 return;
             }
@@ -1289,7 +1296,7 @@ namespace Vampire
             }
 
             float step = speed * Time.deltaTime;
-            transform.position += step * (Vector3)returnForwardDirection;
+            if(!MoveAgainstColonWall((Vector2)transform.position+step*returnForwardDirection))return;
             returnForwardTravelled += step;
 
             direction = returnForwardDirection;
@@ -1371,7 +1378,7 @@ namespace Vampire
             returnCurveEnd = ReturnCatchPosition;
             Vector2 nextPosition = CubicBezier(returnCurveStart, returnCurveControl1, returnCurveControl2, returnCurveEnd, easedT);
 
-            transform.position = nextPosition;
+            if(!MoveAgainstColonWall(nextPosition))return;
             Vector2 moveDirection = nextPosition - previousPosition;
 
             if (moveDirection.sqrMagnitude > 0.0001f)
@@ -1423,7 +1430,7 @@ namespace Vampire
 
             direction = toPlayer.normalized;
             float returnStep = speed * Mathf.Max(0.01f, specials.returnNeedleSpeedMultiplier) * Time.deltaTime;
-            transform.position = Vector2.MoveTowards(currentPosition, targetPosition, returnStep);
+            if(!MoveAgainstColonWall(Vector2.MoveTowards(currentPosition,targetPosition,returnStep)))return false;
             ApplyVisualRotationToDirection(direction);
 
             return true;
@@ -1702,7 +1709,11 @@ namespace Vampire
             var snail = damageableComponent.GetComponentInParent<SnailBossRuntime>();
             var mini = damageableComponent.GetComponentInParent<SnailBossMinion>();
             var foodBoss = damageableComponent.GetComponentInParent<FoodBossRuntime>();
-            if (monster == null && snail == null && mini == null && foodBoss == null) return;
+            var colonBoss = damageableComponent.GetComponentInParent<ColonBossRuntime>();
+            var kingBoss = damageableComponent.GetComponentInParent<ConstipationKingRuntime>();
+            if (monster == null && snail == null && mini == null && foodBoss == null && colonBoss == null && kingBoss == null) return;
+            if (kingBoss != null && (!kingBoss.Targetable || kingBoss.Visual == null || !kingBoss.Visual.Body.enabled)) return;
+            if (colonBoss != null && (colonBoss.Dead || colonBoss.Arriving || colonBoss.Hidden || colonBoss.Visual == null || !colonBoss.Visual.Main.enabled)) return;
             if (foodBoss != null && (foodBoss.Dead || foodBoss.Transitioning || foodBoss.Recovering || foodBoss.Visual.Airborne || !foodBoss.Visual.Body.enabled)) return;
 
             TrapMonster trapMonster = monster as TrapMonster;
@@ -1716,7 +1727,7 @@ namespace Vampire
             stuckTransform.position = hitPosition;
             stuckTransform.rotation = hitRotation;
             stuckTransform.localScale = hitScale * stuckNeedleScaleMultiplier;
-            SpriteRenderer targetRenderer = foodBoss != null ? foodBoss.Visual.Body : monster != null ? monster.BodyRenderer : snail != null ? snail.Visual.Shell : mini.GetComponentInChildren<SnailMiniVisual>()?.Shell;
+            SpriteRenderer targetRenderer = kingBoss != null ? kingBoss.Visual.Body : colonBoss != null ? colonBoss.Visual.Main : foodBoss != null ? foodBoss.Visual.Body : monster != null ? monster.BodyRenderer : snail != null ? snail.Visual.Shell : mini.GetComponentInChildren<SnailMiniVisual>()?.Shell;
             var miniVisual=damageableComponent.GetComponentInChildren<SnailMiniVisual>();
             if(miniVisual!=null)targetRenderer=miniVisual.Shell;
             if(snail!=null&&snail.Visual.Body.enabled&&Vector2.Distance(snail.Visual.Body.bounds.ClosestPoint(hitPosition),hitPosition)<Vector2.Distance(snail.Visual.Shell.bounds.ClosestPoint(hitPosition),hitPosition))targetRenderer=snail.Visual.Body;
@@ -1735,7 +1746,7 @@ namespace Vampire
             // Put the forward-most visible tip just inside the hit surface. Using centre position
             // alone leaves long needles hovering in air at first trigger overlap.
             Vector2 travel = direction.normalized;
-            Vector2 surface = foodBoss != null ? FoodBossNeedleSurface.Surface(targetRenderer,hitPosition,travel) : VisibleBodyGeometry.Surface(targetRenderer,hitPosition,travel);
+            Vector2 surface = kingBoss != null ? ConstipationKingNeedleSurface.Surface(targetRenderer,hitPosition,travel) : colonBoss != null ? ColonBossNeedleSurface.Surface(colonBoss,targetRenderer,hitPosition,travel) : foodBoss != null ? FoodBossNeedleSurface.Surface(targetRenderer,hitPosition,travel) : VisibleBodyGeometry.Surface(targetRenderer,hitPosition,travel);
             var vertices = renderer.sprite.vertices;
             float tip = float.NegativeInfinity;
             foreach (var vertex in vertices)
@@ -1752,7 +1763,7 @@ namespace Vampire
             renderer.sortingOrder = targetRenderer.sortingOrder - 1;
 
             StuckNeedleVisual stuckVisual = stuckNeedleObject.AddComponent<StuckNeedleVisual>();
-            stuckVisual.Init(monster, stuckNeedleLifetime, targetRenderer, snail, mini, foodBoss);
+            stuckVisual.Init(monster, stuckNeedleLifetime, targetRenderer, snail, mini, foodBoss, colonBoss, kingBoss);
         }
 
         private IEnumerator ReenableColliderNextFrame()
@@ -1944,10 +1955,17 @@ namespace Vampire
         private SnailBossRuntime snail;
         private SnailBossMinion mini;
         private FoodBossRuntime foodBoss;
+        private ColonBossRuntime colonBoss;
+        private ConstipationKingRuntime kingBoss;
+        private Sprite attachedKingPose;
+        private bool bodyFlipX, bodyFlipY;
 
-        public void Init(Monster ownerMonster, float lifetime, SpriteRenderer body = null, SnailBossRuntime snail = null, SnailBossMinion mini = null, FoodBossRuntime foodBoss = null)
+        public void Init(Monster ownerMonster, float lifetime, SpriteRenderer body = null, SnailBossRuntime snail = null, SnailBossMinion mini = null, FoodBossRuntime foodBoss = null, ColonBossRuntime colonBoss = null, ConstipationKingRuntime kingBoss = null)
         {
-            this.body=body; this.snail=snail; this.mini=mini; this.foodBoss=foodBoss; needle=GetComponent<SpriteRenderer>();
+            this.kingBoss = kingBoss;
+            attachedKingPose = kingBoss != null && body != null ? body.sprite : null;
+            this.body=body; this.snail=snail; this.mini=mini; this.foodBoss=foodBoss; this.colonBoss=colonBoss; needle=GetComponent<SpriteRenderer>();
+            if(body!=null){bodyFlipX=body.flipX;bodyFlipY=body.flipY;}
             this.ownerMonster = ownerMonster;
             this.lifetime = Mathf.Max(0.05f, lifetime);
 
@@ -1960,10 +1978,25 @@ namespace Vampire
         }
         private void LateUpdate()
         {
+            if(kingBoss!=null&&(kingBoss.Dead||kingBoss.Arriving||kingBoss.Transitioning)){Destroy(gameObject);return;}
+            if(kingBoss!=null&&body!=null&&body.sprite!=attachedKingPose){Destroy(gameObject);return;}
+            if(colonBoss!=null&&(colonBoss.Dead||colonBoss.Arriving||colonBoss.Hidden)){Destroy(gameObject);return;}
             if(foodBoss!=null&&(foodBoss.Dead||foodBoss.Transitioning||foodBoss.Recovering||foodBoss.Visual.Airborne)){Destroy(gameObject);return;}
             if (body == null || !body.gameObject.activeInHierarchy || (ownerMonster != null && ownerMonster.HP<=0) || (snail != null && snail.Dead) || (mini != null && mini.Health<=0)) { Destroy(gameObject); return; }
+            // Sprite flips do not propagate to child transforms. Reflect the embedded
+            // needle with the animated colon boss instead of leaving it on the old side.
+            if((colonBoss!=null||kingBoss!=null)&&(body.flipX!=bodyFlipX||body.flipY!=bodyFlipY))
+            {
+                Vector3 position=transform.localPosition,scale=transform.localScale;
+                float angle=transform.localEulerAngles.z;
+                if(body.flipX!=bodyFlipX){position.x=-position.x;scale.x=-scale.x;angle=-angle;}
+                if(body.flipY!=bodyFlipY){position.y=-position.y;scale.y=-scale.y;angle=-angle;}
+                transform.localPosition=position;transform.localScale=scale;transform.localRotation=Quaternion.Euler(0,0,angle);
+                bodyFlipX=body.flipX;bodyFlipY=body.flipY;
+            }
             needle.enabled=body.enabled;
             needle.sortingLayerID=body.sortingLayerID; needle.sortingOrder=body.sortingOrder-1;
+            if(colonBoss!=null)needle.maskInteraction=body.maskInteraction;
         }
         private void OnDisable() { if (Application.isPlaying) Destroy(gameObject); }
 

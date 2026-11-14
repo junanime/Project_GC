@@ -313,7 +313,7 @@ namespace Vampire
                 bool left = visual != null && visual.SpriteRenderer != null
                     ? visual.SpriteRenderer.flipX : playerCharacter.LookDirection.x < 0;
                 if (left) offset.x = -offset.x;
-                return playerCharacter.transform.TransformPoint(offset);
+                return OralStageRuntime.MirrorVisualPoint(playerCharacter,playerCharacter.transform.TransformPoint(offset));
             }
             Vector2 spawnPosition =
                 GetProjectileSpawnBasePosition();
@@ -321,7 +321,7 @@ namespace Vampire
 
             if (!useProjectileSpawnOffset)
             {
-                return spawnPosition;
+                return OralStageRuntime.MirrorVisualPoint(playerCharacter,spawnPosition);
             }
 
 
@@ -344,7 +344,7 @@ namespace Vampire
                 projectileSpawnDownOffset;
 
 
-            return spawnPosition;
+            return OralStageRuntime.MirrorVisualPoint(playerCharacter,spawnPosition);
         }
 
 

@@ -1,0 +1,48 @@
+{
+  "name": "배매너티 세 입구 집",
+  "version": "20261109",
+  "widthPixels": 720,
+  "heightPixels": 240,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.5,
+  "pivotY": 0,
+  "worldWidth": 13,
+  "footprintWidth": 13,
+  "footprintDepth": 4.8,
+  "scale": 2.2569444444444446,
+  "ports": [
+    {
+      "id": 0,
+      "pixelX": 121.232,
+      "pixelY": 160.257,
+      "localX": -4.64271,
+      "localY": 1.55056,
+      "mouthWidthWorld": 1.5555555555555554,
+      "mouthHeightWorld": 1.05
+    },
+    {
+      "id": 1,
+      "pixelX": 358.623,
+      "pixelY": 109.291,
+      "localX": -0.02678,
+      "localY": 2.54156,
+      "mouthWidthWorld": 1.5555555555555554,
+      "mouthHeightWorld": 1.05
+    },
+    {
+      "id": 2,
+      "pixelX": 595.706,
+      "pixelY": 160.243,
+      "localX": 4.58318,
+      "localY": 1.55084,
+      "mouthWidthWorld": 1.5555555555555554,
+      "mouthHeightWorld": 1.05
+    }
+  ],
+  "baseResource": "ColonBosses/manatee/HouseBase",
+  "foregroundLipResource": "ColonBosses/manatee/HouseLip",
+  "doorResource": "ColonBosses/manatee/HouseDoor",
+  "mouthMaskResource": "ColonBosses/manatee/HouseMask",
+  "doorScaleRelativeToHouse": 0.84,
+  "notes": "720x240 atlas; visible world width 13. localX/localY are legacy 14-unit reference coordinates, scaled 13/14 by ManateeDoorPosition. HouseBase/HouseLip/HouseMask share identical transform. Closed door uses coral membrane. Mouth mask derives from current HouseBase dark pixels."
+}

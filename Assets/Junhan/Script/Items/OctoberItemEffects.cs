@@ -81,6 +81,7 @@ namespace Vampire
             sealedProjectile=true;
             var simple=GetComponent<BossSimpleBullet>();if(simple!=null)simple.enabled=false;
             var food=GetComponent<FoodBossBullet>();if(food!=null)food.enabled=false;
+            var colon=GetComponent<ColonBossProjectile>();if(colon!=null)colon.enabled=false;
             var snail=GetComponent<SnailBossProjectile>();if(snail!=null)snail.enabled=false;
             if(pooled!=null)pooled.StopAllCoroutines();
             foreach(var col in GetComponents<Collider2D>())col.enabled=false;

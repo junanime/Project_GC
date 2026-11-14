@@ -8,7 +8,7 @@ namespace Vampire
     ///
     /// 플레이어를 직접 공격하지 않고,
     /// 현재 필드에서 몬스터가 가장 많이 밀집된 구역으로 이동한 뒤
-    /// 주변 몬스터에게 이동속도 증가 또는 받는 피해 감소 버프를 부여합니다.
+    /// 주변 몬스터에게 이동속도 증가 또는 최대/현재 체력 25% 증가 버프를 부여합니다.
     ///
     /// 시전 스프라이트를 순서대로 재생하고, 완료 후 걷기 모션으로 돌아갑니다.
     /// </summary>
@@ -51,20 +51,20 @@ namespace Vampire
         [Tooltip("이동속도 버프 증가량입니다. 0.2 = 20% 증가입니다.")]
         [SerializeField] private float moveSpeedBonusRatio = 0.2f;
 
-        [Tooltip("피해 감소 버프량입니다. 0.2 = 받는 피해 20% 감소입니다.")]
+        [Tooltip("기존 프리팹 호환용 값. 체력 버프는 고정 25%이며 이 값은 사용하지 않습니다.")]
         [SerializeField] private float damageReductionRatio = 0.2f;
 
         [Header("Buff Icon Visual")]
         [Tooltip("이동속도 버프를 받은 몬스터 주변에 표시할 임시 문자입니다. 나중에 이미지로 교체 가능합니다.")]
         [SerializeField] private string moveSpeedBuffSymbol = "✚";
 
-        [Tooltip("피해 감소 버프를 받은 몬스터 주변에 표시할 임시 문자입니다. 나중에 방패 이미지로 교체 가능합니다.")]
+        [Tooltip("체력 버프의 이전 직렬화 필드입니다. 런타임에서는 빨간 +를 표시합니다.")]
         [SerializeField] private string damageReductionBuffSymbol = "▣";
 
         [Tooltip("이동속도 버프 문양 색상입니다.")]
         [SerializeField] private Color moveSpeedBuffColor = new Color(0.2f, 0.6f, 1f, 1f);
 
-        [Tooltip("피해 감소 버프 문양 색상입니다.")]
+        [Tooltip("체력 버프 문양 색상입니다.")]
         [SerializeField] private Color damageReductionBuffColor = new Color(0.8f, 0.9f, 1f, 1f);
 
         [Tooltip("버프 문양이 몬스터 중심에서 얼마나 떨어져 회전할지 설정합니다.")]
@@ -97,6 +97,9 @@ namespace Vampire
         private float clusterRefreshTimer;
         private float castCooldownTimer;
         private bool isCasting;
+        public bool IsCasting=>isCasting;
+        public bool SpeedBuff=>buffType==MonsterSupportBuffType.MoveSpeed;
+        public float CastPhase{get;private set;}
 
         public override void Setup(
             int monsterIndex,
@@ -105,6 +108,8 @@ namespace Vampire
             float hpBuff = 0)
         {
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
+            (GetComponent<SupportCastMotion>()??gameObject.AddComponent<SupportCastMotion>()).Configure(this);
+            moveSpeedBuffSymbol="+";moveSpeedBuffColor=new Color(.25f,.65f,1);damageReductionBuffColor=new Color(1,.25f,.3f);
 
             clusterRefreshTimer = 0f;
             castCooldownTimer = castCooldown;
@@ -158,29 +163,29 @@ namespace Vampire
             int bestCount = 0;
             Vector2 bestCenter = GetFallbackPosition();
 
+            // Cache only this synchronous search; the next search rechecks every target.
+            var positions = new System.Collections.Generic.List<Vector2>(entityManager.LivingMonsters.Count);
             foreach (Monster candidate in entityManager.LivingMonsters)
             {
-                if (!IsValidClusterMonster(candidate))
+                if (IsValidClusterMonster(candidate))
                 {
-                    continue;
+                    positions.Add(candidate.transform.position);
                 }
+            }
 
+            foreach (Vector2 candidate in positions)
+            {
                 int count = 0;
                 Vector2 sum = Vector2.zero;
 
-                foreach (Monster other in entityManager.LivingMonsters)
+                foreach (Vector2 other in positions)
                 {
-                    if (!IsValidClusterMonster(other))
-                    {
-                        continue;
-                    }
-
-                    float distance = Vector2.Distance(candidate.transform.position, other.transform.position);
+                    float distance = Vector2.Distance(candidate, other);
 
                     if (distance <= clusterScanRadius)
                     {
                         count++;
-                        sum += (Vector2)other.transform.position;
+                        sum += other;
                     }
                 }
 
@@ -206,6 +211,7 @@ namespace Vampire
                 return false;
             }
 
+            if (targetMonster is BossMonster || targetMonster is BloodClotMonster || targetMonster.GetComponent<ColonBossRuntime>()!=null || !ColonAttackWall.Clear(transform.position,targetMonster.transform.position))return false;
             if (targetMonster == this)
             {
                 return false;
@@ -285,33 +291,7 @@ namespace Vampire
                 );
             }
 
-            float duration = Mathf.Max(0.05f, castMotionDuration);
-            int frameCount = castSprites != null ? castSprites.Length : 0;
-            if (frameCount > 0 && monsterSpriteRenderer != null)
-            {
-                for (int i = 0; i < frameCount; i++)
-                {
-                    if (!alive || IsFieldRuntimeSuspended)
-                    {
-                        isCasting = false;
-                        yield break;
-                    }
-                    if (castSprites[i] != null)
-                        monsterSpriteRenderer.sprite = castSprites[i];
-                    yield return new WaitForSeconds(duration / frameCount);
-                }
-            }
-            else
-            {
-                yield return new WaitForSeconds(duration);
-            }
-
-            if (!alive || IsFieldRuntimeSuspended)
-            {
-                isCasting = false;
-                yield break;
-            }
-
+            for(float t=0;t<.9f;){if(!alive){isCasting=false;yield break;}if(IsFieldRuntimeSuspended||!enabled){yield return null;continue;}t+=Time.deltaTime;CastPhase=t/.9f;yield return null;}
             ApplyBuffToNearbyMonsters();
 
             if (monsterSpriteAnimator != null)
@@ -370,16 +350,7 @@ namespace Vampire
                 }
                 else
                 {
-                    runtime.ApplyDamageReductionBuff(
-                        damageReductionRatio,
-                        buffDuration,
-                        damageReductionBuffSymbol,
-                        damageReductionBuffColor,
-                        iconOrbitRadius,
-                        iconYOffset,
-                        iconOrbitSpeed,
-                        iconSortingOrder,
-                        iconFontSize);
+                    if(targetMonster.GetComponent<ColonRevivalLink>()?.Owner==null)runtime.ApplyHealthBuff(buffDuration);
                 }
 
                 buffedCount++;

@@ -21,9 +21,20 @@ namespace Vampire
         List<StageEventSchedule> initialBasic;
         List<AdvancedStageFieldEventDirector> initialAdvanced;
         List<AntacidBubbleSurgeEventController> initialAntacid;
+        public AdvancedStageFieldEventDirector ReferenceFieldEvents =>
+            initialAdvanced != null && initialAdvanced.Count > 0 ? initialAdvanced[0] :
+            advancedEvents != null && advancedEvents.Count > 0 ? advancedEvents[0] : null;
         public void RestartForStage()
         {
             foreach (var module in Modules) module?.Dispose();
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsColon)
+            {
+                // Stomach event templates must not leak into the colon schedule.
+                basicEvents.Clear(); advancedEvents.Clear(); antacidEvents.Clear();
+                if (cornerUI != null) cornerUI.Hide();
+                ColonFieldEvents.Install(FindObjectOfType<LevelManager>());
+                return;
+            }
             basicEvents = initialBasic.ConvertAll(StageEventTemplate.Copy);
             advancedEvents = initialAdvanced.ConvertAll(StageEventTemplate.Copy);
             antacidEvents = initialAntacid.ConvertAll(StageEventTemplate.Copy);

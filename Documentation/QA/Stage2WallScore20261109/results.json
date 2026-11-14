@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-09",
+  "geometry": "256 seeds; 1536 homes; disconnected cells=0; minimum home gap=11.020; errors=0",
+  "wall": "PASS checks=252",
+  "capsule": "PASS checks=77",
+  "direct": "PASS checks=1209",
+  "errorBytes": [
+    {
+      "suite": "ColonBossProof",
+      "bytes": 0
+    },
+    {
+      "suite": "CapsuleStageProof",
+      "bytes": 0
+    },
+    {
+      "suite": "StageDirectEntryProof",
+      "bytes": 0
+    }
+  ],
+  "cloudCode": "node CloudCode/QaRun.test.cjs: PASS (local mock tests, no live deployment)"
+}

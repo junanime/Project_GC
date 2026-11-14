@@ -7,6 +7,15 @@ namespace Vampire
         AugmentSelectionMotion selectionMotion;
         public bool SelectionAnimating { get; private set; }
 
+        public void CancelForStageTransition()
+        {
+            if(!menuOpen&&!SelectionAnimating)return;
+            float previousTimeScale=Time.timeScale;
+            OnDisable();
+            Close();
+            Time.timeScale=previousTimeScale;
+        }
+
         public void SelectWithMotion(AbilityCard card, Ability selectedAbility)
         {
             if (!menuOpen || SelectionAnimating || selectedAbility == null) return;

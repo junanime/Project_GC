@@ -41,7 +41,7 @@ namespace Vampire
         private bool capturedMonsterEnabled = false;
         private bool originalMonsterEnabled = true;
 
-        public void Apply(float duration)
+        public void Apply(float duration, bool showLocalVisual = true)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             if (!initialized)
@@ -50,8 +50,9 @@ namespace Vampire
             }
 
             if (!SyringeAugmentVfx.IsLiving(this)) return;
-            if (augmentVisual == null)
-                augmentVisual = SyringeAugmentVfx.Play("NeuralBlock", transform.position, SyringeAugmentVfx.FindTarget(monster));
+            // Only the screen-wide noble uses the shared hourglass. Item stuns retain their cue.
+            if (showLocalVisual && augmentVisual == null)
+                augmentVisual = SyringeAugmentVfx.Play("NeuralBlock", transform.position, SyringeAugmentVfx.FindTarget(monster != null ? (Component)monster : this));
             endTime = Mathf.Max(endTime, Time.time + Mathf.Max(0.05f, duration));
 
             DisableMonsterMovementComponent();

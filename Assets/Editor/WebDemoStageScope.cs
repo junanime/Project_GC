@@ -6,11 +6,11 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 namespace Vampire.Editor
 {
-    // Temporarily move Stage 2 Resources to an editor-only folder; preserve GUIDs.
+    // Temporarily remove non-demo stage resources; preserve GUIDs for normal builds.
     public sealed class WebDemoStageScope : IDisposable
     {
         const string Holding = "Assets/Editor/WebDemoStageExcluded";
-        static readonly string[] Names = { "ColonMap", "ColonMonsters" };
+        static readonly string[] Names = { "ColonMap", "ColonMonsters", "OralMap" };
         public WebDemoStageScope()
         {
             Restore();
@@ -43,10 +43,10 @@ namespace Vampire.Editor
         public static void Verify(BuildReport report)
         {
             var leaked=report.packedAssets.SelectMany(p=>p.contents).Where(c=>
-                c.sourceAssetPath.Contains("/ColonMap/")||c.sourceAssetPath.Contains("/ColonMonsters/")||
+                c.sourceAssetPath.Contains("/ColonMap/")||c.sourceAssetPath.Contains("/ColonMonsters/")||c.sourceAssetPath.Contains("/OralMap/")||
                 c.sourceAssetPath.Contains("/Stage2Snails/")||c.sourceAssetPath.EndsWith("/StageTwoDefinition.asset")).ToArray();
-            if(leaked.Length>0)throw new InvalidOperationException("Stage 2 assets leaked into build: "+string.Join(", ",leaked.Select(x=>x.sourceAssetPath)));
-            Debug.Log("[WebDemoStageScope] PASS: no Stage 2 map/monster assets in the browser build.");
+            if(leaked.Length>0)throw new InvalidOperationException("Non-demo stage assets leaked into build: "+string.Join(", ",leaked.Select(x=>x.sourceAssetPath)));
+            Debug.Log("[WebDemoStageScope] PASS: no Stage 0/2 map/monster assets in the browser build.");
         }
         public void Dispose()=>Restore();
     }

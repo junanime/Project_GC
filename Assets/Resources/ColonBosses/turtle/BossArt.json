@@ -1,0 +1,12 @@
+{
+  "id": "turtle",
+  "name": "멜론바다거북",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 150,
+  "referencePixelWidth": 190,
+  "walkCycle": 1.6,
+  "walkFrameCount": 40,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Approved locomotion artwork. Single scale per pose set, fixed world pivot."
+}

@@ -31,6 +31,12 @@ namespace Vampire
         LevelManager level;
         StatsManager stats;
         readonly List<MerchantItemBlueprint> runItems = new List<MerchantItemBlueprint>();
+        public void ResetStageItems()
+        {
+            runItems.Clear();supplyChoices=null;supplyAccept=null;supplyCancel=null;
+            if(Page=="supplyRelic")Show("hud");
+            dirty=true;
+        }
         static readonly Color Ink = new Color(.025f,.05f,.15f);
         static readonly Color Paper = new Color(1,.91f,.76f,.85f);
         public const int ItemsPerPage = 6;
@@ -99,8 +105,10 @@ namespace Vampire
             SilverWallet.OnChanged += OnSilver;
             LobbyLoadoutData.OnChanged += OnLoadout;
             AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
-            Show(lobby ? "main" : "hud");
-            if (lobby && Page != "platformError") IntroMovie.TryShow(this);
+            bool returningToPreparation = lobby && prepareOnReturn;
+            if (lobby) prepareOnReturn = false;
+            Show(lobby ? (returningToPreparation ? "prepare" : "main") : "hud");
+            if (lobby && !returningToPreparation && Page != "platformError") IntroMovie.TryShow(this);
         }
         void OnDestroy()
         {
@@ -135,6 +143,7 @@ namespace Vampire
             safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
             float scale = Mathf.Min(safe.rect.width / 1280, safe.rect.height / 720);
             root.localScale = Vector3.one * scale;
+            if (ColonExitBlocksMenus) { UpdateColonExitModal(); return; }
             if (dirty && !starting) { dirty = false; Render(); }
             if (portrait != null && portrait.GetComponentInParent<CharacterIdlePreview>() == null && previewCharacter != null && !(Page == "result" && !passed))
             {
@@ -143,6 +152,14 @@ namespace Vampire
                     portrait.sprite = frames[(int)(Time.unscaledTime / Mathf.Max(.05f, previewCharacter.idleFrameTime)) % frames.Length];
             }
             if (TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading || level!=null && StageProgression.Ensure(level).Travelling) return;
+            if (stageChoiceOpen)
+            {
+                if (GameInput.GetKeyDown(KeyCode.Escape)) CloseStageChoice();
+                else if (GameInput.GetKeyDown(KeyCode.Alpha0)) LaunchStage(0);
+                else if (GameInput.GetKeyDown(KeyCode.Alpha1)) LaunchStage(1);
+                else if (GameInput.GetKeyDown(KeyCode.Alpha2)) LaunchStage(2);
+                return;
+            }
             if (UpdateKeyboardSelection()) return;
             if (level != null && GameInput.Pressed(GameKeyAction.Journal))
             {
@@ -154,6 +171,8 @@ namespace Vampire
         }
         public void Show(string page, int tab = 0)
         {
+            if (ColonExitBlocksMenus && page != "result" && page != "platformError") return;
+            stageChoiceOpen=false;
             page = SteamGuardPage(page);
             if(page=="settings" && Page!="settings")BeginSettings();
             Page = page; Tab = tab;
@@ -162,6 +181,8 @@ namespace Vampire
         }
         public void Back()
         {
+            if (ColonExitBlocksMenus) return;
+            if(stageChoiceOpen){CloseStageChoice();return;}
             if(Page=="bossChoice"){CloseBossChoice();return;}
             if(Page=="supplyRelic"){CloseSupplyRelics(false);return;}
             if(Page=="merchant"){merchant?.CloseShop();return;}
@@ -174,6 +195,7 @@ namespace Vampire
         {
             RenderContent();
             ApplyStitchTheme();
+            if(stageChoiceOpen) BuildStageChoice();
         }
         void RenderContent()
         {
@@ -324,9 +346,14 @@ namespace Vampire
         public void StartRun()
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
+            stageChoiceOpen=true;Render();
+        }
+        void LaunchStage(int stage)
+        {
+            if(starting || StageEntryLoading.IsLoading || !Owned(character) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return;
             CrossSceneData.CharacterBlueprint=character;
-            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;})) return;
-            starting=true;
+            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage)) return;
+            stageChoiceOpen=false;starting=true;
             CrossSceneData.StartingLobbyItems=LobbyLoadoutData.ConsumeSelectedCarryItems();
             Time.timeScale=1;
         }
@@ -400,6 +427,7 @@ namespace Vampire
         }
         public void OpenRunBook()
         {
+            if (ColonExitBlocksMenus) return;
             var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
             if(level==null || StageProgression.Ensure(level).Travelling || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
             if(reward!=null && reward.MenuOpen)reward.SetCoveredByRunBook(true);
@@ -407,6 +435,7 @@ namespace Vampire
         }
         public void CloseRunBook()
         {
+            if (ColonExitBlocksMenus) return;
             if(Page=="settings" && settingsOriginal!=null)GamePreferences.Apply(settingsOriginal,false);
             level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
@@ -444,8 +473,9 @@ namespace Vampire
             ActionButton(content,"메인으로",.52f,.09f,.76f,.18f,()=>ReturnToLobby(false));
         }
         static bool prepareOnReturn;
-        void ReturnToLobby(bool prepare) {prepareOnReturn=prepare;Time.timeScale=1;SceneManager.LoadScene(0);}
-        void Start() {if(prepareOnReturn&&Page=="main"){prepareOnReturn=false;Show("prepare");}}
+        public static void ReturnToPreparation() { LoadLobby(true); }
+        static void LoadLobby(bool prepare) {prepareOnReturn=prepare;Time.timeScale=1;SceneManager.LoadScene(0);}
+        void ReturnToLobby(bool prepare) { LoadLobby(prepare); }
         public static string RelicDescription(RelicBlueprint r)
         {
             return r != null ? r.Description : "";

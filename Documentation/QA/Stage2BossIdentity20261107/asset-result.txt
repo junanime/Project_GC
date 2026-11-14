@@ -1,0 +1,1 @@
+PASS checks=1048; complete alpha-mask comparison; fixed imported anchors; neutral identity pixels match

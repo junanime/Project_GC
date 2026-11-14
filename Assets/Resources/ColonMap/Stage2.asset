@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   terrainMaterial: {fileID: 2100000, guid: 244d65c143305b54cb7dd909fcf38bf3, type: 2}
   colon: 1
-  inlet: {x: 0.894, y: 0.902, z: 0.028, w: 0.046}
-  outlet: {x: 0.155, y: 0.155, z: 0.034, w: 0.05}
-  worldWidth: 203.2381
+  inlet: {x: 0.856, y: 0.826, z: 0.028, w: 0.046}
+  outlet: {x: 0.145, y: 0.145, z: 0.034, w: 0.05}
+  worldWidth: 162.59048
   aspect: 1.5
   chunkSize: 18
   pixelWorldSize: 0.05084381
-  startUV: {x: 0.89, y: 0.8}
-  wallWidth: 8
-  climbableWidth: 6
+  startUV: {x: 0.83, y: 0.71}
+  wallWidth: 4.5
+  climbableWidth: 3.5

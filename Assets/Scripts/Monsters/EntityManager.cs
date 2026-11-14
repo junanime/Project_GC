@@ -33,6 +33,7 @@ namespace Vampire
         [SerializeField] private GameObject coinPrefab;
         [SerializeField] private CoinPool coinPool;
         [SerializeField] private GameObject chestPrefab;
+        public Vector3 ChestVisualScale => chestPrefab != null ? chestPrefab.GetComponentInChildren<SpriteRenderer>().transform.localScale : Vector3.one;
         [SerializeField] private ChestPool chestPool;
         [SerializeField] private GameObject textPrefab;
         [SerializeField] private DamageTextPool textPool;
@@ -63,6 +64,24 @@ namespace Vampire
         private LevelBlueprint remakeLevel;
         private LevelManager barrierRunLevel;
         public SpatialHashGrid Grid { get => grid; }
+
+        // The oral finale closes every monster route once its whirlpools appear,
+        // including splits and explicitly positioned/event-owned spawns. Do not
+        // latch this state: changing maps must immediately restore stage-one spawns.
+        public static bool OralFinaleSuppressesMonsterSpawns
+        {
+            get
+            {
+                var map = FiniteStomachMap.Instance;
+                if (map == null || !map.IsOral) return false;
+                if (OralSwallowFinale.Instance != null && OralSwallowFinale.Instance.SuppressMonsterSpawns) return true;
+                // The finale component is destroyed one frame before the map changes.
+                // Keep that loading frame closed without blocking initial oral placement.
+                var progression = map.GetComponent<StageProgression>();
+                return progression != null && progression.StageNumber == 0 && progression.Travelling &&
+                    progression.TransitionPhase == "stomach-loading";
+            }
+        }
 
         public Monster SpawnOverchargeElite(Vector2 position)
         {
@@ -221,6 +240,7 @@ namespace Vampire
         // UFO bosses own their five-core health and rewards; they are not MonsterPool entries.
         public GameObject SpawnFinalBoss(LevelBlueprint blueprint, Vector2 position, float hpBuff = 0f, FoodBossKind? selectedBoss = null)
         {
+            if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral) return null;
             if (ShouldBlockFieldMonsterSpawn(false) || blueprint == null ||
                 blueprint.finalBoss == null || blueprint.finalBoss.bossPrefab == null) return null;
             GameObject prefab = blueprint.finalBoss.bossPrefab;
@@ -263,6 +283,7 @@ namespace Vampire
             bool allowDuringMiniStage
         )
         {
+            if (OralFinaleSuppressesMonsterSpawns) return null;
             if (ShouldBlockFieldMonsterSpawn(allowDuringMiniStage))
             {
                 Debug.Log(
@@ -272,6 +293,9 @@ namespace Vampire
 
                 return null;
             }
+
+            if(!allowDuringMiniStage && FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.IsOral)
+                monsterBlueprint=OralMonsterRoster.Resolve(monsterBlueprint);
 
             Vector2 spawnPosition = (playerCharacter.Velocity != Vector2.zero)
                 ? GetRandomMonsterSpawnPositionPlayerVelocity()
@@ -310,6 +334,11 @@ namespace Vampire
             bool allowDuringMiniStage
         )
         {
+            if (OralFinaleSuppressesMonsterSpawns) return null;
+            // Stage zero owns a deliberately small food roster. Legacy debug/event
+            // spawners must not leak specialized stage-one monsters into this field.
+            if (!allowDuringMiniStage && FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsOral &&
+                (monsterBlueprint is BossMonsterBlueprint || monsterBlueprint is MiniBossMonsterBlueprint)) return null;
             if (ShouldBlockFieldMonsterSpawn(allowDuringMiniStage))
             {
                 Debug.Log(
@@ -320,6 +349,8 @@ namespace Vampire
                 return null;
             }
 
+            if(!allowDuringMiniStage && FiniteStomachMap.Instance!=null && FiniteStomachMap.Instance.IsOral)
+                monsterBlueprint=OralMonsterRoster.Resolve(monsterBlueprint);
             var colon = ColonMonsterRoster.InColon && !allowDuringMiniStage ? ColonMonsterRoster.Active : null;
             if (colon != null)
             {
@@ -334,6 +365,7 @@ namespace Vampire
                 if (snipers>=5) return null;
             }
             Monster newMonster = monsterPools[monsterPoolIndex].Get();
+            newMonster.GetComponent<OralMonsterMotion>()?.ResetForPool();
             newMonster.GetComponent<ColonMonsterVisual>()?.ResetForPool();
             position = FiniteStomachMap.SafeSpawn(position, .8f, allowDuringMiniStage);
 
@@ -353,8 +385,12 @@ namespace Vampire
             );
             if (colon != null && colon.TryGet(monsterBlueprint, out var colonEntry))
                 (newMonster.GetComponent<ColonMonsterVisual>() ?? newMonster.gameObject.AddComponent<ColonMonsterVisual>()).Configure(newMonster, colonEntry);
+            if(colon!=null&&colon.TryGet(monsterBlueprint,out var specialEntry))
+                for(int i=0;i<5;i++)if(specialEntry.id=="S"+(7+i).ToString("00"))
+                    (newMonster.GetComponent<ColonSpecialRuntime>()??newMonster.gameObject.AddComponent<ColonSpecialRuntime>()).Configure(newMonster,ColonMonsterRoster.NewKinds[i]);
             newMonster.ConfigureGroundShadow(monsterBlueprint);
             newMonster.FitVisibleBody();
+            OralMonsterRoster.ApplySpawn(newMonster);
 
             // Some stationary monster Setup methods recalculate their own spawn position.
             Vector2 safePosition=FiniteStomachMap.SafeSpawn(newMonster.transform.position,
@@ -365,6 +401,7 @@ namespace Vampire
             if(spawnBody!=null)spawnBody.position=safePosition;
 
             MonsterNeedleBarrier.ConfigureSpawn(newMonster, barrierRunLevel != null ? barrierRunLevel.CurrentLevelTime : 0);
+            OralTartarArmor.ConfigureSpawn(newMonster);
             grid.InsertClient(newMonster);
 
             if (!allowDuringMiniStage)

@@ -12,7 +12,7 @@ namespace Vampire
     public class OrganCompressionField : MonoBehaviour
     {
         private readonly Dictionary<int, float> nextDamageTimes = new Dictionary<int, float>();
-        private SyringeAugmentVfx augmentVisual;
+        private HerbalGroundVisual augmentVisual;
 
         private Vector2 center;
         private float radius;
@@ -291,6 +291,9 @@ SyringeDartAbility sourceNeedleAbility)
         private void PullTarget(CompressionTarget target)
         {
             if (target.component.GetComponentInParent<BloodClotObstacle>() != null) return;
+            // Respect colon encounters' scripted movement and habitat territory. Damage
+            // and marks still apply, but a suction field cannot drag them through walls.
+            if (target.component is ColonBossRuntime || target.component is ConstipationKingRuntime) return;
             Vector2 targetPosition = GetTargetWorldPosition(target);
             Vector2 toCenter = center - targetPosition;
             float distance = toCenter.magnitude;
@@ -385,8 +388,7 @@ SyringeDartAbility sourceNeedleAbility)
             }
 
             target.damageable.TakePeriodicDamage(finalDamage, Vector2.zero, false);
-            var reaction = SyringeAugmentVfx.Play("OrganCompressionHit", GetTargetWorldPosition(target), SyringeAugmentVfx.FindTarget(target.component));
-            if (reaction != null) reaction.BindTo(target.component.transform);
+            HerbalGroundVisual.Create(target.component.transform, GetTargetWorldPosition(target), .24f, .24f, 2);
 
             // 장기압착은 Projectile.OnHitDamageable을 거치지 않는 독립 피해이므로
             // 기존 전체 피해량 시스템에 여기서 정확히 1회 기록한다.
@@ -425,18 +427,10 @@ SyringeDartAbility sourceNeedleAbility)
         }
         private void CreateVisual()
         {
-            SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
-            augmentVisual = SyringeAugmentVfx.Play("OrganCompression", center);
-            if (augmentVisual != null) augmentVisual.SetGroundRadius(radius);
+            if (augmentVisual != null) Destroy(augmentVisual.gameObject);
+            augmentVisual = HerbalGroundVisual.Create(transform, center, radius, duration, 0);
         }
-
-        private void UpdateVisual()
-        {
-            if (augmentVisual == null) return;
-            augmentVisual.SetGroundRadius(radius);
-            augmentVisual.SetStrength(Mathf.Clamp01((endTime - Time.time) / Mathf.Min(0.3f, duration)));
-        }
-
-        private void OnDisable() { SyringeAugmentVfx.ReleaseOwned(ref augmentVisual); }
+        private void UpdateVisual() { }
+        private void OnDisable() { if (augmentVisual != null) Destroy(augmentVisual.gameObject); }
     }
 }

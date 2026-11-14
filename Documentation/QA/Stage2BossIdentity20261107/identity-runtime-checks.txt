@@ -1,0 +1,2 @@
+PASS poison body=510 foreground=512 active-tint=513; exactly one active status; actual LateUpdate submission frame=1856
+PASS corrosion body=510 foreground=512 active-tint=513; exactly one active status; actual LateUpdate submission frame=1924

@@ -6,12 +6,14 @@ using UnityEngine;
 
 namespace Vampire
 {
-    // One layout per stage-one run. Mini stages reuse the same field and do not reroll it.
+    // One layout per stage. Mini stages reuse the same field and do not reroll it.
     public sealed class FieldObjectLayout : MonoBehaviour
     {
         public enum Kind { Chest, Merchant, BloodClot, EliteAltar, GoldJar, SilverJar }
         public struct Slot { public Kind kind; public Vector2 position; public int partner; }
         public static readonly int[] Counts = { 24, 12, 14, 8, 20, 8 };
+        static readonly int[] OralCounts = { 6, 2, 3, 3, 4, 2 };
+        static int[] ActiveCounts => FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsOral?OralCounts:Counts;
         public const float WallInset = 10f, StartClearance = 7f, ClusterChance = .20f;
         public IReadOnlyList<Slot> Slots => slots;
         public bool Ready { get; private set; }
@@ -41,14 +43,140 @@ namespace Vampire
             try{SpawnInitialObjects();}catch(Exception e){Failed=true;Debug.LogException(e,this);}finally{IsPlacing=false;}
             yield return null;
             foreach(var c in chests)if(c!=null)c.CompleteInitialPlacement();Physics2D.SyncTransforms();
-            Ready=!Failed&&objects.Count==Counts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
+            if(!Failed)PrepareBossHabitats();
+            Ready=!Failed&&objects.Count==ActiveCounts.Sum()&&objects.All(o=>o!=null&&o.activeInHierarchy);
         }
 
         public static List<Slot> Generate(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked = null)
         {
+            if(map.IsOral)return GenerateOral(map,start,seed,blocked);
+            if(!map.IsColon)return GenerateAttempt(map,start,seed,blocked);
+            // Validate the entire 86-prop + six-habitat plan before instantiating anything.
+            // Dense wall layouts can exhaust one random proposal; reroll the proposal,
+            // never drop an object or relax wall/interaction clearance to make it fit.
+            Exception last=null;
+            for(int attempt=0;attempt<32;attempt++)
+            {
+                try
+                {
+                    var result=GenerateAttempt(map,start,unchecked(seed+attempt*104729),blocked,seed^0x62B7);
+                    ColonBossDirector.Generate(map,start,seed^0x62B7,result);
+                    return result;
+                }
+                catch(InvalidOperationException error){last=error;}
+            }
+            throw new InvalidOperationException("No complete colon layout after 32 proposals; seed="+seed,last);
+        }
+        // A compact tongue cannot reliably fit twenty objects by random rejection:
+        // early coins can leave isolated holes smaller than the remaining props.
+        // Reserve a hexagonal packing first, then solve the scarce wide-spacing
+        // kinds on those seats. Every candidate is checked once against physics.
+        static List<Slot> GenerateOral(FiniteStomachMap map,Vector2 start,int seed,Func<Vector2,bool> blocked)
+        {
+            const float spacing=4.6f;
+            int required=OralCounts.Sum();
+            var rng=new System.Random(seed);
+            float baseAngle=(float)rng.NextDouble()*Mathf.PI/3;
+            float phaseX=(float)rng.NextDouble(),phaseY=(float)rng.NextDouble();
+            var center=OralMapGeometry.TongueCenter(map);
+            int extent=Mathf.CeilToInt((OralMapGeometry.TongueRadii(map).magnitude+3)/spacing)+2;
+            var specials=new List<Kind>();
+            foreach(var kind in new[]{Kind.BloodClot,Kind.EliteAltar,Kind.Merchant})
+                for(int i=0;i<OralCounts[(int)kind];i++)specials.Add(kind);
+            // Phase/angle search moves the packing around actual obstacles. It
+            // never reduces object counts, floor clearance, or interaction gaps.
+            for(int proposal=0;proposal<27;proposal++)
+            {
+                float angle=baseAngle+(proposal/9)*Mathf.PI/18;
+                float ox=Mathf.Repeat(phaseX+(proposal%3)/3f,1);
+                float oy=Mathf.Repeat(phaseY+((proposal/3)%3)/3f,1);
+                float ca=Mathf.Cos(angle),sa=Mathf.Sin(angle);
+                var candidates=new List<Vector2>();
+                for(int row=-extent;row<=extent;row++)for(int col=-extent;col<=extent;col++)
+                {
+                    float x=(col+(row&1)*.5f+ox)*spacing;
+                    float y=(row+oy)*spacing*.866025404f;
+                    var p=center+new Vector2(x*ca-y*sa,x*sa+y*ca);
+                    if(OralMapGeometry.ZoneAt(map,p)!=OralZone.Tongue||map.FloorClearance(p)<1.5f||Vector2.Distance(p,start)<3f)continue;
+                    if(blocked!=null&&blocked(p))continue;
+                    candidates.Add(p);
+                }
+                if(candidates.Count<required)continue;
+                for(int i=candidates.Count-1;i>0;i--){int j=rng.Next(i+1);var p=candidates[i];candidates[i]=candidates[j];candidates[j]=p;}
+                var used=new bool[candidates.Count];var result=new List<Slot>(required);int visited=0;
+                bool Fits(Vector2 p,Kind kind)
+                {
+                    foreach(var other in result)
+                    {
+                        float gap=OralPairClearance(kind,other.kind);
+                        if((p-other.position).sqrMagnitude<gap*gap)return false;
+                    }
+                    return true;
+                }
+                bool AssignSpecial(int depth)
+                {
+                    if(depth==specials.Count)return true;
+                    if(++visited>20000)return false;
+                    var kind=specials[depth];
+                    // Far apart same-kind seats are tried first, while the
+                    // seeded shuffle is retained as a stable tie-breaker.
+                    var choices=new List<int>();for(int i=0;i<candidates.Count;i++)if(!used[i]&&Fits(candidates[i],kind))choices.Add(i);
+                    float Spread(int index)
+                    {
+                        float nearest=float.PositiveInfinity;bool found=false;
+                        foreach(var other in result)if(other.kind==kind){found=true;nearest=Mathf.Min(nearest,(other.position-candidates[index]).sqrMagnitude);}
+                        return found?nearest:(candidates[index]-center).sqrMagnitude;
+                    }
+                    choices=choices.OrderByDescending(Spread).ToList();
+                    foreach(int i in choices)
+                    {
+                        used[i]=true;result.Add(new Slot{kind=kind,position=candidates[i],partner=-1});
+                        if(AssignSpecial(depth+1))return true;
+                        result.RemoveAt(result.Count-1);used[i]=false;
+                    }
+                    return false;
+                }
+                if(!AssignSpecial(0))continue;
+                foreach(var kind in new[]{Kind.Chest,Kind.GoldJar,Kind.SilverJar})
+                    for(int n=0;n<OralCounts[(int)kind];n++)
+                    {
+                        int best=-1;float bestDistance=float.NegativeInfinity;
+                        for(int i=0;i<candidates.Count;i++)if(!used[i]&&Fits(candidates[i],kind))
+                        {
+                            float nearest=float.PositiveInfinity;
+                            foreach(var other in result)nearest=Mathf.Min(nearest,(other.position-candidates[i]).sqrMagnitude);
+                            if(nearest>bestDistance){best=i;bestDistance=nearest;}
+                        }
+                        if(best<0)break;
+                        used[best]=true;result.Add(new Slot{kind=kind,position=candidates[best],partner=-1});
+                    }
+                if(result.Count!=required)continue;
+                // Defensive validation also protects future count/spacing edits.
+                bool valid=true;
+                foreach(Kind kind in Enum.GetValues(typeof(Kind)))valid&=result.Count(s=>s.kind==kind)==OralCounts[(int)kind];
+                for(int i=0;i<result.Count;i++)for(int j=0;j<i;j++)
+                {
+                    float gap=OralPairClearance(result[i].kind,result[j].kind);
+                    valid&=(result[i].position-result[j].position).sqrMagnitude>=gap*gap;
+                }
+                if(valid)return result;
+            }
+            throw new InvalidOperationException("No complete oral tongue packing; seed="+seed+" (all object counts and clearances retained)");
+        }
+        static float OralPairClearance(Kind a,Kind b)
+        {
+            if(a!=b)return 4.4f;
+            return a==Kind.BloodClot?8.8f:a==Kind.Merchant||a==Kind.EliteAltar?7.15f:4.4f;
+        }
+
+        static List<Slot> GenerateAttempt(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked,int? habitatSeed=null)
+        {
             var rng = new System.Random(seed);
             var result = new List<Slot>();
             var paired = new HashSet<int>();
+            // Reserve large encounter footprints before distributing small props.
+            // The same habitat seed is used when the validated plan is instantiated.
+            var reserved=map.IsColon?ColonBossDirector.Generate(map,start,habitatSeed??(seed^0x62B7)):null;
             float roll() => (float)rng.NextDouble();
             int Sector(Vector2 p)
             {
@@ -57,7 +185,9 @@ namespace Vampire
             }
             bool Allowed(Vector2 p, Kind kind, int partner)
             {
-                if (map.NavigationDistance(p, out _) < WallInset || Vector2.Distance(p, start) < StartClearance || blocked?.Invoke(p) == true) return false;
+                if ((map.IsOral?OralMapGeometry.ZoneAt(map,p)!=OralZone.Tongue||map.FloorClearance(p)<1.5f:map.IsColon?map.FloorClearance(p)<1.65f:map.NavigationDistance(p,out _) < WallInset) || Vector2.Distance(p, start) < (map.IsOral?3f:StartClearance) || blocked?.Invoke(p) == true) return false;
+                if(reserved!=null)foreach(var home in reserved)
+                    if(Vector2.Distance(p,home.position)<ColonBossDirector.PropClearance+(home.kind==ColonBossKind.Manatee?2.05f:.05f))return false;
                 for (int j = 0; j < result.Count; j++)
                 {
                     var other = result[j];
@@ -65,14 +195,17 @@ namespace Vampire
                     if (j != partner && kind == other.kind)
                         gap = kind == Kind.BloodClot ? 16 : kind == Kind.Merchant || kind == Kind.EliteAltar ? 13 : 8;
                     if (j == partner && (kind == Kind.BloodClot || kind == Kind.EliteAltar || other.kind == Kind.BloodClot || other.kind == Kind.EliteAltar)) gap = 6;
+                    if(map.IsOral)gap*=.55f;
+                    if(map.IsColon&&j!=partner)
+                        gap*=kind==other.kind&&(kind==Kind.BloodClot||kind==Kind.Merchant||kind==Kind.EliteAltar)?.7f:.65f;
                     if ((p - other.position).sqrMagnitude < gap * gap) return false;
                 }
-                return true;
+                return !map.IsColon || map.FloorClearance(p,true)>=2f;
             }
             // Short first exploration goals, rotated each run; no objects under the spawn point.
             float rotation = roll() * Mathf.PI * 2;
             foreach (var kind in new[] { Kind.Chest, Kind.Merchant, Kind.BloodClot })
-                for (int attempt = 0; attempt < 48; attempt++)
+                for (int attempt = 0; attempt < 48 && (!map.IsOral||OralCounts[(int)kind]>0); attempt++)
                 {
                     float a = rotation + attempt * Mathf.PI / 24 + (int)kind * 2.1f;
                     float r = kind == Kind.Chest ? 9 : kind == Kind.Merchant ? 15 : 21;
@@ -83,8 +216,11 @@ namespace Vampire
             // Shuffle types before balancing sectors so scarce objects are not pushed to leftovers.
             var pending = new List<Kind>();
             foreach (Kind kind in Enum.GetValues(typeof(Kind)))
-                for (int i = result.Count(s => s.kind == kind); i < Counts[(int)kind]; i++) pending.Add(kind);
+                for (int i = result.Count(s => s.kind == kind); i < (map.IsOral?OralCounts:Counts)[(int)kind]; i++) pending.Add(kind);
             for (int i = pending.Count - 1; i > 0; i--) { int j = rng.Next(i + 1); var k = pending[i]; pending[i] = pending[j]; pending[j] = k; }
+            // Clots need the widest spacing. Placing them after coins can exhaust
+            // all viable lanes even though there is room for the complete layout.
+            if(map.IsColon)pending=pending.OrderBy(k=>k==Kind.BloodClot?0:k==Kind.Merchant||k==Kind.EliteAltar?1:2).ToList();
             foreach (var kind in pending)
             {
                 int sector = rng.Next(8);
@@ -130,8 +266,26 @@ namespace Vampire
             yield return null;
             foreach(var chest in chests)chest.CompleteInitialPlacement();
             Physics2D.SyncTransforms();
-            Ready = objects.Count == Counts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
+            PrepareBossHabitats();
+            Ready = !Failed && objects.Count == ActiveCounts.Sum() && objects.All(o=>o!=null&&o.activeInHierarchy);
             if(!Ready){Failed=true;Debug.LogError("Initial field objects did not finish placing.",this);}
+        }
+        void PrepareBossHabitats()
+        {
+            try
+            {
+                var position=(Vector2)level.PlayerCharacter.transform.position;
+                // Also retires the old buried part when moving from the stomach to the colon.
+                BuriedBossDirector.Ensure(level).PrepareStage(position);
+                if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)
+                {
+                    var bosses=ColonBossDirector.Ensure(level);
+                    bosses.PrepareStage(position);
+                    if(!bosses.Ready||bosses.Failed)
+                        throw new InvalidOperationException("All six colon boss habitats must be ready before loading ends.");
+                }
+            }
+            catch(Exception error){Failed=true;Debug.LogException(error,this);}
         }
         void SpawnInitialObjects()
         {

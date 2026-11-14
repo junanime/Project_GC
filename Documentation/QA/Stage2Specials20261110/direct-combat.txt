@@ -1,0 +1,1 @@
+Controlled stationary/invulnerable weapon check; not a human win-rate estimate. Early normal kills=5 seconds=5.482105

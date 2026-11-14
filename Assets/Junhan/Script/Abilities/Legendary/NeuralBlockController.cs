@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Vampire
 {
@@ -28,29 +27,11 @@ namespace Vampire
         [Tooltip("체크하면 신경차단 발동/대상 수 로그를 출력합니다.")]
         [SerializeField] private bool debugLog = false;
 
-        [Header("Screen Overlay / 화면 표시")]
-        [Tooltip("체크하면 신경차단 발동 중 화면에 투명한 분홍색 오버레이를 표시합니다.")]
-        [SerializeField] private bool showScreenOverlay = false;
-
-        [Tooltip("신경차단 발동 중 화면에 깔리는 색상입니다.")]
-        [SerializeField] private Color overlayColor = new Color(1f, 0.18f, 0.62f, 0.22f);
-
-        [Tooltip("오버레이가 나타날 때 걸리는 시간입니다.")]
-        [SerializeField] private float overlayFadeInDuration = 0.08f;
-
-        [Tooltip("오버레이가 사라질 때 걸리는 시간입니다.")]
-        [SerializeField] private float overlayFadeOutDuration = 0.16f;
-
-        [Tooltip("오버레이 Canvas의 Sorting Order입니다. 높을수록 UI 위에 보입니다.")]
-        [SerializeField] private int overlaySortingOrder = 5000;
-
         private Camera mainCamera;
         private float timer = 0f;
         private float activeUntilTime = -1f;
 
-        private Canvas overlayCanvas;
-        private Image overlayImage;
-        private Coroutine overlayRoutine;
+        private NeuralTimeStopVisual timeVisual;
         private Coroutine summonRoutine;
 
         public bool IsBlocking => Time.time < activeUntilTime;
@@ -70,10 +51,7 @@ namespace Vampire
 
             mainCamera = Camera.main;
 
-            if (showScreenOverlay)
-            {
-                EnsureOverlayExists();
-            }
+
         }
 
         private void Awake()
@@ -83,10 +61,7 @@ namespace Vampire
 
         private void OnDestroy()
         {
-            if (overlayCanvas != null)
-            {
-                Destroy(overlayCanvas.gameObject);
-            }
+            if (timeVisual != null) Destroy(timeVisual);
         }
 
         private void Update()
@@ -127,14 +102,16 @@ namespace Vampire
                 );
             }
 
-            PlayScreenOverlay(freezeDuration);
+            if (timeVisual == null) timeVisual = gameObject.AddComponent<NeuralTimeStopVisual>();
+            timeVisual.Begin(freezeDuration);
         }
 
         private IEnumerator SummonThenBlock()
         {
             var character = GetComponentInParent<Character>();
             if (character == null) character = FindObjectOfType<Character>();
-            PhoenixSummonVisual.Play(character, false, PhoenixSummonVisual.RequiemDuration);
+            if (timeVisual == null) timeVisual = gameObject.AddComponent<NeuralTimeStopVisual>();
+            timeVisual.Prepare(character);
             yield return new WaitForSeconds(PhoenixSummonVisual.RequiemDuration);
             if (character != null && character.CurrentHealth > 0 && character.gameObject.activeInHierarchy)
                 ActivateNeuralBlock();
@@ -142,9 +119,9 @@ namespace Vampire
         }
         private void OnDisable()
         {
-            StopAllCoroutines(); summonRoutine = null; overlayRoutine = null;
+            StopAllCoroutines(); summonRoutine = null;
             activeUntilTime = -1;
-            if (overlayCanvas != null) overlayCanvas.gameObject.SetActive(false);
+            if (timeVisual != null) timeVisual.Clear();
         }
 
         private int ApplyFreezeToScreenMonsters(float remainingDuration)
@@ -173,10 +150,27 @@ namespace Vampire
                     status = monster.gameObject.AddComponent<NeuralBlockedMonsterStatus>();
                 }
 
-                status.Apply(remainingDuration);
+                status.Apply(remainingDuration, false);
                 appliedCount++;
             }
 
+            // Colon encounters are IDamageable rather than Monster, so they are not in
+            // the legacy list above. Keep the same on-screen/layer rules for them.
+            foreach (var boss in ColonBossRuntime.Active)
+            {
+                LayerMask layer = monsterLayer.value == 0 ? (LayerMask)~0 : monsterLayer;
+                if (!NeedleTargeting.IsValidBossTarget(boss, layer) || !IsInScreen(boss.HitCenter)) continue;
+                var status = boss.GetComponent<NeuralBlockedMonsterStatus>() ?? boss.gameObject.AddComponent<NeuralBlockedMonsterStatus>();
+                status.Apply(remainingDuration, false);
+                appliedCount++;
+            }
+            foreach (var boss in ConstipationKingRuntime.Active)
+            {
+                LayerMask layer = monsterLayer.value == 0 ? (LayerMask)~0 : monsterLayer;
+                if (!NeedleTargeting.IsValidBossTarget(boss, layer) || !IsInScreen(boss.HitCenter)) continue;
+                var status = boss.GetComponent<NeuralBlockedMonsterStatus>() ?? boss.gameObject.AddComponent<NeuralBlockedMonsterStatus>();
+                status.Apply(remainingDuration, false); appliedCount++;
+            }
             return appliedCount;
         }
 
@@ -288,107 +282,5 @@ namespace Vampire
                    viewportPoint.y <= 1f + screenPadding;
         }
 
-        private void EnsureOverlayExists()
-        {
-            if (overlayCanvas != null && overlayImage != null)
-            {
-                return;
-            }
-
-            GameObject canvasObject = new GameObject("Neural Block Screen Overlay Canvas");
-            canvasObject.transform.SetParent(transform, false);
-
-            overlayCanvas = canvasObject.AddComponent<Canvas>();
-            overlayCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            overlayCanvas.sortingOrder = overlaySortingOrder;
-
-            CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-
-            canvasObject.AddComponent<GraphicRaycaster>();
-
-            GameObject imageObject = new GameObject("Neural Block Pink Overlay");
-            imageObject.transform.SetParent(canvasObject.transform, false);
-
-            RectTransform rect = imageObject.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-
-            overlayImage = imageObject.AddComponent<Image>();
-            overlayImage.raycastTarget = false;
-
-            Color hiddenColor = overlayColor;
-            hiddenColor.a = 0f;
-            overlayImage.color = hiddenColor;
-
-            canvasObject.SetActive(false);
-        }
-
-        private void PlayScreenOverlay(float duration)
-        {
-            if (!showScreenOverlay)
-            {
-                return;
-            }
-
-            EnsureOverlayExists();
-
-            if (overlayImage == null || overlayCanvas == null)
-            {
-                return;
-            }
-
-            if (overlayRoutine != null)
-            {
-                StopCoroutine(overlayRoutine);
-            }
-
-            overlayRoutine = StartCoroutine(ScreenOverlayRoutine(duration));
-        }
-
-        private IEnumerator ScreenOverlayRoutine(float duration)
-        {
-            overlayCanvas.gameObject.SetActive(true);
-
-            float totalDuration = Mathf.Max(0.05f, duration);
-            float fadeIn = Mathf.Min(Mathf.Max(0.01f, overlayFadeInDuration), totalDuration * 0.4f);
-            float fadeOut = Mathf.Min(Mathf.Max(0.01f, overlayFadeOutDuration), totalDuration * 0.5f);
-
-            float startTime = Time.time;
-            float endTime = startTime + totalDuration;
-
-            while (Time.time < endTime)
-            {
-                float elapsed = Time.time - startTime;
-                float remaining = endTime - Time.time;
-
-                float alphaMultiplier = 1f;
-
-                if (elapsed < fadeIn)
-                {
-                    alphaMultiplier = Mathf.InverseLerp(0f, fadeIn, elapsed);
-                }
-                else if (remaining < fadeOut)
-                {
-                    alphaMultiplier = Mathf.InverseLerp(0f, fadeOut, remaining);
-                }
-
-                Color c = overlayColor;
-                c.a = overlayColor.a * Mathf.Clamp01(alphaMultiplier);
-                overlayImage.color = c;
-
-                yield return null;
-            }
-
-            Color hiddenColor = overlayColor;
-            hiddenColor.a = 0f;
-            overlayImage.color = hiddenColor;
-
-            overlayCanvas.gameObject.SetActive(false);
-            overlayRoutine = null;
-        }
     }
 }

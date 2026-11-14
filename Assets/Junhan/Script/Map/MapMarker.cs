@@ -12,7 +12,8 @@ namespace Vampire
         Event,
         Boss,
         Custom,
-        EliteSpawner
+        EliteSpawner,
+        MiniBoss
     }
 
     /// <summary>
@@ -62,10 +63,11 @@ namespace Vampire
         public bool AlwaysVisible => alwaysVisible;
         public float DiscoverDistance => Mathf.Max(0.1f, discoverDistance);
 
-        public Color MiniMapColor => miniMapColor;
+        public Color MiniMapColor => GetComponent<ColonBossHabitat>()?.MapTint ?? miniMapColor;
         public float MiniMapSize => Mathf.Max(1f, miniMapSize);
 
-        public Color FullMapColor => fullMapColor;
+        public Color FullMapColor => GetComponent<ColonBossHabitat>()?.MapTint ?? fullMapColor;
+        public string EncounterBadge => GetComponent<ColonBossHabitat>()?.MapBadge ?? "";
         public float FullMapSize => Mathf.Max(1f, fullMapSize);
 
         public bool IsDiscovered { get; private set; }

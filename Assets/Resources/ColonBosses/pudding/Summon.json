@@ -1,0 +1,106 @@
+{
+  "id": "pudding",
+  "kind": "Summon",
+  "frameCount": 12,
+  "frameWidth": 256,
+  "frameHeight": 232,
+  "columns": 8,
+  "rows": 2,
+  "atlasWidth": 2048,
+  "atlasHeight": 464,
+  "pixelsPerUnit": 125,
+  "pivotX": 0.49609375,
+  "pivotY": 0.02155172413793105,
+  "sourcePivotX": 256,
+  "sourcePivotY": 338,
+  "fps": 25,
+  "cycleSeconds": 1.6,
+  "referenceVisibleHeight": 179,
+  "referenceBaselineY": 336,
+  "frames": [
+    {
+      "name": "Summon_000",
+      "x": 0,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_001",
+      "x": 256,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_002",
+      "x": 512,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_003",
+      "x": 768,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_004",
+      "x": 1024,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_005",
+      "x": 1280,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_006",
+      "x": 1536,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_007",
+      "x": 1792,
+      "y": 232,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_008",
+      "x": 0,
+      "y": 0,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_009",
+      "x": 256,
+      "y": 0,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_010",
+      "x": 512,
+      "y": 0,
+      "width": 256,
+      "height": 232
+    },
+    {
+      "name": "Summon_011",
+      "x": 768,
+      "y": 0,
+      "width": 256,
+      "height": 232
+    }
+  ]
+}

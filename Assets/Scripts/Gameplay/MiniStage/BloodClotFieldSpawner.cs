@@ -157,6 +157,7 @@ namespace Vampire
 
         private void SpawnBloodClot()
         {
+            if (EntityManager.OralFinaleSuppressesMonsterSpawns) return;
             if (!HasRequiredReferences())
             {
                 Debug.LogWarning("[BloodClotFieldSpawner] 필수 참조가 비어 있어 혈전을 생성할 수 없습니다.");

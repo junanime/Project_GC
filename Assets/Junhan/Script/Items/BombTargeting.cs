@@ -25,7 +25,8 @@ namespace Vampire
         Vector2 target;
         bool oldCursorVisible,cursorCaptured;
         readonly List<RaycastResult> hits=new List<RaycastResult>();
-        bool CanUse => level!=null&&level.PlayerCharacter!=null&&level.PlayerCharacter.IsAlive&&!level.IsLevelEnded&&!level.IsRunFlowPaused&&Time.timeScale>0&&
+        bool CanUse => level!=null&&level.PlayerCharacter!=null&&level.PlayerCharacter.IsAlive&&!level.IsLevelEnded&&
+            (!level.IsRunFlowPaused||OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.OnCeiling)&&Time.timeScale>0&&
             (ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetState(){active=null;consumedFrame=-1;}
@@ -132,6 +133,10 @@ namespace Vampire
             }
             foreach(var boss in Object.FindObjectsOfType<FoodBossRuntime>())
                 if(!boss.Dead&&boss.GetComponent<Collider2D>().enabled){var p=(Vector2)boss.transform.position;var v=camera.WorldToViewportPoint(p);if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(p);}
+            foreach(var boss in ColonBossRuntime.Active)
+                if(NeedleTargeting.IsValidBossTarget(boss,~0)){var p=boss.HitCenter;var v=camera.WorldToViewportPoint(p);if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(p);}
+            foreach(var boss in ConstipationKingRuntime.Active)
+                if(NeedleTargeting.IsValidBossTarget(boss,~0)){var p=boss.HitCenter;var v=camera.WorldToViewportPoint(p);if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(p);}
             foreach(var weak in Object.FindObjectsOfType<FoodBossWeakpoint>())
                 if(weak.Health>0){var p=(Vector2)weak.transform.position;var v=camera.WorldToViewportPoint(p);if(v.z>0&&v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1)points.Add(p);}
             return DensestCenter(points,origin,Radius);

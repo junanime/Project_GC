@@ -50,6 +50,11 @@ MonoBehaviour:
   sfxSource: {fileID: 0}
   lobbyBgm: {fileID: 8300000, guid: c7b0837a84cf94146b1d1ecccd8d85f8, type: 3}
   ingameBgm: {fileID: 8300000, guid: b6f6ddcc8df738349b9cb181d4945caa, type: 3}
+  additionalIngameBgms:
+  - {fileID: 8300000, guid: 148df9fdfbd948c1992b115674c1c60b, type: 3}
+  - {fileID: 8300000, guid: 925eb352bc6843efa7d4fbef651ccd57, type: 3}
+  - {fileID: 8300000, guid: ced5fcf811ae4caebc65191e3e9c8af1, type: 3}
+  - {fileID: 8300000, guid: 4954eb2290b749a8b0cb0e3acdd425c1, type: 3}
   miniStageBgm: {fileID: 8300000, guid: 027d47a62c656394eb90ab73a2c289f2, type: 3}
   bossBgm: {fileID: 8300000, guid: aa36705986baaf4499e1a68286b7ef2f, type: 3}
   augmentSelectionBgm: {fileID: 8300000, guid: aa36705986baaf4499e1a68286b7ef2f, type: 3}

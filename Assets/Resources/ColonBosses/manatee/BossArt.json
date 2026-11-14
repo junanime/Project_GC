@@ -1,0 +1,20 @@
+{
+  "id": "manatee",
+  "name": "배매너티",
+  "pixelsPerUnit": 125,
+  "referencePixelHeight": 173,
+  "referencePixelWidth": 242,
+  "walkCycle": 1.6,
+  "walkFrameCount": 40,
+  "poseCount": 8,
+  "summonCount": 12,
+  "sourceIdentity": "Canonical approved 20261105 Summon_011, normalized to left-facing; original pixels reused in every animation; continuous local flipper/tail joint deformation.",
+  "pipeFaceUV": {
+    "x": 0.31212072535160995,
+    "y": 0.5092480713820987
+  },
+  "mouthUV": {
+    "x": 0.1824355679303206,
+    "y": 0.35247234873129474
+  }
+}
