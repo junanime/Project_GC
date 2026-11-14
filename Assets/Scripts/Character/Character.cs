@@ -163,6 +163,7 @@ namespace Vampire
         public bool IsTrapBound => TryGetComponent<PlayerTrapBindRuntime>(out var bind) && bind.IsBound;
         public bool IsPortalTravelling => TryGetComponent<BloodClotTravel>(out var travel) && travel.Busy;
         public bool IsPortalDamageProtected => TryGetComponent<BloodClotTravel>(out var travel) && travel.IsDamageProtected;
+        public bool IsColonExitProtected => ColonExitSequence.Active != null && ColonExitSequence.Active.Protects(this);
         public bool IsPortalPoseHeld => TryGetComponent<BloodClotTravel>(out var travel) && travel.HoldingPose;
         public bool IsOralSwallowing => OralSwallowFinale.Instance?.IsSwallowing == true &&
             OralStageRuntime.Instance?.Level?.PlayerCharacter == this;
@@ -472,7 +473,7 @@ namespace Vampire
         protected virtual void FixedUpdate()
         {
             if (!alive) return;
-            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || IsOralSwallowing)
+            if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || IsOralSwallowing || IsColonExitProtected)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
                 return;
@@ -563,6 +564,7 @@ namespace Vampire
 
         public bool TryDash()
         {
+            if (IsColonExitProtected) return false;
             if (IsOralSwallowing) return false;
             if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || (GetComponent<OralTasteBounce>()?.Active ?? false)) return false;
             if (Time.timeScale <= 0f || (abilitySelectionDialog != null && abilitySelectionDialog.MenuOpen)) return false;
@@ -1068,7 +1070,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (IsPortalDamageProtected || IsDashInvincibilityActive() || IsOralSwallowing || IsWhirlpoolCaptured)
+            if (IsPortalDamageProtected || IsDashInvincibilityActive() || IsOralSwallowing || IsWhirlpoolCaptured || IsColonExitProtected)
             {
                 return;
             }
@@ -1100,7 +1102,7 @@ namespace Vampire
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
-            if (IsPortalDamageProtected || IsOralSwallowing) return;
+            if (IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return;
             if (!alive)
             {
                 return;
@@ -1257,7 +1259,7 @@ namespace Vampire
 
         public void TakeAcidLakeDamage(float seconds, bool erosionLimitReached)
         {
-            if (!alive || IsPortalTravelling || seconds <= 0) return;
+            if (!alive || IsPortalTravelling || IsColonExitProtected || seconds <= 0) return;
             // Armor, evasion and on-hit grace do not turn continuous acid into tiny hits.
             // Temporary invulnerability may block HP loss; the lake separately tracks erosion.
             bool protectedNow = isInvincible || IsDashInvincibilityActive() || IsPortalDamageProtected ||
@@ -1276,7 +1278,7 @@ namespace Vampire
 
         public bool TakeWhirlpoolCoreDamage()
         {
-            if (!alive || !IsWhirlpoolCaptured || IsDashing || IsPortalDamageProtected || IsOralSwallowing) return false;
+            if (!alive || !IsWhirlpoolCaptured || IsDashing || IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return false;
             // A core pulse is a fixed environmental HP loss; armor/evasion/shields do
             // not reduce the specified quarter of maximum HP. A dash always escapes it.
             float loss = Mathf.Min(currentHealth, MaxHealth * .25f);

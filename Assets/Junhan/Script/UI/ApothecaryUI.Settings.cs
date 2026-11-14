@@ -19,6 +19,7 @@ namespace Vampire
 
         public void OpenSettings()
         {
+            if (ColonExitBlocksMenus) return;
             if(starting || (level != null && (StageProgression.Ensure(level).Travelling || level.IsLevelEnded || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin)))) return;
             if(Page=="hud")
             {

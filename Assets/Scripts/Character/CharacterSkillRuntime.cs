@@ -98,7 +98,7 @@ namespace Vampire
         public bool Active => IsShini ? Breath!=null&&Breath.Busy : ActiveRemaining > 0;
         public int DashSequence { get; private set; }
         public float LastDashTime { get; private set; } = float.NegativeInfinity;
-        public bool CanActivate => (!IsShini || Breath!=null&&Breath.CanStart) && Definition != null && owner.IsAlive && !owner.IsOralSwallowing && !owner.IsPortalTravelling && !owner.IsTrapBound && !owner.IsDashing && !owner.IsOralSliding && !IsCutin && !IsSummoning && CooldownRemaining <= 0 && Time.timeScale > 0 && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud");
+        public bool CanActivate => (!IsShini || Breath!=null&&Breath.CanStart) && Definition != null && owner.IsAlive && !owner.IsColonExitProtected && !owner.IsOralSwallowing && !owner.IsPortalTravelling && !owner.IsTrapBound && !owner.IsDashing && !owner.IsOralSliding && !IsCutin && !IsSummoning && CooldownRemaining <= 0 && Time.timeScale > 0 && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud");
         SkillWindVisual aura;
         public void Initialize(Character character) { owner=character; aura=gameObject.AddComponent<SkillWindVisual>(); aura.Bind(this); if(IsShini){Breath=gameObject.AddComponent<ShiniEmberRuntime>();Breath.Bind(character,this);} gameObject.AddComponent<PhoenixSkillVisual>().Bind(character,this); if(IsAri)gameObject.AddComponent<AriSkillRuntime>().Bind(character,this); }
         public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && !IsAri && owner.IsAlive) PassiveRemaining=EffectivePassiveDuration; }

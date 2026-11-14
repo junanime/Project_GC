@@ -23,7 +23,8 @@ namespace Vampire
 
         IEnumerator ReturnAfterEnding(LevelManager level)
         {
-            // The king's existing 1.3-second defeat finishes before LevelPassed calls us.
+            // ColonExitSequence has completed the key, seal and demo confirmation before
+            // LevelPassed commits success and calls us. This path must not show a second card.
             yield return PlayEndingAnimation(level);
             ApothecaryUI.ReturnToPreparation();
         }
@@ -32,7 +33,7 @@ namespace Vampire
         {
             // Future ending animation belongs here. Use unscaled time while combat is
             // stopped, and yield until the animation is complete before returning below.
-            // Until that asset is ready there is no extra result screen or user input.
+            // The festival demo card currently belongs to ColonExitSequence before saving.
             yield return null;
         }
     }

@@ -25,6 +25,10 @@ namespace Vampire
             : Pose == KingPose.Paper && phase == 2 && progress >= .32f
             ? PixelSocket(355, 454) : Pose == KingPose.Summon || Pose == KingPose.Shield || Pose == KingPose.Phase
                 ? PixelSocket(153, 52) : PixelSocket(159, 110);
+        // The exit sequence uses this exact rendered prop, rather than spawning a
+        // second unrelated reward at the boss's feet.
+        public Vector2 KeyDropPoint => keyScepter != null ? (Vector2)keyScepter.transform.position : StaffTip;
+        public bool KeyScepterReleased { get; private set; }
         public Vector2 SeatGap => PixelSocket(258, 343);
         public float LeanDegrees => lean;
         public int CentralJetCount => waterRenderer != null && waterRenderer.enabled ? 1 : 0;
@@ -34,7 +38,8 @@ namespace Vampire
         static readonly Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
         static Material fluidMaterial;
         Transform pivot;
-        SpriteRenderer outlet, staffFoot, shadow;
+        SpriteRenderer outlet, staffFoot, shadow, keyScepter, staffHand;
+        Material staffBodyMaterial, staffHandMaterial;
         readonly SpriteRenderer[] booster = new SpriteRenderer[2];
         readonly SpriteRenderer[] drops = new SpriteRenderer[7];
         readonly SpriteRenderer[] foam = new SpriteRenderer[5];
@@ -83,6 +88,17 @@ namespace Vampire
             Body = Sprite(pivot, "Approved body · fixed scale", Get("Body"), 510);
             outlet = Sprite(pivot, "Single central A outlet", Get("Outlet"), 511);
             staffFoot = Sprite(pivot, "Authored staff foot below crop", Get("StaffFoot6"), 511);
+            keyScepter = Sprite(pivot, "Royal toilet-paper key scepter", Resources.Load<Sprite>("ColonEnding/KeyScepter"), 512);
+            var staffShader = Resources.Load<Shader>("ConstipationKing/SeparateScepter");
+            if (keyScepter.sprite != null && staffShader != null)
+            {
+                staffBodyMaterial = new Material(staffShader);
+                staffHandMaterial = new Material(staffShader);
+                staffHandMaterial.SetFloat("_HandOnly", 1);
+                Body.sharedMaterial = staffBodyMaterial;
+                staffHand = Sprite(pivot, "Original gripping fingers above key shaft", Body.sprite, 513);
+                staffHand.sharedMaterial = staffHandMaterial;
+            }
             shadow = Sprite(transform, "Ground contact shadow", BombCircleArt.Sprite, 478);
             for (int i = 0; i < booster.Length; i++) booster[i] = Sprite(transform, "Hydrant water booster " + i, Get("Booster0"), 503);
             for (int i = 0; i < drops.Length; i++) drops[i] = Sprite(transform, "Water landing droplet " + i, BombCircleArt.Sprite, 508);
@@ -139,6 +155,11 @@ namespace Vampire
         }
         public void SetPoseProgress(float value) { progress = Mathf.Clamp01(value); Sample(); }
         public void Flash() { flash = .10f; }
+        public void ReleaseKeyScepter()
+        {
+            KeyScepterReleased = true;
+            if (keyScepter != null) keyScepter.enabled = false;
+        }
         public void ResetPose() { SetPose(KingPose.Idle); moving = false; progress = 0; Opacity = 1; Visible = true; }
         public void Tick(float dt)
         {
@@ -213,13 +234,68 @@ namespace Vampire
             outlet.transform.localScale = Vector3.one * unit * 100;
             outlet.transform.localPosition = new Vector3((660f / 1254 * 480 - 250) * Facing * unit, (426 - 1143.5f / 1254 * 480) * unit, 0);
             outlet.flipX = Facing < 0; outlet.color = Body.color;
-            staffFoot.enabled = pose == 6 && alpha > 0;
+            staffFoot.enabled = pose == 6 && alpha > 0 && staffBodyMaterial == null;
             staffFoot.transform.localScale = Vector3.one * unit * 100;
             staffFoot.transform.localPosition = new Vector3(155 * Facing * unit, -54 * unit, 0);
             staffFoot.flipX = Facing < 0; staffFoot.color = Body.color;
+            DrawKeyScepter(pose, alpha);
             ScaleEllipse(shadow, new Vector2(6 * sceneUnit, 0), 77 * sceneUnit, 14 * sceneUnit, new Color(.20f, .11f, .15f, .20f * alpha));
             DrawWater(alpha * (Pose == KingPose.Death ? 1 - progress : 1));
             DrawBooster(alpha);
+        }
+
+        void DrawKeyScepter(int pose, float alpha)
+        {
+            if (keyScepter == null || keyScepter.sprite == null || staffBodyMaterial == null) return;
+            Vector2 top = new Vector2(157, 58), bottom = new Vector2(186, 339);
+            Vector4 head = new Vector4(157, 115, 55, 65), hand = new Vector4(173, 238, 25, 28);
+            Vector4 shaft = new Vector4(166, 164, 186, 332);
+            if (pose == 5)
+            {
+                top = new Vector2(146, 24); bottom = new Vector2(115, 269);
+                head = new Vector4(137, 80, 55, 66); hand = new Vector4(130, 166, 25, 27);
+                shaft = new Vector4(138, 127, 116, 258);
+            }
+            else if (pose == 6)
+            {
+                top = new Vector2(380, 235); bottom = new Vector2(351, 460);
+                head = new Vector4(384, 296, 51, 80); hand = new Vector4(345, 346, 31, 28);
+                shaft = new Vector4(354, 330, 353, 451);
+            }
+            else if (pose == 8 || pose == 9)
+            {
+                top = new Vector2(159, 60); bottom = new Vector2(190, 321);
+                head = new Vector4(161, 115, 48, 57); hand = new Vector4(178, 226, 23, 24);
+                shaft = new Vector4(172, 165, 190, 310);
+            }
+            else if (pose == 10)
+            {
+                top = new Vector2(176, 88); bottom = new Vector2(149, 339);
+                head = new Vector4(158, 143, 51, 63); hand = new Vector4(-999, -999, 1, 1);
+                shaft = new Vector4(175, 185, 150, 328);
+            }
+            SetStaffMaterial(staffBodyMaterial, head, shaft, hand);
+            SetStaffMaterial(staffHandMaterial, head, shaft, hand);
+            Vector2 center = (top + bottom) * .5f;
+            keyScepter.transform.localPosition = new Vector3((center.x - 250) * Facing * unit, (426 - center.y) * unit);
+            Vector2 axis = new Vector2((top.x - bottom.x) * Facing, bottom.y - top.y);
+            keyScepter.transform.localRotation = Quaternion.Euler(0, 0, Mathf.Atan2(axis.y, axis.x) * Mathf.Rad2Deg - 90);
+            keyScepter.transform.localScale = Vector3.one * (axis.magnitude * unit / keyScepter.sprite.bounds.size.y);
+            keyScepter.flipX = Facing < 0;
+            keyScepter.color = Body.color;
+            keyScepter.enabled = alpha > 0 && !KeyScepterReleased;
+            staffHand.sprite = Body.sprite;
+            staffHand.transform.localPosition = Body.transform.localPosition;
+            staffHand.transform.localScale = Body.transform.localScale;
+            staffHand.flipX = Body.flipX; staffHand.color = Body.color;
+            staffHand.enabled = alpha > 0 && pose != 10;
+        }
+
+        static void SetStaffMaterial(Material material, Vector4 head, Vector4 shaft, Vector4 hand)
+        {
+            material.SetVector("_StaffHead", head);
+            material.SetVector("_StaffShaft", shaft);
+            material.SetVector("_StaffHand", hand);
         }
 
         Vector2 WaterCenter(float q, Vector2 top, Vector2 ground)
@@ -319,6 +395,8 @@ namespace Vampire
         }
         void OnDestroy()
         {
+            if (staffBodyMaterial != null) { if (Application.isPlaying) Destroy(staffBodyMaterial); else DestroyImmediate(staffBodyMaterial); }
+            if (staffHandMaterial != null) { if (Application.isPlaying) Destroy(staffHandMaterial); else DestroyImmediate(staffHandMaterial); }
             if (waterMesh == null) return;
             if (Application.isPlaying) Destroy(waterMesh); else DestroyImmediate(waterMesh);
         }

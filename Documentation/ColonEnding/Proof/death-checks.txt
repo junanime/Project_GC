@@ -1,0 +1,25 @@
+No final encounter at 899 seconds
+The 15-minute trigger waits for field pause to finish
+15-minute trigger spawns without any optional boss kills
+Repeated spawn calls cannot duplicate the king
+Fixed king health is 34000
+Mandatory final-boss readiness flag is enabled
+Legacy victory callback cannot bypass required king
+Spawn is the lower-left opening approach
+Arrival root is on navigable ground
+Arrival completes in real play mode
+Needle targeting and boss multipliers recognize king
+Damage accounting reads actual king HP
+Approved body is loaded with exactly one central water column
+Actual play camera recognizes the nearby final king
+Actual camera fits the full approved body without changing its world size
+Wounded phase-one king begins actual tribute before death scenario
+Real tribute courier reaches the king and starts active chewing
+Player death is triggered during the active tribute chew window
+Tribute courier and live projectile are owned effects before player death
+Actual player death opens loss result
+Player death during chewing cancels tribute and destroys all owned hazards at timeScale zero
+Cancelled chewing and late tribute completion cannot heal after player death
+Player death never awards king victory
+Ending flow rejects a failed run and keeps the existing loss result
+Damage callbacks after player death cannot complete boss encounter

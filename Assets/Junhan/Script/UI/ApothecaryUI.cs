@@ -143,6 +143,7 @@ namespace Vampire
             safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
             float scale = Mathf.Min(safe.rect.width / 1280, safe.rect.height / 720);
             root.localScale = Vector3.one * scale;
+            if (ColonExitBlocksMenus) { UpdateColonExitModal(); return; }
             if (dirty && !starting) { dirty = false; Render(); }
             if (portrait != null && portrait.GetComponentInParent<CharacterIdlePreview>() == null && previewCharacter != null && !(Page == "result" && !passed))
             {
@@ -170,6 +171,7 @@ namespace Vampire
         }
         public void Show(string page, int tab = 0)
         {
+            if (ColonExitBlocksMenus && page != "result" && page != "platformError") return;
             stageChoiceOpen=false;
             page = SteamGuardPage(page);
             if(page=="settings" && Page!="settings")BeginSettings();
@@ -179,6 +181,7 @@ namespace Vampire
         }
         public void Back()
         {
+            if (ColonExitBlocksMenus) return;
             if(stageChoiceOpen){CloseStageChoice();return;}
             if(Page=="bossChoice"){CloseBossChoice();return;}
             if(Page=="supplyRelic"){CloseSupplyRelics(false);return;}
@@ -424,6 +427,7 @@ namespace Vampire
         }
         public void OpenRunBook()
         {
+            if (ColonExitBlocksMenus) return;
             var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
             if(level==null || StageProgression.Ensure(level).Travelling || level.IsLevelEnded || (Time.timeScale==0 && (reward==null || !reward.MenuOpen)) || Page!="hud" || (level.PlayerCharacter != null && level.PlayerCharacter.Skills != null && level.PlayerCharacter.Skills.IsCutin))return;
             if(reward!=null && reward.MenuOpen)reward.SetCoveredByRunBook(true);
@@ -431,6 +435,7 @@ namespace Vampire
         }
         public void CloseRunBook()
         {
+            if (ColonExitBlocksMenus) return;
             if(Page=="settings" && settingsOriginal!=null)GamePreferences.Apply(settingsOriginal,false);
             level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;

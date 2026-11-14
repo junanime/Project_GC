@@ -26,6 +26,7 @@ namespace Vampire
                 inColon = false; return;
             }
             inColon = true;
+            ColonExitSequence.Ensure(level);
             if (!Spawned && level.CurrentLevelTime >= ArrivalSeconds) TrySpawn();
         }
         public bool TrySpawn()
@@ -42,15 +43,24 @@ namespace Vampire
             Spawned = true;
             Boss = ConstipationKingRuntime.Spawn(level, at, this);
             if (Boss == null) { Spawned = false; return false; }
-            opening?.SetOpened(1);
+            opening?.SetOpened(0);
             level.NotifyExternalFinalBossSpawned(); GameAudioManager.StartBossAudio();
-            ColonBossDirector.ShowNotice("변비왕 등장", "좌측 하단 출구 · 변비왕을 처치해야 스테이지가 완료됩니다");
+            ColonBossDirector.ShowNotice("변비왕 등장", "변비왕의 지팡이 열쇠로 좌측 하단 출구의 봉인을 풀어주세요");
             return true;
         }
         public void NotifyDefeated(ConstipationKingRuntime boss)
         {
             if (Defeated || !Spawned || boss == null || boss != Boss || !boss.Dead || level == null || level.IsLevelEnded || StageProgression.Ensure(level).StageNumber != 2) return;
-            Defeated = true; level.LevelPassed(null);
+            Defeated = true;
+            ColonExitSequence.Ensure(level).FinishDefeat();
+            GameAudioManager.FinishStageBossAudio();
+        }
+        public void BeginDefeat(ConstipationKingRuntime boss)
+        {
+            if (!Spawned || Defeated || boss == null || boss != Boss || !boss.Dead || level == null || level.IsLevelEnded) return;
+            Vector3 point = boss.Visual != null ? (Vector3)boss.Visual.KeyDropPoint : boss.transform.position;
+            boss.Visual?.ReleaseKeyScepter();
+            ColonExitSequence.Ensure(level).DropKey(point, boss.transform.position);
         }
         void ResetEncounter()
         {

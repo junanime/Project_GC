@@ -190,6 +190,7 @@ namespace Vampire
         }
         IEnumerator Defeat()
         {
+            director?.BeginDefeat(this);
             Visual.SetPose(KingPose.Death);
             for (float t = 0; t < 1.3f;)
             {
@@ -198,7 +199,6 @@ namespace Vampire
                 yield return null;
             }
             if (director != null) director.NotifyDefeated(this);
-            else if (StageProgression.Ensure(level).StageNumber == 2 && !level.IsLevelEnded) level.LevelPassed(null);
             Destroy(gameObject);
         }
         public override void Knockback(Vector2 knockback) { }

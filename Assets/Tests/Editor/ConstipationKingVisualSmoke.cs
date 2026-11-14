@@ -17,6 +17,56 @@ namespace Vampire.Tests.Editor
         [Serializable] sealed class Source { public string file, sha256; public int bytes; }
         [Serializable] sealed class Manifest { public Source[] files; }
         static int checks;
+
+        [MenuItem("Tools/24 Hours/Validate King Key Scepter")]
+        public static void RunKeyScepter()
+        {
+            Directory.CreateDirectory(Output);
+            GameObject host = null, cameraObject = null;
+            Texture2D sheet = null;
+            try
+            {
+                Vampire.Editor.ColonEndingArtImporter.Prepare();
+                var shader = Resources.Load<Shader>("ConstipationKing/SeparateScepter");
+                if (shader == null || ShaderUtil.ShaderHasError(shader)) throw new InvalidDataException("Key scepter shader missing or invalid");
+                host = new GameObject("Key scepter pose proof"); host.transform.position = new Vector3(10000, 10000);
+                var visual = ConstipationKingVisual.Create(host.transform);
+                foreach (Transform t in host.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 31;
+                cameraObject = new GameObject("Key scepter proof camera"); var camera = cameraObject.AddComponent<Camera>();
+                camera.enabled = false; camera.orthographic = true; camera.orthographicSize = 3.8f;
+                camera.transform.position = new Vector3(10000, 10002.7f, -10);
+                camera.cullingMask = 1 << 31; camera.clearFlags = CameraClearFlags.SolidColor;
+                camera.backgroundColor = new Color(.91f, .61f, .57f); camera.nearClipPlane = .1f; camera.farClipPlane = 30;
+                var key = visual.GetComponentsInChildren<SpriteRenderer>().First(r => r.name == "Royal toilet-paper key scepter");
+                if (key.sprite == null) throw new InvalidDataException("Key sprite missing");
+                sheet = new Texture2D(1920, 960, TextureFormat.RGB24, false);
+                var poses = new[] { KingPose.Idle, KingPose.Summon, KingPose.Paper, KingPose.Flush, KingPose.Move, KingPose.Death };
+                for (int frame = 0; frame < poses.Length; frame++)
+                {
+                    visual.SetPhase(2); visual.SetPose(poses[frame]); visual.SetPoseProgress(.6f);
+                    visual.Face(frame == 4 ? Vector2.left : Vector2.right); visual.Tick(.1f);
+                    if (frame == 5) { visual.ReleaseKeyScepter(); visual.Tick(.1f); }
+                    if (key.enabled != (frame < 5)) throw new InvalidDataException("Key release visibility is incorrect");
+                    if (Vector2.Distance(visual.KeyDropPoint, key.transform.position) > .001f) throw new InvalidDataException("Key drop socket mismatch");
+                    var target = RenderTexture.GetTemporary(640, 480, 24); var active = RenderTexture.active;
+                    Texture2D capture = null;
+                    try
+                    {
+                        camera.targetTexture = target; camera.Render(); RenderTexture.active = target;
+                        capture = new Texture2D(640, 480, TextureFormat.RGB24, false);
+                        capture.ReadPixels(new Rect(0, 0, 640, 480), 0, 0); capture.Apply();
+                        sheet.SetPixels((frame % 3) * 640, (1 - frame / 3) * 480, 640, 480, capture.GetPixels());
+                        File.WriteAllBytes(Output + "/key-" + frame + "-" + poses[frame] + ".png", capture.EncodeToPNG());
+                    }
+                    finally { camera.targetTexture = null; RenderTexture.active = active; RenderTexture.ReleaseTemporary(target); if (capture != null) Object.DestroyImmediate(capture); }
+                }
+                sheet.Apply(); File.WriteAllBytes(Output + "/key-scepter-poses.png", sheet.EncodeToPNG());
+                File.WriteAllText(Output + "/key-result.txt", "PASS: idle, raised, slam, flush, mirrored and released poses; actual key center and release persistence.\n");
+                Debug.Log("KING_KEY_VISUAL_PASS");
+            }
+            catch (Exception error) { File.WriteAllText(Output + "/key-result.txt", "FAIL " + error); throw; }
+            finally { if (sheet != null) Object.DestroyImmediate(sheet); if (cameraObject != null) Object.DestroyImmediate(cameraObject); if (host != null) Object.DestroyImmediate(host); }
+        }
         static void Check(bool value, string detail)
         {
             if (!value) throw new InvalidDataException("KING_VISUAL_FAIL " + detail);
@@ -31,6 +81,7 @@ namespace Vampire.Tests.Editor
             GameObject host = null, cameraObject = null;
             try
             {
+                Vampire.Editor.ColonEndingArtImporter.Prepare();
                 Vampire.Editor.ConstipationKingArtImporter.Prepare();
                 ConstipationKingNeedleSurfaceSmoke.Validate(Check);
                 var manifest = JsonUtility.FromJson<Manifest>(File.ReadAllText(Root + "SourceIdentity.json"));
@@ -56,6 +107,9 @@ namespace Vampire.Tests.Editor
                 }
                 host = new GameObject("Isolated king visual verification"); host.transform.position = new Vector3(10000, 10000);
                 var visual = ConstipationKingVisual.Create(host.transform);
+                Check(Resources.Load<Sprite>("ColonEnding/KeyScepter") != null, "approved key scepter sprite is imported");
+                Check(Resources.Load<Sprite>("ColonEnding/SealLock") != null, "approved seal-stone lock sprite is imported");
+                Check(Resources.Load<Shader>("ConstipationKing/SeparateScepter") != null, "staff separation shader is included");
                 foreach (Transform t in host.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = 31;
                 cameraObject = new GameObject("Isolated king proof camera"); var camera = cameraObject.AddComponent<Camera>();
                 camera.enabled = false; camera.orthographic = true; camera.orthographicSize = 3.8f;
@@ -90,6 +144,13 @@ namespace Vampire.Tests.Editor
                     Check(Vector2.Distance(worldOrigin, visual.Outlet) < .002f, "water begins at actual transformed outlet: " + pose);
                     Capture(camera, (shot++).ToString("D2") + "-" + pose);
                 }
+                visual.SetPose(KingPose.Idle); visual.SetPoseProgress(0); visual.Tick(.1f);
+                var key = visual.GetComponentsInChildren<SpriteRenderer>().First(r => r.name == "Royal toilet-paper key scepter");
+                Check(key.enabled && !visual.KeyScepterReleased, "held key is visible before defeat");
+                Check(Vector2.Distance(visual.KeyDropPoint, key.transform.position) < .001f, "drop begins at actual rendered key center");
+                visual.ReleaseKeyScepter(); visual.Tick(.1f);
+                Check(!key.enabled && visual.KeyScepterReleased, "released key stays absent across visual samples");
+                Capture(camera, "19-key-released-body-clean");
                 visual.Opacity = 0; visual.Tick(.1f);
                 Check(!visual.GetComponentsInChildren<Renderer>().Any(r => r.enabled), "zero opacity hides body, outlet, booster, water, foam and trails together");
                 var props = new GameObject("Approved procedural prop gallery"); props.transform.SetParent(host.transform, false);

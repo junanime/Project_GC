@@ -17,6 +17,7 @@ namespace Vampire.Tests.Editor
     public static class ConstipationKingSmoke
     {
         const string Key = "ConstipationKingSmoke";
+        static readonly string[] SavedIntPrefs = { "Coins", "LobbySilverCoins", "October.StartingNeedle.Ashi", "October.StartingNeedle.Ari", "October.StartingNeedle.Hyuki", "October.StartingNeedle.Shini" };
         static string Output => SessionState.GetBool(Key + "Death", false) ? "Library/ConstipationKingDeathProof" : SessionState.GetBool(Key + "Ending", false) ? "Library/ConstipationKingEndingProof" : "Library/ConstipationKingProof";
         static bool started; static double deadline; static int checks;
         static ConstipationKingSmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
@@ -30,7 +31,8 @@ namespace Vampire.Tests.Editor
         {
             Directory.CreateDirectory(Output); File.WriteAllText(Output + "/checks.txt", ""); File.WriteAllText(Output + "/errors.txt", "");
             File.WriteAllText(Output + "/method.txt", "Actual Unity Stage 2 scene; invulnerable stationary player, manual time boundary for scheduled boss, all 18 legal phase/pattern combinations (nine per phase), pause, status, wall and defeat integration. No simulated human success rate.\n");
-            foreach (string pref in new[] { "Coins", "LobbySilverCoins" }) { SessionState.SetBool(Key + pref + "Had", PlayerPrefs.HasKey(pref)); SessionState.SetInt(Key + pref, PlayerPrefs.GetInt(pref)); }
+            foreach (string pref in SavedIntPrefs) { SessionState.SetBool(Key + pref + "Had", PlayerPrefs.HasKey(pref)); SessionState.SetInt(Key + pref, PlayerPrefs.GetInt(pref)); }
+            SessionState.SetString(Key + "OriginalCharacter", CrossSceneData.CharacterBlueprint != null ? AssetDatabase.GetAssetPath(CrossSceneData.CharacterBlueprint) : "");
             SessionState.SetBool(Key, true); SessionState.SetBool(Key + "Done", false); SessionState.SetBool(Key + "Failed", false);
             SessionState.SetInt(Key + "Checks", 0);
             CrossSceneData.CharacterBlueprint = AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/Main Character Blueprint.asset");
@@ -60,7 +62,9 @@ namespace Vampire.Tests.Editor
             {
                 if (EditorApplication.isPlaying) { EditorApplication.ExitPlaymode(); return; }
                 if (EditorApplication.isPlayingOrWillChangePlaymode) return;
-                foreach (string pref in new[] { "Coins", "LobbySilverCoins" }) { if (SessionState.GetBool(Key + pref + "Had", false)) PlayerPrefs.SetInt(pref, SessionState.GetInt(Key + pref, 0)); else PlayerPrefs.DeleteKey(pref); } PlayerPrefs.Save();
+                foreach (string pref in SavedIntPrefs) { if (SessionState.GetBool(Key + pref + "Had", false)) PlayerPrefs.SetInt(pref, SessionState.GetInt(Key + pref, 0)); else PlayerPrefs.DeleteKey(pref); } PlayerPrefs.Save();
+                string originalCharacter = SessionState.GetString(Key + "OriginalCharacter", "");
+                CrossSceneData.CharacterBlueprint = string.IsNullOrEmpty(originalCharacter) ? null : AssetDatabase.LoadAssetAtPath<CharacterBlueprint>(originalCharacter);
                 Time.timeScale = 1; SessionState.SetBool(Key, false); bool fail = SessionState.GetBool(Key + "Failed", false);
                 File.WriteAllText(Output + "/result.txt", (fail ? "FAIL" : "PASS") + " checks=" + SessionState.GetInt(Key + "Checks", 0));
                 EditorApplication.Exit(fail ? 1 : 0); return;
@@ -210,6 +214,12 @@ namespace Vampire.Tests.Editor
         }
         static IEnumerator VerifyEndingReturn(LevelManager level, ConstipationKingRuntime boss, ConstipationKingDirector director, string round)
         {
+            var exit = ColonExitSequence.Ensure(level);
+            var player = level.PlayerCharacter;
+            Check(exit.State == ColonExitSequence.ExitState.Locked && !exit.Opening.IsOpen, round + " seal is present and closed before boss defeat");
+            yield return Interact(player, exit.Opening);
+            Check(exit.State == ColonExitSequence.ExitState.Locked && !exit.Opening.IsOpen, round + " real gate interaction cannot unlock a living boss seal");
+            CaptureExit(exit, round + "-sealed-exit", false);
             if (!boss.PhaseTwo)
             {
                 boss.TakeDamage(999999);
@@ -229,6 +239,56 @@ namespace Vampire.Tests.Editor
             Check(data.boss == bossCount + 1, round + " final boss score increments exactly once");
             yield return new WaitForSeconds(.35f);
             Check(level != null && !level.IsLevelEnded && !data.success, round + " existing defeat animation finishes before success is committed");
+            var dropAt = exit.Key.position; level.SetRunFlowPaused(true);
+            yield return new WaitForSecondsRealtime(.15f);
+            Check(exit.Key.position == dropAt, round + " dropped key freezes with run pause"); level.SetRunFlowPaused(false);
+            yield return WaitFor(() => exit.State == ColonExitSequence.ExitState.Dropped, 8, round + " intact key lands and becomes interactive after defeat");
+            level.LevelPassed(null);
+            Check(!level.IsLevelEnded && director.Defeated && !data.success, round + " defeating king cannot bypass key and demo confirmation");
+            ColonContentSmoke.Position(player, FiniteStomachMap.Instance.ClampToFloor((Vector2)exit.Pickup.transform.position + Vector2.right * 8, .5f));
+            Check(!exit.TakeKey(player), round + " key cannot be taken from outside interaction range");
+            yield return Interact(player, exit.Pickup);
+            Check(exit.State == ColonExitSequence.ExitState.Carrying && !exit.Pickup.gameObject.activeSelf, round + " focused trigger interaction picks up exactly one key");
+            Check(!exit.TakeKey(player), round + " repeated pickup cannot duplicate carried key");
+            var carryAt = exit.Key.position; var previousPlayer = player.transform.position;
+            ColonContentSmoke.Position(player, FiniteStomachMap.Instance.ClampToFloor((Vector2)player.transform.position + Vector2.right * 2, .5f));
+            yield return null; yield return null;
+            Check(exit.Key.position.y > player.transform.position.y && Mathf.Abs((exit.Key.position.x - carryAt.x) - (player.transform.position.x - previousPlayer.x)) < .2f, round + " overhead key follows player movement");
+            CaptureExit(exit, round + "-carrying-key", true);
+            if (round == "first-clear") yield return VerifyCarryCharacters(exit, player);
+            MiniStageRuntimeState.EnterMiniStage(null); yield return null;
+            Check(!exit.CanInteract && !exit.Key.gameObject.activeSelf, round + " mini-stage hides carried key and disables exit");
+            MiniStageRuntimeState.ExitMiniStage(null); yield return null;
+            yield return Interact(player, exit.Opening);
+            Check(exit.State == ColonExitSequence.ExitState.Unlocking && level.IsRunFlowPaused, round + " gate interaction begins controlled insertion");
+            ColonContentSmoke.Set(player, "isInvincible", false);
+            float protectedHealth = player.CurrentHealth; Vector2 protectedVelocity = player.Velocity;
+            player.TakeDamage(999999, Vector2.right * 100); player.TakeAcidLakeDamage(1, true); player.Knockback(Vector2.right * 100);
+            Check(player.IsAlive && player.CurrentHealth == protectedHealth && player.Velocity == protectedVelocity, round + " unlock owns scoped damage and knockback protection without invincibility mutation");
+            Check(!BloodClotTravel.CanTravel(player) && !player.TryDash() && !player.Skills.CanActivate, round + " unlock rejects portal travel dash and skills");
+            var positionAtUnlock = player.transform.position; player.Move(Vector2.right);
+            yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
+            Check(Vector2.Distance(positionAtUnlock, player.transform.position) < .02f, round + " player stays at lock throughout controlled animation"); player.Move(Vector2.zero);
+            yield return new WaitForSeconds(.5f); CaptureExit(exit, round + "-key-insertion", false);
+            var frozenKey = exit.Key.position; float oldScale = Time.timeScale; Time.timeScale = 0;
+            yield return new WaitForSecondsRealtime(.15f);
+            Check(exit.Key.position == frozenKey && !exit.CanInteract, round + " unlock respects pause and rejects repeated interactions"); Time.timeScale = oldScale;
+            yield return WaitFor(() => exit.State == ColonExitSequence.ExitState.Open, 8, round + " lock fragments and chains clear before passage opens");
+            Check(exit.Opening.IsOpen && !level.IsRunFlowPaused && !level.IsLevelEnded, round + " opening alone does not finish the run");
+            Check(!player.IsColonExitProtected && BloodClotTravel.CanTravel(player), round + " scoped protection and travel restriction release after opening");
+            player.TakeAcidLakeDamage(.1f, false);
+            Check(player.CurrentHealth < protectedHealth, round + " ordinary damage works again after unlock"); player.GainHealth(player.MaxHealth); ColonContentSmoke.Set(player, "isInvincible", true);
+            CaptureExit(exit, round + "-open-exit", false);
+            yield return Interact(player, exit.Opening);
+            Check(exit.State == ColonExitSequence.ExitState.Demo && exit.Dialogue != null && exit.Dialogue.Message.text == "데모 버전은 여기까지입니다!", round + " separate exit interaction shows exact festival demo message");
+            Check(Time.timeScale == 0 && !level.IsLevelEnded && !data.success, round + " demo waits for explicit confirmation before saving success");
+            ApothecaryUI.Instance.Back(); ApothecaryUI.Instance.OpenRunBook(); ApothecaryUI.Instance.OpenSettings();
+            yield return null;
+            Check(exit.Dialogue != null && exit.Dialogue.gameObject.activeInHierarchy && ApothecaryUI.Instance.Page == "hud", round + " Escape and journal routes cannot cover or dismiss demo modal");
+            yield return null; CaptureExit(exit, round + "-demo-completion", false);
+            if (round == "first-clear") exit.Dialogue.ConfirmButton.onClick.Invoke();
+            else UnityEngine.EventSystems.ExecuteEvents.Execute(exit.Dialogue.ConfirmButton.gameObject, new UnityEngine.EventSystems.BaseEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
+            exit.Dialogue.Confirm();
             bool resultShown = false, duplicateChecked = false;
             float until = Time.realtimeSinceStartup + 30;
             while (Time.realtimeSinceStartup < until && !(SceneManager.GetActiveScene().buildIndex == 0 && ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == "prepare"))
@@ -242,7 +302,7 @@ namespace Vampire.Tests.Editor
                 }
                 yield return null;
             }
-            Check(SceneManager.GetActiveScene().buildIndex == 0 && ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == "prepare", round + " automatically returns to the actual preparation screen");
+            Check(SceneManager.GetActiveScene().buildIndex == 0 && ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == "prepare", round + " confirmed demo returns to the actual preparation screen");
             Check(Time.time - deathAt >= 1.25f && !resultShown, round + " preserves defeat duration and never opens the success result panel");
             Check(duplicateChecked, round + " duplicate completion callbacks were exercised before scene unload");
             score.Finish(false); score.Finish(true);
@@ -261,9 +321,51 @@ namespace Vampire.Tests.Editor
             yield return new WaitForSecondsRealtime(.5f);
             Capture(null, round + "-preparation-after-ending", false, true);
         }
+        static IEnumerator Interact(Character player, InteractableEventObject target)
+        {
+            ColonContentSmoke.Position(player, target.transform.position);
+            Physics2D.SyncTransforms(); yield return new WaitForFixedUpdate(); yield return null;
+            Check(InteractionFocus.SelectTouched(target), "Real trigger registers interaction focus: " + target.name);
+            yield return null; target.TryInteract(); yield return null;
+        }
+        static IEnumerator VerifyCarryCharacters(ColonExitSequence exit, Character player)
+        {
+            // Rebind the actual animation renderer through Character's normal visual API.
+            // Combat stats and persistent character selection are intentionally untouched.
+            var original = player.Blueprint;
+            var renderer = player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
+            foreach (string name in new[] { "Main", "Ari", "Hyuki", "Shini" })
+            {
+                var blueprint = AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/" + (name == "Main" ? "Main Character Blueprint" : name + " Character Blueprint") + ".asset");
+                Check(blueprint != null, "Real carry visual blueprint exists: " + name);
+                ColonContentSmoke.Set(player, "characterBlueprint", blueprint); player.StopWalkAnimation(); player.StartIdleAnimation();
+                yield return null; yield return null;
+                var opaque = PromptSpriteGeometry.WorldBounds(renderer);
+                Check(renderer.sprite != null && exit.Key.position.y > opaque.max.y && exit.Key.position.y - opaque.max.y < .4f, name + " actual opaque character silhouette carries key just above head");
+                var before = exit.Key.position;
+                ColonContentSmoke.Position(player, FiniteStomachMap.Instance.ClampToFloor((Vector2)player.transform.position + Vector2.right * .6f, .5f));
+                yield return null; yield return null;
+                Check(exit.Key.position.x > before.x + .3f, name + " overhead carry tracks movement with own visual dimensions");
+                CaptureExit(exit, "carry-character-" + name, true);
+            }
+            ColonContentSmoke.Set(player, "characterBlueprint", original); player.StopWalkAnimation(); player.StartIdleAnimation();
+            yield return null;
+        }
+        static void CaptureExit(ColonExitSequence exit, string name, bool close)
+        {
+            var camera = Camera.main; if (camera == null) return;
+            var position = camera.transform.position; float zoom = camera.orthographicSize;
+            var player = Object.FindObjectOfType<LevelManager>().PlayerCharacter;
+            Vector2 point = close ? (Vector2)player.transform.position + Vector2.up : Vector2.Lerp(exit.Opening.Center, player.transform.position, .45f);
+            camera.transform.position = new Vector3(point.x, point.y, position.z); camera.orthographicSize = close ? 3.4f : 9;
+            Capture(null, name, false, true); camera.transform.position = position; camera.orthographicSize = zoom;
+        }
         static IEnumerator RepeatEndingFromPreparation()
         {
-            var ui = ApothecaryUI.Instance; ui.StartRun();
+            var ui = ApothecaryUI.Instance;
+            var ari = AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/Ari Character Blueprint.asset");
+            ColonContentSmoke.Set(ui, "character", ari); ColonContentSmoke.Set(ui, "characterIndex", Array.IndexOf(ui.Config.characters, ari));
+            ui.Show("prepare"); ui.StartRun();
             var stageButton = ui.GetComponentsInChildren<UnityEngine.UI.Button>().FirstOrDefault(b => b.GetComponentInChildren<TMPro.TMP_Text>()?.text == "스테이지 2 · 대장");
             Check(stageButton != null && stageButton.interactable, "Returned preparation offers a working second departure");
             stageButton.onClick.Invoke();
@@ -277,6 +379,7 @@ namespace Vampire.Tests.Editor
                 yield return null;
             }
             Check(level != null && StageProgression.Ensure(level).StageNumber == 2 && !StageProgression.Ensure(level).Travelling && !StageEntryLoading.IsLoading, "Actual preparation button loads a fresh playable Stage 2");
+            Check(level.PlayerCharacter.Blueprint == ari, "Second departure fully initializes Ari through actual preparation launch");
             Silence(level); Time.timeScale = 2;
             ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", true); level.PlayerCharacter.CollectableCollider.enabled = false;
             foreach (var monster in level.EntityManager.LivingMonsters.ToArray()) monster.DespawnForStageTransfer();

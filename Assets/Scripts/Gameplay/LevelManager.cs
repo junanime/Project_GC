@@ -420,7 +420,8 @@ namespace Vampire
         public void LevelPassed(Monster finalBossKilled)
         {
             // Legacy final-boss/portal callbacks cannot bypass the mandatory colon encounter.
-            if (GetComponent<StageProgression>()?.StageNumber == 2 && GetComponent<ConstipationKingDirector>()?.Defeated != true) return;
+            if (GetComponent<StageProgression>()?.StageNumber == 2 &&
+                (GetComponent<ConstipationKingDirector>()?.Defeated != true || GetComponent<ColonExitSequence>()?.CompletionAuthorized != true)) return;
             if (playerCharacter != null && !playerCharacter.IsAlive) return;
             if (levelEnded)
             {

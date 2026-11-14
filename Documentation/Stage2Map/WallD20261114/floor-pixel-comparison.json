@@ -1,0 +1,31 @@
+{
+  "sampledPixels": 2400,
+  "changedPixels": 24,
+  "maxChannelDifference": 22,
+  "patchCenters": [
+    [
+      300,
+      300
+    ],
+    [
+      800,
+      440
+    ],
+    [
+      300,
+      650
+    ],
+    [
+      650,
+      790
+    ],
+    [
+      1000,
+      800
+    ],
+    [
+      1200,
+      780
+    ]
+  ]
+}

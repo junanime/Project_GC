@@ -17,7 +17,7 @@ Shader "Vampire/Finite Colon Terrain"
             #pragma fragment frag
             #pragma target 3.0
             #include "UnityCG.cginc"
-            #include "Opening.cginc"
+            #include "ColonOpening.cginc"
             sampler2D _DistanceTex,_WallCoordinateTex,_WallTex;
             float4 _MapRect;float _PixelSize,_WallWidth;
             struct appdata{float4 vertex:POSITION;};
@@ -57,21 +57,22 @@ Shader "Vampire/Finite Colon Terrain"
                 float footprint=max(length(ddx(i.world)),length(ddy(i.world)))/_PixelSize;
                 motif*=1-smoothstep(1.2,3.8,footprint);
                 floorColor=lerp(floorColor,float3(1,.84,.66),motif*.53);
-                // Same smooth collision ridges, with a taller outer crown. The lobes vary
-                // shading and the foot only, so visual scalloping cannot snag the player.
+                // Approved D walls: a soft peach crest, a distinct rose side face and a
+                // narrow contact shadow. Geometry and the original floor above stay intact.
                 float width=lerp(_WallWidth,_WallWidth*1.65,exterior);
                 float radius=width*(.94+.06*lobe);
                 float rise=saturate(1-lerp(max(d,0),abs(d-1),exterior)/radius);
-                float dome=sqrt(saturate(1-pow(1-rise,2)));
-                float sideLight=1-smoothstep(.58,.92,rise);
-                float light=quant(saturate(.47+.25*dome+(.16*n.y-.12*n.x)*sideLight+.085*lobe),12);
-                float3 wall=lerp(float3(.62,.19,.27),float3(1,.57,.49),light);
-                float crown=pow(saturate((dome-.67)/.33),2);
-                wall=lerp(wall,float3(1,.59,.50),crown*(.42+.12*lobe));
-                float shine=pow(saturate(.5+n.y*.42-n.x*.28),4)*smoothstep(.40,.65,rise)*(1-smoothstep(.83,.98,rise));
-                wall=lerp(wall,float3(1,.72,.61),quant(shine,6)*.18);
-                float crease=pow(saturate(-lobe),10)*(1-crown*.8);
-                wall*=1-.13*crease;
+                float sideLight=1-smoothstep(.46,.80,rise);
+                float crown=smoothstep(.35,.78,rise);
+                float facing=saturate(.5+n.y*.38-n.x*.20);
+                float sideHeight=smoothstep(.015,.46,rise);
+                float3 wall=lerp(float3(.65,.31,.39),float3(.90,.48,.49),sideHeight);
+                wall*=.92+.12*facing;
+                wall=lerp(wall,float3(1,.65,.58),crown*(.76+.06*lobe));
+                float shine=pow(facing,3)*smoothstep(.38,.62,rise)*(1-smoothstep(.86,.99,rise));
+                wall=lerp(wall,float3(1,.79,.66),shine*.34);
+                // Broad, low contrast lobes replace the old dark muscle creases.
+                wall*=1-.055*pow(saturate(-lobe),2)*(1-crown*.4);
                 float along=atan2(phase.y,phase.x)/(2*UNITY_PI)+.5;
                 float2 tissueUV=float2(along,lerp(.015,.975,sqrt(rise)));
                 float lod=max(0,log2(max(.001,footprint)));
@@ -81,19 +82,19 @@ Shader "Vampire/Finite Colon Terrain"
                 #ifndef UNITY_COLORSPACE_GAMMA
                     painted=LinearToGammaSpace(painted);
                 #endif
-                // A continuous cap hides the normal/UV ambiguity at a ridge's center
-                // and rounded end. Painted facets enrich the slopes without a stripe seam.
-                wall=lerp(wall,painted*lerp(.9,1.03,saturate(.5+n.y*.35-n.x*.15)),.32*sideLight);
-                float shadow=(1-smoothstep(radius,radius+1.0,d))*.16;
-                float3 color=floorColor*(1-shadow);
+                // Keep the original painted tissue only as subtle mottling, never grooves.
+                wall=lerp(wall,painted*lerp(.96,1.03,facing),.075*sideLight);
+                float contact=(1-smoothstep(radius-.08,radius+.64,d))*.38;
+                float cast=(1-smoothstep(radius,radius+1.25,d))*.18*(1-facing*.45);
+                float3 color=lerp(floorColor,floorColor*float3(.66,.58,.69),saturate(contact+cast));
                 color=lerp(color,wall,1-smoothstep(radius-.38,radius,d));
                 // Outside only the perimeter: inner ridge centers remain colored tissue.
                 float outside=exterior*(1-smoothstep(-3.0,-2.4,d));
                 color=lerp(color,float3(.29,.065,.13),outside);
-                color=rgb(saturate(color));
-                color=drawOpening(color,uv,_Inlet,_InletOpen,.3);
-                color=drawOpening(color,uv,_Outlet,_OutletOpen,-.3);
-                return fixed4(color,1);
+                float wallFootprint=(1-outside)*(1-smoothstep(radius-.38,radius,d));
+                color=drawColonOpening(color,floorColor,uv,_Inlet,_InletOpen,1,wallFootprint);
+                color=drawColonOpening(color,floorColor,uv,_Outlet,_OutletOpen,-1,wallFootprint);
+                return fixed4(rgb(saturate(color)),1);
             }
             ENDCG
         }

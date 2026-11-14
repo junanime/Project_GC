@@ -41,13 +41,16 @@ namespace Vampire
             }
         }
         protected override void Awake() { base.Awake(); ConfigureReusableInteraction(); }
-        protected override bool InteractionAvailable => map != null && map.FieldActive && map.FieldVisible && !moving &&
-            (StageProgression.Ensure(levelManager).CanUseOutlet(this) || !IsOpen && !StageProgression.Ensure(levelManager).Travelling);
+        bool ColonOutlet => map != null && map.IsColon && !Upper;
+        protected override bool InteractionAvailable => map != null && map.FieldActive && map.FieldVisible && !moving && levelManager != null && !levelManager.IsRunFlowPaused &&
+            (ColonOutlet ? ColonExitSequence.Ensure(levelManager).CanInteract :
+            (StageProgression.Ensure(levelManager).CanUseOutlet(this) || !IsOpen && !StageProgression.Ensure(levelManager).Travelling));
         protected override bool KeepVisibleAfterInteraction => true;
         protected override bool AllowSubmergedInteraction => levelManager!=null && StageProgression.Ensure(levelManager).CanUseOutlet(this);
         protected override bool ExecuteInteraction(Character player)
         {
             if (!InteractionAvailable) return false;
+            if (ColonOutlet) return ColonExitSequence.Ensure(levelManager).InteractAtGate(player, this);
             if(StageProgression.Ensure(levelManager).CanUseOutlet(this))return StageProgression.Ensure(levelManager).TryUseOutlet(player,this);
             IsOpen = true; moving = true;
             return true;
