@@ -146,7 +146,7 @@ namespace Vampire.Tests.Editor
             string sourceSignature = Signature(host);
             var sourceEntries = Source(host); var sourceJson = sourceEntries.Select(JsonUtility.ToJson).ToArray();
             var stomachEntries = Events(host).Select(e => JsonUtility.ToJson(e.entry)).Distinct().OrderBy(x => x).ToArray();
-            Check(flow.BeginDirectOral(), "real oral entry accepted"); yield return TransferFinished(flow); Silence(level, host);
+            Check(flow.BeginDirectOral(true), "real oral entry accepted"); yield return TransferFinished(flow); Silence(level, host);
             Check(flow.StageNumber == 0 && Signature(host) == sourceSignature, "oral entry retains all serialized stomach entries");
             var events = Events(host);
             var first = events.GroupBy(e => OralSpecialSpawnProfile.Identify(level.CurrentLevelBlueprint, e.entry.monsterBlueprint)).ToDictionary(g => g.Key, g => g.OrderBy(e => e.time).First());

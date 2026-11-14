@@ -70,6 +70,8 @@ namespace Vampire
         protected MonsterBlueprint sourceMonsterBlueprint;
 
         public UnityEvent<float> OnHitDamageable { get; private set; }
+        public bool IsPlayerAttack => sourceMonsterBlueprint == null && playerCharacter != null && !isDespawning;
+        public Vector2 TravelDirection => direction;
 
         public void ReleaseForPlayerExit(Character owner)
         {
@@ -442,6 +444,7 @@ namespace Vampire
         protected virtual void OnTriggerEnter2D(
             Collider2D collider)
         {
+            if (ConstipationKingShield.TryReflect(this, collider)) return;
             CollisionCheck(collider);
         }
     }

@@ -293,7 +293,7 @@ SyringeDartAbility sourceNeedleAbility)
             if (target.component.GetComponentInParent<BloodClotObstacle>() != null) return;
             // Respect colon encounters' scripted movement and habitat territory. Damage
             // and marks still apply, but a suction field cannot drag them through walls.
-            if (target.component is ColonBossRuntime) return;
+            if (target.component is ColonBossRuntime || target.component is ConstipationKingRuntime) return;
             Vector2 targetPosition = GetTargetWorldPosition(target);
             Vector2 toCenter = center - targetPosition;
             float distance = toCenter.magnitude;

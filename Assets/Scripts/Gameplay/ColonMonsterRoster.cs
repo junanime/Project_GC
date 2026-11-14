@@ -21,7 +21,8 @@ namespace Vampire
         public const float SlimeHeight = .3f;
         public static readonly string[] NormalIds = { "N01", "N06", "N07", "N02", "N04", "N08", "N03", "N05" };
         public static readonly float[] IntroductionSeconds = { 0, 90, 180, 270, 360, 450, 570, 690 };
-        public static readonly float[] NormalHealth = { 70, 85, 115, 155, 210, 290, 420, 600 };
+        public static readonly float[] NormalHealth = { 27.5f, 38.5f, 71.5f, 132, 137.5f, 187, 242, 286 };
+        public const float HealthMultiplier = 1.10f, SpawnMultiplier = 1.08f;
         public readonly List<Entry> Normals = new List<Entry>();
         public readonly List<Entry> Elites = new List<Entry>();
         public readonly List<Entry> Specials = new List<Entry>();
@@ -112,11 +113,11 @@ namespace Vampire
             }
             // Clots are stationary mini-stage entrances, not enemy wave units.
             var clot=Copy(flat[19]);clot.hp=180;replacements[flat[19]]=clot;
-            if(DirectStart)ApplyDirectStartBalance(flat);
-            float[] specialHp={220,170,280,150,190};float[] specialSpeed={.78f,1.05f,.7f,.8f,.95f};
+            ApplyStageBalance(flat);
+            float[] specialHp={77,60,98,52,66};float[] specialSpeed={.78f,1.05f,.7f,.8f,.95f};
             string[] specialNames={"가스주머니균","요구르트 발효균","균사 봉합사","소금결정균","똥폭탄 쇠똥구리"};
             for(int i=0;i<5;i++){
-                var bp=Copy((MeleeMonsterBlueprint)flat[0]);bp.hp=DirectStart?Mathf.Round(specialHp[i]*.35f):specialHp[i];bp.atk=DirectStart?5:10;bp.movespeed=specialSpeed[i];
+                var bp=Copy((MeleeMonsterBlueprint)flat[0]);bp.hp=specialHp[i];bp.atk=5;bp.movespeed=specialSpeed[i];
                 string id="S"+(7+i).ToString("00");Names[id]=specialNames[i];Ratios[id]=i==4?1.8f:1.6f;
                 bp.gemLootTable=Gems(new Loot<GemType>{item=GemType.Green10,dropChance=1});bp.coinLootTable=Coins(new Loot<CoinType>{item=CoinType.Gold5,dropChance=.5f});
                 Specials.Add(Register(bp,id));NewSpecials.Add(bp);normals.Add(bp);
@@ -125,9 +126,9 @@ namespace Vampire
             (GetComponent<ColonSpecialDirector>()??gameObject.AddComponent<ColonSpecialDirector>()).Configure(this,manager);
             Level.monsters=source.monsters.Concat(new[]{new LevelBlueprint.MonstersContainer{monstersPrefab=source.monsters[0].monstersPrefab,monsterBlueprints=normals.ToArray()}}).ToArray();
             Level.monsterSpawnTable=BuildSpawnTable(source.monsterSpawnTable,NormalFlatStart,normals.Count);
-            if(DirectStart)
+            // Every entrance starts from the same loadout and the same fixed difficulty.
             {
-                Level.name="Stage 2 · 대장 · 기본 장비 직접 입장";
+                Level.name="Stage 2 · 대장 · 공통 기본 난도";
                 // Match stage-one tier timing as well as HP; otherwise late colon types
                 // arriving early would exceed the requested 10-20% difficulty step.
                 Level.monsterSpawnTable.spawnChanceKeyframes=source.monsterSpawnTable.spawnChanceKeyframes.Select(key=>
@@ -137,17 +138,16 @@ namespace Vampire
                     {int index=DirectNormalSources[i];if(index<key.spawnChances.Length)weights[NormalFlatStart+i]=key.spawnChances[index];}
                     return new MonsterSpawnTable.SpawnChanceKeyframe{t=key.t,spawnChances=weights};
                 }).ToArray();
-                foreach(var key in Level.monsterSpawnTable.spawnRateKeyframes)key.spawnRate*=DirectSpawnMultiplier(key.t);
-                Level.normalSpawnPopulationLimit=Mathf.CeilToInt(source.normalSpawnPopulationLimit*1.05f);
+                foreach(var key in Level.monsterSpawnTable.spawnRateKeyframes)key.spawnRate*=SpawnMultiplier;
+                Level.normalSpawnPopulationLimit=Mathf.CeilToInt(source.normalSpawnPopulationLimit*SpawnMultiplier);
             }
             return Level;
         }
-        // This profile is selected only by the temporary preparation-stage picker.
-        // Copies are modified here; stage-one assets and the grown-player colon run stay intact.
-        public static float DirectHealthMultiplier(int tier)=>Mathf.Lerp(1.10f,1.20f,Mathf.Clamp01(tier/7f));
-        public static float DirectSpawnMultiplier(float normalizedTime)=>Mathf.Lerp(1f,1.05f,Mathf.Clamp01(normalizedTime));
+        // Compatibility accessors for tools written for the former direct-entry profile.
+        public static float DirectHealthMultiplier(int tier)=>HealthMultiplier;
+        public static float DirectSpawnMultiplier(float normalizedTime)=>SpawnMultiplier;
         public static readonly int[] DirectNormalSources={0,1,4,5,6,7,31,32};
-        void ApplyDirectStartBalance(MonsterBlueprint[] flat)
+        void ApplyStageBalance(MonsterBlueprint[] flat)
         {
             for(int i=0;i<Normals.Count;i++)
             {
@@ -166,7 +166,8 @@ namespace Vampire
             foreach(int index in new[]{2,3,14,15,21,22,24,25})
             {
                 var source=flat[index];var bp=replacements[source];
-                bp.hp=Mathf.Ceil(source.hp*1.15f);bp.atk=source.atk;
+                bp.hp=Mathf.Round(source.hp*HealthMultiplier*10f)/10f;bp.atk=source.atk;
+                bp.movespeed=source.movespeed;bp.atkspeed=source.atkspeed;bp.acceleration=source.acceleration;
                 bp.gemLootTable=source.gemLootTable;bp.coinLootTable=source.coinLootTable;
                 if(bp is SugarCubeMonsterBlueprint sugar&&source is SugarCubeMonsterBlueprint original)
                     BalanceChildren(sugar,original);
@@ -183,7 +184,7 @@ namespace Vampire
         {
             if(copy.splitChildBlueprint==null||source.splitChildBlueprint==null)return;
             var child=copy.splitChildBlueprint;var baseline=source.splitChildBlueprint;
-            child.hp=Mathf.Ceil(baseline.hp*1.15f);child.atk=baseline.atk;child.movespeed=baseline.movespeed;
+            child.hp=Mathf.Round(baseline.hp*HealthMultiplier*10f)/10f;child.atk=baseline.atk;child.movespeed=baseline.movespeed;
             child.gemLootTable=baseline.gemLootTable;child.coinLootTable=baseline.coinLootTable;
             BalanceChildren(child,baseline);
         }
@@ -270,7 +271,6 @@ namespace Vampire
         public bool EliteUnlocked(int tier,float seconds)
         {
             if(tier<0||tier>=Normals.Count)return false;
-            if(!DirectStart)return IntroductionSeconds[tier]<=seconds;
             return Level.monsterSpawnTable.GetProbability(Mathf.Clamp01(seconds/Level.levelTime),NormalFlatStart+tier)>0;
         }
         public bool IsNewElite(int flat)=>flat>=NormalFlatStart+8&&flat<NormalFlatStart+16;

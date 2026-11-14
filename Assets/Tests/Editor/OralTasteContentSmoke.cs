@@ -128,7 +128,7 @@ namespace Vampire.Tests.Editor
         {
             var preferences=GamePreferences.Current.Copy();preferences.pauseOnFocusLoss=false;preferences.muteOnFocusLoss=false;GamePreferences.Apply(preferences,false);
             Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Stage zero taste and ambient content integration QA");Silence(level);
-            Check(StageProgression.Ensure(level).BeginDirectOral(),"stage zero entry");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true),"stage zero entry");
             while(OralStageRuntime.Instance==null||StageProgression.Ensure(level).Travelling)yield return null;
             Silence(level);Clear(level);var player=level.PlayerCharacter;var map=FiniteStomachMap.Instance;var events=OralFieldEvents.Instance;
             events.AutoSchedule=false;foreach(var cavity in events.Cavities){cavity.Healed=true;cavity.Active=false;}

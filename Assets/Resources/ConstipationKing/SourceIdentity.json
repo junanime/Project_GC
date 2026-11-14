@@ -1,0 +1,83 @@
+{
+  "reference": "Approved A central outlet + V3 action poses; source PNGs copied without changes",
+  "sourceArchive": "변비왕_PC이어서작업_원본자료.zip",
+  "sourceDevice": "JBDD",
+  "verifiedOn": "DESKTOP-SOFU912",
+  "files": [
+    {
+      "file": "Body.png",
+      "sha256": "1f0349075c8b06a342a4c9cd80b34dbb25e2492ba43646c87ca4a6304c1aa45e",
+      "bytes": 1015544
+    },
+    {
+      "file": "Booster.png",
+      "sha256": "2b9df897ee31c5fb886e7d7a840daed5715d538539e0895563f9287a437ddef5",
+      "bytes": 955686
+    },
+    {
+      "file": "Crown.png",
+      "sha256": "a7f5fc6d7ad459d9e83f2afdd1f1d8a9549ea1a438f798661b146a16cab5c134",
+      "bytes": 133977
+    },
+    {
+      "file": "Pose0.png",
+      "sha256": "66b4fdbb02e153121b83236e525891dd7d40de26be993eda4f05cd42eb75cd50",
+      "bytes": 176944
+    },
+    {
+      "file": "Pose1.png",
+      "sha256": "cf0a6b69f4c50ca5c8b6a670e992e3e386f97e06c5bbe289182fa7dbf1f8af9c",
+      "bytes": 178413
+    },
+    {
+      "file": "Pose10.png",
+      "sha256": "3f08d2ab82fc82ddcd219342e126939ea825b5bc68efff9f88eaeee99c408173",
+      "bytes": 180513
+    },
+    {
+      "file": "Pose2.png",
+      "sha256": "0b7bd5a1eb6d5bf73809650933767c889f2486161833b9459458c362a7b70314",
+      "bytes": 177774
+    },
+    {
+      "file": "Pose3.png",
+      "sha256": "516e7a8181bd3b2d879edbe3fea0ac7554316bbc7ee75fdba75547e598f70b32",
+      "bytes": 183433
+    },
+    {
+      "file": "Pose4.png",
+      "sha256": "4bdf9e5b6bf18f90e880cfe835db989c181a2dba0b2fdca428cdd9a697c6c796",
+      "bytes": 182043
+    },
+    {
+      "file": "Pose5.png",
+      "sha256": "f19b299668a177b84b48a60bda49f407e27076220923b3b71c72394560395c84",
+      "bytes": 185947
+    },
+    {
+      "file": "Pose6.png",
+      "sha256": "68ba179a81f898d310ce435061247bf3df573c865bd4608bcf8dc0ff4f2d0563",
+      "bytes": 168637
+    },
+    {
+      "file": "Pose7.png",
+      "sha256": "90dab95c77d9fb7ceec52a4916402e77742093168c84b72b4a9b5fadb891c859",
+      "bytes": 179256
+    },
+    {
+      "file": "Pose8.png",
+      "sha256": "2ed82d55564635f68ef22a268db85cc8e364f805b4233386c7b0974c47921acb",
+      "bytes": 179982
+    },
+    {
+      "file": "Pose9.png",
+      "sha256": "84ba44657f1e14d9035da9712634b15dafc2d11af5cc10b820562ef5b5cadcc7",
+      "bytes": 185928
+    },
+    {
+      "file": "Tribute.png",
+      "sha256": "55f26d1806ac8ecd296b2d49d7c94f1f7b522264d0cb08def7ea804bc3e0a98d",
+      "bytes": 948133
+    }
+  ]
+}

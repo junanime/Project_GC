@@ -59,6 +59,12 @@ namespace Vampire
         }
         public bool AddFuel(int amount=1){if(amount<=0||Fuel>=Capacity)return false;Fuel=Mathf.Min(Capacity,Fuel+amount);return true;}
         public void RestoreFuel(int value){Cancel();Fuel=Mathf.Clamp(value,0,Capacity);}
+        public void ClearStageDrops()
+        {
+            Cancel();
+            foreach(var drop in drops)if(drop.visual!=null){drop.visual.enabled=false;spare.Push(drop.visual);}
+            drops.Clear();
+        }
         public bool Press(bool keyboard=false,UnityEngine.InputSystem.Controls.ButtonControl pointerControl=null)
         {
             if(!skill.CanActivate||!CanStart)return false;

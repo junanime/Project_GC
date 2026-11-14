@@ -74,6 +74,7 @@ namespace Vampire
                 {
                     continue;
                 }
+                if (candidate is ConstipationKingRuntime king && !king.Targetable) continue;
 
                 Monster monster = component as Monster;
 

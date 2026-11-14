@@ -95,6 +95,8 @@ namespace Vampire
                 statsManager
             );
 
+            StageGrowthReset.CaptureLaunch(this, abilityManager);
+
             playerCharacter.OnDeath.AddListener(GameOver);
 
             infiniteBackground.Init(this.levelBlueprint.backgroundTexture, playerCharacter.transform);
@@ -111,13 +113,14 @@ namespace Vampire
             if (tutorial == null) tutorial = gameObject.AddComponent<TutorialGuide>();
             tutorial.Initialize(this);
             StageProgression.Ensure(this);
+            ConstipationKingDirector.Ensure(this);
             SupplyCapsuleDirector.Ensure(this);
             FieldObjectLayout.Ensure(this);
             AcidLakeEvent.Install(this);
             RunScore.Install(this);
         }
 
-        // Preserve the actual player, abilities, inventory, relic runtimes, stats and loot pools.
+        // Transfers restore the launch combat loadout first; score and currency remain run-wide.
         public void BeginNextStage(LevelBlueprint next)
         {
             foreach (var mini in FindObjectsOfType<MiniStageDirector>()) mini.ResetForNextField();
@@ -125,6 +128,7 @@ namespace Vampire
             levelBlueprint = next;
             levelTime = 0f;
             NormalMonstersSpawned = 0;
+            SpawnPotionRemaining = 0f;
             timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
             if (gameTimer != null) gameTimer.SetTime(next.levelTime);
             infiniteBackground.SetStageTexture(next.backgroundTexture);
@@ -415,6 +419,8 @@ namespace Vampire
 
         public void LevelPassed(Monster finalBossKilled)
         {
+            // Legacy final-boss/portal callbacks cannot bypass the mandatory colon encounter.
+            if (GetComponent<StageProgression>()?.StageNumber == 2 && GetComponent<ConstipationKingDirector>()?.Defeated != true) return;
             if (playerCharacter != null && !playerCharacter.IsAlive) return;
             if (levelEnded)
             {
@@ -430,6 +436,12 @@ namespace Vampire
             // Ingame BGM은 재개하지 않음.
             // 승리 보상 효과음 재생.
             Time.timeScale = 0f;
+
+            if (GetComponent<StageProgression>()?.StageNumber == 2)
+            {
+                GameEndingFlow.Begin(this);
+                return;
+            }
 
             if (ApothecaryUI.TryShowResult(true)) return;
             if (levelResultPanel != null)

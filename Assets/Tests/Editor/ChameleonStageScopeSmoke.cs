@@ -121,7 +121,7 @@ namespace Vampire.Tests.Editor
             Silence(level);
             spawn.ResetForStage(); spawn.Record(ChameleonKind.Drift);
             Check(Mathf.Abs(spawn.Lottery.Weight(ChameleonKind.Drift) - 45) < .001f, "stomach field event still adds twenty percentage points");
-            Check(flow.BeginDirectOral(), "real oral entry accepted");
+            Check(flow.BeginDirectOral(true), "real oral entry accepted");
             yield return TransferFinished(flow); Silence(level);
             Check(flow.StageNumber == 0 && !level.IsRunFlowPaused, "oral field ready");
             Set(level, "levelTime", 1200f);

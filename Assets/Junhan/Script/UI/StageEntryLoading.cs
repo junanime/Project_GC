@@ -16,6 +16,7 @@ namespace Vampire
         public string CharacterKey { get; private set; }
         public RectTransform RunnerRect => runner != null ? runner.rectTransform : null;
         public float RunnerAlpha => runner != null ? runner.color.a : 0;
+        public bool AbsorbingEnergy { get; private set; }
         const float ReadyProgress = .94f;
         static readonly Color Ink = new Color(.055f,.09f,.14f), Cream = new Color(1,.95f,.8f);
         RectTransform surface, frame, fill, tip;
@@ -108,6 +109,61 @@ namespace Vampire
         {
             SetProgress(Mathf.Max(Progress,Mathf.Lerp(transferProgressStart,1,Mathf.Clamp01(progress))));
         }
+        public IEnumerator PlayEnergyAbsorption()
+        {
+            if(AbsorbingEnergy)yield break;
+            AbsorbingEnergy=true;
+            var priorHeading=heading.text;
+            var layer=Fixed("변비왕 성장 흡수",frame,new Rect(150,175,980,445));
+            BoxAt("흡수 연출 배경",layer,new Rect(0,0,980,445),new Color(.08f,.035f,.12f,.94f));
+            Label("흡수 안내","다음 스테이지로 가는 힘을 가로채는 변비왕!",layer,new Rect(25,385,930,40),27,Cream);
+            var hero=BoxAt("흡수당하는 출전 캐릭터",layer,new Rect(115,95,195,225),Color.white);
+            hero.sprite=frames[0];hero.preserveAspect=true;
+            var king=BoxAt("변비왕",layer,new Rect(620,75,305,320),Color.white);
+            king.sprite=ConstipationKingVisual.Get("Body");king.preserveAspect=true;
+            Label("남은 출전 장비","처음 선택한 무기와 유물은 지켰어요",layer,new Rect(25,20,930,40),24,new Color(.7f,.95f,.84f));
+            var badges=new TextMeshProUGUI[3];
+            string[] labels={"증강","스킬 강화","추가 장비"};
+            for(int i=0;i<badges.Length;i++)badges[i]=Label("흡수되는 성장 "+i,labels[i],layer,new Rect(210,175,155,34),20,new Color(.8f,.66f,1));
+            var sparks=new Graphic[15];
+            for(int i=0;i<sparks.Length;i++)
+            {
+                var dot=Fixed("흡수 빛 "+i,layer,new Rect(0,0,9+i%3*3,9+i%3*3)).gameObject.AddComponent<StageEntryShadow>();
+                dot.color=new Color(.8f,.65f,1,.8f);dot.raycastTarget=false;sparks[i]=dot;
+            }
+            heading.text="변비왕에게 성장 에너지를 빼앗겼어요…";
+            try
+            {
+                bool reduced=GamePreferences.Current.reducedMotion;
+                for(float time=0;time<2.1f;time+=Time.unscaledDeltaTime)
+                {
+                    float p=Mathf.Clamp01(time/2.1f);
+                    hero.color=Color.Lerp(Color.white,new Color(.65f,.72f,.8f),p);
+                    if(!reduced)king.rectTransform.localScale=Vector3.one*(1+Mathf.Sin(time*5)*.018f);
+                    for(int i=0;i<badges.Length;i++)
+                    {
+                        float q=Mathf.Clamp01((p-i*.15f)*1.7f);
+                        badges[i].rectTransform.anchoredPosition=reduced?new Vector2(260,250-i*45):Vector2.Lerp(new Vector2(210,250-i*45),new Vector2(705,210),q);
+                        badges[i].rectTransform.localScale=Vector3.one*(reduced?1:1-q*.65f);
+                        badges[i].color=new Color(.83f,.72f,1,1-q);
+                    }
+                    for(int i=0;i<sparks.Length;i++)
+                    {
+                        float q=Mathf.Repeat(time*.65f+i/(float)sparks.Length,1);
+                        sparks[i].gameObject.SetActive(!reduced);
+                        sparks[i].rectTransform.anchoredPosition=Vector2.Lerp(new Vector2(260,145+i%5*20),new Vector2(750,215),q)+Vector2.up*Mathf.Sin(q*Mathf.PI)*30;
+                        sparks[i].color=new Color(.8f,.65f,1,Mathf.Sin(q*Mathf.PI)*.85f);
+                    }
+                    yield return null;
+                }
+            }
+            finally
+            {
+                AbsorbingEnergy=false;
+                if(layer!=null)Destroy(layer.gameObject);
+                heading.text=priorHeading;
+            }
+        }
         public void ReturnToMenu(string message)
         {
             running=true;
@@ -170,7 +226,7 @@ namespace Vampire
                 RunScore.Exclude(entryStage==0?"스테이지 0 구강 직접 입장":"스테이지 2 임시 직접 입장");
                 ownsPause=false;Time.timeScale=1;
                 if(entryStage==0)running=false;
-                if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral():StageProgression.Ensure(level).BeginDirectColon(this)))
+                if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral(true):StageProgression.Ensure(level).BeginDirectColon(this)))
                 {ReturnToMenu("스테이지 진입에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
                 if(entryStage==0)Destroy(gameObject);
                 yield break;

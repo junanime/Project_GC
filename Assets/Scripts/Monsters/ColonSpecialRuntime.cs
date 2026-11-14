@@ -20,7 +20,7 @@ namespace Vampire {
    if(Kind=="beetle"&&!busy&&cooldown<=0&&player!=null&&Vector2.Distance(player.transform.position,transform.position)<=2.1f){StartCoroutine(Throw());}
    if(Kind=="yogurt"&&player!=null&&Vector2.Distance(player.transform.position,transform.position)<3.5f){timer+=Time.deltaTime;if(timer>=.85f){timer=0;ColonSpecialEffects.Bubble(transform.position,monster.Blueprint,Damage(14));}}
   }
-  float Damage(float n)=>ColonMonsterRoster.Active!=null&&ColonMonsterRoster.Active.DirectStart?n*.65f:n;
+  float Damage(float n)=>n*.65f;
   void FixedUpdate(){if(!Active||player==null)return;if(Paused){body.velocity=Vector2.zero;return;}if(busy){body.velocity=Vector2.zero;return;}Vector2 goal=player.transform.position;float speed=monster.moveSpeed;float distance=Vector2.Distance(goal,transform.position);
    if(Kind=="beetle"&&cooldown>2){goal=(Vector2)transform.position+((Vector2)transform.position-goal).normalized*3;speed*=1.35f;}
    if(Kind=="yogurt"&&distance<3.7f){Vector2 radial=((Vector2)transform.position-goal).normalized;goal+=(radial*3+Vector2.Perpendicular(radial)*1.2f);}

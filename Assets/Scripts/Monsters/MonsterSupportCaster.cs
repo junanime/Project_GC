@@ -163,29 +163,29 @@ namespace Vampire
             int bestCount = 0;
             Vector2 bestCenter = GetFallbackPosition();
 
+            // Cache only this synchronous search; the next search rechecks every target.
+            var positions = new System.Collections.Generic.List<Vector2>(entityManager.LivingMonsters.Count);
             foreach (Monster candidate in entityManager.LivingMonsters)
             {
-                if (!IsValidClusterMonster(candidate))
+                if (IsValidClusterMonster(candidate))
                 {
-                    continue;
+                    positions.Add(candidate.transform.position);
                 }
+            }
 
+            foreach (Vector2 candidate in positions)
+            {
                 int count = 0;
                 Vector2 sum = Vector2.zero;
 
-                foreach (Monster other in entityManager.LivingMonsters)
+                foreach (Vector2 other in positions)
                 {
-                    if (!IsValidClusterMonster(other))
-                    {
-                        continue;
-                    }
-
-                    float distance = Vector2.Distance(candidate.transform.position, other.transform.position);
+                    float distance = Vector2.Distance(candidate, other);
 
                     if (distance <= clusterScanRadius)
                     {
                         count++;
-                        sum += (Vector2)other.transform.position;
+                        sum += other;
                     }
                 }
 

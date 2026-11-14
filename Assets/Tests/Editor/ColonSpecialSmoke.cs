@@ -137,7 +137,7 @@ namespace Vampire.Tests.Editor
             }
             Check(ordinary.GetComponent<MonsterCombatBuffRuntime>().HealthBuffActive,"stage-one health buffer applies health capacity");
             ordinary.DespawnForStageTransfer();
-            yield return ColonContentSmoke.Enter(level);Silence(level);
+            yield return ColonContentSmoke.Enter(level);Silence(level);Set(player,"isInvincible",true);
             var r=ColonMonsterRoster.Active;level.GetComponent<ColonSpecialDirector>().enabled=false;
             var map=FiniteStomachMap.Instance;
             center=map.ClampToField(map.UVToWorld(new Vector2(.78f,.72f)),map.WallWidth+2);Position(player,center);
@@ -196,8 +196,8 @@ namespace Vampire.Tests.Editor
             var yogurt=Spawn(level,r.NewSpecials[1],center+Vector2.left*3);yield return new WaitForSeconds(2.5f);Capture("yogurt-orbit");Check(Vector2.Distance(yogurt.transform.position,player.transform.position)>2,"yogurt circles instead of contact rush");yogurt.DespawnForStageTransfer();
             // Count policy expectation with deterministic random seed.
             UnityEngine.Random.InitState(456);double baseline=0,corn=0,pair=0;for(int i=0;i<20000;i++){baseline+=ColonSpecialDirector.LegacyCount(2,false,false);corn+=ColonSpecialDirector.LegacyCount(2,true,false);pair+=ColonSpecialDirector.LegacyCount(2,false,true)*2;}
-            Check(Math.Abs(baseline/20000-2.5)<.03&&Math.Abs(corn/20000-1.25)<.03&&Math.Abs(pair/20000-2.5)<.04,"carryover count +25 percent, corn half, paired budget preserved");
-            Set(r,"<DirectStart>k__BackingField",true);baseline=0;for(int i=0;i<20000;i++)baseline+=ColonSpecialDirector.LegacyCount(2,false,false);Check(Math.Abs(baseline/20000-1.7)<.03,"direct profile reserves population for new specials");Set(r,"<DirectStart>k__BackingField",false);
+            Check(Math.Abs(baseline/20000-2)<.03&&Math.Abs(corn/20000-1)<.03&&Math.Abs(pair/20000-2)<.04,"baseline count, corn half, paired budget preserved");
+            Set(r,"<DirectStart>k__BackingField",true);baseline=0;for(int i=0;i<20000;i++)baseline+=ColonSpecialDirector.LegacyCount(2,false,false);Check(Math.Abs(baseline/20000-2)<.03,"direct and normal entry share special population policy");Set(r,"<DirectStart>k__BackingField",false);
             var shark=ColonBossRuntime.Spawn(ColonBossKind.Shark,player,FiniteStomachMap.SafeSpawn(center+Vector2.up*3,2),null);shark.AutoPatterns=false;
             var fin=ColonBossEffects.Prop(shark,"Fin",1.8f,center+Vector2.up*2);yield return new WaitForSeconds(.5f);Capture("shark-fin-wake");Check(fin.GetComponent<ColonFinWake>()!=null&&fin.GetComponentsInChildren<LineRenderer>().Length==3,"fin blends into ground with three liquid wakes");Object.Destroy(shark.gameObject);
             Check(Object.FindObjectsOfType<ColonSpecialEffects>().All(e=>e!=null),"no effect lifecycle exception");

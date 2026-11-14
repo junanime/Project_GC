@@ -121,7 +121,7 @@ namespace Vampire.Tests.Editor
         static IEnumerator Checks(LevelManager level)
         {
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;GamePreferences.Apply(prefs,false);Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Gallery detail retakes");
-            var progression=StageProgression.Ensure(level);Check(progression.BeginDirectOral(),"production oral entry");while(OralStageRuntime.Instance==null||progression.Travelling)yield return null;
+            var progression=StageProgression.Ensure(level);Check(progression.BeginDirectOral(true),"production oral entry");while(OralStageRuntime.Instance==null||progression.Travelling)yield return null;
             var runtime=OralStageRuntime.Instance;var events=OralFieldEvents.Instance;var player=level.PlayerCharacter;var map=FiniteStomachMap.Instance;events.AutoSchedule=false;
             level.enabled=false;foreach(var x in Object.FindObjectsOfType<MonoBehaviour>())if(x is StageEventDirector||x is TimedSpecialMonsterSpawner||x is AcidToadSpawn||x is NPCSpawner||x is SnailBossDebugSpawn){x.enabled=false;x.StopAllCoroutines();}
             foreach(var x in Object.FindObjectsOfType<Ability>()){x.enabled=false;x.StopAllCoroutines();}Clear(level);Set(player,"isInvincible",true);

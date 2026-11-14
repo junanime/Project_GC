@@ -116,6 +116,7 @@ namespace Vampire
             if(first!=null)first.enabled=false;if(second!=null)second.enabled=false;if(blizzard!=null)blizzard.enabled=false;
             foreach(var r in crystals)if(r!=null)Destroy(r.gameObject);crystals.Clear();
         }
+        public void CancelForStage(){Hide();}
         void OnDisable(){Hide();}
         void OnDestroy(){if(fireMaterial!=null)Destroy(fireMaterial);if(blizzardMaterial!=null)Destroy(blizzardMaterial);if(blizzardMesh!=null)Destroy(blizzardMesh);}
     }

@@ -31,6 +31,12 @@ namespace Vampire
         LevelManager level;
         StatsManager stats;
         readonly List<MerchantItemBlueprint> runItems = new List<MerchantItemBlueprint>();
+        public void ResetStageItems()
+        {
+            runItems.Clear();supplyChoices=null;supplyAccept=null;supplyCancel=null;
+            if(Page=="supplyRelic")Show("hud");
+            dirty=true;
+        }
         static readonly Color Ink = new Color(.025f,.05f,.15f);
         static readonly Color Paper = new Color(1,.91f,.76f,.85f);
         public const int ItemsPerPage = 6;
@@ -99,8 +105,10 @@ namespace Vampire
             SilverWallet.OnChanged += OnSilver;
             LobbyLoadoutData.OnChanged += OnLoadout;
             AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
-            Show(lobby ? "main" : "hud");
-            if (lobby && Page != "platformError") IntroMovie.TryShow(this);
+            bool returningToPreparation = lobby && prepareOnReturn;
+            if (lobby) prepareOnReturn = false;
+            Show(lobby ? (returningToPreparation ? "prepare" : "main") : "hud");
+            if (lobby && !returningToPreparation && Page != "platformError") IntroMovie.TryShow(this);
         }
         void OnDestroy()
         {
@@ -460,8 +468,9 @@ namespace Vampire
             ActionButton(content,"메인으로",.52f,.09f,.76f,.18f,()=>ReturnToLobby(false));
         }
         static bool prepareOnReturn;
-        void ReturnToLobby(bool prepare) {prepareOnReturn=prepare;Time.timeScale=1;SceneManager.LoadScene(0);}
-        void Start() {if(prepareOnReturn&&Page=="main"){prepareOnReturn=false;Show("prepare");}}
+        public static void ReturnToPreparation() { LoadLobby(true); }
+        static void LoadLobby(bool prepare) {prepareOnReturn=prepare;Time.timeScale=1;SceneManager.LoadScene(0);}
+        void ReturnToLobby(bool prepare) { LoadLobby(prepare); }
         public static string RelicDescription(RelicBlueprint r)
         {
             return r != null ? r.Description : "";

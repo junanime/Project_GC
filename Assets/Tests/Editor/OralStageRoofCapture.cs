@@ -47,7 +47,7 @@ namespace Vampire.Tests.Editor
         {
             RunScore.Exclude("Stage zero native-camera visual recording");var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);Application.runInBackground=true;Time.timeScale=1;
             Call("Silence",level);var player=level.PlayerCharacter;Call("Set",player,"isInvincible",true);player.CollectableCollider.enabled=false;
-            if(!StageProgression.Ensure(level).BeginDirectOral())throw new Exception("Oral transition refused");
+            if(!StageProgression.Ensure(level).BeginDirectOral(true))throw new Exception("Oral transition refused");
             float timeout=Time.realtimeSinceStartup+120;
             while(StageProgression.Ensure(level).Travelling&&Time.realtimeSinceStartup<timeout)yield return null;
             if(OralStageRuntime.Instance==null)throw new Exception("Oral runtime absent");

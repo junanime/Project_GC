@@ -172,7 +172,7 @@ namespace Vampire.Tests.Editor
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
             Application.runInBackground = true; Time.timeScale = 1; RunScore.Exclude("Swallow spiral mechanics acceptance");
             var progression = StageProgression.Ensure(level);
-            Check(progression.BeginDirectOral(), "real stage-zero entry starts");
+            Check(progression.BeginDirectOral(true), "real stage-zero entry starts");
             float until = Time.realtimeSinceStartup + 90;
             while ((OralStageRuntime.Instance == null || progression.Travelling) && Time.realtimeSinceStartup < until) yield return null;
             Check(OralStageRuntime.Instance != null && !progression.Travelling, "real stage-zero loading completes");

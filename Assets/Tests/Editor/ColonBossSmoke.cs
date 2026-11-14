@@ -120,13 +120,13 @@ namespace Vampire.Tests.Editor
             if(TutorialGuide.Instance!=null){TutorialGuide.Instance.Close();TutorialGuide.Instance.enabled=false;}
             RunScore.Exclude("대장 선택 보스 검증");
             Silence(level);Set(player,"isInvincible",true);player.CollectableCollider.enabled=false;Time.timeScale=1;
-            player.AddDamageMultiplier(.17f);float carryDamage=player.DamageMultiplier;
+            float launchDamage=player.DamageMultiplier;player.AddDamageMultiplier(.17f);
             var inventory=level.PlayerInventory;var skills=player.Skills;
             yield return ChameleonScoreChecks(level,player);
-            yield return ColonContentSmoke.Enter(level);Silence(level);ClearProjectiles();
+            yield return ColonContentSmoke.Enter(level);Silence(level);ClearProjectiles();Set(player,"isInvincible",true);
             var map=FiniteStomachMap.Instance;var director=level.GetComponent<ColonBossDirector>();var progression=StageProgression.Ensure(level);
             Check(map.IsColon&&progression.StageNumber==2,"stage-two map and progression active");
-            Check(player==level.PlayerCharacter&&inventory==level.PlayerInventory&&skills==player.Skills&&Mathf.Approximately(carryDamage,player.DamageMultiplier),"stage-one player, inventory, skills and upgrades survive transition");
+            Check(player==level.PlayerCharacter&&inventory==level.PlayerInventory&&skills==player.Skills&&Mathf.Approximately(launchDamage,player.DamageMultiplier),"same player retained while stage-earned upgrades reset to departure stats");
             Check(level.InitialFieldObjectsReady&&director!=null&&director.Ready&&!director.Failed,"loading waits for all six habitats");
             int initialMiniScore=RunScore.Current.Data.miniBoss,initialBossScore=RunScore.Current.Data.boss;
             Check(typeof(MiniBossMonster).IsAssignableFrom(typeof(AcidToadMonster)),"stage-one chameleons use mini-boss category");
@@ -211,7 +211,7 @@ namespace Vampire.Tests.Editor
             Check(director.Habitats.All(h=>h.GetComponent<MapMarker>().enabled&&h.MapBadge=="✓"),"defeated homes retain completed map markers");
             Check(director.Objective.Contains("6/6"),"optional objective updates after six defeats");
             ApothecaryUI.Instance.OpenRunBook();yield return null;Capture("stage2-map-completed");ApothecaryUI.Instance.CloseRunBook();yield return null;
-            Check(!ColonBossDefinition.RequiredFinalBossImplemented&&ColonBossDefinition.RequiredFinalBossName=="변비왕","required final boss remains explicitly reserved");
+            Check(ColonBossDefinition.RequiredFinalBossImplemented&&ColonBossDefinition.RequiredFinalBossName=="변비왕"&&level.GetComponent<ConstipationKingDirector>()!=null,"required final boss has a separate active director");
             yield return SpawnFloorSafety(level,player);
             yield return WallSafety(level,player);
             yield return SupplementalIntegration(level,player);

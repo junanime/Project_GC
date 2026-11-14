@@ -27,11 +27,14 @@ namespace Vampire
         StomachMapDefinition oralDefinition;
         LevelBlueprint oralBlueprint;
         LevelBlueprint preOralBlueprint;
+        bool initialOralEntry;
         readonly Dictionary<Behaviour,bool> preOralDirectors=new Dictionary<Behaviour,bool>();
-        public bool BeginDirectOral()
+        public bool BeginDirectOral(bool initialDeparture=false)
         {
-            if(!StageZeroEnabled||level==null||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling)return false;
+            if(!StageZeroEnabled||level==null||level.IsLevelEnded||level.PlayerCharacter==null||!level.PlayerCharacter.IsAlive||Time.timeScale<=0||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling||MiniStageRuntimeState.IsInsideMiniStage)return false;
+            if(initialDeparture&&level.GetComponent<StageGrowthReset>().ResetCount!=0)return false;
             if(FiniteStomachMap.Instance==null||Resources.Load<StomachMapDefinition>("StomachMap/Stage1")==null||level.CurrentLevelBlueprint==null||level.GetComponent<FieldObjectLayout>()==null)return false;
+            initialOralEntry=initialDeparture;
             Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             TutorialGuide.Instance?.Close();
             RunScore.Exclude("스테이지 0 구강 직접 입장");
@@ -61,6 +64,8 @@ namespace Vampire
             if(oralBlueprint==null)yield break;
             oralBlueprint.name="Stage0 Oral Field";
             oralBlueprint.levelTime=OralSpecialSpawnProfile.Duration;oralBlueprint.normalSpawnPopulationLimit=90;
+            if(initialOralEntry)level.GetComponent<StageGrowthReset>().SetInitialStage(0);
+            else yield return level.GetComponent<StageGrowthReset>().ResetForTransition(0,oralBlueprint,loading);
             level.BeginNextStage(oralBlueprint);
             preOralDirectors.Clear();
             foreach(var director in FindObjectsOfType<StageEventDirector>())SuspendOralDirector(director);
@@ -87,7 +92,7 @@ namespace Vampire
         }
         public bool BeginOralToStomach()
         {
-            if(StageNumber!=0||Travelling||level==null||level.IsLevelEnded||level.IsRunFlowPaused||preOralBlueprint==null)return false;
+            if(StageNumber!=0||Travelling||level==null||level.IsLevelEnded||level.PlayerCharacter==null||!level.PlayerCharacter.IsAlive||Time.timeScale<=0||level.IsRunFlowPaused||preOralBlueprint==null||MiniStageRuntimeState.IsInsideMiniStage)return false;
             if(OralStageRuntime.Instance!=null&&(OralStageRuntime.Instance.OnCeiling||OralStageRuntime.Instance.IsAirborne))return false;
             Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             StartCoroutine(ReturnFromOral());return true;
@@ -114,6 +119,7 @@ namespace Vampire
             var map=FiniteStomachMap.Instance;var definition=Resources.Load<StomachMapDefinition>("StomachMap/Stage1");
             map.ChangeDefinition(definition);var landing=map.UVToWorld(definition.startUV);
             level.PlayerCharacter.transform.position=landing;var rb=level.PlayerCharacter.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=landing;rb.velocity=Vector2.zero;}
+            yield return level.GetComponent<StageGrowthReset>().ResetForTransition(1,preOralBlueprint,loading);
             level.BeginNextStage(preOralBlueprint);
             foreach(var prior in preOralDirectors)if(prior.Key!=null)prior.Key.enabled=prior.Value;
             preOralDirectors.Clear();
@@ -241,8 +247,9 @@ namespace Vampire
         }
         public bool BeginDirectColon(StageEntryLoading departureLoading=null)
         {
-            if(!StageTwoEnabled||level==null||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling)return false;
-            IsDirectColonStart=true;
+            if(!StageTwoEnabled||level==null||level.IsLevelEnded||level.PlayerCharacter==null||!level.PlayerCharacter.IsAlive||Time.timeScale<=0||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling||MiniStageRuntimeState.IsInsideMiniStage)return false;
+            if(departureLoading!=null&&level.GetComponent<StageGrowthReset>().ResetCount!=0)return false;
+            IsDirectColonStart=departureLoading!=null;
             Travelling=true;entering=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             TutorialGuide.Instance?.Close();
             iris=SpiralStageTransition.Create();iris.SetClosed(1);
@@ -268,6 +275,8 @@ namespace Vampire
                 altar.gameObject.SetActive(false);Destroy(altar.gameObject);
             }
             stageTwo=ColonMonsterRoster.Create(level);
+            if(IsDirectColonStart)level.GetComponent<StageGrowthReset>().SetInitialStage(2);
+            else yield return level.GetComponent<StageGrowthReset>().ResetForTransition(2,stageTwo,loading);
             level.BeginNextStage(stageTwo);level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);level.GetComponent<SupplyCapsuleDirector>()?.RestartForStage();
             var inlet=StomachOpening.Find(true);inlet.SetOpened(0);var landing=map.ClampToField(inlet.FrontLip+Vector2.down*2,map.WallWidth+.6f);
             travel.SwimPose(landing,0);travel.Visual.color=Color.clear;loading.SetTransferProgress(.7f);

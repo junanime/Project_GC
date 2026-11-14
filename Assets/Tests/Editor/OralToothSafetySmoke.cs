@@ -142,7 +142,7 @@ namespace Vampire.Tests.Editor
             RunScore.Exclude("Stage 0 tooth safety integration QA and actual gameplay capture");
             Silence(level);Set(level.PlayerCharacter,"isInvincible",true);
             level.PlayerCharacter.CollectableCollider.enabled=false;
-            Check(StageProgression.Ensure(level).BeginDirectOral(),"stage-zero real transition begins");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true),"stage-zero real transition begins");
             float timeout=Time.realtimeSinceStartup+120;
             while((OralStageRuntime.Instance==null||StageProgression.Ensure(level).Travelling)&&Time.realtimeSinceStartup<timeout)yield return null;
             var runtime=OralStageRuntime.Instance;var map=FiniteStomachMap.Instance;var player=level.PlayerCharacter;var events=OralFieldEvents.Instance;

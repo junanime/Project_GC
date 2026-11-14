@@ -129,7 +129,7 @@ namespace Vampire.Tests.Editor
             foreach (var ability in Object.FindObjectsOfType<Ability>()) { ability.enabled = false; ability.StopAllCoroutines(); }
             var source = level.CurrentLevelBlueprint; var sourceFlat = Flat(source);
             var sourceData = JsonUtility.ToJson(source);
-            Check(StageProgression.Ensure(level).BeginDirectOral(), "real stage zero transition starts");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true), "real stage zero transition starts");
             float until = Time.realtimeSinceStartup + 120;
             while (StageProgression.Ensure(level).Travelling && Time.realtimeSinceStartup < until) yield return null;
             Check(OralStageRuntime.Instance != null && !level.IsRunFlowPaused, "oral field is ready");

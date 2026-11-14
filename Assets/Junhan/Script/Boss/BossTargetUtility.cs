@@ -74,7 +74,7 @@ namespace Vampire
                 return false;
             }
 
-            if (component.GetComponentInParent<ColonBossRuntime>(true) != null)
+            if (component.GetComponentInParent<ColonBossRuntime>(true) != null || component.GetComponentInParent<ConstipationKingRuntime>(true) != null)
             {
                 return true;
             }

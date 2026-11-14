@@ -181,7 +181,9 @@ namespace Vampire
         void OnTriggerStay2D(Collider2D other)
         {
             if (Dead || Hidden || Arriving || EncounterPaused || Immobilized || Time.time < nextContact || Visual.Lift > 1f) return;
-            var p = other.GetComponentInParent<Character>(); if (p == null || !p.IsAlive) return;
+            var p = other.GetComponentInParent<Character>();
+            // Pickup reach is not part of the player's body contact area.
+            if (p == null || !p.IsAlive || other == p.CollectableCollider) return;
             if (ColonAttackWall.Clear(HitCenter,Player.transform.position)&&TryHit(Definition.ContactDamage)) nextContact = Time.time + .9f;
         }
         public void Sound(string actionName, float gain = .5f)

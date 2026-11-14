@@ -12,7 +12,7 @@ namespace Vampire
         public float SpeedMultiplier=>slowLeft>0?slowFactor:1;
         public CombatStatusTag ActiveStatusTags => (poisonLeft>0?CombatStatusTag.Poison:CombatStatusTag.None)|(slowLeft>0?CombatStatusTag.Slow:CombatStatusTag.None)|(acid?CombatStatusTag.DeathMark:CombatStatusTag.None)|(bacteria.Count>0?CombatStatusTag.Infection:CombatStatusTag.None);
         void Awake(){target=GetComponent<IDamageable>();}
-        public static bool Supports(Component target)=>target is FoodBossRuntime||target is FoodBossWeakpoint||target is ColonBossRuntime;
+        public static bool Supports(Component target)=>target is FoodBossRuntime||target is FoodBossWeakpoint||target is ColonBossRuntime||target is ConstipationKingRuntime||target is ConstipationKingMinion;
         public static void Apply(Component target,SyringeSpecialRuntime runtime,Character source,bool markConsumed)
         {
             if(!Supports(target)||Ver4HitEffects.Health(target)<=0)return;
@@ -24,7 +24,7 @@ namespace Vampire
                 if(s.poisonVisual==null)s.poisonVisual=SyringeAugmentVfx.Play("Poison",target.transform.position,SyringeAugmentVfx.FindTarget(target));
             }
             if(runtime.honeyEnabled){s.Slow(runtime.honeyDuration,runtime.honeySlowMultiplier);HoneyTrailEmitter.Touch(SyringeAugmentVfx.FindTarget(target));}
-            if(runtime.corrosionEnabled)(target.GetComponent<CorrosionStatus>()??target.gameObject.AddComponent<CorrosionStatus>()).Apply(runtime.corrosionDuration,runtime.corrosionDamageTakenBonusPerStack,runtime.corrosionBossDamageTakenBonusPerStack,runtime.corrosionMaxStacks,true);
+            if(runtime.corrosionEnabled)(target.GetComponent<CorrosionStatus>()??target.gameObject.AddComponent<CorrosionStatus>()).Apply(runtime.corrosionDuration,runtime.corrosionDamageTakenBonusPerStack,runtime.corrosionBossDamageTakenBonusPerStack,runtime.corrosionMaxStacks,Ver4HitEffects.IsBoss(target));
             if(runtime.markEnabled&&!markConsumed)(target.GetComponent<NeedleMarkStatus>()??target.gameObject.AddComponent<NeedleMarkStatus>()).Apply(runtime.markDuration);
             if(runtime.digestiveAcidSacEnabled){s.acid=true;s.acidSettings=runtime;s.acidSource=source;}
             if(runtime.gutBacteriaEnabled)
@@ -42,7 +42,7 @@ namespace Vampire
         public void ClearSlow(){slowLeft=0;slowFactor=1;}
         void Update()
         {
-            if(FoodBossRuntime.Paused)return;
+            if(FoodBossRuntime.Paused || target is ConstipationKingRuntime king && king.EncounterPaused || target is ConstipationKingMinion minion && !minion.Targetable)return;
             if(Ver4HitEffects.Health(target)<=0){SyringeAugmentVfx.ReleaseOwned(ref poisonVisual);SyringeAugmentVfx.ReleaseOwned(ref bacteriaVisual);return;}
             slowLeft-=Time.deltaTime;if(slowLeft<=0)slowFactor=1;
             for(int i=bacteria.Count-1;i>=0;i--){bacteria[i]-=Time.deltaTime;if(bacteria[i]<=0)bacteria.RemoveAt(i);}

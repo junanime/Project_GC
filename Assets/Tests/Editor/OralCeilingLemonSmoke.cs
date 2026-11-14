@@ -129,7 +129,7 @@ namespace Vampire.Tests.Editor
         {
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Ceiling C02 and lemon spring controlled animation QA");Silence(level);
-            Check(StageProgression.Ensure(level).BeginDirectOral(),"stage zero entry");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true),"stage zero entry");
             while(OralStageRuntime.Instance==null||StageProgression.Ensure(level).Travelling)yield return null;
             Silence(level);Clear(level);
             var player=level.PlayerCharacter;var map=FiniteStomachMap.Instance;var runtime=OralStageRuntime.Instance;var events=OralFieldEvents.Instance;var taste=events.Tastes;

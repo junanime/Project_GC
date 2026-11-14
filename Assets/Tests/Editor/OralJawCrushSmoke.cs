@@ -128,7 +128,7 @@ namespace Vampire.Tests.Editor
             Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Oral jaw crush integration QA");
             Silence(level);level.PlayerCharacter.CollectableCollider.enabled=false;
             Check(level.PlayerCharacter.Blueprint==AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/"+Blueprints[Index]+" Character Blueprint.asset"),"actual selected blueprint initialized in fresh gameplay scene");
-            Check(StageProgression.Ensure(level).BeginDirectOral(),"stage zero entry begins");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true),"stage zero entry begins");
             float until=Time.realtimeSinceStartup+120;
             while((OralStageRuntime.Instance==null||StageProgression.Ensure(level).Travelling)&&Time.realtimeSinceStartup<until)yield return null;
             Check(OralStageRuntime.Instance!=null&&OralStageRuntime.Instance.Ready,"oral runtime ready");

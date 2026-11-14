@@ -96,6 +96,7 @@ namespace Vampire.Tests.Editor
             var progression=StageProgression.Ensure(level);var originalPlayer=player;var inventory=level.PlayerInventory;var skills=player.Skills;
             var bomb=Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Chest/Bomb.prefab")).GetComponent<Collectable>();bomb.gameObject.SetActive(false);
             var bombSlot=inventory.Slots.First(s=>s.IsBomb);bombSlot.AddItem(bomb);int bombCount=bombSlot.Count;
+            float launchDamage=player.DamageMultiplier;int launchRevives=player.ReviveCount;
             player.AddDamageMultiplier(.23f);float damage=player.DamageMultiplier;player.AddReviveCount(1);int revives=player.ReviveCount;float health=player.CurrentHealth;
             Vector2 origin=map.UVToWorld(new Vector2(.53f,.47f));Time.captureDeltaTime=1f/15;
             Set(level,"levelTime",1035f);var lake=level.GetComponent<AcidLakeEvent>();yield return new WaitForSeconds(.15f);
@@ -148,8 +149,9 @@ namespace Vampire.Tests.Editor
             Check(progression.StageNumber==2&&!progression.Travelling,"colon stage opens and completes entry");
             Check(sawClosed&&sawPaused,"closed inlet and stopped stage clock during opening");
             Check(player==originalPlayer&&inventory==level.PlayerInventory&&skills==player.Skills,"same player inventory and skill objects retained");
-            Check(player.DamageMultiplier==damage&&player.ReviveCount==revives,"combat upgrades and revival count retained");
-            Check(bombSlot.Count==bombCount&&bomb!=null&&!bomb.gameObject.activeSelf,"stored consumable object and count retained");
+            Check(Mathf.Approximately(player.DamageMultiplier,launchDamage)&&player.ReviveCount==launchRevives,"stage-earned combat upgrades and revival count reset to departure baseline");
+            Check(bombSlot.Count==0&&bomb==null,"stored stage consumable and its object removed on transfer");
+            Check(level.GetComponent<StageGrowthReset>().ResetCount==1,"capsule performs exactly one growth reset");
             Check(map.IsColon&&Vector2.Distance(map.WorldRect.size,originalRect.size*.8f)<.001f&&map.Definition.pixelWorldSize==Resources.Load<StomachMapDefinition>("StomachMap/Stage1").pixelWorldSize,"colon uses 80% width/height and unchanged world pixel density");
             Check(level.CurrentLevelBlueprint.monsters.Length==originalBlueprint.monsters.Length+1&&level.CurrentLevelBlueprint.levelTime==originalBlueprint.levelTime,"colon adds a dedicated ordinary and elite pool while preserving duration");
             for(int i=0;i<originalBlueprint.monsters.Length;i++)Check(level.CurrentLevelBlueprint.monsters[i].monstersPrefab==originalBlueprint.monsters[i].monstersPrefab,"same monster prefab "+i);
@@ -196,7 +198,7 @@ namespace Vampire.Tests.Editor
             Check(colonBosses.IsDefeated(home)&&colonBosses.DefeatedCount==1,"optional boss defeat is recorded only for its own home");
             Check(progression.Portal==null&&progression.Capsule==null,"optional boss leaves no stage-exit portal or additional capsule");
             Check(!level.IsLevelEnded&&!progression.TryEnter(player,progression.Portal),"optional boss defeat never clears stage two");
-            Check(ColonBossDefinition.RequiredFinalBossName=="변비왕"&&!ColonBossDefinition.RequiredFinalBossImplemented,"mandatory lower-left Byunbi King remains reserved for separate implementation");
+            Check(ColonBossDefinition.RequiredFinalBossName=="변비왕"&&ColonBossDefinition.RequiredFinalBossImplemented&&level.GetComponent<ConstipationKingDirector>()!=null,"mandatory lower-left king has its own timed final encounter");
             Time.captureDeltaTime=0;SessionState.SetBool(Key+"Done",true);
         }
     }

@@ -174,7 +174,7 @@ namespace Vampire.Tests.Editor
             for(int i=0;i<8;i++)
             {
                 var source=flat[ColonMonsterRoster.DirectNormalSources[i]];var entry=roster.Normals[i];float ratio=entry.hp/source.hp;
-                Check(ratio>=1.099f&&ratio<=1.201f,"normal tier "+i+" HP in +10-20% range: "+entry.hp);
+                Check(Mathf.Approximately(ratio,1.10f),"normal tier "+i+" HP is stage-one baseline +10%: "+entry.hp);
                 Check(entry.blueprint.atk==source.atk&&entry.blueprint.movespeed==source.movespeed,"normal tier "+i+" preserves stage-one speed and contact damage");
                 Check(entry.blueprint.gemLootTable.Equals(source.gemLootTable),"normal tier "+i+" uses basic-start experience rewards");
                 var elite=(EliteMonsterBlueprint)roster.Elites[i].blueprint;
@@ -194,14 +194,16 @@ namespace Vampire.Tests.Editor
                     Check(roster.EliteUnlocked(n,t*baseline.levelTime)==(directChance>0),"elite unlock follows direct time table");
                     sourceMean+=sourceChance*flat[ColonMonsterRoster.DirectNormalSources[n]].hp;directMean+=directChance*roster.Normals[n].hp;
                 }
-                Check(directMean/sourceMean>=1.099f&&directMean/sourceMean<=1.201f,"same-time mean HP remains within +10-20%");
+                Check(Mathf.Approximately(directMean/sourceMean,1.10f),"same-time mean HP is baseline +10%");
+                Check(Mathf.Abs((directMean/sourceMean)*ratio-1.188f)<.001f,"nominal HP throughput rises 18.8%, independent of entry route");
                 File.AppendAllText(Output+"/time-balance.csv",(t*900)+","+sourceMean+","+directMean+","+(directMean/sourceMean)+","+ratio+"\n");
-                Check(ratio>=.999f&&ratio<=1.051f,"spawn-rate ratio bounded at "+(t*900).ToString("F0")+"s: "+ratio.ToString("F3"));
+                Check(Mathf.Approximately(ratio,1.08f),"spawn-rate ratio +8% at "+(t*900).ToString("F0")+"s: "+ratio.ToString("F3"));
             }
-            Check(Mathf.Approximately(roster.Level.monsterSpawnTable.GetSpawnRate(0),.7f),"initial spawn rate matches stage one at 0.7 per second");
-            Check(flat[0].hp==25&&flat[32].hp==260&&ColonBossDefinition.Get(ColonBossKind.Flamingo).Health==26000,"serialized stage-one and normal-transition boss values remain unchanged");
+            Check(Mathf.Approximately(roster.Level.monsterSpawnTable.GetSpawnRate(0),.756f),"initial spawn rate is 0.756 per second");
+            Check(flat[0].hp==25&&flat[32].hp==260,"serialized stage-one monster values remain unchanged");
+            Check(ColonBossDefinition.Get(ColonBossKind.Flamingo).Health==3000,"shared mini-boss baseline is 3000");
             float directSpecials=0;for(int i=0;i<20000;i++)directSpecials+=ColonSpecialDirector.LegacyCount(2,false,false);
-            Check(Mathf.Abs(directSpecials/20000-1.7f)<.03f,"direct legacy specials use 85 percent before new additions");
+            Check(Mathf.Abs(directSpecials/20000-2f)<.03f,"legacy special schedule uses baseline count before new additions");
             Set(player,"isInvincible",true);player.CollectableCollider.enabled=false;
             foreach(var behaviour in Object.FindObjectsOfType<MonoBehaviour>())if(behaviour is StageEventDirector||behaviour is TimedSpecialMonsterSpawner||behaviour is AcidToadSpawn||behaviour is NPCSpawner||behaviour is SnailBossDebugSpawn){behaviour.enabled=false;behaviour.StopAllCoroutines();}
             var map=FiniteStomachMap.Instance;Position(player,map.ClampToFloor(map.UVToWorld(new Vector2(.72f,.68f)),5));
@@ -242,7 +244,7 @@ namespace Vampire.Tests.Editor
             level=Object.FindObjectOfType<LevelManager>();RunScore.Exclude("normal-after-direct regression");TutorialGuide.Instance?.Close();Silence(level);Set(level.PlayerCharacter,"isInvincible",true);
             yield return ColonContentSmoke.Enter(level);Silence(level);
             Check(!StageProgression.Ensure(level).IsDirectColonStart&&!ColonMonsterRoster.Active.DirectStart,"normal capsule transition does not inherit direct mode");
-            Check(ColonMonsterRoster.Active.Normals[0].hp==70&&Mathf.Approximately(level.CurrentLevelBlueprint.monsterSpawnTable.GetSpawnRate(0),.7f),"normal-transition monster HP and spawn rate remain original");
+            Check(ColonMonsterRoster.Active.Normals[0].hp==27.5f&&Mathf.Approximately(level.CurrentLevelBlueprint.monsterSpawnTable.GetSpawnRate(0),.756f),"normal transition shares direct-entry HP and spawn rate");
             foreach(ColonBossKind kind in Enum.GetValues(typeof(ColonBossKind)))Check(ReferenceEquals(ColonBossDefinition.Get(kind),ColonBossDefinition.ForCurrentRun(kind)),"normal boss stats restored after direct run "+kind);
             SessionState.SetBool(Key+"Done",true);
         }

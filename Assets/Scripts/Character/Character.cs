@@ -408,6 +408,39 @@ namespace Vampire
             if (GetComponent<PlayerCombatBars>() == null) gameObject.AddComponent<PlayerCombatBars>().Bind(this,healthBar);
         }
 
+        public void RegisterStageUpgradeableValues(AbilityManager manager)
+        {
+            if (movementSpeed != null) manager.RegisterUpgradeableValue(movementSpeed, true);
+            if (armor != null) manager.RegisterUpgradeableValue(armor, true);
+        }
+
+        public void PrepareStageGrowthReset()
+        {
+            // Do not call Init twice: its damage/death listeners belong to the entire run.
+            StopAllCoroutines();
+            hitAnimationCoroutine = dashCoroutine = dashRechargeCoroutine = null;
+            RestoreDashCollisionGhost(); RestoreDashSpriteVisual();
+            isDashing = isInvincible = movementControlsReversed = false;
+            dashInvincibleEndTime = -1;
+            pendingDamageMonsterBlueprint = lastDamageMonsterBlueprint = null;
+            moveDirection = Vector2.zero;
+            Skills?.EndRun();
+            Skills?.Breath?.ClearStageDrops();
+            GetComponent<PhoenixSkillVisual>()?.CancelForStage();
+            abilitySelectionDialog?.CancelForStageTransition();
+            GetComponent<PlayerAttackSpeedDebuffRuntime>()?.ClearDebuff();
+            if (spriteRenderer != null) spriteRenderer.sharedMaterial = defaultMaterial;
+            if (rb != null) { rb.velocity = Vector2.zero; rb.angularVelocity = 0; }
+        }
+
+        public void ResetStageGrowth(RunSceneCharacterSnapshot launchState)
+        {
+            PrepareStageGrowthReset();
+            RestoreRunSceneState(launchState);
+            coroutineQueue = new CoroutineQueue(this);
+            coroutineQueue.StartLoop();
+        }
+
         protected virtual void Update()
         {
             if (!alive) return;

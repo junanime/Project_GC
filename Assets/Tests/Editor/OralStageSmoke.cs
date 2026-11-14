@@ -146,7 +146,7 @@ namespace Vampire.Tests.Editor
             File.AppendAllText(Output + "/capture-method.txt", "Initial gameplay camera orthographic size=" + Camera.main.orthographicSize + "\n");
             var stageOne = FiniteStomachMap.Instance.WorldRect;
             var stageOneHP=level.CurrentLevelBlueprint.monsters.SelectMany(g=>g.monsterBlueprints).Where(b=>b!=null&&b.GetType()==typeof(MeleeMonsterBlueprint)).Select(b=>b.hp).ToArray();
-            Check(StageProgression.Ensure(level).BeginDirectOral(), "real stage-zero transition starts");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true), "real stage-zero transition starts");
             float until = Time.realtimeSinceStartup + 120;
             while ((OralStageRuntime.Instance == null || StageProgression.Ensure(level).Travelling) && Time.realtimeSinceStartup < until) yield return null;
             Check(OralStageRuntime.Instance != null && StageProgression.Ensure(level).StageNumber == 0, "stage-zero runtime and progression active");
@@ -346,7 +346,6 @@ namespace Vampire.Tests.Editor
             Check(GameAudioManager.Instance==null||Field(GameAudioManager.Instance,"currentOverrideBgm").GetValue(GameAudioManager.Instance).ToString()!="Boss","oral stage does not start legacy boss music");
             Set(level,"levelTime",OralSpecialSpawnProfile.Duration); yield return null; yield return null;
             Check(runtime.ExitReady,"six-minute oral exit becomes available");
-            float healthBeforeExit = player.CurrentHealth;
             var originalPlayer = player; var originalInventory = level.PlayerInventory; var originalSkills = player.Skills;
             Check(StageProgression.Ensure(level).BeginOralToStomach(), "completed oral stage can return to real stage one");
             until = Time.realtimeSinceStartup + 120;
@@ -354,7 +353,7 @@ namespace Vampire.Tests.Editor
             Check(StageProgression.Ensure(level).StageNumber == 1 && !map.IsOral, "stage-one map restored after oral stage");
             Check(OralStageRuntime.Instance == null && OralFieldEvents.Instance == null && level.GetComponent<OralMapVisual>() == null, "oral runtime event and render components cleaned up");
             Check((map.WorldRect.size - stageOne.size).sqrMagnitude < .001f, "stage-one dimensions restored");
-            Check(level.PlayerCharacter == originalPlayer && level.PlayerInventory == originalInventory && player.Skills == originalSkills && Mathf.Approximately(player.CurrentHealth, healthBeforeExit), "stage transition preserves player health inventory and skills");
+            Check(level.PlayerCharacter == originalPlayer && level.PlayerInventory == originalInventory && player.Skills == originalSkills && Mathf.Approximately(player.CurrentHealth, player.MaxHealth) && level.GetComponent<StageGrowthReset>().ResetCount == 1, "stage transition preserves player identity and restores departure health and growth");
             Check(level.InitialFieldObjectsReady && !level.IsRunFlowPaused, "stage-one field and gameplay resume after return");
             Check(prescription==null||prescription.enabled==priorPrescriptionEnabled,"stage-one prescription enabled state restores");
             Check(StageProgression.Ensure(level).BeginDirectOral(),"oral stage can be entered again after teardown");

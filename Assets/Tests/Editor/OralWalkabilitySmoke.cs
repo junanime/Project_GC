@@ -107,7 +107,7 @@ namespace Vampire.Tests.Editor
             checks=0;var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Stage zero tooth light alignment QA");
             Silence(level);level.PlayerCharacter.CollectableCollider.enabled=false;
-            Check(StageProgression.Ensure(level).BeginDirectOral(),"actual Stage 0 entry begins");
+            Check(StageProgression.Ensure(level).BeginDirectOral(true),"actual Stage 0 entry begins");
             float until=Time.realtimeSinceStartup+120;
             while((OralStageRuntime.Instance==null||StageProgression.Ensure(level).Travelling)&&Time.realtimeSinceStartup<until)yield return null;
             var runtime=OralStageRuntime.Instance;var map=FiniteStomachMap.Instance;var events=OralFieldEvents.Instance;var player=level.PlayerCharacter;var visual=Object.FindObjectOfType<OralMapVisual>();

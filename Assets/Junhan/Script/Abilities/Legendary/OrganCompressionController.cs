@@ -141,6 +141,9 @@ SyringeDartAbility sourceNeedleAbility)
             foreach (var boss in ColonBossRuntime.Active)
                 if (boss != null && NeedleTargeting.IsValidBossTarget(boss, targets) && IsInScreen(boss.HitCenter))
                     positions.Add(boss.HitCenter);
+            foreach (var boss in ConstipationKingRuntime.Active)
+                if (boss != null && NeedleTargeting.IsValidBossTarget(boss, targets) && IsInScreen(boss.HitCenter))
+                    positions.Add(boss.HitCenter);
 
             for (int i = 0; i < positions.Count; i++)
             {

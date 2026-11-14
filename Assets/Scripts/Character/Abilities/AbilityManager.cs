@@ -48,7 +48,7 @@ namespace Vampire
         public int DurationUpgradeablesCount { get; set; } = 0;
         public int RotationSpeedUpgradeablesCount { get; set; } = 0;
 
-        public void Init(LevelBlueprint levelBlueprint, EntityManager entityManager, Character playerCharacter, AbilityManager abilityManager)
+        public void Init(LevelBlueprint levelBlueprint, EntityManager entityManager, Character playerCharacter, AbilityManager abilityManager, bool applyLobbyWeapon = true)
         {
             this.levelBlueprint = levelBlueprint;
             this.playerCharacter = playerCharacter;
@@ -121,7 +121,7 @@ namespace Vampire
                     Ver4=objState.AddComponent<Ver4AugmentRuntime>();
                     Ver4.Configure(ver4Balance,abilityManager,entityManager,playerCharacter);
                     ownedAbilities.Add(Ver4);
-                    StartingNeedleSelection.Apply(this,playerCharacter.Blueprint);
+                    if (applyLobbyWeapon) StartingNeedleSelection.Apply(this,playerCharacter.Blueprint);
                 }
             }
         }
@@ -337,6 +337,33 @@ namespace Vampire
                     Destroy(ability.gameObject);
                 }
             }
+        }
+
+        // The Character and score survive a field transfer; earned ability instances do not.
+        public IEnumerator ResetForStage(LevelBlueprint next, EntityManager entities, Character player,
+            List<RunSceneAbilitySnapshot> launchAbilities)
+        {
+            foreach (var ability in GetComponentsInChildren<Ability>(true))
+            {
+                if (ability == null) continue;
+                ability.StopAllCoroutines();
+                ability.gameObject.SetActive(false);
+                ability.transform.SetParent(null, true);
+                Destroy(ability.gameObject);
+            }
+            Ver4 = null;
+            LegendaryRewardContext = OriginalRewardContext = false;
+            DamageUpgradeablesCount = KnockbackUpgradeablesCount = WeaponCooldownUpgradeablesCount = 0;
+            RecoveryCooldownUpgradeablesCount = AOEUpgradeablesCount = ProjectileSpeedUpgradeablesCount = 0;
+            ProjectileCountUpgradeablesCount = RecoveryUpgradeablesCount = RecoveryChanceUpgradeablesCount = 0;
+            BleedDamageUpgradeablesCount = BleedRateUpgradeablesCount = BleedDurationUpgradeablesCount = 0;
+            MovementSpeedUpgradeablesCount = ArmorUpgradeablesCount = FireRateUpgradeablesCount = 0;
+            DurationUpgradeablesCount = RotationSpeedUpgradeablesCount = 0;
+            // Let controller OnDestroy callbacks finish before restoring the pristine stats.
+            yield return null;
+            Init(next, entities, player, this, false);
+            RestoreRunSceneAbilities(launchAbilities);
+            player.RegisterStageUpgradeableValues(this);
         }
 
         public bool HasAvailableAbilities()

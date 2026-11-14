@@ -8,7 +8,9 @@ namespace Vampire
         {
             if(target==null||!target.gameObject.activeInHierarchy)return false;
             var damageable=target.GetComponentInParent<IDamageable>();
-            if(!(damageable is FoodBossRuntime)&&!(damageable is FoodBossWeakpoint)&&!(damageable is SnailBossRuntime)&&!(damageable is ColonBossRuntime))return false;
+            if(!(damageable is FoodBossRuntime)&&!(damageable is FoodBossWeakpoint)&&!(damageable is SnailBossRuntime)&&!(damageable is ColonBossRuntime)&&!(damageable is ConstipationKingRuntime)&&!(damageable is ConstipationKingMinion))return false;
+            if(damageable is ConstipationKingRuntime king&&!king.Targetable)return false;
+            if(damageable is ConstipationKingMinion minion&&!minion.Targetable)return false;
             if(damageable is ColonBossRuntime colon&&(colon.Dead||colon.Arriving||colon.Hidden))return false;
             if(Ver4HitEffects.Health(damageable)<=0)return false;
             var c=damageable.GetComponent<Collider2D>();return c!=null&&c.enabled&&(targets.value&(1<<c.gameObject.layer))!=0;
@@ -29,6 +31,8 @@ namespace Vampire
         public static Vector2 Position(Component target)
         {
             if (target == null) return Vector2.zero;
+            var king = target.GetComponentInParent<ConstipationKingRuntime>();
+            if (king != null) return king.HitCenter;
             var colon = target.GetComponentInParent<ColonBossRuntime>();
             return colon != null ? colon.HitCenter : (Vector2)target.transform.position;
         }

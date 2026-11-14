@@ -13,6 +13,7 @@ namespace Vampire
         SnailBossRuntime targetSnail;
         FoodBossRuntime targetFoodBoss;
         ColonBossRuntime targetColonBoss;
+        ConstipationKingRuntime targetKing;
         float nextBossScan;
         RectTransform toadBubble;
         AcidToadMonster compassToad;
@@ -27,21 +28,22 @@ namespace Vampire
             {
                 nextBossScan=Time.unscaledTime+.5f;
                 var p=level.PlayerCharacter.transform.position;
+                targetKing=ConstipationKingRuntime.Active.FirstOrDefault(b=>b!=null&&!b.Dead&&b.gameObject.activeInHierarchy);
                 targetColonBoss=ColonBossRuntime.Active.Where(b=>b!=null&&!b.Dead&&b.gameObject.activeInHierarchy).OrderBy(b=>(b.transform.position-p).sqrMagnitude).FirstOrDefault();
                 targetFoodBoss=FindObjectsOfType<FoodBossRuntime>().Where(b=>!b.Dead).OrderBy(b=>(b.transform.position-p).sqrMagnitude).FirstOrDefault();
                 targetSnail=FindObjectsOfType<SnailBossRuntime>().Where(b=>!b.Dead).OrderBy(b=>(b.transform.position-p).sqrMagnitude).FirstOrDefault();
                 targetBossController=FindObjectsOfType<BossController>().Where(b=>!b.IsDead).OrderBy(b=>(b.transform.position-p).sqrMagnitude).FirstOrDefault();
                 targetBossMonster=targetBossController!=null?targetBossController.GetComponent<Monster>():FindObjectsOfType<BossMonster>().Where(b=>b.HP>0).OrderBy(b=>(b.transform.position-p).sqrMagnitude).FirstOrDefault();
-                bossTarget=targetColonBoss!=null?targetColonBoss.transform:targetFoodBoss!=null?targetFoodBoss.transform:targetSnail!=null?targetSnail.transform:targetBossController!=null?targetBossController.transform:targetBossMonster!=null?targetBossMonster.transform:null;
+                bossTarget=targetKing!=null?targetKing.transform:targetColonBoss!=null?targetColonBoss.transform:targetFoodBoss!=null?targetFoodBoss.transform:targetSnail!=null?targetSnail.transform:targetBossController!=null?targetBossController.transform:targetBossMonster!=null?targetBossMonster.transform:null;
                 if(bossTarget!=null)
                 {
-                    var m=bossTarget.GetComponent<MapMarker>()??bossTarget.gameObject.AddComponent<MapMarker>();m.Configure(MapMarkerKind.Boss,"보스",true);
+                    var m=bossTarget.GetComponent<MapMarker>()??bossTarget.gameObject.AddComponent<MapMarker>();m.Configure(targetKing==null&&targetColonBoss!=null?MapMarkerKind.MiniBoss:MapMarkerKind.Boss,targetKing!=null?"변비왕":targetColonBoss!=null?targetColonBoss.Definition.Name:"보스",true);
                 }
                 foreach(var npc in FindObjectsOfType<MerchantNPC>())(npc.GetComponent<MapMarker>()??npc.gameObject.AddComponent<MapMarker>()).Configure(MapMarkerKind.Shop,"수상한 아저씨");
                 foreach(var vending in FindObjectsOfType<EliteMonsterSummonInteractable>())(vending.GetComponent<MapMarker>()??vending.gameObject.AddComponent<MapMarker>()).Configure(MapMarkerKind.EliteSpawner,"엘리트 자판기");
             }
             var cam=Camera.main;
-            if(bossTarget==null||cam==null||(targetColonBoss!=null&&targetColonBoss.Dead)||(targetFoodBoss!=null&&targetFoodBoss.Dead)||(targetSnail!=null&&targetSnail.Dead)||(targetBossController!=null&&targetBossController.IsDead)||(targetBossMonster!=null&&targetBossMonster.HP<=0))
+            if(bossTarget==null||cam==null||(targetKing!=null&&targetKing.Dead)||(targetKing==null&&targetColonBoss!=null&&targetColonBoss.Dead)||(targetFoodBoss!=null&&targetFoodBoss.Dead)||(targetSnail!=null&&targetSnail.Dead)||(targetBossController!=null&&targetBossController.IsDead)||(targetBossMonster!=null&&targetBossMonster.HP<=0))
             {if(bossBubble!=null)bossBubble.gameObject.SetActive(false);return;}
             Vector3 screen=cam.WorldToScreenPoint(bossTarget.position);
             bool visible=screen.z>0&&screen.x>=0&&screen.x<=Screen.width&&screen.y>=0&&screen.y<=Screen.height;

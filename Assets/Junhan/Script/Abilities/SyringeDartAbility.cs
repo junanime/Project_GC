@@ -1254,6 +1254,7 @@ namespace Vampire
                 }
 
                 if (damageable is ColonBossRuntime colon && !NeedleTargeting.IsValidBossTarget(colon, monsterLayer)) continue;
+                if (damageable is ConstipationKingRuntime king && !NeedleTargeting.IsValidBossTarget(king, monsterLayer)) continue;
                 Vector2 targetPosition = NeedleTargeting.Position(damageableComponent);
 
                 if (monster != null && monster.CenterTransform != null)

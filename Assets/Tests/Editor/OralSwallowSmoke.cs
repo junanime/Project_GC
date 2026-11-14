@@ -122,7 +122,8 @@ namespace Vampire.Tests.Editor
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
             Application.runInBackground = true; Time.timeScale = 1; RunScore.Exclude("Controlled swallow finale and actual dash acceptance QA");
             var stage = StageProgression.Ensure(level);
-            Check(stage.BeginDirectOral(), "direct stage-zero entry uses the production transition");
+            var launchState = level.PlayerCharacter.CaptureRunSceneState();
+            Check(stage.BeginDirectOral(true), "direct stage-zero entry uses the production transition");
             float until = Time.realtimeSinceStartup + 90;
             while ((OralStageRuntime.Instance == null || stage.Travelling) && Time.realtimeSinceStartup < until) yield return null;
             Check(OralStageRuntime.Instance != null && !stage.Travelling, "stage zero finishes loading");
@@ -271,7 +272,7 @@ namespace Vampire.Tests.Editor
             Check(OralStageRuntime.Instance == null && OralSwallowFinale.Instance == null, "stage transfer removes oral runtime and finale ownership");
             Check(level.PlayerCharacter == player && player.Skills == skills && player.Relics == relics, "character, skill runtime and relic runtime survive the transfer");
             var after = player.CaptureRunSceneState();
-            Check(Mathf.Abs(preserved.MaxHealthBonus - after.MaxHealthBonus) < .001f && Mathf.Abs(preserved.DamageMultiplier - after.DamageMultiplier) < .001f && Mathf.Abs(preserved.AttackSpeedMultiplier - after.AttackSpeedMultiplier) < .001f && player.CurrentLevel >= preserved.CurrentLevel, "grown health, damage, attack speed and player level are preserved");
+            Check(Mathf.Abs(launchState.MaxHealthBonus - after.MaxHealthBonus) < .001f && Mathf.Abs(launchState.DamageMultiplier - after.DamageMultiplier) < .001f && Mathf.Abs(launchState.AttackSpeedMultiplier - after.AttackSpeedMultiplier) < .001f && player.CurrentLevel == launchState.CurrentLevel && level.GetComponent<StageGrowthReset>().ResetCount == 1, "final swallow restores departure stats and removes oral-stage growth exactly once");
             Check(!level.IsRunFlowPaused && player.GetComponent<Rigidbody2D>().simulated, "stage one releases time and player physics");
             var layout = level.GetComponent<FieldObjectLayout>();
             Check(layout != null && layout.Ready && layout.SpawnedObjects.Count(p => p != null && p.activeInHierarchy) > 20, "stage-one NPCs, boxes and field objects rebuild");
@@ -281,7 +282,7 @@ namespace Vampire.Tests.Editor
             Check(level.CurrentLevelTime > resumed + 1.5f && level.CurrentLevelTime < 15, "stage-one clock resets and resumes normally");
             Check(level.NormalMonstersSpawned > resumedSpawn || level.EntityManager.LivingMonsters.Count > 0, "stage-one normal monster spawning resumes");
             Check(Vector2.Distance(resumePosition, player.Position) > .5f, "player can move after loading finishes");
-            File.WriteAllText(Output + "/timing.json", "{\"naturalStart\":" + F(activatedAt) + ",\"vortices\":" + F(vortexStart) + ",\"swallow\":" + F(sweepAt) + ",\"preservedMaxHealthBonus\":" + F(after.MaxHealthBonus) + "}");
+            File.WriteAllText(Output + "/timing.json", "{\"naturalStart\":" + F(activatedAt) + ",\"vortices\":" + F(vortexStart) + ",\"swallow\":" + F(sweepAt) + ",\"resetMaxHealthBonus\":" + F(after.MaxHealthBonus) + "}");
             SessionState.SetBool(Key + "Done", true);
         }
         static IEnumerator DenseEscapeChecks(LevelManager level, OralSwallowFinale finale)
