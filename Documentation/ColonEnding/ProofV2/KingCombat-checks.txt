@@ -1,0 +1,282 @@
+Stage entry installs an empty porcelain throne without the king body
+Passing the old deadline never automatically summons the king
+Manual throne interaction waits for an existing field pause to finish
+Manual summon cannot begin from a mini-stage
+Real trigger registers interaction focus: 왕의 빈 변기 · 상호작용 소환
+Actual throne focus summons at time zero without optional boss kills
+Summon owns scoped damage dash and portal protection
+Rising boss cannot take damage before combat begins
+Summon and sewage animation freeze during pause
+Actual gameplay camera frames the king during its owned summon pause
+Actual summon camera retains porcelain bowl and safe player flank without a capture override
+Repeated spawn calls cannot duplicate the king
+Fixed king health is 34000
+Mandatory final-boss readiness flag is enabled
+Legacy victory callback cannot bypass required king
+Spawn is the lower-left opening approach
+Arrival root is on navigable ground
+Arrival completes in real play mode
+Arrival consumes empty throne and releases its scoped field pause
+Summon releases player outside the king contact envelope on safe floor
+Needle targeting and boss multipliers recognize king
+Damage accounting reads actual king HP
+Approved body is loaded with exactly one central water column
+Actual play camera recognizes the nearby final king
+Actual camera fits the full approved body without changing its world size
+Real pooled syringe collides and damages king
+Actual needle embeds on approved king body
+Basic shot travels toward the player
+Time-scale pause freezes bullet and approved animation
+Run-flow pause freezes encounter projectiles
+Mini-room state suspends field projectiles and boss damage
+Five-shot barrage completes
+Phase-one barrage fires exactly five shots
+Pattern cancellation releases all encounter effects
+Double fan is unavailable in phase one
+Start phase 1 pattern 2
+Finish phase 1 pattern 2
+Exactly one completion for phase 1 pattern 2
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 2
+Pattern completion alone never clears Stage 2
+Start phase 1 pattern 3
+Finish phase 1 pattern 3
+Exactly one completion for phase 1 pattern 3
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 3
+Pattern completion alone never clears Stage 2
+Start phase 1 pattern 4
+Finish phase 1 pattern 4
+Exactly one completion for phase 1 pattern 4
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 4
+Pattern completion alone never clears Stage 2
+Start phase 1 pattern 5
+Paper creates the required one or three independent strips
+Whole paper strip detaches at maximum range
+Detached strip and roll remain joined and visible
+Whole paper strip and core fly away and fade together immediately
+Finish phase 1 pattern 5
+Exactly one completion for phase 1 pattern 5
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 5
+Pattern completion alone never clears Stage 2
+Start phase 1 pattern 6
+Flush marks all 1 independent locations before activation
+Flush damage waits for the lever warning
+Phase 1 creates exactly 1 independent vortices
+V3 proportional vortex radius 2.600
+Entire maximum vortex circle fits clear floor
+Vortex owns its warning and three swirls without a boss connector
+All vortex growth and damage clocks freeze together on pause
+Mini-room state freezes every independent vortex
+Visible water and suction reach the same authored radius
+Finish phase 1 pattern 6
+Exactly one completion for phase 1 pattern 6
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 6
+Pattern completion alone never clears Stage 2
+Start phase 1 pattern 7
+Healing carriers exist as three killable actors
+Homing needles can acquire tribute carriers
+Carrier can be killed before healing
+Carrier bow does not heal before food delivery
+Offered food begins the eating pose
+Food arrival begins chewing without an immediate HP gain
+Chewing and recovery stay frozen during run pause
+HP rises only after active-time chewing finishes
+Finish phase 1 pattern 7
+Exactly one completion for phase 1 pattern 7
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 7
+Pattern completion alone never clears Stage 2
+Start controlled tribute interruption check
+Three independent carriers offer phase-one tribute
+Food delivery reaches active chewing before interruption
+Pattern cancellation during chewing removes carriers and prevents late healing
+Start phase 1 pattern 8
+Crown shield is a real collision actor
+Crown intercepts and reflects actual pooled needle
+Finish phase 1 pattern 8
+Exactly one completion for phase 1 pattern 8
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 8
+Pattern completion alone never clears Stage 2
+Start phase 1 pattern 9
+Seat-gap spill and expanding pool precede summoned monsters
+Overflow expansion freezes during run pause
+First summoned monster appears after pool formation
+Summoning waits for the full circle at one and a half body lengths
+Summoned monsters emerge separately instead of all at once
+Summon produces exactly 5 living minions
+Every summoned actor remains on safe floor
+Finish phase 1 pattern 9
+Exactly one completion for phase 1 pattern 9
+Pattern leaves king clear of walls
+Cancel cleans phase 1 pattern 9
+Pattern completion alone never clears Stage 2
+Start controlled tribute interruption check
+Three independent carriers offer phase-one tribute
+Food delivery reaches active chewing before interruption
+Lethal phase-one hit reaches invulnerable midpoint transition
+Transition rejects incoming damage
+Phase-two presentation releases invulnerability
+Phase transition cancels chewing with no delayed healing
+Phase two cannot schedule the phase-one-only tribute technique
+Start phase 2 pattern 0
+Finish phase 2 pattern 0
+Exactly one completion for phase 2 pattern 0
+Phase-two barrage fires exactly eight shots
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 0
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 1
+Finish phase 2 pattern 1
+Exactly one completion for phase 2 pattern 1
+Phase-two fan fires two seven-shot volleys
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 1
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 2
+Finish phase 2 pattern 2
+Exactly one completion for phase 2 pattern 2
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 2
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 3
+Finish phase 2 pattern 3
+Exactly one completion for phase 2 pattern 3
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 3
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 4
+Finish phase 2 pattern 4
+Exactly one completion for phase 2 pattern 4
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 4
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 5
+Paper creates the required one or three independent strips
+Three paper strips launch before the staff slam
+Staff slams during outward travel without moving any strip origin
+Every paper lane rewinds straight toward its unchanged source
+Finish phase 2 pattern 5
+Exactly one completion for phase 2 pattern 5
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 5
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 6
+Flush marks all 4 independent locations before activation
+Flush damage waits for the lever warning
+Phase 2 creates exactly 4 independent vortices
+V3 proportional vortex radius 1.198
+V3 proportional vortex radius 1.475
+V3 proportional vortex radius 1.534
+V3 proportional vortex radius 1.139
+Entire maximum vortex circle fits clear floor
+Vortex owns its warning and three swirls without a boss connector
+Entire maximum vortex circle fits clear floor
+Vortex owns its warning and three swirls without a boss connector
+Vortices leave a traversable gap
+Entire maximum vortex circle fits clear floor
+Vortex owns its warning and three swirls without a boss connector
+Vortices leave a traversable gap
+Vortices leave a traversable gap
+Entire maximum vortex circle fits clear floor
+Vortex owns its warning and three swirls without a boss connector
+Vortices leave a traversable gap
+Vortices leave a traversable gap
+Vortices leave a traversable gap
+All vortex growth and damage clocks freeze together on pause
+Mini-room state freezes every independent vortex
+Visible water and suction reach the same authored radius
+Finish phase 2 pattern 6
+Exactly one completion for phase 2 pattern 6
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 6
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 8
+Crown shield is a real collision actor
+Crown intercepts and reflects actual pooled needle
+Finish phase 2 pattern 8
+Exactly one completion for phase 2 pattern 8
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 8
+Pattern completion alone never clears Stage 2
+Start phase 2 pattern 9
+Seat-gap spill and expanding pool precede summoned monsters
+Overflow expansion freezes during run pause
+First summoned monster appears after pool formation
+Summoning waits for the full circle at one and a half body lengths
+Summoned monsters emerge separately instead of all at once
+Summon produces exactly 7 living minions
+Every summoned actor remains on safe floor
+Finish phase 2 pattern 9
+Exactly one completion for phase 2 pattern 9
+Pattern leaves king clear of walls
+Cancel cleans phase 2 pattern 9
+Pattern completion alone never clears Stage 2
+Swept boss movement stops at external and internal walls
+Legacy needle slow applies to new final boss
+full-combat-clear seal is present and closed before boss defeat
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+full-combat-clear real gate interaction cannot unlock a living boss seal
+Seal has four physical wall attachments
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+full-combat-clear final death disables body and ignores duplicate lethal hits
+full-combat-clear final boss score increments exactly once
+full-combat-clear existing defeat animation finishes before success is committed
+full-combat-clear dropped key freezes with run pause
+full-combat-clear intact key lands and becomes interactive after defeat
+Landed key is ready for a real pickup
+Landed scepter stands upright instead of lying flat
+The lower tip is planted in the marked ground contact
+Planted key is on reachable floor with a full interaction footprint
+Uncollected key stays planted without floating or jittering
+full-combat-clear defeating king cannot bypass key and demo confirmation
+full-combat-clear key cannot be taken from outside interaction range
+Real trigger registers interaction focus: 지팡이 열쇠 줍기
+full-combat-clear planted key begins its protected pull-out animation
+full-combat-clear repeated interaction cannot restart the pull-out animation
+Pull-out phase locks input and protects the current character
+Pull-out rejects duplicate pickup and gate interactions
+Pause freezes extraction position, rotation and phase progress
+full-combat-clear planted key rises continuously into overhead carry
+full-combat-clear focused trigger interaction picks up exactly one key
+full-combat-clear repeated pickup cannot duplicate carried key
+full-combat-clear overhead key follows player movement
+full-combat-clear mini-stage hides carried key and disables exit
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+full-combat-clear gate interaction begins controlled insertion
+full-combat-clear unlock owns scoped damage and knockback protection without invincibility mutation
+full-combat-clear unlock rejects portal travel dash and skills
+full-combat-clear player stays at lock throughout controlled animation
+full-combat-clear unlock respects pause and rejects repeated interactions
+full-combat-clear lock fragments and chains clear before passage opens
+Stone fracture and chain release finish before the opening accepts interaction
+All four broken chain strands stop rendering with no ghost streaks across the open doorway
+Inserted key is consumed and input protection is released
+full-combat-clear opening alone does not finish the run
+full-combat-clear scoped protection and travel restriction release after opening
+full-combat-clear ordinary damage works again after unlock
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+full-combat-clear separate exit interaction shows exact festival demo message
+full-combat-clear demo waits for explicit confirmation before saving success
+full-combat-clear Escape and journal routes cannot cover or dismiss demo modal
+full-combat-clear mandatory final completion recorded before returning
+full-combat-clear confirmed demo returns to the actual preparation screen
+full-combat-clear preserves defeat duration and never opens the success result panel
+full-combat-clear duplicate completion callbacks were exercised before scene unload
+full-combat-clear successful score survives scene unload and repeated finish calls
+full-combat-clear earned gold is saved exactly once
+full-combat-clear currency and original character, weapon and relic selections remain intact
+full-combat-clear preparation is interactive with no old encounter, loading overlay or intro
+Scene exit leaves no old seal, pickup trigger, ground effects or active sequence
+full-combat-clear localized TMP font loads successfully after scene unload

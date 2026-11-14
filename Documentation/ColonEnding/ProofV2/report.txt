@@ -1,0 +1,1 @@
+256 seeds; presentationOnly=False; 1536 homes; disconnected cells=0; minimum home gap=11.020; errors=0

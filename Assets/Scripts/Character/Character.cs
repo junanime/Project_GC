@@ -163,7 +163,8 @@ namespace Vampire
         public bool IsTrapBound => TryGetComponent<PlayerTrapBindRuntime>(out var bind) && bind.IsBound;
         public bool IsPortalTravelling => TryGetComponent<BloodClotTravel>(out var travel) && travel.Busy;
         public bool IsPortalDamageProtected => TryGetComponent<BloodClotTravel>(out var travel) && travel.IsDamageProtected;
-        public bool IsColonExitProtected => ColonExitSequence.Active != null && ColonExitSequence.Active.Protects(this);
+        public bool IsColonExitProtected => (ColonExitSequence.Active != null && ColonExitSequence.Active.Protects(this)) ||
+            (ConstipationKingDirector.Active != null && ConstipationKingDirector.Active.Protects(this));
         public bool IsPortalPoseHeld => TryGetComponent<BloodClotTravel>(out var travel) && travel.HoldingPose;
         public bool IsOralSwallowing => OralSwallowFinale.Instance?.IsSwallowing == true &&
             OralStageRuntime.Instance?.Level?.PlayerCharacter == this;

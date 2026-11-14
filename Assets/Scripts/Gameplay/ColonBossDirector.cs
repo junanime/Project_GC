@@ -99,6 +99,7 @@ namespace Vampire
         {
             if(map==null||!map.IsColon)throw new ArgumentException("Colon geometry required.",nameof(map));
             var rng=new System.Random(seed);var result=new List<HabitatPlacement>();
+            var finalThrone=ColonOpeningGeometry.ThroneCenter(map);
             float Roll()=>(float)rng.NextDouble();
             bool ClearProps(Vector2 p,float radius)
             {
@@ -106,7 +107,7 @@ namespace Vampire
                 foreach(var prop in props)if((prop.position-p).sqrMagnitude<radius*radius)return false;
                 return true;
             }
-            bool EntrySafe(Vector2 p)=>Vector2.Distance(p,entry)>=EntryClearance;
+            bool EntrySafe(Vector2 p)=>Vector2.Distance(p,entry)>=EntryClearance&&(p-finalThrone).sqrMagnitude>=81;
             if(props!=null) {
                 var reserved=Generate(map,entry,seed);
                 if(reserved.TrueForAll(h=>ClearProps(h.position,PropClearance+(h.kind==ColonBossKind.Manatee?2:0))))return reserved;
@@ -211,14 +212,16 @@ namespace Vampire
         public static bool HouseFits(FiniteStomachMap map,Vector2 p,Vector2 outward)
         {
             Vector2 n=outward.sqrMagnitude>.1f?outward.normalized:Vector2.down,t=new Vector2(-n.y,n.x);
-            // Validate the entire footprint and all three entrance approaches, not only the origin.
+            // This structure is inset into the ridge. Its rear is allowed inside the
+            // solid wall, while every usable entrance below must reach the flat floor.
+            float insetLimit=Mathf.Max(.5f,map.WallWidth-map.Definition.climbableWidth)+1.5f;
             for(int x=-2;x<=2;x++)for(int y=-1;y<=1;y++)
             {
                 var q=p+t*(x*ManateeHouseHalfWidth/2)+n*(y*ManateeHouseHalfDepth);
-                if(map.NavigationDistance(q,out _,true)<map.ClimbLimit+1.5f)return false;
+                if(ColonMapGeometry.Distance(map,q,out _,out _)<insetLimit)return false;
                 // Keep extra corner clearance around diagonal homes as well as their aligned doors.
                 q=p+new Vector2(x*ManateeHouseHalfWidth/2,y*ManateeHouseHalfDepth);
-                if(map.NavigationDistance(q,out _,true)<map.ClimbLimit+1.5f)return false;
+                if(ColonMapGeometry.Distance(map,q,out _,out _)<insetLimit)return false;
             }
             for(int door=0;door<3;door++)for(int step=0;step<=3;step++)
             {

@@ -1,0 +1,217 @@
+Stage entry installs an empty porcelain throne without the king body
+Passing the old deadline never automatically summons the king
+Manual throne interaction waits for an existing field pause to finish
+Manual summon cannot begin from a mini-stage
+Actual approach camera shows the complete empty throne before interaction
+Real trigger registers interaction focus: 왕의 빈 변기 · 상호작용 소환
+Actual throne focus summons at time zero without optional boss kills
+Summon owns scoped damage dash and portal protection
+Rising boss cannot take damage before combat begins
+Summon and sewage animation freeze during pause
+Actual gameplay camera frames the king during its owned summon pause
+Actual summon notice becomes visible while the throne owns the field pause
+Actual summon camera retains porcelain bowl and safe player flank without a capture override
+Repeated spawn calls cannot duplicate the king
+Fixed king health is 34000
+Mandatory final-boss readiness flag is enabled
+Legacy victory callback cannot bypass required king
+Spawn is the lower-left opening approach
+Arrival root is on navigable ground
+Arrival completes in real play mode
+Arrival consumes empty throne and releases its scoped field pause
+Summon releases player outside the king contact envelope on safe floor
+Needle targeting and boss multipliers recognize king
+Damage accounting reads actual king HP
+Approved body is loaded with exactly one central water column
+Actual play camera recognizes the nearby final king
+Actual camera fits the full approved body without changing its world size
+first-clear seal is present and closed before boss defeat
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+first-clear real gate interaction cannot unlock a living boss seal
+Seal has four physical wall attachments
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+first-clear reaches final phase before game ending
+first-clear final death disables body and ignores duplicate lethal hits
+first-clear final boss score increments exactly once
+first-clear existing defeat animation finishes before success is committed
+first-clear dropped key freezes with run pause
+first-clear actual camera retains the reward flight after the boss dies
+first-clear actual camera keeps the rotating key fully visible near the flight apex
+first-clear intact key lands and becomes interactive after defeat
+Landed key is ready for a real pickup
+Landed scepter stands upright instead of lying flat
+The lower tip is planted in the marked ground contact
+Planted key is on reachable floor with a full interaction footprint
+Uncollected key stays planted without floating or jittering
+first-clear defeating king cannot bypass key and demo confirmation
+first-clear key cannot be taken from outside interaction range
+Real trigger registers interaction focus: 지팡이 열쇠 줍기
+first-clear planted key begins its protected pull-out animation
+first-clear repeated interaction cannot restart the pull-out animation
+Pull-out phase locks input and protects the current character
+Pull-out rejects duplicate pickup and gate interactions
+Pause freezes extraction position, rotation and phase progress
+first-clear planted key rises continuously into overhead carry
+first-clear focused trigger interaction picks up exactly one key
+first-clear repeated pickup cannot duplicate carried key
+first-clear overhead key follows player movement
+Real carry visual blueprint exists: Main
+Main floating key has a visible air gap above the actual character silhouette
+Main key floats horizontally with gentle rotation
+Main floating carry contains only key art, without hands or connecting strips; renderer inventory: 변비왕의 지팡이 열쇠:SpriteRenderer visible, Pixel E Interaction Prompt:SpriteRenderer hidden, Active E golden border:LineRenderer hidden
+Main collected key keeps its shared E prompt and border hidden during carry
+Main overhead carry tracks movement with own visual dimensions
+Real carry visual blueprint exists: Ari
+Ari floating key has a visible air gap above the actual character silhouette
+Ari key floats horizontally with gentle rotation
+Ari floating carry contains only key art, without hands or connecting strips; renderer inventory: 변비왕의 지팡이 열쇠:SpriteRenderer visible, Pixel E Interaction Prompt:SpriteRenderer hidden, Active E golden border:LineRenderer hidden
+Ari collected key keeps its shared E prompt and border hidden during carry
+Ari overhead carry tracks movement with own visual dimensions
+Real carry visual blueprint exists: Hyuki
+Hyuki floating key has a visible air gap above the actual character silhouette
+Hyuki key floats horizontally with gentle rotation
+Hyuki floating carry contains only key art, without hands or connecting strips; renderer inventory: 변비왕의 지팡이 열쇠:SpriteRenderer visible, Pixel E Interaction Prompt:SpriteRenderer hidden, Active E golden border:LineRenderer hidden
+Hyuki collected key keeps its shared E prompt and border hidden during carry
+Hyuki overhead carry tracks movement with own visual dimensions
+Real carry visual blueprint exists: Shini
+Shini floating key has a visible air gap above the actual character silhouette
+Shini key floats horizontally with gentle rotation
+Shini floating carry contains only key art, without hands or connecting strips; renderer inventory: 변비왕의 지팡이 열쇠:SpriteRenderer visible, Pixel E Interaction Prompt:SpriteRenderer hidden, Active E golden border:LineRenderer hidden
+Shini collected key keeps its shared E prompt and border hidden during carry
+Shini overhead carry tracks movement with own visual dimensions
+first-clear mini-stage hides carried key and disables exit
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+first-clear gate interaction begins controlled insertion
+first-clear unlock owns scoped damage and knockback protection without invincibility mutation
+first-clear unlock rejects portal travel dash and skills
+first-clear player stays at lock throughout controlled animation
+first-clear actual camera frames the doorway during its owned unlock pause
+first-clear actual unlock view includes the complete opening
+first-clear actual unlock view includes the complete lock
+first-clear actual unlock view includes a wall chain attachment
+first-clear actual unlock view includes a wall chain attachment
+first-clear actual unlock view includes a wall chain attachment
+first-clear actual unlock view includes a wall chain attachment
+first-clear actual unlock view retains the inserted key
+first-clear unlock respects pause and rejects repeated interactions
+first-clear lock fragments and chains clear before passage opens
+Stone fracture and chain release finish before the opening accepts interaction
+All four broken chain strands stop rendering with no ghost streaks across the open doorway
+Inserted key is consumed and input protection is released
+first-clear actual open passage view includes the complete opening
+first-clear actual open passage view includes the complete lock
+first-clear actual open passage view includes a wall chain attachment
+first-clear actual open passage view includes a wall chain attachment
+first-clear actual open passage view includes a wall chain attachment
+first-clear actual open passage view includes a wall chain attachment
+first-clear opening alone does not finish the run
+first-clear scoped protection and travel restriction release after opening
+first-clear ordinary damage works again after unlock
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+first-clear separate exit interaction shows exact festival demo message
+first-clear demo waits for explicit confirmation before saving success
+first-clear Escape and journal routes cannot cover or dismiss demo modal
+first-clear demo keeps the completed doorway framed at zero time scale
+first-clear mandatory final completion recorded before returning
+first-clear confirmed demo returns to the actual preparation screen
+first-clear preserves defeat duration and never opens the success result panel
+first-clear duplicate completion callbacks were exercised before scene unload
+first-clear successful score survives scene unload and repeated finish calls
+first-clear earned gold is saved exactly once
+first-clear currency and original character, weapon and relic selections remain intact
+first-clear preparation is interactive with no old encounter, loading overlay or intro
+Scene exit leaves no old seal, pickup trigger, ground effects or active sequence
+first-clear localized TMP font loads successfully after scene unload
+Returned preparation offers a working second departure
+Actual preparation button loads a fresh playable Stage 2
+Second departure fully initializes Ari through actual preparation launch
+Real trigger registers interaction focus: 왕의 빈 변기 · 상호작용 소환
+Second departure gets its own interactive empty throne at time zero
+Second final encounter arrival finishes
+second-clear seal is present and closed before boss defeat
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+second-clear real gate interaction cannot unlock a living boss seal
+Seal has four physical wall attachments
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+Gold anchor remains inside the map bounds
+Gold anchor is embedded in solid doorway tissue, not empty map exterior
+second-clear reaches final phase before game ending
+second-clear final death disables body and ignores duplicate lethal hits
+second-clear final boss score increments exactly once
+second-clear existing defeat animation finishes before success is committed
+second-clear dropped key freezes with run pause
+second-clear actual camera retains the reward flight after the boss dies
+second-clear actual camera keeps the rotating key fully visible near the flight apex
+second-clear intact key lands and becomes interactive after defeat
+Landed key is ready for a real pickup
+Landed scepter stands upright instead of lying flat
+The lower tip is planted in the marked ground contact
+Planted key is on reachable floor with a full interaction footprint
+Uncollected key stays planted without floating or jittering
+second-clear defeating king cannot bypass key and demo confirmation
+second-clear key cannot be taken from outside interaction range
+Real trigger registers interaction focus: 지팡이 열쇠 줍기
+second-clear planted key begins its protected pull-out animation
+second-clear repeated interaction cannot restart the pull-out animation
+Pull-out phase locks input and protects the current character
+Pull-out rejects duplicate pickup and gate interactions
+Pause freezes extraction position, rotation and phase progress
+second-clear planted key rises continuously into overhead carry
+second-clear focused trigger interaction picks up exactly one key
+second-clear repeated pickup cannot duplicate carried key
+second-clear overhead key follows player movement
+second-clear mini-stage hides carried key and disables exit
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+second-clear gate interaction begins controlled insertion
+second-clear unlock owns scoped damage and knockback protection without invincibility mutation
+second-clear unlock rejects portal travel dash and skills
+second-clear player stays at lock throughout controlled animation
+second-clear actual camera frames the doorway during its owned unlock pause
+second-clear actual unlock view includes the complete opening
+second-clear actual unlock view includes the complete lock
+second-clear actual unlock view includes a wall chain attachment
+second-clear actual unlock view includes a wall chain attachment
+second-clear actual unlock view includes a wall chain attachment
+second-clear actual unlock view includes a wall chain attachment
+second-clear actual unlock view retains the inserted key
+second-clear unlock respects pause and rejects repeated interactions
+second-clear lock fragments and chains clear before passage opens
+Stone fracture and chain release finish before the opening accepts interaction
+All four broken chain strands stop rendering with no ghost streaks across the open doorway
+Inserted key is consumed and input protection is released
+second-clear actual open passage view includes the complete opening
+second-clear actual open passage view includes the complete lock
+second-clear actual open passage view includes a wall chain attachment
+second-clear actual open passage view includes a wall chain attachment
+second-clear actual open passage view includes a wall chain attachment
+second-clear actual open passage view includes a wall chain attachment
+second-clear opening alone does not finish the run
+second-clear scoped protection and travel restriction release after opening
+second-clear ordinary damage works again after unlock
+Real trigger registers interaction focus: 십이지장 출구 · 다섯 조각 덮개
+second-clear separate exit interaction shows exact festival demo message
+second-clear demo waits for explicit confirmation before saving success
+second-clear Escape and journal routes cannot cover or dismiss demo modal
+second-clear demo keeps the completed doorway framed at zero time scale
+second-clear mandatory final completion recorded before returning
+second-clear confirmed demo returns to the actual preparation screen
+second-clear preserves defeat duration and never opens the success result panel
+second-clear duplicate completion callbacks were exercised before scene unload
+second-clear successful score survives scene unload and repeated finish calls
+second-clear earned gold is saved exactly once
+second-clear currency and original character, weapon and relic selections remain intact
+second-clear preparation is interactive with no old encounter, loading overlay or intro
+Scene exit leaves no old seal, pickup trigger, ground effects or active sequence
+second-clear localized TMP font loads successfully after scene unload

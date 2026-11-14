@@ -1,0 +1,82 @@
+Empty throne installed before manual summon
+Wall walk safe frame 0
+Wall walk safe frame 1
+Wall walk safe frame 2
+Wall walk safe frame 3
+Wall walk safe frame 4
+Wall walk safe frame 5
+Wall walk safe frame 6
+Wall walk safe frame 7
+Wall walk safe frame 8
+Wall walk safe frame 9
+Wall walk safe frame 10
+Wall walk safe frame 11
+Wall walk safe frame 12
+Wall walk safe frame 13
+Wall walk safe frame 14
+Wall walk safe frame 15
+Wall walk safe frame 16
+Wall walk safe frame 17
+Wall walk safe frame 18
+Wall walk safe frame 19
+Wall walk safe frame 20
+Wall walk safe frame 21
+Wall walk safe frame 22
+Wall walk safe frame 23
+Wall walk safe frame 24
+Wall walk safe frame 25
+Wall walk safe frame 26
+Wall walk safe frame 27
+Wall walk safe frame 28
+Wall walk safe frame 29
+Wall walk safe frame 30
+Wall walk safe frame 31
+Wall walk safe frame 32
+Wall walk safe frame 33
+Wall walk safe frame 34
+Wall walk safe frame 35
+Wall walk safe frame 36
+Wall walk safe frame 37
+Wall walk safe frame 38
+Wall walk safe frame 39
+Wall walk safe frame 40
+Wall walk safe frame 41
+Wall walk safe frame 42
+Wall walk safe frame 43
+Wall walk safe frame 44
+Wall walk safe frame 45
+Wall walk safe frame 46
+Wall walk safe frame 47
+Wall walk safe frame 48
+Wall walk safe frame 49
+Wall walk safe frame 50
+Wall walk safe frame 51
+Wall walk safe frame 52
+Wall walk safe frame 53
+Wall walk safe frame 54
+Wall walk safe frame 55
+Wall walk safe frame 56
+Wall walk safe frame 57
+Wall walk safe frame 58
+Wall walk safe frame 59
+Player visibly moves beside the wall through the actual controller
+Wall walk stayed in intended local area
+Interaction target exists
+Actual interaction focus: 식도 입구 · 다섯 조각 덮개
+Upper inlet opens through actual interaction
+Interaction target exists
+Actual interaction focus: 왕의 빈 변기 · 상호작용 소환
+Manual interaction creates the real boss
+Bowl emergence finishes and releases combat
+Final phase ready for real defeat capture
+Released key plants on safe floor
+Planted key can be reached on floor
+Interaction target exists
+Actual interaction focus: 지팡이 열쇠 줍기
+Key extracts into floating carry
+No carry arms or connectors remain
+Floating key follows actual walking movement
+Interaction target exists
+Actual interaction focus: 십이지장 출구 · 다섯 조각 덮개
+Lock shatters and outlet opens
+Showcase does not finish or save a run

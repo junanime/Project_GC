@@ -31,8 +31,8 @@ namespace Vampire
             if (boss == null || root == null) return;
             root.SetActive(!boss.Dead && !MiniStageRuntimeState.IsInsideMiniStage && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud"));
             rail.Set(boss.Health / boss.MaxHealth, boss.PhaseTwo ? new Color(.75f, .24f, .14f) : new Color(.76f, .53f, .16f), boss.Transitioning ? .45f : 0);
-            title.text = "변비왕 · " + (boss.PhaseTwo ? "2" : "1") + "페이즈";
-            detail.text = boss.Transitioning ? "왕의 수압 상승 · 잠시 무적" : boss.CurrentPattern == 7 ? "진상품 운반 몬스터를 처치해 회복을 막으세요" : "필수 최종보스 · 지팡이 열쇠로 출구 봉인 해제";
+            title.text = boss.Arriving ? "변비왕이 깨어납니다" : "변비왕 · " + (boss.PhaseTwo ? "2" : "1") + "페이즈";
+            detail.text = boss.Arriving ? "왕의 변기가 역류하고 있습니다" : boss.Transitioning ? "왕의 수압 상승 · 잠시 무적" : boss.CurrentPattern == 7 ? "진상품 운반 몬스터를 처치해 회복을 막으세요" : "필수 최종보스 · 지팡이 열쇠로 출구 봉인 해제";
         }
         void OnDisable() { if (root != null) root.SetActive(false); }
         void OnDestroy() { if (root != null) Destroy(root); }

@@ -1,65 +1,94 @@
-// Colon-only wall recess. The upper/lower doorway uses the existing gameplay ellipse;
-// its soft shoulders blend into the terrain instead of drawing a separate circular rim.
+// Continuous raised doorway shoulders, shared with ColonOpeningGeometry.
 float4 _Inlet, _Outlet;
 float _InletOpen, _OutletOpen;
-
+float3 colonPaint(float along,float height,float facing)
+{
+    float cell=frac(along);
+    float2 uv=float2(lerp(.282,.511,cell),lerp(.205,.775,saturate(height)));
+    float4 painted=tex2Dlod(_WallTex,float4(uv,0,0));
+    #ifndef UNITY_COLORSPACE_GAMMA
+    painted.rgb=LinearToGammaSpace(painted.rgb);
+    #endif
+    float3 base=lerp(float3(.63,.28,.36),float3(1,.68,.59),height);
+    float seam=smoothstep(0,.10,cell)*(1-smoothstep(.90,1,cell));
+    return lerp(base,painted.rgb,painted.a*.87*seam)*lerp(.93,1.03,facing);
+}
 float2 colonOpeningRotate(float2 p,float angle)
 {
     float s=sin(angle),c=cos(angle);
     return float2(c*p.x-s*p.y,s*p.x+c*p.y);
 }
-
-float3 drawColonOpening(float3 background,float3 floorColor,float2 uv,float4 shape,float opened,float outward,float wallFootprint)
+float colonMouthWidth(float y)
 {
-    float2 p=(uv-shape.xy)/shape.zw;
-    p.y*=outward;
-    if(abs(p.x)>1.6 || p.y>1.65 || p.y< -1.45)return background;
-
-    // A rounded arch with straight, floor-reaching jambs. Leaving the approach edge
-    // open is what makes this a hole in the wall instead of a badge on its surface.
-    float2 archPoint=float2(p.x,max(p.y+.10,-.26));
-    float arch=length(archPoint/float2(.72,.83));
-    float frontFade=smoothstep(-1.40,-1.02,p.y);
-    float shoulders=(1-smoothstep(1.12,1.64,arch))*frontFade*wallFootprint;
-    float rimHeight=exp(-pow((arch-1.26)/.30,2));
-    float light=saturate(.48+.30*p.y-.15*p.x);
-    // Retain the existing wall's shading at every shoulder. The doorway must never
-    // paint a glowing ring beyond the terrain silhouette or replace the floor.
-    float3 shoulder=lerp(background,float3(1,.71,.62),rimHeight*(.10+.08*light));
-    shoulder=lerp(background*float3(.72,.66,.76),shoulder,smoothstep(.94,1.20,arch));
-    float3 color=lerp(background,shoulder,shoulders);
-
-    float mouth=(1-smoothstep(.985,1.015,arch))*frontFade*wallFootprint;
-    float depth=smoothstep(-1.18,.43,p.y);
-    float3 throat=lerp(floorColor*.88,float3(.31,.12,.19),depth);
-    // A shaded inner vault and soft side occlusion make the depth visible even closed.
-    float edge=smoothstep(.55,.99,arch);
-    throat=lerp(throat,float3(.43,.20,.28),edge*.55);
-
-    // The five plates sit behind the wall, not on its bright crest. Their retraction
-    // exposes the same floor leading into the tunnel, then the shadowed inner vault.
-    float2 iris=float2(p.x/.70,(p.y+.04)/.83);
-    float aperture=length(iris);
+    float flare=saturate((-1.05-y)/1.25);
+    return .745+.38*flare*flare*(3-2*flare);
+}
+void mergeColonOpeningSurface(float2 uv,float4 shape,float outward,inout float height,inout float2 normal,inout float along,inout float wallMask)
+{
+    float2 p=(uv-shape.xy)/shape.zw;p.y*=outward;
+    if(abs(p.x)>1.98 || p.y>1.85 || p.y< -2.60)return;
+    float2 nearest;
+    if(p.y<-.20)nearest=float2((p.x>=0?1:-1)*1.28,max(-1.05,p.y));
+    else
+    {
+        float angle=atan2((p.y+.20)/1.34,p.x/1.28);
+        nearest=float2(cos(angle)*1.28,-.20+sin(angle)*1.34);
+    }
+    float2 offset=p-nearest;
+    float tube=length(offset);
+    float aa=max(.008,fwidth(tube)*.8);
+    float mask=1-smoothstep(.52-aa,.52+aa,tube);
+    float raised=sqrt(saturate(1-pow(tube/.52,2)));
+    float blend=smoothstep(-.20,.20,raised-height)*mask;
+    float arcAngle=acos(clamp(nearest.x/1.28,-1,1));
+    if(nearest.y<-.20)arcAngle=nearest.x>0?(nearest.y+.20)/1.34:UNITY_PI-(nearest.y+.20)/1.34;
+    float portalAlong=arcAngle/UNITY_PI*.8+.5;
+    float2 phase=lerp(float2(cos(along*2*UNITY_PI),sin(along*2*UNITY_PI)),
+        float2(cos(portalAlong*2*UNITY_PI),sin(portalAlong*2*UNITY_PI)),blend);
+    along=atan2(phase.y,phase.x)/(2*UNITY_PI);
+    float2 portalNormal=normalize(offset+float2(.00001,0));portalNormal.y*=outward;
+    normal=normalize(lerp(normal,portalNormal,blend)+float2(.00001,0));
+    // The shoulders join the existing wall's height field, not a painted U overlay.
+    // At every outer edge, the taller original tissue remains completely unchanged.
+    height=max(height,raised*mask);
+    wallMask=max(wallMask,mask);
+    // Bevel the newly carved approach into the old tissue. A plain floor-colored
+    // mask would leave a rectangular cut through the wall at the end of each jamb.
+    float arch=length(float2(p.x/colonMouthWidth(p.y),max(p.y+.20,0)/.89));
+    float front=smoothstep(-2.55,-1.55,p.y);
+    height*=lerp(1,smoothstep(.98,1.45,arch),front);
+}
+float3 drawColonOpening(float3 background,float3 floorColor,float2 uv,float4 shape,float opened,float outward)
+{
+    float2 p=(uv-shape.xy)/shape.zw;p.y*=outward;
+    if(abs(p.x)>1.35 || p.y>1.05 || p.y< -2.55)return background;
+    float2 archPoint=float2(p.x/colonMouthWidth(p.y),max(p.y+.20,0)/.89);
+    float arch=length(archPoint);
+    float mouth=(1-smoothstep(.97,1.06,arch))*smoothstep(-2.55,-1.55,p.y);
+    float depth=smoothstep(-1.15,.55,p.y);
+    float3 throat=lerp(floorColor,float3(.23,.075,.13),depth*.96);
+    throat=lerp(throat,float3(.40,.19,.25),smoothstep(.66,1,arch)*depth*.48);
+    float2 iris=float2(p.x/.745,(p.y+.12)/.90);
+    // The closed membrane reaches the same floor lip as the open tunnel. Its bottom
+    // cannot float above an already exposed strip of floor.
+    float apertureMask=(1-smoothstep(.98,1.02,arch))*smoothstep(-1.08,-1.02,p.y);
     [unroll] for(int blade=0;blade<5;blade++)
     {
-        float angle=(blade+.5)*(2*UNITY_PI/5)+.22;
-        float2 travel=float2(cos(angle),sin(angle))*opened*1.24;
-        float2 source=colonOpeningRotate(iris-travel,-opened*.42);
+        float mid=(blade+.5)*(2*UNITY_PI/5)-.314159;
+        float2 travel=float2(cos(mid),sin(mid))*opened*1.48;
+        float2 source=colonOpeningRotate(iris-travel,-opened*.34);
         float r=length(source);
-        float curve=.85*pow(saturate(1-r),2);
-        float sector=frac((atan2(source.y,source.x)+curve-.22)/(2*UNITY_PI))*5;
-        float local=sector-blade;
-        if(local>=0 && local<1 && r<=1.035 && aperture<1.02)
-        {
-            float seam=min(local,1-local)*max(.12,r);
-            float dome=saturate(1-r*r);
-            float plateLight=saturate(.45+source.y*.16-source.x*.13+dome*.26);
-            float3 plate=lerp(float3(.78,.40,.46),float3(1,.66,.60),plateLight);
-            plate=lerp(float3(.56,.28,.35),plate,smoothstep(.002,.025,seam));
-            // The fixed vault casts over the plates, tying them to the wall opening.
-            plate*=1-.16*smoothstep(.70,1.02,aperture);
-            throat=plate;
-        }
+        float angle=atan2(source.y,source.x)+.82*pow(saturate(1-r),2);
+        float sector=abs(atan2(sin(angle-mid),cos(angle-mid)));
+        float angularAA=.006/max(.12,r);
+        float mask=(1-smoothstep(UNITY_PI/5-angularAA,UNITY_PI/5+angularAA,sector))
+            *(1-smoothstep(1.30,1.45,r))*apertureMask*(1-smoothstep(.72,1,opened));
+        float seam=smoothstep(UNITY_PI/5-.035/max(.2,r),UNITY_PI/5,sector);
+        float plateLight=saturate(.55+source.y*.18-source.x*.12+.20*saturate(1-r*r));
+        float3 plate=lerp(float3(.74,.36,.43),float3(1,.68,.61),plateLight);
+        plate=lerp(plate,float3(.53,.25,.33),seam*.48);
+        plate*=1-.15*smoothstep(.68,1.02,arch);
+        throat=lerp(throat,plate,mask);
     }
-    return lerp(color,throat,mouth);
+    return lerp(background,throat,mouth);
 }

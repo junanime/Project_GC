@@ -28,6 +28,9 @@ namespace Vampire
         // The exit sequence uses this exact rendered prop, rather than spawning a
         // second unrelated reward at the boss's feet.
         public Vector2 KeyDropPoint => keyScepter != null ? (Vector2)keyScepter.transform.position : StaffTip;
+        public float KeyDropAngle => keyScepter != null ? keyScepter.transform.eulerAngles.z : 0;
+        public float KeyDropHeight => keyScepter != null && keyScepter.sprite != null ? keyScepter.sprite.bounds.size.y * Mathf.Abs(keyScepter.transform.lossyScale.y) : 2.35f;
+        public bool KeyDropFlipped => keyScepter != null && keyScepter.flipX;
         public bool KeyScepterReleased { get; private set; }
         public Vector2 SeatGap => PixelSocket(258, 343);
         public float LeanDegrees => lean;
@@ -39,7 +42,7 @@ namespace Vampire
         static Material fluidMaterial;
         Transform pivot;
         SpriteRenderer outlet, staffFoot, shadow, keyScepter, staffHand;
-        Material staffBodyMaterial, staffHandMaterial;
+        Material staffBodyMaterial, staffHandMaterial, keyRevealMaterial;
         readonly SpriteRenderer[] booster = new SpriteRenderer[2];
         readonly SpriteRenderer[] drops = new SpriteRenderer[7];
         readonly SpriteRenderer[] foam = new SpriteRenderer[5];
@@ -54,6 +57,7 @@ namespace Vampire
         readonly Vector3[] vertices = new Vector3[(WaterSteps + 1) * 2];
         readonly Color[] colors = new Color[(WaterSteps + 1) * 2];
         float unit, sceneUnit, clock, poseAge, progress, flash, lean, travel, trailTimer, hoverCompression;
+        float emergence = 1, throneBlend = 1, bowlClipY = -9999;
         bool moving;
         int phase = 1, trailCursor;
         Vector2 facingDirection = Vector2.right;
@@ -89,6 +93,8 @@ namespace Vampire
             outlet = Sprite(pivot, "Single central A outlet", Get("Outlet"), 511);
             staffFoot = Sprite(pivot, "Authored staff foot below crop", Get("StaffFoot6"), 511);
             keyScepter = Sprite(pivot, "Royal toilet-paper key scepter", Resources.Load<Sprite>("ColonEnding/KeyScepter"), 512);
+            var revealShader = Resources.Load<Shader>("ColonEnding/SummonReveal");
+            if (revealShader != null) { keyRevealMaterial = new Material(revealShader); keyScepter.sharedMaterial = keyRevealMaterial; }
             var staffShader = Resources.Load<Shader>("ConstipationKing/SeparateScepter");
             if (keyScepter.sprite != null && staffShader != null)
             {
@@ -155,12 +161,18 @@ namespace Vampire
         }
         public void SetPoseProgress(float value) { progress = Mathf.Clamp01(value); Sample(); }
         public void Flash() { flash = .10f; }
+        public void SetEmergence(float raised, float worldBowlY, float settled)
+        {
+            emergence = Mathf.Clamp01(raised); throneBlend = Mathf.Clamp01(settled); bowlClipY = worldBowlY;
+            Sample();
+        }
+        public void SetVisible(bool value) { Visible = value; Sample(); }
         public void ReleaseKeyScepter()
         {
             KeyScepterReleased = true;
             if (keyScepter != null) keyScepter.enabled = false;
         }
-        public void ResetPose() { SetPose(KingPose.Idle); moving = false; progress = 0; Opacity = 1; Visible = true; }
+        public void ResetPose() { SetPose(KingPose.Idle); moving = false; progress = 0; Opacity = 1; }
         public void Tick(float dt)
         {
             if (dt <= 0) return;
@@ -239,9 +251,21 @@ namespace Vampire
             staffFoot.transform.localPosition = new Vector3(155 * Facing * unit, -54 * unit, 0);
             staffFoot.flipX = Facing < 0; staffFoot.color = Body.color;
             DrawKeyScepter(pose, alpha);
-            ScaleEllipse(shadow, new Vector2(6 * sceneUnit, 0), 77 * sceneUnit, 14 * sceneUnit, new Color(.20f, .11f, .15f, .20f * alpha));
-            DrawWater(alpha * (Pose == KingPose.Death ? 1 - progress : 1));
-            DrawBooster(alpha);
+            // Only the king's upper silhouette rises through the stationary bowl.
+            // The old porcelain and water column join it during the final settling beat.
+            Vector3 riseOffset = Vector3.up * (.28f * (1-throneBlend) - 3.6f * (1 - emergence));
+            Body.transform.localPosition += riseOffset;
+            if (staffHand != null) staffHand.transform.localPosition += riseOffset;
+            if (keyScepter != null) keyScepter.transform.localPosition += riseOffset;
+            float clip = throneBlend < .9999f ? bowlClipY : -9999;
+            if (staffBodyMaterial != null) { staffBodyMaterial.SetFloat("_UpperOnly", 1-throneBlend); staffBodyMaterial.SetFloat("_RevealClipY", clip); }
+            if (staffHandMaterial != null) { staffHandMaterial.SetFloat("_UpperOnly", 1-throneBlend); staffHandMaterial.SetFloat("_RevealClipY", clip); }
+            if (keyRevealMaterial != null) { keyRevealMaterial.SetFloat("_ClipY", clip); keyRevealMaterial.SetFloat("_RevealBlend", 1-throneBlend); }
+            outlet.color = new Color(Body.color.r, Body.color.g, Body.color.b, alpha * throneBlend);
+            outlet.enabled &= throneBlend > .001f;
+            ScaleEllipse(shadow, new Vector2(6 * sceneUnit, 0), 77 * sceneUnit, 14 * sceneUnit, new Color(.20f, .11f, .15f, .20f * alpha * throneBlend));
+            DrawWater(alpha * throneBlend * (Pose == KingPose.Death ? 1 - progress : 1));
+            DrawBooster(alpha * throneBlend);
         }
 
         void DrawKeyScepter(int pose, float alpha)
@@ -397,6 +421,7 @@ namespace Vampire
         {
             if (staffBodyMaterial != null) { if (Application.isPlaying) Destroy(staffBodyMaterial); else DestroyImmediate(staffBodyMaterial); }
             if (staffHandMaterial != null) { if (Application.isPlaying) Destroy(staffHandMaterial); else DestroyImmediate(staffHandMaterial); }
+            if (keyRevealMaterial != null) { if (Application.isPlaying) Destroy(keyRevealMaterial); else DestroyImmediate(keyRevealMaterial); }
             if (waterMesh == null) return;
             if (Application.isPlaying) Destroy(waterMesh); else DestroyImmediate(waterMesh);
         }

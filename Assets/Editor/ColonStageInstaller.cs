@@ -39,7 +39,7 @@ namespace Vampire.Editor
             var material=AssetDatabase.LoadAssetAtPath<Material>(Root+"ColonMap/Terrain.mat");
             if(material==null){material=new Material(shader);AssetDatabase.CreateAsset(material,Root+"ColonMap/Terrain.mat");}material.shader=shader;
             material.mainTexture=AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"ColonMap/Layout.png");material.SetTexture("_DetailTex",original.terrainMaterial.GetTexture("_DetailTex"));
-            material.SetTexture("_WallTex",AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"ColonMap/WallTissue.png")); def.terrainMaterial=material;def.colon=true;def.worldWidth=original.worldWidth*.8f;def.aspect=original.aspect;def.chunkSize=original.chunkSize;def.pixelWorldSize=original.pixelWorldSize;
+            material.SetTexture("_WallTex",AssetDatabase.LoadAssetAtPath<Texture2D>(Root+"ColonMap/WallSoft.png")); def.terrainMaterial=material;def.colon=true;def.worldWidth=original.worldWidth*.8f;def.aspect=original.aspect;def.chunkSize=original.chunkSize;def.pixelWorldSize=original.pixelWorldSize;
             def.wallWidth=4.5f;def.climbableWidth=3.5f;def.startUV=new Vector2(.83f,.71f);
             def.inlet=new Vector4(.856f,.826f,.028f,.046f);def.outlet=new Vector4(.145f,.145f,.034f,.05f);
             EditorUtility.SetDirty(def);EditorUtility.SetDirty(material);

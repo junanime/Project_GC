@@ -1,0 +1,22 @@
+Post-transfer event QA isolates XP from level-up dialogs
+Colon event director installed on real stage transfer
+Colon clears all stomach field-event schedules
+Stomach acid lake remains inactive in colon
+Wind starts only in colon gameplay
+Event timer pauses with gameplay
+Wind physically moves player
+Opposing movement resists wind but still slips downstream
+80 wind path steps stay off solid walls
+Dry event begins
+Dry patches occupy valid floor
+Dry patch slows player
+Wet lane immediately restores movement
+Residue event emits breakable debris
+Debris breaks only once
+Nutrients have no damageable target
+World-object touch selects nutrient through real input route
+Touch interaction acquires nutrient
+Collected nutrient cannot be claimed twice
+Isolated nutrient reward leaves gameplay time running
+Nutrient awards experience directly
+Cleanup removes all temporary pickups and debris

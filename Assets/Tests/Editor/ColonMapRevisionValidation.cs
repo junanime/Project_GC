@@ -11,7 +11,7 @@ namespace Vampire.Tests.Editor
 {
  public static class ColonMapRevisionValidation
  {
-  const string Output="Library/ColonMapRevision";
+  const string Output="Library/ColonMapRevision20261114";
   static readonly BindingFlags Flags=BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public;
   static bool presentationOnly;
   public static void RenderOnly(){presentationOnly=true;Run();}
@@ -31,6 +31,18 @@ namespace Vampire.Tests.Editor
     typeof(FiniteStomachMap).GetField("material",Flags).SetValue(map,mat);
     typeof(FiniteStomachMap).GetField("boundaryLength",Flags).SetValue(map,1f);
     typeof(FiniteStomachMap).GetMethod("BuildDistanceField",Flags).Invoke(map,null);
+    Require(!ShaderUtil.ShaderHasError(mat.shader),"Terrain shader must compile without fallback");
+    Require(mat.GetTexture("_WallTex")==Resources.Load<Texture2D>("ColonMap/WallSoft"),"Approved soft wall paint must be installed");
+    for(int portal=0;portal<2;portal++)
+    {
+     bool upper=portal==0;
+     for(int a=0;a<4;a++)Require(ColonOpeningGeometry.WallClearance(map,ColonOpeningGeometry.ChainAnchor(map,a,upper),upper,out _)<-.55f,"Chain anchor must be embedded in the visible wall");
+     for(int sample=0;sample<10;sample++)
+     {
+      var approach=ColonOpeningGeometry.World(map,new Vector2(0,Mathf.Lerp(-2.4f,-1.16f,sample/9f)),upper);
+      Require(map.FloorClearance(approach,true)>.55f,"Doorway approach must have no invisible crossbar: "+portal+" / "+sample);
+     }
+    }
     var entry=map.ClampToField(map.UVToWorld(def.startUV),map.WallWidth+2);
     const float cell=1f;int w=Mathf.CeilToInt(def.Size.x),h=Mathf.CeilToInt(def.Size.y);
     var safe=new bool[w*h];var reached=new bool[w*h];var q=new Queue<int>();
@@ -38,16 +50,55 @@ namespace Vampire.Tests.Editor
     for(int i=0;i<safe.Length;i++)safe[i]=map.NavigationDistance(point(i),out _)>=map.ClimbLimit+2.3f;
     int start=Mathf.Clamp((int)entry.y,0,h-1)*w+Mathf.Clamp((int)entry.x,0,w-1);Require(safe[start],"Entry not boss-navigable");q.Enqueue(start);reached[start]=true;
     while(q.Count>0){int at=q.Dequeue();foreach(int off in new[]{-1,1,-w,w}){int n=at+off;if(n<0||n>=safe.Length||Mathf.Abs(n%w-at%w)+Mathf.Abs(n/w-at/w)!=1||!safe[n]||reached[n])continue;reached[n]=true;q.Enqueue(n);}}
-    int islands=safe.Where((v,i)=>v&&!reached[i]).Count();Require(islands==0,"Disconnected boss-floor cells: "+islands);
-    var passage=map.UVToWorld(new Vector2(410f/1536,1-824f/1024));Require(map.NavigationDistance(passage,out _,true)>map.ClimbLimit+2.3f,"Outlet-right passage blocked");
+    int islands=safe.Where((v,i)=>v&&!reached[i]).Count();
+    var topology=new Texture2D(w,h,TextureFormat.RGB24,false);
+    for(int i=0;i<safe.Length;i++)topology.SetPixel(i%w,i/w,reached[i]?Color.green:safe[i]?Color.red:Color.black);
+    topology.Apply();File.WriteAllBytes(Output+"/floor-connectivity.png",topology.EncodeToPNG());Object.DestroyImmediate(topology);
+    if(islands!=0)errors.Add("Disconnected boss-floor cells: "+islands);
+    if(!presentationOnly)Require(islands==0,"Disconnected boss-floor cells: "+islands);
+    // Props and interaction sockets are used by the player, whose footprint is
+    // smaller than the deliberately conservative 2.3-unit boss clearance above.
+    var playerSafe=new bool[safe.Length];var playerReached=new bool[safe.Length];
+    for(int i=0;i<safe.Length;i++)playerSafe[i]=map.FloorClearance(point(i))>=.6f;
+    q.Enqueue(start);playerReached[start]=true;
+    while(q.Count>0){int at=q.Dequeue();foreach(int off in new[]{-1,1,-w,w}){int n=at+off;if(n<0||n>=playerSafe.Length||Mathf.Abs(n%w-at%w)+Mathf.Abs(n/w-at/w)!=1||!playerSafe[n]||playerReached[n])continue;playerReached[n]=true;q.Enqueue(n);}}
+    var passage=map.UVToWorld(new Vector2(410f/1536,1-796f/1024));
+    if(map.NavigationDistance(passage,out _,true)<=map.ClimbLimit+2.3f)errors.Add("Outlet-right passage blocked");
+    if(!presentationOnly)Require(map.NavigationDistance(passage,out _,true)>map.ClimbLimit+2.3f,"Outlet-right passage blocked");
     for(int sample=0;sample<(presentationOnly?0:256);sample++)
     {
      File.WriteAllText(Output+"/progress.txt",sample+"/256"); int seed=11717+sample*7919;
      try{
       var props=FieldObjectLayout.Generate(map,entry,seed);Require(props.Count==86,"Missing field object");
       var bosses=ColonBossDirector.Generate(map,entry,seed^0x62B7,props);Require(bosses.Count==6,"Missing habitat");
-      foreach(var b in bosses){homes++;Require(b.kind==ColonBossKind.Manatee?ColonBossDirector.HouseFits(map,b.position,b.wallNormal):ColonBossDirector.GroundFits(map,b.position,ColonBossDefinition.Get(b.kind).HabitatRadius),"Unsafe habitat");}
-      foreach(var p in props){Require(map.FloorClearance(p.position,true)>=1.99f,"Prop overlaps visible wall");int at=(int)p.position.y*w+(int)p.position.x;Require(at>=0&&at<reached.Length&&reached[at],"Unreachable prop");}
+      foreach(var b in bosses)
+      {
+       homes++;Require(b.kind==ColonBossKind.Manatee?ColonBossDirector.HouseFits(map,b.position,b.wallNormal):ColonBossDirector.GroundFits(map,b.position,ColonBossDefinition.Get(b.kind).HabitatRadius),"Unsafe habitat");
+       if(b.kind==ColonBossKind.Manatee)for(int door=0;door<3;door++)
+       {
+        var at=ColonBossDirector.ManateeDoorPosition(b.position,b.wallNormal,door)+b.wallNormal*1.5f;
+        int playerCell=Mathf.FloorToInt(at.y)*w+Mathf.FloorToInt(at.x);
+        Require(playerCell>=0&&playerCell<playerReached.Length&&playerReached[playerCell],"Every wall-house arrival socket must be player-reachable");
+        bool connected=false;
+        for(int y=-4;y<=4&&!connected;y++)for(int x=-4;x<=4&&!connected;x++)
+        {
+         int index=Mathf.FloorToInt(at.y+y)*w+Mathf.FloorToInt(at.x+x);
+         if(index<0||index>=reached.Length||!reached[index])continue;
+         var goal=point(index);if(Vector2.Distance(at,goal)>4)continue;
+         bool clear=true;for(int k=0;k<=16;k++)if(map.FloorClearance(Vector2.Lerp(at,goal,k/16f))<.6f){clear=false;break;}
+         connected=clear;
+        }
+        Require(connected,"Inset wall-house door must reach the connected playable floor");
+       }
+      }
+      foreach(var p in props)
+      {
+       Require(map.FloorClearance(p.position,true)>=1.99f,"Prop overlaps visible wall");
+       Require(Vector2.Distance(p.position,ColonOpeningGeometry.ThroneCenter(map))>=5.19f,"Prop blocks the manual throne interaction");
+       var doorway=ColonOpeningGeometry.Local(map,p.position,false);
+       Require(Mathf.Abs(doorway.x)>=1.12f||doorway.y<=-2.25f,"Prop blocks the final doorway approach");
+       int at=(int)p.position.y*w+(int)p.position.x;Require(at>=0&&at<playerReached.Length&&playerReached[at],"Unreachable prop");
+      }
       for(int i=0;i<bosses.Count;i++)for(int j=0;j<i;j++){float gap=Vector2.Distance(bosses[i].position,bosses[j].position);minGap=Mathf.Min(minGap,gap);Require(gap+0.001f>=(bosses[i].partner==j?ColonBossDirector.MinimumSeparation:ColonBossDirector.PreferredSeparation),"Home spacing failure");}
      }catch(Exception ex){if(sample==0)throw;errors.Add(seed+": "+ex.Message);}
     }
@@ -60,11 +111,13 @@ namespace Vampire.Tests.Editor
     Render(c,map.UVToWorld(new Vector2(.48f,.56f)),4.5f,"floor-detail",1280,720);
     Render(c,map.UVToWorld(new Vector2(.49f,.65f)),6,"inner-wall-detail",1280,720);
     Render(c,map.UVToWorld(new Vector2(.48f,.80f)),6,"outer-wall-detail",1280,720);
-    Render(c,map.UVToWorld(new Vector2(def.outlet.x,def.outlet.y)),8,"outlet-closed",1280,720);
-    mat.SetFloat("_OutletOpen",1);
-    Render(c,map.UVToWorld(new Vector2(def.outlet.x,def.outlet.y)),8,"outlet-open",1280,720);
-    mat.SetFloat("_InletOpen",1);
-    Render(c,map.UVToWorld(new Vector2(def.inlet.x,def.inlet.y)),8,"inlet-open",1280,720);
+    for(int portal=0;portal<2;portal++)for(int frame=0;frame<5;frame++)
+    {
+     bool upper=portal==0;float value=frame*.25f;
+     mat.SetFloat(upper?"_InletOpen":"_OutletOpen",value);
+     string name=(upper?"inlet":"outlet")+"-"+(frame==0?"closed":frame==4?"open":"opening-"+frame);
+     Render(c,ColonOpeningGeometry.Center(map,upper),10,name,1280,960);
+    }
     Object.DestroyImmediate(c.gameObject);Object.DestroyImmediate(quad);
     File.WriteAllText(Output+"/report.txt",$"{(presentationOnly?0:256)} seeds; presentationOnly={presentationOnly}; {homes} homes; disconnected cells={islands}; minimum home gap={minGap:F3}; errors={errors.Count}\n"+string.Join("\n",errors));
     Require(errors.Count==0,"Placement failures: "+string.Join(";",errors.Take(3)));

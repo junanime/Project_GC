@@ -177,6 +177,7 @@ namespace Vampire
             // Reserve large encounter footprints before distributing small props.
             // The same habitat seed is used when the validated plan is instantiated.
             var reserved=map.IsColon?ColonBossDirector.Generate(map,start,habitatSeed??(seed^0x62B7)):null;
+            var finalThrone=map.IsColon?ColonOpeningGeometry.ThroneCenter(map):Vector2.zero;
             float roll() => (float)rng.NextDouble();
             int Sector(Vector2 p)
             {
@@ -186,6 +187,14 @@ namespace Vampire
             bool Allowed(Vector2 p, Kind kind, int partner)
             {
                 if ((map.IsOral?OralMapGeometry.ZoneAt(map,p)!=OralZone.Tongue||map.FloorClearance(p)<1.5f:map.IsColon?map.FloorClearance(p)<1.65f:map.NavigationDistance(p,out _) < WallInset) || Vector2.Distance(p, start) < (map.IsOral?3f:StartClearance) || blocked?.Invoke(p) == true) return false;
+                if(map.IsColon)
+                {
+                    // Keep the manually summoned king and the final doorway's
+                    // E/touch approach clear of randomly placed interactive props.
+                    if((p-finalThrone).sqrMagnitude<5.2f*5.2f)return false;
+                    var doorway=ColonOpeningGeometry.Local(map,p,false);
+                    if(Mathf.Abs(doorway.x)<1.12f&&doorway.y> -2.25f)return false;
+                }
                 if(reserved!=null)foreach(var home in reserved)
                     if(Vector2.Distance(p,home.position)<ColonBossDirector.PropClearance+(home.kind==ColonBossKind.Manatee?2.05f:.05f))return false;
                 for (int j = 0; j < result.Count; j++)
