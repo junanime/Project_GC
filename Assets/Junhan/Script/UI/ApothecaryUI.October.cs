@@ -92,10 +92,7 @@ namespace Vampire
             selection=Mathf.Clamp(selection,0,Mathf.Max(0,count-1));
             int pages=Mathf.Max(1,Mathf.CeilToInt(count/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
             Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(relics[i].relicId):true;
-            // Ari's legacy square portrait cuts off the curl at the source. Use her complete
-            // approved character sprite in the demo grid instead of enlarging that cropped face.
-            Func<CharacterBlueprint,Sprite> profile=c=>GStarDemo.Enabled && OctoberArt.CharacterKey(c)=="Ari"?OctoberArt.Character(c,0):CharacterProfile(c);
-            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?profile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?relics[i].icon:items[i].itemIcon;
+            Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?relics[i].icon:items[i].itemIcon;
             Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?relics[i].relicName:items[i].itemName;
             for(int j=0;j<6;j++)
             {
