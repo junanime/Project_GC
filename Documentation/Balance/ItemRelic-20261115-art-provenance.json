@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-15",
+  "tool": "image_gen",
+  "prompt": "Edit this exact game relic icon into a transparent PNG cutout. Remove only the cream paper background and detached floating sparkle/plus marks. Preserve the complete illustrated charm body, black ink outline, original colors, all attached cords, leaves and tassels including their tips; keep all material colors and white/cream highlights INSIDE the object. Faithfully preserve the reference design and hand-painted cartoon game style. No white circle, badge, backing disc, ground shadow, cropped parts, new frame, text or extra objects. Single centered full object with at least 12% fully transparent padding on EVERY edge. Production-ready clean alpha edges, detailed full silhouette, no clipping. Do not zoom in. Remove detached arrows, action lines, sound-wave arcs and comic impact graphics; retain the actual object's complete body and attached ornaments.",
+  "reference": "24시간의사투_연출_개선판.zip / 아이콘/relic-<id>.png",
+  "assets": [
+    {
+      "id": "bandage",
+      "generatedFile": "exec-b517a3b7-7117-426b-b52b-a2c4f566cc60.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-bandage.png"
+    },
+    {
+      "id": "beads",
+      "generatedFile": "exec-58caa200-d2eb-4740-a5cd-5b45933bf9c6.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-beads.png"
+    },
+    {
+      "id": "bell",
+      "generatedFile": "exec-2c4eb581-4ef7-4aaa-9217-63c927f28f19.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-bell.png"
+    },
+    {
+      "id": "bouncy_acorn",
+      "generatedFile": "exec-0eac60a9-9d97-4445-b3e2-ead7da92857b.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-bouncy_acorn.png"
+    },
+    {
+      "id": "chestnut",
+      "generatedFile": "exec-2c27a9bf-8b39-4839-9b94-aa04d9373286.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-chestnut.png"
+    },
+    {
+      "id": "citrus",
+      "generatedFile": "exec-90cc7039-f173-43ed-878d-e206998c86b1.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-citrus.png"
+    },
+    {
+      "id": "clear_dew",
+      "generatedFile": "exec-24adf551-5508-44e2-92b0-22f97649d567.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-clear_dew.png"
+    },
+    {
+      "id": "feather",
+      "generatedFile": "exec-b24e3945-9b5f-4c27-a9b8-9213711cc25a.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-feather.png"
+    },
+    {
+      "id": "firm_shield",
+      "generatedFile": "exec-de57f337-5b1e-4fec-ab8e-b344a9aaf36c.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-firm_shield.png"
+    },
+    {
+      "id": "fortune_pouch",
+      "generatedFile": "exec-a6d34231-a075-4727-a548-7098929890b5.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-fortune_pouch.png"
+    },
+    {
+      "id": "ginger_tea",
+      "generatedFile": "exec-57dd4ade-51a0-4fdf-ac4e-11debf864614.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-ginger_tea.png"
+    },
+    {
+      "id": "ginseng_jelly",
+      "generatedFile": "exec-acb2ae9b-2263-4341-8be4-858ddfe874b1.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-ginseng_jelly.png"
+    },
+    {
+      "id": "honey_rice",
+      "generatedFile": "exec-f7aad825-954b-47f4-a659-273ff8b5b930.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-honey_rice.png"
+    },
+    {
+      "id": "hourglass",
+      "generatedFile": "exec-17600405-4869-46e1-9712-22e3d54f1964.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-hourglass.png"
+    },
+    {
+      "id": "learning_scroll",
+      "generatedFile": "exec-d5236777-f478-4d6a-99a0-d8b8a2a30012.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-learning_scroll.png"
+    },
+    {
+      "id": "life_sprout",
+      "generatedFile": "exec-c14e69c7-311d-463d-b545-52bb2cdd8881.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-life_sprout.png"
+    },
+    {
+      "id": "lightning_beat",
+      "generatedFile": "exec-7532c966-2835-44c7-9280-2439f81f3553.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-lightning_beat.png"
+    },
+    {
+      "id": "lotus_chips",
+      "generatedFile": "exec-90fdcb6b-3c23-4ab1-a94c-c623c7557b57.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-lotus_chips.png"
+    },
+    {
+      "id": "magnet",
+      "generatedFile": "exec-9274b7c0-c344-405f-8fc7-aaf9f18471cb.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-magnet.png"
+    },
+    {
+      "id": "mint_candy",
+      "generatedFile": "exec-416a5d98-f8af-4e15-b214-a93c23d76371.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-mint_candy.png"
+    },
+    {
+      "id": "needle_case",
+      "generatedFile": "exec-0f746324-bc15-4fb4-8e27-b5239f16372f.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-needle_case.png"
+    },
+    {
+      "id": "omija",
+      "generatedFile": "exec-8b3e0268-7021-40ef-bb42-c8606d159ba8.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-omija.png"
+    },
+    {
+      "id": "open_fan",
+      "generatedFile": "exec-47806dca-b82f-4792-9674-53db737ae4ef.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-open_fan.png"
+    },
+    {
+      "id": "piercing_arrow",
+      "generatedFile": "exec-4ad831df-8295-40ea-995a-0ebe246c4dc6.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-piercing_arrow.png"
+    },
+    {
+      "id": "pillow",
+      "generatedFile": "exec-8dae1863-a483-4ac5-bbd2-28c5c8fb4a0a.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-pillow.png"
+    },
+    {
+      "id": "relic_01",
+      "generatedFile": "exec-3293adca-6398-44c3-bd44-d720141ec125.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-relic_01.png"
+    },
+    {
+      "id": "relic_02",
+      "generatedFile": "exec-e3a4f924-c529-458a-a22c-70e864895aad.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-relic_02.png"
+    },
+    {
+      "id": "relic_03",
+      "generatedFile": "exec-152ef52d-ceb6-4135-b015-a35893a0da28.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-relic_03.png"
+    },
+    {
+      "id": "revival_bud",
+      "generatedFile": "exec-91057587-1cec-4304-82f9-e1e83c7e39b3.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-revival_bud.png"
+    },
+    {
+      "id": "scales",
+      "generatedFile": "exec-a94a14ea-0e09-4bc1-abb8-1ddae79d4318.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-scales.png"
+    },
+    {
+      "id": "strong_hammer",
+      "generatedFile": "exec-2a23eda4-c11d-4e7b-815f-871a480b4a05.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-strong_hammer.png"
+    },
+    {
+      "id": "umbrella",
+      "generatedFile": "exec-aa0ddf4f-1084-4375-94a4-d18f9dd1296f.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-umbrella.png"
+    },
+    {
+      "id": "walnut",
+      "generatedFile": "exec-2c077d83-5fe7-4e0d-b01f-d4b60b6c1521.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-walnut.png"
+    },
+    {
+      "id": "warm_bottle",
+      "generatedFile": "exec-5ec82db4-c855-4a40-852b-374e9cfb25a0.png",
+      "destination": "Assets/Resources/AcquisitionIcons/relic-warm_bottle.png"
+    }
+  ]
+}

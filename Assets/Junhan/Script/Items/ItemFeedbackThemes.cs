@@ -114,6 +114,12 @@ namespace Vampire
     public sealed partial class ItemFeedback
     {
         readonly float[] nextItem = new float[67];
+        static Sprite[] identityIcons;
+        static Sprite ItemIcon(int id)
+        {
+            if(identityIcons==null){identityIcons=new Sprite[67];foreach(var item in Resources.LoadAll<MerchantItemBlueprint>("OctoberContent/Catalog"))if(item.octoberId>0&&item.octoberId<67)identityIcons[item.octoberId]=item.itemIcon;}
+            return identityIcons[id];
+        }
         float nextRelic;
         public ItemFeedbackVisual Item(int id, Vector3 position, float seconds=.65f, float radius=.65f,
             Transform follow=null, bool sustained=false, bool acquisition=false, bool sound=true)
@@ -121,13 +127,17 @@ namespace Vampire
             if(id<1 || id>66)return null;
             if(!sustained && !acquisition && Time.time<nextItem[id])return null;
             if(!sustained)nextItem[id]=Time.time+.22f;
-            return Theme(ItemEffectTheme.Item(id), position, seconds, radius, follow, sustained, acquisition, sound, id);
+            var visual=Theme(ItemEffectTheme.Item(id), position, seconds, radius, follow, sustained, acquisition, sound, id);
+            if(acquisition && visual!=null)visual.SetIdentity(ItemIcon(id));
+            return visual;
         }
         public ItemFeedbackVisual Relic(RelicBlueprint relic, bool acquisition=false)
         {
             if(relic==null || !acquisition && Time.time<nextRelic)return null;
             if(!acquisition)nextRelic=Time.time+1.2f;
-            return Theme(ItemEffectTheme.Relic(relic.effectType),transform.position,.85f,.85f,transform,false,acquisition,true,(int)relic.effectType);
+            var visual=Theme(ItemEffectTheme.Relic(relic.effectType),transform.position,.85f,.85f,transform,false,acquisition,true,(int)relic.effectType);
+            if(acquisition && visual!=null)visual.SetIdentity(Resources.Load<Sprite>("AcquisitionIcons/relic-"+relic.relicId) ?? relic.icon);
+            return visual;
         }
         public ItemFeedbackVisual Theme(ItemEffectTheme theme,Vector3 p,float seconds,float radius,Transform follow=null,
             bool sustained=false,bool acquisition=false,bool sound=true,int variant=0)

@@ -1,0 +1,702 @@
+[
+  {
+    "id": "item-01",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 233300
+  },
+  {
+    "id": "item-02",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 230550
+  },
+  {
+    "id": "item-03",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 228805
+  },
+  {
+    "id": "item-04",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 229207
+  },
+  {
+    "id": "item-05",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 233452
+  },
+  {
+    "id": "item-06",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 257453
+  },
+  {
+    "id": "item-07",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 278092
+  },
+  {
+    "id": "item-08",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 265182
+  },
+  {
+    "id": "item-09",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 258589
+  },
+  {
+    "id": "item-10",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 264086
+  },
+  {
+    "id": "item-11",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 292895
+  },
+  {
+    "id": "item-12",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 237503
+  },
+  {
+    "id": "item-13",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 95,
+    "bytes": 333209
+  },
+  {
+    "id": "item-14",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 438499
+  },
+  {
+    "id": "item-15",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 266345
+  },
+  {
+    "id": "item-16",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 84,
+    "bytes": 306390
+  },
+  {
+    "id": "item-17",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 83,
+    "bytes": 251747
+  },
+  {
+    "id": "item-18",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 219726
+  },
+  {
+    "id": "item-19",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 58,
+    "bytes": 300343
+  },
+  {
+    "id": "item-20",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 223244
+  },
+  {
+    "id": "item-21",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 280833
+  },
+  {
+    "id": "item-22",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 331152
+  },
+  {
+    "id": "item-23",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 232067
+  },
+  {
+    "id": "item-24",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 227500
+  },
+  {
+    "id": "item-25",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 231680
+  },
+  {
+    "id": "item-26",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 255383
+  },
+  {
+    "id": "item-27",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 263847
+  },
+  {
+    "id": "item-28",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 55,
+    "bytes": 519880
+  },
+  {
+    "id": "item-29",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 645896
+  },
+  {
+    "id": "item-30",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 35,
+    "bytes": 229986
+  },
+  {
+    "id": "item-31",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 498256
+  },
+  {
+    "id": "item-32",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 424020
+  },
+  {
+    "id": "item-33",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 84,
+    "bytes": 310381
+  },
+  {
+    "id": "item-34",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 220120
+  },
+  {
+    "id": "item-35",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 243790
+  },
+  {
+    "id": "item-36",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 52,
+    "bytes": 250326
+  },
+  {
+    "id": "item-37",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 234132
+  },
+  {
+    "id": "item-38",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 240756
+  },
+  {
+    "id": "item-39",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 256442
+  },
+  {
+    "id": "item-40",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 261776
+  },
+  {
+    "id": "item-41",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 251125
+  },
+  {
+    "id": "item-42",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 237629
+  },
+  {
+    "id": "item-43",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 51,
+    "bytes": 259810
+  },
+  {
+    "id": "item-44",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 276375
+  },
+  {
+    "id": "item-45",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 83,
+    "bytes": 251076
+  },
+  {
+    "id": "item-46",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 241543
+  },
+  {
+    "id": "item-47",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 226065
+  },
+  {
+    "id": "item-48",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 226498
+  },
+  {
+    "id": "item-49",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 80,
+    "bytes": 691527
+  },
+  {
+    "id": "item-50",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 262435
+  },
+  {
+    "id": "item-51",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 229145
+  },
+  {
+    "id": "item-52",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 278969
+  },
+  {
+    "id": "item-53",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 227994
+  },
+  {
+    "id": "item-54",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 227322
+  },
+  {
+    "id": "item-55",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 227556
+  },
+  {
+    "id": "item-56",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 34,
+    "bytes": 231609
+  },
+  {
+    "id": "item-57",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 448691
+  },
+  {
+    "id": "item-58",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 593421
+  },
+  {
+    "id": "item-59",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 273829
+  },
+  {
+    "id": "item-60",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 257837
+  },
+  {
+    "id": "item-61",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 89,
+    "bytes": 330626
+  },
+  {
+    "id": "item-62",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 44,
+    "bytes": 235167
+  },
+  {
+    "id": "item-63",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 262478
+  },
+  {
+    "id": "item-64",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 251031
+  },
+  {
+    "id": "item-65",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 53,
+    "bytes": 500786
+  },
+  {
+    "id": "item-66",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 54,
+    "bytes": 571673
+  },
+  {
+    "id": "relic-relic_01",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 36,
+    "bytes": 212002
+  },
+  {
+    "id": "relic-relic_02",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 198666
+  },
+  {
+    "id": "relic-warm_bottle",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 60,
+    "bytes": 228249
+  },
+  {
+    "id": "relic-clear_dew",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 196062
+  },
+  {
+    "id": "relic-life_sprout",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 60,
+    "bytes": 229662
+  },
+  {
+    "id": "relic-lightning_beat",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 197875
+  },
+  {
+    "id": "relic-firm_shield",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 200976
+  },
+  {
+    "id": "relic-relic_03",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 200888
+  },
+  {
+    "id": "relic-magnet",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 206732
+  },
+  {
+    "id": "relic-beads",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 199643
+  },
+  {
+    "id": "relic-learning_scroll",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 42,
+    "bytes": 231394
+  },
+  {
+    "id": "relic-fortune_pouch",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 43,
+    "bytes": 256783
+  },
+  {
+    "id": "relic-strong_hammer",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 75,
+    "bytes": 233505
+  },
+  {
+    "id": "relic-piercing_arrow",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 86,
+    "bytes": 377297
+  },
+  {
+    "id": "relic-bouncy_acorn",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 44,
+    "bytes": 261552
+  },
+  {
+    "id": "relic-open_fan",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 194505
+  },
+  {
+    "id": "relic-hourglass",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 196350
+  },
+  {
+    "id": "relic-bell",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 195403
+  },
+  {
+    "id": "relic-feather",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 194431
+  },
+  {
+    "id": "relic-umbrella",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 195417
+  },
+  {
+    "id": "relic-bandage",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 60,
+    "bytes": 256804
+  },
+  {
+    "id": "relic-revival_bud",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 65,
+    "bytes": 445732
+  },
+  {
+    "id": "relic-chestnut",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 96,
+    "bytes": 1750331
+  },
+  {
+    "id": "relic-pillow",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 62,
+    "bytes": 225683
+  },
+  {
+    "id": "relic-needle_case",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 202114
+  },
+  {
+    "id": "relic-scales",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 204473
+  },
+  {
+    "id": "relic-ginseng_jelly",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 35,
+    "bytes": 199074
+  },
+  {
+    "id": "relic-citrus",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 200009
+  },
+  {
+    "id": "relic-walnut",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 201030
+  },
+  {
+    "id": "relic-honey_rice",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 60,
+    "bytes": 255128
+  },
+  {
+    "id": "relic-lotus_chips",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 202115
+  },
+  {
+    "id": "relic-mint_candy",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 201340
+  },
+  {
+    "id": "relic-omija",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 204683
+  },
+  {
+    "id": "relic-ginger_tea",
+    "frames": 96,
+    "duration_ms": 3200,
+    "unique_frames": 33,
+    "bytes": 201257
+  }
+]
