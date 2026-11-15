@@ -59,8 +59,9 @@ namespace Vampire
             }
 
             if (GetComponent<ColonSpecialRuntime>()?.ControlsMovement==true) return;
-            Vector2 moveDirection =
-                ColonNavigation.Toward(transform.position,playerCharacter.transform.position);
+            Vector2 target=playerCharacter.transform.position;
+            if(OralGuardEscort.TryTarget(this,target,out var guardTarget))target=guardTarget;
+            Vector2 moveDirection = ColonNavigation.Toward(transform.position,target);
 
             rb.velocity +=
                 moveDirection *

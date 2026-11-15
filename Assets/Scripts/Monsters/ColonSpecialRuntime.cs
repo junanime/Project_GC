@@ -31,13 +31,39 @@ namespace Vampire {
   IEnumerator Wait(float d){for(float t=0;t<d;){if(!Active)yield break;if(!Paused)t+=Time.deltaTime;yield return null;}}
   IEnumerator Gas(){busy=true;Pose=4;yield return Wait(.7f);Pose=5;yield return Wait(.3f);Pose=6;aim=player!=null?((Vector2)player.transform.position-(Vector2)transform.position).normalized:Vector2.right;
    for(int k=0;k<6&&Active;k++){ColonSpecialEffects.Puff((Vector2)transform.position+aim*.35f,new Color(.7f,.83f,.31f),.6f);foreach(var m in entities.LivingMonsters){if(m==null||m==monster||m.HP<=0||m is BloodClotMonster||m is BossMonster||m is MiniBossMonster)continue;Vector2 d=(Vector2)m.transform.position-(Vector2)transform.position;if(d.magnitude>2.7f||Vector2.Angle(aim,d)>55||!ColonAttackWall.Clear(transform.position,m.transform.position))continue;var rb=m.GetComponent<Rigidbody2D>();Vector2 next=ColonAttackWall.Stop(m.transform.position,(Vector2)m.transform.position+aim*.22f,Mathf.Max(.2f,m.Size.magnitude*.45f));if(rb!=null)rb.position=next;m.transform.position=next;}yield return Wait(.12f);}Pose=7;yield return Wait(.4f);busy=false;}
-  IEnumerator Throw(){busy=true;timer=0;Vector2 target=player.transform.position;throwWarning=FoodBossEffects.Line(transform,FoodBossEffects.Arc(Vector2.zero,.9f),.04f,new Color(.6f,.36f,.18f,.65f));throwWarning.useWorldSpace=false;throwWarning.transform.position=target;for(float t=0;t<3&&Active;){if(!Paused){t+=Time.deltaTime;Pose=t<1.5f?4:t<2.8f?5:6;if(t<2.75f)target=player.transform.position;throwWarning.transform.position=target;}yield return null;}if(!Active)yield break;busy=false;cooldown=6;if(throwWarning!=null){throwWarning.transform.SetParent(null);throwWarning.gameObject.AddComponent<FoodBossFade>().Lifetime=.75f;throwWarning=null;}ColonSpecialEffects.Shot(ColonSpecialEffects.Art("beetle",11),(Vector2)transform.position+Vector2.up*.4f,target,.75f,Damage(24),monster.Blueprint,true);}
+  IEnumerator Throw(){
+   busy=true;timer=0;Vector2 target=player.transform.position;
+   Vector2 from=(Vector2)transform.position+Vector2.up*.4f;
+   Vector2 landing=ColonSpecialEffects.ResolveLanding(from,target);
+   throwWarning=FoodBossEffects.Line(transform,FoodBossEffects.Arc(Vector2.zero,.9f),.04f,new Color(.6f,.36f,.18f,.65f));
+   throwWarning.useWorldSpace=false;throwWarning.transform.position=landing;
+   for(float t=0;t<3&&Active;){
+    if(!Paused){t+=Time.deltaTime;Pose=t<1.5f?4:t<2.8f?5:6;if(t<2.75f)target=player.transform.position;
+     from=(Vector2)transform.position+Vector2.up*.4f;
+     landing=ColonSpecialEffects.ResolveLanding(from,target);throwWarning.transform.position=landing;}
+    yield return null;
+   }
+   if(!Active)yield break;busy=false;cooldown=6;
+   from=(Vector2)transform.position+Vector2.up*.4f;landing=ColonSpecialEffects.ResolveLanding(from,target);
+   if(throwWarning!=null){throwWarning.transform.position=landing;throwWarning.transform.SetParent(null);throwWarning.gameObject.AddComponent<FoodBossFade>().Lifetime=.75f;throwWarning=null;}
+   ColonSpecialEffects.Shot(ColonSpecialEffects.Art("beetle",11),from,landing,.75f,Damage(24),monster.Blueprint,true);
+  }
   void DropAndFlee(){if(throwWarning!=null)Destroy(throwWarning.gameObject);busy=false;cooldown=6;Pose=7;ColonSpecialEffects.Shot(ColonSpecialEffects.Art("beetle",11),(Vector2)transform.position+Vector2.up*.4f,(Vector2)transform.position+Vector2.right*.25f,.35f,0,monster.Blueprint,true,true);}
   void LinkTargets(){for(int i=links.Count-1;i>=0;i--)if(links[i]==null||!links[i].gameObject.activeInHierarchy||links[i].GetComponent<ColonRevivalLink>()?.Owner!=this){if(lines[i]!=null)Destroy(lines[i].gameObject);links.RemoveAt(i);lines.RemoveAt(i);}
    if(links.Count>=3)return;foreach(var m in entities.LivingMonsters){if(links.Count>=3)break;if(m==null||m.HP<=0||m==monster||!(m is MeleeMonster)||m.Blueprint is EliteMonsterBlueprint||m.GetComponent<MonsterSupportCaster>()!=null)continue;var r=ColonMonsterRoster.Active;if(r==null||!r.TryGet(m.Blueprint,out var e)||!e.id.StartsWith("N")||m.GetComponent<MonsterCombatBuffRuntime>()?.HealthBuffActive==true)continue;if(Vector2.Distance(transform.position,m.transform.position)>3||!ColonAttackWall.Clear(transform.position,m.transform.position))continue;var l=m.GetComponent<ColonRevivalLink>()??m.gameObject.AddComponent<ColonRevivalLink>();if(l.Used||l.Owner!=null)continue;l.Owner=this;links.Add(m);var line=FoodBossEffects.Line(transform,new[]{(Vector2)transform.position,(Vector2)m.transform.position},.035f,new Color(1,.9f,.64f),false,115,true);lines.Add(line);}}
   void LateUpdate(){if(!Active||Paused)return;var r=monster.BodyRenderer;if(r==null)return;var art=ColonSpecialEffects.Art(Kind,Pose);if(art!=null)r.sprite=art;
    if(Kind=="beetle"){if(carried==null){carried=new GameObject("Held dung").AddComponent<SpriteRenderer>();carried.transform.SetParent(transform);carried.sprite=ColonSpecialEffects.Art("beetle",11);carried.transform.localScale=Vector3.one*.4f/carried.sprite.bounds.size.y;}carried.enabled=cooldown<=2||busy;carried.sortingOrder=r.sortingOrder+1;carried.transform.position=r.bounds.center+Vector3.up*r.bounds.extents.y*.85f;}
+   RefreshPoseGeometry();
    for(int i=0;i<links.Count;i++)if(links[i]!=null&&lines[i]!=null){var a=monster.CenterTransform.position;var b=links[i].CenterTransform.position;lines[i].SetPosition(0,a);lines[i].SetPosition(1,b);lines[i].enabled=true;}
+  }
+  void RefreshPoseGeometry(){
+   // ColonMonsterVisual (order 600) fits the resting sprite before this controller
+   // chooses its final frame (order 700). Refit only this actor after that choice;
+   // do not rescale it, alter its feet collider, or include the separately held bomb.
+   monster.GetComponent<MonsterBodyFit>()?.Refresh();
+   var hitbox=monster.BodyHitbox;
+   if(hitbox!=null&&monster.CenterTransform!=null)
+    monster.CenterTransform.position=hitbox.transform.TransformPoint(hitbox.offset);
   }
   public void OnDeath(){if(Kind=="salt"){for(int i=0;i<4;i++){Vector2 dir=new Vector2(Mathf.Cos(i*Mathf.PI/2),Mathf.Sin(i*Mathf.PI/2));ColonSpecialEffects.Shot(ColonSaltParts.Get(i),monster.CenterTransform.position,(Vector2)monster.CenterTransform.position+dir*4,1.15f,Damage(18),monster.Blueprint);}}if(Kind=="beetle"&&busy)DropAndFlee();ResetForPool();}
   void OnDisable()=>ResetForPool();

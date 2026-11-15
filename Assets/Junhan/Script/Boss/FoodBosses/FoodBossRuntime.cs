@@ -152,7 +152,7 @@ namespace Vampire
             if(level!=null&&!level.IsLevelEnded&&!StageProgression.Ensure(level).FinalBossDefeated(transform.position,damageReceived/Mathf.Max(20,age),Kind))level.LevelPassed(null);
             Destroy(gameObject);
         }
-        void OnTriggerStay2D(Collider2D other){if(Dead||Paused||Recovering||Transitioning||Visual.Airborne||Time.time<nextContact)return;var p=other.GetComponentInParent<Character>();if(p==null)return;p.TakeDamage(12);nextContact=Time.time+.9f;}
+        void OnTriggerStay2D(Collider2D other){if(Dead||Paused||Recovering||Transitioning||Visual.Airborne||Time.time<nextContact)return;var p=other.GetComponentInParent<Character>();if(p==null||other==p.CollectableCollider)return;p.TakeDamage(12);nextContact=Time.time+.9f;}
         void OnDisable(){Cancel();ClearEffects();}
         void OnDestroy(){if(Effects!=null)Destroy(Effects.gameObject);}
         void Heal(float fraction){float amount=Mathf.Min(MaxHealth*fraction,MaxHealth*.08f-recoveryHealed);if(amount<=0||Dead||PhaseTwo)return;Health=Mathf.Min(MaxHealth,Health+amount);recoveryHealed+=amount;}

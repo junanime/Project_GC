@@ -43,7 +43,9 @@ namespace Vampire
         {
             Visual.SetPose(KingPose.Fan);
             Vector2 dir = AimFrom(Visual.Mouth);
-            var warning = ConstipationKingEffects.Warning(this, FoodBossEffects.FanOutline(Visual.Mouth, dir, 10, 58), Visual.Mouth);
+            // The two volleys cover -24..+31 degrees. Include both, plus projectile-edge margin.
+            var warning = ConstipationKingEffects.Warning(this, FoodBossEffects.FanOutline(Visual.Mouth, Rotate(dir,3.5f), 10, 59), Visual.Mouth);
+            warning.name="King double fan · combined warning";
             yield return Wait(1.0f); Destroy(warning.gameObject);
             for (int volley = 0; volley < 2; volley++)
             {
@@ -88,8 +90,11 @@ namespace Vampire
             Visual.SetPose(KingPose.Hook);
             Vector2 start = Visual.StaffTip, dir = AimFrom(start), end = ColonAttackWall.Stop(start, start + dir * 10, .3f);
             var warning = ConstipationKingEffects.Warning(this, ColonBossEffects.Lane(start, end, .8f), start);
+            warning.name="King plunger · locked launch warning";
             yield return Wait(1.0f); Destroy(warning.gameObject);
             var rope = ConstipationKingEffects.Line(this, new[] { start, start }, .06f, new Color(.56f, .35f, .16f), 521);
+            rope.name="King plunger · current staff tether";
+            rope.gameObject.AddComponent<ConstipationKingStaffTether>().Initialize(this,rope);
             var cup = ConstipationKingEffects.Prop(this, "Plunger", end, .85f, new Color(.73f, .24f, .14f));
             cup.transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
             bool hooked = false; Vector2 tip = start, previous = start;
@@ -120,7 +125,7 @@ namespace Vampire
                 });
             }
             Vector2 backFrom = tip;
-            yield return Tween(.6f, q => { tip = Vector2.Lerp(backFrom, start, q); cup.transform.position = tip; rope.SetPosition(1, tip); });
+            yield return Tween(.6f, q => { tip = Vector2.Lerp(backFrom, Visual.StaffTip, q); cup.transform.position = tip; rope.SetPosition(1, tip); });
             Destroy(cup.gameObject); Destroy(rope.gameObject);
         }
         IEnumerator Paper()
@@ -246,6 +251,18 @@ namespace Vampire
                 yield return Wait(PhaseTwo ? .18f : .22f);
             }
             yield return Wait(1.1f); yield return Tween(.4f, q => pool.SetOpacity(1 - q)); Destroy(overflow);
+        }
+    }
+    // The attack's outgoing path remains locked, while its rope stays in the visible hand.
+    // LateUpdate runs after tracking/hover poses, including the branch's stationary wait.
+    public sealed class ConstipationKingStaffTether:MonoBehaviour
+    {
+        ConstipationKingRuntime owner;LineRenderer rope;
+        public void Initialize(ConstipationKingRuntime boss,LineRenderer line){owner=boss;rope=line;}
+        void LateUpdate()
+        {
+            if(owner==null||rope==null||owner.Visual==null)return;
+            Vector2 socket=owner.Visual.StaffTip;rope.SetPosition(0,socket);ColonAttackWall.Mask(rope.gameObject,socket);
         }
     }
 }

@@ -1,0 +1,58 @@
+PASS actual stage-two open floor fixture
+PASS flamingo arrival completed
+PASS real flamingo diagonal pattern started
+PASS both second-volley sectors are independently telegraphed
+PASS second diagonal projectile waited for its visible warning
+PASS actual second-volley direction lies inside a rendered warning
+PASS second diagonal projectile waited for its visible warning
+PASS actual second-volley direction lies inside a rendered warning
+PASS second diagonal projectile waited for its visible warning
+PASS actual second-volley direction lies inside a rendered warning
+PASS second diagonal projectile waited for its visible warning
+PASS actual second-volley direction lies inside a rendered warning
+PASS second diagonal projectile waited for its visible warning
+PASS actual second-volley direction lies inside a rendered warning
+PASS second diagonal projectile waited for its visible warning
+PASS actual second-volley direction lies inside a rendered warning
+PASS all six unchanged second-diagonal projectiles observed
+PASS king arrival completed
+PASS real phase-1 hook started
+PASS hook has a locked launch warning
+PASS hook tether exists during launch
+PASS live target crossing really mirrors the boss
+PASS rope remains attached to the current mirrored/hovered staff
+PASS outgoing cup stays on the originally warned trajectory
+PASS hook tether exists during launch
+PASS live target crossing really mirrors the boss
+PASS rope remains attached to the current mirrored/hovered staff
+PASS outgoing cup stays on the originally warned trajectory
+PASS hook cancellation removes tether and props
+PASS real phase-2 hook started
+PASS hook has a locked launch warning
+PASS hook tether exists during launch
+PASS live target crossing really mirrors the boss
+PASS rope remains attached to the current mirrored/hovered staff
+PASS outgoing cup stays on the originally warned trajectory
+PASS hook tether exists during launch
+PASS live target crossing really mirrors the boss
+PASS rope remains attached to the current mirrored/hovered staff
+PASS outgoing cup stays on the originally warned trajectory
+PASS hook cancellation removes tether and props
+PASS real phase-two double fan started
+PASS combined fan warning exists
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS actual fan projectile direction lies inside the combined warning
+PASS both seven-shot volleys complete inside their common telegraph
+PASS fan cleanup leaves no stale warnings or bullets

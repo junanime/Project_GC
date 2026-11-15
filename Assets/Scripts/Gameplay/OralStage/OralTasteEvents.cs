@@ -15,7 +15,9 @@ namespace Vampire
         public float Age { get; private set; }
         public float Duration { get; private set; }
         public const float SpicyWarning = 6f, SpicySeconds = 15f, HoneyFeedSeconds = 2f;
-        public bool SpicyActive => Active && Kind == OralTasteKind.Spicy && Age >= SpicyWarning && Age < SpicyWarning + SpicySeconds;
+        public bool SpicyActive => Active && Kind == OralTasteKind.Spicy && OralSpicyHazard.IsHot(Age);
+        public IReadOnlyList<Vector2> SpiceCenters => spiceCenters;
+        public float SpiceRadius => OralSpicyHazard.Radius;
         public IReadOnlyList<Vector2> HoneyPositions => honeyPositions;
         public int HoneyFedCount { get; private set; }
         public int SaltSpawnedCount { get; private set; }
@@ -27,7 +29,7 @@ namespace Vampire
         public Vector2 BitterPosition { get; private set; }
         public float BitterRemaining { get; private set; }
         public int BitterRewards { get; private set; }
-        public float BurnRemaining { get; private set; }
+        public float BurnRemaining => burn.Remaining;
         public int BurnTicks { get; private set; }
         public LevelManager Level { get; private set; }
         public bool FloorUnavailable => OralEventArt.Paused(Level) || OralFieldEvents.Instance != null && OralFieldEvents.Instance.CurrentEvent == OralEventKind.Ceiling;
@@ -36,7 +38,9 @@ namespace Vampire
         Transform artRoot, statusRoot;
         readonly List<Vector2> honeyPositions = new List<Vector2>();
         readonly List<SpriteRenderer> objects = new List<SpriteRenderer>();
-        readonly List<Renderer> spiceRenderers = new List<Renderer>();
+        readonly List<Vector2> spiceCenters = new List<Vector2>();
+        readonly List<SpiceVisual> spiceVisuals = new List<SpiceVisual>();
+        readonly OralSpicyBurnClock burn = new OralSpicyBurnClock();
         readonly List<Object> owned = new List<Object>();
         readonly List<Object> encounterOwned = new List<Object>();
         readonly List<SpriteRenderer> honeyDrops = new List<SpriteRenderer>();
@@ -53,9 +57,10 @@ namespace Vampire
         SnailSlowStatus slow;
         MeleeMonsterBlueprint saltBlueprint;
         int saltPool = -1;
-        float nextScan, saltClock, burnTick, bouncePlayerCooldown, statusAge, bitterGlow;
+        float nextScan, saltClock, bouncePlayerCooldown, statusAge, bitterGlow;
         bool bitterEaten, configured;
         sealed class HoneyGuest { public Monster Monster; public OralTasteLease Lease; public int Generation, Piece; public float Feed; }
+        sealed class SpiceVisual { public Renderer Fill, Border, Flame; }
 
         public void Configure(LevelManager level)
         {
@@ -64,7 +69,7 @@ namespace Vampire
             lemon = LoadArt("LemonWhole", new Vector2(.5f, 0));
             lemonSpring = LoadArt("LemonSpring", new Vector2(.5f, 0));
             bitter = LoadArt("Bitter", new Vector2(.5f, .15f));
-            salt = LoadArt("Salt", new Vector2(.5f, 0)); spicy = Resources.Load<Texture2D>("OralMap/Events/Spicy");
+            salt = LoadArt("Salt", new Vector2(.5f, 0)); spicy = Resources.Load<Texture2D>("OralMap/Events/SpicyCircle");
             var config = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             var bp = config != null && config.characters.Length > 0 ? config.characters[0] : level.PlayerCharacter.Blueprint;
             var body = level.PlayerCharacter.GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
@@ -111,7 +116,7 @@ namespace Vampire
             if(!configured || Active || FloorUnavailable || map==null || !map.IsOral || Level.PlayerCharacter==null)return false;
             if(kind==OralTasteKind.Spicy && OralFieldEvents.Instance?.CurrentEvent==OralEventKind.Jaw)return false;
             ClearEncounter();Kind=kind;Age=0;Active=true;
-            Duration=kind==OralTasteKind.Spicy?SpicyWarning+SpicySeconds:kind==OralTasteKind.Sweet?16:kind==OralTasteKind.Salty?12:18;
+            Duration=kind==OralTasteKind.Spicy?SpicyWarning+SpicySeconds+OralSpicyHazard.FadeSeconds:kind==OralTasteKind.Sweet?16:kind==OralTasteKind.Salty?12:18;
             artRoot=new GameObject("구강 맛 이벤트 · "+kind).transform;artRoot.SetParent(transform,false);
             var player=Level.PlayerCharacter;var at=OralMapGeometry.Clamp(map,player.Position+Vector2.up*2,1,OralZone.Tongue);
             if(kind==OralTasteKind.Sweet)
@@ -144,36 +149,50 @@ namespace Vampire
             var r=OralEventArt.Sprite(artRoot,name,sprite,18);r.transform.position=position;
             if(sprite!=null)r.transform.localScale=Vector3.one*width/Mathf.Max(.001f,sprite.bounds.size.x);GroundVisualSorting.Apply(r,18);return r;
         }
-        public bool ContainsSpice(Vector2 p)=>SpicyActive && map!=null && OralMapGeometry.ZoneAt(map,p)==OralZone.Tongue && OralMapGeometry.TongueDistance(map,p,out _)>=.05f;
+        public bool ContainsSpice(Vector2 p)=>SpicyActive && map!=null &&
+            OralMapGeometry.ZoneAt(map,p)==OralZone.Tongue && OralSpicyHazard.Contains(spiceCenters,p);
         void BuildSpice()
         {
-            var center=OralMapGeometry.TongueCenter(map);var radii=OralMapGeometry.TongueRadii(map);
-            // A restrained floor wash joins overlapping smears; the exact same tongue boundary clips all meshes.
-            BuildClippedMesh(center,radii.x*2.1f,radii.y*2.3f,0,null,new Color(1,.28f,.08f,.22f),3);
-            for(int y=-2;y<=2;y++)for(int x=-2;x<=2;x++)
+            spiceCenters.AddRange(OralSpicyHazard.Layout(OralMapGeometry.TongueCenter(map),map.WorldRect,
+                p=>OralMapGeometry.TongueDistance(map,p,out _),Random.Range(-12f,12f)));
+            for(int i=0;i<spiceCenters.Count;i++)
             {
-                var p=center+new Vector2(x*radii.x*.39f,y*radii.y*.36f);
-                BuildClippedMesh(p,radii.x*(.8f+.08f*((x+y+10)%3)),radii.y*.8f,((x+y)&1)==0?28:-22,spicy,Color.white,4);
+                var center=spiceCenters[i];
+                spiceVisuals.Add(new SpiceVisual {
+                    Fill=BuildSpiceDisc(center,0,null,3,0),
+                    Border=BuildSpiceDisc(center,SpiceRadius-.085f,null,5,0),
+                    Flame=BuildSpiceDisc(center,0,spicy,4,i*71f)
+                });
             }
+            TickSpice(0);
         }
-        void BuildClippedMesh(Vector2 center,float width,float height,float angle,Texture2D texture,Color tint,int order)
+        Renderer BuildSpiceDisc(Vector2 center,float innerRadius,Texture2D texture,int order,float angle)
         {
-            const int grid=24;var vertices=new List<Vector3>();var uv=new List<Vector2>();var indices=new List<int>();
-            var rot=Quaternion.Euler(0,0,angle);
-            for(int y=0;y<grid;y++)for(int x=0;x<grid;x++)
+            const int segments=OralSpicyHazard.Segments;
+            var vertices=new List<Vector3>();var uv=new List<Vector2>();var indices=new List<int>();
+            for(int i=0;i<=segments;i++)
             {
-                Vector2 a=new Vector2(x/(float)grid,y/(float)grid),b=a+Vector2.right/grid,d=a+Vector2.up/grid,e=a+Vector2.one/grid;
-                Vector3 p0=center+(Vector2)(rot*new Vector3((a.x-.5f)*width,(a.y-.5f)*height));
-                Vector3 p1=center+(Vector2)(rot*new Vector3((b.x-.5f)*width,(b.y-.5f)*height));
-                Vector3 p2=center+(Vector2)(rot*new Vector3((d.x-.5f)*width,(d.y-.5f)*height));
-                Vector3 p3=center+(Vector2)(rot*new Vector3((e.x-.5f)*width,(e.y-.5f)*height));
-                if(OralMapGeometry.TongueDistance(map,p0,out _) < .025f || OralMapGeometry.TongueDistance(map,p1,out _) < .025f || OralMapGeometry.TongueDistance(map,p2,out _) < .025f || OralMapGeometry.TongueDistance(map,p3,out _) < .025f)continue;
-                int n=vertices.Count;vertices.Add(p0);vertices.Add(p1);vertices.Add(p2);vertices.Add(p3);uv.Add(a);uv.Add(b);uv.Add(d);uv.Add(e);indices.Add(n);indices.Add(n+2);indices.Add(n+1);indices.Add(n+1);indices.Add(n+2);indices.Add(n+3);
+                float a=i*Mathf.PI*2/segments;
+                Vector2 direction=new Vector2(Mathf.Cos(a),Mathf.Sin(a));
+                foreach(float radius in new[]{innerRadius,SpiceRadius})
+                {
+                    Vector2 local=direction*radius;
+                    vertices.Add(local);
+                    Vector2 sample=Vector2.one*.5f+OralMapGeometry.Rotate(local,-angle)/(SpiceRadius*2);
+                    // The approved 1254px art has a transparent outer margin. Map the
+                    // opaque circle bounds (top-left 145,146; bottom-right 1107,1102)
+                    // to the physical disc, converting the image's Y to Unity UV Y.
+                    if(texture!=null)sample=new Vector2((145f+sample.x*963f)/1254f,(151f+sample.y*957f)/1254f);
+                    uv.Add(sample);
+                }
+                if(i==segments)continue;
+                int n=i*2;indices.Add(n);indices.Add(n+1);indices.Add(n+3);
+                if(innerRadius>0){indices.Add(n);indices.Add(n+3);indices.Add(n+2);}
             }
-            if(vertices.Count==0)return;
-            var go=new GameObject("혀 경계로 잘린 매운맛 B");go.transform.SetParent(artRoot,false);go.transform.position=Vector3.zero;var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetUVs(0,uv);mesh.SetTriangles(indices,0);mesh.RecalculateBounds();encounterOwned.Add(mesh);go.AddComponent<MeshFilter>().sharedMesh=mesh;
-            var material=new Material(Shader.Find("Sprites/Default"));material.mainTexture=texture!=null?texture:Texture2D.whiteTexture;material.color=tint;encounterOwned.Add(material);
-            var renderer=go.AddComponent<MeshRenderer>();renderer.sharedMaterial=material;GroundVisualSorting.Apply(renderer,order);spiceRenderers.Add(renderer);
+            var go=new GameObject(innerRadius>0?"매운맛 원형 경계":"매운맛 원형 바닥");go.transform.SetParent(artRoot,false);go.transform.position=center;
+            var mesh=new Mesh();mesh.SetVertices(vertices);mesh.SetUVs(0,uv);mesh.SetTriangles(indices,0);mesh.RecalculateBounds();encounterOwned.Add(mesh);go.AddComponent<MeshFilter>().sharedMesh=mesh;
+            var material=new Material(Shader.Find("Sprites/Default"));material.mainTexture=texture!=null?texture:Texture2D.whiteTexture;encounterOwned.Add(material);
+            var renderer=go.AddComponent<MeshRenderer>();renderer.sharedMaterial=material;GroundVisualSorting.Apply(renderer,order);return renderer;
         }
         void Update()
         {
@@ -276,17 +295,29 @@ namespace Vampire
         }
         void TickSpice(float dt)
         {
-            bool hot=SpicyActive;float strength=hot?.6f:.1f+.08f*Mathf.Sin(Age*7)*Mathf.Sin(Age*7);
-            foreach(var r in spiceRenderers)if(r!=null){var c=r.sharedMaterial.color;c.a=strength;r.sharedMaterial.color=c;}
+            bool hot=SpicyActive,warning=Age<SpicyWarning;
+            float fade=1-Mathf.Clamp01((Age-SpicyWarning-SpicySeconds)/OralSpicyHazard.FadeSeconds);
+            for(int i=0;i<spiceVisuals.Count;i++)
+            {
+                var v=spiceVisuals[i];float pulse=.5f+.5f*Mathf.Sin(Age*(warning?4f:6f)+i*.7f);
+                // The stationary rim is the damage boundary; only color/opacity breathes.
+                v.Fill.sharedMaterial.color=warning?new Color(1,.6f,.16f,.10f+.05f*pulse):
+                    new Color(1,hot?.26f:.4f,.08f,(hot?.28f:.12f)*fade);
+                v.Border.sharedMaterial.color=warning?new Color(1,.72f,.27f,.55f+.28f*pulse):
+                    hot?new Color(1,.51f,.16f,.9f):new Color(.66f,.49f,.38f,.4f*fade);
+                v.Flame.sharedMaterial.color=new Color(1,1,1,warning?.12f+.06f*pulse:(hot?.58f+.10f*pulse:.25f)*fade);
+            }
             var p=Level.PlayerCharacter;
-            if(hot&&ContainsSpice(p.Position)&&!p.IsDashing&&!OralStageRuntime.Instance.IsAirborne)
-            {if(BurnRemaining<=0)burnTick=0;BurnRemaining=3;}
+            if(hot&&ContainsSpice(p.Position)&&!p.IsDashing&&!(OralStageRuntime.Instance?.IsAirborne??false))burn.Expose();
         }
         void TickStatus(float dt)
         {
             var p=Level.PlayerCharacter;
-            if(BurnRemaining>0)
-            {BurnRemaining=Mathf.Max(0,BurnRemaining-dt);burnTick-=dt;if(burnTick<=0){burnTick+=1;BurnTicks++;p.TakeDamage(3);}}
+            if(burn.Tick(dt))
+            {
+                float before=p.CurrentHealth;p.TakeDamage(OralSpicyHazard.BurnDamage);
+                if(p.CurrentHealth<before)BurnTicks++;
+            }
             if(BitterRemaining>0)
             {
                 if(slow==null)slow=p.GetComponent<SnailSlowStatus>()??p.gameObject.AddComponent<SnailSlowStatus>();slow.Enter(GetInstanceID(),.2f);
@@ -303,13 +334,13 @@ namespace Vampire
         }
         void ClearEncounter()
         {
-            guests.Clear();honeyPositions.Clear();objects.Clear();honeyDrops.Clear();spiceRenderers.Clear();bounceCooldown.Clear();bitterVisual=null;LemonVisual=null;
+            guests.Clear();honeyPositions.Clear();objects.Clear();honeyDrops.Clear();spiceCenters.Clear();spiceVisuals.Clear();bounceCooldown.Clear();bitterVisual=null;LemonVisual=null;
             if(artRoot!=null){artRoot.gameObject.SetActive(false);Destroy(artRoot.gameObject);artRoot=null;}
             foreach(var item in encounterOwned)if(item!=null)Destroy(item);encounterOwned.Clear();
         }
         public void CancelAll()
         {
-            Active=false;ClearEncounter();BurnRemaining=BitterRemaining=0;burnTick=0;
+            Active=false;ClearEncounter();BitterRemaining=0;burn.Reset();
             if(slow!=null)slow.Exit(GetInstanceID(),0);
             if(statusRoot!=null){Destroy(statusRoot.gameObject);statusRoot=null;}embers.Clear();
             CancelBounces();

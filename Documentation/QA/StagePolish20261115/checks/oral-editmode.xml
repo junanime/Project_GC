@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="8" result="Passed" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="1.0570952">
+  <test-suite type="TestSuite" id="1138" name="24시간의사투" fullname="24시간의사투" runstate="Runnable" testcasecount="102" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="1.057095" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1262" name="Assembly-CSharp-Editor.dll" fullname="D:/GameDev/ProjectCopies/GitHub/Project_GC/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="101" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="1.031059" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="7388" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="1263" name="Vampire" fullname="Vampire" runstate="Runnable" testcasecount="101" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="1.029368" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1264" name="Tests" fullname="Vampire.Tests" runstate="Runnable" testcasecount="101" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="1.026702" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1265" name="Editor" fullname="Vampire.Tests.Editor" runstate="Runnable" testcasecount="101" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="1.023025" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1191" name="OralGuardEscortTests" fullname="Vampire.Tests.Editor.OralGuardEscortTests" classname="Vampire.Tests.Editor.OralGuardEscortTests" runstate="Runnable" testcasecount="3" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:12Z" duration="0.157838" total="3" passed="3" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1194" name="EveryMolarHasSafeStraightApproachAndValidJump" fullname="Vampire.Tests.Editor.OralGuardEscortTests.EveryMolarHasSafeStraightApproachAndValidJump" methodname="EveryMolarHasSafeStraightApproachAndValidJump" classname="Vampire.Tests.Editor.OralGuardEscortTests" runstate="Runnable" seed="605948684" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:12Z" duration="0.138763" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1193" name="LethalHitAndTimeoutCannotBecomeRewardSuccess" fullname="Vampire.Tests.Editor.OralGuardEscortTests.LethalHitAndTimeoutCannotBecomeRewardSuccess" methodname="LethalHitAndTimeoutCannotBecomeRewardSuccess" classname="Vampire.Tests.Editor.OralGuardEscortTests" runstate="Runnable" seed="1049134660" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:12Z" duration="0.001522" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1192" name="SharedHealthRejectsSameVolleyAndCompletesOnlyOnce" fullname="Vampire.Tests.Editor.OralGuardEscortTests.SharedHealthRejectsSameVolleyAndCompletesOnlyOnce" methodname="SharedHealthRejectsSameVolleyAndCompletesOnlyOnce" classname="Vampire.Tests.Editor.OralGuardEscortTests" runstate="Runnable" seed="1670640966" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:12Z" duration="0.000533" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1195" name="OralSpicyHazardTests" fullname="Vampire.Tests.Editor.OralSpicyHazardTests" classname="Vampire.Tests.Editor.OralSpicyHazardTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="0.860308" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1198" name="ActualTongueLayoutsHaveConnectedGapsAndNoWallOverlap" fullname="Vampire.Tests.Editor.OralSpicyHazardTests.ActualTongueLayoutsHaveConnectedGapsAndNoWallOverlap" methodname="ActualTongueLayoutsHaveConnectedGapsAndNoWallOverlap" classname="Vampire.Tests.Editor.OralSpicyHazardTests" runstate="Runnable" seed="1627904129" result="Passed" start-time="2026-11-15 09:09:12Z" end-time="2026-11-15 09:09:13Z" duration="0.829413" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1200" name="ExitBurnExpiresAndLongFramesCannotBurstSeveralHits" fullname="Vampire.Tests.Editor.OralSpicyHazardTests.ExitBurnExpiresAndLongFramesCannotBurstSeveralHits" methodname="ExitBurnExpiresAndLongFramesCannotBurstSeveralHits" classname="Vampire.Tests.Editor.OralSpicyHazardTests" runstate="Runnable" seed="900139852" result="Passed" start-time="2026-11-15 09:09:13Z" end-time="2026-11-15 09:09:13Z" duration="0.001014" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1197" name="FootprintUsesTheVisibleCircleRatherThanTheWholeTongue" fullname="Vampire.Tests.Editor.OralSpicyHazardTests.FootprintUsesTheVisibleCircleRatherThanTheWholeTongue" methodname="FootprintUsesTheVisibleCircleRatherThanTheWholeTongue" classname="Vampire.Tests.Editor.OralSpicyHazardTests" runstate="Runnable" seed="296355289" result="Passed" start-time="2026-11-15 09:09:13Z" end-time="2026-11-15 09:09:13Z" duration="0.008572" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1199" name="MultipleContactsCannotStackOrRestartTheBurnClock" fullname="Vampire.Tests.Editor.OralSpicyHazardTests.MultipleContactsCannotStackOrRestartTheBurnClock" methodname="MultipleContactsCannotStackOrRestartTheBurnClock" classname="Vampire.Tests.Editor.OralSpicyHazardTests" runstate="Runnable" seed="1624735920" result="Passed" start-time="2026-11-15 09:09:13Z" end-time="2026-11-15 09:09:13Z" duration="0.000627" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1196" name="WarningAndExtinguishingAreNeverDamaging" fullname="Vampire.Tests.Editor.OralSpicyHazardTests.WarningAndExtinguishingAreNeverDamaging" methodname="WarningAndExtinguishingAreNeverDamaging" classname="Vampire.Tests.Editor.OralSpicyHazardTests" runstate="Runnable" seed="1821514612" result="Passed" start-time="2026-11-15 09:09:13Z" end-time="2026-11-15 09:09:13Z" duration="0.000310" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

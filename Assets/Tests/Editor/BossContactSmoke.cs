@@ -12,6 +12,14 @@ using Object = UnityEngine.Object;
 
 namespace Vampire.Tests.Editor
 {
+    // Proves the real physics callback reached the pickup-only branch. With the former
+    // handler this same callback would inflict contact damage despite separated bodies.
+    public sealed class BossPickupContactProbe : MonoBehaviour
+    {
+        public Character Player;
+        public int PickupCallbacks;
+        void OnTriggerStay2D(Collider2D other){if(Player!=null&&other==Player.CollectableCollider)PickupCallbacks++;}
+    }
     [InitializeOnLoad]
     public static class BossContactSmoke
     {
@@ -84,11 +92,19 @@ namespace Vampire.Tests.Editor
         {
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;GamePreferences.Apply(prefs,false,false);Application.runInBackground=true;
             RunScore.Exclude("Actual physics boss contact/pickup exclusion regression");Silence(level);
+            Time.timeScale=1;level.SetRunFlowPaused(false);
+            var stageOnePlayer=level.PlayerCharacter;PreparePlayer(stageOnePlayer);
+            var stageOneMap=FiniteStomachMap.Instance;
+            Vector2 stageOneArena=stageOneMap.ClampToField(stageOneMap.UVToWorld(new Vector2(.5f,.5f)),8);
+            foreach(FoodBossKind kind in Enum.GetValues(typeof(FoodBossKind)))
+            {
+                Set(stageOnePlayer,"isInvincible",true);ColonContentSmoke.Position(stageOnePlayer,stageOneArena+Vector2.right*5);
+                var boss=FoodBossRuntime.Spawn(kind,stageOnePlayer,stageOneArena);boss.AutoPatterns=false;yield return null;
+                yield return ExerciseContact(stageOnePlayer,boss,"Stage1-"+kind,()=>Set(boss,"nextContact",0f));
+                Object.Destroy(boss.gameObject);yield return null;
+            }
             yield return ColonContentSmoke.Enter(level);Silence(level);Time.timeScale=1;level.SetRunFlowPaused(false);
-            var player=level.PlayerCharacter;player.Move(Vector2.zero);player.Skills.EndRun();player.Relics.Restore(new RelicRunState());OctoberItemRuntime.Get(player).ResetForStage();Set(player,"hasShield",false);
-            var pickup=player.CollectableCollider as CircleCollider2D;Require(pickup!=null,"Actual player pickup circle exists");pickup.enabled=false;
-            var body=player.GetComponentsInChildren<Collider2D>().FirstOrDefault(c=>c!=pickup&&c.enabled&&c.gameObject.layer==LayerMask.NameToLayer("Player Full"));
-            Require(body!=null,"Actual PlayerFull hurtbox exists");
+            var player=level.PlayerCharacter;PreparePlayer(player);
             var map=FiniteStomachMap.Instance;Vector2 arena=map.ClampToFloor(map.UVToWorld(new Vector2(.3f,.25f)),8);
             Require(map.FloorClearance(arena,true)>6,"Actual Stage2 open floor fixture");
             player.GetComponent<Rigidbody2D>().constraints=RigidbodyConstraints2D.FreezeAll;
@@ -99,9 +115,26 @@ namespace Vampire.Tests.Editor
                 if(king){k=ConstipationKingRuntime.Spawn(level,arena);k.AutoPatterns=false;boss=k;}else{t=ColonBossRuntime.Spawn(ColonBossKind.Turtle,player,arena,null);t.AutoPatterns=false;boss=t;}
                 float until=Time.realtimeSinceStartup+20;while((king?k.Arriving:t.Arriving)&&Time.realtimeSinceStartup<until)yield return null;
                 Require(!(king?k.Arriving:t.Arriving),"Actual boss arrival completes");
+                yield return ExerciseContact(player,boss,king?"King":"Turtle",()=>{if(king)Set(k,"nextHit",0f);else Set(t,"nextContact",0f);});
+                Object.Destroy(boss.gameObject);yield return null;
+            }
+            Expect(RunScore.Current!=null&&!string.IsNullOrEmpty(RunScore.Current.Exclusion),"Contact QA remains excluded from ranking");
+            SessionState.SetBool(Key+"Done",true);
+        }
+        static void PreparePlayer(Character player)
+        {
+            player.Move(Vector2.zero);player.Skills.EndRun();player.Relics.Restore(new RelicRunState());OctoberItemRuntime.Get(player).ResetForStage();Set(player,"hasShield",false);
+            player.GetComponent<Rigidbody2D>().constraints=RigidbodyConstraints2D.FreezeAll;
+        }
+        static IEnumerator ExerciseContact(Character player,MonoBehaviour boss,string name,Action resetHit)
+        {
+                var pickup=player.CollectableCollider as CircleCollider2D;Require(pickup!=null,"Actual player pickup circle exists");pickup.enabled=false;
+                var body=player.GetComponentsInChildren<Collider2D>().FirstOrDefault(c=>c!=pickup&&c.enabled&&c.gameObject.layer==LayerMask.NameToLayer("Player Full"));
+                Require(body!=null,"Actual PlayerFull hurtbox exists");var map=FiniteStomachMap.Instance;
                 // Unity sends trigger messages to disabled behaviours. Freeze AI only; the live
                 // Rigidbody2D/colliders remain simulated. The positive body control below proves delivery.
                 boss.enabled=false;boss.GetComponent<Rigidbody2D>().constraints=RigidbodyConstraints2D.FreezeAll;
+                var probe=boss.gameObject.AddComponent<BossPickupContactProbe>();probe.Player=player;
                 var hit=boss.GetComponent<Collider2D>();Require(hit!=null&&hit.enabled,"Actual boss hitbox active");
                 Vector2 far=default;bool placed=false;
                 for(int i=0;i<32;i++){
@@ -113,28 +146,27 @@ namespace Vampire.Tests.Editor
                 Require(placed,"Hurtboxes all outside boss while LOS remains clear");
                 float radius=(Vector2.Distance(pickup.transform.TransformPoint(pickup.offset),hit.bounds.center)+hit.bounds.extents.magnitude+.3f)/Mathf.Max(.01f,Mathf.Abs(pickup.transform.lossyScale.x));
                 for(int mode=0;mode<3;mode++){
+                    probe.PickupCallbacks=0;
                     pickup.enabled=mode!=0;pickup.radius=radius*(mode==2?1.5f:1);
                     Physics2D.SyncTransforms();Require(!hit.Distance(body).isOverlapped,"PlayerFull remains outside");
                     if(mode!=0)Require(hit.Distance(pickup).isOverlapped,"Only pickup circle overlaps actual boss");
-                    player.GainHealth(player.MaxHealth);Set(player,"isInvincible",false);if(king)Set(k,"nextHit",0f);else Set(t,"nextContact",0f);
+                    player.GainHealth(player.MaxHealth);Set(player,"isInvincible",false);resetHit();
                     var stats=Object.FindObjectOfType<StatsManager>();float hp=player.CurrentHealth,taken=stats.DamageTaken;
                     yield return new WaitForSeconds(.8f);
                     string label=mode==0?"pickup-disabled":mode==1?"pickup-only":"larger-pickup-only";
-                    File.AppendAllText(Output+"/samples.csv",$"{(king?"King":"Turtle")},{label},{pickup.radius},{hp},{player.CurrentHealth},{stats.DamageTaken-taken}\n");
-                    Expect(Mathf.Approximately(hp,player.CurrentHealth)&&Mathf.Approximately(taken,stats.DamageTaken),(king?"King":"Turtle")+" no damage for "+label);
+                    File.AppendAllText(Output+"/samples.csv",$"{name},{label},{pickup.radius},{hp},{player.CurrentHealth},{stats.DamageTaken-taken}\n");
+                    if(mode!=0)Expect(probe.PickupCallbacks>0,name+" actual pickup-only physics callbacks observed: "+probe.PickupCallbacks);
+                    Expect(Mathf.Approximately(hp,player.CurrentHealth)&&Mathf.Approximately(taken,stats.DamageTaken),name+" no damage for "+label);
                 }
                 // Shrink/disable the collection trigger and overlap the genuine player body.
                 pickup.enabled=false;ColonContentSmoke.Position(player,far);Physics2D.SyncTransforms();
                 Vector2 bodyOffset=(Vector2)body.bounds.center-(Vector2)player.transform.position;
                 ColonContentSmoke.Position(player,(Vector2)hit.bounds.center-bodyOffset);Physics2D.SyncTransforms();
                 Require(hit.Distance(body).isOverlapped,"Positive control overlaps actual PlayerFull");
-                player.GainHealth(player.MaxHealth);Set(player,"isInvincible",false);if(king)Set(k,"nextHit",0f);else Set(t,"nextContact",0f);
+                player.GainHealth(player.MaxHealth);Set(player,"isInvincible",false);resetHit();
                 float before=player.CurrentHealth;yield return new WaitForSeconds(.8f);
-                Expect(player.CurrentHealth<before,(king?"King":"Turtle")+" real hurtbox contact still damages");
-                Set(player,"isInvincible",true);Object.Destroy(boss.gameObject);yield return null;
-            }
-            Expect(RunScore.Current!=null&&!string.IsNullOrEmpty(RunScore.Current.Exclusion),"Contact QA remains excluded from ranking");
-            SessionState.SetBool(Key+"Done",true);
+                Expect(player.CurrentHealth<before,name+" real hurtbox contact still damages");
+                Set(player,"isInvincible",true);
         }
     }
 }

@@ -1,0 +1,43 @@
+PASS Stage1-Rolpangi no damage for pickup-disabled
+PASS Stage1-Rolpangi actual pickup-only physics callbacks observed: 23
+PASS Stage1-Rolpangi no damage for pickup-only
+PASS Stage1-Rolpangi actual pickup-only physics callbacks observed: 24
+PASS Stage1-Rolpangi no damage for larger-pickup-only
+PASS Stage1-Rolpangi real hurtbox contact still damages
+PASS Stage1-Denikani no damage for pickup-disabled
+PASS Stage1-Denikani actual pickup-only physics callbacks observed: 23
+PASS Stage1-Denikani no damage for pickup-only
+PASS Stage1-Denikani actual pickup-only physics callbacks observed: 24
+PASS Stage1-Denikani no damage for larger-pickup-only
+PASS Stage1-Denikani real hurtbox contact still damages
+PASS Stage1-Maribi no damage for pickup-disabled
+PASS Stage1-Maribi actual pickup-only physics callbacks observed: 23
+PASS Stage1-Maribi no damage for pickup-only
+PASS Stage1-Maribi actual pickup-only physics callbacks observed: 24
+PASS Stage1-Maribi no damage for larger-pickup-only
+PASS Stage1-Maribi real hurtbox contact still damages
+PASS Stage1-Tangdengi no damage for pickup-disabled
+PASS Stage1-Tangdengi actual pickup-only physics callbacks observed: 23
+PASS Stage1-Tangdengi no damage for pickup-only
+PASS Stage1-Tangdengi actual pickup-only physics callbacks observed: 24
+PASS Stage1-Tangdengi no damage for larger-pickup-only
+PASS Stage1-Tangdengi real hurtbox contact still damages
+PASS Stage1-Hurumi no damage for pickup-disabled
+PASS Stage1-Hurumi actual pickup-only physics callbacks observed: 23
+PASS Stage1-Hurumi no damage for pickup-only
+PASS Stage1-Hurumi actual pickup-only physics callbacks observed: 24
+PASS Stage1-Hurumi no damage for larger-pickup-only
+PASS Stage1-Hurumi real hurtbox contact still damages
+PASS King no damage for pickup-disabled
+PASS King actual pickup-only physics callbacks observed: 23
+PASS King no damage for pickup-only
+PASS King actual pickup-only physics callbacks observed: 24
+PASS King no damage for larger-pickup-only
+PASS King real hurtbox contact still damages
+PASS Turtle no damage for pickup-disabled
+PASS Turtle actual pickup-only physics callbacks observed: 23
+PASS Turtle no damage for pickup-only
+PASS Turtle actual pickup-only physics callbacks observed: 24
+PASS Turtle no damage for larger-pickup-only
+PASS Turtle real hurtbox contact still damages
+PASS Contact QA remains excluded from ranking

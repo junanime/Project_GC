@@ -28,7 +28,9 @@ namespace Vampire.Tests.Editor
     {
         const string Key="ColonBossPresentationCapture";
         static bool IdentityReview => Environment.GetCommandLineArgs().Any(a=>a=="-colonIdentityReview=1");
-        static string Output => IdentityReview?"Library/ColonBossIdentityReview":"Library/ColonBossPresentation";
+        static bool SpinReview => Environment.GetCommandLineArgs().Any(a=>a=="-colonSpinReview=1");
+        static bool TelegraphReview => Environment.GetCommandLineArgs().Any(a=>a=="-colonTelegraphReview=1");
+        static string Output => TelegraphReview?"Library/BossTelegraphReview":SpinReview?"Library/ColonTurtleSpinReview":IdentityReview?"Library/ColonBossIdentityReview":"Library/ColonBossPresentation";
         static bool started;static double deadline;
         static ColonBossPresentationCapture(){if(SessionState.GetBool(Key,false))Attach();}
         public static void Run()
@@ -69,6 +71,8 @@ namespace Vampire.Tests.Editor
         {
             var pref=GamePreferences.Current.Copy();pref.pauseOnFocusLoss=false;pref.muteOnFocusLoss=false;GamePreferences.Apply(pref,false);Application.runInBackground=true;
             Silence(level);var player=level.PlayerCharacter;ColonContentSmoke.Set(player,"isInvincible",true);yield return ColonContentSmoke.Enter(level);Silence(level);Time.timeScale=1;
+            if(SpinReview){yield return ColonTurtleSpinReview.Capture(level,Output,Frame);SessionState.SetBool(Key+"Done",true);yield break;}
+            if(TelegraphReview){yield return BossTelegraphReview.Capture(level,Output,Frame);SessionState.SetBool(Key+"Done",true);yield break;}
             ApothecaryUI.Instance.Show("hud");var map=FiniteStomachMap.Instance;var director=level.GetComponent<ColonBossDirector>();
             string only=Environment.GetCommandLineArgs().FirstOrDefault(a=>a.StartsWith("-colonCapture="))?.Substring("-colonCapture=".Length);
             foreach(ColonBossKind kind in Enum.GetValues(typeof(ColonBossKind)))

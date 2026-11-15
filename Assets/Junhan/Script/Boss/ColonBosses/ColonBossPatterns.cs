@@ -37,7 +37,7 @@ namespace Vampire
             Visual.Pose=pose;Sound("Dash");bool hit=false;float step=0;
             yield return Tween(duration,q=>{
                 var before=At;MoveTo(Vector2.Lerp(start,end,Ease(q)));
-                if(roll){if(Kind==ColonBossKind.Turtle){Visual.GroundSpin=q*720;Visual.Roll=Mathf.Sin(q*8*Mathf.PI)*5;}else Visual.Roll=q*720;}
+                if(roll)Visual.Roll=q*720;
                 if(!hit&&ColonAttackWall.Clear(At,Player.transform.position)&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,At)<Definition.Size*.4f){TryHit(Hit);hit=true;}
                 if(trail&&q>step){step+=.12f;ColonBossEffects.Stain(this,At,Definition.Size*.52f);}
             });
@@ -77,7 +77,21 @@ namespace Vampire
                 Visual.Pose=2;yield return Wait(.85f);ColonBossEffects.Fade(w1);ColonBossEffects.Fade(w2);
                 yield return Tween(.9f,q=>{Visual.Lift=Mathf.Sin(q*Mathf.PI)*.9f;Visual.Pose=q<.5f?2:3;});
                 // Two crossed diagonals, followed by the opened-leg lower diagonals, not a radial volley.
-                for(int n=0;n<2;n++){Visual.Pose=n==0?2:3;for(int side=-1;side<=1;side+=2)ShootFan(At+Vector2.up*.7f,Rotate(dir,side*(n==0?32:58)),3,16,3.3f,Hit*.68f,"sprinkle",.15f);yield return Wait(.65f);}
+                LineRenderer nextLeft=null,nextRight=null;
+                for(int n=0;n<2;n++)
+                {
+                    if(n==1){ColonBossEffects.Fade(nextLeft,.12f);ColonBossEffects.Fade(nextRight,.12f);}
+                    Visual.Pose=n==0?2:3;
+                    for(int side=-1;side<=1;side+=2)ShootFan(At+Vector2.up*.7f,Rotate(dir,side*(n==0?32:58)),3,16,3.3f,Hit*.68f,"sprinkle",.15f);
+                    if(n==0)
+                    {
+                        Vector2 origin=At+Vector2.up*.7f;
+                        nextLeft=ColonBossEffects.Warning(this,ColonBossEffects.Fan(origin,Rotate(dir,-58),8,28),origin);
+                        nextRight=ColonBossEffects.Warning(this,ColonBossEffects.Fan(origin,Rotate(dir,58),8,28),origin);
+                        nextLeft.name="Flamingo second diagonal · left";nextRight.name="Flamingo second diagonal · right";
+                    }
+                    yield return Wait(.65f);
+                }
                 yield break;
             }
             Vector2 target=At+Aim*3.4f;
@@ -204,7 +218,7 @@ namespace Vampire
         }
         IEnumerator Turtle(int index)
         {
-            if(index==0){Visual.Pose=1;yield return Wait(.35f);yield return Dash(Aim,6,1.5f,3,true);yield break;}
+            if(index==0){yield return TurtleSpinDash();yield break;}
             if(index==1)
             {
                 Vector2 direction=Aim;yield return Warn(ColonBossEffects.Fan(At,direction,9,65),.95f,6);
@@ -227,6 +241,37 @@ namespace Vampire
                 yield return Warn(ColonBossEffects.Lane(origin,origin+direction*8,1.0f),i==0?.9f:.40f,i%2==0?4:5,origin);
                 ShootFan(origin,direction,1,0,4.4f,Hit*.65f,"crescent",.40f);yield return Wait(.28f);
             }
+        }
+        IEnumerator TurtleSpinDash()
+        {
+            Vector2 direction=Aim,start=At,end=FiniteStomachMap.ClampDash(start,start+direction*6,Definition.Size*.32f);
+            yield return Warn(ColonBossEffects.Lane(start,end,Definition.Size*.75f),1.0f,1);
+            Visual.Pose=2;yield return Wait(.16f);
+            Visual.Pose=3;yield return Wait(.10f);
+            yield return Tween(.18f,q=>Visual.GroundSpinProjection=Ease(q));
+            var wind=ColonBossEffects.SpinWind(this);
+            // Six full revolutions finish at the original orientation, with continuous acceleration.
+            // The wind uses the same unwrapped angle at a higher speed, so it never reverses.
+            yield return Tween(ColonTurtleSpinWind.Windup,q=>{
+                float seconds=q*ColonTurtleSpinWind.Windup;
+                Visual.GroundSpin=ColonTurtleSpinWind.Angle(seconds);
+                wind.Set(Visual.GroundSpin,Ease(q));
+            });
+            Sound("Dash");bool hit=false;
+            yield return Tween(ColonTurtleSpinWind.Travel,q=>{
+                Vector2 before=At;MoveTo(Vector2.Lerp(start,end,Ease(q)));
+                Visual.GroundSpin=ColonTurtleSpinWind.Angle(ColonTurtleSpinWind.Windup+q*ColonTurtleSpinWind.Travel);
+                wind.Set(Visual.GroundSpin,1);
+                if(!hit&&ColonAttackWall.Clear(At,Player.transform.position)&&SnailBossProjectile.SegmentDistance(Player.transform.position,before,At)<Definition.Size*.4f){TryHit(Hit);hit=true;}
+            });
+            Sound("Land",.32f);
+            yield return Tween(ColonTurtleSpinWind.Settle,q=>{
+                Visual.GroundSpin=ColonTurtleSpinWind.Angle(ColonTurtleSpinWind.Windup+ColonTurtleSpinWind.Travel+q*ColonTurtleSpinWind.Settle);
+                wind.Set(Visual.GroundSpin,1-Ease(q));
+            });
+            wind.gameObject.SetActive(false);Destroy(wind.gameObject);Visual.GroundSpin=0;
+            yield return Tween(.14f,q=>Visual.GroundSpinProjection=1-Ease(q));Visual.GroundSpinProjection=0;
+            Visual.Pose=2;yield return Wait(.14f);Visual.Pose=1;yield return Wait(.14f);
         }
         IEnumerator Manatee(int index)
         {

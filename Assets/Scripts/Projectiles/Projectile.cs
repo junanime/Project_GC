@@ -68,6 +68,7 @@ namespace Vampire
         /// 플레이어가 발사한 투사체라면 null입니다.
         /// </summary>
         protected MonsterBlueprint sourceMonsterBlueprint;
+        private OralGuardEscort damagedOralEscort;
 
         public UnityEvent<float> OnHitDamageable { get; private set; }
         public bool IsPlayerAttack => sourceMonsterBlueprint == null && playerCharacter != null && !isDespawning;
@@ -144,6 +145,7 @@ namespace Vampire
             // 이전 몬스터의 공격자 정보가 남아있으면 안 됩니다.
             // =====================================================
             sourceMonsterBlueprint = null;
+            damagedOralEscort = null;
 
             isDespawning = false;
 
@@ -413,6 +415,22 @@ namespace Vampire
         {
             if (isDespawning)
             {
+                return;
+            }
+
+            // Guards use neutral triggers so player weapons never auto-target
+            // them. Only a sourced enemy projectile can damage a member.
+            var guard=collider.GetComponent<OralGuardMember>();
+            if(guard!=null)
+            {
+                if(sourceMonsterBlueprint!=null&&guard.Vulnerable)
+                {
+                    // A piercing shot may touch several train members, even
+                    // after their shared invulnerability window has elapsed.
+                    if(damagedOralEscort!=guard.Escort)
+                    {damagedOralEscort=guard.Escort;guard.ReceiveEnemyProjectile(damage);}
+                    HitDamageable(guard);
+                }
                 return;
             }
 
