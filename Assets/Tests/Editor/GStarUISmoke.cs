@@ -151,6 +151,27 @@ namespace Vampire.Tests.Editor
                     "clear/failure geometry identical: " + entry.Key);
             }
         }
+        static void CheckResultLayout()
+        {
+            var consent=Named<Button>("GStar consent");
+            if(consent!=null)
+            {
+                var box=Named<Image>("GStar consent box");var label=Named<TextMeshProUGUI>("GStar consent label");
+                Check(box!=null && Mathf.Abs(Bounds(box).width-Bounds(box).height)<1,"consent is an explicit square checkbox");
+                Check(label!=null && label.alignment==TextAlignmentOptions.MidlineLeft,"consent label is joined to checkbox and left aligned");
+                Check(!Bounds(consent).Overlaps(Bounds(Button("register"))),"consent hit area does not overlap registration button");
+            }
+            Check(Button("register").GetComponent<GStarPillGraphic>()==null && Button("register").GetComponent<Image>()!=null,"register uses exact plate skin without a second pill frame");
+            Check(Button("result next").GetComponent<GStarPillGraphic>()==null,"result next has no duplicate button frame");
+            var tray=Named<GStarPillGraphic>("GStar ranking tabs backing");Check(tray!=null && tray.color.a==1,"opaque ranking tray replaces baked middle selection");
+            for(int i=0;i<2;i++) Check(!Bounds(Button("ranking stage "+i)).Overlaps(Bounds(Button("ranking stage "+(i+1)))),"ranking tabs have distinct nonoverlapping bounds "+i);
+            foreach(var text in UI.GetComponentsInChildren<TextMeshProUGUI>())
+            {
+                if(text.name=="GStar heading outline" || text.GetComponentInParent<TMP_InputField>()!=null || string.IsNullOrEmpty(text.text))continue;
+                text.ForceMeshUpdate();
+                Check(!text.isTextOverflowing || text.overflowMode==TextOverflowModes.Ellipsis,"result text fits or intentionally ellipsizes: "+text.name);
+            }
+        }
         static RunScoreData Score(bool success, int normal = 200) => new RunScoreData
         { rules = GStarScoreRules.Version, success = success, normal = normal, special = 3, elite = 1, miniBoss = 1, boss = success ? 1 : 0, cleared = 1, overcharge = 1, gold = 50, silver = 35, seconds = 900 };
         static string Complete(int stage, bool success, int normal = 200)
@@ -206,8 +227,11 @@ namespace Vampire.Tests.Editor
                 var button = Button("challenge " + i);
                 Check(button.GetComponentInChildren<TextMeshProUGUI>().text == "도전하기", "each stage has the same challenge caption");
                 Check(button.IsInteractable() == (count > 0), "stage challenge availability " + i);
+                var skin=button.targetGraphic as Image;
+                Check(skin!=null && skin.GetComponentInParent<Mask>()!=null,"button tint stays inside rounded plate mask "+i);
             }
             Check(Button("change character").IsInteractable() == (count > 0), "character change follows attempt availability");
+            Check(Named<Image>("GStar next instruction backing")!=null,"live next instruction replaces old separator art");
         }
         static IEnumerator KeyPress(InputKey key)
         {
@@ -227,7 +251,10 @@ namespace Vampire.Tests.Editor
             Check(GStarLeaderboard.Submit("앞선참가자", "01000000002", 1, "seed-record", "seed-visitor", Score(false, 50)).success, "seed competitor ranked");
             string first = Complete(1, true); yield return Settled();
             Check(Has("스테이지 클리어!") && Has("이번 도전 점수"), "clear title and live score visible");
-            var geometry = Geometry(); Capture("01-clear-unregistered");
+            var geometry = Geometry(); CheckResultLayout(); Capture("01-clear-unregistered");Capture("01-clear-1280",1280,720);
+            Click("ranking stage 0");yield return Settled();CheckResultLayout();Capture("01b-ranking-mouth");
+            Click("ranking stage 2");yield return Settled();CheckResultLayout();Capture("01c-ranking-colon");
+            Click("ranking stage 1");yield return Settled();
             yield return CheckInputFocus();
             yield return RegisterInputs(false);
             Check(Has("연락처 저장 동의") && GStarLeaderboard.GetRunRank(first) == null, "registration requires actual consent");
@@ -241,13 +268,13 @@ namespace Vampire.Tests.Editor
             string visitor = GStarSession.SessionId; Click("change character");
             yield return Wait(() => UI != null && UI.Page == "prepare", 20, "character change opens actual preparation scene"); yield return Settled(); DisableDesktopPointer();
             Check(GStarSession.SessionId == visitor && GStarSession.RemainingAttempts == 2, "character/loadout change preserves used chance"); Capture("05-preparation-return");
-            string second = Complete(1, false, 10); yield return Settled(); SameGeometry(geometry);
+            string second = Complete(1, false, 10); yield return Settled(); SameGeometry(geometry);CheckResultLayout();
             var failedTitle = Text("스테이지 클리어 실패"); Check(failedTitle != null && failedTitle.colorGradient.bottomLeft.b > failedTitle.colorGradient.bottomLeft.r, "failure title uses purple treatment"); Capture("06-failure-unregistered");
             yield return RegisterInputs();
             var secondRank = GStarLeaderboard.GetRunRank(second);
             Check(secondRank != null && secondRank.score == firstRank.score && secondRank.runId == first && GStarLeaderboard.GetTop(1).Count == 2, "lower repeat retains official best and one prize place");
             Check(Has("개인 최고 기록"), "lower score explains official personal-best ranking"); Capture("07-failure-ranked");
-            Click("result next"); yield return Settled(); ValidateNext(1); Capture("08-next-one-red");
+            Click("result next"); yield return Settled(); ValidateNext(1); Capture("08-next-one-red");Capture("08-next-one-1280",1280,720);
             string third = Complete(2, true, 250); yield return Settled();
             Check(((TMP_Text)Named<TMP_InputField>("GStar input phone").placeholder).text == "필수로 입력하지 않으셔도 됩니다!", "phone placeholder explicitly says optional");
             yield return RegisterInputs(false, "");
@@ -266,15 +293,17 @@ namespace Vampire.Tests.Editor
                 Check(image.sprite.texture.filterMode==FilterMode.Point&&image.sprite.texture.mipmapCount==1,"QR modules remain sharp without mipmaps: "+qr);
                 var bounds=Bounds(image);Check(Mathf.Abs(bounds.width-bounds.height)<.5f,"QR uses a square display region: "+qr);
             }
-            Check(Named<Button>("GStar new visitor") == null, "public survey has no reset control"); Capture("10-survey");
+            Check(Named<Button>("GStar new visitor") == null, "public survey has no reset control"); Capture("10-survey");Capture("10-survey-1280",1280,720);
             yield return KeyPress(InputKey.Escape); Check(UI.Page == "gstarSurvey", "Escape cannot reset or leave end screen");
             yield return KeyPress(InputKey.F8);
             Check(Directory.Exists(Path.Combine(GStarDemo.DataDirectory,"analytics","exports")) &&
                 Directory.GetFiles(Path.Combine(GStarDemo.DataDirectory,"analytics","exports"),"character-summary.csv",SearchOption.AllDirectories).Length>0,
                 "F8 exports QA summary from the actual paused end screen");
-            yield return KeyPress(InputKey.F9); Check(Named<Button>("GStar new visitor") != null, "F9 opens real staff control"); Capture("11-staff");
+            yield return KeyPress(InputKey.F9); Check(Named<Button>("GStar new visitor") != null, "F9 opens real staff control");
+            Check(!Bounds(Named<TextMeshProUGUI>("GStar staff status")).Overlaps(Bounds(Button("close staff"))),"staff export status does not overlap close button");Capture("11-staff");
             Click("export records"); yield return Settled();
             Check(File.Exists(Path.Combine(GStarLeaderboard.ExportDirectory, "prize-top3-private.csv")), "staff exports prize contacts locally");
+            Check(!Bounds(Named<TextMeshProUGUI>("GStar staff status")).Overlaps(Bounds(Button("close staff"))),"prize export status remains separated from close button");Capture("11b-staff-after-export");
             int before = GStarLeaderboard.GetTop(1, 100).Count; Click("new visitor");
             yield return Wait(() => UI != null && UI.Page == "prepare", 20, "staff reset returns to preparation"); yield return Settled();
             Check(GStarSession.RemainingAttempts == 3 && GStarSession.SessionId != visitor && !GStarSession.VisitorFinished, "new visitor receives exactly three chances");
@@ -282,12 +311,12 @@ namespace Vampire.Tests.Editor
             InputSystem.RemoveDevice(keyboard); keyboard = null;
             SessionState.SetBool(Key + "Done", true);
         }
-        static void Capture(string name)
+        static void Capture(string name,int requestedWidth=0,int requestedHeight=0)
         {
             // Render actual runtime canvases through the active game camera, including in batch mode.
             var camera = Camera.main ?? Object.FindObjectOfType<Camera>();
             Check(camera != null, "game camera exists for " + name);
-            int width = Mathf.Max(1, Screen.width), height = Mathf.Max(1, Screen.height);
+            int width = requestedWidth>0?requestedWidth:Mathf.Max(1, Screen.width), height = requestedHeight>0?requestedHeight:Mathf.Max(1, Screen.height);
             var overlays = Object.FindObjectsOfType<Canvas>().Where(c => c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceOverlay).OrderBy(c => c.sortingOrder).ToArray();
             var cameras = overlays.Select(c => c.worldCamera).ToArray(); var distances = overlays.Select(c => c.planeDistance).ToArray();
             var layers = overlays.Select(c => c.sortingLayerID).ToArray(); var orders = overlays.Select(c => c.sortingOrder).ToArray();

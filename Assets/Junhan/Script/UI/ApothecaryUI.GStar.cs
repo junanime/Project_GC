@@ -19,6 +19,7 @@ namespace Vampire
         int gstarBoard=-1;
         bool gstarConsent, gstarOperator;
         string gstarNotice="";
+        string gstarOperatorNotice="";
         bool IsGStarPage => GStarDemo.Enabled && (Page=="result" || Page=="gstarNext" || Page=="gstarSurvey");
         static string GStage(int stage) => stage==0?"구강":stage==2?"대장":"위장";
 
@@ -75,6 +76,7 @@ namespace Vampire
         {
             var t=Label(content,value,x/Gw,1-(y+h)/Gh,(x+w)/Gw,1-y/Gh,size*720/Gh);
             t.name="GStar text "+value;t.color=color??GInk;t.enableWordWrapping=false;t.fontStyle=FontStyles.Bold;
+            t.overflowMode=TextOverflowModes.Ellipsis;
             if(heading)
             {
                 // Explicit back glyphs also work with the project's mobile TMP shader.
@@ -94,9 +96,28 @@ namespace Vampire
         Button GButton(string name,string caption,float x,float y,float w,float h,Action action,bool primary=false,bool interactable=true,bool painted=true)
         {
             var rect=GRect("GStar "+name,content,x,y,w,h);
-            var image=rect.gameObject.AddComponent<GStarPillGraphic>();
-            image.face=primary?new Color(1,.19f,.38f):new Color(.68f,1,.81f);
-            image.color=painted?Color.white:Color.clear;
+            // These controls already have their complete frames in the approved plate.
+            // Reuse the exact pixels instead of putting a second, differently shaped pill over them.
+            bool plateSkin=painted && ((Page=="result" && (name=="register" || name=="result next")) ||
+                (Page=="gstarNext" && (name.StartsWith("challenge ",StringComparison.Ordinal) || name=="change character" || name=="finish experience")));
+            Graphic image;
+            if(plateSkin)
+            {
+                var hit=rect.gameObject.AddComponent<Image>();hit.color=Color.clear;
+                // Tint only the rounded button, never the rectangular paper corners of a crop.
+                var maskRect=Rect("Plate skin mask",rect,0,0,1,1);
+                var maskShape=maskRect.gameObject.AddComponent<GStarPillGraphic>();maskShape.raycastTarget=false;
+                var mask=maskRect.gameObject.AddComponent<Mask>();mask.showMaskGraphic=false;
+                var skin=Rect("Plate button skin",maskRect,0,0,1,1).gameObject.AddComponent<Image>();
+                skin.sprite=GSlice(Page=="result"?(passed?"clear":"failed"):"next",x,y,w,h);
+                skin.color=Color.white;skin.raycastTarget=false;image=skin;
+            }
+            else
+            {
+                var pill=rect.gameObject.AddComponent<GStarPillGraphic>();
+                pill.face=primary?new Color(1,.19f,.38f):new Color(.68f,1,.81f);
+                pill.color=painted?Color.white:Color.clear;image=pill;
+            }
             var button=rect.gameObject.AddComponent<Button>();button.targetGraphic=image;button.interactable=interactable;
             var c=button.colors;c.highlightedColor=new Color(1,.92f,.71f);c.pressedColor=new Color(.73f,.86f,.91f);c.disabledColor=new Color(.55f,.55f,.55f);button.colors=c;
             float captionSize=Mathf.Min(43,h*.56f, w/Mathf.Max(1,caption.Length)*.91f);
@@ -108,8 +129,11 @@ namespace Vampire
         }
         void GHeader(int active)
         {
-            var logo=GRect("GStar title badge",content,674,25,324,56).gameObject.AddComponent<GStarPillGraphic>();
-            logo.face=new Color(1,.96f,.87f);logo.gloss=false;logo.raycastTarget=false;
+            if(Page!="result")
+            {
+                var logo=GRect("GStar title badge",content,674,25,324,56).gameObject.AddComponent<GStarPillGraphic>();
+                logo.face=new Color(1,.96f,.87f);logo.gloss=false;logo.raycastTarget=false;
+            }
             GText("지스타 체험판",675,28,322,52,40);
             string[] titles={"01 기록 · 랭킹","02 다음 도전","03 체험 종료"};
             float[] x={356,700,1014};float[] widths={328,303,303};
@@ -149,6 +173,29 @@ namespace Vampire
             field.text=value??"";field.onValueChanged.AddListener(v=>{if(phone)gstarDraftPhone=v;else gstarDraftName=v;});
             return field;
         }
+        void GConsent()
+        {
+            // A real square checkbox with a full-row hit area: never a tiny orphan pill.
+            var row=GRect("GStar consent",content,155,768,585,26);
+            var target=row.gameObject.AddComponent<Image>();target.color=Color.clear;
+            var button=row.gameObject.AddComponent<Button>();button.targetGraphic=target;
+            button.transition=Selectable.Transition.None;
+            var box=Rect("GStar consent box",row,0,.04f,24f/585f,.96f).gameObject.AddComponent<Image>();
+            box.color=GInk;box.raycastTarget=false;
+            var fill=Rect("Checkbox fill",box.transform,.10f,.10f,.90f,.90f).gameObject.AddComponent<Image>();
+            fill.color=gstarConsent?new Color(.68f,1,.81f):Color.white;fill.raycastTarget=false;
+            if(gstarConsent)
+            {
+                // Geometry avoids a missing check glyph in the Korean display font.
+                var a=Rect("Check short",fill.transform,.12f,.34f,.49f,.48f).gameObject.AddComponent<Image>();
+                a.color=GInk;a.raycastTarget=false;a.rectTransform.localRotation=Quaternion.Euler(0,0,-42);
+                var b=Rect("Check long",fill.transform,.34f,.45f,.94f,.59f).gameObject.AddComponent<Image>();
+                b.color=GInk;b.raycastTarget=false;b.rectTransform.localRotation=Quaternion.Euler(0,0,42);
+            }
+            var label=Label(row,"연락처 입력 시 경품 안내용 저장에 동의합니다",36f/585f,0,1,1,18*720/Gh);
+            label.name="GStar consent label";label.alignment=TextAlignmentOptions.MidlineLeft;label.fontStyle=FontStyles.Bold;
+            button.onClick.AddListener(()=>{gstarConsent=!gstarConsent;GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);Render();});
+        }
         void GStarResult()
         {
             var run=GCurrentRun();int stage=run?.stageId??GStarSession.StageId;
@@ -157,9 +204,9 @@ namespace Vampire
             GHeader(0);
             GText(passed?"스테이지 클리어!":"스테이지 클리어 실패",472,210,729,87,75,passed?GGold:new Color(.68f,.34f,1),true);
             GText("이번 도전 점수",413,317,284,55,37);
-            GText($"{(run?.data.Total??0):N0}점",379,384,379,95,77,GGold,true).name="GStar total score";
-            // The stage badge is live, including its organ icon, rather than baked as stomach.
-            var badge=GRect("GStar live stage badge",content,413,483,296,78).gameObject.AddComponent<GStarPillGraphic>();
+            var total=GText($"{(run?.data.Total??0):N0}점",379,384,379,95,77,GGold,true);total.name="GStar total score";
+            // Cover the entire old stomach badge, including the protruding organ, for every stage.
+            var badge=GRect("GStar live stage badge",content,404,475,316,88).gameObject.AddComponent<GStarPillGraphic>();
             badge.face=passed?new Color(.68f,1,.81f):new Color(.84f,.70f,.98f);badge.raycastTarget=false;
             GText(GStage(stage)+(passed?" · 클리어":" · 실패"),430,496,264,49,32);
             GText("이름",138,590,168,61,35);GText("전화번호",138,669,168,61,32);
@@ -169,17 +216,23 @@ namespace Vampire
             string note=registered?"등록 완료 · 연락처는 순위표에 표시되지 않아요":gstarNotice;
             if(!string.IsNullOrEmpty(GStarLeaderboard.LastError))note=GStarLeaderboard.LastError;
             if(string.IsNullOrEmpty(note))note=string.IsNullOrEmpty(run?.exclusion)?"전화번호는 경품 안내에만 사용됩니다.":"연습 실행 · 순위 등록에서 제외됩니다.";
+            // Replace the baked orange flourishes under the two live contact lines with
+            // matching paper from the same plate; the checkbox/text must stay unobstructed.
+            GImage(GSlice(passed?"clear":"failed",755,737,20,61),142,737,601,61).name="GStar contact note backing";
             GText(note,147,741,596,29,21,string.IsNullOrEmpty(run?.exclusion)?GInk:new Color(.55f,.18f,.50f));
             if(!registered)
             {
-                var consent=GButton("consent",gstarConsent?"✓":"",155,771,25,25,()=>{gstarConsent=!gstarConsent;Render();},false,true);
-                GText("연락처 입력 시 경품 안내용 저장에 동의합니다",186,768,550,29,18);
+                GConsent();
             }
             GButton("register",registered?"등록 완료":"등록하기",132,800,624,100,RegisterGStarScore,true,!registered&&run!=null&&string.IsNullOrEmpty(run.exclusion));
             GText("스테이지별 1·2·3위 상품 증정",905,315,545,54,37);
+            // The source art highlights the middle tab. An opaque tray replaces that strip
+            // before live tabs are drawn, so the old pink tab cannot peek out on other stages.
+            var tabs=GRect("GStar ranking tabs backing",content,825,375,700,78).gameObject.AddComponent<GStarPillGraphic>();
+            tabs.face=new Color(1,.94f,.83f);tabs.gloss=false;tabs.raycastTarget=false;
             for(int i=0;i<3;i++)
             {
-                int s=i;var b=GButton("ranking stage "+i,GStage(i),835+i*225,384,226,60,()=>{gstarBoard=s;Render();},i==gstarBoard);
+                int s=i;var b=GButton("ranking stage "+i,GStage(i),833+i*228,383,222,62,()=>{gstarBoard=s;Render();},i==gstarBoard);
                 if(i!=gstarBoard)b.GetComponent<GStarPillGraphic>().face=new Color(1,.94f,.83f);
                 b.GetComponentInChildren<TextMeshProUGUI>().fontSize=33*720/Gh;
             }
@@ -190,7 +243,7 @@ namespace Vampire
             {
                 GText($"내 순위  {mine.rank:N0}위",832,514,285,51,32,new Color(0,.25f,.23f));
                 var name=GText(mine.name,1115,514,195,51,29);name.richText=false;name.overflowMode=TextOverflowModes.Ellipsis;
-                GText($"{mine.score:N0}점",1310,514,210,51,31);
+                GText($"{mine.score:N0}점",1310,514,210,51,31).fontSizeMin=16*720/Gh;
             }
             var rows=GStarLeaderboard.GetTop(gstarBoard,3);
             for(int i=0;i<3;i++)
@@ -198,7 +251,7 @@ namespace Vampire
                 float y=594+i*84;var row=i<rows.Count?rows[i]:null;
                 GText((i+1).ToString(),851,y,62,57,39,Color.white,true);
                 var n=GText(row?.name??"첫 도전을 기다려요",954,y,269,57,31);n.richText=false;n.overflowMode=TextOverflowModes.Ellipsis;
-                GText(row!=null?$"{row.score:N0}점":"—",1227,y,195,57,31);
+                GText(row!=null?$"{row.score:N0}점":"—",1227,y,195,57,31).fontSizeMin=16*720/Gh;
             }
             GButton("result next","다음",1383,834,181,73,()=>Show("gstarNext"));
             GButton("score details","점수 내역",817,850,235,46,ShowGStarScoreDetails,false,true,false);
@@ -230,6 +283,9 @@ namespace Vampire
                 GText($"스테이지 {i} · {GStage(i)}",205+i*460,636,348,49,35);
                 GButton("challenge "+i,"도전하기",x,700,381,90,()=>LaunchGStar(stage),true,left>0&&!starting&&!GStarSession.VisitorFinished);
             }
+            // The old right separator crosses the new, wider instruction. Keep its paper
+            // texture while clearing that decoration before rendering the live message.
+            GImage(GSlice("next",360,834,385,63),345,834,701,63).name="GStar next instruction backing";
             GText(string.IsNullOrEmpty(gstarNotice)?(GStarSession.Interrupted?"이전 도전이 중단됐어요. 남은 기회로 도전해 주세요.":"장비를 바꾸어 다시 도전할 수 있어요."):gstarNotice,358,842,665,52,25);
             GButton("change character","캐릭터 변경",1059,833,233,72,()=>ReturnToLobby(true),false,left>0);
             GButton("finish experience","체험 마치기",1304,833,233,72,EndGStarVisitor);
@@ -248,12 +304,14 @@ namespace Vampire
         void ExportGStarQa()
         {
             var exported=GStarAnalytics.Export();
-            gstarNotice=exported.success?"QA 자료 저장 완료 · "+exported.directory+
+            string exportNotice=exported.success?"QA 자료 저장 완료 · "+exported.directory+
                 (string.IsNullOrEmpty(exported.error)?"":"\n확인 필요: "+exported.error):exported.error;
+            gstarOperatorNotice=exported.success?"QA 자료 저장 완료 · 저장 폴더의 analytics/exports에서 확인하세요.":"QA 자료 저장 실패 · "+exported.error;
             if(root==null)return;
             var toast=Rect("GStar QA export notice",root,.12f,.025f,.88f,.14f);
             var background=toast.gameObject.AddComponent<Image>();background.color=new Color(.025f,.06f,.10f,.94f);background.raycastTarget=false;
-            var label=Label(toast,gstarNotice,.025f,.08f,.975f,.92f,18);label.color=Color.white;label.enableWordWrapping=true;
+            var label=Label(toast,exportNotice,.025f,.08f,.975f,.92f,18);label.color=Color.white;label.enableWordWrapping=true;
+            label.overflowMode=TextOverflowModes.Ellipsis;
             StartCoroutine(CloseGStarNotice(toast.gameObject));
         }
         System.Collections.IEnumerator CloseGStarNotice(GameObject notice)
@@ -280,16 +338,17 @@ namespace Vampire
             Panel(content,.18f,.18f,.82f,.82f);
             GText("직원용 · 다음 참가자 준비",355,224,962,70,45);
             GText("새 참가자는 도전 기회 3회로 시작합니다.\n누적 랭킹과 경품 연락처는 그대로 보관됩니다.",346,316,980,101,33).enableWordWrapping=true;
-            GButton("export records","경품 기록 저장",374,463,425,86,()=>{gstarNotice=GStarLeaderboard.ExportCsv()?"저장 완료 · "+GStarLeaderboard.ExportDirectory:GStarLeaderboard.LastError;Render();});
+            GButton("export records","경품 기록 저장",374,463,425,86,()=>{gstarOperatorNotice=GStarLeaderboard.ExportCsv()?"경품 기록 저장 완료 · 지스타 저장 폴더에서 확인하세요.":GStarLeaderboard.LastError;Render();});
             GButton("new visitor","새 참가자 시작",856,463,425,86,()=>
             {
                 if(!GStarSession.ResetVisitor()){gstarNotice=GStarSession.StorageError;Render();return;}
                 LobbyLoadoutData.Clear();CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();
-                gstarDraftName=gstarDraftPhone=null;gstarConsent=false;gstarOperator=false;ReturnToLobby(true);
+                gstarDraftName=gstarDraftPhone=null;gstarConsent=false;gstarOperator=false;gstarNotice=gstarOperatorNotice="";ReturnToLobby(true);
             },true);
             GButton("export qa","QA 자료 저장 · F8",570,565,532,65,ExportGStarQa);
-            GText(gstarNotice,344,633,980,40,18).enableWordWrapping=true;
-            GButton("close staff","닫기",660,662,352,66,()=>{gstarOperator=false;Render();});
+            var status=GText(gstarOperatorNotice,344,636,980,48,20);status.name="GStar staff status";
+            status.enableWordWrapping=true;status.overflowMode=TextOverflowModes.Ellipsis;
+            GButton("close staff","닫기",660,700,352,66,()=>{gstarOperator=false;Render();});
         }
         void ShowGStarScoreDetails()
         {
