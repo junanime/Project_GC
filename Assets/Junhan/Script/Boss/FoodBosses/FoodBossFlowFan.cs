@@ -9,18 +9,20 @@ namespace Vampire
         const int Sides=32,Rows=18;
         readonly Vector3[] vertices=new Vector3[(Sides+1)*(Rows+1)];
         readonly Vector2[] uv=new Vector2[(Sides+1)*(Rows+1)];
+        readonly Vector2[] surface=new Vector2[(Sides+1)*(Rows+1)];
         readonly Color[] colors=new Color[(Sides+1)*(Rows+1)];
+        readonly Vector2[] edge=new Vector2[Sides+1];
         public float Reach {get;private set;}
         public void Init(FoodBossRuntime b,Vector2 o,Vector2 d,float l,float a,float seconds,float hit)
         {
             boss=b;origin=o;direction=d.normalized;length=l;angle=a;duration=seconds;damage=hit;
             mesh=new Mesh();mesh.MarkDynamic();gameObject.AddComponent<MeshFilter>().sharedMesh=mesh;
-            var r=gameObject.AddComponent<MeshRenderer>();material=new Material(Resources.Load<Shader>("FoodBosses/SoftFlow"));material.SetFloat("_Mode",1);r.sharedMaterial=material;r.sortingOrder=490;
+            var r=gameObject.AddComponent<MeshRenderer>();material=new Material(Resources.Load<Shader>("FoodBosses/ViscousFlow"));material.SetFloat("_Mode",2);r.sharedMaterial=material;r.sortingOrder=490;
             var triangles=new int[Sides*Rows*6];int n=0;
             for(int row=0;row<Rows;row++)for(int side=0;side<Sides;side++)
             {int x=row*(Sides+1)+side,y=x+Sides+1;triangles[n++]=x;triangles[n++]=y;triangles[n++]=x+1;triangles[n++]=x+1;triangles[n++]=y;triangles[n++]=y+1;}
             mesh.vertices=vertices;mesh.triangles=triangles;
-            crest=FoodBossFlowRibbon.Create(transform,new Color(1,1,.68f,.88f),491,1);
+            crest=FoodBossFlowRibbon.Create(transform,new Color(1,1,.75f,.65f),491,1);
         }
         float Front(float side)
         {return Reach*(.97f+.025f*Mathf.Sin(side*21-age*11)+.005f*Mathf.Sin(side*39+age*7));}
@@ -30,7 +32,6 @@ namespace Vampire
             if(age>duration+.26f){Destroy(gameObject);return;}
             Reach=length*Mathf.SmoothStep(0,1,age/.38f);float fade=Mathf.Clamp01((duration+.26f-age)/.26f);
             float drain=Mathf.SmoothStep(0,1,(age-duration)/.26f),startAngle=Mathf.Atan2(direction.y,direction.x)*Mathf.Rad2Deg-angle*.5f;
-            var edge=new Vector2[Sides+1];
             for(int side=0;side<=Sides;side++)
             {
                 float s=side/(float)Sides;Vector2 ray=FoodBossRuntime.Dir(startAngle+angle*s);
@@ -39,11 +40,11 @@ namespace Vampire
                 {
                     float u=Mathf.Lerp(drain,1,row/(float)Rows),d=u*outer;int index=row*(Sides+1)+side;
                     vertices[index]=transform.InverseTransformPoint(origin+ray*d);
-                    uv[index]=new Vector2(d,s);colors[index]=new Color(1,.87f,.20f,fade*.88f*Mathf.Lerp(.78f,1,u));
+                    uv[index]=new Vector2(d,s);surface[index]=new Vector2(s,u);colors[index]=new Color(1,.96f,.30f,fade*.70f*Mathf.Lerp(.90f,1,u));
                 }
             }
-            material.SetFloat("_Clock",age);mesh.vertices=vertices;mesh.uv=uv;mesh.colors=colors;mesh.RecalculateBounds();
-            crest.Set(edge,.10f,age,fade*Mathf.Clamp01(age/.1f));
+            material.SetFloat("_Clock",age);mesh.vertices=vertices;mesh.uv=uv;mesh.uv2=surface;mesh.colors=colors;mesh.RecalculateBounds();
+            crest.Set(edge,.11f,age,fade*Mathf.Clamp01(age/.1f),false);
             var p=boss.Player;if(p==null||!p.IsAlive||age>duration||Time.time<next)return;
             Vector2 delta=(Vector2)p.transform.position-origin;float signed=Vector2.SignedAngle(direction,delta);
             float max=Front(Mathf.Clamp01(signed/angle+.5f));

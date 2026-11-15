@@ -19,8 +19,8 @@ namespace Vampire
         LineRenderer[] trails;
         Material material;
         readonly Vector3[][] points={new Vector3[41],new Vector3[41]};
-        static readonly float[] Offsets={0,143,267},Sweeps={112,76,43};
-        static readonly float[] Radii={.60f,.65f,.57f},Widths={.17f,.075f,.045f};
+        static readonly float[] Offsets={0,143,267,88},Sweeps={112,76,43,145};
+        static readonly float[] Radii={.60f,.65f,.57f,.42f},Widths={.17f,.075f,.045f,.14f};
 
         public static float Angle(float seconds)
         {
@@ -38,7 +38,7 @@ namespace Vampire
             var wind=go.AddComponent<ColonTurtleSpinWind>();wind.owner=boss;
             var shader=Resources.Load<Shader>("FoodBosses/SoftFlow")??Shader.Find("Sprites/Default");
             wind.material=new Material(shader);wind.material.SetFloat("_Mode",2);
-            wind.trails=new LineRenderer[6];
+            wind.trails=new LineRenderer[8];
             for(int i=0;i<wind.trails.Length;i++)
             {
                 int ribbon=i/2;
@@ -65,7 +65,7 @@ namespace Vampire
             if(owner==null||trails==null)return;
             Vector2 center=WorldCenter=owner.Visual.GroundSpinCenter;
             float radius=owner.Definition.Size;
-            for(int ribbon=0;ribbon<3;ribbon++)
+            for(int ribbon=0;ribbon<Radii.Length;ribbon++)
             {
                 int back=0,front=0;
                 // Unequal arcs make the rotational direction readable instead of a flashing ring.
@@ -73,7 +73,10 @@ namespace Vampire
                 {
                     float a=(WindAngle+Offsets[ribbon]-Sweeps[ribbon]*(1-j/40f))*Mathf.Deg2Rad;
                     float y=Mathf.Sin(a);
-                    var p=(Vector3)(center+new Vector2(Mathf.Cos(a)*radius*Radii[ribbon],y*radius*Radii[ribbon]*ColonBossVisual.GroundPlaneY));
+                    // An inner orbit crosses the ivory rim/orange belly too. Together
+                    // with the single whole-body shiver this reads as one spinning shell.
+                    Vector2 bandCenter=center+(ribbon==3?Vector2.down*owner.Visual.ReferenceHeight*.18f:Vector2.zero);
+                    var p=(Vector3)(bandCenter+new Vector2(Mathf.Cos(a)*radius*Radii[ribbon],y*radius*Radii[ribbon]*ColonBossVisual.GroundPlaneY));
                     if(y>=0)points[0][back++]=p;else points[1][front++]=p;
                 }
                 for(int side=0;side<2;side++)

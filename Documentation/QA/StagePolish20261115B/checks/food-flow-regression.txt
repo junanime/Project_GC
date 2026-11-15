@@ -1,0 +1,268 @@
+actual Level1 loading starts
+Cream advances by distance during its 1.5-second extrusion
+Only revealed cream has collision
+Pause freezes cream extrusion and material
+Cream incomplete before 1.5 seconds
+Cream reaches endpoint at 1.5 seconds
+P2 cream gaps remain safe
+Start flow review Rolpangi P1 Basic
+Pattern completes with finite supported geometry Rolpangi P1 Basic
+All observed projectiles use exactly 140% base speed Rolpangi P1 Basic
+Basic projectile count unchanged: 3
+Start flow review Rolpangi P1 Basic signature
+Pattern completes with finite supported geometry Rolpangi P1 Basic
+All observed projectiles use exactly 140% base speed Rolpangi P1 Basic
+Basic projectile count unchanged: 8
+Start flow review Rolpangi P1 Radial
+Pattern completes with finite supported geometry Rolpangi P1 Radial
+All observed projectiles use exactly 140% base speed Rolpangi P1 Radial
+Radial count unchanged: 12
+Start flow review Rolpangi P1 Dash
+Pattern completes with finite supported geometry Rolpangi P1 Dash
+All observed projectiles use exactly 140% base speed Rolpangi P1 Dash
+Start flow review Rolpangi P1 UniqueOne
+Pattern completes with finite supported geometry Rolpangi P1 UniqueOne
+All observed projectiles use exactly 140% base speed Rolpangi P1 UniqueOne
+Start flow review Rolpangi P1 UniqueTwo
+Pattern completes with finite supported geometry Rolpangi P1 UniqueTwo
+All observed projectiles use exactly 140% base speed Rolpangi P1 UniqueTwo
+Start flow review Rolpangi P1 Recovery
+Pattern completes with finite supported geometry Rolpangi P1 Recovery
+All observed projectiles use exactly 140% base speed Rolpangi P1 Recovery
+Recovery exits normally Rolpangi
+P2 excludes recovery Rolpangi
+Start flow review Rolpangi P2 Basic
+Pattern completes with finite supported geometry Rolpangi P2 Basic
+All observed projectiles use exactly 140% base speed Rolpangi P2 Basic
+Basic projectile count unchanged: 5
+P2 excludes recovery Rolpangi
+Start flow review Rolpangi P2 Basic signature
+Pattern completes with finite supported geometry Rolpangi P2 Basic
+All observed projectiles use exactly 140% base speed Rolpangi P2 Basic
+Basic projectile count unchanged: 16
+P2 excludes recovery Rolpangi
+Start flow review Rolpangi P2 Radial
+Pattern completes with finite supported geometry Rolpangi P2 Radial
+All observed projectiles use exactly 140% base speed Rolpangi P2 Radial
+Radial count unchanged: 24
+P2 excludes recovery Rolpangi
+Start flow review Rolpangi P2 Dash
+Pattern completes with finite supported geometry Rolpangi P2 Dash
+All observed projectiles use exactly 140% base speed Rolpangi P2 Dash
+P2 excludes recovery Rolpangi
+Start flow review Rolpangi P2 UniqueOne
+Pattern completes with finite supported geometry Rolpangi P2 UniqueOne
+All observed projectiles use exactly 140% base speed Rolpangi P2 UniqueOne
+P2 excludes recovery Rolpangi
+Start flow review Rolpangi P2 UniqueTwo
+Pattern completes with finite supported geometry Rolpangi P2 UniqueTwo
+All observed projectiles use exactly 140% base speed Rolpangi P2 UniqueTwo
+Start flow review Denikani P1 Basic
+Pattern completes with finite supported geometry Denikani P1 Basic
+All observed projectiles use exactly 140% base speed Denikani P1 Basic
+Basic projectile count unchanged: 3
+Start flow review Denikani P1 Basic signature
+Pattern completes with finite supported geometry Denikani P1 Basic
+All observed projectiles use exactly 140% base speed Denikani P1 Basic
+Basic projectile count unchanged: 6
+Start flow review Denikani P1 Radial
+Pattern completes with finite supported geometry Denikani P1 Radial
+All observed projectiles use exactly 140% base speed Denikani P1 Radial
+Radial count unchanged: 12
+Start flow review Denikani P1 Dash
+Pattern completes with finite supported geometry Denikani P1 Dash
+All observed projectiles use exactly 140% base speed Denikani P1 Dash
+Start flow review Denikani P1 UniqueOne
+Pattern completes with finite supported geometry Denikani P1 UniqueOne
+All observed projectiles use exactly 140% base speed Denikani P1 UniqueOne
+Start flow review Denikani P1 UniqueTwo
+Pattern completes with finite supported geometry Denikani P1 UniqueTwo
+All observed projectiles use exactly 140% base speed Denikani P1 UniqueTwo
+Start flow review Denikani P1 Recovery
+Pattern completes with finite supported geometry Denikani P1 Recovery
+All observed projectiles use exactly 140% base speed Denikani P1 Recovery
+Recovery exits normally Denikani
+P2 excludes recovery Denikani
+Start flow review Denikani P2 Basic
+Pattern completes with finite supported geometry Denikani P2 Basic
+All observed projectiles use exactly 140% base speed Denikani P2 Basic
+Basic projectile count unchanged: 5
+P2 excludes recovery Denikani
+Start flow review Denikani P2 Basic signature
+Pattern completes with finite supported geometry Denikani P2 Basic
+All observed projectiles use exactly 140% base speed Denikani P2 Basic
+Basic projectile count unchanged: 12
+P2 excludes recovery Denikani
+Start flow review Denikani P2 Radial
+Pattern completes with finite supported geometry Denikani P2 Radial
+All observed projectiles use exactly 140% base speed Denikani P2 Radial
+Radial count unchanged: 24
+P2 excludes recovery Denikani
+Start flow review Denikani P2 Dash
+Pattern completes with finite supported geometry Denikani P2 Dash
+All observed projectiles use exactly 140% base speed Denikani P2 Dash
+P2 excludes recovery Denikani
+Start flow review Denikani P2 UniqueOne
+Pattern completes with finite supported geometry Denikani P2 UniqueOne
+All observed projectiles use exactly 140% base speed Denikani P2 UniqueOne
+P2 excludes recovery Denikani
+Start flow review Denikani P2 UniqueTwo
+Pattern completes with finite supported geometry Denikani P2 UniqueTwo
+All observed projectiles use exactly 140% base speed Denikani P2 UniqueTwo
+Start flow review Maribi P1 Basic
+Pattern completes with finite supported geometry Maribi P1 Basic
+All observed projectiles use exactly 140% base speed Maribi P1 Basic
+Basic projectile count unchanged: 3
+Start flow review Maribi P1 Basic signature
+Pattern completes with finite supported geometry Maribi P1 Basic
+All observed projectiles use exactly 140% base speed Maribi P1 Basic
+Basic projectile count unchanged: 6
+Start flow review Maribi P1 Radial
+Pattern completes with finite supported geometry Maribi P1 Radial
+All observed projectiles use exactly 140% base speed Maribi P1 Radial
+Radial count unchanged: 12
+Start flow review Maribi P1 Dash
+Pattern completes with finite supported geometry Maribi P1 Dash
+All observed projectiles use exactly 140% base speed Maribi P1 Dash
+Start flow review Maribi P1 UniqueOne
+Pattern completes with finite supported geometry Maribi P1 UniqueOne
+All observed projectiles use exactly 140% base speed Maribi P1 UniqueOne
+Start flow review Maribi P1 UniqueTwo
+Pattern completes with finite supported geometry Maribi P1 UniqueTwo
+All observed projectiles use exactly 140% base speed Maribi P1 UniqueTwo
+Start flow review Maribi P1 Recovery
+Pattern completes with finite supported geometry Maribi P1 Recovery
+All observed projectiles use exactly 140% base speed Maribi P1 Recovery
+Recovery exits normally Maribi
+P2 excludes recovery Maribi
+Start flow review Maribi P2 Basic
+Pattern completes with finite supported geometry Maribi P2 Basic
+All observed projectiles use exactly 140% base speed Maribi P2 Basic
+Basic projectile count unchanged: 5
+P2 excludes recovery Maribi
+Start flow review Maribi P2 Basic signature
+Pattern completes with finite supported geometry Maribi P2 Basic
+All observed projectiles use exactly 140% base speed Maribi P2 Basic
+Basic projectile count unchanged: 9
+P2 excludes recovery Maribi
+Start flow review Maribi P2 Radial
+Pattern completes with finite supported geometry Maribi P2 Radial
+All observed projectiles use exactly 140% base speed Maribi P2 Radial
+Radial count unchanged: 24
+P2 excludes recovery Maribi
+Start flow review Maribi P2 Dash
+Pattern completes with finite supported geometry Maribi P2 Dash
+All observed projectiles use exactly 140% base speed Maribi P2 Dash
+P2 excludes recovery Maribi
+Start flow review Maribi P2 UniqueOne
+Pattern completes with finite supported geometry Maribi P2 UniqueOne
+All observed projectiles use exactly 140% base speed Maribi P2 UniqueOne
+P2 excludes recovery Maribi
+Start flow review Maribi P2 UniqueTwo
+Pattern completes with finite supported geometry Maribi P2 UniqueTwo
+All observed projectiles use exactly 140% base speed Maribi P2 UniqueTwo
+Start flow review Tangdengi P1 Basic
+Pattern completes with finite supported geometry Tangdengi P1 Basic
+All observed projectiles use exactly 140% base speed Tangdengi P1 Basic
+Basic projectile count unchanged: 3
+Start flow review Tangdengi P1 Basic signature
+Pattern completes with finite supported geometry Tangdengi P1 Basic
+All observed projectiles use exactly 140% base speed Tangdengi P1 Basic
+Basic projectile count unchanged: 6
+Start flow review Tangdengi P1 Radial
+Pattern completes with finite supported geometry Tangdengi P1 Radial
+All observed projectiles use exactly 140% base speed Tangdengi P1 Radial
+Radial count unchanged: 12
+Start flow review Tangdengi P1 Dash
+Pattern completes with finite supported geometry Tangdengi P1 Dash
+All observed projectiles use exactly 140% base speed Tangdengi P1 Dash
+Start flow review Tangdengi P1 UniqueOne
+Pattern completes with finite supported geometry Tangdengi P1 UniqueOne
+All observed projectiles use exactly 140% base speed Tangdengi P1 UniqueOne
+Start flow review Tangdengi P1 UniqueTwo
+Pattern completes with finite supported geometry Tangdengi P1 UniqueTwo
+All observed projectiles use exactly 140% base speed Tangdengi P1 UniqueTwo
+Start flow review Tangdengi P1 Recovery
+Pattern completes with finite supported geometry Tangdengi P1 Recovery
+All observed projectiles use exactly 140% base speed Tangdengi P1 Recovery
+Recovery exits normally Tangdengi
+P2 excludes recovery Tangdengi
+Start flow review Tangdengi P2 Basic
+Pattern completes with finite supported geometry Tangdengi P2 Basic
+All observed projectiles use exactly 140% base speed Tangdengi P2 Basic
+Basic projectile count unchanged: 5
+P2 excludes recovery Tangdengi
+Start flow review Tangdengi P2 Basic signature
+Pattern completes with finite supported geometry Tangdengi P2 Basic
+All observed projectiles use exactly 140% base speed Tangdengi P2 Basic
+Basic projectile count unchanged: 9
+P2 excludes recovery Tangdengi
+Start flow review Tangdengi P2 Radial
+Pattern completes with finite supported geometry Tangdengi P2 Radial
+All observed projectiles use exactly 140% base speed Tangdengi P2 Radial
+Radial count unchanged: 24
+P2 excludes recovery Tangdengi
+Start flow review Tangdengi P2 Dash
+Pattern completes with finite supported geometry Tangdengi P2 Dash
+All observed projectiles use exactly 140% base speed Tangdengi P2 Dash
+P2 excludes recovery Tangdengi
+Start flow review Tangdengi P2 UniqueOne
+Pattern completes with finite supported geometry Tangdengi P2 UniqueOne
+All observed projectiles use exactly 140% base speed Tangdengi P2 UniqueOne
+P2 excludes recovery Tangdengi
+Start flow review Tangdengi P2 UniqueTwo
+Pattern completes with finite supported geometry Tangdengi P2 UniqueTwo
+All observed projectiles use exactly 140% base speed Tangdengi P2 UniqueTwo
+Start flow review Hurumi P1 Basic
+Pattern completes with finite supported geometry Hurumi P1 Basic
+All observed projectiles use exactly 140% base speed Hurumi P1 Basic
+Basic projectile count unchanged: 3
+Start flow review Hurumi P1 Basic signature
+Pattern completes with finite supported geometry Hurumi P1 Basic
+All observed projectiles use exactly 140% base speed Hurumi P1 Basic
+Basic projectile count unchanged: 8
+Start flow review Hurumi P1 Radial
+Pattern completes with finite supported geometry Hurumi P1 Radial
+All observed projectiles use exactly 140% base speed Hurumi P1 Radial
+Radial count unchanged: 12
+Start flow review Hurumi P1 Dash
+Pattern completes with finite supported geometry Hurumi P1 Dash
+All observed projectiles use exactly 140% base speed Hurumi P1 Dash
+Start flow review Hurumi P1 UniqueOne
+Pattern completes with finite supported geometry Hurumi P1 UniqueOne
+All observed projectiles use exactly 140% base speed Hurumi P1 UniqueOne
+Start flow review Hurumi P1 UniqueTwo
+Pattern completes with finite supported geometry Hurumi P1 UniqueTwo
+All observed projectiles use exactly 140% base speed Hurumi P1 UniqueTwo
+Start flow review Hurumi P1 Recovery
+Pattern completes with finite supported geometry Hurumi P1 Recovery
+All observed projectiles use exactly 140% base speed Hurumi P1 Recovery
+Recovery exits normally Hurumi
+P2 excludes recovery Hurumi
+Start flow review Hurumi P2 Basic
+Pattern completes with finite supported geometry Hurumi P2 Basic
+All observed projectiles use exactly 140% base speed Hurumi P2 Basic
+Basic projectile count unchanged: 5
+P2 excludes recovery Hurumi
+Start flow review Hurumi P2 Basic signature
+Pattern completes with finite supported geometry Hurumi P2 Basic
+All observed projectiles use exactly 140% base speed Hurumi P2 Basic
+Basic projectile count unchanged: 16
+P2 excludes recovery Hurumi
+Start flow review Hurumi P2 Radial
+Pattern completes with finite supported geometry Hurumi P2 Radial
+All observed projectiles use exactly 140% base speed Hurumi P2 Radial
+Radial count unchanged: 24
+P2 excludes recovery Hurumi
+Start flow review Hurumi P2 Dash
+Pattern completes with finite supported geometry Hurumi P2 Dash
+All observed projectiles use exactly 140% base speed Hurumi P2 Dash
+P2 excludes recovery Hurumi
+Start flow review Hurumi P2 UniqueOne
+Pattern completes with finite supported geometry Hurumi P2 UniqueOne
+All observed projectiles use exactly 140% base speed Hurumi P2 UniqueOne
+P2 excludes recovery Hurumi
+Start flow review Hurumi P2 UniqueTwo
+Pattern completes with finite supported geometry Hurumi P2 UniqueTwo
+All observed projectiles use exactly 140% base speed Hurumi P2 UniqueTwo
+All flow meshes and cream sources cleaned after boss removal

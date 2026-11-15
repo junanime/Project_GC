@@ -18,6 +18,7 @@ namespace Vampire
         public bool SpicyActive => Active && Kind == OralTasteKind.Spicy && OralSpicyHazard.IsHot(Age);
         public IReadOnlyList<Vector2> SpiceCenters => spiceCenters;
         public float SpiceRadius => OralSpicyHazard.Radius;
+        public int SpiceLayoutVariant => lastSpiceVariant;
         public IReadOnlyList<Vector2> HoneyPositions => honeyPositions;
         public int HoneyFedCount { get; private set; }
         public int SaltSpawnedCount { get; private set; }
@@ -56,7 +57,7 @@ namespace Vampire
         SpriteRenderer bitterVisual;
         SnailSlowStatus slow;
         MeleeMonsterBlueprint saltBlueprint;
-        int saltPool = -1;
+        int saltPool = -1, lastSpiceVariant = -1;
         float nextScan, saltClock, bouncePlayerCooldown, statusAge, bitterGlow;
         bool bitterEaten, configured;
         sealed class HoneyGuest { public Monster Monster; public OralTasteLease Lease; public int Generation, Piece; public float Feed; }
@@ -64,6 +65,9 @@ namespace Vampire
 
         public void Configure(LevelManager level)
         {
+            // Same-level reconfiguration may rebuild art, but keeps encounter history.
+            // A new level or newly created controller begins without a previous layout.
+            if (Level != level) lastSpiceVariant = -1;
             CancelAll(); Level = level; map = FiniteStomachMap.Instance; Instance = this;
             honey = LoadArt("Honeycomb", new Vector2(.5f, .12f));
             lemon = LoadArt("LemonWhole", new Vector2(.5f, 0));
@@ -153,8 +157,15 @@ namespace Vampire
             OralMapGeometry.ZoneAt(map,p)==OralZone.Tongue && OralSpicyHazard.Contains(spiceCenters,p);
         void BuildSpice()
         {
+            // Never repeat the preceding seed arrangement; independent per-circle jitter
+            // still uses the continuous value inside this seed's four-degree bucket.
+            const int variants = 6;
+            int next = Random.Range(0, lastSpiceVariant < 0 ? variants : variants - 1);
+            if (lastSpiceVariant >= 0 && next >= lastSpiceVariant) next++;
+            lastSpiceVariant = next;
+            float variation = -12f + next * 4f + Random.Range(.0001f, 3.9999f);
             spiceCenters.AddRange(OralSpicyHazard.Layout(OralMapGeometry.TongueCenter(map),map.WorldRect,
-                p=>OralMapGeometry.TongueDistance(map,p,out _),Random.Range(-12f,12f)));
+                p=>OralMapGeometry.TongueDistance(map,p,out _),variation));
             for(int i=0;i<spiceCenters.Count;i++)
             {
                 var center=spiceCenters[i];

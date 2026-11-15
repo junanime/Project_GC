@@ -1,0 +1,31 @@
+actual Level1 loading starts
+Stage1 liquid shader is included
+Cream advances by distance during its 1.5-second extrusion
+Only revealed cream has collision
+Pause freezes cream extrusion and material
+Cream incomplete before 1.5 seconds
+Cream reaches endpoint at 1.5 seconds
+P2 cream gaps remain safe
+Deposited cream stops changing shape after settling
+Rounded cream caps retain complete cross-section lighting data
+Cancelling the owner removes lingering cream and its slowdown
+Real liquid presentation starts: rolpangi-cream-p1
+Continuous supported geometry and completed real pattern: rolpangi-cream-p1
+Actual flowing cream or lemon material rendered: rolpangi-cream-p1
+Pressure builds and returns to approved resting body: rolpangi-cream-p1
+Real liquid presentation starts: maribi-juice-p1
+Continuous supported geometry and completed real pattern: maribi-juice-p1
+Actual flowing cream or lemon material rendered: maribi-juice-p1
+Pressure builds and returns to approved resting body: maribi-juice-p1
+Real liquid presentation starts: rolpangi-cream-p2
+Continuous supported geometry and completed real pattern: rolpangi-cream-p2
+Actual flowing cream or lemon material rendered: rolpangi-cream-p2
+Pressure builds and returns to approved resting body: rolpangi-cream-p2
+Real liquid presentation starts: maribi-juice-p2
+Continuous supported geometry and completed real pattern: maribi-juice-p2
+Actual flowing cream or lemon material rendered: maribi-juice-p2
+Pressure builds and returns to approved resting body: maribi-juice-p2
+Real liquid presentation starts: maribi-landing-p2
+Continuous supported geometry and completed real pattern: maribi-landing-p2
+Actual flowing cream or lemon material rendered: maribi-landing-p2
+Liquid clip cleanup leaves no attack renderers

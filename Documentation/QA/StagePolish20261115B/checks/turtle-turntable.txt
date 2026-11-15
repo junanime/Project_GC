@@ -1,0 +1,3 @@
+PASS Turtle-spin-right; real PlayPattern(0); frames=134; spin samples=63; all 8 complete yaw views displayed; same visible size and central vertical axis; whole shell/rim/belly/stalk turn; no static body, UV overlay or shiver; upright fixed contact; zero Z rotation; no flip/alpha flashes; faster front/back wind with inner underside belt; cleanup
+PASS Turtle-spin-left; real PlayPattern(0); frames=134; spin samples=63; all 8 complete yaw views displayed; same visible size and central vertical axis; whole shell/rim/belly/stalk turn; no static body, UV overlay or shiver; upright fixed contact; zero Z rotation; no flip/alpha flashes; faster front/back wind with inner underside belt; cleanup
+PASS pause, mid-spin disable cleanup and reactivated neutral artwork

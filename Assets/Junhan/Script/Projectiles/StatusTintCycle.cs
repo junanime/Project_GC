@@ -67,9 +67,13 @@ namespace Vampire
             properties = properties ?? new MaterialPropertyBlock();
             body.GetPropertyBlock(sourceProperties); active.GetPropertyBlock(properties);
             string shader = body.sharedMaterial != null ? body.sharedMaterial.shader.name : "";
-            properties.SetFloat("_BodyMask", shader == "FoodBosses/CleanFlightBody" ? 1 : shader == "FoodBosses/ArticulatedBody" ? 2 : 0);
+            properties.SetFloat("_BodyMask", shader == "FoodBosses/CleanFlightBody" ? 1 : shader == "FoodBosses/ArticulatedBody" ? 2 : shader=="ColonBosses/ShellYaw"?3:0);
             properties.SetFloat("_Phase", sourceProperties.GetFloat("_Phase"));
             properties.SetVector("_Cell", sourceProperties.GetVector("_Cell"));
+            properties.SetVector("_Frame",sourceProperties.GetVector("_Frame"));
+            properties.SetFloat("_Side",sourceProperties.GetFloat("_Side"));
+            properties.SetFloat("_Sweep",sourceProperties.GetFloat("_Sweep"));
+            properties.SetFloat("_SweepActive",sourceProperties.GetFloat("_SweepActive"));
             active.SetPropertyBlock(properties);
         }
         void OnDisable()

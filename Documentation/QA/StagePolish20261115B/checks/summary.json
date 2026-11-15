@@ -1,0 +1,25 @@
+{
+  "date": "2026-11-15",
+  "branch": "Junhan2",
+  "baseCommit": "8adc445e",
+  "oralRuntime": 30,
+  "colonPresentation": 27,
+  "foodInitialPresentation": 40,
+  "foodFinalLiquidPresentation": 31,
+  "foodFlowRegression": 268,
+  "colonBossRegression": 258,
+  "colonSpecialRegression": 72,
+  "unitTests": 12,
+  "turtleTurntable": {
+    "framesEach": 134,
+    "pauseDisableReactivate": "PASS",
+    "directions": 2,
+    "viewsEach": 8
+  },
+  "actualGameFrames": true,
+  "manualFullPlaythrough": false,
+  "newSpinArtwork": "builtin image generation, approved Pose003 reference",
+  "editorProgressMatchesBefore": true,
+  "desktopProgressMatchesBefore": true,
+  "desktopProfileWritten": false
+}

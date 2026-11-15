@@ -27,6 +27,10 @@ namespace Vampire
         public int Facing { get; private set; } = -1;
         public bool Visible = true;
         public float Lift, Roll, Squash, Stretch, Opacity = 1;
+        public float BalletLanding, BellyPulse, FlipperSweep;
+        public int FlipperSide;
+        public bool ExternalChestnuts;
+        public bool IsPoseDisplayed(int pose) => displayedPose==pose && poseBlend>=.39f;
         int requestedPose = -1, displayedPose = -1;
         float poseBlend = 1;
         public int Pose
@@ -39,16 +43,28 @@ namespace Vampire
         ColonBossRuntime boss;
         Sprite[] walk, bareWalk, poses, summon, nutFrontFrames;
         public bool Bare;
+        // Projection is retained as the pattern's activation blend; it no longer flattens
+        // or rolls the shell. GroundSpin is exclusively the horizontal surface angle.
         public float GroundSpin,GroundSpinProjection;
+        public int GroundSpinFrame { get; private set; }=-1;
         public const float GroundPlaneY=.58f;
         public Transform GroundSpinPlane => spinPlane;
-        public Vector2 GroundSpinCenter => spinPlane!=null&&GroundSpinProjection>0
-            ? (Vector2)spinPlane.position : (Vector2)transform.position+Vector2.up*(ReferenceHeight*.47f+Lift);
+        public Vector2 GroundSpinCenter
+        {
+            get
+            {
+                if(spinPlane==null||GroundSpinProjection<=0)return (Vector2)transform.position+Vector2.up*(ReferenceHeight*.47f+Lift);
+                var center=spinMeshCenter;if(Main.flipX)center.x=-center.x;
+                return Main.transform.TransformPoint(center);
+            }
+        }
         Transform spinPlane;
         Sprite spinMeshSource;
         Vector2[] spinMeshVertices;
         public IReadOnlyList<Vector2> GroundSpinFootprint => spinMeshVertices;
         Vector2 spinMeshCenter;
+        Material articulationMaterial;
+        MaterialPropertyBlock articulationBlock;
         // Opaque hull of the approved 220x160 Pose_003, in source pixels (bottom-left origin).
         // This is a contact guide only: no replacement image, mesh, or second body is rendered.
         // Sheet rectangles contain transparent corners that would make the shell hover.
@@ -94,7 +110,12 @@ namespace Vampire
             Main = new GameObject("Body · one reference scale").AddComponent<SpriteRenderer>(); Main.transform.SetParent(transform,false); Main.sortingOrder = 510;
             if(owner.Kind==ColonBossKind.Turtle)
             {
-                spinPlane=new GameObject("Shell ground-plane projection").transform;spinPlane.SetParent(transform,false);
+                var shader=Resources.Load<Shader>("ColonBosses/ShellYaw");
+                if(shader!=null){articulationMaterial=new Material(shader);Main.sharedMaterial=articulationMaterial;articulationBlock=new MaterialPropertyBlock();}
+            }
+            if(owner.Kind==ColonBossKind.Turtle)
+            {
+                spinPlane=new GameObject("Upright shell ground contact").transform;spinPlane.SetParent(transform,false);
                 Main.transform.SetParent(spinPlane,false);
             }
             shadow = new GameObject("Ground contact shadow").AddComponent<SpriteRenderer>(); shadow.transform.SetParent(transform,false);
@@ -133,7 +154,49 @@ namespace Vampire
             boss.Kind==ColonBossKind.Shark?Socket(.13f,.43f):boss.Kind==ColonBossKind.Pudding?Socket(.30f,.65f):
             boss.Kind==ColonBossKind.Turtle?Socket(.15f,.67f):boss.Kind==ColonBossKind.Manatee?Socket(.18f,.59f):Socket(.15f,.35f);
         public void Summon(float progress) { summonFrame = Mathf.Clamp(Mathf.FloorToInt(progress * summon.Length),0,summon.Length-1); Sample(); }
-        public void ResetPose() { Pose = summonFrame = -1; Lift = Roll = GroundSpin = GroundSpinProjection = Squash = Stretch = 0; WalkRate = 1; Visible = true; Opacity = 1; }
+        public void ResetPose() { Pose = summonFrame = -1; Lift = Roll = GroundSpin = GroundSpinProjection = Squash = Stretch = BalletLanding = BellyPulse = FlipperSweep = 0; WalkRate = 1; Visible = true; Opacity = 1; }
+        NutPose Attachment()
+        {
+            int attachmentPose=Mathf.Max(0,displayedPose);
+            if(art?.nutPoses!=null)foreach(var p in art.nutPoses)if(p.pose==attachmentPose)return p;
+            return null;
+        }
+        public bool ChestnutsExposed => displayedPose<0||displayedPose==0||Attachment()==null||Attachment().visible;
+        public Vector2 ChestnutSocket(int slot)
+        {
+            slot=Mathf.Clamp(slot,0,2);var p=Attachment();
+            Vector2 local=p?.positions!=null&&slot<p.positions.Length?p.positions[slot]:NutSockets[slot];
+            if(Main.flipX)local.x=-local.x;
+            return Main.transform.TransformPoint(local);
+        }
+        public float ChestnutHeight(int slot)
+        {
+            slot=Mathf.Clamp(slot,0,2);var p=Attachment();
+            return (p?.heights!=null&&slot<p.heights.Length?p.heights[slot]:NutHeights[slot])*Main.transform.lossyScale.y;
+        }
+        public Vector2 FlipperTip(int side)
+        {
+            // Same pivot/angle as ShellYaw: the projectile leaves the visibly moving fin.
+            Vector2 pivot=side==0?new Vector2(.40f,.27f):new Vector2(.66f,.23f);
+            Vector2 sourceTip=side==0?new Vector2(.10f,.38f):new Vector2(.82f,.12f);
+            float angle=(FlipperSweep-.5f)*.63f*(side==0?1:-1);
+            float cosine=Mathf.Cos(angle),sine=Mathf.Sin(angle);
+            Vector2 d=sourceTip-pivot;
+            Vector2 tip=pivot+new Vector2(d.x*cosine-d.y*sine,d.x*sine+d.y*cosine);
+            // Invert the feathered UV warp too: the upper edge of the left fin blends
+            // into its shoulder, so a rigid socket alone drifts during anticipation.
+            for(int i=0;i<12;i++)
+            {
+                d=tip-pivot;
+                float vertical=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.39f,.55f,tip.y));
+                float horizontal=side==0?1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.35f,.48f,tip.x)):
+                    Mathf.SmoothStep(0,1,Mathf.InverseLerp(.63f,.72f,tip.x));
+                Vector2 sampled=Vector2.Lerp(tip,pivot+new Vector2(d.x*cosine+d.y*sine,-d.x*sine+d.y*cosine),vertical*horizontal);
+                tip+=sourceTip-sampled;
+            }
+            return Socket(tip.x,tip.y);
+        }
+        void OnDestroy(){if(articulationMaterial!=null)Destroy(articulationMaterial);}
         void LateUpdate()
         {
             if (boss == null || boss.EncounterPaused&&!boss.Dead || boss.Immobilized&&!boss.Dead) return;
@@ -151,20 +214,47 @@ namespace Vampire
             if (summonFrame >= 0 && summon.Length > 0) sprite = summon[Mathf.Min(summonFrame,summon.Length-1)];
             else if (displayedPose >= 0 && poses.Length > 0) sprite = poses[Mathf.Min(displayedPose,poses.Length-1)];
             else {var active=Bare&&bareWalk!=null&&bareWalk.Length>0?bareWalk:walk;sprite = active[boss.Moving ? Mathf.FloorToInt(clock * WalkRate / cycle * active.Length) % active.Length : 0];}
+            GroundSpinFrame=-1;
+            if(boss.Kind==ColonBossKind.Turtle&&displayedPose==3&&GroundSpinProjection>0)
+            {
+                int turn=Mathf.FloorToInt(Mathf.Repeat(GroundSpin*(Facing>0?-1:1),360)/45f)%ColonTurtleSpinFrames.Count;
+                var turned=ColonTurtleSpinFrames.Get(turn);
+                if(turned!=null){sprite=turned;GroundSpinFrame=turn;}
+            }
             Main.sprite = sprite; Main.enabled = Visible;
             float breathe = !boss.Moving && !boss.Busy && boss.Kind != ColonBossKind.Turtle ? Mathf.Sin(clock*2.8f)*.012f : 0;
             float anticipation=summonFrame<0&&!boss.Dead?Mathf.Sin(poseBlend*Mathf.PI)*.025f:0;
-            Main.transform.localScale = new Vector3(scale*(1+Stretch+(Squash+anticipation)*.4f),scale*(1-Squash-anticipation+breathe),1);
-            // Rotate the one original sprite before projecting it into the horizontal ground plane.
-            // Scaling the sprite itself before rotation would make the ellipse stand up like a wheel.
+            float belly=Mathf.Sin(Mathf.Clamp01(BellyPulse)*Mathf.PI*2)*Mathf.Exp(-BellyPulse*2)*.095f;
+            float landing=Mathf.Sin(Mathf.Clamp01(BalletLanding)*Mathf.PI*3)*Mathf.Exp(-BalletLanding*3)*.065f;
+            Main.transform.localScale = new Vector3(scale*(1+Stretch+(Squash+anticipation)*.4f+belly+landing),scale*(1-Squash-anticipation+breathe-belly*.65f-landing*.65f),1);
+            // One complete turntable frame replaces the body, including rim, underside
+            // and stalk. Normalize its opaque footprint to the original retracted pose.
+            // No stationary body/second shell is drawn beneath the rotating artwork.
+            if(GroundSpinFrame>=0)
+            {
+                Vector2 pixels=ColonTurtleSpinFrames.PixelSize(GroundSpinFrame);
+                Main.transform.localScale=new Vector3(scale*ColonTurtleSpinFrames.ReferenceWidth/pixels.x,
+                    scale*ColonTurtleSpinFrames.ReferenceHeight/pixels.y,1);
+            }
             Main.flipX = Facing > 0;
             Vector3 center=Vector3.up*(ReferenceHeight*.47f);
-            var rotation=Quaternion.Euler(0,0,Roll+GroundSpin);
+            var rotation=Quaternion.Euler(0,0,Roll);
             Main.transform.localRotation = rotation;
             if(spinPlane!=null&&GroundSpinProjection>0)
             {
-                float blend=Mathf.Clamp01(GroundSpinProjection),projection=Mathf.Lerp(1,GroundPlaneY,blend);
-                if(spinMeshSource!=sprite)
+                float blend=Mathf.Clamp01(GroundSpinProjection);
+                if(GroundSpinFrame>=0)
+                {
+                    Vector2 pixels=ColonTurtleSpinFrames.PixelSize(GroundSpinFrame)/sprite.pixelsPerUnit;
+                    if(spinMeshSource!=sprite)
+                    {
+                        spinMeshSource=sprite;
+                        spinMeshVertices=new[]{new Vector2(-pixels.x*.5f,0),new Vector2(pixels.x*.5f,0),
+                            new Vector2(pixels.x*.5f,pixels.y),new Vector2(-pixels.x*.5f,pixels.y)};
+                        spinMeshCenter=new Vector2(0,pixels.y*.5f);
+                    }
+                }
+                else if(spinMeshSource!=sprite)
                 {
                     spinMeshSource=sprite;spinMeshVertices=new Vector2[TurtleShellPixels.Length];
                     Vector2 minimum=Vector2.one*float.PositiveInfinity,maximum=Vector2.one*float.NegativeInfinity;
@@ -176,21 +266,16 @@ namespace Vampire
                     }
                     spinMeshCenter=(minimum+maximum)*.5f;
                 }
-                Vector3 pivot=Vector3.Scale(spinMeshCenter,Main.transform.localScale);
-                if(Main.flipX)pivot.x=-pivot.x;
-                Main.transform.localPosition=-(rotation*pivot);
-                spinPlane.localScale=new Vector3(1,projection,1);
-                // Use the authored opaque outline, not transparent sheet corners, to hold its
-                // lowest visible point on the floor as the asymmetric shell rotates.
+                Main.transform.localPosition=Vector3.up*Lift+center-rotation*center;
+                spinPlane.localScale=Vector3.one;
+                // Keep the approved upright silhouette resting on the floor throughout yaw.
                 float lowest=float.PositiveInfinity;
                 foreach(var vertex in spinMeshVertices)
                 {
                     Vector3 p=Vector3.Scale(vertex,Main.transform.localScale);if(Main.flipX)p.x=-p.x;
-                    lowest=Mathf.Min(lowest,(rotation*(p-pivot)).y);
+                    lowest=Mathf.Min(lowest,(rotation*p).y);
                 }
-                Vector3 upright=Vector3.up*Lift+pivot;
-                Vector3 grounded=new Vector3(0,Lift+.015f-lowest*projection,0);
-                spinPlane.localPosition=Vector3.Lerp(upright,grounded,blend);
+                spinPlane.localPosition=Vector3.up*(.015f-lowest)*blend;
             }
             else
             {
@@ -198,17 +283,27 @@ namespace Vampire
                 Main.transform.localPosition=Vector3.up*Lift+center-rotation*center;
             }
             Main.color = flash > 0 ? new Color(1,.73f,.73f,Opacity) : new Color(1,1,1,Opacity);
+            if(articulationBlock!=null)
+            {
+                Main.GetPropertyBlock(articulationBlock);
+                Rect rect=sprite.textureRect;
+                articulationBlock.SetVector("_Frame",new Vector4(rect.x/sprite.texture.width,rect.y/sprite.texture.height,rect.width/sprite.texture.width,rect.height/sprite.texture.height));
+                // Mirroring the facing sprite must not reverse the visible surface rotation.
+                articulationBlock.SetFloat("_Yaw",GroundSpin*Mathf.Deg2Rad*(Main.flipX?1:-1));
+                articulationBlock.SetFloat("_Spin",0); // Rotation is authored over the whole body, never a partial-shell UV layer.
+                articulationBlock.SetFloat("_Sweep",displayedPose==4||displayedPose==5?FlipperSweep:0);
+                articulationBlock.SetFloat("_SweepActive",displayedPose==4||displayedPose==5?1:0);
+                articulationBlock.SetFloat("_Side",FlipperSide);
+                Main.SetPropertyBlock(articulationBlock);
+            }
             if(carriedNuts!=null)
             {
-                NutPose attachment=null;
-                if(art?.nutPoses!=null)
-                    foreach(var candidate in art.nutPoses)
-                        if(candidate.pose==displayedPose){attachment=candidate;break;}
+                NutPose attachment=Attachment();
                 for(int i=0;i<carriedNuts.Length;i++)
                 {
                     var nut=carriedNuts[i];
                     // Each authored pose owns its sockets; a curled body must not leave nuts floating.
-                    nut.enabled=Visible&&!Bare&&displayedPose>0&&summonFrame<0&&(attachment==null||attachment.visible);
+                    nut.enabled=Visible&&!Bare&&!ExternalChestnuts&&displayedPose>0&&summonFrame<0&&(attachment==null||attachment.visible);
                     var p=attachment?.positions!=null&&i<attachment.positions.Length?attachment.positions[i]:NutSockets[i];
                     float height=attachment?.heights!=null&&i<attachment.heights.Length?attachment.heights[i]:NutHeights[i];
                     if(Main.flipX)p.x=-p.x;
@@ -218,8 +313,9 @@ namespace Vampire
                 }
                 if(nutFront!=null)
                 {
-                    nutFront.enabled=carriedNuts[0].enabled&&nutFrontFrames!=null&&displayedPose<nutFrontFrames.Length;
-                    if(nutFront.enabled)nutFront.sprite=nutFrontFrames[displayedPose];
+                    int frontFrame=Mathf.Max(0,displayedPose);
+                    nutFront.enabled=(carriedNuts[0].enabled||ExternalChestnuts&&Visible&&summonFrame<0&&ChestnutsExposed)&&nutFrontFrames!=null&&frontFrame<nutFrontFrames.Length;
+                    if(nutFront.enabled)nutFront.sprite=nutFrontFrames[frontFrame];
                     nutFront.flipX=Main.flipX;nutFront.color=Main.color;
                 }
             }

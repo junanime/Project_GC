@@ -1,0 +1,130 @@
+[
+  {
+    "file": "denikani-impact.gif",
+    "frames": 180,
+    "seconds": 6.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": 2555255
+  },
+  {
+    "file": "flamingo-ballet.gif",
+    "frames": 139,
+    "seconds": 4.63,
+    "width": 960,
+    "height": 540,
+    "bytes": 4653603
+  },
+  {
+    "file": "hedgehog-recall.gif",
+    "frames": 304,
+    "seconds": 10.13,
+    "width": 960,
+    "height": 540,
+    "bytes": 1827652
+  },
+  {
+    "file": "hurumi-return.gif",
+    "frames": 180,
+    "seconds": 6.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": 1931732
+  },
+  {
+    "file": "manatee-door.gif",
+    "frames": 211,
+    "seconds": 7.03,
+    "width": 960,
+    "height": 540,
+    "bytes": 591709
+  },
+  {
+    "file": "maribi-landing.gif",
+    "frames": 210,
+    "seconds": 7.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": 1871901
+  },
+  {
+    "file": "maribi-lemon.gif",
+    "frames": 162,
+    "seconds": 5.4,
+    "width": 1280,
+    "height": 720,
+    "bytes": 1478395
+  },
+  {
+    "file": "pudding-belly.gif",
+    "frames": 191,
+    "seconds": 6.36,
+    "width": 960,
+    "height": 540,
+    "bytes": 3085274
+  },
+  {
+    "file": "rolpangi-cream.gif",
+    "frames": 354,
+    "seconds": 11.8,
+    "width": 1280,
+    "height": 720,
+    "bytes": 3128120
+  },
+  {
+    "file": "shark-breach.gif",
+    "frames": 153,
+    "seconds": 5.1,
+    "width": 960,
+    "height": 540,
+    "bytes": 5269482
+  },
+  {
+    "file": "spicy-active.gif",
+    "frames": 342,
+    "seconds": 22.8,
+    "width": 960,
+    "height": 540,
+    "bytes": 2815059
+  },
+  {
+    "file": "spicy-random.gif",
+    "frames": 96,
+    "seconds": 6.4,
+    "width": 960,
+    "height": 540,
+    "bytes": 985332
+  },
+  {
+    "file": "tangdengi-charge.gif",
+    "frames": 270,
+    "seconds": 9.0,
+    "width": 1280,
+    "height": 720,
+    "bytes": 2305731
+  },
+  {
+    "file": "turtle-crescents.gif",
+    "frames": 155,
+    "seconds": 5.16,
+    "width": 960,
+    "height": 540,
+    "bytes": 1775642
+  },
+  {
+    "file": "turtle-spin-left-turntable.gif",
+    "frames": 134,
+    "seconds": 4.46,
+    "width": 960,
+    "height": 540,
+    "bytes": 1963117
+  },
+  {
+    "file": "turtle-spin-turntable.gif",
+    "frames": 134,
+    "seconds": 4.46,
+    "width": 960,
+    "height": 540,
+    "bytes": 4519993
+  }
+]

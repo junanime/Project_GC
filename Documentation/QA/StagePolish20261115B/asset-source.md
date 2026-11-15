@@ -1,0 +1,13 @@
+# 멜론바다거북 회전 원화 기록
+
+2026-11-15, 내장 이미지 생성 도구로 원본 `Assets/Resources/ColonBosses/turtle/Pose.png`의 네 번째 그림(Pose003)을 참조하여 8방향 회전 시트를 추가했다. 기존 이동·소환·다른 포즈 파일은 덮어쓰지 않았다.
+
+- 게임 원화: `Assets/Resources/ColonBosses/turtle/Spin.png`
+- 원본 크기: 1774×887, RGBA 투명 배경. 생성된 PNG를 재편집하지 않고 그대로 복사했다.
+- SHA256: `190b85c31c8b5dc9a9e26749112ff129a851841294c8320f8727890ce88d701e`
+- 4열×2행, 0·45·90·135·180·225·270·315도의 방향 그림. 실제 3D 모델 회전이 아니라 완전히 숨은 보스의 방향별 2D 원화 교체다.
+- 실행 중 각 그림의 불투명 영역을 원본 껍질의 170×133픽셀 기준 표시 크기와 바닥 위치에 맞춘다. 한 개의 본체 표시만 교체하므로 이전 본체가 아래에 남지 않는다.
+
+## 생성 프롬프트
+
+Create a production 2D game animation SPRITE SHEET, transparent RGBA background. The attached image is the APPROVED sprite sheet of our melon sea turtle boss. USE ONLY the FOURTH figure from the LEFT: completely retracted melon turtle shell, round olive/lime green domed melon shell with irregular pale melon net markings, thick ivory rim, caramel orange melon-flesh underside with segment lines, tiny green T-shaped stalk. No head, no legs, no flowers. Match that exact approved design, proportions, warm dark outline, crisp compact pixel-art cartoon painterly shading, no simplification or new ornaments. We need an actual TURNTABLE ROTATION around the shell's central VERTICAL axis like a spinning top / Mario turtle shell. Never roll the drawing clockwise in the plane of the screen; green remains on top, ivory rim in middle, orange underside below throughout. Generate exactly 8 equal animation cells in a strict 4-column by 2-row grid, with generous transparent gutters, no border or text. In reading order these are vertical-axis angles 0,45,90,135,180,225,270,315 degrees. The CAMERA stays fixed at the original slightly raised three-quarter orthographic game view. The shell center, floor contact, size, outline quality and material identity stay perfectly consistent in every cell. As the whole shell turns, the pale green net markings, rim highlights, orange underside segment lines and top stalk all change view together. There is no stationary base and no overlaid second shell. All parts belong to ONE rotating shell. Show actual physically coherent new angles, not eight identical shells, not rotations of a flat cutout. Shell is rotationally round so width/height stay similar, but its surface features and stalk clearly rotate. Every cell has exactly one complete shell with transparent surrounding background, no ground shadow, no motion lines, no sparkles, no effects. Use the full sheet for eight generously sized sprites; sharp pixels and same original palette. This sprite sheet will replace the entire sprite during the short spin dash, not be layered over a stationary turtle.

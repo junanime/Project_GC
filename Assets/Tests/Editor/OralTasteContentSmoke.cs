@@ -282,24 +282,52 @@ namespace Vampire.Tests.Editor
             var center=OralMapGeometry.TongueCenter(map);var taste=OralTasteEvents.Instance;
             Clear(level);Place(player,center);
             Check(taste.Begin(OralTasteKind.Spicy),"scattered circular spicy patches begin");
-            Check(taste.SpiceCenters.Count>=5,"spicy circles are distributed across the tongue");
+            Check(taste.SpiceCenters.Count==10,"ten unchanged-size spicy circles are distributed across the tongue");
+            var previousLayout=taste.SpiceCenters.ToArray();
+            int previousVariant=taste.SpiceLayoutVariant;
+            var hot=taste.SpiceCenters.OrderBy(p=>(p-center).sqrMagnitude).First();
+            var safeTongue=SpicySafePoint(map,taste.SpiceCenters,hot);Place(player,hot);
+            Check(taste.SpiceCenters.All(p=>Vector2.Distance(p,safeTongue)>=taste.SpiceRadius+.6f),"recorded safe point clears every circle with player-width margin");
             captureFocus=map.WorldRect.center;shotSize=map.WorldRect.height*.53f;bool checkedCoverage=false,warningChecked=false,leftBurn=false,gapProtected=false,immuneChecked=false,fadeChecked=false;int ticksAtExit=-1,immuneTicks=-1;float activeSeconds=0;float start=Time.time;
             Set(player,"currentHealth",player.MaxHealth);Set(player,"isInvincible",false);
-            var teeth=OralMapGeometry.ToothCenters(map);var safeTongue=center+Vector2.right*(taste.SpiceRadius+.7f);
+            var teeth=OralMapGeometry.ToothCenters(map);
             float spicyHealth=player.CurrentHealth,immuneHealth=0;
             float spicyWarning=OralTasteEvents.SpicyWarning;float spicyRecording=taste.Duration+1f;
             yield return Record("05-spicy-tongue",()=>Time.time-start<spicyRecording,()=>{
                 float age=Time.time-start;
-                if(age>spicyWarning-1&&age<spicyWarning-.05f&&!warningChecked){warningChecked=true;Check(!taste.ContainsSpice(center)&&taste.BurnRemaining<=0,"warning circle cannot ignite the player");Check(Mathf.Approximately(player.CurrentHealth,spicyHealth),"warning does not remove HP");}
-                if(taste.SpicyActive){activeSeconds+=Time.deltaTime;if(!checkedCoverage){checkedCoverage=true;Check(taste.ContainsSpice(center),"visible circle center belongs to spicy damage mask");Check(!taste.ContainsSpice(safeTongue),"walkable tongue gap lies outside all circles");Check(teeth.All(p=>!taste.ContainsSpice(p)),"every tooth excluded from spicy damage mask");}}
+                if(age>spicyWarning-1&&age<spicyWarning-.05f&&!warningChecked){warningChecked=true;Check(!taste.ContainsSpice(hot)&&taste.BurnRemaining<=0,"warning circle cannot ignite the player");Check(Mathf.Approximately(player.CurrentHealth,spicyHealth),"warning does not remove HP");}
+                if(taste.SpicyActive){activeSeconds+=Time.deltaTime;if(!checkedCoverage){checkedCoverage=true;Check(taste.ContainsSpice(hot),"visible circle center belongs to spicy damage mask");Check(!taste.ContainsSpice(safeTongue),"walkable tongue gap lies outside all circles");Check(teeth.All(p=>!taste.ContainsSpice(p)),"every tooth excluded from spicy damage mask");}}
                 if(age>spicyWarning+3.2f&&!leftBurn){leftBurn=true;ticksAtExit=taste.BurnTicks;Check(player.CurrentHealth<spicyHealth&&ticksAtExit>0,"standing inside an active circle actually removes player HP");Place(player,safeTongue);Check(taste.BurnRemaining>0,"leaving hazard retains three-second burn");}
-                if(age>spicyWarning+7f&&!gapProtected){gapProtected=true;Check(taste.BurnTicks>ticksAtExit,"existing burn ticks continue after leaving a circle");Check(taste.BurnRemaining<=.01f,"burn expires in a safe tongue gap without refresh");Set(player,"isInvincible",true);immuneHealth=player.CurrentHealth;immuneTicks=taste.BurnTicks;Place(player,center);}
+                if(age>spicyWarning+7f&&!gapProtected){gapProtected=true;Check(taste.BurnTicks>ticksAtExit,"existing burn ticks continue after leaving a circle");Check(taste.BurnRemaining<=.01f,"burn expires in a safe tongue gap without refresh");Set(player,"isInvincible",true);immuneHealth=player.CurrentHealth;immuneTicks=taste.BurnTicks;Place(player,hot);}
                 if(age>spicyWarning+9f&&!immuneChecked){immuneChecked=true;Check(Mathf.Approximately(player.CurrentHealth,immuneHealth)&&taste.BurnTicks==immuneTicks,"burn respects player invincibility and does not count blocked ticks as damage");Place(player,safeTongue);}
-                if(age>spicyWarning+15f+.05f&&!fadeChecked){fadeChecked=true;Check(!taste.ContainsSpice(center),"extinguishing visual has no remaining floor damage");}
+                if(age>spicyWarning+15f+.05f&&!fadeChecked){fadeChecked=true;Check(!taste.ContainsSpice(hot),"extinguishing visual has no remaining floor damage");}
             });
             Check(warningChecked&&checkedCoverage&&gapProtected&&immuneChecked&&fadeChecked&&Mathf.Abs(activeSeconds-15)<.2f,"spicy active circles last exactly fifteen game seconds");Check(!taste.SpicyActive&&taste.SpiceCenters.Count==0,"spicy circles clean up after the harmless fade");
+            Set(player,"isInvincible",true);
+            for(int repeat=2;repeat<=3;repeat++)
+            {
+                taste.Configure(level);Check(taste.Begin(OralTasteKind.Spicy),"fresh random spicy event "+repeat);
+                var current=taste.SpiceCenters.ToArray();
+                Check(current.Length==10&&!current.SequenceEqual(previousLayout),"actual consecutive event changes all-layout coordinates without shrinking circles "+repeat);
+                Check(taste.SpiceLayoutVariant!=previousVariant,"consecutive spicy events never reuse the previous base arrangement "+repeat);
+                previousVariant=taste.SpiceLayoutVariant;
+                previousLayout=current;float preview=Time.time;
+                yield return Record("05-spicy-layout-"+repeat,()=>Time.time-preview<3.2f,()=>{});
+                Frame("spicy-layout-"+repeat);
+            }
             captureFocus=null;shotSize=5;Set(player,"isInvincible",true);taste.Configure(level);Place(player,center);
 
+        }
+        static Vector2 SpicySafePoint(FiniteStomachMap map,IReadOnlyList<Vector2> centers,Vector2 near)
+        {
+            for(int i=0;i<360;i++)
+            {
+                float angle=i*Mathf.Deg2Rad;
+                var point=near+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*(OralSpicyHazard.Radius+.7f);
+                if(OralMapGeometry.TongueDistance(map,point,out _)>=.6f&&
+                    centers.All(p=>Vector2.Distance(p,point)>=OralSpicyHazard.Radius+.6f))return point;
+            }
+            throw new InvalidOperationException("No walkable safe point beside the recorded spicy circle");
         }
         static IEnumerator Retakes(LevelManager level,OralFieldEvents events,Character player,Vector2 center)
         {
