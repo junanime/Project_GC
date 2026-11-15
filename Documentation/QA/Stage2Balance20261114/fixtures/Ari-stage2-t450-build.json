@@ -1,0 +1,190 @@
+{
+    "SourceSceneName": "",
+    "TargetSceneName": "",
+    "SourceSceneHandle": 0,
+    "SourceCharacterInstanceId": 0,
+    "CharacterState": {
+        "SkillPassiveLevel": 1,
+        "SkillActiveLevel": 1,
+        "SkillDashRewardUpgrades": 0,
+        "ShiniFuel": 0,
+        "Prescription": {
+            "tag": 0,
+            "quests": [
+                2,
+                0,
+                3
+            ],
+            "progress": [
+                20.0,
+                150.0,
+                25.0
+            ],
+            "claimed": false
+        },
+        "Relic": {
+            "id": "",
+            "additionalIds": [
+                "honey_rice"
+            ],
+            "revived": false,
+            "barrier": 15.0,
+            "rechargeDelay": 0.0,
+            "idleTime": 0.0,
+            "reflectCooldown": 0.0
+        },
+        "SkillPassiveRemaining": 0.0,
+        "SkillActiveRemaining": 0.0,
+        "SkillCooldownRemaining": 20.779726028442384,
+        "SkillSleepSeconds": 0.0,
+        "SkillSummonRemaining": 0.0,
+        "SkillConsumedSleepStacks": 0,
+        "SkillIceProcFailures": 8,
+        "CurrentLevel": 15,
+        "CurrentExp": 1102.0,
+        "NextLevelExp": 1188.0,
+        "ExpToNextLevel": 163.0,
+        "CurrentHealth": 100.0,
+        "MovementSpeed": 1.2300000190734864,
+        "Armor": 0.0,
+        "RangeMultiplier": 1.0,
+        "AttackSpeedMultiplier": 1.1500000953674317,
+        "DamageMultiplier": 1.3100000619888306,
+        "MaxHealthBonus": 0.0,
+        "ProjectileSpeedMultiplier": 1.0,
+        "MagnetRangeBonus": 0.800000011920929,
+        "ExpMultiplier": 1.0,
+        "CritChance": 0.10000000149011612,
+        "LuckMultiplier": 1.0,
+        "LifeSteal": 0.0,
+        "HealOnKill": 0.0,
+        "ProjectileSizeMultiplier": 1.0,
+        "AdditionalProjectiles": 4,
+        "HasShield": false,
+        "ReviveCount": 0,
+        "InvincibilityTimeBonus": 0.0,
+        "HasAntibioticBomb": false,
+        "HealOnIdlePerSecond": 0.0,
+        "AutoCollectItems": false,
+        "SlowChance": 0.0,
+        "AdditionalPierce": 0,
+        "BurnChance": 0.0,
+        "HasGinsengStick": false,
+        "AntibioticBombChance": 0.0,
+        "HasThermometer": false,
+        "MouthwashCount": 0,
+        "ReflexHammerCount": 0,
+        "DashDistance": 2.4000000953674318,
+        "DashRechargeTime": 2.0,
+        "MaxDashCharges": 2,
+        "CurrentDashCharges": 2,
+        "ThermometerStacks": 0
+    },
+    "AbilityStates": [
+        {
+            "AbilityTypeName": "Vampire.SyringeDartAbility",
+            "AbilityObjectName": "Syringe Dart Ability",
+            "Level": 1,
+            "ConditionalAugmentIds": []
+        },
+        {
+            "AbilityTypeName": "Vampire.SyringeSpecialAugmentAbility",
+            "AbilityObjectName": "AcupunctureFormation",
+            "Level": 1,
+            "ConditionalAugmentIds": []
+        },
+        {
+            "AbilityTypeName": "Vampire.Ver4AugmentRuntime",
+            "AbilityObjectName": "Ver4 Upgrade State",
+            "Level": 12,
+            "ConditionalAugmentIds": [
+                "{\"version\":4,\"parent\":\"AcupunctureFormation\",\"original\":false,\"option\":8,\"grade\":0,\"amount\":1.0}",
+                "{\"version\":4,\"parent\":\"AcupunctureFormation\",\"original\":false,\"option\":8,\"grade\":1,\"amount\":1.0}",
+                "{\"version\":4,\"parent\":\"AcupunctureFormation\",\"original\":false,\"option\":8,\"grade\":0,\"amount\":1.0}",
+                "{\"version\":4,\"parent\":\"AcupunctureFormation\",\"original\":false,\"option\":0,\"grade\":0,\"amount\":0.07999999821186066}",
+                "{\"version\":4,\"parent\":\"WindNeedle\",\"original\":false,\"option\":3,\"grade\":1,\"amount\":0.07500000298023224}",
+                "{\"version\":4,\"parent\":\"IceNeedle\",\"original\":false,\"option\":1,\"grade\":0,\"amount\":0.05000000074505806}",
+                "{\"version\":4,\"parent\":\"WindNeedle\",\"original\":false,\"option\":0,\"grade\":2,\"amount\":0.15000000596046449}",
+                "{\"version\":4,\"parent\":\"IceNeedle\",\"original\":false,\"option\":3,\"grade\":1,\"amount\":0.07500000298023224}",
+                "{\"version\":4,\"parent\":\"WindNeedle\",\"original\":false,\"option\":0,\"grade\":0,\"amount\":0.07999999821186066}",
+                "{\"version\":4,\"parent\":\"AcupunctureFormation\",\"original\":false,\"option\":8,\"grade\":1,\"amount\":1.0}",
+                "{\"version\":4,\"parent\":\"FireNeedle\",\"original\":true,\"option\":2,\"grade\":3,\"amount\":0.0}"
+            ]
+        },
+        {
+            "AbilityTypeName": "Vampire.SyringeSpecialAugmentAbility",
+            "AbilityObjectName": "Ver4 Special WindNeedle",
+            "Level": 1,
+            "ConditionalAugmentIds": []
+        },
+        {
+            "AbilityTypeName": "Vampire.SyringeSpecialAugmentAbility",
+            "AbilityObjectName": "Ver4 Special IceNeedle",
+            "Level": 1,
+            "ConditionalAugmentIds": []
+        },
+        {
+            "AbilityTypeName": "Vampire.SyringeSpecialAugmentAbility",
+            "AbilityObjectName": "Ver4 Special FireNeedle",
+            "Level": 1,
+            "ConditionalAugmentIds": []
+        }
+    ],
+    "OctoberItems": {
+        "owned": [
+            4,
+            43,
+            11,
+            44,
+            3,
+            12
+        ],
+        "delayedExp": 0.0,
+        "overflow": 0.0,
+        "lostHp": 0.0,
+        "elapsed": 450.0019836425781,
+        "kills": 344,
+        "streak": 3,
+        "attacks": 524,
+        "hits": 1865,
+        "resistance": [],
+        "cooldownRemaining": [],
+        "hurtAge": 0.0,
+        "healAge": 0.0,
+        "killAge": 0.0,
+        "expRemaining": 0.0,
+        "baseDamage": 8.0,
+        "shield8": false,
+        "shield26": false,
+        "crit": false,
+        "walnut": false,
+        "drum": false,
+        "dragon": false
+    },
+    "MerchantItems": {
+        "items": [
+            {
+                "instanceID": 34048
+            },
+            {
+                "instanceID": 33806
+            },
+            {
+                "instanceID": 33826
+            },
+            {
+                "instanceID": 34084
+            },
+            {
+                "instanceID": 33894
+            },
+            {
+                "instanceID": 34248
+            }
+        ],
+        "activated": [],
+        "tags": [],
+        "names": []
+    },
+    "CoinsGained": 241
+}

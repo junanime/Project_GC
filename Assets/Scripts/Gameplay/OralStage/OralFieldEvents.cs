@@ -319,13 +319,13 @@ namespace Vampire
                 if (Tastes == null || Tastes.Active) return false;
                 begun = Tastes.Begin((OralTasteKind)((int)kind - (int)OralEventKind.Sweet));
             }
-            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 혀 전체가 달아오릅니다 · 치아로 피하세요" :
+            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 붉은 화상 원을 피해 빈 길로 이동하세요" :
                 kind == OralEventKind.Sweet ? "벌꿀집 발견! | 먹으러 모인 몬스터를 먼저 처치하세요" :
                 kind == OralEventKind.Salty ? "짠맛! | 소금결정 무리가 몰려옵니다" :
                 kind == OralEventKind.Sour ? "신맛! | 통레몬 스프링을 밟아 더 멀리 튀어 오르세요" :
                 kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
                 kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
-                "구강 수호대! | 오토바이를 치아까지 안내하세요");
+                "구강 수호대! | 민트 수호대를 지켜 혀 점프대까지 호위하세요");
             return begun;
         }
 

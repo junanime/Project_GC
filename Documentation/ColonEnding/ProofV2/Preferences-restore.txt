@@ -1,0 +1,1 @@
+Game preferences restored to pre-test snapshot; only Unity session ID/count changed. Standalone registry values unchanged. 2026-11-14T19:38:24.5001267+09:00

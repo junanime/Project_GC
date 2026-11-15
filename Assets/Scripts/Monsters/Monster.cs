@@ -550,8 +550,10 @@ namespace Vampire
                 return;
             }
 
-            monsterSpriteRenderer.flipX =
-                ((playerCharacter.transform.position.x - rb.position.x) < 0);
+            Vector2 facingTarget = playerCharacter.transform.position;
+            if (this is MeleeMonster && OralGuardEscort.TryTarget(this, facingTarget, out var guardTarget))
+                facingTarget = guardTarget;
+            monsterSpriteRenderer.flipX = facingTarget.x < rb.position.x;
         }
 
         protected virtual void FixedUpdate()

@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 namespace Vampire
 {
-    // Small procedural ink shapes reuse a mesh and lists; no item-card sprites or collisions.
+    // Procedural proc geometry and separate transparent acquisition sprites share the pool.
     public sealed class ItemFeedbackVisual : MonoBehaviour
     {
         Mesh mesh;
@@ -30,6 +30,15 @@ namespace Vampire
         bool themed, sustained, acquired;
         ItemEffectTheme theme;
         int variant;
+        SpriteRenderer identity;
+        public void SetIdentity(Sprite sprite)
+        {
+            if(!acquired || sprite==null)return;
+            if(identity==null){var go=new GameObject("Acquired object");go.transform.SetParent(transform,false);identity=go.AddComponent<SpriteRenderer>();identity.sortingLayerName="Monster Full";identity.sortingOrder=39;}
+            identity.sprite=sprite;identity.enabled=true;
+            identity.transform.localScale=Vector3.one*(1.15f/Mathf.Max(sprite.bounds.size.x,sprite.bounds.size.y));
+            DrawTheme(0);
+        }
         public void ConfigureTheme(ItemEffectTheme value,bool hold,bool acquisition,string text,int seed)
         {
             themed=true;theme=value;sustained=hold;acquired=acquisition;variant=seed;
@@ -40,6 +49,7 @@ namespace Vampire
         }
         void DrawTheme(float t)
         {
+            if(acquired && following && follow!=null)transform.position=follow.position+Vector3.up*1.65f;
             bool calm=GamePreferences.Current.reducedMotion;
             float motion=calm?0:age;
             float alpha=sustained?Mathf.Clamp01((1-t)*10):Mathf.Min(1,t*18+.15f)*Mathf.Clamp01((1-t)*2.5f);
@@ -48,8 +58,14 @@ namespace Vampire
             transform.localScale=Vector3.one*radius*scale;
             tint.SetColor("_Color",new Color(1,1,1,alpha*GamePreferences.Current.augmentVfxOpacity));drawing.SetPropertyBlock(tint);
             vertices.Clear();colors.Clear();triangles.Clear();
-            DrawShape(motion,t);
-            if(acquired)
+            if(acquired && identity!=null && identity.enabled)
+            {
+                // The complete transparent object only: no backing disc or clipping mask.
+                identity.transform.localPosition=Vector3.up*(calm?0:.12f*Mathf.Sin(t*Mathf.PI));
+                identity.color=new Color(1,1,1,alpha*GamePreferences.Current.augmentVfxOpacity);
+            }
+            else DrawShape(motion,t);
+            if(acquired && (identity==null || !identity.enabled))
             {
                 for(int i=0;i<5;i++){float a=i*Mathf.PI*2/5+variant*.19f;var p=Polar(a)*(.82f+t*.3f);Diamond(p,.04f,Paper);}
             }
@@ -155,6 +171,7 @@ namespace Vampire
         public void Play(ItemFeedbackKind kind, Vector3 position, float seconds, float size, Transform target, int count, string text)
         {
             Lease++;
+            if(identity!=null){identity.enabled=false;identity.sprite=null;}
             Kind = kind; themed = false; duration = Mathf.Max(.05f, seconds); radius = Mathf.Max(.1f, size);
             age = 0; follow = target; following = target != null; stacks = count;
             transform.SetPositionAndRotation(position, Quaternion.identity); transform.localScale = Vector3.one;

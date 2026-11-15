@@ -36,6 +36,32 @@ namespace Vampire
 
         private bool trajectoryLocked = false;
         public bool HasLockedTrajectory => trajectoryLocked;
+        private bool carrierControlled;
+        public bool IsCarrierControlled => carrierControlled;
+
+        // Carrier control only pauses this monster's steering/fuse. HP, hitbox, DoTs,
+        // spawn generation and the ordinary single-death reward path remain intact.
+        public bool SetCarrierControlled(bool controlled)
+        {
+            if (controlled && (!alive || currentHealth <= 0 || explosionStarted ||
+                missedAutoDeathStarted || !gameObject.activeInHierarchy)) return false;
+            carrierControlled = controlled;
+            StopWarningCoroutine(); warningActive = false;
+            trajectoryLocked = false; lockedTrajectoryTimer = 0;
+            lockedMoveDirection = Vector2.zero; timeSinceSpawn = 0;
+            if (rb != null) { rb.velocity = Vector2.zero; rb.angularVelocity = 0; }
+            return true;
+        }
+
+        public void ReleaseFromCarrier(Vector2 direction)
+        {
+            SetCarrierControlled(false);
+            if (!alive || currentHealth <= 0 || explosionStarted || missedAutoDeathStarted) return;
+            lockedMoveDirection = direction.sqrMagnitude > .0001f ? direction.normalized : Vector2.right;
+            trajectoryLocked = true; lockedTrajectoryTimer = 0;
+            timeSinceSpawn = explodingBlueprint == null ? 0 : Mathf.Max(0, explodingBlueprint.armDelay);
+            if (rb != null) rb.velocity = lockedMoveDirection * GetMaxMoveSpeed();
+        }
         private bool missedAutoDeathStarted = false;
 
         private Vector2 lockedMoveDirection = Vector2.zero;
@@ -65,6 +91,7 @@ namespace Vampire
             }
 
             base.Setup(monsterIndex, position, monsterBlueprint, hpBuff);
+            carrierControlled = false;
 
             // Apply on every pooled spawn, including inactive child hitboxes.
             // Keep player layers and the existing collision/trigger damage path intact.
@@ -136,7 +163,7 @@ namespace Vampire
         {
             base.Update();
 
-            if (IsFieldRuntimeSuspended)
+            if (IsFieldRuntimeSuspended || carrierControlled)
             {
                 return;
             }
@@ -158,7 +185,7 @@ namespace Vampire
         {
             base.FixedUpdate();
 
-            if (IsFieldRuntimeSuspended)
+            if (IsFieldRuntimeSuspended || carrierControlled)
             {
                 return;
             }
@@ -414,7 +441,7 @@ namespace Vampire
 
         private void TryExplodeByDistance()
         {
-            if (IsFieldRuntimeSuspended)
+            if (IsFieldRuntimeSuspended || carrierControlled)
             {
                 return;
             }
@@ -470,7 +497,7 @@ namespace Vampire
 
         private void TryExplodeFromCollider(Collider2D other)
         {
-            if (IsFieldRuntimeSuspended)
+            if (IsFieldRuntimeSuspended || carrierControlled)
             {
                 return;
             }

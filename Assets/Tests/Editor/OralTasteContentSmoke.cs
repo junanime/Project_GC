@@ -140,6 +140,24 @@ namespace Vampire.Tests.Editor
                 yield return Density(level,events,player,center);
                 SessionState.SetBool(Key+"Done",true);yield break;
             }
+            if(Environment.GetCommandLineArgs().Contains("-oralGuardEscort")){
+                yield return OralGuardEscortSmoke.Checks(level);
+                SessionState.SetBool(Key+"Done",true);yield break;
+            }
+            if(Environment.GetCommandLineArgs().Contains("-oralPolish")){
+                yield return OralGuardEscortSmoke.Checks(level);
+                yield return SpicyReview(level);
+                Clear(level);ambient.ClearAll();Place(player,center);
+                Check(ambient.BeginGuard(),"selected mint walking art begins recorded route");
+                var mintGoal=ambient.GuardGoal;int mintPrior=ambient.GuardCompleted;float recordStart=Time.time;
+                shotSize=4;
+                yield return Record("08-mint-guard",()=>ambient.GuardActive&&Time.time-recordStart<ambient.Guard.Lifetime+3,()=>{
+                    captureFocus=(ambient.GuardActive?ambient.GuardPosition:mintGoal)+Vector2.up*.5f;
+                });
+                Check(ambient.GuardCompleted==mintPrior+1&&ambient.GuardReward!=null,"recorded mint route completes with one chest");
+                ambient.ClearAll();taste.Configure(level);captureFocus=null;shotSize=5;
+                SessionState.SetBool(Key+"Done",true);yield break;
+            }
             if(Environment.GetCommandLineArgs().Contains("-oralQuick")){
                 yield return CharacterQuick(level,events,player,center);
                 SessionState.SetBool(Key+"Done",true);yield break;
@@ -178,18 +196,7 @@ namespace Vampire.Tests.Editor
             float health=player.CurrentHealth;start=Time.time;yield return Record("04-bitter-morsel",()=>Time.time-start<7,()=>{});
             Check(taste.BitterRewards==1&&player.CurrentHealth>health,"enduring bitter grants one healing reward");taste.Configure(level);Place(player,center);
 
-            Check(taste.Begin(OralTasteKind.Spicy),"spicy B tongue coverage begins");
-            captureFocus=map.WorldRect.center;shotSize=map.WorldRect.height*.53f;bool checkedCoverage=false,leftBurn=false,teethProtected=false;int ticksAtExit=-1;float activeSeconds=0;start=Time.time;
-            Set(player,"currentHealth",player.MaxHealth);Set(player,"isInvincible",false);
-            var teeth=OralMapGeometry.ToothCenters(map);var safeTooth=teeth.OrderBy(p=>Vector2.Distance(p,center)).First();
-            float spicyWarning=taste.Duration-15f;float spicyRecording=taste.Duration+1f;
-            yield return Record("05-spicy-tongue",()=>Time.time-start<spicyRecording,()=>{
-                float age=Time.time-start;if(taste.SpicyActive){activeSeconds+=Time.deltaTime;if(!checkedCoverage){checkedCoverage=true;Check(taste.ContainsSpice(center),"tongue center belongs to spicy damage mask");Check(teeth.All(p=>!taste.ContainsSpice(p)),"every tooth excluded from spicy damage mask");}}
-                if(age>spicyWarning+1.2f&&!leftBurn){leftBurn=true;ticksAtExit=taste.BurnTicks;Place(player,safeTooth);Check(taste.BurnRemaining>0,"leaving hazard retains burn duration");}
-                if(age>spicyWarning+5f&&!teethProtected){teethProtected=true;Check(taste.BurnTicks>ticksAtExit,"burn ticks continue after leaving tongue");Check(taste.BurnRemaining<=.01f,"burn expires on safe teeth without refresh");Set(player,"isInvincible",true);}
-            });
-            Check(checkedCoverage&&Mathf.Abs(activeSeconds-15)<.2f,"spicy active coverage lasts exactly fifteen game seconds");Check(!taste.SpicyActive,"spicy field disappears after fifteen seconds");
-            captureFocus=null;shotSize=5;Set(player,"isInvincible",true);taste.Configure(level);Place(player,center);
+            yield return SpicyReview(level);
 
             // Ground content may coexist with a movement event, but pauses out of the lower arena.
             Check(taste.Begin(OralTasteKind.Sweet),"sweet restarts for overlap audit");spawn(center+Vector2.up);
@@ -238,10 +245,10 @@ namespace Vampire.Tests.Editor
             foreach(var obstacle in boulderTargets)if(obstacle!=null)obstacle.GetComponent<Rigidbody2D>().constraints=RigidbodyConstraints2D.FreezeRotation;Clear(level);
             ambient.ClearAll();yield return null;Check(Mathf.Approximately(ambient.PlayerMoveMultiplier,1),"boulder cleanup restores movement speed");Place(player,center);
 
-            ambient.BeginGuard();Check(ambient.GuardActive,"classic biker guard appears");var goal=ambient.GuardGoal;Check(OralMapGeometry.ZoneAt(map,goal)==OralZone.Teeth,"guard goal is actual tooth walkable surface");
-            captureFocus=(center+goal)*.5f;shotSize=Mathf.Max(5,Vector2.Distance(center,goal)*.7f);int prior=ambient.GuardCompleted;bool led=false;start=Time.time;
-            yield return Record("08-biker-guard",()=>Time.time-start<15,()=>{if(Time.time-start>3&&!led){led=true;Place(player,goal);}});
-            Check(ambient.GuardCompleted>prior,"guided guard completes tooth arrival");Check(ambient.GuardReward!=null&&ambient.GuardReward.CanInteract,"guard grants usable chest reward once");ambient.ClearAll();captureFocus=null;shotSize=5;Place(player,center);
+            ambient.BeginGuard();Check(ambient.GuardActive,"five mint escorts appear");var goal=ambient.GuardGoal;Check(OralMapGeometry.ZoneAt(map,goal)==OralZone.Teeth,"guard goal is actual tooth walkable surface");
+            captureFocus=(center+goal)*.5f;shotSize=Mathf.Max(5,Vector2.Distance(center,goal)*.7f);int prior=ambient.GuardCompleted;start=Time.time;
+            yield return Record("08-mint-guard",()=>ambient.GuardActive&&Time.time-start<ambient.Guard.Lifetime+3,()=>{});
+            Check(ambient.GuardCompleted>prior,"autonomous five-member escort completes selected molar arrival");Check(ambient.GuardReward!=null&&ambient.GuardReward.CanInteract,"guard grants usable chest reward once");ambient.ClearAll();captureFocus=null;shotSize=5;Place(player,center);
 
             Check(taste.Begin(OralTasteKind.Spicy),"spicy begins for ceiling suspension audit");Check(events.ForceEvent(OralEventKind.Ceiling),"ceiling can begin alongside floor hazard");
             while(events.CeilingPhase<2)yield return null;float ceilingAge=taste.Age;yield return new WaitForSeconds(.25f);Check(Mathf.Approximately(ceilingAge,taste.Age),"floor hazard suspended during ceiling play");
@@ -269,6 +276,59 @@ namespace Vampire.Tests.Editor
             Check(Object.FindObjectsOfType<OralTasteEvents>().Length==0&&Object.FindObjectsOfType<OralAmbientContent>().Length==0,"stage teardown removes new runtimes and their effects");
             SessionState.SetBool(Key+"Done",true);
         }
+        static IEnumerator SpicyReview(LevelManager level)
+        {
+            var player=level.PlayerCharacter;var map=FiniteStomachMap.Instance;
+            var center=OralMapGeometry.TongueCenter(map);var taste=OralTasteEvents.Instance;
+            Clear(level);Place(player,center);
+            Check(taste.Begin(OralTasteKind.Spicy),"scattered circular spicy patches begin");
+            Check(taste.SpiceCenters.Count==10,"ten unchanged-size spicy circles are distributed across the tongue");
+            var previousLayout=taste.SpiceCenters.ToArray();
+            int previousVariant=taste.SpiceLayoutVariant;
+            var hot=taste.SpiceCenters.OrderBy(p=>(p-center).sqrMagnitude).First();
+            var safeTongue=SpicySafePoint(map,taste.SpiceCenters,hot);Place(player,hot);
+            Check(taste.SpiceCenters.All(p=>Vector2.Distance(p,safeTongue)>=taste.SpiceRadius+.6f),"recorded safe point clears every circle with player-width margin");
+            captureFocus=map.WorldRect.center;shotSize=map.WorldRect.height*.53f;bool checkedCoverage=false,warningChecked=false,leftBurn=false,gapProtected=false,immuneChecked=false,fadeChecked=false;int ticksAtExit=-1,immuneTicks=-1;float activeSeconds=0;float start=Time.time;
+            Set(player,"currentHealth",player.MaxHealth);Set(player,"isInvincible",false);
+            var teeth=OralMapGeometry.ToothCenters(map);
+            float spicyHealth=player.CurrentHealth,immuneHealth=0;
+            float spicyWarning=OralTasteEvents.SpicyWarning;float spicyRecording=taste.Duration+1f;
+            yield return Record("05-spicy-tongue",()=>Time.time-start<spicyRecording,()=>{
+                float age=Time.time-start;
+                if(age>spicyWarning-1&&age<spicyWarning-.05f&&!warningChecked){warningChecked=true;Check(!taste.ContainsSpice(hot)&&taste.BurnRemaining<=0,"warning circle cannot ignite the player");Check(Mathf.Approximately(player.CurrentHealth,spicyHealth),"warning does not remove HP");}
+                if(taste.SpicyActive){activeSeconds+=Time.deltaTime;if(!checkedCoverage){checkedCoverage=true;Check(taste.ContainsSpice(hot),"visible circle center belongs to spicy damage mask");Check(!taste.ContainsSpice(safeTongue),"walkable tongue gap lies outside all circles");Check(teeth.All(p=>!taste.ContainsSpice(p)),"every tooth excluded from spicy damage mask");}}
+                if(age>spicyWarning+3.2f&&!leftBurn){leftBurn=true;ticksAtExit=taste.BurnTicks;Check(player.CurrentHealth<spicyHealth&&ticksAtExit>0,"standing inside an active circle actually removes player HP");Place(player,safeTongue);Check(taste.BurnRemaining>0,"leaving hazard retains three-second burn");}
+                if(age>spicyWarning+7f&&!gapProtected){gapProtected=true;Check(taste.BurnTicks>ticksAtExit,"existing burn ticks continue after leaving a circle");Check(taste.BurnRemaining<=.01f,"burn expires in a safe tongue gap without refresh");Set(player,"isInvincible",true);immuneHealth=player.CurrentHealth;immuneTicks=taste.BurnTicks;Place(player,hot);}
+                if(age>spicyWarning+9f&&!immuneChecked){immuneChecked=true;Check(Mathf.Approximately(player.CurrentHealth,immuneHealth)&&taste.BurnTicks==immuneTicks,"burn respects player invincibility and does not count blocked ticks as damage");Place(player,safeTongue);}
+                if(age>spicyWarning+15f+.05f&&!fadeChecked){fadeChecked=true;Check(!taste.ContainsSpice(hot),"extinguishing visual has no remaining floor damage");}
+            });
+            Check(warningChecked&&checkedCoverage&&gapProtected&&immuneChecked&&fadeChecked&&Mathf.Abs(activeSeconds-15)<.2f,"spicy active circles last exactly fifteen game seconds");Check(!taste.SpicyActive&&taste.SpiceCenters.Count==0,"spicy circles clean up after the harmless fade");
+            Set(player,"isInvincible",true);
+            for(int repeat=2;repeat<=3;repeat++)
+            {
+                taste.Configure(level);Check(taste.Begin(OralTasteKind.Spicy),"fresh random spicy event "+repeat);
+                var current=taste.SpiceCenters.ToArray();
+                Check(current.Length==10&&!current.SequenceEqual(previousLayout),"actual consecutive event changes all-layout coordinates without shrinking circles "+repeat);
+                Check(taste.SpiceLayoutVariant!=previousVariant,"consecutive spicy events never reuse the previous base arrangement "+repeat);
+                previousVariant=taste.SpiceLayoutVariant;
+                previousLayout=current;float preview=Time.time;
+                yield return Record("05-spicy-layout-"+repeat,()=>Time.time-preview<3.2f,()=>{});
+                Frame("spicy-layout-"+repeat);
+            }
+            captureFocus=null;shotSize=5;Set(player,"isInvincible",true);taste.Configure(level);Place(player,center);
+
+        }
+        static Vector2 SpicySafePoint(FiniteStomachMap map,IReadOnlyList<Vector2> centers,Vector2 near)
+        {
+            for(int i=0;i<360;i++)
+            {
+                float angle=i*Mathf.Deg2Rad;
+                var point=near+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*(OralSpicyHazard.Radius+.7f);
+                if(OralMapGeometry.TongueDistance(map,point,out _)>=.6f&&
+                    centers.All(p=>Vector2.Distance(p,point)>=OralSpicyHazard.Radius+.6f))return point;
+            }
+            throw new InvalidOperationException("No walkable safe point beside the recorded spicy circle");
+        }
         static IEnumerator Retakes(LevelManager level,OralFieldEvents events,Character player,Vector2 center)
         {
             var taste=events.Tastes;var ambient=events.Ambient;
@@ -287,8 +347,8 @@ namespace Vampire.Tests.Editor
             Check(taste.Begin(OralTasteKind.Bitter),"bitter visible interaction retake begins");Place(player,taste.BitterPosition);Set(player,"currentHealth",player.MaxHealth*.45f);float health=player.CurrentHealth;bool consumed=false;start=Time.time;
             yield return Record("04-bitter-morsel",()=>Time.time-start<8,()=>{if(Time.time-start>1.2f&&!consumed){consumed=taste.TryEatBitter();Check(consumed,"bitter consumed after visible prompt interval");}});
             Check(taste.BitterRewards==1&&player.CurrentHealth>health,"bitter retake includes delayed healing");taste.Configure(level);Place(player,center);
-            Check(ambient.BeginGuard(),"guard close-up retake begins");var goal=ambient.GuardGoal;int prior=ambient.GuardCompleted;bool led=false;start=Time.time;shotSize=4;
-            yield return Record("08-biker-guard",()=>Time.time-start<15,()=>{captureFocus=(ambient.GuardActive?ambient.GuardPosition:goal)+Vector2.up*.5f;if(Time.time-start>3&&!led){led=true;Place(player,goal);}});
+            Check(ambient.BeginGuard(),"guard close-up retake begins");var goal=ambient.GuardGoal;int prior=ambient.GuardCompleted;start=Time.time;shotSize=4;
+            yield return Record("08-mint-guard",()=>ambient.GuardActive&&Time.time-start<ambient.Guard.Lifetime+3,()=>{captureFocus=(ambient.GuardActive?ambient.GuardPosition:goal)+Vector2.up*.5f;});
             Check(ambient.GuardCompleted>prior&&ambient.GuardReward!=null,"guard close-up retains completed reward");ambient.ClearAll();taste.Configure(level);Clear(level);captureFocus=null;shotSize=5;Place(player,center);Set(player,"currentHealth",player.MaxHealth);
         }
         static IEnumerator CharacterQuick(LevelManager level,OralFieldEvents events,Character player,Vector2 center)
@@ -349,6 +409,7 @@ namespace Vampire.Tests.Editor
                 // presentation ownership that the normal rendering phase executes.
                 foreach(var crush in Object.FindObjectsOfType<JawCrushVisual>())if(crush.enabled)typeof(JawCrushVisual).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(crush,null);
                 foreach(var bars in Object.FindObjectsOfType<PlayerCombatBars>())typeof(PlayerCombatBars).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(bars,null);
+                foreach(var bars in Object.FindObjectsOfType<OralGuardHealthBar>())typeof(OralGuardHealthBar).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(bars,null);
                 camera.targetTexture=rt;foreach(var c in overlays){c.renderMode=RenderMode.ScreenSpaceCamera;c.worldCamera=camera;c.planeDistance=camera.nearClipPlane+.1f;c.overrideSorting=true;c.sortingOrder=Mathf.Clamp(32100+c.sortingOrder,32100,32760);}
                 Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=rt;image=new Texture2D(960,540,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,960,540),0,0);image.Apply();File.WriteAllBytes(Output+"/"+name+".png",image.EncodeToPNG());
             }finally{

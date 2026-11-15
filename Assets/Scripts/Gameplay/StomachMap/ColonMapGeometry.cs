@@ -8,9 +8,9 @@ namespace Vampire
     {
         static readonly Vector2[] outer=Smooth(Points(new float[]{130,500,110,375,130,255,205,180,340,145,475,150,625,188,750,185,900,148,1050,150,1185,158,1320,165,1390,265,1395,410,1400,545,1405,700,1360,835,1230,885,1030,900,830,890,630,900,440,898,260,880,135,810,105,650}),true);
         static readonly Vector2[] spine=Smooth(Points(new float[]{425,330,490,322,590,347,700,350,810,327,920,300,1000,300,1030,310}),false);
-        static readonly Vector2[] left=Smooth(Points(new float[]{105,480,205,525,330,548,460,539,565,515,595,501}),false);
-        static readonly Vector2[] right=Smooth(Points(new float[]{1410,435,1310,457,1190,455,1070,464,970,493}),false);
-        static readonly Vector2[] hook=Smooth(Points(new float[]{430,748,470,697,585,658,730,627,880,623,1015,638,1125,667,1150,683}),false);
+        static readonly Vector2[] left=Smooth(Points(new float[]{105,480,205,525,330,542,460,530,565,507,595,501}),false);
+        static readonly Vector2[] right=Smooth(Points(new float[]{1410,435,1310,442,1190,440,1100,450,1010,470}),false);
+        static readonly Vector2[] hook=Smooth(Points(new float[]{430,718,470,683,585,658,730,627,880,623,1015,638,1125,667,1150,683}),false);
         static readonly Vector2[][] ridges={spine,left,right,hook};
         sealed class PathData { public Vector2[] points,edges; public float[] lengths,along,squared; }
         static readonly Dictionary<Vector2[],PathData> worldPaths=new Dictionary<Vector2[],PathData>();
@@ -71,7 +71,7 @@ namespace Vampire
             d=(inside?d:-d)-m.WallWidth*1.65f;
             foreach(var ridge in ridges){float rd=Nearest(m,ridge,p,false,out var at,out _)-.55f-m.WallWidth;
                 if(rd<d){d=rd;inward=(p-at).normalized;}}
-            return d;
+            return ColonOpeningGeometry.AdjustFloor(m,p,d,out inward,inward);
         }
         public static bool Contains(FiniteStomachMap m,Vector2 p)=>Distance(m,p,out _,out _)>=0;
         // Rendering blends wall directions at ridge/rim junctions. Physical

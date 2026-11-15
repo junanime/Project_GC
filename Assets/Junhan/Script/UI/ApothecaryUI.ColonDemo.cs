@@ -12,7 +12,8 @@ namespace Vampire
             get
             {
                 var exit = level != null ? level.GetComponent<ColonExitSequence>() : null;
-                return exit != null && (exit.State == ColonExitSequence.ExitState.Unlocking || exit.State == ColonExitSequence.ExitState.Demo);
+                var king = level != null ? level.GetComponent<ConstipationKingDirector>() : null;
+                return (exit != null && exit.ProtectsPlayer) || (king != null && king.ProtectsPlayer);
             }
         }
         void UpdateColonExitModal()

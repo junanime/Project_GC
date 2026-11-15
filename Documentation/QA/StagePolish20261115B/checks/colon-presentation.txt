@@ -1,0 +1,27 @@
+PASS Flamingo actual habitat interaction, original artwork, real pattern 0, completed and recovered; frames=139 at30fps
+PASS Shark actual habitat interaction, original artwork, real pattern 3, completed and recovered; frames=153 at30fps
+PASS Pudding actual habitat interaction, original artwork, real pattern 3, completed and recovered; frames=191 at30fps
+PASS Hedgehog actual habitat interaction, original artwork, real pattern 1, completed and recovered; frames=304 at30fps
+PASS S02 recall uses the real stage-two special-monster pool
+PASS real S02 exploding monster was spawned
+PASS living S02 walked and climbed into a spine socket
+PASS recall preserves instance generation, wounded HP and original S02 sprite
+PASS carried S02 keeps a targetable hitbox and accepts native damage/status effects
+PASS the actual S02 body occupies its authored spine socket
+PASS carried contact cannot trigger autonomous self-explosion
+PASS departure releases the same wounded living S02 onto its native trajectory
+PASS carry/departure restores native physics and grants zero kill score
+PASS second S02 docks for death/reward regression
+PASS killing a carried S02 calls one native death and exactly one special-monster reward
+PASS dead chestnuts cannot remain attached or be resurrected by recall
+PASS third S02 docks for encounter-interruption regression
+PASS boss interruption releases its real living chestnut without health/reward mutation
+PASS interruption restores the chestnut's native body and hitbox
+PASS stale carrier discards itself after the real spawn generation is replaced
+PASS pool-return test first reaches the carried sorting/shadow state
+PASS inactive pool return restores original render order, layer and shadow visibility
+PASS same-frame native respawn restores feet and retains original visual/shadow state
+PASS same-frame pool reuse accepts new recall despite a released old component
+PASS old component destruction cannot cancel the new spawn's carrier control
+PASS Turtle actual habitat interaction, original artwork, real pattern 3, completed and recovered; frames=155 at30fps
+PASS Manatee actual habitat interaction, original artwork, real pattern 4, completed and recovered; frames=211 at30fps

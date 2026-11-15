@@ -24,6 +24,10 @@ namespace Vampire
         float originalSize, zoomVelocity;
         bool controlling, yieldingToTravel;
         public bool FramingFinalBoss { get; private set; }
+        public bool FramingExit { get; private set; }
+        public bool FramingKeyDrop { get; private set; }
+        bool followingKeyDrop;
+        Vector2 keyDropOrigin;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void Register()
@@ -59,7 +63,7 @@ namespace Vampire
             if (view.GetComponent<StageTravelCamera>() != null)
             {
                 yieldingToTravel = true;
-                FramingFinalBoss = false;
+                FramingFinalBoss = FramingExit = FramingKeyDrop = false;
                 return;
             }
             if (yieldingToTravel)
@@ -77,7 +81,12 @@ namespace Vampire
             }
 
             var player = level.PlayerCharacter;
-            bool playing = player != null && player.IsAlive && !level.IsLevelEnded && !level.IsRunFlowPaused;
+            var exit = colonMap ? level.GetComponent<ColonExitSequence>() : null;
+            bool kingEmerging = level.GetComponent<ConstipationKingDirector>()?.Summoning == true;
+            bool exitPresentation = exit != null && (exit.ProtectsPlayer || exit.State == ColonExitSequence.ExitState.Dropping);
+            bool playing = player != null && player.IsAlive && !level.IsLevelEnded && (!level.IsRunFlowPaused || kingEmerging || exitPresentation);
+            FramingExit = FramingKeyDrop = false;
+            if (exit == null || exit.State != ColonExitSequence.ExitState.Dropping) followingKeyDrop = false;
             ColonBossRuntime nearest = null;
             ConstipationKingRuntime nearestKing = null;
             float distanceSquared = EncounterRange * EncounterRange;
@@ -166,14 +175,95 @@ namespace Vampire
                 controlling = true;
             }
 
+            // A live nearby combatant has priority. Once it is gone, keep the
+            // reward flight and the full doorway in this same camera controller.
+            bool openingCutscene = exit != null && (exit.State == ColonExitSequence.ExitState.Unlocking || exit.State == ColonExitSequence.ExitState.Demo);
+            if (playing && (nearest == null && nearestKing == null || openingCutscene) &&
+                TryFrameExit(player, exit, out float exitSize, out Vector2 exitOffset))
+            {
+                targetSize = exitSize; targetOffset = exitOffset;
+                FramingFinalBoss = false;
+                framing = controlling = true;
+            }
+
             if (!controlling) return;
             // Unscaled time also returns to the normal framing behind result/settings panels.
             float dt = Mathf.Min(Time.unscaledDeltaTime, .05f);
-            float duration = nearestKing != null ? .35f : framing ? .55f : 1.5f;
+            float duration = FramingExit && exitPresentation ? .12f : FramingKeyDrop ? .22f : nearestKing != null ? .35f : framing ? .55f : 1.5f;
             view.orthographicSize = Mathf.SmoothDamp(view.orthographicSize, targetSize, ref zoomVelocity, duration, Mathf.Infinity, dt);
             offset = Vector2.SmoothDamp(offset, targetOffset, ref offsetVelocity, duration, Mathf.Infinity, dt);
             view.transform.localPosition = originalLocalPosition + (Vector3)offset;
             if (!framing && Mathf.Abs(view.orthographicSize - originalSize) < .001f && offset.sqrMagnitude < .000001f) Restore();
+        }
+
+        bool TryFrameExit(Character player, ColonExitSequence exit, out float size, out Vector2 position)
+        {
+            size = originalSize; position = Vector2.zero;
+            if (exit == null || !exit.isActiveAndEnabled || exit.Opening == null ||
+                exit.State == ColonExitSequence.ExitState.Cancelled || exit.State == ColonExitSequence.ExitState.Completed) return false;
+            var state = exit.State; Vector2 actor = player.Position;
+            Bounds envelope;
+            float strength = 1;
+            if (state == ColonExitSequence.ExitState.Dropping && exit.Key != null && Vector2.Distance(actor, exit.PlantedPoint) < 14)
+            {
+                if (!followingKeyDrop)
+                {
+                    var king = level.GetComponent<ConstipationKingDirector>()?.Boss;
+                    keyDropOrigin = king != null ? (Vector2)king.transform.position : exit.PlantedPoint-Vector2.right*1.7f;
+                    followingKeyDrop = true;
+                }
+                // Stable flight envelope also survives the boss object disappearing.
+                // It includes the crown-height launch, rotating key and planted tip.
+                envelope = new Bounds(keyDropOrigin+Vector2.up*3.65f, new Vector3(8.2f,8.3f,0));
+                var art = exit.Key.GetComponent<SpriteRenderer>();
+                if (art != null) envelope.Encapsulate(art.bounds);
+                envelope.Encapsulate(exit.PlantedPoint);
+                FramingKeyDrop = true;
+            }
+            else if ((state == ColonExitSequence.ExitState.Dropped || state == ColonExitSequence.ExitState.PickingUp) &&
+                     exit.Key != null && Vector2.Distance(actor,exit.PlantedPoint)<7)
+            {
+                var art = exit.Key.GetComponent<SpriteRenderer>();
+                envelope = art != null ? art.bounds : new Bounds(exit.Key.position,Vector3.one*3);
+                envelope.Encapsulate(exit.PlantedPoint); envelope.Expand(new Vector3(.8f,.8f,0));
+                strength = state == ColonExitSequence.ExitState.PickingUp ? 1 : Mathf.SmoothStep(0,1,(7-Vector2.Distance(actor,exit.PlantedPoint))/2);
+            }
+            else
+            {
+                bool lockedShot = state == ColonExitSequence.ExitState.Unlocking || state == ColonExitSequence.ExitState.Demo;
+                float distance = Vector2.Distance(actor,exit.Opening.transform.position);
+                if (!lockedShot && distance>=7) return false;
+                var opening = exit.Opening; var radii = opening.Radii;
+                envelope = new Bounds(opening.Center+opening.Inward*.6f,new Vector3(radii.x*2.8f,radii.y*2.5f,0));
+                if (exit.GateVisual != null)
+                {
+                    envelope.Encapsulate(exit.GateVisual.LockBounds);
+                    foreach (var anchor in exit.GateVisual.Anchors) envelope.Encapsulate(anchor);
+                }
+                var throne = level.GetComponent<ConstipationKingDirector>()?.Throne;
+                if (throne != null && throne.gameObject.activeInHierarchy && throne.Toilet != null)
+                {
+                    float hint = Mathf.SmoothStep(0,1,(5-Vector2.Distance(actor,throne.transform.position))/2);
+                    // Show the whole invitation while approaching it, without a
+                    // hard zoom threshold between the adjacent throne and seal.
+                    var bounds = throne.Toilet.bounds; Vector3 center = envelope.center;
+                    envelope.Encapsulate(Vector3.Lerp(center,bounds.min,hint));
+                    envelope.Encapsulate(Vector3.Lerp(center,bounds.max,hint));
+                }
+                if (state == ColonExitSequence.ExitState.Unlocking && exit.Key != null)
+                {
+                    var art = exit.Key.GetComponent<SpriteRenderer>();
+                    if (art != null && art.enabled) envelope.Encapsulate(art.bounds);
+                }
+                strength = lockedShot ? 1 : Mathf.SmoothStep(0,1,(7-distance)/3);
+                FramingExit = true;
+            }
+            envelope.Encapsulate(actor+new Vector2(-.8f,-.6f));
+            envelope.Encapsulate(actor+new Vector2(.8f,1.5f));
+            float required = Mathf.Max(envelope.extents.y/.86f, envelope.extents.x/(Mathf.Max(.3f,view.aspect)*.92f));
+            size = Mathf.Lerp(originalSize,Mathf.Max(originalSize,required),strength);
+            position = ((Vector2)envelope.center-actor)*strength;
+            return true;
         }
 
         static float ReferenceHeight(ColonBossDefinition definition)
@@ -194,7 +284,7 @@ namespace Vampire
                 view.transform.localPosition = originalLocalPosition;
             }
             controlling = false;
-            FramingFinalBoss = false;
+            FramingFinalBoss = FramingExit = FramingKeyDrop = followingKeyDrop = false;
             offset = offsetVelocity = Vector2.zero;
             zoomVelocity = 0;
         }

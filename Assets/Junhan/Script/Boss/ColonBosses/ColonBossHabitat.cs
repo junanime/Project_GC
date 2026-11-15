@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Vampire
@@ -23,6 +24,7 @@ namespace Vampire
         SpriteRenderer clippedBody;
         int clippedBodyLayer;
         SpriteRenderer[] lips, doors;
+        float[] doorOpenness;
         protected override bool KeepVisibleAfterInteraction => true;
         protected override bool InteractionAvailable => director != null && director.CanSummon(this);
         public static ColonBossHabitat Create(ColonBossDirector owner, ColonBossKind kind, Vector2 position, Vector2 wallNormal)
@@ -42,7 +44,7 @@ namespace Vampire
             if (Kind != ColonBossKind.Manatee) { Doors = new[] { (Vector2)transform.position }; return; }
             dormant.enabled = false;
             Vector2 normal = WallNormal.sqrMagnitude > .1f ? WallNormal.normalized : Vector2.down;
-            Doors = new Vector2[3]; doors = new SpriteRenderer[3];
+            Doors = new Vector2[3]; doors = new SpriteRenderer[3];doorOpenness=new float[3];
             houseRig=new GameObject("House aligned to central wall").transform;houseRig.SetParent(transform,false);
             houseRig.localRotation=Quaternion.Euler(0,0,Mathf.Atan2(normal.y,normal.x)*Mathf.Rad2Deg-90);
             house = Sprite("중앙벽 파이프 집",ColonBossVisual.Load(d.Id,"HouseBase"),houseRig,13f,490);
@@ -134,9 +136,22 @@ namespace Vampire
         public void Door(int index,float open)
         {
             if(doors==null||index<0||index>=doors.Length||doors[index]==null)return;
+            open=Mathf.Clamp01(open);doorOpenness[index]=open;
             doors[index].enabled=open<.99f;
             doors[index].transform.localPosition=Vector3.up*open*1.2f;
             var color=doors[index].color;color.a=1-open*.7f;doors[index].color=color;
+        }
+        public float DoorOpenness(int index)=>doorOpenness!=null&&index>=0&&index<doorOpenness.Length?doorOpenness[index]:1;
+        public IEnumerator SlideDoor(ColonBossRuntime boss,int index,float open,float duration)
+        {
+            float from=DoorOpenness(index);
+            yield return boss.Tween(duration,q=>Door(index,Mathf.Lerp(from,open,Mathf.SmoothStep(0,1,q))));
+            Door(index,open);
+        }
+        public void RestoreDoors(ColonBossVisual visual)
+        {
+            ClipToPipe(visual,false);
+            if(doors!=null)for(int i=0;i<doors.Length;i++)Door(i,Defeated?0:1);
         }
         public Vector2 ClampTerritory(Vector2 target)
         {

@@ -1,0 +1,50 @@
+[
+  {
+    "test": "Vampire.Tests.Editor.ColonSpecialPoseGeometryTests.FinalGasPoseRefitsHitboxAndAimWithoutChangingSizeOrFeet",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.LeaderboardBatchIsolationTests.BatchQaDoesNotAuthenticateOrSubmit",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralGuardEscortTests.EveryMolarHasSafeStraightApproachAndValidJump",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralGuardEscortTests.LethalHitAndTimeoutCannotBecomeRewardSuccess",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralGuardEscortTests.SharedHealthRejectsSameVolleyAndCompletesOnlyOnce",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.ActualTongueLayoutsHaveConnectedGapsAndNoWallOverlap",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.ContinuousScatterChangesAllCirclesWithinTheSameSeedLayout",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.ExitBurnExpiresAndLongFramesCannotBurstSeveralHits",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.FootprintUsesTheVisibleCircleRatherThanTheWholeTongue",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.MultipleContactsCannotStackOrRestartTheBurnClock",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.SmallerChangedMapsNeverForceTenOverlappingCircles",
+    "result": "Passed"
+  },
+  {
+    "test": "Vampire.Tests.Editor.OralSpicyHazardTests.WarningAndExtinguishingAreNeverDamaging",
+    "result": "Passed"
+  }
+]

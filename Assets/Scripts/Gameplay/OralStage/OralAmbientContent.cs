@@ -17,18 +17,21 @@ namespace Vampire
         public float RockRadius {get;private set;}
         public int RockHits {get;private set;}
         public bool GuardActive => guard!=null;
-        public Vector2 GuardPosition {get;private set;}
-        public Vector2 GuardGoal {get;private set;}
+        public Vector2 GuardPosition => guard!=null?guard.Position:Vector2.zero;
+        public Vector2 GuardGoal => guard!=null?guard.Route.Landing:Vector2.zero;
+        public OralGuardEscort Guard => guard;
+        public int GuardFailed {get;private set;}
+        bool guardResultRecorded;
         public int GuardCompleted {get;private set;}
         public Chest GuardReward {get;private set;}
         public const float RockLifetime=55f,GuardLifetime=55f;
-        FiniteStomachMap map;Character player;SpriteRenderer rock,rockShadow,guard,guardShadow,guardArrow;
-        readonly List<SpriteRenderer> spokes=new List<SpriteRenderer>();
+        FiniteStomachMap map;Character player;SpriteRenderer rock,rockShadow;
+        OralGuardEscort guard;
         readonly List<Monster> scratch=new List<Monster>();
         readonly Dictionary<Monster,float> rockCooldown=new Dictionary<Monster,float>();
         static readonly Dictionary<string,Sprite> art=new Dictionary<string,Sprite>();
-        bool pushing,guardLanded,guardJumping,rockDashHit;float rockAge,fallAge,rollAngle,rockScale,guardAge,guardJumpAge,guardDoneAge,clock,bounceCooldown,rockHopRemaining;
-        Vector2 guardJumpFrom;float ashiHeight=.6f;
+        bool pushing,rockDashHit;float rockAge,fallAge,rollAngle,rockScale,clock,bounceCooldown,rockHopRemaining;
+        float ashiHeight=.6f;
         public void Configure(LevelManager level)
         {
             if(Instance!=null&&Instance!=this)Instance.ClearAll();Instance=this;Level=level;player=level.PlayerCharacter;map=FiniteStomachMap.Instance;
@@ -54,20 +57,21 @@ namespace Vampire
         public bool BeginGuard()
         {
             if(guard!=null||player==null||map==null)return false;
-            guard=OralEventArt.Sprite(transform,"구강 수호대 · 클래식 크루저",EventSprite("Bike"),24);if(guard.sprite==null){Destroy(guard.gameObject);guard=null;return false;}
-            guard.transform.localScale=Vector3.one*(ashiHeight*1.55f/guard.sprite.bounds.size.y);GuardPosition=OralMapGeometry.Clamp(map,player.Position+new Vector2(2.1f,.8f),.8f,OralZone.Tongue);
-            int nearest=OralMapGeometry.NearestTooth(map,player.Position);nearest=nearest<7?Mathf.Clamp(nearest,0,3):Mathf.Clamp(nearest,10,13);GuardGoal=OralMapGeometry.ToothWalkCenter(map,nearest);
-            guardShadow=Shadow("수호대 지면 그림자");guardShadow.transform.localScale=new Vector3(ashiHeight*1.5f,ashiHeight*.32f,1);
-            guardArrow=OralEventArt.Sprite(transform,"안내 목표 반짝임",OralEventArt.Disc,11);GroundVisualSorting.Apply(guardArrow,11);guardArrow.color=new Color(.75f,1,.8f,.3f);guardArrow.transform.localScale=new Vector3(1.4f,.65f,1);
-            for(int i=0;i<2;i++){var r=OralEventArt.Sprite(transform,"바퀴 회전 반짝임",OralEventArt.Disc,26);r.color=new Color(.95f,.91f,.73f,.6f);r.transform.localScale=new Vector3(ashiHeight*.07f,ashiHeight*.025f,1);spokes.Add(r);}
-            guardAge=guardJumpAge=guardDoneAge=0;guardLanded=guardJumping=false;GuardReward=null;PoseGuard();return true;
+            var go=new GameObject("민트 구강수호대 · 어금니 호위");go.transform.SetParent(transform,false);
+            var escort=go.AddComponent<OralGuardEscort>();
+            var frames=OralGuardArt.Frames;
+            if(!escort.Configure(Level,map,player.Position,ashiHeight,frames!=null&&frames.Length>0?frames[0]:null))
+            {go.SetActive(false);Destroy(go);return false;}
+            guard=escort;guardResultRecorded=false;GuardReward=null;return true;
         }
         void Update()
         {
             if(Level==null||player==null||map==null)return;
             bool hidden=MiniStageRuntimeState.IsInsideMiniStage||StageEntryLoading.IsLoading||player.IsPortalTravelling||(Level.GetComponent<StageProgression>()?.Travelling??false)||(OralFieldEvents.Instance?.OnCeiling??false);
             foreach(var r in GetComponentsInChildren<SpriteRenderer>())r.forceRenderingOff=hidden;
-            if(hidden||OralEventArt.Paused(Level)){SetPush(false);return;}
+            bool paused=hidden||OralEventArt.Paused(Level);
+            if(guard!=null)guard.SetSuspended(paused,hidden);
+            if(paused){SetPush(false);return;}
             float dt=Time.deltaTime;clock+=dt;bounceCooldown=Mathf.Max(0,bounceCooldown-dt);bool push=false;
             if(rock!=null)
             {
@@ -118,32 +122,26 @@ namespace Vampire
         }
         void TickGuard(float dt)
         {
-            guardAge+=dt;if(guardAge>GuardLifetime&&!guardLanded){RemoveGuard();return;}
-            if(guardLanded){guardDoneAge+=dt;PoseGuard();if(guardDoneAge>1.3f)RemoveGuard();return;}
-            if(guardJumping)
+            guard.Tick(dt);
+            if(!guardResultRecorded&&(guard.Complete||guard.Failed))
             {
-                guardJumpAge+=dt;float t=Mathf.Clamp01(guardJumpAge/.9f);GuardPosition=Vector2.Lerp(guardJumpFrom,GuardGoal,t);
-                if(t>=1){guardLanded=true;GuardCompleted++;var blueprint=RemakeBalance.Current?.levelUpChest;if(blueprint!=null){GuardReward=Level.EntityManager.SpawnChest(blueprint,GuardGoal);GuardReward.CompleteInitialPlacement();}GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.ChestOpen);}
-                PoseGuard();return;
+                guardResultRecorded=true;
+                if(guard.Complete)
+                {
+                    GuardCompleted++;
+                    var blueprint=RemakeBalance.Current?.levelUpChest;
+                    if(blueprint!=null&&Level.EntityManager!=null)
+                    {GuardReward=Level.EntityManager.SpawnChest(blueprint,guard.Route.Landing);if(GuardReward!=null)GuardReward.CompleteInitialPlacement();}
+                    GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.ChestOpen);
+                }
+                else GuardFailed++;
             }
-            bool onTeeth=OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth;int tooth=OralMapGeometry.NearestTooth(map,player.Position);if(onTeeth&&OralMapGeometry.CanJumpToTooth(tooth))GuardGoal=OralMapGeometry.ToothWalkCenter(map,tooth);
-            Vector2 target=OralMapGeometry.Clamp(map,onTeeth?GuardGoal:player.Position,.55f,OralZone.Tongue);float distance=Vector2.Distance(target,GuardPosition);
-            if(distance>.75f)GuardPosition=OralMapGeometry.Clamp(map,Vector2.MoveTowards(GuardPosition,target,Mathf.Clamp(player.CurrentMoveSpeed*1.45f,1.4f,5f)*dt),.45f,OralZone.Tongue);
-            if(onTeeth&&OralMapGeometry.CanJumpToTooth(tooth)&&distance<1.1f){guardJumping=true;guardJumpFrom=GuardPosition;guardJumpAge=0;}
-            PoseGuard();
-        }
-        void PoseGuard()
-        {
-            if(guard==null)return;float jump=guardJumping&&!guardLanded?Mathf.Sin(Mathf.Clamp01(guardJumpAge/.9f)*Mathf.PI)*ashiHeight*2.4f:0;
-            guard.flipX=player.Position.x<GuardPosition.x;guard.transform.position=GuardPosition+Vector2.up*(ashiHeight*.7f+jump+Mathf.Sin(clock*17)*.018f);guard.transform.rotation=Quaternion.Euler(0,0,guardLanded?Mathf.Sin(guardDoneAge*12)*5:0);
-            guard.color=new Color(1,1,1,guardLanded?1-Mathf.Clamp01((guardDoneAge-.7f)/.6f):Mathf.Clamp01(guardAge/.35f)*(1-Mathf.Clamp01((guardAge-(GuardLifetime-3))/3)));guardShadow.transform.position=GuardPosition;guardShadow.color=new Color(.18f,.035f,.07f,guard.color.a*.27f);
-            guardArrow.transform.position=GuardGoal;guardArrow.color=new Color(.75f,1,.8f,.18f+.12f*Mathf.Sin(clock*3)*Mathf.Sin(clock*3));
-            for(int i=0;i<spokes.Count;i++){var r=spokes[i];r.transform.position=guard.transform.position+new Vector3((i==0?-.45f:.45f)*ashiHeight,-ashiHeight*.48f,0);r.transform.rotation=Quaternion.Euler(0,0,clock*800);r.color=new Color(.95f,.91f,.73f,guard.color.a*.6f);}
+            if(guard.ReadyToRemove)RemoveGuard();
         }
         void Snapshot(){scratch.Clear();if(Level.EntityManager?.LivingMonsters!=null)foreach(var m in Level.EntityManager.LivingMonsters)scratch.Add(m);}
         static bool Eligible(Monster m)=>m!=null&&m.gameObject.activeInHierarchy&&m.HP>0&&!m.IsMiniStageOwned;
         void RemoveRock(){if(rock!=null){rock.gameObject.SetActive(false);Destroy(rock.gameObject);}if(rockShadow!=null)Destroy(rockShadow.gameObject);rock=rockShadow=null;RockVelocity=Vector2.zero;RockFalling=false;rockCooldown.Clear();SetPush(false);}
-        void RemoveGuard(){if(guard!=null){guard.gameObject.SetActive(false);Destroy(guard.gameObject);}if(guardShadow!=null)Destroy(guardShadow.gameObject);if(guardArrow!=null)Destroy(guardArrow.gameObject);foreach(var r in spokes)if(r!=null)Destroy(r.gameObject);spokes.Clear();guard=guardShadow=guardArrow=null;}
+        void RemoveGuard(){if(guard!=null){guard.gameObject.SetActive(false);Destroy(guard.gameObject);}guard=null;}
         public void ClearAll(){RemoveRock();RemoveGuard();SetPush(false);}
         public void CancelAll(){ClearAll();}
         void OnDisable(){ClearAll();}

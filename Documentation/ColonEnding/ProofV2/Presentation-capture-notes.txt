@@ -1,0 +1,1 @@
+Actual game runtime at 12 fps, normal time. Review camera and no screen HUD. Field objects retained in full map, hidden during detail clips; automatic attacks/events disabled and enemies cleared for visibility. Manual boss summon, actual lethal damage, physical interaction pickup and unlock. Save submission excluded. No generated animation frames.

@@ -12,3 +12,26 @@ Edit this game sprite: preserve the exact key-scepter object, its shapes, ivory 
 
 ## SealLock.png 프롬프트
 Use case: stylized-concept. Production Unity 2D sprite asset. Reference image is approved C sealing stone padlock concept. Recreate ONLY the single complete padlock on left, centered, frontal game view, genuine transparent background. Warm orange-brown rounded hardened sealing stone body with shallow cartoon cracks, four broad polished gold corner braces each a rivet. Gold thick U shackle on top closed. Red scalloped wax seal medallion centered with black keyhole, small gold crown above and gold laurel flanking hole exactly reference. Gentle cartoon shaded rendering and dark brown clean outline. Object fills 87% canvas, keep padding. No text, no concept board, no floor, no detached sparkles, no background/shadow, no chains, no key, no character. Single game-ready isolated cutout.
+
+
+## 2026-11-14 연출 개선용 추가 아트
+
+두 파일 모두 내장 image_gen으로 기존 아트/확정 시안을 참고해 생성한 투명 PNG다. 원본 보스 Body 및 포즈 이미지와 바닥 패턴은 교체하지 않았다. 변기는 소환 전 빈 상태와 넘치는 연출의 기반이며, 벽 이미지는 높이와 방향에 맞춰 표면에 적용한다.
+
+### EmptyThrone.png
+
+- 제작 방식: 참조 이미지 기반 생성, transparent_background=true.
+- 저장: `Assets/Resources/ColonEnding/EmptyThrone.png`
+
+```text
+Use case: precise-object-edit. Production Unity 2D game sprite. Reference is the existing Constipation King body artwork. Extract/reconstruct ONLY his EMPTY royal toilet throne without the poo king, no body, face, arms, feet, cape, crown, scepter, paper, waterjets. Preserve exact toilet identity: pale ivory-pink porcelain oval bowl seat, flush tank behind on upper left with gold ball flush handle, squat rounded pedestal with red shield panel and gold small toilet emblem at front, gold base trim and ONE tiny central underside outlet. Front three-quarter slightly topdown game view matching reference. Show a real empty oval bowl cavity inside ivory seat, dark warm brown bowl interior with a shallow calm brown liquid surface inside. Lid absent/open out of view. Clean rounded dark brown cartoon outline, painted crisp warm highlights exactly source style, royal golden fittings. Entire isolated toilet fills 85% canvas with 7% transparent margins, no floor, shadow, aura, glow, label, panel, background. TRUE transparent alpha sprite. This empty throne will have the existing king animated rising from the bowl later, so keep the broad front seat rim and bowl visible.
+```
+
+### WallSoft.png
+
+- 제작 방식: 참조 이미지 기반 생성, transparent_background=true.
+- 저장: `Assets/Resources/ColonMap/WallSoft.png`
+
+```text
+Use case: stylized-concept. Production game surface asset, reference image wall style only. Create one isolated straight horizontal segment of the softly rounded PINK INTESTINAL WALL matching exactly reference smooth pastel pink inflated wall, not realistic flesh. 4 broad connected pillowy rounded lobes, smooth joined surface, upper crest pale warm peach highlight, front vertical face dusty rose, soft deeper mauve at foot. Broad restrained gradients with very subtle soft painted mottling. High clear height and rounded volume, crisp silhouette but no black outline. Front threequarter topdown view used by reference. Shape a horizontal long wall with rounded endcaps; width about 3 times height. Only wall, entire object and allendcaps visible. No flooring, no floor shadow, no blood, veins, wrinkles, teeth, doors, holes, props, labels, borders or diagrams. True transparent alpha background. Center with slightpadding. This will provide painted surface detail to game shader; game uses own geometry. Do NOT depict any map or floor.
+```

@@ -36,6 +36,7 @@ namespace Vampire.Tests.Editor
             catch(Exception e){File.WriteAllText(Output+"/static-result.txt",e.ToString());Debug.LogException(e);EditorApplication.Exit(1);}
         }
         public static void RunFocusedProof(){SessionState.SetBool(Key+"RelicsOnly",true);Run();}
+        public static void RunRelicGallery(){SessionState.SetBool(Key+"GalleryRelics",true);Run();}
         public static void Run()
         {
             Directory.CreateDirectory(Output);if(File.Exists(Output+"/result.txt"))File.Delete(Output+"/result.txt");File.WriteAllText(Output+"/checks.txt","");File.WriteAllText(Output+"/errors.txt","");
@@ -69,9 +70,14 @@ namespace Vampire.Tests.Editor
                     Check(v.GetComponent<SpriteRenderer>()==null,"no catalog sprite in item VFX "+id);
                     int lease=v.Lease;v.Release();var reuse=fx.Item(id,Vector3.zero,1,1,sustained:true,sound:false);
                     v.Release(lease);Check(reuse.gameObject.activeSelf,"pooled lease protection "+id);reuse.Release();
+                    var item=Resources.Load<MerchantItemBlueprint>("OctoberContent/Catalog/Item"+id.ToString("00"));
+                    var acquired=fx.Item(id,Vector3.zero,acquisition:true,sound:false);
+                    Check(acquired.GetComponentInChildren<SpriteRenderer>().sprite==item.itemIcon,"individual acquisition identity "+id);
+                    acquired.Release();var again=fx.Item(id,Vector3.zero,sustained:true,sound:false);
+                    Check(!again.GetComponentsInChildren<SpriteRenderer>().Any(s=>s.enabled),"pooled acquisition image cleared "+id);again.Release();
                 }
                 foreach(var r in Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig").relics.Where(r=>r!=null))
-                {var v=fx.Relic(r,true);Check(v!=null&&v.GetComponent<MeshFilter>().sharedMesh.vertexCount>0,"relic geometry "+r.relicId);v.Release();}
+                {var icon=Resources.Load<Sprite>("AcquisitionIcons/relic-"+r.relicId);Check(icon!=null,"transparent relic asset "+r.relicId);var v=fx.Relic(r,true);Check(v!=null&&v.GetComponentInChildren<SpriteRenderer>().sprite==icon,"complete relic identity "+r.relicId);Check(v.GetComponent<MeshFilter>().sharedMesh.vertexCount==0,"no relic backing disc "+r.relicId);v.Release();}
                 foreach(var name in new[]{"acquire","pop","bubble","bloom","chime","crystal","sweep"})Check(Resources.Load<AudioClip>("OctoberContent/ProcAudio/"+name)!=null,"sound exists "+name);
             }
             finally{Object.DestroyImmediate(go);}
@@ -108,21 +114,24 @@ namespace Vampire.Tests.Editor
             foreach(var b in Object.FindObjectsOfType<MonoBehaviour>())if(b is StageEventDirector||b is TimedSpecialMonsterSpawner||b is AcidToadSpawn||b is NPCSpawner||b is SnailBossDebugSpawn){b.enabled=false;b.StopAllCoroutines();}
             level.enabled=false;foreach(var a in Object.FindObjectsOfType<Ability>()){a.enabled=false;a.StopAllCoroutines();}
             foreach(var m in level.EntityManager.LivingMonsters.ToArray())m.DespawnForStageTransfer();
-            Set(p,"isInvincible",true);Time.timeScale=1;Time.captureDeltaTime=1f/15;RunScore.Exclude("아이템 연출 자동 검증");
+            Set(p,"isInvincible",true);Time.timeScale=1;Time.captureDeltaTime=1f/30;RunScore.Exclude("아이템 연출 자동 검증");
             var relics=RelicRuntime.Ensure(p);relics.Equip(null);relics.enabled=false;
             yield return Integration(p,origin);
             bool focus=SessionState.GetBool(Key+"RelicsOnly",false);
             var manifest=focus?JsonUtility.FromJson<Manifest>(File.ReadAllText(Output+"/manifest.json")):new Manifest();
+            bool relicGallery=SessionState.GetBool(Key+"GalleryRelics",false);
+            if(relicGallery)manifest=JsonUtility.FromJson<Manifest>(File.ReadAllText(Output+"/manifest.json"));
             foreach(var item in Resources.LoadAll<MerchantItemBlueprint>("OctoberContent/Catalog").OrderBy(i=>i.octoberId))
             {
+                if(relicGallery)continue;
                 if(focus&&!new[]{14,22,28,29,31,32,49,58,65,66}.Contains(item.octoberId))continue;
                 Clear(p);yield return null;
                 var r=OctoberItemRuntime.Get(p);r.enabled=true;var cds=(float[])Field(r,"cooldown").GetValue(r);for(int c=0;c<cds.Length;c++)cds[c]=Time.time+3600;int id=item.octoberId;bool proc=Active(id);
                 manifest.entries.RemoveAll(e=>e.id=="item-"+id.ToString("00"));
                 manifest.entries.Add(new Entry{id="item-"+id.ToString("00"),name=item.itemName,description=item.description,mode=proc?"발동 연출 · 조건을 설정한 Level1 촬영":"상시 능력 · 획득 연출 (지속 VFX 없음)",retired=ItemOfferPolicy.Retired(id)});
-                for(int f=0;f<32;f++)
+                for(int f=0;f<96;f++)
                 {
-                    if(f==4){if(proc){r.State.owned.Add(id);Trigger(r,id,origin);}else r.Give(item);}
+                    if(f==4)r.Give(item); if(f==36 && proc)Trigger(r,id,origin);
                     yield return null;Capture("item-"+id.ToString("00"),f);
                 }
                 Check(true,"captured item "+id);
@@ -137,10 +146,10 @@ namespace Vampire.Tests.Editor
                 manifest.entries.Add(new Entry{id="relic-"+relic.relicId,name=relic.relicName,description=relic.Description,mode=proc?"획득 후 실제 회복·방어·반사·부활 발동 · Level1 조건 설정 촬영":"상시 능력 · 획득 연출 (지속 VFX 없음)",retired=relic.relicId=="lotus_chips"});
                 FoodBossRuntime target=null;
                 if(relic.effectType==RelicBlueprint.RelicEffectType.Thorns){target=FoodBossRuntime.Spawn(FoodBossKind.Denikani,p,origin+Vector2.right*1.8f);target.AutoPatterns=false;target.enabled=false;}
-                for(int f=0;f<32;f++)
+                for(int f=0;f<96;f++)
                 {
                     if(f==4)relics.AddReward(relic);
-                    if(f==13 && proc)
+                    if(f==42 && proc)
                     {
                         if(relic.effectType==RelicBlueprint.RelicEffectType.Barrier)relics.Absorb(5);
                         else if(relic.effectType==RelicBlueprint.RelicEffectType.Thorns)relics.Hurt(10);
@@ -153,6 +162,7 @@ namespace Vampire.Tests.Editor
                 Check(true,"captured relic "+relic.relicId);
             }
             File.WriteAllText(Output+"/manifest.json",JsonUtility.ToJson(manifest,true));
+            SessionState.SetBool(Key+"GalleryRelics",false);
             Time.captureDeltaTime=0;SessionState.SetBool(Key+"Done",true);
         }
         static bool RelicProc(RelicBlueprint r)=>r.effectType==RelicBlueprint.RelicEffectType.HealingPickup||r.effectType==RelicBlueprint.RelicEffectType.Regeneration||r.effectType==RelicBlueprint.RelicEffectType.IdleRecovery||r.effectType==RelicBlueprint.RelicEffectType.Barrier||r.effectType==RelicBlueprint.RelicEffectType.Thorns||r.effectType==RelicBlueprint.RelicEffectType.Revival;

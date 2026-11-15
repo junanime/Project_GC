@@ -35,7 +35,7 @@ namespace Vampire
             nextOverview=0;
         }
         public float WallWidth => Definition.wallWidth;
-        public float ClimbLimit => IsOral ? 0 : Mathf.Max(.5f, WallWidth-Definition.climbableWidth);
+        public float ClimbLimit => IsOral ? 0 : IsColon ? WallWidth : Mathf.Max(.5f, WallWidth-Definition.climbableWidth);
         public Material TerrainMaterial => material;
         public Texture2D BoundaryDistanceTexture => distanceTexture;
         Texture2D distanceTexture;
@@ -248,6 +248,27 @@ namespace Vampire
         public float NavigationDistance(Vector2 p, out Vector2 inward, bool exact = false)
         {
             if(IsOral)return OralMapGeometry.Distance(this,p,out inward);
+            if(IsColon)
+            {
+                // Colon walls are visibly raised: the playable boundary is their foot,
+                // including the open-ended doorway approach, rather than their crest.
+                if(!exact&&floorSamples!=null&&WorldRect.Contains(p))
+                {
+                    float step=.18f;
+                    float cachedValue=FloorClearance(p);
+                    inward=new Vector2(FloorClearance(p+Vector2.right*step)-FloorClearance(p-Vector2.right*step),
+                        FloorClearance(p+Vector2.up*step)-FloorClearance(p-Vector2.up*step)).normalized;
+                    if(inward.sqrMagnitude<.001f)inward=Vector2.up;
+                    return cachedValue+WallWidth;
+                }
+                float value=ColonMapGeometry.FloorDistance(this,p,out inward)+WallWidth;
+                for(int i=0;i<2;i++)
+                {
+                    float lip=StomachOpening.FrontDistance(this,p,i==0,out var n)+WallWidth;
+                    if(lip<value){value=lip;inward=n;}
+                }
+                return value;
+            }
             float distance = exact ? ExactDistance(p, out inward) : DistanceToRim(p, out inward);
             for (int i = 0; i < 2; i++)
             {

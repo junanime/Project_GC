@@ -17,8 +17,8 @@ Shader "Vampire/Finite Colon Terrain"
             #pragma fragment frag
             #pragma target 3.0
             #include "UnityCG.cginc"
-            #include "ColonOpening.cginc"
             sampler2D _DistanceTex,_WallCoordinateTex,_WallTex;
+            #include "ColonOpening.cginc"
             float4 _MapRect;float _PixelSize,_WallWidth;
             struct appdata{float4 vertex:POSITION;};
             struct v2f{float4 vertex:SV_POSITION;float2 world:TEXCOORD0;};
@@ -57,43 +57,38 @@ Shader "Vampire/Finite Colon Terrain"
                 float footprint=max(length(ddx(i.world)),length(ddy(i.world)))/_PixelSize;
                 motif*=1-smoothstep(1.2,3.8,footprint);
                 floorColor=lerp(floorColor,float3(1,.84,.66),motif*.53);
-                // Approved D walls: a soft peach crest, a distinct rose side face and a
-                // narrow contact shadow. Geometry and the original floor above stay intact.
-                float width=lerp(_WallWidth,_WallWidth*1.65,exterior);
-                float radius=width*(.94+.06*lobe);
-                float rise=saturate(1-lerp(max(d,0),abs(d-1),exterior)/radius);
-                float sideLight=1-smoothstep(.46,.80,rise);
-                float crown=smoothstep(.35,.78,rise);
-                float facing=saturate(.5+n.y*.38-n.x*.20);
-                float sideHeight=smoothstep(.015,.46,rise);
-                float3 wall=lerp(float3(.65,.31,.39),float3(.90,.48,.49),sideHeight);
-                wall*=.92+.12*facing;
-                wall=lerp(wall,float3(1,.65,.58),crown*(.76+.06*lobe));
-                float shine=pow(facing,3)*smoothstep(.38,.62,rise)*(1-smoothstep(.86,.99,rise));
-                wall=lerp(wall,float3(1,.79,.66),shine*.34);
-                // Broad, low contrast lobes replace the old dark muscle creases.
-                wall*=1-.055*pow(saturate(-lobe),2)*(1-crown*.4);
+                // Raised, hand-painted soft lobes. Surface height is separate from the
+                // navigable foot, so the side reads as height instead of floor shading.
                 float along=atan2(phase.y,phase.x)/(2*UNITY_PI)+.5;
-                float2 tissueUV=float2(along,lerp(.015,.975,sqrt(rise)));
-                float lod=max(0,log2(max(.001,footprint)));
-                float3 painted=tex2Dlod(_WallTex,float4(tissueUV,0,lod)).rgb;
-                float3 shifted=tex2Dlod(_WallTex,float4(frac(along+.5),tissueUV.y,0,lod)).rgb;
-                painted=lerp(painted,shifted,smoothstep(.36,.49,abs(along-.5)));
-                #ifndef UNITY_COLORSPACE_GAMMA
-                    painted=LinearToGammaSpace(painted);
-                #endif
-                // Keep the original painted tissue only as subtle mottling, never grooves.
-                wall=lerp(wall,painted*lerp(.96,1.03,facing),.075*sideLight);
-                float contact=(1-smoothstep(radius-.08,radius+.64,d))*.38;
-                float cast=(1-smoothstep(radius,radius+1.25,d))*.18*(1-facing*.45);
-                float3 color=lerp(floorColor,floorColor*float3(.66,.58,.69),saturate(contact+cast));
-                color=lerp(color,wall,1-smoothstep(radius-.38,radius,d));
-                // Outside only the perimeter: inner ridge centers remain colored tissue.
-                float outside=exterior*(1-smoothstep(-3.0,-2.4,d));
+                float lobeCell=frac(along*3);
+                float lobeShape=-cos(lobeCell*2*UNITY_PI)*saturate(length(phase));
+                float width=lerp(_WallWidth,_WallWidth*1.65,exterior);
+                float radius=width;
+                float t=saturate(max(0,d)/radius);
+                float innerHeight=sqrt(saturate(1-t*t));
+                float outerT=saturate((d+3.35)/(radius+3.35));
+                float outerHeight=pow(saturate(sin(outerT*UNITY_PI)),.68);
+                float height=lerp(innerHeight,outerHeight,exterior)*(1-.05*(1-lobeShape));
+                float aa=max(_PixelSize*.7,fwidth(d)*.8);
+                float outside=exterior*(1-smoothstep(-3.35-aa,-3.35+aa,d));
+                float wallMask=(1-smoothstep(radius-aa,radius+aa,d))*(1-outside);
+                height*=wallMask;
+                float paintAlong=along*3;
+                mergeColonOpeningSurface(uv,_Inlet,1,height,n,paintAlong,wallMask);
+                mergeColonOpeningSurface(uv,_Outlet,-1,height,n,paintAlong,wallMask);
+                float facing=saturate(.55+(n.y*.35-n.x*.18)*saturate(1-height));
+                float3 wall=colonPaint(paintAlong,height,facing);
+                float crest=pow(height,7)*(1-.16*lobeShape);
+                wall=lerp(wall,float3(1,.77,.66),crest*.22);
+                float softFold=pow(saturate(-lobeShape),3)*(1-height*.55);
+                wall*=1-.07*softFold;
+                float contact=(1-smoothstep(radius,radius+.33,d))*.40;
+                float cast=(1-smoothstep(radius,radius+1.05,d))*.14*(1-facing*.55);
+                float3 color=lerp(floorColor,floorColor*float3(.65,.56,.67),saturate(contact+cast));
                 color=lerp(color,float3(.29,.065,.13),outside);
-                float wallFootprint=(1-outside)*(1-smoothstep(radius-.38,radius,d));
-                color=drawColonOpening(color,floorColor,uv,_Inlet,_InletOpen,1,wallFootprint);
-                color=drawColonOpening(color,floorColor,uv,_Outlet,_OutletOpen,-1,wallFootprint);
+                color=lerp(color,wall,wallMask);
+                color=drawColonOpening(color,floorColor,uv,_Inlet,_InletOpen,1);
+                color=drawColonOpening(color,floorColor,uv,_Outlet,_OutletOpen,-1);
                 return fixed4(rgb(saturate(color)),1);
             }
             ENDCG

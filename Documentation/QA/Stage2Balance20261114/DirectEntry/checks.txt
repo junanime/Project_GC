@@ -1,0 +1,1292 @@
+fixture equips one real preparation item
+departure opens stage picker without loading
+cancel preserves selected preparation item
+stage-one-only demo blocks stage-two direct entry
+double launch is rejected while loading
+stage-one selection uses original profile
+stage-one choice remains ranking eligible
+stage-one receives selected carry item
+same loadout prepared for direct comparison
+direct entry reuses paused inlet-opening, ejection and one-second settle
+direct entry retains same base stats and selected equipment effects
+direct entry retains preparation carry item
+direct profile is active only on this run
+temporary direct run cannot submit to normal ranking
+direct entry loading completes all 86 props and six habitats
+fourteen clot entrances present in direct entry
+normal tier 0 HP is stage-one baseline -20%: 20
+normal tier 0 preserves stage-one speed and contact damage
+normal tier 0 uses basic-start experience rewards
+elite tier 0 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 1 HP is stage-one baseline -20%: 28
+normal tier 1 preserves stage-one speed and contact damage
+normal tier 1 uses basic-start experience rewards
+elite tier 1 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 2 HP is stage-one baseline -20%: 52
+normal tier 2 preserves stage-one speed and contact damage
+normal tier 2 uses basic-start experience rewards
+elite tier 2 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 3 HP is stage-one baseline -20%: 96
+normal tier 3 preserves stage-one speed and contact damage
+normal tier 3 uses basic-start experience rewards
+elite tier 3 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 4 HP is stage-one baseline -20%: 100
+normal tier 4 preserves stage-one speed and contact damage
+normal tier 4 uses basic-start experience rewards
+elite tier 4 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 5 HP is stage-one baseline -20%: 136
+normal tier 5 preserves stage-one speed and contact damage
+normal tier 5 uses basic-start experience rewards
+elite tier 5 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 6 HP is stage-one baseline -20%: 176
+normal tier 6 preserves stage-one speed and contact damage
+normal tier 6 uses basic-start experience rewards
+elite tier 6 inherits reduced ordinary HP and preserves the elite multiplier
+normal tier 7 HP is stage-one baseline -20%: 208
+normal tier 7 preserves stage-one speed and contact damage
+normal tier 7 uses basic-start experience rewards
+elite tier 7 inherits reduced ordinary HP and preserves the elite multiplier
+legacy special HP remains unchanged at stage-one +10%: 완두 꼬투리 형제
+split special child HP remains unchanged: 꼬투리 아기콩
+legacy special HP remains unchanged at stage-one +10%: 겹꼬투리 콩군단
+split special child HP remains unchanged: 완두 꼬투리 형제
+split special child HP remains unchanged: 꼬투리 아기콩
+legacy special HP remains unchanged at stage-one +10%: 옥수수 팝콘포수
+legacy special HP remains unchanged at stage-one +10%: 갈라진 밤알
+legacy special HP remains unchanged at stage-one +10%: 검은목이 팔랑버퍼
+legacy special HP remains unchanged at stage-one +10%: 흰목이 방패균
+legacy special HP remains unchanged at stage-one +10%: 호두 다람쥐 도둑
+legacy special HP remains unchanged at stage-one +10%: 비트 두더지
+five added special-monster HP values remain unchanged
+all stage-one source monster HP templates remain unchanged
+stage duration and existing +8% population cap remain unchanged
+spawn-rate and tier-introduction keyframe times remain unchanged
+tier mix matches stage-one clock t=0.00 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.00 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 0s: 1.080
+tier mix matches stage-one clock t=0.02 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.02 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 15s: 1.080
+tier mix matches stage-one clock t=0.03 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.03 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 30s: 1.080
+tier mix matches stage-one clock t=0.05 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.05 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 45s: 1.080
+tier mix matches stage-one clock t=0.07 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.07 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 60s: 1.080
+tier mix matches stage-one clock t=0.08 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.08 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 75s: 1.080
+tier mix matches stage-one clock t=0.10 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.10 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 90s: 1.080
+tier mix matches stage-one clock t=0.12 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.12 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 105s: 1.080
+tier mix matches stage-one clock t=0.13 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.13 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 120s: 1.080
+tier mix matches stage-one clock t=0.15 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.15 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 135s: 1.080
+tier mix matches stage-one clock t=0.17 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.17 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 150s: 1.080
+tier mix matches stage-one clock t=0.18 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.18 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 165s: 1.080
+tier mix matches stage-one clock t=0.20 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.20 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 180s: 1.080
+tier mix matches stage-one clock t=0.22 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.22 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 195s: 1.080
+tier mix matches stage-one clock t=0.23 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.23 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 210s: 1.080
+tier mix matches stage-one clock t=0.25 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.25 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 225s: 1.080
+tier mix matches stage-one clock t=0.27 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.27 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 240s: 1.080
+tier mix matches stage-one clock t=0.28 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.28 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 255s: 1.080
+tier mix matches stage-one clock t=0.30 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.30 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 270s: 1.080
+tier mix matches stage-one clock t=0.32 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.32 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 285s: 1.080
+tier mix matches stage-one clock t=0.33 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.33 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 300s: 1.080
+tier mix matches stage-one clock t=0.35 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.35 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 315s: 1.080
+tier mix matches stage-one clock t=0.37 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.37 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 330s: 1.080
+tier mix matches stage-one clock t=0.38 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.38 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 345s: 1.080
+tier mix matches stage-one clock t=0.40 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.40 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 360s: 1.080
+tier mix matches stage-one clock t=0.42 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.42 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 375s: 1.080
+tier mix matches stage-one clock t=0.43 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.43 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 390s: 1.080
+tier mix matches stage-one clock t=0.45 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.45 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 405s: 1.080
+tier mix matches stage-one clock t=0.47 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.47 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 420s: 1.080
+tier mix matches stage-one clock t=0.48 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.48 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 435s: 1.080
+tier mix matches stage-one clock t=0.50 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.50 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 450s: 1.080
+tier mix matches stage-one clock t=0.52 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.52 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 465s: 1.080
+tier mix matches stage-one clock t=0.53 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.53 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 480s: 1.080
+tier mix matches stage-one clock t=0.55 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.55 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 495s: 1.080
+tier mix matches stage-one clock t=0.57 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.57 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 510s: 1.080
+tier mix matches stage-one clock t=0.58 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.58 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 525s: 1.080
+tier mix matches stage-one clock t=0.60 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.60 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 540s: 1.080
+tier mix matches stage-one clock t=0.62 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.62 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 555s: 1.080
+tier mix matches stage-one clock t=0.63 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.63 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 570s: 1.080
+tier mix matches stage-one clock t=0.65 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.65 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 585s: 1.080
+tier mix matches stage-one clock t=0.67 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.67 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 600s: 1.080
+tier mix matches stage-one clock t=0.68 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.68 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 615s: 1.080
+tier mix matches stage-one clock t=0.70 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.70 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 630s: 1.080
+tier mix matches stage-one clock t=0.72 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.72 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 645s: 1.080
+tier mix matches stage-one clock t=0.73 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.73 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 660s: 1.080
+tier mix matches stage-one clock t=0.75 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.75 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 675s: 1.080
+tier mix matches stage-one clock t=0.77 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.77 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 690s: 1.080
+tier mix matches stage-one clock t=0.78 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.78 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 705s: 1.080
+tier mix matches stage-one clock t=0.80 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.80 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 720s: 1.080
+tier mix matches stage-one clock t=0.82 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.82 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 735s: 1.080
+tier mix matches stage-one clock t=0.83 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.83 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 750s: 1.080
+tier mix matches stage-one clock t=0.85 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.85 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 765s: 1.080
+tier mix matches stage-one clock t=0.87 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.87 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 780s: 1.080
+tier mix matches stage-one clock t=0.88 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.88 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 795s: 1.080
+tier mix matches stage-one clock t=0.90 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.90 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 810s: 1.080
+tier mix matches stage-one clock t=0.92 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.92 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 825s: 1.080
+tier mix matches stage-one clock t=0.93 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.93 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 840s: 1.080
+tier mix matches stage-one clock t=0.95 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.95 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 855s: 1.080
+tier mix matches stage-one clock t=0.97 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.97 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 870s: 1.080
+tier mix matches stage-one clock t=0.98 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=0.98 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 885s: 1.080
+tier mix matches stage-one clock t=1.00 tier=0
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=1
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=2
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=3
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=4
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=5
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=6
+elite unlock follows direct time table
+tier mix matches stage-one clock t=1.00 tier=7
+elite unlock follows direct time table
+same-time ordinary mean HP is stage-one baseline -20%
+nominal ordinary HP throughput is stage-one x0.864 with unchanged spawn quantity
+spawn-rate ratio +8% at 900s: 1.080
+initial spawn rate is 0.756 per second
+serialized stage-one monster values remain unchanged
+optional boss uses its fixed 5500-9000 HP profile: Flamingo
+optional boss uses its fixed 5500-9000 HP profile: Shark
+optional boss uses its fixed 5500-9000 HP profile: Pudding
+optional boss uses its fixed 5500-9000 HP profile: Hedgehog
+optional boss uses its fixed 5500-9000 HP profile: Turtle
+optional boss uses its fixed 5500-9000 HP profile: Manatee
+legacy special schedule uses baseline count before new additions
+direct run clock and actual spawn loop operate
+unupgraded selected weapon kills early direct-stage normals: 5 in 1.5 seconds
+direct habitat interaction creates Manatee
+direct optional boss matches its fixed shared HP profile: Manatee
+direct pattern damage profile applied: Manatee
+difficulty does not change art size: Manatee
+direct dash starts Manatee
+direct dash completes Manatee
+actual direct mini-boss rewards total 60 XP / 40 gold: Manatee
+direct mini-boss scores once locally Manatee
+direct habitat interaction creates Pudding
+direct optional boss matches its fixed shared HP profile: Pudding
+direct pattern damage profile applied: Pudding
+difficulty does not change art size: Pudding
+direct dash starts Pudding
+direct dash completes Pudding
+actual direct mini-boss rewards total 60 XP / 40 gold: Pudding
+direct mini-boss scores once locally Pudding
+direct habitat interaction creates Flamingo
+direct optional boss matches its fixed shared HP profile: Flamingo
+direct pattern damage profile applied: Flamingo
+difficulty does not change art size: Flamingo
+direct dash starts Flamingo
+direct dash completes Flamingo
+actual direct mini-boss rewards total 60 XP / 40 gold: Flamingo
+direct mini-boss scores once locally Flamingo
+direct habitat interaction creates Turtle
+direct optional boss matches its fixed shared HP profile: Turtle
+direct pattern damage profile applied: Turtle
+difficulty does not change art size: Turtle
+direct dash starts Turtle
+direct dash completes Turtle
+actual direct mini-boss rewards total 60 XP / 40 gold: Turtle
+direct mini-boss scores once locally Turtle
+direct habitat interaction creates Hedgehog
+direct optional boss matches its fixed shared HP profile: Hedgehog
+direct pattern damage profile applied: Hedgehog
+difficulty does not change art size: Hedgehog
+direct dash starts Hedgehog
+direct dash completes Hedgehog
+actual direct mini-boss rewards total 60 XP / 40 gold: Hedgehog
+direct mini-boss scores once locally Hedgehog
+direct habitat interaction creates Shark
+direct optional boss matches its fixed shared HP profile: Shark
+direct pattern damage profile applied: Shark
+difficulty does not change art size: Shark
+direct dash starts Shark
+direct dash completes Shark
+actual direct mini-boss rewards total 60 XP / 40 gold: Shark
+direct mini-boss scores once locally Shark
+direct score remains local; optional kills do not end stage
+direct profile destroyed on return to main menu
+fresh normal run launches after direct run
+normal capsule transition does not inherit direct mode
+normal transition shares direct-entry reduced HP and unchanged spawn rate
+normal boss stats restored after direct run Flamingo
+normal boss stats restored after direct run Shark
+normal boss stats restored after direct run Pudding
+normal boss stats restored after direct run Hedgehog
+normal boss stats restored after direct run Turtle
+normal boss stats restored after direct run Manatee

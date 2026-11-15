@@ -66,6 +66,13 @@ namespace Vampire
 
         IEnumerator Arrival()
         {
+            if (director != null && director.Summoning)
+            {
+                yield return director.PresentSummon(this);
+                if (level == null || level.IsLevelEnded || Player == null || !Player.IsAlive) { action = null; yield break; }
+                Arriving = false; hitbox.enabled = true; nextHit = Time.time + .75f; action = null;
+                yield break;
+            }
             Visual.SetPose(KingPose.Idle); Visual.Opacity = 0;
             yield return Tween(1.6f, q => { Visual.Opacity = q; Visual.SetPoseProgress(q); });
             Arriving = false; hitbox.enabled = true; action = null;
@@ -76,7 +83,7 @@ namespace Vampire
             Moving = false;
             if (Dead) return;
             if (level == null || level.IsLevelEnded || Player == null || !Player.IsAlive)
-            { CancelPattern(); return; }
+            { director?.CancelSummon(this); CancelPattern(); return; }
             if (EncounterPaused || Immobilized) return;
             Visual.Face(Aim); Visual.Tick(Time.deltaTime);
             if (Arriving || Transitioning || Busy) return;
@@ -174,7 +181,9 @@ namespace Vampire
                 action = StartCoroutine(PhaseTransition()); return;
             }
             if (Health > 0) return;
-            Dead = true; hitbox.enabled = false; body.velocity = Vector2.zero; CancelPattern();
+            Dead = true; hitbox.enabled = false; body.velocity = Vector2.zero;
+            // Capture the rendered hand/rotation before CancelPattern resets its pose.
+            director?.BeginDefeat(this); CancelPattern();
             GetComponent<FoodBossCombatStatus>()?.Defeated(); RunScore.Current?.BossKill();
             action = StartCoroutine(Defeat());
         }
@@ -190,11 +199,11 @@ namespace Vampire
         }
         IEnumerator Defeat()
         {
-            director?.BeginDefeat(this);
             Visual.SetPose(KingPose.Death);
-            for (float t = 0; t < 1.3f;)
+            const float dissolveSeconds = 1.7f;
+            for (float t = 0; t < dissolveSeconds;)
             {
-                if (!EncounterPaused) { t += Time.deltaTime; Visual.SetPoseProgress(t / 1.3f); Visual.Opacity = 1 - t / 1.3f; Visual.Tick(Time.deltaTime); }
+                if (!EncounterPaused) { t += Time.deltaTime; float q = Mathf.Clamp01(t / dissolveSeconds); Visual.SetPoseProgress(q); Visual.Opacity = 1 - Mathf.SmoothStep(0, 1, q); Visual.Tick(Time.deltaTime); }
                 if (level == null || level.IsLevelEnded || Player == null || !Player.IsAlive) yield break;
                 yield return null;
             }
@@ -213,7 +222,7 @@ namespace Vampire
             if (Effects == null) return;
             foreach (Transform child in Effects) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
         }
-        void OnDisable() { CancelPattern(); }
+        void OnDisable() { director?.CancelSummon(this, true); CancelPattern(); }
         void OnDestroy() { Active.Remove(this); if (Effects != null) Destroy(Effects.gameObject); }
     }
 }

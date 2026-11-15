@@ -1,0 +1,78 @@
+late-frame capture probe installed
+actual boss HP zero starts escape and capsule delivery
+doctor opens only after parachute landing
+no wearable remnants spawn
+reserved pursuit hole retained
+exact first-page greeting uses active character name
+localized greeting Ari
+localized greeting Hyuki
+localized greeting Shini
+first-boss tutorial remembered persistently
+next button shows exact second line
+dialogue end unlocks capsule interaction
+repeat tutorial suppressed after first display
+acid cleanup preserves rescue capsule
+actual E/touch interaction starts protected boarding
+center hatch opens before passenger boards
+same vehicle traverses dry floor and immerses tube halfway in acid
+spiral closes and opens in two seconds each
+capsule journey blocks acid damage and erosion
+colon stage opens and completes entry
+closed inlet and stopped stage clock during opening
+same player inventory and skill objects retained
+stage-earned combat upgrades and revival count reset to departure baseline
+stored stage consumable and its object removed on transfer
+capsule performs exactly one growth reset
+colon uses 80% width/height and unchanged world pixel density
+colon adds a dedicated ordinary and elite pool while preserving duration
+same monster prefab 0
+same monster prefab 1
+same monster prefab 2
+same monster prefab 3
+same monster prefab 4
+same monster prefab 5
+same monster prefab 6
+same monster prefab 7
+same monster prefab 8
+same monster prefab 9
+same monster prefab 10
+same monster prefab 11
+same monster prefab 12
+same monster prefab 13
+same monster prefab 14
+same monster prefab 15
+same monster prefab 16
+same monster prefab 17
+same monster prefab 18
+same monster prefab 19
+same monster prefab 20
+same monster prefab 21
+stage two initial layout completes before play
+stage-one acid stops in colon
+six optional homes finish loading before stage-two play
+stage-two home kinds are unique
+legacy stage-one boss altar is removed in stage two
+input and physics released after one-second settle
+spawn lands on reachable flat floor
+approved central ridge is solid
+dash cannot cross internal ridge
+horde steers around ridge rather than through it
+50 to 90 percent uphill slowdown retained
+camera returns to player after establishing shot
+normal character renderer restored
+stage two clock runs after entry
+stage two normal monsters actually spawn
+walking stops at the visible raised-wall foot
+dash remains usable beside raised colon walls
+actual dash cannot enter the raised wall face
+player can move along the visible wall without a hidden barrier
+character-specific mini-stage exit art available Ashi
+character-specific mini-stage exit art available Ari
+character-specific mini-stage exit art available Hyuki
+character-specific mini-stage exit art available Shini
+actual E/touch interaction summons the chosen optional boss after capsule travel
+optional boss arrival finishes before combat
+optional boss defeat is recorded only for its own home
+optional boss leaves no stage-exit portal or additional capsule
+optional boss defeat never clears stage two
+mandatory lower-left king has its own manual empty-throne interaction

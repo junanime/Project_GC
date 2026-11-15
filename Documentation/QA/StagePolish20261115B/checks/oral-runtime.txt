@@ -1,0 +1,30 @@
+PASS ashi: stage zero entry
+PASS ashi: both production content controllers installed
+PASS ashi: scattered circular spicy patches begin
+PASS ashi: ten unchanged-size spicy circles are distributed across the tongue
+PASS ashi: recorded safe point clears every circle with player-width margin
+PASS ashi: warning circle cannot ignite the player
+PASS ashi: warning does not remove HP
+PASS ashi: visible circle center belongs to spicy damage mask
+PASS ashi: walkable tongue gap lies outside all circles
+PASS ashi: every tooth excluded from spicy damage mask
+PASS ashi: standing inside an active circle actually removes player HP
+PASS ashi: leaving hazard retains three-second burn
+PASS ashi: existing burn ticks continue after leaving a circle
+PASS ashi: burn expires in a safe tongue gap without refresh
+PASS ashi: burn respects player invincibility and does not count blocked ticks as damage
+PASS ashi: extinguishing visual has no remaining floor damage
+PASS ashi: recorded event and squash finish within timeout
+PASS ashi: spicy active circles last exactly fifteen game seconds
+PASS ashi: spicy circles clean up after the harmless fade
+PASS ashi: fresh random spicy event 2
+PASS ashi: actual consecutive event changes all-layout coordinates without shrinking circles 2
+PASS ashi: consecutive spicy events never reuse the previous base arrangement 2
+PASS ashi: recorded event and squash finish within timeout
+PASS ashi: fresh random spicy event 3
+PASS ashi: actual consecutive event changes all-layout coordinates without shrinking circles 3
+PASS ashi: consecutive spicy events never reuse the previous base arrangement 3
+PASS ashi: recorded event and squash finish within timeout
+PASS ashi: selected mint walking art begins recorded route
+PASS ashi: recorded event and squash finish within timeout
+PASS ashi: recorded mint route completes with one chest

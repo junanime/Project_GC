@@ -16,7 +16,7 @@ namespace Vampire.Tests.Editor
 {
     // Engine measurements using freshly observed builds. Never a human success-rate model.
     [InitializeOnLoad]
-    public static class Stage2CombatBalanceProbe
+    public static partial class Stage2CombatBalanceProbe
     {
         const string Key = "Stage2CombatBalanceProbe";
         const string DefaultFixtures = "Library/Stage2FreshBalanceProof";
@@ -58,6 +58,10 @@ namespace Vampire.Tests.Editor
             "Priority subset: four characters at t885, optional boss and final king, both movement policies; 16 independent encounters.");
         public static void RunMidOptional() => Begin("encounters", 8, Enumerable.Range(0, 4).SelectMany(c => new[] { c * 12 + 4, c * 12 + 5 }).ToArray(), "mid-optional",
             "Priority subset: four characters at t450, optional boss only, both movement policies; eight independent encounters. No premature king encounter.");
+        public static void RunOptionalCalibration() => Begin("optional-calibration", 4, new[] { 1, 4, 7, 10 }, "optional-calibration-450",
+            "Four fixed earlier-growth Stage2 t450 snapshots, all six optional boss bodies, 25 seconds each. One scene per character, complete build/proc reset before every target. These are earlier observed builds, not the growth trajectory after the current ordinary-monster HP change.");
+        public static void RunOptionalMobile() => Begin("optional-mobile", 8, null, "optional-mobile-450",
+            "Four fixed earlier-growth Stage2 t450 snapshots against Shark and Manatee, 45 seconds each, one independent scene per encounter. Actual director habitats and authored AI, reactive_world policy. These are earlier observed builds, not the growth trajectory after the current ordinary-monster HP change.");
         // A bounded early integration check uses the newest available fresh Main fixture.
         public static void RunPilot()
         {
@@ -84,10 +88,10 @@ namespace Vampire.Tests.Editor
             File.WriteAllText(DirectoryPath + "/errors.txt", "");
             File.WriteAllText(DirectoryPath + "/censoring.txt", "");
             File.WriteAllText(DirectoryPath + "/result.txt", "RUNNING");
-            File.WriteAllText(DirectoryPath + "/results.csv", "character,checkpoint,target,phase,pattern,policy,seed,seconds,wall_seconds,frames,max_frame_game_seconds,capped_frames,hp_start,hp_end,enemy_hp_start,enemy_hp_end,observed_damage,observed_healing_lower_bound,net_dps,player_damage_counter_including_overkill,player_healing,damaged_frames,skill_uses,dashes,reflections,completed_patterns,blocked_decisions,decisions,minimum_wall_clearance,initial_floor_clearance,initial_shot_center_distance,initial_shot_surface_distance,needle_reach,in_range_fraction,blocked_fraction,contact_frames,minimum_hurtbox_distance,balance_valid,outcome,ttk_measured_seconds,naive_hp_over_dps_seconds\n");
+            File.WriteAllText(DirectoryPath + "/results.csv", "character,checkpoint,target,phase,pattern,policy,seed,seconds,wall_seconds,frames,max_frame_game_seconds,capped_frames,hp_start,hp_end,enemy_hp_start,enemy_hp_end,observed_damage,observed_healing_lower_bound,net_dps,player_damage_counter_including_overkill,player_healing,damaged_frames,skill_uses,dashes,reflections,completed_patterns,blocked_decisions,decisions,minimum_wall_clearance,initial_floor_clearance,initial_shot_center_distance,initial_shot_surface_distance,needle_reach,in_range_fraction,blocked_fraction,contact_frames,minimum_hurtbox_distance,balance_valid,outcome,ttk_measured_seconds,naive_hp_over_dps_seconds,body_targetable_frames,body_targetable_fraction,in_range_when_targetable_fraction\n");
             File.WriteAllText(DirectoryPath + "/damage-events.csv", "character,target,policy,seconds,damage_counter_delta,player_hp,hurtbox_distance,contact,king_actors,optional_actors,food_actors,living_monsters,player_x,player_y,boss_x,boss_y\n");
             File.WriteAllText(DirectoryPath + "/hurtboxes.csv", "character,target,collider,type,offset_x,offset_y,world_size_x,world_size_y,world_center_x,world_center_y,scale_x,scale_y,rotation_z,axis\n");
-            File.WriteAllText(DirectoryPath + "/arena.csv", "target,actual_director_spawn_x,actual_director_spawn_y,arena_x,arena_y,distance_from_actual_director_spawn,verified_floor_radius\n");
+            File.WriteAllText(DirectoryPath + "/arena.csv", "target,reference_approach_x,reference_approach_y,arena_x,arena_y,distance_from_reference_approach,arena_floor_clearance\n");
             File.WriteAllText(DirectoryPath + "/samples.csv", "character,checkpoint,target,policy,seconds,player_hp,enemy_hp,pattern,phase,reflections\n");
             File.WriteAllText(DirectoryPath + "/fixtures.csv", "character,checkpoint,source,sha256,source_seed,source_layout_seed,source_time_scale,source_field_seconds,source_cohort,level,max_hp,needle_damage,needle_cooldown,needle_count,boss_multiplier,source_live_damage,source_live_cooldown,source_live_count\n");
             File.WriteAllText(DirectoryPath + "/method.txt",
@@ -96,8 +100,10 @@ namespace Vampire.Tests.Editor
                 "Fresh Stage2 growth-reset builds only: t0, t450 and t885 are observed checkpoints, not synthetic expected player progression. Source JSON and SHA256 are recorded. No historical Stage1 carryover fixture is used.\n" +
                 "Each character/build/encounter/policy reloads the actual Level 1 scene and performs the actual Stage2 reset entry. Before EVERY window, only special-needle parents actually present in the observed fixture are temporarily unlocked/enabled so a user's original purchase settings cannot veto fixture restoration. All legacy preferences are restored on completion/stop. AbilityManager.ResetForStage destroys the entire existing ability graph and rebuilds only the fixture; a full owned-ability/type/level/acquisition signature must match. Player/general numeric snapshots and owned item assets are restored. User-selected starting weapons cannot remain as extra attacks. No purchased departure gear is added.\n" +
                 "Independent-start normalization: full HP, skill active/passive durations/cooldown and dash charges reset; item proc cooldowns ready, charges/streaks/recent-hit/heal/kill state cleared; no delayed EXP or preloaded overflow/retaliation damage. Item elapsed growth and learned resistance are retained. This deliberately does NOT restore the original live item proc state, which the growth serializer did not capture. Restore never calls GainHealth, so normalization cannot charge healing-triggered items. Each window's field clock starts at its fixture checkpoint and advances normally without background spawns. No pickups or additional upgrades during measurement. Actual weapons, projectile collisions, armor, critical hits, statuses, skill cooldowns, healing and boss phases remain active. Seed is paired across the two policies. Time scale 1; all durations are game seconds unless explicitly wall_seconds. Each result records frames, maximum game-frame duration, and frames reaching 99% of Time.maximumDeltaTime so frame-limited attack throughput remains auditable.\n" +
-                "Arena: unchanged Stage2 terrain, the director's actual lower-left spawn if it provides 6.5 units of clear floor, otherwise the nearest verified footprint from that spawn. An offset represents luring the boss onto nearby open floor; no walls are added or removed. Actual spawn, measured arena and offset distance are logged. The player starts outside all enabled body colliders with floor clearance at least0.55. Placement first seeks a shot-origin ring at80% of base needle reach (maximum3.5), then0.95 reach, then a wider ring still requiring actual collider-surface reach. Initial reach/line of sight and at least one valid movement direction are required.\n" +
-                "Calibration: invulnerable stationary player, no active skills, real stationary bodies: Stage1 Tangdengi 24000 HP reference, Stage2 Turtle 3000 HP, King 34000 HP. Body AI is disabled only after arrival. Phase invulnerability still runs. Initial aim is toward the actual collider center within measured needle reach. Limits: 45/90/180 seconds for t0/t450/t885. Measured TTK is populated ONLY after actual defeat; time-limited trials are right-censored. HP/net-DPS is a separately named naive extrapolation, never a measured kill time.\n" +
+                "Arena: unchanged Stage2 terrain. Stationary calibration and generic encounters use the fixed lower-left reference approach derived from the opening (FrontLip + Inward * 3, clamped for the king footprint), then a nearby footprint verified to provide at least6.45 clear-floor units. This reference is not the current production throne spawn. Reference position, measured arena and offset distance are logged; no walls are added or removed. For optional-mobile, reference_approach and arena are the actual summoned habitat position; arena_floor_clearance is the recorded clearance at that anchor, not a claim that the wall-mounted house is an open-floor arena. Actual combat movement is unrestricted by this log anchor. The player starts outside all enabled body colliders with floor clearance at least0.55. Placement first seeks a shot-origin ring at80% of base needle reach (maximum3.5), then0.95 reach, then a wider ring still requiring actual collider-surface reach. Initial reach/line of sight and at least one valid movement direction are required.\n" +
+                "Calibration: invulnerable stationary player, no active skills, real stationary bodies: Stage1 Tangdengi 24000 HP reference, Stage2 Turtle " + ColonBossDefinition.Get(ColonBossKind.Turtle).Health.ToString("0", CultureInfo.InvariantCulture) + " HP, King 34000 HP. Body AI is disabled only after arrival. Phase invulnerability still runs. Initial aim is toward the actual collider center within measured needle reach. Limits: 45/90/180 seconds for t0/t450/t885. Measured TTK is populated ONLY after actual defeat; time-limited trials are right-censored. HP/net-DPS is a separately named naive extrapolation, never a measured kill time.\n" +
+                "Optional calibration subset: all six bodies use their current fixed per-concept HP on the same verified open-floor arena, with no habitat behavior, 25 seconds per body after arrival. Manatee presents its ordinary full body here; pipe-only head exposure is measured separately in optional-mobile. Real needle/owned passive damage only, no active skills, no field actors or pickups. Earlier t450 fixtures stay fixed so the HP revision can be compared without confusing it with a newly generated growth curve.\n" +
+                "Optional mobile subset: Shark and Manatee are summoned through the real director at their actual generated habitats. The Manatee retains all three doors, territory clamp, hidden travel and narrow head hitboxes. No background ordinary/special/event spawning; boss-authored effects and projectiles remain active. Reactive policy and ordinary skill/dash cooldowns are used for 45 seconds or until player/target defeat. body_targetable_fraction measures enabled damageable optional-body windows; in_range_fraction excludes hidden bodies, and in_range_when_targetable_fraction divides reachable frames by exposed frames. A disabled collider returning its query point is never counted as needle reach. Partial windows and naive HP/DPS are not actual kill times or human clear estimates.\n" +
                 "Encounters: actual player HP, no invulnerability, no field background mobs/events/specials. Optional Turtle and King retain actual movement and pattern AI. Limits: 60/90/180 seconds. orbit_control follows a collider-centered ring at 80% of actual needle reach, observes walls/bodies, and cannot predict projectiles. Both policies decide every 0.15 seconds among16 directions using wall lookahead=currentMoveSpeed*0.18 (minimum0.22). reactive_world additionally scores currently visible projectiles projected0.5 seconds, vortex boundaries and minions. Dashes require a clear full path. If pushed onto a wall boundary, the bot permits ordinary movement only toward increasing clearance; it never teleports during measurement. Neither policy learns patterns or guarantees optimal evasion. Both attempt normal skills and use real dash charges. Rows with blocked decisions above20%, negative wall penetration below-0.05, in-range frames below40%, or no damage are labelled balance_valid=false rather than interpreted as difficulty evidence.\n" +
                 "Patterns: t885 build only; each of the 18 legal phase/pattern combinations starts with a fresh king, a full-health player and fresh skill cooldowns. Phase2 is reached by an explicitly artificial phase setup before measurement; phase1 starts wounded to expose tribute healing. A window lasts at least eight seconds and until its coroutine completes (20-second cap). Full HP between windows prevents attrition from disguising single-technique damage; death censors remaining windows. This is not a continuous boss clear.\n" +
                 "Shini uses only fuel actually stored in the fixture; none is granted and no additional field pickups are available in this isolated combat. When a real Tap starts, the bot stops walking, faces the boss and suppresses dashes until the natural preparation/short emission/fade ends, preventing the movement policy from aiming sideways or cancelling its own cast. It does not simulate holding a key for extended fuel consumption. Other characters can activate while moving; the retired sleep passive is not used.\n" +
@@ -146,8 +152,8 @@ namespace Vampire.Tests.Editor
             Time.timeScale = saved.timeScale; Application.runInBackground = saved.runInBackground;
             File.Copy(ProfileBackup, Output + "/profile-restored.json", true); File.Delete(ProfileBackup);
         }
-        static int CharacterIndex(int round) => Mode == "encounters" ? round / 12 : Mode == "patterns" ? round / 2 : Mode == "pilot" ? 0 : round / 3;
-        static int Checkpoint(int round) => Mode == "encounters" ? Checkpoints[(round / 4) % 3] : Mode == "pilot" ? SessionState.GetInt(Key + "PilotCheckpoint", 0) : Mode == "patterns" ? 885 : Checkpoints[round % 3];
+        static int CharacterIndex(int round) => Mode == "encounters" ? round / 12 : Mode == "patterns" || Mode == "optional-mobile" || Mode == "ordinary-ab" ? round / 2 : Mode == "pilot" ? 0 : round / 3;
+        static int Checkpoint(int round) => Mode == "optional-mobile" || Mode == "ordinary-ab" ? 450 : Mode == "encounters" ? Checkpoints[(round / 4) % 3] : Mode == "pilot" ? SessionState.GetInt(Key + "PilotCheckpoint", 0) : Mode == "patterns" ? 885 : Checkpoints[round % 3];
         static void Next()
         {
             Time.timeScale = 1; SessionState.SetBool(Key + "Done", false); SessionState.SetBool(Key + "NeedsScene", true);
@@ -194,6 +200,7 @@ namespace Vampire.Tests.Editor
             if (SessionState.GetBool(Key + "NeedsScene", false))
             {
                 SessionState.SetBool(Key + "NeedsScene", false);
+                if (Mode == "ordinary-ab") UnityEngine.Random.InitState(OrdinarySeed(round));
                 CrossSceneData.CharacterBlueprint = AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/" + Characters[CharacterIndex(round)] + " Character Blueprint.asset");
                 LobbyLoadoutData.Clear(); CrossSceneData.StartingLobbyItems = Array.Empty<MerchantItemBlueprint>(); CrossSceneData.ClearPendingRunSceneTransfer();
                 UnityEngine.SceneManagement.SceneManager.LoadScene("Level 1"); return;
@@ -331,11 +338,39 @@ namespace Vampire.Tests.Editor
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
             Application.runInBackground = true; RunScore.Exclude("Fresh Stage2 controlled combat balance probe"); Silence(level); Fire(false);
             ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", true);
+            if (Mode == "ordinary-ab") UnityEngine.Random.InitState(OrdinarySeed(round));
             yield return ColonContentSmoke.Enter(level); Silence(level); Clear(level); Time.timeScale = Speed;
             var reset = level.GetComponent<StageGrowthReset>(); if (reset == null || reset.ResetCount != 1) throw new Exception("Combat fixture must enter through the actual fresh growth reset");
             string character = Characters[CharacterIndex(round)]; int checkpoint = Checkpoint(round);
             yield return Restore(level, character, checkpoint, true); Fire(false); yield return null; Clear(level);
-            if (Mode == "calibration")
+            if (Mode == "ordinary-ab")
+            {
+                yield return OrdinaryProbe(level, round);
+            }
+            else if (Mode == "optional-calibration")
+            {
+                foreach (ColonBossKind kind in Enum.GetValues(typeof(ColonBossKind)))
+                {
+                    yield return Restore(level, character, checkpoint, false); Fire(false); Clear(level);
+                    var target = Spawn(level, 1, kind); yield return Ready(target);
+                    target.Freeze(); PlaceInReach(level.PlayerCharacter, target);
+                    level.PlayerCharacter.Move(Vector2.left); level.PlayerCharacter.Move(Vector2.zero);
+                    ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", true); Fire(true);
+                    yield return Measure(level, target, character, checkpoint, "stationary", 73319 + CharacterIndex(round) * 91 + checkpoint + (int)kind * 101, 25, false, -1, 0);
+                    Fire(false); target.Destroy(); Clear(level); yield return null;
+                }
+            }
+            else if (Mode == "optional-mobile")
+            {
+                ColonBossKind kind = round % 2 == 0 ? ColonBossKind.Shark : ColonBossKind.Manatee;
+                var target = SpawnAtHabitat(level, kind); yield return Ready(target);
+                PlaceInReach(level.PlayerCharacter, target);
+                yield return Restore(level, character, checkpoint, false); Fire(true);
+                ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", false); target.Auto(true);
+                yield return Measure(level, target, character, checkpoint, "reactive_world", 91873 + CharacterIndex(round) * 1009 + checkpoint * 3 + (int)kind * 71, 45, true, -1, 0);
+                Fire(false); target.Destroy(); Clear(level);
+            }
+            else if (Mode == "calibration")
             {
                 foreach (int type in new[] { 0, 1, 2 })
                 {
@@ -388,10 +423,11 @@ namespace Vampire.Tests.Editor
         sealed class Target
         {
             public FoodBossRuntime Food; public ColonBossRuntime Optional; public ConstipationKingRuntime King;
-            public string Name => Food != null ? "Stage1_Tangdengi_24000" : Optional != null ? "Stage2_Turtle_3000" : "Stage2_King_34000";
+            public string Name => Food != null ? "Stage1_Tangdengi_24000" : Optional != null ? "Stage2_" + Optional.Kind + "_" + Optional.MaxHealth.ToString("0", CultureInfo.InvariantCulture) : "Stage2_King_34000";
             public Component Actor => Food != null ? (Component)Food : Optional != null ? (Component)Optional : King;
             public float Health => Food != null ? Food.Health : Optional != null ? Optional.Health : King != null ? King.Health : 0;
             public bool Dead => Actor == null || (Food != null ? Food.Dead : Optional != null ? Optional.Dead : King.Dead);
+            public bool BodyTargetable => !Dead && !Arriving && Actor.GetComponent<Collider2D>().enabled && (Optional == null || !Optional.Hidden);
             public Vector2 Foot => Actor == null ? Vector2.zero : (Vector2)Actor.transform.position;
             public Vector2 Center => Food != null ? (Vector2)Food.GetComponent<Collider2D>().bounds.center : Optional != null ? Optional.HitCenter : King.HitCenter;
             public bool Arriving => Optional != null ? Optional.Arriving : King != null && King.Arriving;
@@ -403,7 +439,7 @@ namespace Vampire.Tests.Editor
             public void Freeze() { if (Actor != null) { ((MonoBehaviour)Actor).enabled = false; Actor.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll; } }
             public void Destroy() { if (Actor != null) { ((MonoBehaviour)Actor).StopAllCoroutines(); Object.Destroy(Actor.gameObject); } }
         }
-        static Target Spawn(LevelManager level, int type)
+        static Target Spawn(LevelManager level, int type, ColonBossKind optionalKind = ColonBossKind.Turtle)
         {
             var map = FiniteStomachMap.Instance; var opening = StomachOpening.Find(false); var shape = map.OpeningShape(false);
             Vector2 approach = opening != null ? opening.FrontLip + opening.Inward * 3 : map.UVToWorld(new Vector2(shape.x, shape.y)) + Vector2.up * 7;
@@ -414,10 +450,25 @@ namespace Vampire.Tests.Editor
             PlacePlayer(level.PlayerCharacter, at + Vector2.right * 4);
             var target = new Target();
             if (type == 0) target.Food = FoodBossRuntime.Spawn(FoodBossKind.Tangdengi, level.PlayerCharacter, at);
-            else if (type == 1) target.Optional = ColonBossRuntime.Spawn(ColonBossKind.Turtle, level.PlayerCharacter, at, null);
+            else if (type == 1) target.Optional = ColonBossRuntime.Spawn(optionalKind, level.PlayerCharacter, at, null);
             else target.King = ConstipationKingRuntime.Spawn(level, at);
             target.Auto(false);
             File.AppendAllText(DirectoryPath + "/arena.csv", Row(target.Name, actualSpawn.x, actualSpawn.y, at.x, at.y, Vector2.Distance(actualSpawn, at), clearance));
+            return target;
+        }
+        static Target SpawnAtHabitat(LevelManager level, ColonBossKind kind)
+        {
+            var director = level.GetComponent<ColonBossDirector>();
+            if (director == null || !director.Ready) throw new Exception("Actual optional-boss habitats must be ready");
+            var habitat = director.Habitats.Single(h => h.Kind == kind);
+            var map = FiniteStomachMap.Instance;
+            Vector2 spawn = habitat.transform.position;
+            Vector2 approach = kind == ColonBossKind.Manatee ? habitat.DoorExit(1) + habitat.WallNormal * 3 : spawn + Vector2.right * 4;
+            PlacePlayer(level.PlayerCharacter, approach);
+            if (!director.TrySummon(habitat, level.PlayerCharacter)) throw new Exception("Actual habitat could not summon " + kind);
+            var target = new Target { Optional = ColonBossRuntime.Active.Single(b => b.Habitat == habitat && !b.Dead) };
+            target.Auto(false);
+            File.AppendAllText(DirectoryPath + "/arena.csv", Row(target.Name, spawn.x, spawn.y, spawn.x, spawn.y, 0, map.FloorClearance(spawn, true)));
             return target;
         }
         static IEnumerator Ready(Target target) => Until(() => !target.Arriving, 20, "boss arrival");
@@ -432,7 +483,11 @@ namespace Vampire.Tests.Editor
         static float NeedleReach() => Object.FindObjectOfType<SyringeDartAbility>().GetEffectiveSyringeMaxDistance();
         static float PreferredDistance() => Mathf.Min(3.5f, NeedleReach() * .8f);
         static Vector2 ShotOrigin(SyringeDartAbility weapon) => weapon.GetReturnCatchPosition((Vector2)NeedleDirection.GetValue(weapon));
-        static float ShotSurfaceDistance(Vector2 origin, Target target) => Vector2.Distance(origin, target.Actor.GetComponent<Collider2D>().ClosestPoint(origin));
+        static float ShotSurfaceDistance(Vector2 origin, Target target)
+        {
+            var collider = target.Actor.GetComponent<Collider2D>();
+            return Vector2.Distance(origin, collider.enabled ? collider.ClosestPoint(origin) : target.Center);
+        }
         static Collider2D[] PlayerHurtboxes(Character player) => player.GetComponentsInChildren<Collider2D>(true).Where(c => c.enabled && c.gameObject.activeInHierarchy && c != player.CollectableCollider).ToArray();
         static float ActualBodyGap(Character player, Target target)
         {
@@ -444,7 +499,8 @@ namespace Vampire.Tests.Editor
         }
         static float PredictedBodyGap(Character player, Target target, Vector2 next)
         {
-            var boss = target.Actor.GetComponent<Collider2D>().bounds; Vector3 shift = (Vector3)next - player.transform.position; float gap = 100;
+            var bossCollider = target.Actor.GetComponent<Collider2D>(); if (!bossCollider.enabled) return 100;
+            var boss = bossCollider.bounds; Vector3 shift = (Vector3)next - player.transform.position; float gap = 100;
             foreach (var collider in PlayerHurtboxes(player))
             {
                 var body = collider.bounds; body.center += shift;
@@ -491,14 +547,18 @@ namespace Vampire.Tests.Editor
             float damageTaken = stats.DamageTaken, healing = stats.HealingReceived, lastHealth = target.Health, observedDamage = 0, observedHealing = 0;
             float lastTaken = damageTaken, nextThink = 0, nextSkill = 0, nextDash = 0, nextSample = 0, minWall = float.MaxValue;
             int hits = 0, skillUses = 0, dashes = 0, decisions = 0, blocked = 0, startReflections = target.Reflections, startPatterns = target.Patterns;
-            int frames = 0, cappedFrames = 0, inRangeFrames = 0, contactFrames = 0; float maxFrameGameSeconds = 0, minimumBodyGap = 100;
+            int frames = 0, cappedFrames = 0, inRangeFrames = 0, targetableFrames = 0, contactFrames = 0; float maxFrameGameSeconds = 0, minimumBodyGap = 100;
             string outcome = "time_limit"; string targetName = target.Name;
             while (Time.time - began < limit)
             {
                 frames++; maxFrameGameSeconds = Mathf.Max(maxFrameGameSeconds, Time.deltaTime);
                 if (Time.deltaTime >= Time.maximumDeltaTime * .99f) cappedFrames++;
                 Vector2 shotOrigin = ShotOrigin(weapon);
-                if (ShotSurfaceDistance(shotOrigin, target) <= weapon.GetEffectiveSyringeMaxDistance() && ColonAttackWall.Clear(shotOrigin, target.Center, .1f)) inRangeFrames++;
+                if (target.BodyTargetable)
+                {
+                    targetableFrames++;
+                    if (ShotSurfaceDistance(shotOrigin, target) <= weapon.GetEffectiveSyringeMaxDistance() && ColonAttackWall.Clear(shotOrigin, target.Center, .1f)) inRangeFrames++;
+                }
                 // Keep stage-time equipment honest while background spawning remains disabled.
                 ColonContentSmoke.Set(level, "levelTime", checkpoint + Time.time - began);
                 float current = target.Health;
@@ -560,7 +620,8 @@ namespace Vampire.Tests.Editor
             File.AppendAllText(DirectoryPath + "/results.csv", Row(character, checkpoint, targetName, explicitPhase, patternWindow, policy, seed, elapsed, Time.realtimeSinceStartup - wall, frames, maxFrameGameSeconds, cappedFrames,
                 health, Mathf.Max(0, player.CurrentHealth), enemyHealth, remaining, observedDamage, observedHealing, dps, stats.DamageTaken - damageTaken, stats.HealingReceived - healing,
                 hits, skillUses, dashes, target.Reflections - startReflections, target.Patterns - startPatterns, blocked, decisions, minWall, initialClearance, initialDistance, initialSurfaceDistance, reach, inRangeFraction, blockedFraction, contactFrames, minimumBodyGap, valid, outcome,
-                outcome == "target_defeated" ? elapsed.ToString("R", CultureInfo.InvariantCulture) : "", dps > 0 ? (enemyHealth / dps).ToString("R", CultureInfo.InvariantCulture) : ""));
+                outcome == "target_defeated" ? elapsed.ToString("R", CultureInfo.InvariantCulture) : "", dps > 0 ? (enemyHealth / dps).ToString("R", CultureInfo.InvariantCulture) : "",
+                targetableFrames, frames == 0 ? 0 : targetableFrames / (float)frames, targetableFrames == 0 ? 0 : inRangeFrames / (float)targetableFrames));
         }
 
         static Vector2 ChooseDirection(Character player, Target target, bool reactive, out int available, out float danger)

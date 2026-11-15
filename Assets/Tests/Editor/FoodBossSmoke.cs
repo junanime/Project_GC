@@ -21,6 +21,7 @@ namespace Vampire.Tests.Editor
         public static void Run()=>Start(false);
         public static void RunBuriedArrival(){SessionState.SetBool(Key+"BuriedArrival",true);Start(false);}
         public static void RunFlowReview(){SessionState.SetBool(Key+"Flow",true);Start(false);}
+        public static void RunLiquidPresentation(){SessionState.SetBool(Key+"LiquidPresentation",true);Start(false);}
         public static void RunTangdengiWalk(){SessionState.SetBool(Key+"TangWalk",true);Start(false);}
         public static void RunMotionUpdate(){SessionState.SetBool(Key+"MotionUpdate",true);Start(false);}
         public static void RunFullMotionUpdate(){SessionState.SetBool(Key+"AfterMotion",true);Start(false);}
@@ -81,6 +82,7 @@ namespace Vampire.Tests.Editor
             if(SessionState.GetBool(Key+"BuriedArrival",false)){SessionState.SetBool(Key+"BuriedArrival",false);yield return BuriedArrivalReview(level,player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"MotionUpdate",false)){SessionState.SetBool(Key+"MotionUpdate",false);yield return MotionUpdateReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"TangWalk",false)){SessionState.SetBool(Key+"TangWalk",false);yield return TangdengiWalkReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
+            if(SessionState.GetBool(Key+"LiquidPresentation",false)){SessionState.SetBool(Key+"LiquidPresentation",false);yield return LiquidPresentation(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Flow",false)){SessionState.SetBool(Key+"Flow",false);yield return FlowReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Basic",false)){SessionState.SetBool(Key+"Basic",false);yield return BasicReview(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Phase",false)){yield return PhaseProof(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}

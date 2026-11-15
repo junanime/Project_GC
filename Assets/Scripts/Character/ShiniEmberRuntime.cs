@@ -69,13 +69,21 @@ namespace Vampire
         {
             if(!skill.CanActivate||!CanStart)return false;
             Fuel-=InitialCost;Busy=true;age=0;stopped=-1;nextHit=Preparation+.2f;nextFuel=Preparation+ShortDuration;
+            owner.UpdateMoveSpeed();
             keyboardHeld=keyboard;pointerHeld=!keyboard;heldPointer=keyboard?null:pointerControl;
             direction=owner.LookDirection.sqrMagnitude>.001f?owner.LookDirection.normalized:Vector2.right;
             owner.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.ActiveUses);return true;
         }
         public bool Tap(){bool ok=Press();pointerHeld=false;return ok;}
         public void ReleasePointer(){pointerHeld=false;heldPointer=null;}
-        public void Cancel(){Busy=false;keyboardHeld=pointerHeld=false;heldPointer=null;stopped=-1;if(body!=null)body.forceRenderingOff=false;if(pose!=null)pose.enabled=false;if(fire!=null)fire.enabled=false;}
+        public void Cancel()
+        {
+            bool wasBusy=Busy;
+            Busy=false;keyboardHeld=pointerHeld=false;heldPointer=null;stopped=-1;
+            if(body!=null)body.forceRenderingOff=false;if(pose!=null)pose.enabled=false;if(fire!=null)fire.enabled=false;
+            // Recompute through the shared movement pipeline so other boosts/slows survive.
+            if(wasBusy&&owner!=null)owner.UpdateMoveSpeed();
+        }
         void Update()
         {
             if(owner==null||!owner.IsAlive){Cancel();return;}

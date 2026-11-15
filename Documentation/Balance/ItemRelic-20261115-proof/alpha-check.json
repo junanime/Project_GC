@@ -1,0 +1,614 @@
+[
+  {
+    "id": "relic-bandage",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      312,
+      40,
+      1206,
+      1002
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-beads",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      364,
+      73,
+      1135,
+      962
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-bell",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      335,
+      60,
+      1143,
+      969
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-bouncy_acorn",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      442,
+      59,
+      1072,
+      980
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-chestnut",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      326,
+      55,
+      1151,
+      956
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-citrus",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      211,
+      103,
+      1241,
+      1073
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-clear_dew",
+    "size": [
+      1495,
+      1052
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      374,
+      68,
+      1126,
+      969
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-feather",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      281,
+      60,
+      1145,
+      999
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-firm_shield",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      361,
+      48,
+      1119,
+      1017
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-fortune_pouch",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      356,
+      96,
+      1166,
+      935
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-ginger_tea",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      195,
+      83,
+      1188,
+      1022
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-ginseng_jelly",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      207,
+      124,
+      1140,
+      983
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-honey_rice",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      147,
+      135,
+      1254,
+      1000
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-hourglass",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      351,
+      67,
+      1104,
+      988
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-learning_scroll",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      295,
+      54,
+      1168,
+      975
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-life_sprout",
+    "size": [
+      1495,
+      1052
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      310,
+      50,
+      1173,
+      997
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-lightning_beat",
+    "size": [
+      1495,
+      1052
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      487,
+      90,
+      1038,
+      956
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-lotus_chips",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      187,
+      105,
+      1163,
+      961
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-magnet",
+    "size": [
+      1467,
+      1072
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      268,
+      91,
+      1212,
+      964
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-mint_candy",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      101,
+      91,
+      1268,
+      1041
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-needle_case",
+    "size": [
+      1362,
+      1155
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      242,
+      90,
+      1114,
+      1058
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-omija",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      133,
+      73,
+      1242,
+      1064
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-open_fan",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      264,
+      94,
+      1193,
+      937
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-piercing_arrow",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      259,
+      73,
+      1245,
+      975
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-pillow",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      283,
+      68,
+      1192,
+      967
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-relic_01",
+    "size": [
+      1495,
+      1052
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      417,
+      87,
+      1067,
+      966
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-relic_02",
+    "size": [
+      1495,
+      1052
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      383,
+      81,
+      1089,
+      969
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-relic_03",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      420,
+      77,
+      1130,
+      977
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-revival_bud",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      358,
+      89,
+      1127,
+      972
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-scales",
+    "size": [
+      1378,
+      1142
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      145,
+      73,
+      1232,
+      1059
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-strong_hammer",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      359,
+      70,
+      1124,
+      992
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-umbrella",
+    "size": [
+      1483,
+      1061
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      375,
+      92,
+      1092,
+      945
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-walnut",
+    "size": [
+      1375,
+      1144
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      216,
+      123,
+      1166,
+      994
+    ],
+    "edge_touch": false
+  },
+  {
+    "id": "relic-warm_bottle",
+    "size": [
+      1495,
+      1052
+    ],
+    "alpha": [
+      0,
+      255
+    ],
+    "body_bounds": [
+      416,
+      66,
+      1105,
+      987
+    ],
+    "edge_touch": false
+  }
+]

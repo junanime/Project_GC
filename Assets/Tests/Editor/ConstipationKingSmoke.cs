@@ -30,7 +30,7 @@ namespace Vampire.Tests.Editor
         static void Start()
         {
             Directory.CreateDirectory(Output); File.WriteAllText(Output + "/checks.txt", ""); File.WriteAllText(Output + "/errors.txt", "");
-            File.WriteAllText(Output + "/method.txt", "Actual Unity Stage 2 scene; invulnerable stationary player, manual time boundary for scheduled boss, all 18 legal phase/pattern combinations (nine per phase), pause, status, wall and defeat integration. No simulated human success rate.\n");
+            File.WriteAllText(Output + "/method.txt", "Actual Unity Stage 2 scene; actual empty-throne interaction at time zero, no automatic summon past the old deadline, scoped summon/pickup protection, all 18 legal phase/pattern combinations (nine per phase), pause, status, wall and defeat integration. No simulated human success rate.\n");
             foreach (string pref in SavedIntPrefs) { SessionState.SetBool(Key + pref + "Had", PlayerPrefs.HasKey(pref)); SessionState.SetInt(Key + pref, PlayerPrefs.GetInt(pref)); }
             SessionState.SetString(Key + "OriginalCharacter", CrossSceneData.CharacterBlueprint != null ? AssetDatabase.GetAssetPath(CrossSceneData.CharacterBlueprint) : "");
             SessionState.SetBool(Key, true); SessionState.SetBool(Key + "Done", false); SessionState.SetBool(Key + "Failed", false);
@@ -219,6 +219,7 @@ namespace Vampire.Tests.Editor
             Check(exit.State == ColonExitSequence.ExitState.Locked && !exit.Opening.IsOpen, round + " seal is present and closed before boss defeat");
             yield return Interact(player, exit.Opening);
             Check(exit.State == ColonExitSequence.ExitState.Locked && !exit.Opening.IsOpen, round + " real gate interaction cannot unlock a living boss seal");
+            ColonExitQualityChecks.Gate(exit, Check);
             CaptureExit(exit, round + "-sealed-exit", false);
             if (!boss.PhaseTwo)
             {
@@ -242,12 +243,21 @@ namespace Vampire.Tests.Editor
             var dropAt = exit.Key.position; level.SetRunFlowPaused(true);
             yield return new WaitForSecondsRealtime(.15f);
             Check(exit.Key.position == dropAt, round + " dropped key freezes with run pause"); level.SetRunFlowPaused(false);
+            yield return new WaitForSeconds(.45f);
+            Check(Camera.main.GetComponent<ColonBossEncounterCamera>().FramingKeyDrop, round + " actual camera retains the reward flight after the boss dies");
+            CheckViewport(exit.Key.GetComponent<SpriteRenderer>().bounds, round + " actual camera keeps the rotating key fully visible near the flight apex");
+            Capture(null, round + "-key-drop-actual-camera-hud", false, true);
             yield return WaitFor(() => exit.State == ColonExitSequence.ExitState.Dropped, 8, round + " intact key lands and becomes interactive after defeat");
+            yield return ColonExitQualityChecks.Planted(exit, Check);
             level.LevelPassed(null);
             Check(!level.IsLevelEnded && director.Defeated && !data.success, round + " defeating king cannot bypass key and demo confirmation");
             ColonContentSmoke.Position(player, FiniteStomachMap.Instance.ClampToFloor((Vector2)exit.Pickup.transform.position + Vector2.right * 8, .5f));
             Check(!exit.TakeKey(player), round + " key cannot be taken from outside interaction range");
             yield return Interact(player, exit.Pickup);
+            Check(exit.State == ColonExitSequence.ExitState.PickingUp && player.IsColonExitProtected, round + " planted key begins its protected pull-out animation");
+            Check(!exit.TakeKey(player), round + " repeated interaction cannot restart the pull-out animation");
+            yield return ColonExitQualityChecks.PickupPause(exit, player, Check);
+            yield return WaitFor(() => exit.State == ColonExitSequence.ExitState.Carrying, 5, round + " planted key rises continuously into overhead carry");
             Check(exit.State == ColonExitSequence.ExitState.Carrying && !exit.Pickup.gameObject.activeSelf, round + " focused trigger interaction picks up exactly one key");
             Check(!exit.TakeKey(player), round + " repeated pickup cannot duplicate carried key");
             var carryAt = exit.Key.position; var previousPlayer = player.transform.position;
@@ -269,11 +279,19 @@ namespace Vampire.Tests.Editor
             var positionAtUnlock = player.transform.position; player.Move(Vector2.right);
             yield return new WaitForFixedUpdate(); yield return new WaitForFixedUpdate();
             Check(Vector2.Distance(positionAtUnlock, player.transform.position) < .02f, round + " player stays at lock throughout controlled animation"); player.Move(Vector2.zero);
-            yield return new WaitForSeconds(.5f); CaptureExit(exit, round + "-key-insertion", false);
+            yield return new WaitForSeconds(.5f);
+            Check(Camera.main.GetComponent<ColonBossEncounterCamera>().FramingExit, round + " actual camera frames the doorway during its owned unlock pause");
+            CheckGateViewport(exit, round + " actual unlock view");
+            CheckViewport(exit.Key.GetComponent<SpriteRenderer>().bounds, round + " actual unlock view retains the inserted key");
+            Capture(null, round + "-unlock-actual-camera-hud", false, true);
+            CaptureExit(exit, round + "-key-insertion", false);
             var frozenKey = exit.Key.position; float oldScale = Time.timeScale; Time.timeScale = 0;
             yield return new WaitForSecondsRealtime(.15f);
             Check(exit.Key.position == frozenKey && !exit.CanInteract, round + " unlock respects pause and rejects repeated interactions"); Time.timeScale = oldScale;
             yield return WaitFor(() => exit.State == ColonExitSequence.ExitState.Open, 8, round + " lock fragments and chains clear before passage opens");
+            ColonExitQualityChecks.Open(exit, Check);
+            CheckGateViewport(exit, round + " actual open passage view");
+            Capture(null, round + "-open-actual-camera-hud", false, true);
             Check(exit.Opening.IsOpen && !level.IsRunFlowPaused && !level.IsLevelEnded, round + " opening alone does not finish the run");
             Check(!player.IsColonExitProtected && BloodClotTravel.CanTravel(player), round + " scoped protection and travel restriction release after opening");
             player.TakeAcidLakeDamage(.1f, false);
@@ -285,6 +303,7 @@ namespace Vampire.Tests.Editor
             ApothecaryUI.Instance.Back(); ApothecaryUI.Instance.OpenRunBook(); ApothecaryUI.Instance.OpenSettings();
             yield return null;
             Check(exit.Dialogue != null && exit.Dialogue.gameObject.activeInHierarchy && ApothecaryUI.Instance.Page == "hud", round + " Escape and journal routes cannot cover or dismiss demo modal");
+            Check(Camera.main.GetComponent<ColonBossEncounterCamera>().FramingExit, round + " demo keeps the completed doorway framed at zero time scale");
             yield return null; CaptureExit(exit, round + "-demo-completion", false);
             if (round == "first-clear") exit.Dialogue.ConfirmButton.onClick.Invoke();
             else UnityEngine.EventSystems.ExecuteEvents.Execute(exit.Dialogue.ConfirmButton.gameObject, new UnityEngine.EventSystems.BaseEventData(UnityEngine.EventSystems.EventSystem.current), UnityEngine.EventSystems.ExecuteEvents.submitHandler);
@@ -312,6 +331,7 @@ namespace Vampire.Tests.Editor
                 round + " currency and original character, weapon and relic selections remain intact");
             Check(Time.timeScale == 1 && !StageEntryLoading.IsLoading && !IntroMovie.Active && Object.FindObjectOfType<ConstipationKingRuntime>() == null && RunScore.Current == null,
                 round + " preparation is interactive with no old encounter, loading overlay or intro");
+            ColonExitQualityChecks.Cleaned(Check);
             // Exercise the actual localization asset path after every unload/reload.
             // Fonts load by their TMP type rather than the package's nullable Object[] preload cache.
             var font = UnityEngine.Localization.Settings.LocalizationSettings.AssetDatabase.GetLocalizedAssetAsync<TMPro.TMP_FontAsset>("Fonts", "Main Font");
@@ -328,6 +348,18 @@ namespace Vampire.Tests.Editor
             Check(InteractionFocus.SelectTouched(target), "Real trigger registers interaction focus: " + target.name);
             yield return null; target.TryInteract(); yield return null;
         }
+        static void CheckViewport(Bounds bounds, string title)
+        {
+            var low = Camera.main.WorldToViewportPoint(bounds.min);
+            var high = Camera.main.WorldToViewportPoint(bounds.max);
+            Check(low.x >= .015f && low.y >= .015f && high.x <= .985f && high.y <= .985f, title);
+        }
+        static void CheckGateViewport(ColonExitSequence exit, string title)
+        {
+            CheckViewport(new Bounds(exit.Opening.Center,new Vector3(exit.Opening.Radii.x*2.15f,exit.Opening.Radii.y*2.15f,0)), title + " includes the complete opening");
+            CheckViewport(exit.GateVisual.LockBounds,title + " includes the complete lock");
+            foreach (var at in exit.GateVisual.Anchors) CheckViewport(new Bounds(at,Vector3.one*.45f),title + " includes a wall chain attachment");
+        }
         static IEnumerator VerifyCarryCharacters(ColonExitSequence exit, Character player)
         {
             // Rebind the actual animation renderer through Character's normal visual API.
@@ -340,8 +372,7 @@ namespace Vampire.Tests.Editor
                 Check(blueprint != null, "Real carry visual blueprint exists: " + name);
                 ColonContentSmoke.Set(player, "characterBlueprint", blueprint); player.StopWalkAnimation(); player.StartIdleAnimation();
                 yield return null; yield return null;
-                var opaque = PromptSpriteGeometry.WorldBounds(renderer);
-                Check(renderer.sprite != null && exit.Key.position.y > opaque.max.y && exit.Key.position.y - opaque.max.y < .4f, name + " actual opaque character silhouette carries key just above head");
+                ColonExitQualityChecks.Floating(exit, renderer, name, Check);
                 var before = exit.Key.position;
                 ColonContentSmoke.Position(player, FiniteStomachMap.Instance.ClampToFloor((Vector2)player.transform.position + Vector2.right * .6f, .5f));
                 yield return null; yield return null;
@@ -384,8 +415,9 @@ namespace Vampire.Tests.Editor
             ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", true); level.PlayerCharacter.CollectableCollider.enabled = false;
             foreach (var monster in level.EntityManager.LivingMonsters.ToArray()) monster.DespawnForStageTransfer();
             var director = ConstipationKingDirector.Ensure(level); director.enabled = false;
-            ColonContentSmoke.Set(level, "levelTime", ConstipationKingDirector.ArrivalSeconds);
-            Check(director.TrySpawn(), "Second departure gets its own mandatory final boss");
+            ColonContentSmoke.Set(level, "levelTime", 0f);
+            yield return Interact(level.PlayerCharacter, director.Throne);
+            Check(director.Spawned && director.Summoning, "Second departure gets its own interactive empty throne at time zero");
             var boss = director.Boss; boss.AutoPatterns = false;
             yield return WaitFor(() => !boss.Arriving, 15, "Second final encounter arrival finishes");
             yield return VerifyEndingReturn(level, boss, director, "second-clear");
@@ -397,13 +429,49 @@ namespace Vampire.Tests.Editor
             yield return ColonContentSmoke.Enter(level); Silence(level); Time.timeScale = 2;
             var player = level.PlayerCharacter; ColonContentSmoke.Set(player, "isInvincible", true); player.CollectableCollider.enabled = false;
             foreach (var monster in level.EntityManager.LivingMonsters.ToArray()) monster.DespawnForStageTransfer();
-            var director = ConstipationKingDirector.Ensure(level); director.enabled = false;
-            ColonContentSmoke.Set(level, "levelTime", 899f);
-            Check(!director.TrySpawn() && !director.Spawned, "No final encounter at 899 seconds");
-            ColonContentSmoke.Set(level, "levelTime", 900f); level.SetRunFlowPaused(true);
-            Check(!director.TrySpawn(), "The 15-minute trigger waits for field pause to finish"); level.SetRunFlowPaused(false);
-            Check(director.TrySpawn() && director.Spawned, "15-minute trigger spawns without any optional boss kills");
+            var director = ConstipationKingDirector.Ensure(level);
+            Check(director.Throne != null && director.Throne.Toilet.sprite != null && !director.Spawned, "Stage entry installs an empty porcelain throne without the king body");
+            ColonContentSmoke.Set(level, "levelTime", 1200f); yield return null; yield return null;
+            Check(!director.Spawned && director.Boss == null, "Passing the old deadline never automatically summons the king");
+            ColonContentSmoke.Set(level, "levelTime", 0f);
+            ColonContentSmoke.Position(player, director.Throne.transform.position);
+            level.SetRunFlowPaused(true);
+            Check(!director.TrySpawn(), "Manual throne interaction waits for an existing field pause to finish"); level.SetRunFlowPaused(false);
+            MiniStageRuntimeState.EnterMiniStage(null);
+            Check(!director.TrySpawn(), "Manual summon cannot begin from a mini-stage"); MiniStageRuntimeState.ExitMiniStage(null);
+            yield return new WaitForSecondsRealtime(.9f);
+            CheckViewport(director.Throne.Toilet.bounds,"Actual approach camera shows the complete empty throne before interaction");
+            yield return Interact(player, director.Throne);
+            Check(director.Spawned && director.Summoning && level.IsRunFlowPaused, "Actual throne focus summons at time zero without optional boss kills");
+            director.enabled = false;
             var boss = director.Boss; boss.AutoPatterns = false;
+            ColonContentSmoke.Set(player, "isInvincible", false);
+            float summonHealth = player.CurrentHealth; player.TakeDamage(999999, Vector2.right*100); player.TakeAcidLakeDamage(1,true);
+            Check(player.IsAlive && player.CurrentHealth == summonHealth && player.IsColonExitProtected && !player.TryDash() && !BloodClotTravel.CanTravel(player), "Summon owns scoped damage dash and portal protection");
+            Check(!boss.Targetable && !boss.GetComponent<Collider2D>().enabled, "Rising boss cannot take damage before combat begins");
+            float summonClock = boss.Visual.AnimationTime; var summonPose = boss.Visual.Body.transform.position;
+            float summonScale = Time.timeScale; Time.timeScale = 0;
+            yield return new WaitForSecondsRealtime(.15f);
+            Check(boss.Visual.AnimationTime == summonClock && boss.Visual.Body.transform.position == summonPose, "Summon and sewage animation freeze during pause"); Time.timeScale = summonScale;
+            ColonContentSmoke.Set(player, "isInvincible", true);
+            yield return new WaitForSeconds(1.25f);
+            var summonFraming = Camera.main.GetComponent<ColonBossEncounterCamera>();
+            Check(director.Summoning && level.IsRunFlowPaused && summonFraming != null && summonFraming.FramingFinalBoss,
+                "Actual gameplay camera frames the king during its owned summon pause");
+            var summonToast = Object.FindObjectOfType<StageEventToastUI>();
+            var summonBanner = summonToast != null ? ColonContentSmoke.Field(summonToast,"bannerGroup").GetValue(summonToast) as CanvasGroup : null;
+            var summonHeading = summonToast != null ? ColonContentSmoke.Field(summonToast,"title").GetValue(summonToast) as UnityEngine.UI.Text : null;
+            File.WriteAllText(Output + "/summon-toast.txt", "active=" + (summonToast != null && summonToast.isActiveAndEnabled) +
+                "\nheading=" + summonHeading?.text + "\nalpha=" + summonBanner?.alpha +
+                "\nage=" + (summonToast != null ? ColonContentSmoke.Field(summonToast,"age").GetValue(summonToast) : null) +
+                "\npending=" + (summonToast != null ? string.Join("; ", (System.Collections.Generic.Queue<string>)ColonContentSmoke.Field(summonToast,"pending").GetValue(summonToast)) : "missing"));
+            Capture(null, "summon-actual-camera-hud", false, true);
+            Check(summonBanner != null && summonBanner.alpha > .9f && summonHeading != null && summonHeading.text == "왕의 변기가 역류합니다",
+                "Actual summon notice becomes visible while the throne owns the field pause");
+            Vector3 throneTop = Camera.main.WorldToViewportPoint(director.Throne.Toilet.bounds.max);
+            Vector3 watchingPlayer = Camera.main.WorldToViewportPoint(player.Position);
+            Check(throneTop.y < .97f && watchingPlayer.y > .02f && watchingPlayer.x > .02f && watchingPlayer.x < .98f,
+                "Actual summon camera retains porcelain bowl and safe player flank without a capture override");
             Check(!director.TrySpawn() && ConstipationKingRuntime.Active.Count == 1, "Repeated spawn calls cannot duplicate the king");
             Check(boss.MaxHealth == 34000 && boss.Health == 34000, "Fixed king health is 34000");
             Check(ColonBossDefinition.RequiredFinalBossImplemented, "Mandatory final-boss readiness flag is enabled");
@@ -413,6 +481,8 @@ namespace Vampire.Tests.Editor
             Check(map.FloorClearance(boss.transform.position) >= ConstipationKingRuntime.BodyRadius, "Arrival root is on navigable ground");
             ColonContentSmoke.Position(player, map.ClampToFloor((Vector2)boss.transform.position + Vector2.right * 7, .5f));
             yield return WaitFor(() => !boss.Arriving, 15, "Arrival completes in real play mode");
+            Check(!director.Summoning && !director.ProtectsPlayer && !level.IsRunFlowPaused && !director.Throne.gameObject.activeSelf, "Arrival consumes empty throne and releases its scoped field pause");
+            Check(Vector2.Distance(player.Position, (Vector2)boss.transform.position + Vector2.up*1.7f) >= 2.8f, "Summon releases player outside the king contact envelope on safe floor");
             Check(NeedleTargeting.IsValidBossTarget(boss, ~0) && BossTargetUtility.IsBossTarget(boss), "Needle targeting and boss multipliers recognize king");
             Check(Ver4HitEffects.Health(boss) == 34000 && Ver4HitEffects.MaxHealth(boss) == 34000, "Damage accounting reads actual king HP");
             Check(boss.Visual.Body.sprite != null && boss.Visual.CentralJetCount == 1, "Approved body is loaded with exactly one central water column");

@@ -174,15 +174,19 @@ namespace Vampire.Tests.Editor
             Check(FiniteStomachMap.UphillMultiplier(.5f)==.5f&&Mathf.Approximately(FiniteStomachMap.UphillMultiplier(1),.1f),"50 to 90 percent uphill slowdown retained");
             level.enabled=true;float clock=level.CurrentLevelTime;yield return new WaitForSeconds(2);Check(level.CurrentLevelTime>clock+1.5f,"stage two clock runs after entry");
             Check(level.NormalMonstersSpawned>0,"stage two normal monsters actually spawn");
-            level.enabled=false;Vector2 ramp=Vector2.zero;bool found=false;
-            float rampDistance=map.WallWidth-(map.Definition.climbableWidth-player.GetComponent<StomachSlopeBody>().Radius)*.68f;
-            for(int y=5;y<95&&!found;y++)for(int x=5;x<95;x++)
-            {var p=map.UVToWorld(new Vector2(x/100f,y/100f));float d=map.NavigationDistance(p,out _);if(Mathf.Abs(d-rampDistance)<.1f){ramp=p;found=true;break;}}
-            Check(found,"reachable slope sample exists");Position(player,ramp);map.NavigationDistance(ramp,out var inward);
-            Check(player.GetComponent<StomachSlopeBody>().MovementMultiplier(-inward)<.5f,"actual player uphill multiplier reduced on colon wall");
-            player.Move(-inward);Check(player.TryDash(),"actual dash remains usable on colon slope");yield return new WaitForSeconds(.7f);player.Move(Vector2.zero);Position(player,ramp);
-            float beforeSlide=map.NavigationDistance(player.transform.position,out _);yield return new WaitForSeconds(1);
-            Check(map.NavigationDistance(player.transform.position,out _)>beforeSlide+.02f,"actual player slides down colon wall after release");
+            level.enabled=false;
+            float bodyRadius=player.GetComponent<StomachSlopeBody>().Radius;
+            var wallFoot=map.ClampToFloor(ridge+Vector2.down*3,bodyRadius+.08f);
+            map.NavigationDistance(wallFoot,out var inward,true);
+            Position(player,wallFoot);player.Move(-inward);
+            yield return new WaitForSeconds(.6f);
+            Check(map.FloorClearance(player.transform.position,true)>=bodyRadius-.06f,"walking stops at the visible raised-wall foot");
+            Check(player.TryDash(),"dash remains usable beside raised colon walls");
+            yield return new WaitForSeconds(.7f);player.Move(Vector2.zero);
+            Check(map.FloorClearance(player.transform.position,true)>=bodyRadius-.06f,"actual dash cannot enter the raised wall face");
+            Position(player,wallFoot);player.Move(new Vector2(-inward.y,inward.x));
+            yield return new WaitForSeconds(.5f);player.Move(Vector2.zero);
+            Check(Vector2.Distance(player.transform.position,wallFoot)>.12f&&map.FloorClearance(player.transform.position,true)>=bodyRadius-.06f,"player can move along the visible wall without a hidden barrier");
             Position(player,map.ClampToField(map.UVToWorld(new Vector2(.75f,.3f)),10));
             foreach(var key in new[]{"Ashi","Ari","Hyuki","Shini"})Check(BloodClotTravel.Frames(key).Length==(key=="Hyuki"?5:16),"character-specific mini-stage exit art available "+key);
             var home=colonBosses.Habitats.First(h=>h.Kind==ColonBossKind.Flamingo);
@@ -198,7 +202,7 @@ namespace Vampire.Tests.Editor
             Check(colonBosses.IsDefeated(home)&&colonBosses.DefeatedCount==1,"optional boss defeat is recorded only for its own home");
             Check(progression.Portal==null&&progression.Capsule==null,"optional boss leaves no stage-exit portal or additional capsule");
             Check(!level.IsLevelEnded&&!progression.TryEnter(player,progression.Portal),"optional boss defeat never clears stage two");
-            Check(ColonBossDefinition.RequiredFinalBossName=="변비왕"&&ColonBossDefinition.RequiredFinalBossImplemented&&level.GetComponent<ConstipationKingDirector>()!=null,"mandatory lower-left king has its own timed final encounter");
+            Check(ColonBossDefinition.RequiredFinalBossName=="변비왕"&&ColonBossDefinition.RequiredFinalBossImplemented&&ConstipationKingDirector.Ensure(level).Throne!=null,"mandatory lower-left king has its own manual empty-throne interaction");
             Time.captureDeltaTime=0;SessionState.SetBool(Key+"Done",true);
         }
     }

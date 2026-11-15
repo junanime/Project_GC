@@ -7,6 +7,8 @@ Shader "ConstipationKing/SeparateScepter"
         [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
         [HideInInspector] _Flip("Flip", Vector) = (1,1,1,1)
         _HandOnly("Foreground grip", Float) = 0
+        _UpperOnly("Hide original porcelain during emergence", Float) = 0
+        _RevealClipY("Bowl reveal world height", Float) = -9999
     }
     SubShader
     {
@@ -15,14 +17,21 @@ Shader "ConstipationKing/SeparateScepter"
         Pass
         {
             CGPROGRAM
-            #pragma vertex SpriteVert
+            #pragma vertex vert
             #pragma fragment frag
             #pragma target 3.0
             #pragma multi_compile _ PIXELSNAP_ON
             #include "UnitySprites.cginc"
             float4 _StaffHead, _StaffShaft, _StaffHand;
-            float _HandOnly;
-            fixed4 frag(v2f IN):SV_Target
+            float _HandOnly, _UpperOnly, _RevealClipY;
+            struct revealOutput { float4 vertex:SV_POSITION; fixed4 color:COLOR; float2 texcoord:TEXCOORD0; float worldY:TEXCOORD1; };
+            revealOutput vert(appdata_t input)
+            {
+                v2f sprite=SpriteVert(input); revealOutput result;
+                result.vertex=sprite.vertex; result.color=sprite.color; result.texcoord=sprite.texcoord;
+                result.worldY=mul(unity_ObjectToWorld,UnityFlipSprite(input.vertex,_Flip)).y; return result;
+            }
+            fixed4 frag(revealOutput IN):SV_Target
             {
                 // All approved sheets use a 480-square reference canvas, including
                 // the 1254-square original. UV remains the full source texture even
@@ -54,6 +63,13 @@ Shader "ConstipationKing/SeparateScepter"
                     fixed4 underneath=lerp(l,r,saturate((across+17)/34));
                     c=lerp(c,underneath,shaft*(1-grip)*(1-head));
                 }
+                // Remove the rear tank and lower porcelain from the rising sheet.
+                // This contour follows the approved cape rather than exposing a rectangular crop.
+                float leftCut=lerp(185,151,smoothstep(202,222,p.y));
+                leftCut=lerp(leftCut,129,smoothstep(226,281,p.y));
+                leftCut=lerp(leftCut,116,smoothstep(281,310,p.y));
+                float upper=(1-smoothstep(338,342,p.y))*max(grip,smoothstep(leftCut-1,leftCut+1,p.x));
+                c.a*=lerp(1,upper*smoothstep(_RevealClipY-.035,_RevealClipY+.035,IN.worldY),_UpperOnly);
                 c*=IN.color; c.rgb*=c.a; return c;
             }
             ENDCG

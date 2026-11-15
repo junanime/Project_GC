@@ -1,0 +1,587 @@
+OffersShrinkButAllLegacyIdsStillRestore
+RetiredLobbyPurchaseCannotSpendMoney
+NormalRerollAndFallbackPoolsExcludeRetiredItems
+ResistanceCapsAtThirtyAndSurvivesTransfer
+GuardianGrowthAndClockOverrideHaveBoundaries
+RetiredDuplicateKeepsSavedSelectionAndCatalog
+CatalogDescriptionsAndPricesStayConsistent
+CloseRangeBonusUsesActualHitDistance
+DawnHasBaselineAndPreservesFinalHourPower
+PressureProcCountsPrimaryHitsAndStillDamagesWhenPoolIsFull
+PoolIsBoundedReusesGeometryAndProtectsNewLeases
+EchoDamagesNearbyTargetOncePerCooldown
+item geometry 1
+no catalog sprite in item VFX 1
+pooled lease protection 1
+individual acquisition identity 1
+pooled acquisition image cleared 1
+item geometry 2
+no catalog sprite in item VFX 2
+pooled lease protection 2
+individual acquisition identity 2
+pooled acquisition image cleared 2
+item geometry 3
+no catalog sprite in item VFX 3
+pooled lease protection 3
+individual acquisition identity 3
+pooled acquisition image cleared 3
+item geometry 4
+no catalog sprite in item VFX 4
+pooled lease protection 4
+individual acquisition identity 4
+pooled acquisition image cleared 4
+item geometry 5
+no catalog sprite in item VFX 5
+pooled lease protection 5
+individual acquisition identity 5
+pooled acquisition image cleared 5
+item geometry 6
+no catalog sprite in item VFX 6
+pooled lease protection 6
+individual acquisition identity 6
+pooled acquisition image cleared 6
+item geometry 7
+no catalog sprite in item VFX 7
+pooled lease protection 7
+individual acquisition identity 7
+pooled acquisition image cleared 7
+item geometry 8
+no catalog sprite in item VFX 8
+pooled lease protection 8
+individual acquisition identity 8
+pooled acquisition image cleared 8
+item geometry 9
+no catalog sprite in item VFX 9
+pooled lease protection 9
+individual acquisition identity 9
+pooled acquisition image cleared 9
+item geometry 10
+no catalog sprite in item VFX 10
+pooled lease protection 10
+individual acquisition identity 10
+pooled acquisition image cleared 10
+item geometry 11
+no catalog sprite in item VFX 11
+pooled lease protection 11
+individual acquisition identity 11
+pooled acquisition image cleared 11
+item geometry 12
+no catalog sprite in item VFX 12
+pooled lease protection 12
+individual acquisition identity 12
+pooled acquisition image cleared 12
+item geometry 13
+no catalog sprite in item VFX 13
+pooled lease protection 13
+individual acquisition identity 13
+pooled acquisition image cleared 13
+item geometry 14
+no catalog sprite in item VFX 14
+pooled lease protection 14
+individual acquisition identity 14
+pooled acquisition image cleared 14
+item geometry 15
+no catalog sprite in item VFX 15
+pooled lease protection 15
+individual acquisition identity 15
+pooled acquisition image cleared 15
+item geometry 16
+no catalog sprite in item VFX 16
+pooled lease protection 16
+individual acquisition identity 16
+pooled acquisition image cleared 16
+item geometry 17
+no catalog sprite in item VFX 17
+pooled lease protection 17
+individual acquisition identity 17
+pooled acquisition image cleared 17
+item geometry 18
+no catalog sprite in item VFX 18
+pooled lease protection 18
+individual acquisition identity 18
+pooled acquisition image cleared 18
+item geometry 19
+no catalog sprite in item VFX 19
+pooled lease protection 19
+individual acquisition identity 19
+pooled acquisition image cleared 19
+item geometry 20
+no catalog sprite in item VFX 20
+pooled lease protection 20
+individual acquisition identity 20
+pooled acquisition image cleared 20
+item geometry 21
+no catalog sprite in item VFX 21
+pooled lease protection 21
+individual acquisition identity 21
+pooled acquisition image cleared 21
+item geometry 22
+no catalog sprite in item VFX 22
+pooled lease protection 22
+individual acquisition identity 22
+pooled acquisition image cleared 22
+item geometry 23
+no catalog sprite in item VFX 23
+pooled lease protection 23
+individual acquisition identity 23
+pooled acquisition image cleared 23
+item geometry 24
+no catalog sprite in item VFX 24
+pooled lease protection 24
+individual acquisition identity 24
+pooled acquisition image cleared 24
+item geometry 25
+no catalog sprite in item VFX 25
+pooled lease protection 25
+individual acquisition identity 25
+pooled acquisition image cleared 25
+item geometry 26
+no catalog sprite in item VFX 26
+pooled lease protection 26
+individual acquisition identity 26
+pooled acquisition image cleared 26
+item geometry 27
+no catalog sprite in item VFX 27
+pooled lease protection 27
+individual acquisition identity 27
+pooled acquisition image cleared 27
+item geometry 28
+no catalog sprite in item VFX 28
+pooled lease protection 28
+individual acquisition identity 28
+pooled acquisition image cleared 28
+item geometry 29
+no catalog sprite in item VFX 29
+pooled lease protection 29
+individual acquisition identity 29
+pooled acquisition image cleared 29
+item geometry 30
+no catalog sprite in item VFX 30
+pooled lease protection 30
+individual acquisition identity 30
+pooled acquisition image cleared 30
+item geometry 31
+no catalog sprite in item VFX 31
+pooled lease protection 31
+individual acquisition identity 31
+pooled acquisition image cleared 31
+item geometry 32
+no catalog sprite in item VFX 32
+pooled lease protection 32
+individual acquisition identity 32
+pooled acquisition image cleared 32
+item geometry 33
+no catalog sprite in item VFX 33
+pooled lease protection 33
+individual acquisition identity 33
+pooled acquisition image cleared 33
+item geometry 34
+no catalog sprite in item VFX 34
+pooled lease protection 34
+individual acquisition identity 34
+pooled acquisition image cleared 34
+item geometry 35
+no catalog sprite in item VFX 35
+pooled lease protection 35
+individual acquisition identity 35
+pooled acquisition image cleared 35
+item geometry 36
+no catalog sprite in item VFX 36
+pooled lease protection 36
+individual acquisition identity 36
+pooled acquisition image cleared 36
+item geometry 37
+no catalog sprite in item VFX 37
+pooled lease protection 37
+individual acquisition identity 37
+pooled acquisition image cleared 37
+item geometry 38
+no catalog sprite in item VFX 38
+pooled lease protection 38
+individual acquisition identity 38
+pooled acquisition image cleared 38
+item geometry 39
+no catalog sprite in item VFX 39
+pooled lease protection 39
+individual acquisition identity 39
+pooled acquisition image cleared 39
+item geometry 40
+no catalog sprite in item VFX 40
+pooled lease protection 40
+individual acquisition identity 40
+pooled acquisition image cleared 40
+item geometry 41
+no catalog sprite in item VFX 41
+pooled lease protection 41
+individual acquisition identity 41
+pooled acquisition image cleared 41
+item geometry 42
+no catalog sprite in item VFX 42
+pooled lease protection 42
+individual acquisition identity 42
+pooled acquisition image cleared 42
+item geometry 43
+no catalog sprite in item VFX 43
+pooled lease protection 43
+individual acquisition identity 43
+pooled acquisition image cleared 43
+item geometry 44
+no catalog sprite in item VFX 44
+pooled lease protection 44
+individual acquisition identity 44
+pooled acquisition image cleared 44
+item geometry 45
+no catalog sprite in item VFX 45
+pooled lease protection 45
+individual acquisition identity 45
+pooled acquisition image cleared 45
+item geometry 46
+no catalog sprite in item VFX 46
+pooled lease protection 46
+individual acquisition identity 46
+pooled acquisition image cleared 46
+item geometry 47
+no catalog sprite in item VFX 47
+pooled lease protection 47
+individual acquisition identity 47
+pooled acquisition image cleared 47
+item geometry 48
+no catalog sprite in item VFX 48
+pooled lease protection 48
+individual acquisition identity 48
+pooled acquisition image cleared 48
+item geometry 49
+no catalog sprite in item VFX 49
+pooled lease protection 49
+individual acquisition identity 49
+pooled acquisition image cleared 49
+item geometry 50
+no catalog sprite in item VFX 50
+pooled lease protection 50
+individual acquisition identity 50
+pooled acquisition image cleared 50
+item geometry 51
+no catalog sprite in item VFX 51
+pooled lease protection 51
+individual acquisition identity 51
+pooled acquisition image cleared 51
+item geometry 52
+no catalog sprite in item VFX 52
+pooled lease protection 52
+individual acquisition identity 52
+pooled acquisition image cleared 52
+item geometry 53
+no catalog sprite in item VFX 53
+pooled lease protection 53
+individual acquisition identity 53
+pooled acquisition image cleared 53
+item geometry 54
+no catalog sprite in item VFX 54
+pooled lease protection 54
+individual acquisition identity 54
+pooled acquisition image cleared 54
+item geometry 55
+no catalog sprite in item VFX 55
+pooled lease protection 55
+individual acquisition identity 55
+pooled acquisition image cleared 55
+item geometry 56
+no catalog sprite in item VFX 56
+pooled lease protection 56
+individual acquisition identity 56
+pooled acquisition image cleared 56
+item geometry 57
+no catalog sprite in item VFX 57
+pooled lease protection 57
+individual acquisition identity 57
+pooled acquisition image cleared 57
+item geometry 58
+no catalog sprite in item VFX 58
+pooled lease protection 58
+individual acquisition identity 58
+pooled acquisition image cleared 58
+item geometry 59
+no catalog sprite in item VFX 59
+pooled lease protection 59
+individual acquisition identity 59
+pooled acquisition image cleared 59
+item geometry 60
+no catalog sprite in item VFX 60
+pooled lease protection 60
+individual acquisition identity 60
+pooled acquisition image cleared 60
+item geometry 61
+no catalog sprite in item VFX 61
+pooled lease protection 61
+individual acquisition identity 61
+pooled acquisition image cleared 61
+item geometry 62
+no catalog sprite in item VFX 62
+pooled lease protection 62
+individual acquisition identity 62
+pooled acquisition image cleared 62
+item geometry 63
+no catalog sprite in item VFX 63
+pooled lease protection 63
+individual acquisition identity 63
+pooled acquisition image cleared 63
+item geometry 64
+no catalog sprite in item VFX 64
+pooled lease protection 64
+individual acquisition identity 64
+pooled acquisition image cleared 64
+item geometry 65
+no catalog sprite in item VFX 65
+pooled lease protection 65
+individual acquisition identity 65
+pooled acquisition image cleared 65
+item geometry 66
+no catalog sprite in item VFX 66
+pooled lease protection 66
+individual acquisition identity 66
+pooled acquisition image cleared 66
+transparent relic asset relic_01
+complete relic identity relic_01
+no relic backing disc relic_01
+transparent relic asset relic_02
+complete relic identity relic_02
+no relic backing disc relic_02
+transparent relic asset warm_bottle
+complete relic identity warm_bottle
+no relic backing disc warm_bottle
+transparent relic asset clear_dew
+complete relic identity clear_dew
+no relic backing disc clear_dew
+transparent relic asset life_sprout
+complete relic identity life_sprout
+no relic backing disc life_sprout
+transparent relic asset lightning_beat
+complete relic identity lightning_beat
+no relic backing disc lightning_beat
+transparent relic asset firm_shield
+complete relic identity firm_shield
+no relic backing disc firm_shield
+transparent relic asset relic_03
+complete relic identity relic_03
+no relic backing disc relic_03
+transparent relic asset magnet
+complete relic identity magnet
+no relic backing disc magnet
+transparent relic asset beads
+complete relic identity beads
+no relic backing disc beads
+transparent relic asset learning_scroll
+complete relic identity learning_scroll
+no relic backing disc learning_scroll
+transparent relic asset fortune_pouch
+complete relic identity fortune_pouch
+no relic backing disc fortune_pouch
+transparent relic asset strong_hammer
+complete relic identity strong_hammer
+no relic backing disc strong_hammer
+transparent relic asset piercing_arrow
+complete relic identity piercing_arrow
+no relic backing disc piercing_arrow
+transparent relic asset bouncy_acorn
+complete relic identity bouncy_acorn
+no relic backing disc bouncy_acorn
+transparent relic asset open_fan
+complete relic identity open_fan
+no relic backing disc open_fan
+transparent relic asset hourglass
+complete relic identity hourglass
+no relic backing disc hourglass
+transparent relic asset bell
+complete relic identity bell
+no relic backing disc bell
+transparent relic asset feather
+complete relic identity feather
+no relic backing disc feather
+transparent relic asset umbrella
+complete relic identity umbrella
+no relic backing disc umbrella
+transparent relic asset bandage
+complete relic identity bandage
+no relic backing disc bandage
+transparent relic asset revival_bud
+complete relic identity revival_bud
+no relic backing disc revival_bud
+transparent relic asset chestnut
+complete relic identity chestnut
+no relic backing disc chestnut
+transparent relic asset pillow
+complete relic identity pillow
+no relic backing disc pillow
+transparent relic asset needle_case
+complete relic identity needle_case
+no relic backing disc needle_case
+transparent relic asset scales
+complete relic identity scales
+no relic backing disc scales
+transparent relic asset ginseng_jelly
+complete relic identity ginseng_jelly
+no relic backing disc ginseng_jelly
+transparent relic asset citrus
+complete relic identity citrus
+no relic backing disc citrus
+transparent relic asset walnut
+complete relic identity walnut
+no relic backing disc walnut
+transparent relic asset honey_rice
+complete relic identity honey_rice
+no relic backing disc honey_rice
+transparent relic asset lotus_chips
+complete relic identity lotus_chips
+no relic backing disc lotus_chips
+transparent relic asset mint_candy
+complete relic identity mint_candy
+no relic backing disc mint_candy
+transparent relic asset omija
+complete relic identity omija
+no relic backing disc omija
+transparent relic asset ginger_tea
+complete relic identity ginger_tea
+no relic backing disc ginger_tea
+sound exists acquire
+sound exists pop
+sound exists bubble
+sound exists bloom
+sound exists chime
+sound exists crystal
+sound exists sweep
+actual Level1 loading
+shockwave hits new boss Rolpangi
+forward wave hits new boss Rolpangi
+homing spirit hits new boss Rolpangi
+seal freezes new boss bullet Rolpangi
+sealed bullet removed Rolpangi
+relic reflection hits new boss Rolpangi
+shockwave hits new boss Denikani
+forward wave hits new boss Denikani
+homing spirit hits new boss Denikani
+seal freezes new boss bullet Denikani
+sealed bullet removed Denikani
+relic reflection hits new boss Denikani
+shockwave hits new boss Maribi
+forward wave hits new boss Maribi
+homing spirit hits new boss Maribi
+seal freezes new boss bullet Maribi
+sealed bullet removed Maribi
+relic reflection hits new boss Maribi
+shockwave hits new boss Tangdengi
+forward wave hits new boss Tangdengi
+homing spirit hits new boss Tangdengi
+seal freezes new boss bullet Tangdengi
+sealed bullet removed Tangdengi
+relic reflection hits new boss Tangdengi
+shockwave hits new boss Hurumi
+forward wave hits new boss Hurumi
+homing spirit hits new boss Hurumi
+seal freezes new boss bullet Hurumi
+sealed bullet removed Hurumi
+relic reflection hits new boss Hurumi
+acid puddle persists at world location
+zone on ground effects sorting layer
+zone expires
+player VFX opacity setting applies
+effect pauses with gameplay
+captured item 1
+captured item 2
+captured item 3
+captured item 4
+captured item 5
+captured item 6
+captured item 7
+captured item 8
+captured item 9
+captured item 10
+captured item 11
+captured item 12
+captured item 13
+captured item 14
+captured item 15
+captured item 16
+captured item 17
+captured item 18
+captured item 19
+captured item 20
+captured item 21
+captured item 22
+captured item 23
+captured item 24
+captured item 25
+captured item 26
+captured item 27
+captured item 28
+captured item 29
+captured item 30
+captured item 31
+captured item 32
+captured item 33
+captured item 34
+captured item 35
+captured item 36
+captured item 37
+captured item 38
+captured item 39
+captured item 40
+captured item 41
+captured item 42
+captured item 43
+captured item 44
+captured item 45
+captured item 46
+captured item 47
+captured item 48
+captured item 49
+captured item 50
+captured item 51
+captured item 52
+captured item 53
+captured item 54
+captured item 55
+captured item 56
+captured item 57
+captured item 58
+captured item 59
+captured item 60
+captured item 61
+captured item 62
+captured item 63
+captured item 64
+captured item 65
+captured item 66
+captured relic relic_01
+captured relic relic_02
+captured relic warm_bottle
+captured relic clear_dew
+captured relic life_sprout
+captured relic lightning_beat
+captured relic firm_shield
+captured relic relic_03
+captured relic magnet
+captured relic beads
+captured relic learning_scroll
+captured relic fortune_pouch
+captured relic strong_hammer
+captured relic piercing_arrow
+captured relic bouncy_acorn
+captured relic open_fan
+captured relic hourglass
+captured relic bell
+captured relic feather
+captured relic umbrella
+captured relic bandage
+captured relic revival_bud
+captured relic chestnut
+captured relic pillow
+captured relic needle_case
+captured relic scales
+captured relic ginseng_jelly
+captured relic citrus
+captured relic walnut
+captured relic honey_rice
+captured relic lotus_chips
+captured relic mint_candy
+captured relic omija
+captured relic ginger_tea

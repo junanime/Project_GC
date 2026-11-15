@@ -109,11 +109,11 @@ namespace Vampire.Tests.Editor
             var layout=level.GetComponent<FieldObjectLayout>();Check(layout.Ready&&layout.SpawnedObjects.Count==86,"all 86 initial objects active");
             for(int k=0;k<FieldObjectLayout.Counts.Length;k++)Check(layout.Slots.Count(s=>(int)s.kind==k)==FieldObjectLayout.Counts[k],"initial object quantity "+(FieldObjectLayout.Kind)k);
             Check(level.EntityManager.LivingMonsters.OfType<BloodClotMonster>().Count()==14,"all 14 blood clots live");
-            Check(layout.SpawnedObjects.All(o=>map.NavigationDistance(o.transform.position,out _)>=9.9f),"all actual object positions clear internal and external walls");
+            Check(layout.SpawnedObjects.All(o=>map.FloorClearance(o.transform.position,true)>=1.99f),"all actual object positions retain two-unit clearance from visible wall feet");
             for(int seed=0;seed<128;seed++)
             {
                 var slots=FieldObjectLayout.Generate(map,player.transform.position,seed);
-                Check(slots.Count==86&&slots.All(s=>map.NavigationDistance(s.position,out _)>=9.99f),"valid complete layout seed "+seed);
+                Check(slots.Count==86&&slots.All(s=>map.FloorClearance(s.position,true)>=1.99f),"valid complete layout with two-unit floor clearance seed "+seed);
                 if(seed%4==0)yield return null;
             }
             var table=level.CurrentLevelBlueprint.monsterSpawnTable;
@@ -167,11 +167,21 @@ namespace Vampire.Tests.Editor
             Set(level,"levelTime",0f);
             var shooter=Spawn(level,roster.Specials.First(e=>e.id=="S01").blueprint,center+Vector2.left*3);
             shooter.StopAllCoroutines();
+            var previousShots=new HashSet<int>(Object.FindObjectsOfType<Projectile>().Select(p=>p.GetInstanceID()));
             typeof(SniperMonster).GetMethod("FireSniperProjectile",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(shooter,new object[]{center});
-            var popcorn=Object.FindObjectsOfType<ColonPopcornProjectile>().First();
-            var bullet=popcorn.GetComponent<Projectile>();var sprite=popcorn.GetComponent<SpriteRenderer>();var collider=popcorn.GetComponent<CapsuleCollider2D>();
-            Check(sprite.sprite.name=="Popcorn"&&Mathf.Abs(sprite.bounds.size.y-.2f)<.01f,"corn fires actual popcorn art at defined size");
-            Check(collider.bounds.size.y>sprite.bounds.size.y*.65f&&collider.bounds.size.y<sprite.bounds.size.y*1.05f,"popcorn collider follows visible kernel");
+            var firedShots=Object.FindObjectsOfType<Projectile>().Where(p=>!previousShots.Contains(p.GetInstanceID())&&ReferenceEquals(Field(p,"sourceMonsterBlueprint").GetValue(p),shooter.Blueprint)).ToArray();
+            Check(firedShots.Length==1,"manual corn shot produces one identifiable projectile; count="+firedShots.Length);
+            var bullet=firedShots[0];var popcorn=bullet.GetComponent<ColonPopcornProjectile>();
+            Check(popcorn!=null,"freshly fired corn projectile owns popcorn presentation");
+            yield return null;Physics2D.SyncTransforms();
+            var sprite=bullet.GetComponentsInChildren<SpriteRenderer>(true).First(r=>r.sprite!=null);var collider=bullet.GetComponent<CapsuleCollider2D>();
+            // Launch aligns the projectile to its flight direction, then popcorn spins.
+            // World AABB height therefore changes; the authored body height must not.
+            float intrinsicHeight=sprite.sprite.bounds.size.y*Mathf.Abs(sprite.transform.lossyScale.y);
+            string shotInfo=$"sprite={sprite.sprite.name}; intrinsic={intrinsicHeight:F4}; worldY={sprite.bounds.size.y:F4}; angle={sprite.transform.eulerAngles.z:F2}; active={bullet.gameObject.activeInHierarchy}";
+            Check(sprite.sprite.name=="Popcorn"&&Mathf.Abs(intrinsicHeight-.2f)<.01f,"corn fires actual popcorn art at defined size; "+shotInfo);
+            var kernel=VisibleBodyGeometry.InSpace(sprite,collider.transform);
+            Check(collider.size.y>kernel.size.y*.65f&&collider.size.y<kernel.size.y*1.05f&&collider.size.x>kernel.size.x*.65f&&collider.size.x<kernel.size.x*1.05f,"popcorn collider follows visible kernel in its local space; "+shotInfo);
             ColonPopcornProjectile.Apply(bullet,false);
             Check(sprite.sprite.name!="Popcorn"&&Mathf.Abs(collider.size.x-1.3f)<.01f,"mini-stage bullet art and collider restore from shared pool");
             bullet.RemoveForItem();shooter.DespawnForStageTransfer();yield return null;

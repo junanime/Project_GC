@@ -11,7 +11,7 @@ namespace Vampire.Tests.Editor
     [InitializeOnLoad]
     public static class ColonEventProof
     {
-        const string Key="ColonEventProof",Output="D:/GameDev/Temp/colon-events-20261110/proof";
+        const string Key="ColonEventProof",Output="Library/ColonEventProof";
         static bool started;static double deadline;static string pending;static int frame;
         static ColonEventProof(){if(SessionState.GetBool(Key,false))Attach();}
         public static void Run(){Directory.CreateDirectory(Output);File.WriteAllText(Output+"/errors.txt","");SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);CrossSceneData.CharacterBlueprint=AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/Main Character Blueprint.asset");EditorSceneManager.OpenScene("Assets/Scenes/Game/Level 1.unity");Attach();EditorApplication.EnterPlaymode();}
@@ -36,10 +36,20 @@ namespace Vampire.Tests.Editor
         {
             File.WriteAllText(Output+"/checks.txt","");var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Colon event runtime QA");level.enabled=false;
-            var player=level.PlayerCharacter;ColonContentSmoke.Set(player,"isInvincible",true);ColonContentSmoke.Set(player,"nextLevelExp",1000f);
+            var player=level.PlayerCharacter;ColonContentSmoke.Set(player,"isInvincible",true);
             foreach(var a in Object.FindObjectsOfType<Ability>()){a.enabled=false;a.StopAllCoroutines();}
             foreach(var b in Object.FindObjectsOfType<MonoBehaviour>())if(b is TimedSpecialMonsterSpawner||b is AcidToadSpawn||b is NPCSpawner){b.enabled=false;b.StopAllCoroutines();}
             yield return ColonContentSmoke.Enter(level);Clear();
+            // The real transition restores the launch snapshot, including XP thresholds,
+            // invulnerability and ability controllers. Isolate this event test afterwards.
+            player=level.PlayerCharacter;
+            ColonContentSmoke.Set(player,"isInvincible",true);
+            ColonContentSmoke.Set(player,"currentExp",0f);
+            ColonContentSmoke.Set(player,"nextLevelExp",1000000f);
+            ColonContentSmoke.Set(player,"expToNextLevel",1000000f);
+            player.CollectableCollider.enabled=false;
+            foreach(var a in Object.FindObjectsOfType<Ability>()){a.enabled=false;a.StopAllCoroutines();}
+            Check((float)ColonContentSmoke.Field(player,"currentExp").GetValue(player)==0f&&(float)ColonContentSmoke.Field(player,"nextLevelExp").GetValue(player)==1000000f,"Post-transfer event QA isolates XP from level-up dialogs");
             foreach(var o in level.GetComponent<FieldObjectLayout>().SpawnedObjects)if(o!=null)o.SetActive(false);
             var events=ColonFieldEvents.Instance;Check(events!=null,"Colon event director installed on real stage transfer");events.AutoSchedule=false;
             var directors=Object.FindObjectsOfType<StageEventDirector>();
@@ -64,7 +74,9 @@ namespace Vampire.Tests.Editor
             ColonContentSmoke.Position(player,(Vector2)nutrient.transform.position+Vector2.down*.5f);yield return null;var xp=(float)ColonContentSmoke.Field(player,"currentExp").GetValue(player);
             var touch=player.GetComponent<WorldObjectTouchInput>()??player.gameObject.AddComponent<WorldObjectTouchInput>();var hit=cam.WorldToScreenPoint(nutrient.GetComponentInChildren<SpriteRenderer>().bounds.center);
             Check(touch.TryInteract(hit),"World-object touch selects nutrient through real input route");yield return null;yield return null;Check(nutrient.Collected&&events.Collected==1,"Touch interaction acquires nutrient");Check(!nutrient.Interact(),"Collected nutrient cannot be claimed twice");
-            yield return new WaitForSeconds(.3f);Check((float)ColonContentSmoke.Field(player,"currentExp").GetValue(player)>xp,"Nutrient awards experience directly");events.Cancel();
+            yield return new WaitForSecondsRealtime(.3f);
+            Check(Time.timeScale>0,"Isolated nutrient reward leaves gameplay time running");
+            Check((float)ColonContentSmoke.Field(player,"currentExp").GetValue(player)>xp,"Nutrient awards experience directly");events.Cancel();
             Time.captureFramerate=20;
             foreach(var kind in Environment.GetCommandLineArgs().Contains("-colonEventsSmokeOnly") ? new ColonEventKind[0] : new[]{ColonEventKind.Expulsion,ColonEventKind.Absorption,ColonEventKind.Residue,ColonEventKind.Nutrients})
             {

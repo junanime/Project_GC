@@ -165,6 +165,7 @@ namespace Vampire.Tests.Editor
                     yield return null;
                 }
                 Check(!boss.Arriving&&!boss.Dead&&boss.Health==boss.MaxHealth,"arrival finishes ready at full health "+kind);
+                Check(boss.MaxHealth==ColonBossDefinition.Get(kind).Health&&boss.MaxHealth>=5500&&boss.MaxHealth<=9000,"live optional boss uses its fixed concept HP budget "+kind);
                 Check(boss.GetComponentsInChildren<Collider2D>().Any(c=>c.enabled),"combat collider enabled after arrival "+kind);
                 var initialScale=boss.transform.localScale;
                 if(kind==ColonBossKind.Shark&&held!=null)

@@ -1,0 +1,3 @@
+PASS Turtle-spin-right; real PlayPattern(0); frames=134; spin samples=63; original texture and size; fixed ground projection and contact; no flip/alpha flashes; faster same-direction wind; cleanup
+PASS Turtle-spin-left; real PlayPattern(0); frames=134; spin samples=63; original texture and size; fixed ground projection and contact; no flip/alpha flashes; faster same-direction wind; cleanup
+PASS pause, mid-spin disable cleanup and reactivated neutral artwork

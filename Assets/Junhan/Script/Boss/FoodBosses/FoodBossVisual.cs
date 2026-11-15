@@ -4,7 +4,7 @@ namespace Vampire
     public sealed class FoodBossVisual:MonoBehaviour
     {
         public SpriteRenderer Body {get;private set;}
-        public float Lift,Roll,Recoil,CreamPulse;public bool Airborne,Charge,Recovering,ClawsActive,Whipping,Curtaining;
+        public float Lift,Roll,Recoil,CreamPulse,FlowPressure,ClawImpact,HornKick;public bool Airborne,Charge,Recovering,ClawsActive,Whipping,Curtaining;
         public Vector2 LeftClaw,RightClaw;public float ClawAngleLeft,ClawAngleRight;
         FoodBossRuntime boss;SpriteRenderer[] claws,arms;SpriteRenderer shadow;Transform rig;float clock,clawBlend;int facing=-1;
         SpriteRenderer suctionMouth,beetleWing;LineRenderer[] suction,cocoonBands;float beetleWalkClock,idleBlend,cocoonBlend;
@@ -54,8 +54,8 @@ namespace Vampire
             ResetPose();Sample();
         }
         public void Face(Vector2 dir){if(Mathf.Abs(dir.x)>.05f)facing=dir.x<0?-1:1;}
-        public void ResetPose(){Lift=Roll=Recoil=CreamPulse=0;Airborne=Charge=Recovering=ClawsActive=Whipping=Curtaining=false;LeftClaw=RestClaw(0);RightClaw=RestClaw(1);if(Body!=null){Body.color=Color.white;Body.enabled=true;Body.sharedMaterial=bodyMaterial;}}
-        void LateUpdate(){if(boss==null||FoodBossRuntime.Paused)return;clock+=Time.deltaTime;Sample();}
+        public void ResetPose(){Lift=Roll=Recoil=CreamPulse=FlowPressure=ClawImpact=HornKick=0;Airborne=Charge=Recovering=ClawsActive=Whipping=Curtaining=false;LeftClaw=RestClaw(0);RightClaw=RestClaw(1);if(Body!=null){Body.color=Color.white;Body.enabled=true;Body.sharedMaterial=bodyMaterial;}}
+        void LateUpdate(){if(boss==null||FoodBossRuntime.Paused)return;clock+=Time.deltaTime;Sample();ClawImpact=Mathf.MoveTowards(ClawImpact,0,Time.deltaTime*5);HornKick=Mathf.MoveTowards(HornKick,0,Time.deltaTime*4);}
         void Sample()
         {
             if(boss==null)return;bool p=boss.PhaseTwo;float width=FoodBossArt.Widths[(int)boss.Kind];
@@ -98,11 +98,27 @@ namespace Vampire
             rig.localPosition=Vector3.up*(Lift+hop)+Vector3.right*(Recoil*facing);
             rig.localScale=new Vector3(-facing,1,1);
             ApplyIdle();
+            if(FlowPressure>0&&(boss.Kind==FoodBossKind.Rolpangi||boss.Kind==FoodBossKind.Maribi))
+            {
+                float pressure=Mathf.Clamp01(FlowPressure);
+                Vector3 stretch=boss.Kind==FoodBossKind.Rolpangi?new Vector3(1-.035f*pressure,1+.045f*pressure,1):new Vector3(1+.025f*pressure,1-.06f*pressure,1);
+                // Squash the approved body around the mouth socket, never separating
+                // its face from an already-telegraphed stream or changing gameplay size.
+                Vector3 anchor=rig.InverseTransformPoint(ShotOrigin);
+                Body.transform.localPosition=anchor+Vector3.Scale(Body.transform.localPosition-anchor,stretch);
+                Body.transform.localScale=Vector3.Scale(Body.transform.localScale,stretch);
+            }
+            if(HornKick>0&&boss.Kind==FoodBossKind.Tangdengi)
+            {
+                Vector3 anchor=rig.InverseTransformPoint(HornTip),stretch=new Vector3(1-.035f*HornKick,1+.025f*HornKick,1);
+                Body.transform.localPosition=anchor+Vector3.Scale(Body.transform.localPosition-anchor,stretch);
+                Body.transform.localScale=Vector3.Scale(Body.transform.localScale,stretch);
+            }
             if(Recovering&&boss.Kind==FoodBossKind.Denikani)Body.transform.localRotation=Quaternion.Euler(0,0,Roll);
             bool inhale=Recovering&&boss.Kind==FoodBossKind.Rolpangi;
             suctionMouth.enabled=inhale||CreamPulse>.01f;
             if(inhale){suctionMouth.transform.position=SnailMouth;suctionMouth.transform.localScale=new Vector3(.42f+.07f*Mathf.Sin(clock*12),.26f+.06f*Mathf.Sin(clock*12),1)/suctionMouth.sprite.bounds.size.x;}
-            else if(CreamPulse>0){suctionMouth.transform.position=SnailMouth;suctionMouth.transform.localScale=new Vector3(.30f,.18f+.05f*Mathf.Sin(clock*12)*CreamPulse,1)/suctionMouth.sprite.bounds.size.x;}
+            else if(CreamPulse>0){suctionMouth.transform.position=SnailMouth;suctionMouth.transform.localScale=new Vector3(.30f,.12f+.13f*Mathf.Clamp01(CreamPulse),1)/suctionMouth.sprite.bounds.size.x;}
             for(int i=0;i<3;i++){var r=suction[i];r.enabled=inhale;if(!inhale)continue;r.positionCount=16;
                 float slide=Mathf.Repeat(clock*1.5f+i*.33f,1),reach=Mathf.Lerp(1.7f,.12f,slide);
                 for(int j=0;j<16;j++){float u=j/15f;Vector2 v=new Vector2(facing*(reach+.42f*u),(i-1)*.30f*u+Mathf.Sin(u*Mathf.PI)*.06f);r.SetPosition(j,SnailMouth+v);}}
@@ -111,7 +127,8 @@ namespace Vampire
                 var c=claws[i];c.enabled=clawBlend>0&&!Recovering&&boss.Kind==FoodBossKind.Denikani;
                 c.sprite=FoodBossArt.Get((Charge?"Claw":"ClawOpen")+(p&&i==0?2:1));
                 float clawWidth=i==0&&p?1.68f:i==0?1.35f:1.1f;
-                if(c.sprite!=null)c.transform.localScale=Vector3.one*(clawWidth/c.sprite.bounds.size.x);
+                float squeeze=Mathf.Clamp01(ClawImpact);
+                if(c.sprite!=null)c.transform.localScale=new Vector3(1+.08f*squeeze,1-.13f*squeeze,1)*(clawWidth/c.sprite.bounds.size.x);
                 Vector2 center=Vector2.Lerp(RestClaw(i),i==0?LeftClaw:RightClaw,Mathf.SmoothStep(0,1,clawBlend));
                 c.transform.localPosition=center;
                 Vector2 shoulder=new Vector2(facing*(i==0?.20f:.70f),i==0?.68f:.95f);
@@ -119,7 +136,7 @@ namespace Vampire
                 float angle=Mathf.Atan2(axis.y,axis.x)*Mathf.Rad2Deg+180;
                 c.transform.localRotation=Quaternion.Euler(0,0,angle);
                 // The rightmost round socket of the original claw is its wrist, not the center of the pincer.
-                Vector2 start=(Vector2)transform.position+shoulder,end=(Vector2)c.transform.position-axis*(clawWidth*.40f);
+                Vector2 start=(Vector2)transform.position+shoulder,end=(Vector2)c.transform.position-axis*(clawWidth*(1+.08f*squeeze)*.40f);
                 Vector2 span=end-start,bend=FoodBossRuntime.Rotate(span.normalized,90)*(i==0?-1:1);
                 Vector2 elbow=(start+end)*.5f+bend*Mathf.Lerp(.30f,.10f,Mathf.Clamp01(span.magnitude/4));
                 for(int j=0;j<2;j++){var arm=arms[i*2+j];arm.enabled=c.enabled;arm.sortingOrder=i==0?511:508;if(arm.sprite==null)continue;Vector2 a=j==0?start:elbow,b=j==0?elbow:end,delta=b-a;arm.transform.position=(a+b)*.5f;arm.transform.rotation=Quaternion.Euler(0,0,Mathf.Atan2(delta.y,delta.x)*Mathf.Rad2Deg);arm.transform.localScale=new Vector3((delta.magnitude+.18f)/arm.sprite.bounds.size.x,.32f/arm.sprite.bounds.size.y,1);}

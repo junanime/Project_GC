@@ -1,0 +1,65 @@
+character,hp_ratio,tier,source_asset,source_hp,normal_clone_hp,elite_clone_base_hp,elite_multiplier
+Main,0.75,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,18.75,18.75,2.5
+Main,0.75,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,26.25,26.25,2.5
+Main,0.75,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,48.75,48.75,2.5
+Main,0.75,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,90,90,2.5
+Main,0.75,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,93.75,93.75,2.5
+Main,0.75,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,127.5,127.5,2.5
+Main,0.75,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,165,165,2.5
+Main,0.75,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,195,195,2.5
+Main,0.8,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,20,20,2.5
+Main,0.8,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,28,28,2.5
+Main,0.8,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,52,52,2.5
+Main,0.8,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,96,96,2.5
+Main,0.8,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,100,100,2.5
+Main,0.8,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,136,136,2.5
+Main,0.8,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,176,176,2.5
+Main,0.8,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,208,208,2.5
+Ari,0.75,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,18.75,18.75,2.5
+Ari,0.75,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,26.25,26.25,2.5
+Ari,0.75,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,48.75,48.75,2.5
+Ari,0.75,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,90,90,2.5
+Ari,0.75,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,93.75,93.75,2.5
+Ari,0.75,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,127.5,127.5,2.5
+Ari,0.75,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,165,165,2.5
+Ari,0.75,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,195,195,2.5
+Ari,0.8,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,20,20,2.5
+Ari,0.8,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,28,28,2.5
+Ari,0.8,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,52,52,2.5
+Ari,0.8,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,96,96,2.5
+Ari,0.8,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,100,100,2.5
+Ari,0.8,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,136,136,2.5
+Ari,0.8,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,176,176,2.5
+Ari,0.8,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,208,208,2.5
+Hyuki,0.75,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,18.75,18.75,2.5
+Hyuki,0.75,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,26.25,26.25,2.5
+Hyuki,0.75,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,48.75,48.75,2.5
+Hyuki,0.75,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,90,90,2.5
+Hyuki,0.75,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,93.75,93.75,2.5
+Hyuki,0.75,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,127.5,127.5,2.5
+Hyuki,0.75,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,165,165,2.5
+Hyuki,0.75,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,195,195,2.5
+Hyuki,0.8,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,20,20,2.5
+Hyuki,0.8,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,28,28,2.5
+Hyuki,0.8,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,52,52,2.5
+Hyuki,0.8,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,96,96,2.5
+Hyuki,0.8,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,100,100,2.5
+Hyuki,0.8,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,136,136,2.5
+Hyuki,0.8,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,176,176,2.5
+Hyuki,0.8,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,208,208,2.5
+Shini,0.75,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,18.75,18.75,2.5
+Shini,0.75,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,26.25,26.25,2.5
+Shini,0.75,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,48.75,48.75,2.5
+Shini,0.75,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,90,90,2.5
+Shini,0.75,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,93.75,93.75,2.5
+Shini,0.75,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,127.5,127.5,2.5
+Shini,0.75,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,165,165,2.5
+Shini,0.75,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,195,195,2.5
+Shini,0.8,N01,Assets/Prefabs/Monsters/genral Monster BP/1.asset,25,20,20,2.5
+Shini,0.8,N06,Assets/Prefabs/Monsters/genral Monster BP/1_1.asset,35,28,28,2.5
+Shini,0.8,N07,Assets/Prefabs/Monsters/genral Monster BP/2.asset,65,52,52,2.5
+Shini,0.8,N02,Assets/Prefabs/Monsters/genral Monster BP/3.asset,120,96,96,2.5
+Shini,0.8,N04,Assets/Prefabs/Monsters/genral Monster BP/3_1.asset,125,100,100,2.5
+Shini,0.8,N08,Assets/Prefabs/Monsters/genral Monster BP/4.asset,170,136,136,2.5
+Shini,0.8,N03,Assets/Blueprints/Monsters/LateMushrooms/king-oyster.asset,220,176,176,2.5
+Shini,0.8,N05,Assets/Blueprints/Monsters/LateMushrooms/red-cap.asset,260,208,208,2.5

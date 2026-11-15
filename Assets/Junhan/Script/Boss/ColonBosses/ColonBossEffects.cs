@@ -5,6 +5,7 @@ namespace Vampire
 {
     public static class ColonBossEffects
     {
+        public static ColonTurtleSpinWind SpinWind(ColonBossRuntime boss)=>ColonTurtleSpinWind.Create(boss);
         public static LineRenderer Warning(ColonBossRuntime boss,Vector2[] outline,Vector2? origin=null)
         {
             var c=boss.Definition.Warning;c.a=.70f;

@@ -1,0 +1,74 @@
+[
+  {
+    "Clip": "wall-walk",
+    "Frames": 60,
+    "Fps": 12,
+    "Seconds": 5,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 12226960
+  },
+  {
+    "Clip": "inlet-opening",
+    "Frames": 30,
+    "Fps": 12,
+    "Seconds": 2.5,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 6610194
+  },
+  {
+    "Clip": "summoning",
+    "Frames": 75,
+    "Fps": 12,
+    "Seconds": 6.25,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 17443959
+  },
+  {
+    "Clip": "boss-key-drop",
+    "Frames": 72,
+    "Fps": 12,
+    "Seconds": 6,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 16397994
+  },
+  {
+    "Clip": "planted-key",
+    "Frames": 30,
+    "Fps": 12,
+    "Seconds": 2.5,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 5788375
+  },
+  {
+    "Clip": "key-pickup",
+    "Frames": 38,
+    "Fps": 12,
+    "Seconds": 3.167,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 7375420
+  },
+  {
+    "Clip": "floating-key",
+    "Frames": 48,
+    "Fps": 12,
+    "Seconds": 4,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 8297891
+  },
+  {
+    "Clip": "unlocking",
+    "Frames": 88,
+    "Fps": 12,
+    "Seconds": 7.333,
+    "Width": 960,
+    "Height": 540,
+    "Bytes": 20303747
+  }
+]

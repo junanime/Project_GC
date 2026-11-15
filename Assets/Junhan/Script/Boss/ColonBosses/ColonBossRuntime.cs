@@ -196,7 +196,11 @@ namespace Vampire
             voice.PlayOneShot(clip, gain * GamePreferences.Current.effects * Mathf.Clamp01(1 - distance / 24));
         }
         void ClearEffects() { if (Effects != null) foreach (Transform child in Effects) { child.gameObject.SetActive(false); Destroy(child.gameObject); } }
-        void OnDisable() { StopAllCoroutines(); action = null; ClearEffects(); }
+        void OnDisable()
+        {
+            StopAllCoroutines();action=null;CurrentPattern=-1;Moving=false;ClearEffects();
+            if(Visual!=null){Visual.ResetPose();Visual.Visible=!Hidden;}
+        }
         void OnDestroy() { Active.Remove(this); if (Effects != null) Destroy(Effects.gameObject); }
     }
 }
