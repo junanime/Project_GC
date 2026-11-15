@@ -258,6 +258,14 @@ namespace Vampire.Tests.Editor
             Click("finish experience"); yield return Settled();
             Check(UI.Page == "gstarSurvey" && GStarSession.VisitorFinished, "finish opens survey and closes visitor");
             Check(Text("체험 설문").color == Color.black && Text("여러분의 의견을 들려주세요!").colorGradient.bottomLeft.g > .7f, "survey caption black and feedback heading mint");
+            foreach(string qr in new[]{"survey-qr","homepage-qr"})
+            {
+                var image=Named<Image>("GStar "+qr);
+                Check(image!=null&&image.sprite!=null,"real QR sprite visible: "+qr);
+                Check(image.preserveAspect&&!image.raycastTarget,"QR preserves aspect and does not block controls: "+qr);
+                Check(image.sprite.texture.filterMode==FilterMode.Point&&image.sprite.texture.mipmapCount==1,"QR modules remain sharp without mipmaps: "+qr);
+                var bounds=Bounds(image);Check(Mathf.Abs(bounds.width-bounds.height)<.5f,"QR uses a square display region: "+qr);
+            }
             Check(Named<Button>("GStar new visitor") == null, "public survey has no reset control"); Capture("10-survey");
             yield return KeyPress(InputKey.Escape); Check(UI.Page == "gstarSurvey", "Escape cannot reset or leave end screen");
             yield return KeyPress(InputKey.F8);

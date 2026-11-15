@@ -19,7 +19,8 @@ namespace Vampire.Tests.Editor
                 importer.textureType=qr?TextureImporterType.Sprite:TextureImporterType.Default;
                 if(qr)importer.spriteImportMode=SpriteImportMode.Single;
                 importer.npotScale=TextureImporterNPOTScale.None;importer.maxTextureSize=2048;
-                importer.mipmapEnabled=false;importer.filterMode=FilterMode.Bilinear;
+                importer.mipmapEnabled=false;importer.filterMode=qr?FilterMode.Point:FilterMode.Bilinear;
+                if(qr)importer.wrapMode=TextureWrapMode.Clamp;
                 importer.textureCompression=TextureImporterCompression.Uncompressed;
                 importer.SaveAndReimport();
             }

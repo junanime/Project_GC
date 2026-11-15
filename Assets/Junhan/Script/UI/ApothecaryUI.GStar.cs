@@ -65,6 +65,12 @@ namespace Vampire
         {
             var i=GRect("GStar art",content,x,y,w,h).gameObject.AddComponent<Image>();i.sprite=sprite;i.raycastTarget=false;return i;
         }
+        void GQr(string key,float x,float y,float side)
+        {
+            var sprite=Resources.Load<Sprite>("GStarDemo/"+key);if(sprite==null)return;
+            var image=GImage(sprite,x,y,side,side);
+            image.name="GStar "+key;image.preserveAspect=true;
+        }
         TextMeshProUGUI GText(string value,float x,float y,float w,float h,float size,Color? color=null,bool heading=false)
         {
             var t=Label(content,value,x/Gw,1-(y+h)/Gh,(x+w)/Gw,1-y/Gh,size*720/Gh);
@@ -263,9 +269,9 @@ namespace Vampire
             GText("게임 홈페이지",1181,749,251,49,32);
             GText("설문을 마치셨다면 다음 참가자에게 자리를 양보해 주세요.",408,838,847,43,28);
             GText("화면은 그대로 두셔도 괜찮아요.",474,882,724,31,23,new Color(.35f,.16f,.09f));
-            // Real QR assets can be supplied later without a code change.
-            var survey=Resources.Load<Sprite>("GStarDemo/survey-qr");if(survey!=null)GImage(survey,496,418,426,376).preserveAspect=true;
-            var site=Resources.Load<Sprite>("GStarDemo/homepage-qr");if(site!=null)GImage(site,1211,549,181,169).preserveAspect=true;
+            // Keep each full square, including its encoded quiet zone, inside the painted frame.
+            GQr("survey-qr",521,418,376);
+            GQr("homepage-qr",1217,549,169);
             if(gstarOperator)GStarOperator();
         }
         void GStarOperator()
