@@ -233,6 +233,12 @@ namespace Vampire
         }
         void ShowDemo()
         {
+            if (GStarDemo.Enabled)
+            {
+                // Key pickup, carry, lock rotation, seal break and gate opening have
+                // all finished. The shared result panel is the only confirmation.
+                State = ExitState.Completed; AcquirePause(); level.LevelPassed(null); return;
+            }
             State = ExitState.Demo; AcquirePause(); previousScale = Time.timeScale; ownsTimeScale = true; Time.timeScale = 0;
             Dialogue = ApothecaryUI.Instance.BuildColonDemoCompletionDialogue(); StartCoroutine(WaitForConfirmation());
         }

@@ -107,7 +107,7 @@ namespace Vampire
             var toast = FindObjectOfType<StageEventToastUI>() ?? gameObject.AddComponent<StageEventToastUI>(); toast.ShowImmediateEncounter(title);
             if (kind == ColonEventKind.Absorption) BuildDry();
             if (kind == ColonEventKind.Nutrients) BuildNutrients();
-            visual?.Rebuild(); return true;
+            visual?.Rebuild(); GStarAnalytics.Record("field_event_start","colon/"+kind,title); return true;
         }
         void BuildDry()
         {
@@ -148,6 +148,7 @@ namespace Vampire
             if (!Running || Current != ColonEventKind.Nutrients || Age < .35f || pickup == null || pickup.Collected || !Nutrients.Contains(pickup) ||
                 Vector2.Distance(Player.Position, pickup.transform.position) > 1.25f || !ColonAttackWall.Clear(Player.Position, pickup.transform.position)) return false;
             pickup.Collected = true; Collected++;
+            GStarAnalytics.Record("field_reward",pickup.Healing?"nutrient_heal":"nutrient_exp",pickup.Healing?"maxHP 12%":"12 exp");
             if (pickup.Healing) Player.GainPickupHealth(Player.MaxHealth * .12f);
             else Player.GainExp(12);
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.GoldPickup);

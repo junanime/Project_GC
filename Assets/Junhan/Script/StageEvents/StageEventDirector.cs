@@ -16,6 +16,7 @@ namespace Vampire
         [SerializeField] private List<AdvancedStageFieldEventDirector> advancedEvents = new List<AdvancedStageFieldEventDirector>();
         [SerializeField] private List<AntacidBubbleSurgeEventController> antacidEvents = new List<AntacidBubbleSurgeEventController>();
         private readonly List<StageEventPresentation> presentations = new List<StageEventPresentation>();
+        readonly HashSet<object> analyticsPresented = new HashSet<object>();
         private StageEventCornerUI cornerUI;
         private LevelManager presentationLevel;
         List<StageEventSchedule> initialBasic;
@@ -26,6 +27,7 @@ namespace Vampire
             advancedEvents != null && advancedEvents.Count > 0 ? advancedEvents[0] : null;
         public void RestartForStage()
         {
+            analyticsPresented.Clear();
             foreach (var module in Modules) module?.Dispose();
             if (FiniteStomachMap.Instance != null && FiniteStomachMap.Instance.IsColon)
             {
@@ -54,6 +56,9 @@ namespace Vampire
                 foreach (var e in antacidEvents) e?.CollectPresentations(presentations);
             }
             if (cornerUI == null && presentations.Count > 0) cornerUI = gameObject.AddComponent<StageEventCornerUI>();
+            if (GStarDemo.Enabled)
+                foreach(var shown in presentations)
+                    if(shown.key!=null&&analyticsPresented.Add(shown.key))GStarAnalytics.Record("field_event_start","stomach/"+shown.kind,shown.title);
             if (cornerUI != null) cornerUI.Sync(presentations, MiniStageRuntimeState.IsInsideMiniStage, SchedulesPaused);
         }
 

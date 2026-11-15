@@ -128,6 +128,7 @@ namespace Vampire
                 if (level == null || level.IsLevelEnded || level.CurrentLevelBlueprint != blueprint || source == null) yield break;
                 var spawned = level.EntityManager.SpawnFinalBoss(blueprint, source.transform.position, 0, SelectedKind);
                 if (spawned == null) yield break;
+                GStarAnalytics.Record("boss_summon","stomach/"+SelectedKind,"buried_part");
                 success = true;
                 NotifySpawned();
                 level.NotifyExternalFinalBossSpawned();

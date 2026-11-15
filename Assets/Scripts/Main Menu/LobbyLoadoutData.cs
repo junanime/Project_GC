@@ -87,6 +87,7 @@ namespace Vampire
         public static MerchantItemBlueprint[] ConsumeSelectedCarryItems()
         {
             MerchantItemBlueprint[] result = selectedCarryItems.ToArray();
+            if (GStarDemo.Enabled) return result;
             selectedCarryItems.Clear();
             OnChanged?.Invoke();
             return result;

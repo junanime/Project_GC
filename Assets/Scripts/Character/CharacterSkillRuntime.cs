@@ -116,6 +116,7 @@ namespace Vampire
         {
             if (!CanActivate) return false;
             if(IsShini)return Breath!=null&&Breath.Tap();
+            GStarAnalytics.ActiveSkill();
             owner.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.ActiveUses);
             if(IsAri)
             {

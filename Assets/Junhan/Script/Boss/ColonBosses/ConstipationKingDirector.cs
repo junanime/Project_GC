@@ -59,6 +59,7 @@ namespace Vampire
             Throne.BeginSummoning();
             Boss = ConstipationKingRuntime.Spawn(level, Throne.transform.position, this);
             if (Boss == null) { Spawned = Summoning = false; ReleasePause(); Throne.RestoreInvitation(); return false; }
+            GStarAnalytics.Record("boss_summon","constipation_king","final_boss");
             StomachOpening.Find(false)?.SetOpened(0);
             level.NotifyExternalFinalBossSpawned(); GameAudioManager.StartBossAudio();
             // The invitation can be used during any field event. Its summon announcement
@@ -101,7 +102,7 @@ namespace Vampire
         public void NotifyDefeated(ConstipationKingRuntime boss)
         {
             if (Defeated || !Spawned || boss == null || boss != Boss || !boss.Dead || level == null || level.IsLevelEnded || StageProgression.Ensure(level).StageNumber != 2) return;
-            Defeated = true; ColonExitSequence.Ensure(level).FinishDefeat(); GameAudioManager.FinishStageBossAudio();
+            Defeated = true; GStarAnalytics.Record("boss_defeated","constipation_king","final_boss"); ColonExitSequence.Ensure(level).FinishDefeat(); GameAudioManager.FinishStageBossAudio();
         }
         public void CancelSummon(ConstipationKingRuntime boss, bool restoreInvitation = false)
         {

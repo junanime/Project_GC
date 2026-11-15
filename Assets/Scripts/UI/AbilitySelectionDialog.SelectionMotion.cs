@@ -20,7 +20,10 @@ namespace Vampire
         {
             if (!menuOpen || SelectionAnimating || selectedAbility == null) return;
             SelectionAnimating = true; // Lock before Select: double clicks/touches cannot grant twice.
+            string analyticsId=AnalyticsAugmentId(selectedAbility), analyticsName=selectedAbility.Name;
+            bool validChoice=selectedAbility.RequirementsMet();
             selectedAbility.Select();
+            if(validChoice)GStarAnalytics.Record("augment_choice",analyticsId,analyticsName,analyticsAugmentOffers);
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.AugmentSelect);
             if (rerollButton != null) rerollButton.interactable = false;
             if (skipButton != null) skipButton.interactable = false;

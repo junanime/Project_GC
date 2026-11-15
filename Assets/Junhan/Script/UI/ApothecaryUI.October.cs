@@ -160,10 +160,11 @@ namespace Vampire
             else
             {
                 var i=items[selection];detail=i.description;bool equipped=LobbyLoadoutData.IsEquipped(i);
-                action=equipped?"장착 해제":$"구매 · {i.silverCost}";
+                action=equipped?"장착 해제":GStarDemo.Enabled?"아이템 장착":$"구매 · {i.silverCost}";
                 can=equipped||(LobbyLoadoutData.SelectedCarryItems.Count<2&&SilverWallet.CanSpend(i.silverCost));
                 accept=()=>{if(LobbyLoadoutData.IsEquipped(i)){LobbyLoadoutData.Unequip(i);SilverWallet.Add(i.silverCost);}else LobbyLoadoutData.TryBuyAndEquip(i,i.silverCost,out message);Render();};
             }
+            if(GStarDemo.Enabled && has)need="체험판 · 사용 가능";
             Panel(content,.474f,.165f,.878f,.352f);
             var titleLabel=Label(content,title,.486f,.305f,.706f,.347f,19);titleLabel.alignment=TMPro.TextAlignmentOptions.MidlineLeft;titleLabel.fontStyle=TMPro.FontStyles.Bold;
             var explanation=Label(content,detail,.486f,.179f,.708f,.304f,15);explanation.name="Selection description";

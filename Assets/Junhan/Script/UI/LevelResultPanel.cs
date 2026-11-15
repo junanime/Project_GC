@@ -1018,6 +1018,12 @@ namespace Vampire
 
         public void Restart()
         {
+            if (GStarDemo.Enabled)
+            {
+                (levelManager != null ? levelManager : FindObjectOfType<LevelManager>())?.AbandonRun();
+                ApothecaryUI.ReturnToPreparation();
+                return;
+            }
             Time.timeScale = 1f;
 
             SceneManager.LoadScene(
@@ -1032,6 +1038,12 @@ namespace Vampire
 
         public void ReturnToMainMenu()
         {
+            if (GStarDemo.Enabled)
+            {
+                (levelManager != null ? levelManager : FindObjectOfType<LevelManager>())?.AbandonRun();
+                ApothecaryUI.ReturnToPreparation();
+                return;
+            }
             Time.timeScale = 1f;
 
             SceneManager.LoadScene(mainMenuSceneIndex);

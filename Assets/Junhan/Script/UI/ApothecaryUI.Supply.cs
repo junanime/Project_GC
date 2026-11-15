@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,14 +15,16 @@ namespace Vampire
         public void ShowSupplyRelics(RelicBlueprint[] choices,Func<RelicBlueprint,bool> accept,Action cancel)
         {
             supplyChoices=choices;supplyAccept=accept;supplyCancel=cancel;supplySelection=0;
+            GStarAnalytics.Record("supply_relic_offered","supply_capsule","",SupplyAnalyticsOffers());
             supplyPreviousTime=Time.timeScale;Time.timeScale=0;Show("supplyRelic");
         }
         void CloseSupplyRelics(bool accepted)
         {
             var cancel=supplyCancel;supplyCancel=null;supplyAccept=null;
             Show("hud");Time.timeScale=supplyPreviousTime;
-            if(!accepted)cancel?.Invoke();
+            if(!accepted){GStarAnalytics.Record("supply_relic_deferred","supply_capsule");cancel?.Invoke();}
         }
+        string[] SupplyAnalyticsOffers() => supplyChoices?.Where(r=>r!=null).Select(r=>r.relicId+"|"+r.relicName).ToArray()??Array.Empty<string>();
         void OctoberSupplyRelics()
         {
             // Reuse the merchant's dimmer, banner, card frames, typography, buttons and tooltip contract.
@@ -41,7 +44,8 @@ namespace Vampire
             Label(content,chosen!=null?chosen.relicName:"모든 유물을 보유하고 있습니다",.51f,.445f,.855f,.51f,25);
             var detail=Label(content,chosen?.Description??"",.525f,.245f,.84f,.435f,22);detail.name="Supply relic description";detail.alignment=TMPro.TextAlignmentOptions.TopLeft;
             ActionButton(content,"유물 획득",.57f,.10f,.84f,.19f,()=>{
-                if(chosen!=null&&supplyAccept!=null&&supplyAccept(chosen))CloseSupplyRelics(true);
+                if(chosen!=null&&supplyAccept!=null&&supplyAccept(chosen))
+                {GStarAnalytics.Record("supply_relic_choice",chosen.relicId,chosen.relicName,SupplyAnalyticsOffers());CloseSupplyRelics(true);}
             },true,chosen!=null);
             ActionButton(content,"나중에 받기",.15f,.10f,.42f,.19f,()=>CloseSupplyRelics(false));
         }

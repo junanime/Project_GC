@@ -11,12 +11,13 @@ namespace Vampire
         void Start()
         {
             coinText = GetComponent<TextMeshProUGUI>();
-            coinText.text = ProgressPrefs.GetInt("Coins").ToString();
+            UpdateDisplay();
         }
 
         public void UpdateDisplay()
         {
-            coinText.text = ProgressPrefs.GetInt("Coins").ToString();
+            if (coinText == null) coinText = GetComponent<TextMeshProUGUI>();
+            coinText.text = GStarDemo.Enabled ? "체험판 · 무료" : ProgressPrefs.GetInt("Coins").ToString();
         }
     }
 }

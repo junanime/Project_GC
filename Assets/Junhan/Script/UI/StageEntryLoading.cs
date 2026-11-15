@@ -42,11 +42,13 @@ namespace Vampire
         {
             if (IsLoading || (stage!=0&&stage!=1&&stage!=2) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return false;
             if (!Application.CanStreamedLevelBeLoaded(1)) { Debug.LogError("[StageEntryLoading] Level 1 is not in the build."); return false; }
+            if (!GStarSession.TryBeginAttempt(stage, out var reason)) { Debug.LogWarning("[StageEntryLoading] " + reason); return false; }
             StageEntryLoading view;
             try { view = Create(character); }
             catch (Exception error)
             {
                 Debug.LogException(error);
+                GStarSession.CancelPendingAttempt();
                 if (Instance != null) Destroy(Instance.gameObject);
                 return false;
             }
@@ -166,6 +168,7 @@ namespace Vampire
         }
         public void ReturnToMenu(string message)
         {
+            GStarSession.CancelPendingAttempt();
             running=true;
             heading.text=message;
             DontDestroyOnLoad(gameObject);
@@ -223,7 +226,7 @@ namespace Vampire
                 // Hand off without exposing a playable stage-one frame. The normal
                 // colon transfer owns loading, full placement and the inlet opening.
                 level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
-                RunScore.Exclude(entryStage==0?"스테이지 0 구강 직접 입장":"스테이지 2 임시 직접 입장");
+                if (!GStarDemo.Enabled) RunScore.Exclude(entryStage==0?"스테이지 0 구강 직접 입장":"스테이지 2 임시 직접 입장");
                 ownsPause=false;Time.timeScale=1;
                 if(entryStage==0)running=false;
                 if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral(true):StageProgression.Ensure(level).BeginDirectColon(this)))
@@ -237,6 +240,9 @@ namespace Vampire
                 SetProgress(Mathf.MoveTowards(Progress,1,Time.unscaledDeltaTime*.2f));
                 yield return null;
             }
+            if (!GStarSession.MarkAttemptStarted())
+            { ReturnToMenu("체험 기록 저장에 실패했습니다. 출전준비로 돌아갑니다."); yield break; }
+            GStarAnalytics.Begin(FindObjectOfType<LevelManager>());
             running = false;
             RestorePause();
             Destroy(gameObject);
@@ -244,6 +250,7 @@ namespace Vampire
 
         void Fail()
         {
+            GStarSession.CancelPendingAttempt();
             running = false;
             var callback = failed;
             Destroy(gameObject);

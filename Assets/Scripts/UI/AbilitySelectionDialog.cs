@@ -8,6 +8,15 @@ namespace Vampire
     public partial class AbilitySelectionDialog : DialogBox
     {
         private const int SelectionPanelCount = 3;
+        string[] analyticsAugmentOffers;
+        static string AnalyticsAugmentId(Ability ability)
+        {
+            if(ability==null)return "missing";
+            var offer=ability as Ver4AugmentOffer;
+            var source=offer!=null?offer.Source:ability;
+            string id=source!=null?source.GetType().Name+"/"+source.name.Replace("(Clone)","").Trim():ability.GetType().Name;
+            return offer!=null?id+"/"+offer.Kind+"/"+offer.Option+"/"+offer.Grade:id;
+        }
 
         [Header("Ability Card References")]
         [Tooltip("증강 카드들이 생성될 부모 Transform입니다.")]
@@ -240,6 +249,10 @@ namespace Vampire
             }
 
             int visibleCount = Mathf.Min(SelectionPanelCount, abilities.Count);
+            analyticsAugmentOffers=new string[visibleCount];
+            for(int n=0;n<visibleCount;n++)analyticsAugmentOffers[n]=AnalyticsAugmentId(abilities[n])+"|"+abilities[n].Name;
+            GStarAnalytics.Record("augment_offered",rerollUsed?"reroll":"initial",
+                abilityManager!=null&&abilityManager.OriginalRewardContext?"original_reward":abilityManager!=null&&abilityManager.LegendaryRewardContext?"legendary_reward":"level_up",analyticsAugmentOffers);
 
             // The game design always uses three selection slots. The runtime
             // generator is responsible for supplying three offers; this guard

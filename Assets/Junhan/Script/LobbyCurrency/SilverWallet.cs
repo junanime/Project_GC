@@ -13,6 +13,7 @@ namespace Vampire
         {
             get
             {
+                if (GStarDemo.Enabled) return 0;
                 return ProgressPrefs.GetInt(SilverKey, 0);
             }
         }
@@ -24,12 +25,17 @@ namespace Vampire
                 return;
             }
 
+            if (GStarDemo.Enabled)
+            {
+                RunScore.Current?.Silver(amount);
+                return;
+            }
             Set(Silver + amount);
         }
 
         public static bool CanSpend(int amount)
         {
-            return Silver >= amount;
+            return amount >= 0 && (GStarDemo.Enabled || Silver >= amount);
         }
 
         public static bool TrySpend(int amount)
@@ -38,6 +44,8 @@ namespace Vampire
             {
                 return false;
             }
+
+            if (GStarDemo.Enabled) return true;
 
             if (Silver < amount)
             {
@@ -50,6 +58,8 @@ namespace Vampire
 
         public static void Set(int amount)
         {
+            // Booth rewards and purchases never touch the normal player's wallet.
+            if (GStarDemo.Enabled) return;
             int safeAmount = Mathf.Max(0, amount);
 
             ProgressPrefs.SetInt(SilverKey, safeAmount);

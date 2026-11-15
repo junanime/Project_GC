@@ -10,6 +10,7 @@ namespace Vampire
         TextMeshProUGUI runScoreStatus;
         void UpdateRanking()
         {
+            if(GStarDemo.Enabled)return;
             if (Page == "main")
             {
                 QaLeaderboard.Refresh();
@@ -20,6 +21,11 @@ namespace Vampire
         }
         void RankingPanel()
         {
+            if(GStarDemo.Enabled)
+            {
+                Label(content,"지스타 체험판\n스테이지별 TOP 3\n오프라인 기록 저장",.03f,.12f,.25f,.30f,21);
+                return;
+            }
             QaLeaderboard.LoadCache();
             // Fits left of the title actors; no buttons are covered.
             var panel = Rect("QA leaderboard",content,.022f,.055f,.252f,.49f);

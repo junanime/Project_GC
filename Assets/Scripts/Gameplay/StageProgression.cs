@@ -37,7 +37,7 @@ namespace Vampire
             initialOralEntry=initialDeparture;
             Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             TutorialGuide.Instance?.Close();
-            RunScore.Exclude("스테이지 0 구강 직접 입장");
+            if (!GStarDemo.Enabled) RunScore.Exclude("스테이지 0 구강 직접 입장");
             StartCoroutine(EnterOral());return true;
         }
         IEnumerator EnterOral()
@@ -86,6 +86,9 @@ namespace Vampire
             if(runtime==null)yield break;
             runtime.TeleportPlayer(landing,OralZone.Tongue);
             loading.SetProgress(1);yield return null;
+            if(initialOralEntry && !GStarSession.MarkAttemptStarted())
+            {loading.ReturnToMenu("체험 기록 저장에 실패했습니다. 출전준비로 돌아갑니다.");yield break;}
+            if(initialOralEntry) GStarAnalytics.Begin(level);
             Travelling=false;TransitionPhase="field";
             level.EntityManager.SetFieldMonsterRuntimeSuspended(false);level.SetRunFlowPaused(false);
             loading.CompleteStageTransfer();
@@ -95,6 +98,12 @@ namespace Vampire
             if(StageNumber!=0||Travelling||level==null||level.IsLevelEnded||level.PlayerCharacter==null||!level.PlayerCharacter.IsAlive||Time.timeScale<=0||level.IsRunFlowPaused||preOralBlueprint==null||MiniStageRuntimeState.IsInsideMiniStage)return false;
             if(OralStageRuntime.Instance!=null&&(OralStageRuntime.Instance.OnCeiling||OralStageRuntime.Instance.IsAirborne))return false;
             Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+            if(GStarDemo.Enabled)
+            {
+                // The swallowing finale has already played completely. Stay in this
+                // scene for its score card; do not show another loading screen.
+                TransitionPhase="gstar-complete";level.LevelPassed(null);return true;
+            }
             StartCoroutine(ReturnFromOral());return true;
         }
         IEnumerator ReturnFromOral()
@@ -174,6 +183,7 @@ namespace Vampire
             if(FirstBossDefeated||level==null||level.IsLevelEnded)return true;
             if(definition==null||definition.crater==null)return false;
             FirstBossDefeated=true;DefeatedKind=kind;level.NotifyExternalFinalBossSpawned();
+            GStarAnalytics.Record("boss_defeated","stomach/"+kind,"final_boss");
             for(int i=0;i<3;i++){float a=(210+i*60)*Mathf.Deg2Rad;var p=FiniteStomachMap.SafeSpawn((Vector2)position+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*3.2f,.8f);level.EntityManager.SpawnChest(definition.rewardChest??level.CurrentLevelBlueprint.chestBlueprint,p);}
             var hole=escapeHole??BeginEscape(kind,position);var sr=hole.GetComponent<SpriteRenderer>();hole.localScale=Vector3.one*(4.8f/sr.sprite.bounds.size.x);
             hole.gameObject.AddComponent<CircleCollider2D>().radius=.9f;Portal=hole.gameObject.AddComponent<StageExitPortal>();Portal.Configure(this);
@@ -229,6 +239,14 @@ namespace Vampire
             CapsuleOutletReveal.Create(outlet);var exitShot=StageTravelCamera.Begin(outlet,to);
             yield return new WaitForSeconds(.35f);
             for(float t=0;t<1.25f;t+=Time.deltaTime){outlet.SetOpened(Mathf.SmoothStep(0,1,t/1.25f));yield return null;}outlet.SetOpened(1);
+            if(GStarDemo.Enabled)
+            {
+                // Keep the full capsule boarding/travel/outlet reveal, then present
+                // the result over its final shot rather than entering stage two.
+                TransitionPhase="gstar-complete";
+                level.LevelPassed(null);
+                yield break;
+            }
             if(!StageTwoEnabled)
             {
                 TransitionPhase="demo-complete";
@@ -268,22 +286,30 @@ namespace Vampire
             if(Portal!=null){Portal.gameObject.SetActive(false);Destroy(Portal.gameObject);}Portal=null;escapeHole=null;
             StageNumber=2;FirstBossDefeated=false;CapsuleBoarded=false;
             var map=FiniteStomachMap.Instance;var nextMap=Resources.Load<StomachMapDefinition>("ColonMap/Stage2");
-            if(nextMap==null)throw new System.InvalidOperationException("ColonMap/Stage2 is missing");
+            if(nextMap==null)
+            {loading.ReturnToMenu("대장 배경을 불러오지 못했습니다. 메인 화면으로 돌아갑니다.");yield break;}
             map.ChangeDefinition(nextMap);loading.SetTransferProgress(.4f);yield return null;
             foreach(var altar in FindObjectsOfType<FinalBossSummonInteractable>())
             {
                 altar.gameObject.SetActive(false);Destroy(altar.gameObject);
             }
-            stageTwo=ColonMonsterRoster.Create(level);
+            try { stageTwo=ColonMonsterRoster.Create(level); }
+            catch(System.Exception error)
+            {Debug.LogException(error);loading.ReturnToMenu("대장 몬스터 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");}
+            if(stageTwo==null)yield break;
             if(IsDirectColonStart)level.GetComponent<StageGrowthReset>().SetInitialStage(2);
             else yield return level.GetComponent<StageGrowthReset>().ResetForTransition(2,stageTwo,loading);
             level.BeginNextStage(stageTwo);level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);level.GetComponent<SupplyCapsuleDirector>()?.RestartForStage();
             var inlet=StomachOpening.Find(true);inlet.SetOpened(0);var landing=map.ClampToField(inlet.FrontLip+Vector2.down*2,map.WallWidth+.6f);
             travel.SwimPose(landing,0);travel.Visual.color=Color.clear;loading.SetTransferProgress(.7f);
             yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
-            if(!level.InitialFieldObjectsReady)throw new System.InvalidOperationException("Stage 2 field placement failed");
+            if(!level.InitialFieldObjectsReady)
+            {loading.ReturnToMenu("대장 필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
             for(float t=0;t<.7f;t+=Time.unscaledDeltaTime){loading.SetTransferProgress(Mathf.Lerp(.7f,1,t/.7f));yield return null;}
             loading.SetTransferProgress(1);
+            if(IsDirectColonStart && !GStarSession.MarkAttemptStarted())
+            {loading.ReturnToMenu("체험 기록 저장에 실패했습니다. 출전준비로 돌아갑니다.");yield break;}
+            if(IsDirectColonStart) GStarAnalytics.Begin(level);
             var shot=StageTravelCamera.Begin(inlet,landing);
             if(iris!=null){iris.SetClosed(1);iris.SetVisible(true);}
             loading.CompleteStageTransfer();yield return null;TransitionPhase="iris-open";

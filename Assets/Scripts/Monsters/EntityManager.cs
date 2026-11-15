@@ -570,10 +570,35 @@ namespace Vampire
 
         public Coin SpawnCoin(Vector2 position, CoinType coinType, bool spawnAnimation, bool collectableDuringSpawn)
         {
+            if (GStarDemo.Enabled)
+            {
+                AwardCoinValue((int)coinType);
+                return null;
+            }
             Coin newCoin = coinPool.Get();
             newCoin.Setup(position, coinType, spawnAnimation, collectableDuringSpawn);
             if (MiniStageRuntimeState.IsInsideMiniStage) miniStageCoins.Add(newCoin);
             return newCoin;
+        }
+
+        // Only the timed collection room has physical score tokens. Field currency is credited immediately.
+        public Coin SpawnScoreToken(Vector2 position, CoinType value, bool spawnAnimation, bool collectableDuringSpawn)
+        {
+            Coin token = coinPool.Get();
+            token.Setup(position, value, spawnAnimation, collectableDuringSpawn, false, true);
+            if (MiniStageRuntimeState.IsInsideMiniStage) miniStageCoins.Add(token);
+            return token;
+        }
+
+        public void AwardCoinValue(int baseCoinValue)
+        {
+            int finalCoinValue = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(baseCoinValue);
+            PlayerGeneralStatRuntime statRuntime = playerCharacter != null ? playerCharacter.GetComponent<PlayerGeneralStatRuntime>() : null;
+            if (statRuntime != null) finalCoinValue = statRuntime.ApplyGoldGainMultiplier(finalCoinValue);
+            if (statsManager != null) statsManager.IncreaseCoinsGained(finalCoinValue);
+            else if (GStarDemo.Enabled) RunScore.Current?.Gold(finalCoinValue);
+            if (StageEventRuntimeModifiers.DebugGoldRush)
+                Debug.Log($"[GoldRush] Currency credited | base={baseCoinValue} | final={finalCoinValue}");
         }
 
         public void DespawnCoin(Coin coin, bool pickedUpByPlayer = true)
@@ -582,28 +607,11 @@ namespace Vampire
             if (MagneticCollectables.Contains(coin)) MagneticCollectables.Remove(coin);
             if (pickedUpByPlayer)
             {
-                int baseCoinValue = (int)coin.CoinType;
-                int finalCoinValue = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(baseCoinValue);
-
-                PlayerGeneralStatRuntime statRuntime =
-                    playerCharacter != null
-                        ? playerCharacter.GetComponent<PlayerGeneralStatRuntime>()
-                        : null;
-
-                if (statRuntime != null)
-                {
-                    finalCoinValue = statRuntime.ApplyGoldGainMultiplier(finalCoinValue);
-                }
-
-                statsManager.IncreaseCoinsGained(finalCoinValue);
-
-                if (StageEventRuntimeModifiers.DebugGoldRush)
-                {
-                    Debug.Log($"[GoldRush] Coin collected | base={baseCoinValue} | final={finalCoinValue}");
-                }
+                AwardCoinValue((int)coin.CoinType);
             }
 
-            coinPool.Release(coin);
+            if (coin.GetComponentInParent<CoinPool>() != null) coinPool.Release(coin);
+            else Destroy(coin.gameObject); // Chest rewards are instantiated outside the pool.
         }
         ////////////////////////////////////////////////////////////////////////////////
         /// Chest Spawning

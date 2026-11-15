@@ -118,6 +118,11 @@ namespace Vampire
         Vector3[] endpoints;
         public static CurrencyJarDrop Create(LevelManager owner, Vector2 position, bool silver, int amount, Transform parent)
         {
+            if (GStarDemo.Enabled)
+            {
+                Credit(owner != null ? owner.PlayerCharacter : null, silver, amount);
+                return null;
+            }
             var go = new GameObject(silver ? "Silver chocolate coins" : "Gold chocolate coins");
             go.transform.SetParent(parent, false); go.transform.position = position;
             var drop = go.AddComponent<CurrencyJarDrop>(); drop.level = owner; drop.Amount = amount; drop.Silver = silver;
@@ -151,17 +156,23 @@ namespace Vampire
             transform.position = Vector3.MoveTowards(transform.position, actor.CenterTransform.position, Time.deltaTime * 5f);
             if (Vector2.Distance(transform.position, actor.CenterTransform.position) > .06f) return;
             Collected = true;
-            if (Silver) SilverRunRewarder.RewardPickup(Amount);
+            Credit(actor, Silver, Amount);
+            Destroy(gameObject);
+        }
+        static void Credit(Character actor, bool silver, int value)
+        {
+            if (silver) SilverRunRewarder.RewardPickup(value);
             else
             {
-                int amount = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(Amount);
-                var stats = actor.GetComponent<PlayerGeneralStatRuntime>();
+                int amount = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(value);
+                var stats = actor != null ? actor.GetComponent<PlayerGeneralStatRuntime>() : null;
                 if (stats != null) amount = stats.ApplyGoldGainMultiplier(amount);
-                FindObjectOfType<StatsManager>()?.IncreaseCoinsGained(amount);
-                HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(actor);
+                var tracker = FindObjectOfType<StatsManager>();
+                if (tracker != null) tracker.IncreaseCoinsGained(amount);
+                else if (GStarDemo.Enabled) RunScore.Current?.Gold(amount);
+                if (!GStarDemo.Enabled && actor != null) HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(actor);
             }
-            GameAudioManager.PlaySfx(Silver ? GameAudioManager.GameSfxId.SilverPickup : GameAudioManager.GameSfxId.GoldPickup);
-            Destroy(gameObject);
+            GameAudioManager.PlaySfx(silver ? GameAudioManager.GameSfxId.SilverPickup : GameAudioManager.GameSfxId.GoldPickup);
         }
     }
 }

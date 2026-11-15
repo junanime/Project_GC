@@ -24,7 +24,7 @@ namespace Vampire
         public static bool Held(GameKeyAction action) => !KeyboardBlocked &&
             (GetKey(GamePreferences.Current.keyboard.Get(action)) || GetKey(GamePreferences.Current.keyboard.Get(action,1)));
         public static string Label(GameKeyAction action) => GamePreferences.Current.keyboard.Label(action);
-        public static bool DebugPressed(KeyCode key) => !KeyboardBlocked && !GamePreferences.Current.keyboard.Find(key,out _,out _) && GetKeyDown(key);
+        public static bool DebugPressed(KeyCode key) => !GStarDemo.Enabled && !KeyboardBlocked && !GamePreferences.Current.keyboard.Find(key,out _,out _) && GetKeyDown(key);
         private static readonly Dictionary<KeyCode,Key> Keys = new Dictionary<KeyCode,Key>();
         private static int interactionFrame=-1;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

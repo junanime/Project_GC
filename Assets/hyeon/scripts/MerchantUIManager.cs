@@ -140,7 +140,15 @@ namespace Vampire
 
             UpdateRerollCostText();
             DisplayCurrentShopItems();
+            GStarAnalytics.Record("shop_offered",npc.name,"initial",AnalyticsShopOffers());
         }
+
+        string[] AnalyticsShopOffers()
+        {
+            var offers=currentInteractingNPC!=null?currentInteractingNPC.GetShopItems():null;
+            return offers!=null?offers.FindAll(i=>i!=null).ConvertAll(i=>AnalyticsItemId(i)+"|"+i.itemName+"|cost="+i.cost).ToArray():System.Array.Empty<string>();
+        }
+        static string AnalyticsItemId(MerchantItemBlueprint item) => item.octoberId>0?"october-"+item.octoberId:item.name;
 
         private List<MerchantItemBlueprint> GenerateNewShopItems(bool useRerollBonus, int rerollCount)
         {
@@ -354,7 +362,7 @@ namespace Vampire
 
                 UpdateRerollCostText();
                 DisplayCurrentShopItems();
-
+                GStarAnalytics.Record("shop_reroll",currentInteractingNPC.name,"count="+globalRerollCount,AnalyticsShopOffers());
                 Debug.Log($"[상점] 리롤 성공! 전체 리롤 횟수: {globalRerollCount}, 다음 리롤 비용: {currentRerollCost}G");
             }
             else
@@ -408,6 +416,7 @@ namespace Vampire
             if(itemToBuy.octoberId>0&&OctoberItemRuntime.Get(player).Has(itemToBuy.octoberId))return;
             if (ProcessPayment(RelicRuntime.Price(player,itemToBuy.cost)))
             {
+                GStarAnalytics.Record("shop_purchase",AnalyticsItemId(itemToBuy),itemToBuy.itemName+"|cost="+RelicRuntime.Price(player,itemToBuy.cost),AnalyticsShopOffers());
                 ShopStatApplier statApplier = FindObjectOfType<ShopStatApplier>();
 
                 if(itemToBuy.octoberId>0)OctoberItemRuntime.Get(player).Give(itemToBuy);
@@ -436,6 +445,7 @@ namespace Vampire
 
         private bool ProcessPayment(int cost)
         {
+            if (GStarDemo.Enabled) return cost >= 0;
             StatsManager currentStats = FindObjectOfType<StatsManager>();
 
             if (currentStats != null)

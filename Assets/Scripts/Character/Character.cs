@@ -603,6 +603,7 @@ namespace Vampire
             }
 
             currentDashCharges--;
+            GStarAnalytics.Dash();
 
             // 실제 대쉬 사용이 확정된 순간 효과음을 1회 재생합니다.
             GameAudioManager.PlaySfx(

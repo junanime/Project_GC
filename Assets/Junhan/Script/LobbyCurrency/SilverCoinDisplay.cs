@@ -42,6 +42,8 @@ namespace Vampire
                 return;
             }
 
+            if (GStarDemo.Enabled) { silverText.text = "체험판 · 무료"; return; }
+
             if (useComma)
             {
                 silverText.text = string.Format(format, value);

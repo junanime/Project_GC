@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,7 @@ namespace Vampire
         Button prescriptionClaim, overchargeButton;
         Action skillRewardCallback;
         bool skillRewardQueued;
+        string[] analyticsSkillOffers;
         PrescriptionRuntime Prescription => level!=null && level.PlayerCharacter!=null?level.PlayerCharacter.GetComponent<PrescriptionRuntime>():null;
         void BuildPrescriptionHud()
         {
@@ -105,6 +107,13 @@ namespace Vampire
         {
             if(skillRewardQueued || CurrentSkills==null)return false;
             skillRewardQueued=true;skillRewardCallback=complete;
+            var options=new List<string>();
+            if(CurrentSkills.CanUpgrade(false))options.Add("passive|패시브 강화|level="+CurrentSkills.PassiveLevel);
+            if(CurrentSkills.CanUpgrade(true))options.Add("active|액티브 강화|level="+CurrentSkills.ActiveLevel);
+            if(CurrentSkills.CanUpgradeDash)options.Add("dash|대쉬 횟수 증가|level="+CurrentSkills.DashRewardUpgrades);
+            if(options.Count==0)options.Add("heal|최대 체력 20% 회복");
+            analyticsSkillOffers=options.ToArray();
+            GStarAnalytics.Record("bloodclot_reward_offered","skill_reward",character!=null?character.name:"",analyticsSkillOffers);
             return true;
         }
         void BuildSkillReward()
@@ -143,6 +152,9 @@ namespace Vampire
             if(!skillRewardQueued || CurrentSkills==null)return;
             if(active.HasValue && !CurrentSkills.TryUpgrade(active.Value))return;
             if(!active.HasValue)level.PlayerCharacter.GainHealth(level.PlayerCharacter.MaxHealth*.2f);
+            string reward=active.HasValue?(active.Value?"active":"passive"):"heal";
+            GStarAnalytics.Record("bloodclot_reward_choice",reward,active.HasValue?
+                (active.Value?"액티브 강화|level="+CurrentSkills.ActiveLevel:"패시브 강화|level="+CurrentSkills.PassiveLevel):"최대 체력 20% 회복",analyticsSkillOffers);
             skillRewardQueued=false;var callback=skillRewardCallback;skillRewardCallback=null;
             CloseRunBook();
             callback?.Invoke();
@@ -151,6 +163,7 @@ namespace Vampire
         {
             if(!skillRewardQueued||level==null||level.PlayerCharacter==null)return;
             if(CurrentSkills==null||!CurrentSkills.TryUpgradeDash())return;
+            GStarAnalytics.Record("bloodclot_reward_choice","dash","대쉬 횟수 증가|level="+CurrentSkills.DashRewardUpgrades,analyticsSkillOffers);
             skillRewardQueued=false;
             var callback=skillRewardCallback;skillRewardCallback=null;CloseRunBook();callback?.Invoke();
         }

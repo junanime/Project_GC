@@ -106,8 +106,9 @@ namespace Vampire
         void Update()
         {
             if (!StageAvailable) { if (Active || Pending) CancelForTransition(); return; }
-            HandleTestShortcut(!GameInput.KeyboardBlocked && GameInput.GetKey(KeyCode.F1),
-                !GameInput.KeyboardBlocked && GameInput.GetKey(KeyCode.F2));
+            if (!GStarDemo.Enabled)
+                HandleTestShortcut(!GameInput.KeyboardBlocked && GameInput.GetKey(KeyCode.F1),
+                    !GameInput.KeyboardBlocked && GameInput.GetKey(KeyCode.F2));
             if (transferring) return;
             if (!Active)
             {

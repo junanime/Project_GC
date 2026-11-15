@@ -18,6 +18,7 @@ public class MiscTesting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GStarDemo.Enabled) return;
         // if (Vampire.GameInput.GetKeyDown(KeyCode.RightArrow))
         //     healthBar.AddPoints(1);
         // if (Vampire.GameInput.GetKeyDown(KeyCode.LeftArrow))

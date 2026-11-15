@@ -282,6 +282,7 @@ namespace Vampire
                 kind == OralEventKind.Water || kind == OralEventKind.Sneeze ? GameAudioManager.GameSfxId.AcidRefluxWavePass :
                 GameAudioManager.GameSfxId.FieldEventStart);
             Notify(Banner);
+            GStarAnalytics.Record("field_event_start","oral/"+kind,Banner);
             return true;
         }
 
@@ -326,6 +327,7 @@ namespace Vampire
                 kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
                 kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
                 "구강 수호대! | 민트 수호대를 지켜 혀 점프대까지 호위하세요");
+            if(begun)GStarAnalytics.Record("field_event_start","oral/"+kind);
             return begun;
         }
 
@@ -792,6 +794,7 @@ namespace Vampire
         }
         void FinishEvent()
         {
+            if(CurrentEvent!=OralEventKind.None)GStarAnalytics.Record("field_event_end","oral/"+CurrentEvent,"elapsed="+Elapsed.ToString("F1",System.Globalization.CultureInfo.InvariantCulture));
             Additions?.EndEvent();
             foreach (var monster in coffeeMonsters) if (monster != null) monster.GetComponent<CoffeeMonsterBuffRuntime>()?.RemoveEventBuff();
             coffeeMonsters.Clear(); bubbles.Clear();

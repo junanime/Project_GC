@@ -68,7 +68,7 @@ public class AcidRainScreenVFXController : MonoBehaviour
 
     private void Update()
     {
-        if (!useKeyboardTest)
+        if (Vampire.GStarDemo.Enabled || !useKeyboardTest)
         {
             return;
         }

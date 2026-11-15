@@ -114,6 +114,9 @@ namespace Vampire
 
         public bool OpenBossChoice(Character player)
         {
+            // The booth altar behaves like the buried part: challenge this run's assigned boss.
+            // It must never expose the development-only chooser or invalidate a visitor's score.
+            if (GStarDemo.Enabled) return player != null && TryAutomaticSummon();
             if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)return false;
             if(player==null||summoning||IsSummoning||HasInteracted||IsBossAlreadyPresent()||ApothecaryUI.Instance==null)return false;
             pendingSummon=this;
@@ -220,6 +223,7 @@ namespace Vampire
             }
 
             Monster legacyBoss = spawnedBoss.GetComponent<Monster>();
+            GStarAnalytics.Record("boss_summon","stomach/"+selectedBoss,"vending_altar");
             if (legacyBoss != null) legacyBoss.OnKilled.AddListener(levelManager.LevelPassed);
             levelManager.NotifyExternalFinalBossSpawned();
             levelManager.GetComponent<BuriedBossDirector>()?.NotifySpawned();

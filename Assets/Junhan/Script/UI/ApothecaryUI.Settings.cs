@@ -153,7 +153,7 @@ namespace Vampire
                 Panel(content,.20f,.26f,.80f,.73f);
                 string destination=pendingSessionAction=="quit"?"게임을 종료할까요?":pendingSessionAction=="prepare"?"출전 준비로 돌아갈까요?":"메인 화면으로 돌아갈까요?";
                 Label(content,destination,.24f,.57f,.76f,.67f,28);
-                Label(content,level!=null?"현재 탐험은 종료되며 이 판은 이어할 수 없습니다.\n획득 골드와 저장된 영구 성장은 유지됩니다.":"적용하지 않은 설정 변경은 저장되지 않습니다.",.24f,.41f,.76f,.55f,21);
+                Label(content,level!=null?(GStarDemo.Enabled?"이번 도전은 종료되며 사용한 기회는 돌아오지 않습니다.\n남은 도전 기회와 등록한 랭킹은 유지됩니다.":"현재 탐험은 종료되며 이 판은 이어할 수 없습니다.\n획득 골드와 저장된 영구 성장은 유지됩니다."):"적용하지 않은 설정 변경은 저장되지 않습니다.",.24f,.41f,.76f,.55f,21);
                 SettingsButton(content,"취소 / ESC",.28f,.30f,.48f,.39f,()=>{pendingSessionAction=null;Render();});
                 SettingsButton(content,"확인",.52f,.30f,.72f,.39f,ConfirmSessionAction,true);
             }

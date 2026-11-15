@@ -82,6 +82,7 @@ namespace Vampire
                 var boss=ColonBossRuntime.Spawn(habitat.Kind,player,habitat.transform.position,habitat);
                 if(boss==null){claimed.Remove(habitat);return false;}
                 active[habitat]=boss;
+                GStarAnalytics.Record("boss_summon","colon/"+habitat.Kind,"optional_miniboss");
                 return true;
             }
             catch {claimed.Remove(habitat);throw;}
@@ -89,6 +90,7 @@ namespace Vampire
         public void NotifyDefeated(ColonBossHabitat habitat)
         {
             if(habitat==null||!claimed.Contains(habitat)||!defeated.Add(habitat))return;
+            GStarAnalytics.Record("boss_defeated","colon/"+habitat.Kind,"optional_miniboss");
             active.Remove(habitat);
             // Byunbi King at the lower-left opening remains the mandatory final encounter.
             // These six must not call LevelPassed, FinalBossDefeated, or create a stage-exit portal.

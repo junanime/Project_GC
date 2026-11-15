@@ -401,6 +401,8 @@ namespace Vampire
 
             GameAudioManager.EndRunAudio(false);
             RunScore.Current?.Finish(false);
+            GStarAnalytics.Finish(false, "hp_zero");
+            GStarSession.CompleteAttempt(false);
 
             Time.timeScale = 0f;
 
@@ -433,6 +435,8 @@ namespace Vampire
             SaveCoinsGained();
             GameAudioManager.EndRunAudio(true);
             RunScore.Current?.Finish(true);
+            GStarAnalytics.Finish(true, "stage_clear");
+            GStarSession.CompleteAttempt(true);
             // Boss BGM 종료.
             // Ingame BGM은 재개하지 않음.
             // 승리 보상 효과음 재생.
@@ -475,11 +479,18 @@ namespace Vampire
             levelEnded = true;
             SaveCoinsGained();
             GameAudioManager.EndRunAudio(false);
+            if (GStarDemo.Enabled)
+            {
+                RunScore.Current?.Finish(false);
+                GStarAnalytics.Abandon("return_or_quit");
+                GStarSession.CompleteAttempt(false);
+            }
             ProgressPrefs.Save();
         }
 
         private void SaveCoinsGained()
         {
+            if (GStarDemo.Enabled) return;
             if (statsManager == null)
             {
                 return;
@@ -492,12 +503,24 @@ namespace Vampire
 
         public void Restart()
         {
+            if (GStarDemo.Enabled)
+            {
+                AbandonRun();
+                ApothecaryUI.ReturnToPreparation();
+                return;
+            }
             Time.timeScale = 1f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         public void ReturnToMainMenu()
         {
+            if (GStarDemo.Enabled)
+            {
+                AbandonRun();
+                ApothecaryUI.ReturnToPreparation();
+                return;
+            }
             Time.timeScale = 1f;
             SceneManager.LoadScene(0);
         }

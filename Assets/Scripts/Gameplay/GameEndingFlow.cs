@@ -26,6 +26,11 @@ namespace Vampire
             // ColonExitSequence has completed the key, seal and demo confirmation before
             // LevelPassed commits success and calls us. This path must not show a second card.
             yield return PlayEndingAnimation(level);
+            if (GStarDemo.Enabled)
+            {
+                ApothecaryUI.TryShowResult(true);
+                yield break;
+            }
             ApothecaryUI.ReturnToPreparation();
         }
 

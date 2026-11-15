@@ -13,12 +13,22 @@ namespace Vampire
                 return defaultUnlocked;
             }
 
+            if (GStarDemo.Enabled)
+            {
+                if (category == "Needle")
+                    return System.Enum.TryParse(id, out SyringeSpecialAugmentAbility.SpecialAugmentType type)
+                        && System.Enum.IsDefined(typeof(SyringeSpecialAugmentAbility.SpecialAugmentType), type)
+                        && StartingNeedleSelection.Available(type);
+                if (category == "Character") return true;
+            }
+
             string key = GetKey(category, id);
             return ProgressPrefs.GetInt(key, defaultUnlocked ? 1 : 0) == 1;
         }
 
         public static void Unlock(string category, string id)
         {
+            if (GStarDemo.Enabled) return;
             if (category == "Needle" && System.Enum.TryParse(id, out SyringeSpecialAugmentAbility.SpecialAugmentType type)
                 && !StartingNeedleSelection.Available(type)) return;
             if (string.IsNullOrEmpty(id))
@@ -33,6 +43,7 @@ namespace Vampire
 
         public static void Lock(string category, string id)
         {
+            if (GStarDemo.Enabled) return;
             if (string.IsNullOrEmpty(id))
             {
                 return;

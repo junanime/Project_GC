@@ -32,6 +32,11 @@ public class MenuManager : MonoBehaviour
 
     public void ClickSelectAndPlay()
     {
+        if (Vampire.GStarDemo.Enabled)
+        {
+            Vampire.ApothecaryUI.Instance?.StartRun();
+            return;
+        }
         Vampire.CharacterBlueprint selectedCharacter = characterSelection != null
             ? characterSelection.CurrentCharacterBlueprint
             : null;

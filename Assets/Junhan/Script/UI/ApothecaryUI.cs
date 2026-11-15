@@ -107,8 +107,10 @@ namespace Vampire
             AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
             bool returningToPreparation = lobby && prepareOnReturn;
             if (lobby) prepareOnReturn = false;
-            Show(lobby ? (returningToPreparation ? "prepare" : "main") : "hud");
-            if (lobby && !returningToPreparation && Page != "platformError") IntroMovie.TryShow(this);
+            string initialPage=lobby ? (returningToPreparation ? "prepare" : "main") : "hud";
+            if(lobby && GStarDemo.Enabled) initialPage=GStarInitialPage(returningToPreparation);
+            Show(initialPage);
+            if (lobby && !returningToPreparation && Page == "main" && !GStarDemo.Enabled) IntroMovie.TryShow(this);
         }
         void OnDestroy()
         {
@@ -122,10 +124,11 @@ namespace Vampire
                 Destroy(runtimeFont.material); Destroy(runtimeFont);
             }
         }
-        void OnSilver(int value) { if (silverLabel != null) silverLabel.text = $"실버  {value:N0}"; dirty = true; }
+        void OnSilver(int value) { if (silverLabel != null) silverLabel.text = GStarDemo.Enabled ? "체험판 · 사용 가능" : $"실버  {value:N0}"; dirty = true; }
         void OnLoadout() { dirty = true; }
         void Update()
         {
+            if(GStarDemo.Enabled && GameInput.GetKeyDown(KeyCode.F8)) ExportGStarQa();
             if (SteamRuntime.IsSteamBuild && SteamGuardPage(Page) == "platformError")
             {
                 Time.timeScale = 0;
@@ -145,6 +148,7 @@ namespace Vampire
             root.localScale = Vector3.one * scale;
             if (ColonExitBlocksMenus) { UpdateColonExitModal(); return; }
             if (dirty && !starting) { dirty = false; Render(); }
+            if (GStarDemo.Enabled && UpdateGStar()) return;
             if (portrait != null && portrait.GetComponentInParent<CharacterIdlePreview>() == null && previewCharacter != null && !(Page == "result" && !passed))
             {
                 Sprite[] frames = previewCharacter.idleSpriteSequence;
@@ -181,6 +185,7 @@ namespace Vampire
         }
         public void Back()
         {
+            if (GStarDemo.Enabled && IsGStarPage) return;
             if (ColonExitBlocksMenus) return;
             if(stageChoiceOpen){CloseStageChoice();return;}
             if(Page=="bossChoice"){CloseBossChoice();return;}
@@ -194,7 +199,7 @@ namespace Vampire
         void Render()
         {
             RenderContent();
-            ApplyStitchTheme();
+            if(!IsGStarPage) ApplyStitchTheme();
             if(stageChoiceOpen) BuildStageChoice();
         }
         void RenderContent()
@@ -214,6 +219,7 @@ namespace Vampire
                 return;
             }
             var blocker=content.gameObject.AddComponent<Image>();blocker.color=Color.clear;blocker.raycastTarget=true;
+            if(IsGStarPage){BuildGStarPage();return;}
             if(Page=="bossChoice"){BuildBossChoice();return;}
             if(Page=="merchant"){OctoberMerchant();return;}
             if(Page=="supplyRelic"){OctoberSupplyRelics();return;}
@@ -230,7 +236,7 @@ namespace Vampire
             string title = Page == "prepare" ? "출전 준비" : Page == "unlock" ? "업적 · 해금 도감" : Page == "run" ? "탐험 기록" : Page == "result" ? (passed ? "게임 클리어!" : "아쉽지만 실패!") : Page == "exit" ? "게임 종료" : "설정";
             OctoberFrame(title);
             if (Page == "prepare" || Page == "unlock")
-                silverLabel = Label(content,$"실버  {SilverWallet.Silver:N0}",.72f,.885f,.90f,.95f,22);
+                silverLabel = Label(content,GStarDemo.Enabled ? "체험판 · 사용 가능" : $"실버  {SilverWallet.Silver:N0}",.72f,.885f,.90f,.95f,22);
             if (Page == "prepare") OctoberPrepare();
             else if (Page == "unlock") Unlock();
             else if (Page == "run") RunBook();
@@ -346,6 +352,7 @@ namespace Vampire
         public void StartRun()
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
+            if(GStarDemo.Enabled){Show(GStarSession.VisitorFinished?"gstarSurvey":"gstarNext");return;}
             stageChoiceOpen=true;Render();
         }
         void LaunchStage(int stage)
@@ -448,13 +455,14 @@ namespace Vampire
             for(int i=0;i<tabs.Length;i++){int t=indices[i];ActionButton(content,tabs[i],.17f+i*.225f,.745f,.375f+i*.225f,.825f,()=>SwitchTab(t),false,true,Tab==t);}
             if(Tab==4) ConsumableBook();
             else if(Tab==5) GuideBook();
-            Label(content,$"이번 탐험 골드  {(stats!=null?stats.CoinsGained:0):N0}",.55f,.08f,.85f,.15f,21);
+            Label(content,GStarDemo.Enabled ? $"이번 도전 점수  {(RunScore.Current!=null?RunScore.Current.Data.Total:0):N0}" : $"이번 탐험 골드  {(stats!=null?stats.CoinsGained:0):N0}",.55f,.08f,.85f,.15f,21);
             ActionButton(content,$"닫기 / {GameInput.Label(GameKeyAction.Journal)}",.12f,.07f,.32f,.15f,CloseRunBook);
             ActionButton(content,"설정",.35f,.07f,.49f,.15f,()=>Show("settings"));
         }
         public static bool TryShowResult(bool success)
         {
             if(Instance==null || Instance.level==null)return false;
+            if(GStarDemo.Enabled){RunScore.Current?.Finish(success);GStarSession.CompleteAttempt(success);Instance.gstarBoard=GStarSession.StageId;}
             Instance.passed=success;Instance.ownsPause=false;Time.timeScale=0;Instance.Show("result");return true;
         }
         void LegacyResult()
