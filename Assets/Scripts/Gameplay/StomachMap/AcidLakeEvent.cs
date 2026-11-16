@@ -51,6 +51,7 @@ namespace Vampire
         void ShowWarning()
         {
             warned = true;
+            TutorialGuide.QueueStageEvent("acid-flood");
             var toast = FindObjectOfType<StageEventToastUI>();
             if (toast == null) toast = gameObject.AddComponent<StageEventToastUI>();
             toast.ShowAcidEmergency();

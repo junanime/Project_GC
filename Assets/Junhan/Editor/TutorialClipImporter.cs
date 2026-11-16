@@ -16,7 +16,7 @@ namespace Vampire.Editor
             importer.filterMode = FilterMode.Point;
             importer.wrapMode = TextureWrapMode.Clamp;
             importer.textureCompression = TextureImporterCompression.Uncompressed;
-            importer.maxTextureSize = 2048;
+            importer.maxTextureSize = assetPath.Contains("/live_")?4096:2048;
         }
     }
 }

@@ -212,7 +212,7 @@ namespace Vampire
             bloodClot.OnKilled.AddListener(OnBloodClotKilled);
 
             activeBloodClots.Add(bloodClot);
-            TutorialGuide.QueueBloodClot();
+            TutorialDiscoveryTrigger.Bind(bloodClot.gameObject,"mechanic/blood-clot",bloodClot);
 
             if (debugLog)
             {

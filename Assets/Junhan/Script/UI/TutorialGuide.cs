@@ -18,6 +18,9 @@ namespace Vampire
             public string what;
             public string tip;
             public string effect;
+            public int columns,rows,frames;
+            public float fps;
+            public bool gameplay;
         }
         [Serializable] private sealed class Catalog { public Entry[] entries; }
 
@@ -25,6 +28,9 @@ namespace Vampire
         public static bool IsOpen => Instance != null && Instance.open;
         public static bool BlocksMenuInput => Instance != null && (Instance.open || Instance.closedAtFrame == Time.frameCount);
         public static string SeenKey(string id) => "tutorial.first-discovery.v1." + id;
+        public static bool HasSeen(string id) => GStarDemo.Enabled ? GStarSession.HasSeenGuide(id) : ProgressPrefs.GetInt(SeenKey(id),0)!=0;
+        public string CurrentId {get;private set;}
+        public int CurrentFrame {get;private set;}
 
         private readonly Queue<Entry> pending = new Queue<Entry>();
         private readonly HashSet<string> pendingIds = new HashSet<string>();
@@ -47,6 +53,9 @@ namespace Vampire
         private RectTransform hintBand;
         private Texture2D activeSheet;
         private float clipStart;
+        private Entry activeEntry;
+        private float nextDiscovery;
+        private float nextFieldScan;
         private Font font;
         private const int ClipColumns = 4;
         private const int ClipRows = 3;
@@ -55,6 +64,7 @@ namespace Vampire
 
         public void Initialize(LevelManager owner)
         {
+            Close();
             if (Instance != null && Instance != this) Destroy(Instance);
             ready = false;
             pending.Clear();
@@ -105,12 +115,25 @@ namespace Vampire
         public static void QueueWeapon(SyringeSpecialAugmentAbility.SpecialAugmentType type) => Queue("weapon/" + type);
         public static void QueueStageEvent(string id) => Queue("event/" + id);
         public static void QueueBloodClot() => Queue("mechanic/blood-clot");
+        public static void QueueContent(string id) => Queue(id);
+        public static string ResolveMonsterId(MonsterBlueprint blueprint,Monster monster=null)
+        {
+            if(blueprint==null)return null;
+            if(ColonMonsterRoster.InColon)
+            {
+                if(ColonMonsterRoster.Active.TryGet(blueprint,out var entry)&&entry.id.StartsWith("S"))return "monster/colon-"+entry.id;
+                if(monster is TrapMonster)return "monster/colon-trap";
+                if(monster is TreasureRunnerMonster)return "monster/colon-squirrel";
+            }
+            var kind=ChameleonArt.Kind(blueprint);
+            string id=monster is AcidToadMonster?(kind==ChameleonKind.Fanta?"acid-toad":"chameleon-"+kind.ToString().ToLowerInvariant()):monster is TreasureRunnerMonster?"treasure-runner":MonsterId(((UnityEngine.Object)blueprint).name.Replace("(Clone)",""));
+            return id==null?null:"monster/"+id;
+        }
         public static void QueueMonster(MonsterBlueprint blueprint, Monster monster = null)
         {
-            if (blueprint == null) return;
-            var kind=ChameleonArt.Kind(blueprint);
-            string id = monster is AcidToadMonster ? (kind==ChameleonKind.Fanta?"acid-toad":"chameleon-"+kind.ToString().ToLowerInvariant()) : monster is TreasureRunnerMonster ? "treasure-runner" : MonsterId(((UnityEngine.Object)blueprint).name);
-            if (id != null) Queue("monster/" + id);
+            var id=ResolveMonsterId(blueprint,monster);
+            if(monster!=null) TutorialDiscoveryTrigger.Bind(monster.gameObject,id,monster);
+            else if(id!=null)Queue(id);
         }
         public static string ItemId(Collectable item) => item is Health ? "health" : item is RedPotion ? "potion" : item is Magnet ? "magnet" : null;
         public static void QueueItem(Collectable item)
@@ -145,7 +168,8 @@ namespace Vampire
         }
         private void Enqueue(string id)
         {
-            if (!entries.TryGetValue(id, out Entry entry) || ProgressPrefs.GetInt(SeenKey(id), 0) != 0 || !pendingIds.Add(id)) return;
+            if(string.IsNullOrEmpty(id))return;
+            if (!entries.TryGetValue(id, out Entry entry) || HasSeen(id) || !pendingIds.Add(id)) return;
             pending.Enqueue(entry);
         }
 
@@ -156,24 +180,50 @@ namespace Vampire
             {
                 if (activeSheet != null && preview != null)
                 {
-                    int frame = (int)((Time.unscaledTime - clipStart) / ClipFrameSeconds) % ClipFrames;
-                    preview.uvRect = new Rect((frame % ClipColumns) / (float)ClipColumns,
-                        (ClipRows - 1 - frame / ClipColumns) / (float)ClipRows,
-                        1f / ClipColumns, 1f / ClipRows);
+                    UpdateClip();
                 }
-                if (GameInput.GetKeyDown(KeyCode.Escape)) Close();
+                // Ignore the opening press and consume the close frame before gameplay input resumes.
+                if (Time.unscaledTime-clipStart>.2f && (GameInput.GetKeyDown(KeyCode.Space)||GameInput.GetKeyDown(KeyCode.Escape))) Close();
                 return;
             }
-            if (pending.Count == 0 || level.IsLevelEnded || level.IsRunFlowPaused || Time.timeScale <= 0f || (level.PlayerCharacter != null && level.PlayerCharacter.IsPortalTravelling)) return;
+            if (level.IsLevelEnded || level.IsRunFlowPaused || Time.timeScale <= 0f || Time.unscaledTime<nextDiscovery || (level.PlayerCharacter != null && (level.PlayerCharacter.IsPortalTravelling||level.PlayerCharacter.IsPortalPoseHeld))) return;
             if (level.EntityManager != null && level.EntityManager.AbilitySelectionDialog != null &&
                 level.EntityManager.AbilitySelectionDialog.MenuOpen) return;
             if (ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page != "hud") return;
+            ScanField();
+            if(pending.Count==0)return;
             Show(pending.Dequeue());
+        }
+
+        void UpdateClip()
+        {
+            int cols=activeEntry.columns>0?activeEntry.columns:ClipColumns,rows=activeEntry.rows>0?activeEntry.rows:ClipRows;
+            int count=activeEntry.frames>0?activeEntry.frames:ClipFrames;
+            float seconds=activeEntry.fps>0?1/activeEntry.fps:ClipFrameSeconds;
+            CurrentFrame=(int)((Time.unscaledTime-clipStart)/seconds)%count;
+            preview.uvRect=new Rect(CurrentFrame%cols/(float)cols,(rows-1-CurrentFrame/cols)/(float)rows,1f/cols,1f/rows);
+        }
+        void ScanField()
+        {
+            if(Time.unscaledTime<nextFieldScan||level.PlayerCharacter==null)return;nextFieldScan=Time.unscaledTime+.5f;
+            var map=FiniteStomachMap.Instance;
+            if(map!=null&&map.IsOral)Queue("mechanic/oral-travel");
+            if(map!=null&&map.IsColon)Queue("mechanic/colon-habitats");
+            foreach(var obj in FindObjectsOfType<InteractableEventObject>())
+            {
+                if(!TutorialDiscoveryTrigger.Visible(obj.transform.position))continue;
+                string id=obj is BuriedBossPart?"mechanic/boss-part":obj is EliteMonsterSummonInteractable?"mechanic/elite-vending":null;
+                if(id!=null)Queue(id);
+            }
+            if(map!=null&&map.IsOral&&OralFieldEvents.Instance!=null)
+                foreach(var cavity in OralFieldEvents.Instance.Cavities)
+                    if(!cavity.Healed&&TutorialDiscoveryTrigger.Visible(cavity.Position))Queue("mechanic/cavity");
         }
 
         private void Show(Entry entry, bool discovery = true)
         {
             if (discovery) pendingIds.Remove(entry.id);
+            activeEntry=entry;CurrentId=entry.id;
             activeSheet = Resources.Load<Texture2D>("TutorialClips/Sheets/" + entry.effect);
             if (activeSheet == null && !FoodTutorialPreview.Supports(entry.effect))
             {
@@ -182,14 +232,17 @@ namespace Vampire
             }
             titleText.text = entry.title;
             kindText.text = entry.kind == "weapon" ? "새 무기" : entry.kind == "event" ? "스테이지 이벤트" :
-                entry.kind == "mechanic" ? "필드 기믹" : entry.kind == "item" ? "사용 아이템" : entry.id == "monster/acid-toad" ? "미니보스" : "특수 몬스터";
+                entry.kind == "mechanic" ? "필드 기믹" : entry.kind == "item" ? "사용 아이템" : entry.id == "monster/acid-toad" || entry.id.StartsWith("monster/chameleon-") ? "미니보스" : "특수 몬스터";
             if (!discovery && entry.kind == "weapon") kindText.text = "무기 안내";
             whatText.text = entry.what;
             tipText.text = entry.tip;
-            tipHeadingText.text = entry.kind == "mechanic" ? "혈전 과충전" : entry.kind == "item" ? "사용 방법" : "혁이의 대응";
+            tipHeadingText.text = entry.id=="mechanic/blood-clot" ? "혈전 과충전" : entry.kind == "item"||entry.kind=="mechanic" ? "이렇게 해보세요" : "대응 방법";
             whatText.fontSize = entry.kind == "mechanic" ? 18 : 23;
+            whatText.resizeTextForBestFit=true;whatText.resizeTextMinSize=14;whatText.resizeTextMaxSize=whatText.fontSize;
+            whatText.verticalOverflow=VerticalWrapMode.Truncate;
             tipText.fontSize = entry.kind == "mechanic" ? 16 : 21;
             tipText.resizeTextForBestFit=true;tipText.resizeTextMinSize=14;
+            tipText.verticalOverflow=VerticalWrapMode.Truncate;
             tipText.resizeTextMaxSize=entry.kind=="item"?18:tipText.fontSize;
             var mechanic = entry.kind == "mechanic";
             SetVertical(whatText.rectTransform, mechanic ? .575f : .52f, mechanic ? .69f : .675f);
@@ -200,17 +253,17 @@ namespace Vampire
             (preview.GetComponent<FoodTutorialPreview>() ?? preview.gameObject.AddComponent<FoodTutorialPreview>()).Configure(entry.effect);
             // The first rendered frame can precede Update after pausing the game.
             // Never expose the complete 4x3 atlas in that frame.
-            preview.uvRect = new Rect(0f, (ClipRows - 1f) / ClipRows,
-                1f / ClipColumns, 1f / ClipRows);
             clipStart = Time.unscaledTime;
+            UpdateClip();
             previousTimeScale = Time.timeScale;
             Time.timeScale = 0f;
             open = true;
             canvasObject.SetActive(true);
             if (discovery)
             {
-                ProgressPrefs.SetInt(SeenKey(entry.id), 1);
-                ProgressPrefs.Save();
+                if(GStarDemo.Enabled)GStarSession.MarkGuideSeen(entry.id);
+                else{ProgressPrefs.SetInt(SeenKey(entry.id), 1);ProgressPrefs.Save();}
+                GStarAnalytics.Record("guide_first_seen",entry.id);
             }
         }
         public void Replay() { clipStart = Time.unscaledTime; preview?.GetComponent<FoodTutorialPreview>()?.Restart(); }
@@ -220,12 +273,16 @@ namespace Vampire
             open = false;
             closedAtFrame = Time.frameCount;
             canvasObject.SetActive(false);
+            preview.texture=null;
+            if(activeEntry!=null&&activeEntry.gameplay&&activeSheet!=null)Resources.UnloadAsset(activeSheet);
             activeSheet = null;
+            nextDiscovery=Time.unscaledTime+2;
             if (level != null && !level.IsLevelEnded) Time.timeScale = previousTimeScale;
         }
         private void OnDestroy()
         {
             if (open) Time.timeScale = previousTimeScale;
+            if(activeEntry!=null&&activeEntry.gameplay&&activeSheet!=null)Resources.UnloadAsset(activeSheet);
             if (Instance == this) Instance = null;
         }
 
@@ -262,13 +319,14 @@ namespace Vampire
             var previewFrame = RectImage(card, "Preview", .068f, .251f, .602f, .765f, new Color(.59f,.27f,.35f));
             preview = Rect("Looping gameplay demonstration", previewFrame.rectTransform, .015f, .025f, .985f, .975f).gameObject.AddComponent<RawImage>();
             preview.raycastTarget = false;
+            var aspect=preview.gameObject.AddComponent<AspectRatioFitter>();aspect.aspectMode=AspectRatioFitter.AspectMode.FitInParent;aspect.aspectRatio=16f/9f;
             RectImage(card, "Description paper", .63f, .235f, .945f, .78f, new Color(1f,.963f,.895f));
             Label(card, "어떤 일이 일어나나요?", .655f, .705f, .922f, .76f, 22, new Color(.52f,.27f,.32f));
             whatText = Label(card, "", .658f, .52f, .915f, .675f, 23, new Color(.20f,.14f,.16f));
             hintBand = RectImage(card, "Mint hint", .65f, .405f, .925f, .495f, new Color(.72f,.88f,.76f)).rectTransform;
             tipHeadingText = Label(card, "혁이의 대응", .664f, .411f, .911f, .487f, 25, new Color(.17f,.31f,.25f));
             tipText = Label(card, "", .66f, .266f, .915f, .395f, 21, new Color(.20f,.14f,.16f));
-            ButtonAt(card, "확인", .37f, .07f, .63f, .19f, new Color(.53f,.83f,.72f), Close);
+            ButtonAt(card, "확인 · SPACE", .37f, .07f, .63f, .19f, new Color(.53f,.83f,.72f), Close);
             ButtonAt(card, "다시 보기", .77f, .095f, .925f, .18f, new Color(.99f,.94f,.85f), Replay);
             canvasObject.SetActive(false);
         }

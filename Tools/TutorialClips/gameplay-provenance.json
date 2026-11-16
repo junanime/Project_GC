@@ -1,0 +1,578 @@
+[
+  {
+    "id": "event/oral-jaw",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/jaw.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 44,
+    "fps": 11.9891,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_jaw.png",
+    "sha256": "57c5d436bff94063ac3e7377e3dd587f26877415d6c5d45a683d5674b67ebeee"
+  },
+  {
+    "id": "event/oral-food",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/food.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 78,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_food.png",
+    "sha256": "987d0d421665bd2ec01e571fd88fb8cab989f8bd4f9aa01dc4a732b889b074a6"
+  },
+  {
+    "id": "event/oral-water",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/water.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_water.png",
+    "sha256": "7cedbb2fe3ee2a194eefdc27259d2e1edd10e22826c1c44a03f5eb2a2aa09247"
+  },
+  {
+    "id": "event/oral-coffee",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/coffee.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_coffee.png",
+    "sha256": "52d43a5829140606fd720a002dee197e4100da0402550e032c27e2742b97b86a"
+  },
+  {
+    "id": "event/oral-soda",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/soda.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_soda.png",
+    "sha256": "3f48ac6b696b2c28dccfa370522b7e43e9a0f1890e0fbce45728c71293e144a3"
+  },
+  {
+    "id": "event/oral-sneeze",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/sneeze.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 52,
+    "fps": 12.0092,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_sneeze.png",
+    "sha256": "768b8277958b26063c98e59f359a05f3704c1061f4f75a086bb0730d9d8b3435"
+  },
+  {
+    "id": "event/oral-ceiling",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/ceiling.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_ceiling.png",
+    "sha256": "203c9f7b89075b13aaad65a6b74ac380d995c7ac49d097c8fa93ea4a6e6d28de"
+  },
+  {
+    "id": "event/oral-hiccup",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/hiccup.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 61,
+    "fps": 11.9608,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_hiccup.png",
+    "sha256": "ff8a3db91d2212c84d0ea14bb25ada17da854298e57112b386c441ecc5b95acc"
+  },
+  {
+    "id": "event/oral-brush",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/brush.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_brush.png",
+    "sha256": "3a43ad01e661850b28cfba0eb0b91f27db33f86ee63b09551cf91c5921603233"
+  },
+  {
+    "id": "event/oral-balloondelivery",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/balloon.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 60,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_balloondelivery.png",
+    "sha256": "03ce2b2aafac103bedfda6249d5da77bcf4d0d2672da51497cbb582baaa7783b"
+  },
+  {
+    "id": "event/oral-sweet",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/honey.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_sweet.png",
+    "sha256": "71b825bfa96a541d6bc502340c10120d9dfd194e41331fe0bf734b4cc1678af6"
+  },
+  {
+    "id": "event/oral-salty",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/salt.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_salty.png",
+    "sha256": "87c8af10f8c2f0a3ec56d210a477fa2bc7e186b05de5a6a35bc663e0e0cfd4c2"
+  },
+  {
+    "id": "event/oral-sour",
+    "source": "Library/OralCeilingLemonProof/0-ashi/02-whole-lemon-spring",
+    "sourceType": "Unity runtime capture",
+    "frames": 60,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_sour.png",
+    "sha256": "2af19d48981da6c206d2ccfcd44b1f3693ec847eb7f488d045b8e15198906ff8"
+  },
+  {
+    "id": "event/oral-bitter",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/bitter.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_bitter.png",
+    "sha256": "8165ecb62832a8369720cb752aebea0c5476fe483ae9b864c69e5971980a282c"
+  },
+  {
+    "id": "event/oral-boulder",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/boulder.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_boulder.png",
+    "sha256": "2c7104ec971a37a5a463e2b345e253cad8f83b714302bcaec3831fb826799066"
+  },
+  {
+    "id": "event/oral-guard",
+    "source": "Library/OralTasteContentProof/0-ashi/08-mint-guard",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_guard.png",
+    "sha256": "602cd2bb95f09b7c4d1098721f7d042b463cdec826d39deb61a9f2c607a74928"
+  },
+  {
+    "id": "event/oral-swallow",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/spiral-dash.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_swallow.png",
+    "sha256": "942afe61eb2a4ab70f5c139a077e6fc5c3c9a8308f70f35306c47dcd91c9694d"
+  },
+  {
+    "id": "event/colon-expulsion",
+    "source": "output/colon-events-runtime-20261110/01-wind.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_colon_expulsion.png",
+    "sha256": "13d758bdc12cdc2277728aecaa942db5f90969ce9ba2ac6de8f3d1e9bb019630"
+  },
+  {
+    "id": "event/colon-absorption",
+    "source": "output/colon-events-runtime-20261110/03-dry-floor.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_colon_absorption.png",
+    "sha256": "c1d9645086e16f78d75fd643437f6e78590a958deb24a70468c368adf518cf1d"
+  },
+  {
+    "id": "event/colon-residue",
+    "source": "output/colon-events-runtime-20261110/04-residue.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_colon_residue.png",
+    "sha256": "0ef6b9ae4a10dc06b2545e7178dfcdc79e1582b97c06a90f6986d2253d7a8fb4"
+  },
+  {
+    "id": "event/colon-nutrients",
+    "source": "output/colon-events-runtime-20261110/05-nutrients.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_colon_nutrients.png",
+    "sha256": "da9207c48e216128dfeaf81918e0142a9ea9a27d3ce81a12434b15ce7659a4bd"
+  },
+  {
+    "id": "event/monster-surge",
+    "source": "Library/ExplanationStage1Gallery/event-0",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_monster_surge.png",
+    "sha256": "8442fcb129ac2d9adb64e28a0f31da884ad4e8234f8b975e219069051e48b4c9"
+  },
+  {
+    "id": "event/gold-rush",
+    "source": "Library/ExplanationStage1Gallery/event-1",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_gold_rush.png",
+    "sha256": "32810efbbe5c1348d4066e64355d085b09d4e67f5a585ea58bcd2c47d7962b1d"
+  },
+  {
+    "id": "event/acid-secretion",
+    "source": "Library/ExplanationStage1Gallery/event-2",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_acid_secretion.png",
+    "sha256": "991845df0a951d56479d92b691bca21593a5d9e0bf798c5f03989dfb6a06c1b7"
+  },
+  {
+    "id": "event/acid-reflux",
+    "source": "Library/ExplanationStage1Gallery/event-3",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_acid_reflux.png",
+    "sha256": "1eb3f9620c569972a71e8b8c9ebd1d76ccaea063d9f509ed930e551335c3bca5"
+  },
+  {
+    "id": "event/peristaltic-drift",
+    "source": "Library/ExplanationStage1Gallery/event-4",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_peristaltic_drift.png",
+    "sha256": "f5104f1402257e24ad0cdd110a3657c238fa82ff159c992fd91293398d0b3947"
+  },
+  {
+    "id": "event/coffee-transfusion",
+    "source": "Library/ExplanationStage1Gallery/event-5",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_coffee_transfusion.png",
+    "sha256": "415bf79d4b59ece7b1853f43d57bbd6e9158b26c328b8ea3777c8c1b5f88b72a"
+  },
+  {
+    "id": "event/antacid-bubble",
+    "source": "Library/ExplanationStage1Gallery/event-6",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_antacid_bubble.png",
+    "sha256": "7a8563468b851344cb70bc3a9b93ae357fb9e7473d295328ce5bfe17b8d03b32"
+  },
+  {
+    "id": "event/acid-flood",
+    "source": "Library/ExplanationStage1Gallery/event-7-acid-flood",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_acid_flood.png",
+    "sha256": "243e42e2382b72811c4e253798a76d7b4d421d0cd584fa719e6c49a5d453bdb5"
+  },
+  {
+    "id": "mechanic/oral-travel",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/jump.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 25,
+    "fps": 12.1951,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_mechanic_oral_travel.png",
+    "sha256": "be68742a47302de719a85a556d2bc9dd4c02fd9005c5b235eb8bf8b8148d6e58"
+  },
+  {
+    "id": "mechanic/cavity",
+    "source": "output/game-explanation-gifs-20261113/stage0/gif/cavity.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_mechanic_cavity.png",
+    "sha256": "8ae7bb163fd86a91ccf51fe9c518d8617dca386f23bd75d56fce9d51e56d1d8a"
+  },
+  {
+    "id": "mechanic/colon-habitats",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw-view-final/boss-Flamingo-arrival",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_mechanic_colon_habitats.png",
+    "sha256": "e435c368de4142824c558e0fcbf8f42454f9ab725e4aa3c4c3faf08d239b516b"
+  },
+  {
+    "id": "mechanic/boss-part",
+    "source": "output/game-explanation-gifs-20261113/stage1/spawn-rolpangi.gif",
+    "sourceType": "Unity runtime capture",
+    "frames": 63,
+    "fps": 12.0229,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_mechanic_boss_part.png",
+    "sha256": "d994d9929fcf50918476716e598b9b039a56d62f53ff3380702147a377696288"
+  },
+  {
+    "id": "event/oral-spicy",
+    "source": "Library/GameplayGuideProof/captures/spicy",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_event_oral_spicy.png",
+    "sha256": "c199505e4e9a54c5a75ed9db70a97cb2a1d97dc864dddd9eecefd31742781c94"
+  },
+  {
+    "id": "monster/sniper",
+    "source": "Library/ExplanationStage1Gallery/special-SniperMonster-8-view",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_sniper.png",
+    "sha256": "458782df61f081aa632dc4ec1125f8fb894f5463b444c9a5786483956f2ff870"
+  },
+  {
+    "id": "monster/nutrition-thief",
+    "source": "Library/ExplanationStage1Gallery/special-NutritionThiefBacteriaMonster-18",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_nutrition_thief.png",
+    "sha256": "b49a2fa457c47f0d0816fc75a4ba581153f1efc55ee80a0db352af8dab9013b3"
+  },
+  {
+    "id": "monster/acid-spore",
+    "source": "Library/ExplanationStage1Gallery/special-ExplodingMonster-9",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_acid_spore.png",
+    "sha256": "f71033b6f9a803f8cdefd23d3b67a9f3a34e6522108d564f1885dee8481de822"
+  },
+  {
+    "id": "monster/sugar-cube",
+    "source": "Library/ExplanationStage1Gallery/special-SugarCubeMonster-2",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_sugar_cube.png",
+    "sha256": "5a4bd7e5e750a0d9a3d8c82356638cd8eace8a8b5c0af3f9309f28b762ef2289"
+  },
+  {
+    "id": "monster/elite-sugar-cube",
+    "source": "Library/ExplanationStage1Gallery/special-SugarCubeMonster-2",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_elite_sugar_cube.png",
+    "sha256": "5a4bd7e5e750a0d9a3d8c82356638cd8eace8a8b5c0af3f9309f28b762ef2289"
+  },
+  {
+    "id": "monster/speed-buffer",
+    "source": "Library/ExplanationStage1Gallery/special-MonsterSupportCaster-14",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_speed_buffer.png",
+    "sha256": "e1475cae8728cdd68aa5b3f03cbbe6eeddeb48cf60dc3533492353238e5184eb"
+  },
+  {
+    "id": "monster/armor-buffer",
+    "source": "Library/ExplanationStage1Gallery/special-MonsterSupportCaster-15",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_armor_buffer.png",
+    "sha256": "e1f2db14c6a62f605337871d8f4251e041c9caefdb645de53f1c8d2f52a997f2"
+  },
+  {
+    "id": "monster/attack-debuffer",
+    "source": "Library/ExplanationStage1Gallery/special-AttackSpeedDebufferMonster-16",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_attack_debuffer.png",
+    "sha256": "5f2d4bf218f7d4d321328b9827b6c096e4a6a492e5c58442a4c02ec96eca1942"
+  },
+  {
+    "id": "monster/treasure-runner",
+    "source": "Library/ExplanationStage1Gallery/special-TreasureRunnerMonster-17",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_treasure_runner.png",
+    "sha256": "0c332ead48a87ea89a4dea77bff24414ea6cea14c410fba804283c3744bf6e9d"
+  },
+  {
+    "id": "monster/trap",
+    "source": "Library/ExplanationStage1Gallery/special-TrapMonster-10-view",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_trap.png",
+    "sha256": "1d14d3633742109aab30417814df835f2b8db56af35ecb47960d3e77725bde2f"
+  },
+  {
+    "id": "monster/acid-toad",
+    "source": "Library/ExplanationStage1Gallery/chameleon-2-skill",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_acid_toad.png",
+    "sha256": "5f5ca9bdb8ad09274b1ea3dc1f1a38ba10c87539bed132ffa8018b0c64ba2714"
+  },
+  {
+    "id": "monster/chameleon-drift",
+    "source": "Library/ExplanationStage1Gallery/chameleon-0-skill",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_chameleon_drift.png",
+    "sha256": "a52882fc5e2ba40165c0bc222d4582133dc394adc6ff24c58174c0f1e464741f"
+  },
+  {
+    "id": "monster/chameleon-foam",
+    "source": "Library/ExplanationStage1Gallery/chameleon-1-skill",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_chameleon_foam.png",
+    "sha256": "11c669ca4564d44534401d151bea0a55e7fd6efc4227c7113cdd7ec695473a05"
+  },
+  {
+    "id": "monster/chameleon-latte",
+    "source": "Library/ExplanationStage1Gallery/chameleon-3-skill",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_chameleon_latte.png",
+    "sha256": "320ba49a5c8627f7aa25e18a5994d97aff3d449e8b89a59fb266ebc91cf24544"
+  },
+  {
+    "id": "monster/colon-S01",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S01",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S01.png",
+    "sha256": "294c359fdce977b6478aa02076fa00f4e57e56c805d44bb537459e8aae90bf45"
+  },
+  {
+    "id": "monster/colon-S02",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S02",
+    "sourceType": "Unity runtime capture",
+    "frames": 48,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S02.png",
+    "sha256": "c2d09fe0aca6159a18327d18544f2928885ff11a785d6f2427cc459d7251909e"
+  },
+  {
+    "id": "monster/colon-S03",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S03",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S03.png",
+    "sha256": "21b485f797dfd24af81e26ed7a7be55cd2f37283135fb887bae7bd80e316c5c9"
+  },
+  {
+    "id": "monster/colon-S04",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S04",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S04.png",
+    "sha256": "1011548e1a5c6f9648eb47bad596ab9f1388299c05446fa3ff0c9b64511f5a38"
+  },
+  {
+    "id": "monster/colon-S05",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S05",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S05.png",
+    "sha256": "f6efb35b20711a6229e137b54cb47e094c06f2a805d0efcd6ffaa2c1d0307a37"
+  },
+  {
+    "id": "monster/colon-S06",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S06",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S06.png",
+    "sha256": "68f7913d92dc7fb1d3981c89c8bf7b4981ecc6e3f1f8f0cf9896996aa68cfcd5"
+  },
+  {
+    "id": "monster/colon-S07",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S07",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S07.png",
+    "sha256": "00255aa75d317af1ad28e7b7e06d55154225b364e398ed0113dc88984229df83"
+  },
+  {
+    "id": "monster/colon-S08",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S08",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S08.png",
+    "sha256": "6cb9736fc4411a2d0b6055f71858e4dba4f98680c910ed525f8c8e3f2ae5f50c"
+  },
+  {
+    "id": "monster/colon-S09",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S09",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S09.png",
+    "sha256": "0afa6ee6b4b41119c330a8fef7630ec7c9f9689880bb448e034d0287a13f8431"
+  },
+  {
+    "id": "monster/colon-S10",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S10",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S10.png",
+    "sha256": "8c93e2469737fa2f19ae78b03b2cf0d491bafe10eb82e7887377ab7e03ba76da"
+  },
+  {
+    "id": "monster/colon-S11",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S11",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S11.png",
+    "sha256": "016731d57a4942d9ba6f8f683e7d19ad4042c3885bad70ba9f5c5c601d3fc1ee"
+  },
+  {
+    "id": "monster/colon-S12",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-S12",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_S12.png",
+    "sha256": "b9c1aa5246ad5bee345ba85f5cb6e8e6d452808f89a2d8f8342207ba8fa6c34e"
+  },
+  {
+    "id": "monster/colon-trap",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-seaweed",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_trap.png",
+    "sha256": "c2d15540bcf0666c8505f56e9d752873e0d93e9c7a32617bc74d45ecb34c4cee"
+  },
+  {
+    "id": "monster/colon-squirrel",
+    "source": "output/game-explanation-gifs-20261113/stage2/raw/special-squirrel",
+    "sourceType": "Unity runtime capture",
+    "frames": 84,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_monster_colon_squirrel.png",
+    "sha256": "acd2db1eed0741e9444aee67e3932134cf43deafac83ff7ffca1725f2bac7b22"
+  },
+  {
+    "id": "mechanic/elite-vending",
+    "source": "Library/GameplayGuideProof/captures/elite-vending",
+    "sourceType": "Unity runtime capture",
+    "frames": 72,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_mechanic_elite_vending.png",
+    "sha256": "8b944b9ac7de58233a6da77319f4bd6b3c4e4491204e113e4234b37085a93ba2"
+  },
+  {
+    "id": "mechanic/blood-clot",
+    "source": "Library/GameplayGuideProof/captures/blood-clot",
+    "sourceType": "Unity runtime capture",
+    "frames": 96,
+    "fps": 12.0,
+    "atlas": "Assets\\Resources\\TutorialClips\\Sheets\\live_mechanic_blood_clot.png",
+    "sha256": "63557aca089b6b4ef1686060b868aad38e0c6b6649f5d5d8cce001a0e49a792c"
+  }
+]

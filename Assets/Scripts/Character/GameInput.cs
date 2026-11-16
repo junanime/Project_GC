@@ -19,9 +19,9 @@ namespace Vampire
             }
         }
         public static bool KeyboardBlocked => EditingKeyboard || TextEntryFocused;
-        public static bool Pressed(GameKeyAction action) => !KeyboardBlocked &&
+        public static bool Pressed(GameKeyAction action) => !KeyboardBlocked && !TutorialGuide.BlocksMenuInput &&
             (GetKeyDown(GamePreferences.Current.keyboard.Get(action)) || GetKeyDown(GamePreferences.Current.keyboard.Get(action,1)));
-        public static bool Held(GameKeyAction action) => !KeyboardBlocked &&
+        public static bool Held(GameKeyAction action) => !KeyboardBlocked && !TutorialGuide.BlocksMenuInput &&
             (GetKey(GamePreferences.Current.keyboard.Get(action)) || GetKey(GamePreferences.Current.keyboard.Get(action,1)));
         public static string Label(GameKeyAction action) => GamePreferences.Current.keyboard.Label(action);
         public static bool DebugPressed(KeyCode key) => !GStarDemo.Enabled && !KeyboardBlocked && !GamePreferences.Current.keyboard.Find(key,out _,out _) && GetKeyDown(key);

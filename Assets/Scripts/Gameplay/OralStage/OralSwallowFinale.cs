@@ -155,6 +155,7 @@ namespace Vampire
                 (level.GetComponent<StageProgression>()?.Travelling ?? false)) return;
             events.PrepareForSwallow();
             Pending = false; Active = true; age = 0; spawnClock = 0;
+            TutorialGuide.QueueStageEvent("oral-swallow");
             BuildWhirlpools();
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.FieldEventStart);
         }

@@ -14,6 +14,7 @@ namespace Vampire
             public int version = 1, usedAttempts, stageId = 1;
             public string sessionId, runId = "", lastRunId = "", playerName = "", phone = "";
             public bool active, started, hasCompleted, lastSuccess, interrupted, visitorFinished;
+            public string[] seenGuides = Array.Empty<string>();
         }
 
         static State state;
@@ -47,6 +48,13 @@ namespace Vampire
         public static bool VisitorFinished => Current.visitorFinished;
         public static string PlayerName => Current.playerName;
         public static string Phone => Current.phone;
+        public static bool HasSeenGuide(string id) => Array.IndexOf(Current.seenGuides ?? Array.Empty<string>(),id)>=0;
+        public static bool MarkGuideSeen(string id)
+        {
+            if(HasSeenGuide(id))return true;
+            var next=Copy(Current);var list=new System.Collections.Generic.List<string>(next.seenGuides??Array.Empty<string>());
+            list.Add(id);next.seenGuides=list.ToArray();return Commit(next);
+        }
         public static string StorageError { get { _ = Current; return storageError; } }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

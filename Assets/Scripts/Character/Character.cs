@@ -565,7 +565,7 @@ namespace Vampire
 
         public bool TryDash()
         {
-            if (StageEntryLoading.IsLoading) return false;
+            if (StageEntryLoading.IsLoading || TutorialGuide.BlocksMenuInput) return false;
             if (IsColonExitProtected) return false;
             if (IsOralSwallowing) return false;
             if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || (GetComponent<OralTasteBounce>()?.Active ?? false)) return false;

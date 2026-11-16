@@ -16,7 +16,7 @@ namespace Vampire.Tests.Editor
                 var tests = new TutorialGuideTests();
                 tests.EveryFirstDiscoveryHasItsOwnPlayableClip();
                 tests.MonstersHaveDistinctStableDiscoveryIds();
-                Debug.Log("[TutorialGuide] PASS: 43 guides, atlas/live previews, unique IDs, monster mapping");
+                Debug.Log("[TutorialGuide] PASS: expanded gameplay guides, atlas metadata, unique IDs, monster mapping");
                 EditorApplication.Exit(0);
             }
             catch (System.Exception exception)
@@ -25,7 +25,7 @@ namespace Vampire.Tests.Editor
                 EditorApplication.Exit(1);
             }
         }
-        [System.Serializable] private sealed class Catalog { public Entry[] entries; }
+        [System.Serializable] private sealed class Catalog { public TutorialGuide.Entry[] entries; }
         [System.Serializable] private sealed class Entry
         {
             public string id;
@@ -41,7 +41,7 @@ namespace Vampire.Tests.Editor
             Assert.NotNull(text);
             var catalog = JsonUtility.FromJson<Catalog>(text.text);
             Assert.NotNull(catalog);
-            Assert.AreEqual(43, catalog.entries.Length);
+            Assert.GreaterOrEqual(catalog.entries.Length,80);
             var ids = new HashSet<string>();
             var effects = new HashSet<string>();
             int weapons = 0, events = 0, monsters = 0, mechanics = 0, items = 0;
@@ -53,10 +53,12 @@ namespace Vampire.Tests.Editor
                 var sheet = Resources.Load<Texture2D>("TutorialClips/Sheets/" + entry.effect);
                 if (!FoodTutorialPreview.Supports(entry.effect)) {
                 Assert.NotNull(sheet, "Missing loop sheet for " + entry.id);
-                Assert.AreEqual(1024, sheet.width);
-                Assert.AreEqual(432, sheet.height);
+                Assert.AreEqual(entry.gameplay?entry.columns*384:1024, sheet.width);
+                Assert.AreEqual(entry.gameplay?entry.rows*216:432, sheet.height);
+                if(entry.gameplay){Assert.Greater(entry.frames,1);Assert.LessOrEqual(entry.frames,entry.columns*entry.rows);Assert.Greater(entry.fps,0);}
                 Assert.AreEqual(FilterMode.Point, sheet.filterMode);
                 Assert.AreEqual(1, sheet.mipmapCount);
+                Resources.UnloadAsset(sheet);
                 }
                 if (entry.kind == "weapon") weapons++;
                 else if (entry.kind == "event") events++;
@@ -66,10 +68,10 @@ namespace Vampire.Tests.Editor
                 else Assert.Fail("Unknown kind: " + entry.kind);
             }
             Assert.AreEqual(21, weapons);
-            Assert.AreEqual(7, events);
-            Assert.AreEqual(11, monsters);
+            Assert.GreaterOrEqual(events,29);
+            Assert.GreaterOrEqual(monsters,25);
             Assert.AreEqual(3, items);
-            Assert.AreEqual(1, mechanics);
+            Assert.GreaterOrEqual(mechanics,6);
             Assert.AreNotEqual(TutorialGuide.SeenKey("mechanic/blood-clot"), TutorialGuide.SeenKey("monster/sniper"));
         }
 

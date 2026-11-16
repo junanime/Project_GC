@@ -107,7 +107,7 @@ namespace Vampire
             var toast = FindObjectOfType<StageEventToastUI>() ?? gameObject.AddComponent<StageEventToastUI>(); toast.ShowImmediateEncounter(title);
             if (kind == ColonEventKind.Absorption) BuildDry();
             if (kind == ColonEventKind.Nutrients) BuildNutrients();
-            visual?.Rebuild(); GStarAnalytics.Record("field_event_start","colon/"+kind,title); return true;
+            visual?.Rebuild(); TutorialGuide.QueueStageEvent("colon-"+kind.ToString().ToLowerInvariant()); GStarAnalytics.Record("field_event_start","colon/"+kind,title); return true;
         }
         void BuildDry()
         {
