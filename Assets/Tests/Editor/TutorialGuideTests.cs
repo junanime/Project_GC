@@ -50,7 +50,7 @@ namespace Vampire.Tests.Editor
                 Assert.IsTrue(ids.Add(entry.id), "Duplicate tutorial ID: " + entry.id);
                 Assert.IsTrue(effects.Add(entry.effect), "Duplicate clip: " + entry.effect);
                 Assert.IsFalse(string.IsNullOrWhiteSpace(entry.title));
-                var sheet = Resources.Load<Texture2D>("TutorialClips/Sheets/" + entry.effect);
+                var sheet = TutorialGuide.LoadSheet(entry.effect,out bool runtime);
                 if (!FoodTutorialPreview.Supports(entry.effect)) {
                 Assert.NotNull(sheet, "Missing loop sheet for " + entry.id);
                 Assert.AreEqual(entry.gameplay?entry.columns*384:1024, sheet.width);
@@ -58,7 +58,7 @@ namespace Vampire.Tests.Editor
                 if(entry.gameplay){Assert.Greater(entry.frames,1);Assert.LessOrEqual(entry.frames,entry.columns*entry.rows);Assert.Greater(entry.fps,0);}
                 Assert.AreEqual(FilterMode.Point, sheet.filterMode);
                 Assert.AreEqual(1, sheet.mipmapCount);
-                Resources.UnloadAsset(sheet);
+                if(runtime)Object.DestroyImmediate(sheet);else Resources.UnloadAsset(sheet);
                 }
                 if (entry.kind == "weapon") weapons++;
                 else if (entry.kind == "event") events++;

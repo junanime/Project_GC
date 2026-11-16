@@ -52,6 +52,7 @@ namespace Vampire
         private Text titleText, kindText, whatText, tipText, tipHeadingText;
         private RectTransform hintBand;
         private Texture2D activeSheet;
+        private bool runtimeSheet;
         private float clipStart;
         private Entry activeEntry;
         private float nextDiscovery;
@@ -224,7 +225,7 @@ namespace Vampire
         {
             if (discovery) pendingIds.Remove(entry.id);
             activeEntry=entry;CurrentId=entry.id;
-            activeSheet = Resources.Load<Texture2D>("TutorialClips/Sheets/" + entry.effect);
+            activeSheet = LoadSheet(entry.effect,out runtimeSheet);
             if (activeSheet == null && !FoodTutorialPreview.Supports(entry.effect))
             {
                 Debug.LogError("[TutorialGuide] Missing clip sheet: " + entry.effect);
@@ -267,6 +268,25 @@ namespace Vampire
             }
         }
         public void Replay() { clipStart = Time.unscaledTime; preview?.GetComponent<FoodTutorialPreview>()?.Restart(); }
+        // Keep lossless PNG payloads compressed on disk instead of expanding every
+        // gameplay atlas into the player's resources.resS (over 1 GB of extra data).
+        public static Texture2D LoadSheet(string effect,out bool runtime)
+        {
+            runtime=false;
+            var encoded=Resources.Load<TextAsset>("TutorialClips/Sheets/"+effect);
+            if(encoded==null)return Resources.Load<Texture2D>("TutorialClips/Sheets/"+effect);
+            var sheet=new Texture2D(2,2,TextureFormat.RGB24,false){name=effect};
+            bool loaded=sheet.LoadImage(encoded.bytes,true);Resources.UnloadAsset(encoded);
+            if(!loaded){Destroy(sheet);return null;}
+            sheet.filterMode=FilterMode.Point;sheet.wrapMode=TextureWrapMode.Clamp;runtime=true;return sheet;
+        }
+        void ReleaseSheet()
+        {
+            if(activeSheet==null)return;
+            if(runtimeSheet)Destroy(activeSheet);
+            else if(activeEntry!=null&&activeEntry.gameplay)Resources.UnloadAsset(activeSheet);
+            activeSheet=null;runtimeSheet=false;
+        }
         public void Close()
         {
             if (!open) return;
@@ -274,15 +294,14 @@ namespace Vampire
             closedAtFrame = Time.frameCount;
             canvasObject.SetActive(false);
             preview.texture=null;
-            if(activeEntry!=null&&activeEntry.gameplay&&activeSheet!=null)Resources.UnloadAsset(activeSheet);
-            activeSheet = null;
+            ReleaseSheet();
             nextDiscovery=Time.unscaledTime+2;
             if (level != null && !level.IsLevelEnded) Time.timeScale = previousTimeScale;
         }
         private void OnDestroy()
         {
             if (open) Time.timeScale = previousTimeScale;
-            if(activeEntry!=null&&activeEntry.gameplay&&activeSheet!=null)Resources.UnloadAsset(activeSheet);
+            ReleaseSheet();
             if (Instance == this) Instance = null;
         }
 

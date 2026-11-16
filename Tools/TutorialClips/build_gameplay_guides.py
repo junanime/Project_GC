@@ -100,7 +100,7 @@ for id,(path,start) in jobs.items():
     cols=8;rows=math.ceil(count/cols);atlas=Image.new('RGB',(cols*384,rows*216))
     for i,f in enumerate(selected):atlas.paste(f,((i%cols)*384,(i//cols)*216))
     e=entries[id];e.update(columns=cols,rows=rows,frames=count,fps=round(count/duration,4))
-    dest=repo/'Assets/Resources/TutorialClips/Sheets'/f"{e['effect']}.png";atlas.save(dest)
+    dest=repo/'Assets/Resources/TutorialClips/Sheets'/f"{e['effect']}.bytes";atlas.save(dest,format='PNG')
     gif=out/(e['effect']+'.gif');selected[0].save(gif,save_all=True,append_images=selected[1:],duration=round(1000/e['fps']),loop=0,optimize=True)
     manifest=[m for m in manifest if m['id']!=id];manifest.append({'id':id,'title':e['title'],'source':str(path),'sourceType':'Unity runtime capture','start':start,'frames':count,'fps':e['fps'],'atlas':str(dest.relative_to(repo)),'sha256':hashlib.sha256(dest.read_bytes()).hexdigest(),'gif':str(gif)})
     thumbs.append((id,selected[len(selected)//2].copy()))
