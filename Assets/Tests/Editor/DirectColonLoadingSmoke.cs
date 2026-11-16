@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -19,9 +20,18 @@ namespace Vampire.Tests.Editor
         static DirectColonLoadingSmoke(){if(SessionState.GetBool(Key,false))Attach();}
         public static void Run()
         {
+            SessionState.SetString(Key+"Data",Path.GetFullPath("Library/DirectColonLoadingQA/data-"+Guid.NewGuid().ToString("N")));
             SessionState.SetBool(Key,true);SessionState.SetBool(Key+"Done",false);SessionState.SetBool(Key+"Failed",false);
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
             Attach();EditorApplication.EnterPlaymode();
+        }
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void Isolate()
+        {
+            if(!SessionState.GetBool(Key,false))return;
+            GStarDemo.TestOverride=true;GStarDemo.TestDataDirectory=SessionState.GetString(Key+"Data","");
+            GStarSession.TestDirectory=GStarDemo.TestDataDirectory;GStarSession.ReloadForTests();
+            GStarLeaderboard.TestDirectory=GStarDemo.TestDataDirectory;GStarLeaderboard.ReloadForTests();
         }
         static void Attach()
         {
@@ -71,6 +81,16 @@ namespace Vampire.Tests.Editor
                     CheckFrame(initial,last);
                     last=initial.Progress;
                     var level=Object.FindObjectOfType<LevelManager>();
+                    if(level!=null)
+                    {
+                        if(TutorialGuide.Instance!=null)TutorialGuide.Instance.enabled=false;
+                        if(Object.FindObjectsOfType<SyringeProjectile>().Any(p=>p.gameObject.activeInHierarchy))throw new Exception("Needle projectile emitted behind loading");
+                        foreach(var ability in Object.FindObjectsOfType<SyringeDartAbility>())
+                            if(!ability.AttacksBlocked)throw new Exception("Attack gate open behind loading");
+                        var layout=level.GetComponent<FieldObjectLayout>();
+                        if(StageProgression.Ensure(level).StageNumber==1 && layout!=null && layout.SpawnedObjects.Count!=0)
+                            throw new Exception("Unused stage-one props were built for direct colon entry");
+                    }
                     if(level!=null&&StageProgression.Ensure(level).StageNumber==2)
                     {
                         colonPrepared=true;
@@ -86,6 +106,9 @@ namespace Vampire.Tests.Editor
                 {
                     if(StageEntryLoading.IsLoading)throw new Exception("Second loading appeared during inlet animation");
                     if(manager.CurrentLevelTime!=0)throw new Exception("Timer ran during inlet animation");
+                    foreach(var ability in Object.FindObjectsOfType<SyringeDartAbility>())
+                        if(!ability.AttacksBlocked)throw new Exception("Attack gate open during inlet animation");
+                    if(Object.FindObjectOfType<AmphibiousCapsule>()!=null)throw new Exception("Legacy stomach capsule appeared");
                     opening|=flow.TransitionPhase=="opening";eject|=flow.TransitionPhase=="eject";
                     yield return null;
                 }
@@ -93,12 +116,42 @@ namespace Vampire.Tests.Editor
                 Check(Time.timeScale==1&&!manager.IsRunFlowPaused&&StageEntryLoading.Instance==null,"loading and pause owners released");
                 yield return null;yield return null;
                 Check(manager.CurrentLevelTime>0,"combat timer starts after entrance");
+                GStarAnalytics.Finish(false,"qa_repeat");GStarSession.CompleteAttempt(false);
                 var back=SceneManager.LoadSceneAsync(0);while(!back.isDone)yield return null;yield return null;
             }
             // Inter-stage transfers still create an independent 0..100 overlay.
             var transfer=StageEntryLoading.CreateStageTransfer(bp);
             transfer.SetTransferProgress(.4f);Check(Mathf.Abs(transfer.Progress-.4f)<.001f,"ordinary transfer progress unchanged");
             transfer.SetTransferProgress(1);transfer.CompleteStageTransfer();yield return null;
+            Check(StageEntryLoading.Begin(bp,stage:1),"stage-one departure accepted after colon runs");
+            while(StageEntryLoading.IsLoading)yield return null;
+            var stomach=Object.FindObjectOfType<LevelManager>();
+            if(TutorialGuide.Instance!=null){TutorialGuide.Instance.Close();TutorialGuide.Instance.enabled=false;}
+            var buried=stomach.GetComponent<BuriedBossDirector>();
+            Check(Object.FindObjectOfType<FinalBossSummonInteractable>()==null,"no legacy boss selector/altar in demo");
+            Check(buried!=null&&buried.Part!=null&&!buried.Consumed,"assigned boss part remains summonable");
+            Check(buried.CanSummon,"buried part retains interaction path");
+            var scent=stomach.GetComponentInChildren<BossScentGuide>();
+            Check(scent!=null&&!scent.raycastTarget,"scent guide is visual only");
+            var savedPart=buried.Part.transform.position;
+            var camera=Camera.main;var player=stomach.PlayerCharacter;
+            buried.Part.transform.position=player.transform.position+Vector3.right*(camera.orthographicSize*camera.aspect+4);
+            Directory.CreateDirectory("Library/DirectColonLoadingQA/scent");
+            for(int i=0;i<75;i++)
+            {
+                yield return new WaitForSecondsRealtime(.04f);
+                if(i%2==0){yield return new WaitForEndOfFrame();var image=ScreenCapture.CaptureScreenshotAsTexture();File.WriteAllBytes("Library/DirectColonLoadingQA/scent/"+i.ToString("000")+".png",image.EncodeToPNG());Object.Destroy(image);}
+            }
+            Check(scent.Strength>0,"off-screen part emits screen-edge scent");
+            var mesh=scent.canvasRenderer.GetMesh();
+            Debug.Log("SCENT_GEOMETRY rect="+scent.rectTransform.rect+" edge="+scent.SourceEdge+" strength="+scent.Strength+" vertices="+mesh.vertexCount+" cull="+scent.canvasRenderer.cull+" canvas="+scent.canvas.pixelRect+" alpha="+scent.canvasRenderer.GetAlpha());
+            Check(mesh!=null&&mesh.vertexCount>100&&!scent.canvasRenderer.cull,"visible scent mesh is rendered");
+            var projected=BossScentGuide.ProjectEdge(new Vector2(2,1),new Vector2(480,270),1);
+            Check(Mathf.Abs(projected.x-479)<.01f&&projected.y>0,"scent direction projects to correct edge");
+            buried.Part.transform.position=player.transform.position+Vector3.right;
+            yield return new WaitForSecondsRealtime(1);
+            Check(scent.Strength<.01f,"scent disappears when part is visible");
+            buried.Part.transform.position=savedPart;
             SessionState.SetBool(Key+"Done",true);
         }
         static void CheckFrame(StageEntryLoading expected,float previous)

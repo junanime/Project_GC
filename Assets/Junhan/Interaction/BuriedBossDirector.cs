@@ -50,6 +50,7 @@ namespace Vampire
             PreparedStage = stage;
             nextAutomaticAttempt = 0;
             Part = BuriedBossPart.Create(this, SelectedKind, point);
+            BossScentGuide.Ensure(this, level);
         }
 
         public static bool TryPosition(Vector2 start, out Vector2 point)

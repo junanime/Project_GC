@@ -43,6 +43,9 @@ namespace Vampire
 
         protected override void Awake()
         {
+            // The booth run uses the buried part only. Preserve the legacy developer tool
+            // in non-demo editor scenes without leaving its visuals/collider in the demo.
+            if (GStarDemo.Enabled) { gameObject.SetActive(false); Destroy(gameObject); return; }
             base.Awake();
             presentation = gameObject.AddComponent<BossSummonPresentation>();
             presentation.Initialize(GetComponent<SpriteRenderer>());

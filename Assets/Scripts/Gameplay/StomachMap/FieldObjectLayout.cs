@@ -266,6 +266,9 @@ namespace Vampire
         {
             yield return null; // All scene Start hooks (mini-stage director and NPC references) have run.
             if (level == null || !level.UsesInitialFieldLayout) yield break;
+            // Direct departures use the shared scene, not its temporary stomach layout.
+            // RebuildForStage places the chosen field once under the same loading overlay.
+            if (StageEntryLoading.DefersInitialField) { Ready = true; yield break; }
             IsPlacing=true;
             try { SpawnInitialObjects(); }
             catch (Exception error) { Failed=true; Debug.LogException(error,this); }

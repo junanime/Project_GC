@@ -1170,6 +1170,8 @@ namespace Vampire
         private void PlaySfxInternal(
             GameSfxId id)
         {
+            // Scene activation can invoke gameplay callbacks even while scaled time is zero.
+            if (StageEntryLoading.IsLoading && id != GameSfxId.UiClick && id != GameSfxId.AugmentSelect) return;
             if (sfxSource == null)
             {
                 return;

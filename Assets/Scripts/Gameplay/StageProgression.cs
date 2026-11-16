@@ -270,7 +270,8 @@ namespace Vampire
             IsDirectColonStart=departureLoading!=null;
             Travelling=true;entering=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             TutorialGuide.Instance?.Close();
-            iris=SpiralStageTransition.Create();iris.SetClosed(1);
+            // A direct departure already has an opaque loading screen. No stomach exit iris.
+            if(departureLoading==null){iris=SpiralStageTransition.Create();iris.SetClosed(1);}
             if(departureLoading!=null)departureLoading.ContinueAsColonTransfer();
             StartCoroutine(EnterColon(level.PlayerCharacter,null,departureLoading));return true;
         }
@@ -305,8 +306,8 @@ namespace Vampire
             yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
             if(!level.InitialFieldObjectsReady)
             {loading.ReturnToMenu("대장 필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
-            for(float t=0;t<.7f;t+=Time.unscaledDeltaTime){loading.SetTransferProgress(Mathf.Lerp(.7f,1,t/.7f));yield return null;}
             loading.SetTransferProgress(1);
+            yield return null; // Present the completed field once; no artificial loading hold.
             if(IsDirectColonStart && !GStarSession.MarkAttemptStarted())
             {loading.ReturnToMenu("체험 기록 저장에 실패했습니다. 출전준비로 돌아갑니다.");yield break;}
             if(IsDirectColonStart) GStarAnalytics.Begin(level);

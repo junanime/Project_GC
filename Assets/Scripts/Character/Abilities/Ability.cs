@@ -91,7 +91,8 @@ namespace Vampire
         public int Level => level;
 
         public bool Owned => owned;
-        public bool AttacksBlocked => playerCharacter != null && (playerCharacter.IsPortalTravelling || playerCharacter.IsTrapBound || playerCharacter.IsDashing || (playerCharacter.Skills != null && playerCharacter.Skills.IsCutin));
+        public bool AttacksBlocked => StageEntryLoading.IsLoading || Time.timeScale <= 0f ||
+            (playerCharacter != null && (playerCharacter.IsPortalTravelling || playerCharacter.IsPortalPoseHeld || playerCharacter.IsTrapBound || playerCharacter.IsDashing || (playerCharacter.Skills != null && playerCharacter.Skills.IsCutin)));
 
         // Gate new emissions only, leaving already launched projectiles untouched.
         public Projectile SpawnPlayerProjectile(int index, Vector2 position, float damageValue, float knockbackValue, float speedValue, LayerMask targets)

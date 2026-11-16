@@ -180,6 +180,7 @@ namespace Vampire
             Sprite[] icons={CharacterProfile(player.Blueprint),RunBookArt.Icon(12),RunBookArt.Icon(13),OctoberArt.Get("OctoberUI/MapSymbols","Boss"),OctoberArt.Get("OctoberUI/ItemChestIcon"),RunBookArt.Icon(11),RunBookArt.Icon(14),RunBookArt.Icon(15),OctoberArt.Get("OctoberUI/MapSymbols","Portal"),OctoberArt.Get("OctoberUI/MapSymbols","Merchant"),OctoberArt.Get("OctoberUI/MapSymbols","Vending"),OctoberArt.Get("OctoberUI/BossAltarIcon"),ChameleonArt.Portrait(ChameleonKind.Fanta,0,true)};
             for(int i=0;i<labels.Length;i++)
             {
+                if(i==11&&GStarDemo.Enabled){labels[i]="보스 흔적";icons[i]=OctoberArt.Get("OctoberUI/MapSymbols","Boss");}
                 float y=.218f+i*.0273f;RecordImage("Map legend icon "+i,icons[i],.866f,y,.023f,.025f);
                 RecordText("Map legend "+i,labels[i],.895f,y,.069f,.025f,12);
             }

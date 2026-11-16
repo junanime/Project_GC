@@ -12,6 +12,7 @@ namespace Vampire
     {
         public static StageEntryLoading Instance { get; private set; }
         public static bool IsLoading => Instance != null && Instance.running;
+        public static bool DefersInitialField => IsLoading && (Instance.entryStage == 0 || Instance.entryStage == 2);
         public float Progress { get; private set; }
         public string CharacterKey { get; private set; }
         public RectTransform RunnerRect => runner != null ? runner.rectTransform : null;
