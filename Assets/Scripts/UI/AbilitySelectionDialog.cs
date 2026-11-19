@@ -94,6 +94,39 @@ namespace Vampire
         private List<AbilityCard> abilityCards;
         private List<Ability> displayedAbilities;
 
+        readonly Queue<int> pendingLevelRewards = new Queue<int>();
+
+        public void RequestLevelReward(int characterLevel)
+        {
+            if (menuOpen)
+            {
+                pendingLevelRewards.Enqueue(characterLevel);
+                return;
+            }
+            abilityManager.FavorOpeningTrajectory = characterLevel <= 3;
+            Open();
+        }
+
+        bool ReplaceGStarChoices(bool noble, bool favorTrajectory)
+        {
+            if (displayedAbilities != null) abilityManager.ReturnAbilities(displayedAbilities);
+            abilityManager.LegendaryRewardContext = noble;
+            abilityManager.OriginalRewardContext = false;
+            abilityManager.FavorOpeningTrajectory = favorTrajectory;
+            displayedAbilities = abilityManager.SelectAbilities();
+            if (displayedAbilities.Count == 0) return false;
+            rerollUsed = false;
+            UpdateRerollButtonState();
+            Populate(displayedAbilities);
+            return true;
+        }
+
+        internal bool OfferNobleInOpenPanel()
+        {
+            return menuOpen && !SelectionAnimating && HasAvailableLegendaryAbilities() &&
+                ReplaceGStarChoices(true, false);
+        }
+
         private bool menuOpen = false;
         private bool rerollUsed = false;
         private Vector3 cardParentBaseScale = Vector3.one;
@@ -188,10 +221,13 @@ namespace Vampire
             rerollButton.colors = colors;
         }
 
+        float rewardPauseBegan = -1;
+
         public void Open(bool failsafe = true)
         {
             if (SelectionAnimating) return;
             base.Open();
+            if (GStarAnalytics.IsRecording && rewardPauseBegan < 0) rewardPauseBegan = Time.realtimeSinceStartup;
 
             transform.SetAsLastSibling();
             ApplyMinimapBehindModal();
@@ -452,6 +488,20 @@ namespace Vampire
         public override void Close()
         {
             if (SelectionAnimating) return;
+            if (GStarDemo.Enabled && menuOpen && playerCharacter != null && playerCharacter.IsAlive)
+            {
+                if (!MiniStageRuntimeState.IsInsideMiniStage && !StageEntryLoading.IsLoading &&
+                    (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud") &&
+                    playerCharacter.GetComponent<PrescriptionRuntime>()?.TryChainNoble(this) == true)
+                    return;
+                while (pendingLevelRewards.Count > 0)
+                {
+                    if (ReplaceGStarChoices(false, pendingLevelRewards.Dequeue() <= 3)) return;
+                    // Match Open's fallback even when the last eligible reward was just taken.
+                    if (entityManager != null && failsafeChestBlueprint != null)
+                        entityManager.SpawnChest(failsafeChestBlueprint, (Vector2)playerCharacter.transform.position + Vector2.up);
+                }
+            }
             // 증강 선택 BGM이 재생 중이었다면 종료하고,
             // 증강창이 열리기 직전에 재생 중이던 BGM을 이어서 재생합니다.
             GameAudioManager.ExitAugmentSelectionAudio();
@@ -465,7 +515,13 @@ namespace Vampire
             RestoreMinimapLayer();
 
             menuOpen = false;
-            if (abilityManager != null) { abilityManager.LegendaryRewardContext = false; abilityManager.OriginalRewardContext = false; }
+            if (rewardPauseBegan >= 0)
+            {
+                GStarAnalytics.Record("reward_menu_pause", "seconds", (Time.realtimeSinceStartup - rewardPauseBegan)
+                    .ToString("F2", System.Globalization.CultureInfo.InvariantCulture));
+                rewardPauseBegan = -1;
+            }
+            if (abilityManager != null) { abilityManager.LegendaryRewardContext = false; abilityManager.OriginalRewardContext = false; abilityManager.FavorOpeningTrajectory = false; }
             UpdateOriginalRewardNotice();
             Time.timeScale = 1;
 

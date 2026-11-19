@@ -487,7 +487,10 @@ namespace Vampire
                 Vector2.Dot(playerCharacter.Velocity.normalized, sideDirections[2]),
                 Vector2.Dot(playerCharacter.Velocity.normalized, sideDirections[3])
             };
-            float extraWeight = sideWeights.Sum()/playerDirectionSpawnWeight;
+            // Opposing dot products sum to zero. Reserve some flank/rear weight while moving.
+            float frontWeight = 0f;
+            for (int i = 0; i < sideWeights.Length; i++) frontWeight += Mathf.Max(0f, sideWeights[i]);
+            float extraWeight = frontWeight / Mathf.Max(1f, playerDirectionSpawnWeight);
             int badSideCount = sideWeights.Where(x => x <= 0).Count();
             for (int i = 0; i < sideWeights.Length; i++)
             {
@@ -498,7 +501,7 @@ namespace Vampire
 
             float rand = Random.Range(0f, totalSideWeight);
             float cumulative = 0;
-            int sideIndex = -1;
+            int sideIndex = sideWeights.Length - 1;
             for (int i = 0; i < sideWeights.Length; i++)
             {
                 cumulative += sideWeights[i];

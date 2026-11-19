@@ -96,6 +96,13 @@ namespace Vampire
             }
             previous=position;
         }
+        internal bool TryChainNoble(AbilitySelectionDialog dialog)
+        {
+            if (!Ready || owner == null || !owner.IsAlive || owner.Skills!=null && owner.Skills.IsCutin) return false;
+            if (!dialog.OfferNobleInOpenPanel()) return false;
+            state.claimed=true;
+            return true;
+        }
         public bool TryClaim(AbilitySelectionDialog dialog)
         {
             if(!Ready || owner==null || !owner.IsAlive || Time.timeScale<=0 || dialog==null || dialog.MenuOpen || owner.Skills!=null&&owner.Skills.IsCutin) return false;

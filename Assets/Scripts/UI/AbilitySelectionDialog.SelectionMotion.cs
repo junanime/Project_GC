@@ -9,9 +9,11 @@ namespace Vampire
 
         public void CancelForStageTransition()
         {
+            pendingLevelRewards.Clear();
             if(!menuOpen&&!SelectionAnimating)return;
             float previousTimeScale=Time.timeScale;
             OnDisable();
+            menuOpen=false; // A departing field must not chain another choice.
             Close();
             Time.timeScale=previousTimeScale;
         }

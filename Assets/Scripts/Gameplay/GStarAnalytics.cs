@@ -70,6 +70,7 @@ namespace Vampire
             };
             if (!Store.Begin(data)) return;
             owner = level; active = data;
+            GStarCombatPacing.Begin();
             stats = level.GetComponent<StatsManager>() ?? UnityEngine.Object.FindObjectOfType<StatsManager>();
             if (level.GetComponent<GStarAnalyticsSampler>() == null) level.gameObject.AddComponent<GStarAnalyticsSampler>();
             Record("run_started", data.stageId.ToString(), "starting loadout captured");
@@ -93,6 +94,7 @@ namespace Vampire
         {
             if (!IsRecording) return;
             active.activeSkillCount++;
+            GStarCombatPacing.Skill();
             Record("active_skill", active.characterId);
         }
         public static void Finish(bool success, string reason = "")
@@ -101,6 +103,7 @@ namespace Vampire
         static void End(string status, string reason)
         {
             if (!IsRecording) return;
+            GStarCombatPacing.End();
             Record("run_ended", status, reason);
             active.status = status; active.endingReason = reason; active.endedUtc = DateTime.UtcNow.ToString("O");
             Store.Save(active);
@@ -142,8 +145,11 @@ namespace Vampire
     public sealed class GStarAnalyticsSampler : MonoBehaviour
     {
         float nextFlush;
+        LevelManager level;
+        void Awake() => level = GetComponent<LevelManager>();
         void Update()
         {
+            GStarCombatPacing.Tick(level, Time.deltaTime);
             if (Time.unscaledTime < nextFlush) return;
             nextFlush = Time.unscaledTime + 5f;
             GStarAnalytics.Flush();

@@ -189,7 +189,14 @@ namespace Vampire
 
         public override bool RequirementsMet()
         {
-            if(!StartingNeedleSelection.Owned(this)||!StartingNeedleSelection.Enabled(this))return false;
+            return StartingNeedleSelection.Enabled(this) && CanAcquireParent();
+        }
+
+        // The draft checkbox filters random offers. An intrinsic G-Star starter still
+        // verifies unlock/retirement, existing controllers and the usual level cap.
+        internal bool CanAcquireParent()
+        {
+            if(!StartingNeedleSelection.Owned(this))return false;
             RefreshSyringeDartAbilityReference();
             if ((int)augmentType >= 16)
                 return syringeDartAbility != null && !syringeDartAbility.HasVer4Special(augmentType) && base.RequirementsMet();

@@ -59,9 +59,35 @@ namespace Vampire
             for(float elapsed=0;!Visual.IsPoseDisplayed(pose)&&elapsed<.24f;)
             {if(!EncounterPaused&&!Immobilized)elapsed+=Time.deltaTime;yield return null;}
         }
-        IEnumerator BalletRecovery()
+        IEnumerator BalletRecovery(bool slipped = false)
         {
             Visual.Pose=7;Visual.Lift=.06f;yield return AwaitPose(7);
+            if (slipped && GStarDemo.Enabled)
+            {
+                Sound("Land",.28f);
+                var crumbs = new SpriteRenderer[5];
+                int face = Visual.Facing;
+                Vector2 heel = At + new Vector2(face*.35f,.3f);
+                for (int i=0;i<crumbs.Length;i++)
+                    crumbs[i] = ColonBossEffects.Prop(this,"Projectile",.11f+i%2*.035f,heel);
+                yield return Tween(1.05f, q =>
+                {
+                    Visual.Roll = face*8*Mathf.Sin(q*Mathf.PI*2)*Mathf.Exp(-q*3);
+                    Visual.BalletLanding = q;
+                    for (int i=0;i<crumbs.Length;i++)
+                    {
+                        float arc = Mathf.Sin(Mathf.Min(1,q*1.3f)*Mathf.PI);
+                        Vector2 p = heel + new Vector2((i-2)*q*.50f,arc*(.35f+(i%3)*.14f)-q*.24f);
+                        crumbs[i].transform.position = p;
+                        crumbs[i].transform.rotation = Quaternion.Euler(0,0,q*(150+i*45));
+                        crumbs[i].color = new Color(1,1,1,Mathf.Clamp01((1-q)*4));
+                    }
+                });
+                foreach (var crumb in crumbs) if (crumb != null) Destroy(crumb.gameObject);
+                Visual.Roll=Visual.Lift=Visual.BalletLanding=0; Visual.Pose=0;
+                yield return Wait(.18f);
+                yield break;
+            }
             yield return Tween(.10f,q=>Visual.Lift=.06f*(1-Ease(q)));
             Sound("Land",.24f);yield return Tween(.62f,q=>Visual.BalletLanding=q);
             Visual.BalletLanding=0;Visual.Lift=0;Visual.Pose=0;yield return Wait(.14f);
@@ -88,7 +114,7 @@ namespace Vampire
             if(index==0)
             {
                 yield return Dash(Aim,7f,1.15f,1,false,false,false);
-                yield return BalletRecovery();yield break;
+                yield return BalletRecovery(true);yield break;
             }
             if(index==1)
             {

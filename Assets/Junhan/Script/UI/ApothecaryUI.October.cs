@@ -151,7 +151,7 @@ namespace Vampire
             }
             else if(Tab==1)
             {
-                var w=selection==0?null:weapons[selection-1];detail=w!=null?w.Description:"기본 침으로 시작합니다. 전투에서 원하는 침을 획득하세요.";
+                var w=selection==0?null:weapons[selection-1];detail=w!=null?(GStarDemo.Enabled?AugmentBrief.Parent(w.Type):w.Description):"기본 침으로 시작합니다. 전투에서 원하는 침을 획득하세요.";
                 int cost=StartingNeedleSelection.Price(w);need=$"{cost} 실버로 해금";action=has?"무기 장착":$"해금 · {cost}";can=has||SilverWallet.CanSpend(cost);
                 if(has && w!=null && !StartingNeedleSelection.Enabled(w)){action="후보 비활성화";can=false;detail+="\n체크를 켜면 장착·전투 중 증강 후보에 포함됩니다.";}
                 if(w!=null && !StartingNeedleSelection.Available(w.Type)){action="리메이크 준비 중";can=false;need="해금 불가";detail="리메이크 예정인 침입니다. 현재는 해금·장착·전투 중 획득할 수 없습니다.";}

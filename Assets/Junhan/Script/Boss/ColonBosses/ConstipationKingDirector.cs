@@ -64,7 +64,7 @@ namespace Vampire
             level.NotifyExternalFinalBossSpawned(); GameAudioManager.StartBossAudio();
             // The invitation can be used during any field event. Its summon announcement
             // must replace the paused field notice instead of waiting behind its queue.
-            Object.FindObjectOfType<StageEventToastUI>()?.ShowImmediateEncounter("왕의 변기가 역류합니다|변기 안에서 변비왕이 깨어나고 있습니다"); return true;
+            Object.FindObjectOfType<StageEventToastUI>()?.ShowImmediateEncounter("왕의 변기가 역류합니다|변비왕이 나타나면 탄막 사이로 피하세요."); return true;
         }
         public IEnumerator PresentSummon(ConstipationKingRuntime boss)
         {
@@ -97,7 +97,7 @@ namespace Vampire
             boss.Visual.SetVisible(true); boss.Visual.SetEmergence(1, Throne.BowlWorldY, 1);
             level.PlayerCharacter.StartIdleAnimation();
             Throne.CompleteSummoning(); Summoning = false; ReleasePause();
-            ColonBossDirector.ShowNotice("변비왕 등장", "변비왕의 지팡이 열쇠로 좌측 하단 봉인을 풀어주세요");
+            ColonBossDirector.ShowNotice("변비왕 등장", "변비왕을 처치하고 지팡이 열쇠를 챙기세요.");
         }
         public void NotifyDefeated(ConstipationKingRuntime boss)
         {

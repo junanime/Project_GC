@@ -81,7 +81,7 @@ namespace Vampire
         int scheduleIndex, foodSpawned;
         float contentClock = 24f;
         int contentIndex;
-        readonly OralEventKind[] contentBag = { OralEventKind.Sweet, OralEventKind.Boulder, OralEventKind.Salty,
+        readonly OralEventKind[] contentBag = { OralEventKind.Sweet, OralEventKind.Salty,
             OralEventKind.Sour, OralEventKind.Guard, OralEventKind.Bitter, OralEventKind.Spicy };
         bool triggered, ownsPause, priorPause, configured, quitting;
         Vector2 flowDirection, ceilingLanding, ceilingReturnOrigin;
@@ -143,7 +143,7 @@ namespace Vampire
             map = FiniteStomachMap.Instance;
             if (level == null || player == null || map == null) return;
             Instance = this; configured = true; quitting = false;
-            swallowSuppressed = false;
+            swallowSuppressed = false; earlyDoubleShield = null;
             choices.Clear();
             var data = level.CurrentLevelBlueprint;
             if (data != null && data.monsters != null)
@@ -165,8 +165,11 @@ namespace Vampire
             Ambient = ambientObject.AddComponent<OralAmbientContent>(); Ambient.Configure(level);
             Monster.Died += OnMonsterDied;
             nextEvent = 12; cooldown = 0; scheduleIndex = 0;
-            contentClock = 24; contentIndex = 0;
+            contentClock = 20; contentIndex = 0;
             Shuffle(cycle); Shuffle(contentBag);
+            // Give the first honey encounter a chance to demonstrate the map's pushable stones.
+            int honeySlot=Array.IndexOf(contentBag,OralEventKind.Sweet);
+            contentBag[honeySlot]=contentBag[0]; contentBag[0]=OralEventKind.Sweet;
         }
 
         void BuildCavities()
@@ -265,16 +268,16 @@ namespace Vampire
             flowDirection = new Vector2(UnityEngine.Random.value > .5f ? .45f : -.45f, -1).normalized;
             switch (kind)
             {
-                case OralEventKind.Jaw: Duration = 3.6f; TargetPosition = player.Position; Banner = "와작! | 치아 사이의 빈틈이나 혀로 피하세요"; break;
-                case OralEventKind.Food: Duration = 6.5f; Banner = "한입 들어온다! | 그림자를 피하고 쏟아지는 음식 몬스터를 처치하세요"; break;
-                case OralEventKind.Water: Duration = 8f; Banner = "물이 들어온다! | 물살을 피해 아랫니로 이동할 수 있어요"; break;
-                case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피가 지나가면 몬스터들이 빨라집니다"; break;
-                case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 보호막은 20초 뒤 사라져요. 침 3회로 먼저 깨세요"; break;
-                case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아 주변으로 피하거나 바람을 타세요"; break;
-                case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장 몬스터를 모두 처치하면 내려옵니다"; break;
-                case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 몬스터들이 3초 동안 공중에 뜹니다"; break;
-                case OralEventKind.Brush: Duration = Additions.Begin(kind); Banner = "칫솔 청소! | 가로 → 세로 → 가로, 세 번의 경로를 피하세요"; break;
-                case OralEventKind.BalloonDelivery: Duration = Additions.Begin(kind); Banner = "풍선껌 보물배송! | 풍선을 맞히면 레벨업 상자가 내려옵니다"; break;
+                case OralEventKind.Jaw: Duration = 3.6f; TargetPosition = player.Position; Banner = "와작! | 치아 사이 빈틈이나 혀로 피하세요"; break;
+                case OralEventKind.Food: Duration = 6.5f; Banner = "한입 들어온다! | 떨어지는 음식의 그림자 밖으로 피하세요"; break;
+                case OralEventKind.Water: Duration = 8f; Banner = "물이 들어온다! | 치아에 올라 물살에 덜 밀리세요"; break;
+                case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피콩이 도는 빠른 적과 거리를 벌리세요"; break;
+                case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 적의 거품을 침으로 세 번 맞혀 터뜨리세요"; break;
+                case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아에 올라 재채기 바람에 덜 밀리세요"; break;
+                case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장 몬스터를 모두 잡아 혀로 돌아오세요"; break;
+                case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 적들이 떠 있는 동안 빈 길로 이동하세요"; break;
+                case OralEventKind.Brush: Duration = Additions.Begin(kind); Banner = "칫솔 청소! | 세 번 지나가는 칫솔의 예고선 밖으로 피하세요"; break;
+                case OralEventKind.BalloonDelivery: Duration = Additions.Begin(kind); Banner = "풍선껌 보물배송! | 풍선을 터뜨려 떨어지는 상자를 챙기세요"; break;
             }
             GameAudioManager.PlaySfx(kind == OralEventKind.Jaw ? GameAudioManager.GameSfxId.DangerWave :
                 kind == OralEventKind.Ceiling ? GameAudioManager.GameSfxId.PeristalsisTilt :
@@ -314,20 +317,19 @@ namespace Vampire
                 OralStageRuntime.Instance.IsAirborne) return false;
             if (kind == OralEventKind.Spicy && (CurrentEvent == OralEventKind.Jaw || CurrentEvent == OralEventKind.Coffee)) return false;
             bool begun;
-            if (kind == OralEventKind.Boulder) begun = Ambient != null && Ambient.BeginBoulder();
-            else if (kind == OralEventKind.Guard) begun = Ambient != null && Ambient.BeginGuard();
+            if (kind == OralEventKind.Boulder) return false; // Map furniture; no event or banner.
+            if (kind == OralEventKind.Guard) begun = Ambient != null && Ambient.BeginGuard();
             else
             {
                 if (Tastes == null || Tastes.Active) return false;
                 begun = Tastes.Begin((OralTasteKind)((int)kind - (int)OralEventKind.Sweet));
             }
-            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 붉은 화상 원을 피해 빈 길로 이동하세요" :
-                kind == OralEventKind.Sweet ? "벌꿀집 발견! | 먹으러 모인 몬스터를 먼저 처치하세요" :
-                kind == OralEventKind.Salty ? "짠맛! | 소금결정 무리가 몰려옵니다" :
-                kind == OralEventKind.Sour ? "신맛! | 통레몬 스프링을 밟으면 가까운 치아로 튀어 올라요" :
-                kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
-                kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
-                "구강 수호대! | 민트 수호대를 지켜 혀 점프대까지 호위하세요");
+            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 붉은 화상 원 사이 빈 길로 피하세요" :
+                kind == OralEventKind.Sweet ? "벌꿀집 발견! | 꿀에 모인 적들을 한꺼번에 처치하세요" :
+                kind == OralEventKind.Salty ? "짠맛! | 몰려오는 소금결정 무리를 쓰러뜨리세요" :
+                kind == OralEventKind.Sour ? "신맛! | 레몬을 밟아 가까운 치아로 건너가세요" :
+                kind == OralEventKind.Bitter ? "쓴 한입! | 쓴맛 조각을 먹고 잠시 버텨 회복하세요" :
+                "구강 수호대! | 수호대를 지켜 혀 점프대까지 호위하세요");
             if(begun){TutorialGuide.QueueStageEvent("oral-"+kind.ToString().ToLowerInvariant());GStarAnalytics.Record("field_event_start","oral/"+kind);}
             return begun;
         }
@@ -401,6 +403,8 @@ namespace Vampire
         }
 
         readonly HashSet<Monster> sodaCoated=new HashSet<Monster>();
+        Monster earlyDoubleShield;
+        uint earlyDoubleGeneration;
         void TickSoda(float dt) {
             if(Elapsed<=1.2f||Elapsed>=8f)return;
             float progress=Mathf.Clamp01((Elapsed-1.2f)/6.8f),front=1.15f-progress*1.5f;
@@ -411,6 +415,12 @@ namespace Vampire
                 float wave=Mathf.Sin(uv.x*26+Elapsed*3)*.015f+Mathf.Sin(uv.x*51-Elapsed*4)*.006f;
                 float d=uv.y+(uv.x-.5f)*FlowDirection.x-front+wave;
                 if(OralMapGeometry.ZoneAt(map,monster.Position)!=OralZone.Tongue||d<0||d>.24f)continue;
+                if (GStarDemo.Enabled && level.CurrentLevelTime < 180f && monster.GetComponent<OralTartarArmor>()?.IsProtected == true)
+                {
+                    if (earlyDoubleShield != null && earlyDoubleShield != monster && earlyDoubleShield.IsAlive &&
+                        earlyDoubleShield.SpawnGeneration == earlyDoubleGeneration && earlyDoubleShield.GetComponent<MonsterNeedleBarrier>()?.IsProtected == true) continue;
+                    earlyDoubleShield=monster; earlyDoubleGeneration=monster.SpawnGeneration;
+                }
                 var shield=monster.GetComponent<MonsterNeedleBarrier>()??monster.gameObject.AddComponent<MonsterNeedleBarrier>();
                 shield.Arm();shield.SodaTint=true;sodaCoated.Add(monster);
             }
@@ -472,7 +482,7 @@ namespace Vampire
             var cavity = cavities[index];
             if (cavity.Healed || (player.Position - cavity.Position).sqrMagnitude > TreatmentRadius * TreatmentRadius) return false;
             cavity.Active = true;
-            Notify("충치 치료 시작 | 치아 주변에서 싸우세요. 피했다 돌아와도 진행도는 유지됩니다");
+            Notify("충치 치료 시작 | 빛나는 치아 곁에서 싸워 치료를 끝내세요");
             return true;
         }
 

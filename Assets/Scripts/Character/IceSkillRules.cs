@@ -13,6 +13,7 @@ namespace Vampire
         {
             if (MonsterNeedleBarrier.Blocks(target)) return;
             if (target == null || Ver4HitEffects.Health(target) <= 0) return;
+            if (target is Monster monster) GStarCombatPacing.Affected(monster);
             target.GetComponent<IceChillStatus>()?.Clear();
             // Preserve the existing boss resistance: chill instead of a complete stun.
             if (Ver4HitEffects.IsBoss(target))

@@ -795,6 +795,12 @@ namespace Vampire
             }
         }
 
+        internal static void PlayImpactClip(AudioClip clip, float gain)
+        {
+            if (clip != null && Instance != null && Instance.sfxSource != null && !StageEntryLoading.IsLoading && Time.timeScale > 0)
+                Instance.sfxSource.PlayOneShot(clip, gain);
+        }
+
         public static void PlaySfx(
             GameSfxId id)
         {

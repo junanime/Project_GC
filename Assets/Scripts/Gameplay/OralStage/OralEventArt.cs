@@ -7,9 +7,9 @@ namespace Vampire
     {
         static Sprite brush, balloon, burst, disc;
         static Material lineMaterial;
-        public static Sprite Brush => brush != null ? brush : brush = Crop("OralMap/EventBrush", 1, 1, 0, new Vector2(.85f,.22f));
-        public static Sprite Balloon => balloon != null ? balloon : balloon = Crop("OralMap/EventBalloon", 2, 2, 0, new Vector2(.5f,0));
-        public static Sprite Burst => burst != null ? burst : burst = Crop("OralMap/EventBalloon", 2, 2, 3, Vector2.one*.5f);
+        public static Sprite Brush => brush != null ? brush : brush = Crop("OralMap/EventBrush", 1774,887,new Rect(46,152,1683,569), new Vector2(.85f,.22f));
+        public static Sprite Balloon => balloon != null ? balloon : balloon = Crop("OralMap/EventBalloon", 1263,1246,new Rect(101,686,457,505), new Vector2(.5f,0));
+        public static Sprite Burst => burst != null ? burst : burst = Crop("OralMap/EventBalloon", 1263,1246,new Rect(723,146,430,387), Vector2.one*.5f);
         public static Sprite Disc
         {
             get
@@ -20,13 +20,15 @@ namespace Vampire
                 t.Apply();disc=UnityEngine.Sprite.Create(t,new Rect(0,0,64,64),Vector2.one*.5f,64);return disc;
             }
         }
-        static Sprite Crop(string resource,int cols,int rows,int index,Vector2 pivot)
+        internal static Rect ImportedRect(Texture2D texture, int width, int height, Rect native)
         {
-            var t=Resources.Load<Texture2D>(resource);if(t==null)return null;
-            int w=t.width/cols,h=t.height/rows,left=index%cols*w,bottom=(rows-1-index/cols)*h;
-            int minX=left+w,maxX=left,minY=bottom+h,maxY=bottom;var pixels=t.GetPixels32();
-            for(int y=bottom;y<bottom+h;y++)for(int x=left;x<left+w;x++)if(pixels[y*t.width+x].a>90){minX=Mathf.Min(x,minX);maxX=Mathf.Max(x,maxX);minY=Mathf.Min(y,minY);maxY=Mathf.Max(y,maxY);}
-            return UnityEngine.Sprite.Create(t,new Rect(minX,minY,maxX-minX+1,maxY-minY+1),pivot,100);
+            float x = texture.width / (float)width, y = texture.height / (float)height;
+            return new Rect(native.x*x,native.y*y,native.width*x,native.height*y);
+        }
+        static Sprite Crop(string resource,int width,int height,Rect native,Vector2 pivot)
+        {
+            var texture = Resources.Load<Texture2D>(resource);
+            return texture == null ? null : UnityEngine.Sprite.Create(texture,ImportedRect(texture,width,height,native),pivot,100);
         }
         public static SpriteRenderer Sprite(Transform parent,string name,Sprite sprite,int order=15)
         {

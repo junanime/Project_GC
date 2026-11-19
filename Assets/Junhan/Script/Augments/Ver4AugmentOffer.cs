@@ -17,6 +17,7 @@ namespace Vampire
         private Ver4AugmentRuntime owner;
         private string title, description;
         private bool consumed;
+        public int OwnedOriginalCount { get; private set; }
         public override string Name => title;
         public override string Description => description;
 
@@ -24,6 +25,8 @@ namespace Vampire
             Ability source, int option, float amount, string name, string text)
         {
             owner=runtime; Kind=kind; Grade=grade; Source=source; Parent=source as SyringeSpecialAugmentAbility;
+            OwnedOriginalCount = kind == Ver4RewardKind.Original && Parent != null && runtime != null
+                ? runtime.Progress.Count(Parent.Type.ToString(),option) : 0;
             Option=option; Amount=amount; title=name; description=text; image=source.Image;
             augmentTier=kind==Ver4RewardKind.LegendaryAbility ? AugmentTier.Legendary : AugmentTier.General;
             canAppearAsOwnedUpgrade=false;

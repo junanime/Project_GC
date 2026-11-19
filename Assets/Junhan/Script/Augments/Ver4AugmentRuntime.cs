@@ -56,10 +56,34 @@ namespace Vampire
             Combat=new Ver4CombatSnapshot(Progress);
         }
 
+        internal void SeedSignatureOriginals(SyringeSpecialAugmentAbility parent)
+        {
+            if (!GStarDemo.Enabled || !parent.Owned || !StartingNeedleSelection.Available(parent.Type) ||
+                (int)parent.Type != StartingNeedleSelection.DefaultId(playerCharacter.Blueprint)) return;
+            string id = parent.Type.ToString();
+            for (int i=0; i<OriginalAugmentProgress.EffectsPerParent; i++)
+            {
+                if (Progress.Count(id,i) != 0) continue;
+                var entry = new Acquisition { parent=id, original=true, option=i, grade=(int)AugmentUpgradeGrade.Original };
+                ApplyAcquisition(entry);
+                acquisitions.Add(JsonUtility.ToJson(entry));
+            }
+            level=1+acquisitions.Count;
+            RefreshProgress();
+        }
+
         public bool HasEligibleOriginal => parents != null && parents.Any(p=>p.Owned && StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p)
             && Enumerable.Range(0,3).Any(option=>Progress.CanSelect(p.Type.ToString(),option)));
 
-        public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount, bool guaranteeOriginal = false)
+        static bool ChangesTrajectory(ParentType type)
+        {
+            return type == ParentType.Pierce || type == ParentType.Homing ||
+                   type == ParentType.ReturnNeedle || type == ParentType.BipolarNeedle ||
+                   type == ParentType.Explosion || type == ParentType.AcupunctureFormation ||
+                   type == ParentType.VibrationNeedle;
+        }
+
+        public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount, bool guaranteeOriginal = false, bool favorTrajectory = false)
         {
             RefreshProgress();
             var result=new List<Ability>();
@@ -88,9 +112,14 @@ namespace Vampire
                 // Acquisition is a reward type decision, never a seventh grade.
                 // With no parent yet, expose three distinct acquisition choices.
                 bool forceOriginal = guaranteeOriginal && slot==0 && originals.Count>0;
-                if(!forceOriginal && newParents.Count>0 && (ownedParents.Count==0 || UnityEngine.Random.value<Balance.newSpecialChance))
+                var visible = slot==0 && favorTrajectory && !forceOriginal
+                    ? newParents.FindAll(p=>ChangesTrajectory(p.Type)) : null;
+                bool offerVisible = visible != null && visible.Count > 0;
+                if(!forceOriginal && newParents.Count>0 && (offerVisible || ownedParents.Count==0 || UnityEngine.Random.value<Balance.newSpecialChance))
                 {
-                    int index=UnityEngine.Random.Range(0,newParents.Count); var parent=newParents[index]; newParents.RemoveAt(index);
+                    var pool = offerVisible ? visible : newParents;
+                    var parent=pool[UnityEngine.Random.Range(0,pool.Count)];
+                    newParents.Remove(parent);
                     result.Add(Offer(Ver4RewardKind.NewSpecial,AugmentUpgradeGrade.Common,parent,0,0,
                         "특수 증강: "+ParentName(parent),parent.Description+"\n최초 획득 · 오리지널 Lv.0/9"));
                     continue;

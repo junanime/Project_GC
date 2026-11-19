@@ -59,7 +59,7 @@ namespace Vampire
         MeleeMonsterBlueprint saltBlueprint;
         int saltPool = -1, lastSpiceVariant = -1;
         float nextScan, saltClock, bouncePlayerCooldown, statusAge, bitterGlow;
-        bool bitterEaten, configured;
+        bool bitterEaten, configured, openedBowlingLane;
         sealed class HoneyGuest { public Monster Monster; public OralTasteLease Lease; public int Generation, Piece; public float Feed; }
         sealed class SpiceVisual { public Renderer Fill, Border, Flame; }
 
@@ -67,13 +67,13 @@ namespace Vampire
         {
             // Same-level reconfiguration may rebuild art, but keeps encounter history.
             // A new level or newly created controller begins without a previous layout.
-            if (Level != level) lastSpiceVariant = -1;
+            if (Level != level) { lastSpiceVariant = -1; openedBowlingLane=false; }
             CancelAll(); Level = level; map = FiniteStomachMap.Instance; Instance = this;
-            honey = LoadArt("Honeycomb", new Vector2(.5f, .12f));
-            lemon = LoadArt("LemonWhole", new Vector2(.5f, 0));
-            lemonSpring = LoadArt("LemonSpring", new Vector2(.5f, 0));
-            bitter = LoadArt("Bitter", new Vector2(.5f, .15f));
-            salt = LoadArt("Salt", new Vector2(.5f, 0)); spicy = Resources.Load<Texture2D>("OralMap/Events/SpicyCircle");
+            honey = LoadArt("Honeycomb", new Rect(267,126,952,807), new Vector2(.5f, .12f));
+            lemon = LoadArt("LemonWhole", new Rect(135,99,1241,812), new Vector2(.5f, 0));
+            lemonSpring = LoadArt("LemonSpring", new Rect(407,95,709,680), new Vector2(.5f, 0));
+            bitter = LoadArt("Bitter", Rect.zero, new Vector2(.5f, .15f));
+            salt = LoadArt("Salt", Rect.zero, new Vector2(.5f, 0)); spicy = Resources.Load<Texture2D>("OralMap/Events/SpicyCircle");
             var config = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             var bp = config != null && config.characters.Length > 0 ? config.characters[0] : level.PlayerCharacter.Blueprint;
             var body = level.PlayerCharacter.GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
@@ -84,16 +84,15 @@ namespace Vampire
             statusRoot.gameObject.SetActive(false);
             BuildSaltBlueprint(); configured = true;
         }
-        Sprite LoadArt(string name, Vector2 pivot)
+        Sprite LoadArt(string name, Rect nativeCrop, Vector2 pivot)
         {
             var texture = Resources.Load<Texture2D>("OralMap/Events/" + name); if (texture == null) return null;
             Rect rect = new Rect(0, 0, texture.width, texture.height);
-            if (texture.isReadable)
+            if (nativeCrop.width > 0)
             {
-                var pixels = texture.GetPixels32(); int l=texture.width,r=0,b=texture.height,t=0;
-                for (int y=0;y<texture.height;y++) for(int x=0;x<texture.width;x++) if(pixels[y*texture.width+x].a>40)
-                {l=Mathf.Min(l,x);r=Mathf.Max(r,x);b=Mathf.Min(b,y);t=Mathf.Max(t,y);}
-                if(r>l&&t>b) rect=new Rect(l,b,r-l+1,t-b+1);
+                // Native 1536x1024 art, measured at the 40/255 alpha threshold.
+                // Avoid three full-image CPU readbacks while loading the booth stage.
+                rect=OralEventArt.ImportedRect(texture,1536,1024,nativeCrop);
             }
             var sprite = Sprite.Create(texture,rect,pivot,100,0,SpriteMeshType.FullRect); sprite.name = "구강 " + name; owned.Add(sprite); return sprite;
         }
@@ -126,7 +125,16 @@ namespace Vampire
             if(kind==OralTasteKind.Sweet)
             {
                 HoneyFedCount=0;eaten.Clear();
-                for(int i=0;i<3;i++){var p=OralMapGeometry.Clamp(map,at+new Vector2((i-1)*2.4f,i%2*1.6f),1,OralZone.Tongue);honeyPositions.Add(p);honeyServings[i]=2;objects.Add(Prop(honey,"벌꿀집 · 흐르는 꿀",p,LemonLength*.65f));}
+                Vector2 axis=Vector2.zero, anchor=at;
+                var ambient=OralAmbientContent.Instance;
+                bool isLane=!openedBowlingLane && ambient!=null && ambient.TryHoneyLane(out anchor,out axis);
+                if(isLane) { at=anchor; openedBowlingLane=true; }
+                for(int i=0;i<3;i++)
+                {
+                    var offset=isLane?axis*((i-1)*1.12f):new Vector2((i-1)*2.4f,i%2*1.6f);
+                    var p=OralMapGeometry.Clamp(map,at+offset,1,OralZone.Tongue);
+                    honeyPositions.Add(p);honeyServings[i]=2;objects.Add(Prop(honey,"벌꿀집 · 흐르는 꿀",p,LemonLength*.65f));
+                }
                 for(int i=0;i<12;i++){var r=OralEventArt.Sprite(artRoot,"벌꿀집에서 흐르는 꿀방울",OralEventArt.Disc,20);r.color=new Color(1,.64f,.14f,.8f);GroundVisualSorting.Apply(r,20);honeyDrops.Add(r);}
             }
             else if(kind==OralTasteKind.Salty){SaltSpawnedCount=0;saltClock=.6f;}

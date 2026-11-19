@@ -40,7 +40,8 @@ namespace Vampire
             var d=owner.GetComponent<ColonBossDirector>()??owner.gameObject.AddComponent<ColonBossDirector>();
             d.level=owner;return d;
         }
-        public void PrepareStage(Vector2 entry)
+        public void PrepareStage(Vector2 entry) => PrepareStage(entry, null);
+        internal void PrepareStage(Vector2 entry, IReadOnlyList<HabitatPlacement> validatedHabitats)
         {
             var map=FiniteStomachMap.Instance;
             if(map==null||!map.IsColon) return;
@@ -52,7 +53,7 @@ namespace Vampire
                 var layout=level.GetComponent<FieldObjectLayout>();
                 // Reuse the habitat seed validated with the field layout under the loading screen.
                 Seed=layout!=null?layout.Seed^0x62B7:UnityEngine.Random.Range(0,int.MaxValue);
-                placements.AddRange(Generate(map,entry,Seed,layout?.Slots));
+                placements.AddRange(validatedHabitats ?? Generate(map,entry,Seed,layout?.Slots));
                 if(placements.Count!=6)throw new InvalidOperationException("Colon encounter layout must contain six homes.");
                 root=new GameObject("Stage 2 · six optional boss habitats").transform;root.SetParent(transform,false);
                 foreach(var slot in placements)
@@ -98,6 +99,10 @@ namespace Vampire
         public bool IsDefeated(ColonBossHabitat habitat)=>habitat!=null&&defeated.Contains(habitat);
 
         public static List<HabitatPlacement> Generate(FiniteStomachMap map,Vector2 entry,int seed,IReadOnlyList<FieldObjectLayout.Slot> props=null)
+            => GenerateWithReservations(map, entry, seed, props, null);
+
+        internal static List<HabitatPlacement> GenerateWithReservations(FiniteStomachMap map, Vector2 entry, int seed,
+            IReadOnlyList<FieldObjectLayout.Slot> props, List<HabitatPlacement> reserved)
         {
             if(map==null||!map.IsColon)throw new ArgumentException("Colon geometry required.",nameof(map));
             var rng=new System.Random(seed);var result=new List<HabitatPlacement>();
@@ -111,7 +116,7 @@ namespace Vampire
             }
             bool EntrySafe(Vector2 p)=>Vector2.Distance(p,entry)>=EntryClearance&&(p-finalThrone).sqrMagnitude>=81;
             if(props!=null) {
-                var reserved=Generate(map,entry,seed);
+                if (reserved == null) reserved = Generate(map,entry,seed);
                 if(reserved.TrueForAll(h=>ClearProps(h.position,PropClearance+(h.kind==ColonBossKind.Manatee?2:0))))return reserved;
             }
 

@@ -55,6 +55,7 @@ namespace Vampire
         {
             if(travelReserved || Started || !PlayerInside || !player.IsAlive || Time.timeScale<=0 || MiniStageRuntimeState.IsInsideMiniStage)return false;
             Started=true;
+            FindObjectOfType<LevelManager>()?.ReserveOverchargeLanes(this);
             observedDash=player.Skills!=null?player.Skills.DashSequence:0;
             FindObjectOfType<EntityManager>()?.SpawnOverchargeElite((Vector2)transform.position+Vector2.up*(RemakeBalance.Current.overchargeRadius+2));
             return true;

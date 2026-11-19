@@ -320,8 +320,14 @@ namespace Vampire.Tests.Editor
             int width = requestedWidth>0?requestedWidth:Mathf.Max(1, Screen.width), height = requestedHeight>0?requestedHeight:Mathf.Max(1, Screen.height);
             var overlays = Object.FindObjectsOfType<Canvas>().Where(c => c.isRootCanvas && c.renderMode == RenderMode.ScreenSpaceOverlay).OrderBy(c => c.sortingOrder).ToArray();
             var cameras = overlays.Select(c => c.worldCamera).ToArray(); var distances = overlays.Select(c => c.planeDistance).ToArray();
-            var layers = overlays.Select(c => c.sortingLayerID).ToArray(); var orders = overlays.Select(c => c.sortingOrder).ToArray();
-            var overrides = overlays.Select(c => c.overrideSorting).ToArray();
+            // Independently sorted child canvases (e.g. the reward modal) are drawn between
+            // overlays by the normal display. Include them when mapping into camera space.
+            var sorted = Object.FindObjectsOfType<Canvas>()
+                .Where(c => (c.isRootCanvas || c.overrideSorting) && overlays.Contains(c.rootCanvas))
+                .OrderBy(c => SortingLayer.GetLayerValueFromID(c.sortingLayerID))
+                .ThenBy(c => c.sortingOrder).ThenBy(c => c.renderOrder).ToArray();
+            var layers = sorted.Select(c => c.sortingLayerID).ToArray(); var orders = sorted.Select(c => c.sortingOrder).ToArray();
+            var overrides = sorted.Select(c => c.overrideSorting).ToArray();
             int captureLayer = SortingLayer.layers.OrderBy(layer => layer.value).Last().id;
             var targetBefore = camera.targetTexture; var activeBefore = RenderTexture.active;
             var target = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32); Texture2D pixels = null;
@@ -333,8 +339,11 @@ namespace Vampire.Tests.Editor
                 {
                     var canvas = overlays[i]; canvas.renderMode = RenderMode.ScreenSpaceCamera;
                     canvas.worldCamera = camera; canvas.planeDistance = camera.nearClipPlane + .1f;
-                    canvas.overrideSorting = true; canvas.sortingLayerID = captureLayer;
-                    canvas.sortingOrder = 32760 - (overlays.Length - 1 - i);
+                }
+                for (int i = 0; i < sorted.Length; i++)
+                {
+                    sorted[i].overrideSorting = true; sorted[i].sortingLayerID = captureLayer;
+                    sorted[i].sortingOrder = 32760 - (sorted.Length - 1 - i);
                 }
                 Canvas.ForceUpdateCanvases(); camera.Render(); RenderTexture.active = target;
                 pixels = new Texture2D(width, height, TextureFormat.RGB24, false); pixels.ReadPixels(new Rect(0, 0, width, height), 0, 0); pixels.Apply();
@@ -346,7 +355,10 @@ namespace Vampire.Tests.Editor
                 for (int i = 0; i < overlays.Length; i++)
                 {
                     overlays[i].renderMode = RenderMode.ScreenSpaceOverlay; overlays[i].worldCamera = cameras[i]; overlays[i].planeDistance = distances[i];
-                    overlays[i].sortingLayerID = layers[i]; overlays[i].sortingOrder = orders[i]; overlays[i].overrideSorting = overrides[i];
+                }
+                for (int i = 0; i < sorted.Length; i++)
+                {
+                    sorted[i].sortingLayerID = layers[i]; sorted[i].sortingOrder = orders[i]; sorted[i].overrideSorting = overrides[i];
                 }
                 camera.targetTexture = targetBefore; RenderTexture.active = activeBefore; RenderTexture.ReleaseTemporary(target);
                 if (pixels != null) Object.Destroy(pixels); Canvas.ForceUpdateCanvases();

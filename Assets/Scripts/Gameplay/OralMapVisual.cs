@@ -310,15 +310,19 @@ namespace Vampire
             }
             bool showHud=!StageEntryLoading.IsLoading&&!runtime.Level.IsLevelEnded&&(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
             hud.SetActive(showHud);
-            title.text=events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
+            // The booth toast already owns the event's action line. Do not repeat it over the field.
+            title.text=!GStarDemo.Enabled&&events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
+            hint.enabled=!GStarDemo.Enabled || swallow!=null;
             hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
             if(swallow!=null)
             {
                 // One existing HUD owns the finale too; two overlapping event
                 // banners never compete with the surviving actors and water.
                 float age=swallow.Age;
+                // Show each new action for four seconds; the survival countdown remains legible on its own.
+                hint.enabled=!GStarDemo.Enabled || age<4 || (age>=16 && age<24 && !swallow.IsSwallowing);
                 title.text=age<10?"꿀꺽 이벤트 · 음식 몬스터가 몰려옵니다!":age<16?"협곡에 물이 차오르고 있습니다!":age<20?"몸의 주인이 음식을 삼키려 합니다!":swallow.IsSwallowing?(GStarDemo.Enabled?"꿀꺽! · 구강 탐험 완료":"꿀꺽! · 스테이지 1로 이동합니다"):"꿀꺽 이벤트 · "+Mathf.CeilToInt(swallow.SurvivalRemaining)+"초만 더 버티세요!";
-                hint.text=age<16?"물살이 곧 혀 위까지 차오릅니다":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"물과 음식이 식도로 쓸려갑니다":"소용돌이를 피하세요 · 빨려들면 대쉬 한 번으로 탈출!";
+                hint.text=age<16?"혀 위에서 음식 몬스터를 피하세요":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"끝까지 살아남았어요":"소용돌이에 잡히면 대시로 빠져나오세요";
             }
         }
         void AnimateTongue(OralEventKind kind,float elapsed,bool ceiling)

@@ -5,7 +5,7 @@ namespace Vampire
 {
     // Finite, fixed world terrain. Mesh chunks share one macro layer and one world-pixel grid.
     [DefaultExecutionOrder(500)]
-    public sealed class FiniteStomachMap : MonoBehaviour
+    public sealed partial class FiniteStomachMap : MonoBehaviour
     {
         public Rect WorldRect { get; private set; }
         public StomachMapDefinition Definition { get; private set; }
@@ -30,6 +30,8 @@ namespace Vampire
             if(FloorTexture!=null)Destroy(FloorTexture);
             if(distanceTexture!=null)Destroy(distanceTexture);
             if(wallCoordinateTexture!=null)Destroy(wallCoordinateTexture);
+            UsingBakedTerrain=false;
+            distanceSamples=null; floorSamples=null; FloorTexture=null; distanceTexture=null; wallCoordinateTexture=null;
             var previous=WorldRect;
             Definition=definition; boundaryLength=0; Build(previous.min);
             nextOverview=0;
@@ -61,7 +63,17 @@ namespace Vampire
             if (existing != null) return existing;
             var map=owner.gameObject.AddComponent<FiniteStomachMap>();
             map.level=owner; map.Definition=definition; map.legacy=background;
-            map.Build(); return map;
+            if (StageEntryLoading.SkipStomachTerrain)
+            {
+                // Both direct routes replace this definition before combat or rendering.
+                Instance = map;
+                Vector2 origin = (Vector2)owner.PlayerCharacter.transform.position - Vector2.Scale(definition.startUV, definition.Size);
+                map.WorldRect = new Rect(origin, definition.Size);
+                map.boundary = map.CreateBoundary();
+                map.PrepareBoundary();
+            }
+            else map.Build();
+            return map;
         }
 
         void Build(Vector2? fixedOrigin = null)
@@ -74,7 +86,7 @@ namespace Vampire
             material.SetVector("_MapRect",new Vector4(origin.x,origin.y,size.x,size.y));
             material.SetFloat("_PixelSize",Definition.pixelWorldSize);
             int cols=Mathf.CeilToInt(size.x/Definition.chunkSize), rows=Mathf.CeilToInt(size.y/Definition.chunkSize);
-            for(int y=0;y<rows;y++) for(int x=0;x<cols;x++)
+            for(int y=0;!IsOral && y<rows;y++) for(int x=0;x<cols;x++)
             {
                 float left=origin.x+x*Definition.chunkSize, bottom=origin.y+y*Definition.chunkSize;
                 float width=Mathf.Min(Definition.chunkSize,WorldRect.xMax-left);
@@ -92,13 +104,9 @@ namespace Vampire
                 chunks.Add(go); meshes.Add(mesh);
             }
             boundary=CreateBoundary();
-            boundaryLengths=new float[boundary.Length];
-            for(int i=0;i<boundary.Length;i++)
-            {
-                boundaryLengths[i]=boundaryLength;
-                boundaryLength+=Vector2.Distance(boundary[i],boundary[(i+1)%boundary.Length]);
-            }
-            BuildDistanceField();
+            PrepareBoundary();
+            // The oral stage draws its own floor and tests its tongue/jaw geometry directly.
+            if (!IsOral && !TryLoadTerrainBake()) BuildDistanceField();
             StomachSlopeBody.Ensure(level.PlayerCharacter.gameObject);
             if(legacy!=null && !legacySuppressed)
             {
@@ -113,6 +121,15 @@ namespace Vampire
         }
 
         public Vector2 UVToWorld(Vector2 uv) => WorldRect.min+Vector2.Scale(uv,WorldRect.size);
+        void PrepareBoundary()
+        {
+            boundaryLengths=new float[boundary.Length];
+            for(int i=0;i<boundary.Length;i++)
+            {
+                boundaryLengths[i]=boundaryLength;
+                boundaryLength+=Vector2.Distance(boundary[i],boundary[(i+1)%boundary.Length]);
+            }
+        }
         bool legacySuppressed;
 
         // A smooth closed outline just inside the outer rim. Both anatomical openings remain
@@ -190,11 +207,11 @@ namespace Vampire
             return inside?distance:-distance;
         }
 
-        void BuildDistanceField()
+        void SampleTerrain(out Color[] visualSamples, out Color[] wallCoordinates)
         {
             distanceSamples=new Color[FieldResolution*FieldResolution];
-            var visualSamples=IsColon?new Color[distanceSamples.Length]:distanceSamples;
-            var wallCoordinates=new Color[distanceSamples.Length];
+            visualSamples=IsColon?new Color[distanceSamples.Length]:distanceSamples;
+            wallCoordinates=new Color[distanceSamples.Length];
             for(int y=0;y<FieldResolution;y++)for(int x=0;x<FieldResolution;x++)
             {
                 var at=UVToWorld(new Vector2(x/(float)(FieldResolution-1),y/(float)(FieldResolution-1)));
@@ -211,6 +228,21 @@ namespace Vampire
                     wallCoordinates[y*FieldResolution+x]=new Color(vp.x,vp.y,0,1);
                 }
             }
+            if (!IsColon) { floorSamples = null; return; }
+            floorSamples=new float[FieldResolution*FieldResolution];
+            for(int y=0;y<FieldResolution;y++)for(int x=0;x<FieldResolution;x++){
+                float d=FloorClearance(UVToWorld(new Vector2(x/(float)(FieldResolution-1),y/(float)(FieldResolution-1))),true);
+                floorSamples[y*FieldResolution+x]=d;}
+        }
+
+        void BuildDistanceField()
+        {
+            SampleTerrain(out var visualSamples, out var wallCoordinates);
+            UploadTerrain(visualSamples, wallCoordinates);
+        }
+
+        void UploadTerrain(Color[] visualSamples, Color[] wallCoordinates)
+        {
             // This is numerical geometry data, not a resized background image.
             distanceTexture=new Texture2D(FieldResolution,FieldResolution,TextureFormat.RGBAFloat,false,true);
             distanceTexture.name="Stomach signed distance / inward normal";
@@ -223,20 +255,16 @@ namespace Vampire
             wallCoordinateTexture.SetPixels(wallCoordinates);wallCoordinateTexture.Apply(false,true);
             material.SetTexture("_WallCoordinateTex",wallCoordinateTexture);
             material.SetFloat("_WallWidth",WallWidth);
-            if(!IsColon){floorSamples=null;if(FloorTexture!=null)Destroy(FloorTexture);FloorTexture=null;return;}
-            floorSamples=new float[FieldResolution*FieldResolution];var colors=new Color[floorSamples.Length];
-            for(int y=0;y<FieldResolution;y++)for(int x=0;x<FieldResolution;x++){
-                float d=FloorClearance(UVToWorld(new Vector2(x/(float)(FieldResolution-1),y/(float)(FieldResolution-1))),true);
-                floorSamples[y*FieldResolution+x]=d;colors[y*FieldResolution+x]=new Color(d,0,0,1);}
-            if(FloorTexture!=null)Destroy(FloorTexture);
+            if (floorSamples == null) return;
             FloorTexture=new Texture2D(FieldResolution,FieldResolution,TextureFormat.RFloat,false,true);
             FloorTexture.wrapMode=TextureWrapMode.Clamp;FloorTexture.filterMode=FilterMode.Bilinear;
-            FloorTexture.SetPixels(colors);FloorTexture.Apply();
+            FloorTexture.SetPixelData(floorSamples,0);
+            FloorTexture.Apply(false,true);
         }
 
         public float DistanceToRim(Vector2 p,out Vector2 inward)
         {
-            if(!WorldRect.Contains(p))return ExactDistance(p,out inward);
+            if(distanceSamples == null || !WorldRect.Contains(p))return ExactDistance(p,out inward);
             Vector2 uv=(p-WorldRect.min); uv=new Vector2(uv.x/WorldRect.width,uv.y/WorldRect.height);
             float x=uv.x*(FieldResolution-1),y=uv.y*(FieldResolution-1);
             int ix=Mathf.Clamp(Mathf.FloorToInt(x),0,FieldResolution-2),iy=Mathf.Clamp(Mathf.FloorToInt(y),0,FieldResolution-2);
@@ -406,7 +434,7 @@ namespace Vampire
 
         void LateUpdate()
         {
-            if(level==null || Definition==null) return;
+            if(level==null || Definition==null || material==null) return;
             if(overviewTexture!=null && ApothecaryUI.Instance!=null && ApothecaryUI.Instance.Page=="run" && FieldActive &&
                 !MiniStageRuntimeState.IsInsideMiniStage && Time.unscaledTime>=nextOverview)CaptureOverview();
             var stage=level.GetComponent<StageProgression>();
@@ -442,6 +470,7 @@ namespace Vampire
         void OnDestroy()
         {
             if(Instance==this)Instance=null;
+            if(FloorTexture!=null)Destroy(FloorTexture);
             if(distanceTexture!=null)Destroy(distanceTexture);
             if(wallCoordinateTexture!=null)Destroy(wallCoordinateTexture);
             if(overviewTexture!=null){overviewTexture.Release();Destroy(overviewTexture);}

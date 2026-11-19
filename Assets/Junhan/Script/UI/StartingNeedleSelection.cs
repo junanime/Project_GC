@@ -68,10 +68,17 @@ namespace Vampire
         {
             if(manager==null)return;
             var config=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
-            var selected=config!=null?Selected(config,character!=null?character:CrossSceneData.CharacterBlueprint):null;
-            if(selected==null)return;
-            var ability=manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true).FirstOrDefault(w=>w.Type==selected.Type);
-            if(ability!=null&&Owned(ability)&&!ability.Owned)manager.AcquireVer4Ability(ability);
+            character = character != null ? character : CrossSceneData.CharacterBlueprint;
+            var selected = config != null ? Selected(config,character) : null;
+            var parents = manager.GetComponentsInChildren<SyringeSpecialAugmentAbility>(true);
+            var chosen = selected != null ? parents.FirstOrDefault(w=>w.Type==selected.Type) : null;
+            if (chosen != null && !chosen.Owned) manager.AcquireVer4Ability(chosen);
+
+            // Scene restore rebuilds parents and their exact saved acquisition ledger.
+            if (!GStarDemo.Enabled || character == null || CrossSceneData.HasPendingRunSceneTransfer) return;
+            var signature = parents.FirstOrDefault(w=>(int)w.Type==DefaultId(character));
+            if (signature != null && (signature.Owned || manager.AcquireVer4Ability(signature, true)))
+                manager.Ver4.SeedSignatureOriginals(signature);
         }
     }
 }

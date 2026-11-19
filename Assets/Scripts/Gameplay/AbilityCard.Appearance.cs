@@ -143,6 +143,7 @@ namespace Vampire
 
         string PanelDescription()
         {
+            if (GStarDemo.Enabled) return AugmentBrief.For(ability);
             // Noble acquisition rules live in the prescription. Reserve the card for its effect.
             if (UsesNoblePanel) return (ability is Ver4AugmentOffer nobleOffer ? nobleOffer.Source.Description : ability.Description).Trim();
             if (!(ability is Ver4AugmentOffer offer) || !themedCard) return ability.Description;

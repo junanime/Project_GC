@@ -110,7 +110,11 @@ namespace Vampire
             if(IsShini)Breath?.Cancel();
             if(IsAri) GetComponent<AriSkillRuntime>()?.BeginDash();
         }
-        public void DashStep(Vector2 from,Vector2 to) { if(IsAri)GetComponent<AriSkillRuntime>()?.Sweep(from,to); }
+        public void DashStep(Vector2 from,Vector2 to)
+        {
+            OralAmbientContent.Instance?.PushAlongDash(owner,from,to,DashSequence);
+            if(IsAri)GetComponent<AriSkillRuntime>()?.Sweep(from,to);
+        }
         public int ProjectileCount(int count) => Mathf.Max(1,count) * (AshiActive ? 2 : 1);
         public bool TryActivate()
         {

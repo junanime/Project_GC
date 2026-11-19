@@ -254,6 +254,7 @@ namespace Vampire
             Health = Mathf.Max(0, Health - damage);
             if (Health <= 0)
             {
+                if (tribute) owner.GiftIntercepted();
                 GetComponent<FoodBossCombatStatus>()?.Defeated(); RunScore.Current?.NormalKill();
                 owner.Level.EntityManager.SpawnExpGem(FiniteStomachMap.SafeSpawn(transform.position, .18f), GemType.White1, true);
                 Destroy(gameObject);

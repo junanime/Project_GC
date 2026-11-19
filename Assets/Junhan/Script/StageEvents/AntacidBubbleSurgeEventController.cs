@@ -448,7 +448,7 @@ namespace Vampire
         {
             if (eventToastUI != null)
             {
-                eventToastUI.Show(message);
+                eventToastUI.ShowField(StageEventVisualKind.Antacid, message);
             }
 
             if (debugLog)

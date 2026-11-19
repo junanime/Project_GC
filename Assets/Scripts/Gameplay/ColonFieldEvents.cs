@@ -37,6 +37,7 @@ namespace Vampire
         ColonEventVisual visual;
         float nextEvent = 90, nextResidue, contactCooldown;
         int emitted, bagIndex;
+        readonly Dictionary<Monster,uint> windContacts = new Dictionary<Monster,uint>();
         readonly List<Monster> scratch = new List<Monster>();
         readonly ColonEventKind[] bag = { ColonEventKind.Expulsion, ColonEventKind.Absorption, ColonEventKind.Residue, ColonEventKind.Nutrients };
         SnailSlowStatus slow;
@@ -56,13 +57,20 @@ namespace Vampire
             { if (Current != ColonEventKind.None) Cancel(); return; }
             if (Paused) { slow?.Exit(GetInstanceID(), 0); return; }
             float dt = Time.deltaTime; Clock += dt;
+            if (Current == ColonEventKind.Expulsion && GStarDemo.Enabled && NearBoss())
+            {
+                Cancel();
+                nextEvent = Level.CurrentLevelTime + 45;
+                return;
+            }
             if (Current == ColonEventKind.None)
             {
                 if (AutoSchedule && Level.CurrentLevelTime >= nextEvent)
                 {
                     if (bagIndex == 0) for (int i = bag.Length - 1; i > 0; i--)
                     { int j = UnityEngine.Random.Range(0, i + 1); var k = bag[i]; bag[i] = bag[j]; bag[j] = k; }
-                    Begin(bag[bagIndex]); bagIndex = (bagIndex + 1) % bag.Length;
+                    if (Begin(bag[bagIndex])) bagIndex = (bagIndex + 1) % bag.Length;
+                    else nextEvent = Level.CurrentLevelTime + 5;
                 }
                 return;
             }
@@ -84,9 +92,44 @@ namespace Vampire
             foreach (var m in scratch)
             {
                 if (m == null || !m.IsAlive || m.IsMiniStageOwned || m.IsFieldRuntimeSuspended || m is BossMonster || m is BloodClotMonster || m.Blueprint is BossMonsterBlueprint) continue;
-                Push(m.transform, Flow.Direction(m.Position) * speed * 1.75f * Strength * Time.fixedDeltaTime, Mathf.Clamp(m.Size.magnitude * .2f, .15f, .5f));
+                Vector2 start = m.transform.position;
+                float radius = Mathf.Clamp(m.Size.magnitude * .2f, .15f, .5f);
+                Vector2 direction = Flow.Direction(start, out var blockedDirection);
+                Vector2 delta = direction * speed * 1.75f * Strength * Time.fixedDeltaTime;
+                var end = Push(m.transform, delta, radius);
+                if (!GStarDemo.Enabled || Strength <= .35f || !GStarFieldBalance.IsOrdinary(m)
+                    || (ColonMonsterRoster.Active?.IsSpecial(m.Blueprint) ?? false)) continue;
+                if (blockedDirection.sqrMagnitude > .5f && HitsBend(start,blockedDirection,radius))
+                    TryWindStagger(m,blockedDirection);
+                else if (delta.sqrMagnitude > .000001f && ((end-start).sqrMagnitude < delta.sqrMagnitude*.45f || HitsBend(end,direction,radius)))
+                    TryWindStagger(m,direction);
             }
         }
+        bool HitsBend(Vector2 at,Vector2 direction,float radius)
+        {
+            return Map.FloorClearance(at) <= radius+.48f &&
+                Map.FloorClearance(at+direction*.45f) < radius+.1f;
+        }
+
+        bool NearBoss()
+        {
+            foreach (var boss in ColonBossRuntime.Active)
+                if (boss != null && !boss.Dead && ((Vector2)boss.transform.position-Player.Position).sqrMagnitude<225f) return true;
+            foreach (var king in ConstipationKingRuntime.Active)
+                if (king != null && !king.Dead && ((Vector2)king.transform.position-Player.Position).sqrMagnitude<225f) return true;
+            return false;
+        }
+
+        internal void TryWindStagger(Monster monster, Vector2 direction)
+        {
+            if (windContacts.TryGetValue(monster,out uint generation) && generation==monster.SpawnGeneration) return;
+            windContacts[monster] = monster.SpawnGeneration;
+            var status = monster.GetComponent<NeuralBlockedMonsterStatus>() ?? monster.gameObject.AddComponent<NeuralBlockedMonsterStatus>();
+            status.Apply(.7f,false);
+            if (status.Active && (monster.Position-Player.Position).sqrMagnitude<64f)
+                GStarFieldStreak.Draw(Level,monster.Position,direction,new Color(.85f,1,.86f,.8f));
+        }
+
         public Vector2 Push(Transform actor, Vector2 displacement, float radius)
         {
             Vector2 start = actor.position;
@@ -98,12 +141,13 @@ namespace Vampire
         public bool Begin(ColonEventKind kind)
         {
             if (Paused || Map == null || !Map.IsColon || !Player.IsAlive || Level.IsLevelEnded || kind == ColonEventKind.None) return false;
+            if (GStarDemo.Enabled && kind==ColonEventKind.Expulsion && NearBoss()) return false;
             Cancel(); Current = kind; Age = 0; Collected = Broken = emitted = 0; nextResidue = WarningSeconds;
             Origin = Map.ClampToFloor(Player.Position, 2); Duration = kind == ColonEventKind.Nutrients ? 24 : kind == ColonEventKind.Absorption ? 18 : 14;
-            string title = kind == ColonEventKind.Expulsion ? "대변 배출|통로를 따라 강한 바람이 붑니다 · 반대로 이동해 저항하세요" :
-                kind == ColonEventKind.Absorption ? "수분 흡수|마른 바닥은 느려집니다 · 촉촉한 길을 따라 이동하세요" :
+            string title = kind == ColonEventKind.Expulsion ? "대변 배출|바람을 거슬러 이동하거나 옆 통로로 피하세요" :
+                kind == ColonEventKind.Absorption ? "수분 흡수|촉촉한 길을 따라 마른 바닥을 피하세요" :
                 kind == ColonEventKind.Residue ? "찌꺼기 대이동|굴러오는 찌꺼기를 부숴 길을 여세요" :
-                "잔여 영양분 노출|공격할 필요 없어요 · 가까이에서 상호작용해 바로 획득";
+                "잔여 영양분 노출|영양분에 다가가 상호작용해 획득하세요";
             var toast = FindObjectOfType<StageEventToastUI>() ?? gameObject.AddComponent<StageEventToastUI>(); toast.ShowImmediateEncounter(title);
             if (kind == ColonEventKind.Absorption) BuildDry();
             if (kind == ColonEventKind.Nutrients) BuildNutrients();
@@ -172,7 +216,7 @@ namespace Vampire
         }
         public void Cancel()
         {
-            slow?.Exit(GetInstanceID(), 0); DryCenters.Clear();
+            slow?.Exit(GetInstanceID(), 0); DryCenters.Clear(); windContacts.Clear();
             foreach (var p in Nutrients) if (p != null) Destroy(p.gameObject); Nutrients.Clear();
             foreach (var r in Residues) if (r != null) Destroy(r.gameObject); Residues.Clear();
             Current = ColonEventKind.None; Age = Duration = 0; visual?.Clear();
@@ -211,8 +255,10 @@ namespace Vampire
             }
         }
         Vector2 Point(int i) => map.WorldRect.min + new Vector2(i % w + .5f, i / w + .5f) * Cell;
-        public Vector2 Direction(Vector2 p)
+        public Vector2 Direction(Vector2 p) => Direction(p, out _);
+        internal Vector2 Direction(Vector2 p, out Vector2 blockedDirection)
         {
+            blockedDirection = Vector2.zero;
             var local = (p - map.WorldRect.min) / Cell;
             int x = Mathf.Clamp((int)local.x, 0, w - 1), y = Mathf.Clamp((int)local.y, 0, h - 1), at = y * w + x;
             Vector2 sum = Vector2.zero; float weight = 0;
@@ -227,7 +273,10 @@ namespace Vampire
             if (weight == 0) return Vector2.zero;
             var dir = sum.normalized;
             if (map.FloorClearance(p + dir * .5f) < .22f)
+            {
+                blockedDirection = dir;
                 return Vector2.zero;
+            }
             return dir;
         }
     }

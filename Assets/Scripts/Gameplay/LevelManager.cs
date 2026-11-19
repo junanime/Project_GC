@@ -43,6 +43,13 @@ namespace Vampire
 
         public float CurrentLevelTime => levelTime;
         public float LevelDuration => levelBlueprint != null ? levelBlueprint.levelTime : 0f;
+        readonly GStarWaveFormation waveFormation = new GStarWaveFormation();
+
+        public void ReserveOverchargeLanes(BloodClotOvercharge clot)
+        {
+            if (GStarDemo.Enabled) waveFormation.Reserve(this, clot);
+        }
+
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
@@ -59,6 +66,7 @@ namespace Vampire
 
             levelTime = 0f;
             bonusWaveTenths = 0;
+            waveFormation.Reset();
             SpawnPotionRemaining = 0f;
             if(gameTimer!=null)gameTimer.SetTime(LevelDuration);
             timeSinceLastMonsterSpawned = 0f;
@@ -130,6 +138,7 @@ namespace Vampire
             levelBlueprint = next;
             levelTime = 0f;
             bonusWaveTenths = 0;
+            waveFormation.Reset();
             NormalMonstersSpawned = 0;
             SpawnPotionRemaining = 0f;
             timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
@@ -213,6 +222,8 @@ namespace Vampire
                 ? 1.0f / spawnRate
                 : float.PositiveInfinity;
 
+            if (GStarDemo.Enabled && monsterSpawnDelay - timeSinceLastMonsterSpawned <= .75f)
+                waveFormation.Preview(this);
             while (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
             {
                 SpawnMonsterFromSpawnTable();
@@ -231,7 +242,7 @@ namespace Vampire
             float normalizedTime = GetNormalizedLevelTime();
 
             int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
-            var spawned = TrySpawnMonsterByFlatIndex(monsterIndex, 1f);
+            var spawned = TrySpawnMonsterByFlatIndex(monsterIndex, 1f, true);
             int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance);
             if (bonus == 0 || !GStarFieldBalance.IsOrdinary(spawned)) return;
             // Preserve each original wave roll (including every special). Only successful
@@ -240,7 +251,7 @@ namespace Vampire
             if (bonusWaveTenths >= 10)
             {
                 bonusWaveTenths -= 10;
-                TrySpawnMonsterByFlatIndex(monsterIndex, 1f);
+                TrySpawnMonsterByFlatIndex(monsterIndex, 1f, true);
             }
         }
 
@@ -300,7 +311,7 @@ namespace Vampire
             TrySpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
         }
 
-        private Monster TrySpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier)
+        private Monster TrySpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier, bool wave = false)
         {
             if (levelBlueprint == null || entityManager == null)
             {
@@ -352,7 +363,15 @@ namespace Vampire
             float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
             float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
-            Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
+            var group = levelBlueprint.monsters[poolIndex];
+            Vector2 position = default;
+            bool formed = wave && GStarDemo.Enabled && monsterBlueprint.GetType() == typeof(MeleeMonsterBlueprint)
+                && group.monstersPrefab != null && group.monstersPrefab.TryGetComponent<Monster>(out var prototype)
+                && prototype.GetType() == typeof(MeleeMonster)
+                && (!ColonMonsterRoster.InColon || !ColonMonsterRoster.Active.IsSpecial(monsterBlueprint))
+                && waveFormation.TryPosition(this, out position);
+            var spawned = formed ? entityManager.SpawnMonster(poolIndex, position, monsterBlueprint, extraHp)
+                : entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
             if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
             return spawned;
         }

@@ -13,6 +13,7 @@ namespace Vampire
         public static StageEntryLoading Instance { get; private set; }
         public static bool IsLoading => Instance != null && Instance.running;
         public static bool DefersInitialField => IsLoading && (Instance.entryStage == 0 || Instance.entryStage == 2);
+        public static bool SkipStomachTerrain => DefersInitialField && !Instance.practiceBeforeOral;
         public float Progress { get; private set; }
         public string CharacterKey { get; private set; }
         public RectTransform RunnerRect => runner != null ? runner.rectTransform : null;
@@ -28,9 +29,23 @@ namespace Vampire
         Sprite[] frames;
         Image[] peepers;
         Sprite[][] peeperFrames;
+        Sprite[] oralPeepers;
         float elapsed, baseRunnerHeight;
-        bool running, ownsPause, ownsFont, practiceBeforeOral;
+        bool running, ownsPause, practiceBeforeOral;
         AsyncOperation operation;
+        UnityEngine.ThreadPriority previousLoadingPriority;
+        bool boostedLoading;
+        void SetLoadingPriority(bool active)
+        {
+            if (active == boostedLoading) return;
+            if (active)
+            {
+                previousLoadingPriority = Application.backgroundLoadingPriority;
+                Application.backgroundLoadingPriority = UnityEngine.ThreadPriority.High;
+            }
+            else Application.backgroundLoadingPriority = previousLoadingPriority;
+            boostedLoading = active;
+        }
         Action failed;
         int entryStage=1;
         float transferProgressStart;
@@ -56,7 +71,7 @@ namespace Vampire
             }
             view.failed = onFailure;
             view.entryStage=stage;
-            if(stage==2)view.SetColonLabels();if(stage==0)view.SetOralLabels();
+            if(stage==2)view.SetColonLabels();if(stage==0 && !practice)view.SetOralLabels();
             view.practiceBeforeOral = practice;
             if (practice)
             {
@@ -100,21 +115,45 @@ namespace Vampire
         }
         void SetOralLabels()
         {
+            SetOralPeepers();
             heading.text="구강으로 이동 중…";
             foreach(var label in GetComponentsInChildren<TextMeshProUGUI>())if(label.name=="Stage")label.text="STAGE 00  ·  구강";
+        }
+        void SetOralPeepers()
+        {
+            if (oralPeepers != null) return;
+            var source = Resources.Load<Texture2D>("OralMap/Monsters");
+            if (source == null) return;
+            oralPeepers = new Sprite[peepers.Length];
+            for (int i = 0; i < peepers.Length; i++)
+            {
+                // Use the field's alpha-trimmed food, never an entire atlas/animation sheet.
+                var sprite = oralPeepers[i] = OralMonsterRoster.CreateBody(source,i);
+                peeperFrames[i] = new[] { sprite };
+                var p = peepers[i];
+                p.sprite = sprite;
+                p.rectTransform.sizeDelta = new Vector2(64,57);
+                p.rectTransform.anchoredPosition = new Vector2(0,2);
+            }
         }
         void SetColonLabels()
         {
             heading.text="대장으로 이동 중…";
             foreach(var label in GetComponentsInChildren<TextMeshProUGUI>())if(label.name=="Stage")label.text="STAGE 02  ·  대장";
         }
-        public void CompleteStageTransfer(){running=false;Destroy(gameObject);}
+        public void CompleteStageTransfer(){SetLoadingPriority(false);running=false;Destroy(gameObject);}
         // Keep the departure overlay and its progress when the shared scene becomes stage two.
         public void ContinueAsColonTransfer()
         {
             transferProgressStart=Progress;
             ownsPause=false;
             SetColonLabels();
+        }
+        public void ContinueAsOralTransfer()
+        {
+            transferProgressStart = Progress;
+            ownsPause = false;
+            SetOralLabels();
         }
         public void SetTransferProgress(float progress)
         {
@@ -200,17 +239,19 @@ namespace Vampire
             // Hold the visitor's consumables for the scored scene; training uses a fresh actor.
             var practiceItems = practiceBeforeOral ? CrossSceneData.StartingLobbyItems : null;
             if (practiceBeforeOral) CrossSceneData.ClearStartingLobbyItems();
+            if (entryStage != 1) SetLoadingPriority(true);
             try { operation = SceneManager.LoadSceneAsync(1, LoadSceneMode.Single); }
             catch (Exception error) { Debug.LogException(error); Fail(); yield break; }
             if (operation == null) { Fail(); yield break; }
             operation.allowSceneActivation = false;
-            while (operation.progress < .9f || Progress < ReadyProgress - .0001f)
+            while (operation.progress < .9f || (entryStage == 1 && Progress < ReadyProgress - .0001f))
             {
                 float target = NormalizedProgress(operation.progress);
-                SetProgress(Mathf.MoveTowards(Progress, target, Time.unscaledDeltaTime * .8f));
+                SetProgress(entryStage == 1 ? Mathf.MoveTowards(Progress, target, Time.unscaledDeltaTime * .8f) : target * .72f);
                 yield return null;
             }
-            // The last 6% includes actual world placement, not only scene deserialization.
+            if (entryStage != 1) SetProgress(ReadyProgress * .72f);
+            // Reserve the rest of the route for placement in the destination field.
             heading.text = practiceBeforeOral ? "위장 연습장을 준비하고 있어요…" : entryStage==0?"구강 진입과 필드 이벤트를 준비하고 있습니다…":entryStage==2?"대장 진입과 필드 오브젝트를 준비하고 있습니다…":"위장과 필드 오브젝트를 준비하고 있습니다…";
             ownsPause = true;
             Time.timeScale = 0; // No combat or timer elapses beneath the activation frame.
@@ -237,9 +278,12 @@ namespace Vampire
                 var level = FindObjectOfType<LevelManager>();
                 level.SetRunFlowPaused(true);
                 level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
-                running = false;
                 var overlay = GetComponent<Canvas>();
+                SetLoadingPriority(false);
                 overlay.enabled = false;
+                GStarGaugeIntro.Show(level);
+                while (GStarGaugeIntro.IsOpen) yield return null;
+                running = false;
                 var training = GStarControlPractice.Show(level);
                 RestorePause();
                 while (training != null && !training.Complete) yield return null;
@@ -263,10 +307,8 @@ namespace Vampire
                 level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
                 if (!GStarDemo.Enabled) RunScore.Exclude(entryStage==0?"스테이지 0 구강 직접 입장":"스테이지 2 임시 직접 입장");
                 ownsPause=false;Time.timeScale=1;
-                if(entryStage==0)running=false;
-                if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral(true):StageProgression.Ensure(level).BeginDirectColon(this)))
+                if(!(entryStage==0?StageProgression.Ensure(level).BeginDirectOral(true,this):StageProgression.Ensure(level).BeginDirectColon(this)))
                 {ReturnToMenu("스테이지 진입에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
-                if(entryStage==0)Destroy(gameObject);
                 yield break;
             }
             heading.text="필드 배치 완료 · 출전 준비 완료";
@@ -300,13 +342,12 @@ namespace Vampire
         }
         void OnDestroy()
         {
+            SetLoadingPriority(false);
             RestorePause();
             if (Instance == this) Instance = null;
-            if (font != null && ownsFont)
-            {
-                foreach (var texture in font.atlasTextures) if (texture != null) Destroy(texture);
-                Destroy(font.material); Destroy(font);
-            }
+            if (oralPeepers != null)
+                foreach (var sprite in oralPeepers) if (sprite != null) Destroy(sprite);
+
         }
 
         public static float NormalizedProgress(float raw) => Mathf.Clamp01(raw / .9f) * ReadyProgress;
@@ -336,7 +377,10 @@ namespace Vampire
                 var sequence=peeperFrames[i];
                 if (sequence == null || sequence.Length == 0) continue;
                 peepers[i].sprite=sequence[GamePreferences.Current.reducedMotion ? 0 : (int)(elapsed/.22f+i)%sequence.Length];
-                peepers[i].rectTransform.anchoredPosition = new Vector2(0,GamePreferences.Current.reducedMotion ? -4 : -6+Mathf.Sin(elapsed*1.6f+i*2)*5);
+                // Leave the entire oral silhouette inside the crevice's 70x65 viewport.
+                float baseline = oralPeepers != null ? 3f : -5f;
+                float bob = GamePreferences.Current.reducedMotion ? 0 : Mathf.Sin(elapsed*1.6f+i*2) * (oralPeepers != null ? 2.5f : 5f);
+                peepers[i].rectTransform.anchoredPosition = new Vector2(0,baseline+bob);
             }
         }
         void DrawRunner()
@@ -370,11 +414,7 @@ namespace Vampire
             Box("Letterbox",surface,Vector2.zero,Vector2.one,new Color(.18f,.07f,.13f)).raycastTarget=true;
             frame=Rect("1280x720 stage",surface,new Vector2(.5f,.5f),new Vector2(.5f,.5f));frame.sizeDelta=new Vector2(1280,720);
             var backdrop=Box("Soft stomach corridor",frame,Vector2.zero,Vector2.one,Color.white);backdrop.sprite=art.corridor;
-            var source=Resources.Load<Font>("TrainingUI/Cafe24Ssurround");
-            font=source!=null?TMP_FontAsset.CreateFontAsset(source):null;
-            var fallback=Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig")?.font;
-            ownsFont=font!=null;
-            if(font==null)font=fallback;
+            font = TrainingUITheme.Font;
             Label("Title","24시간의 사투",frame,new Rect(40,647,360,44),34,Cream,TextAlignmentOptions.Left);
             var badge=Plate("Stage badge",frame,new Rect(1005,638,233,53),new Color(.09f,.39f,.38f),Cream);
             Label("Stage","STAGE 01  ·  위장",badge,new Rect(0,0,233,53),22,Ink);

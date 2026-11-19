@@ -51,7 +51,7 @@ namespace Vampire
             return view;
         }
 
-        static string KeyName(GameKeyAction action)
+        internal static string KeyName(GameKeyAction action)
         {
             var binding = GamePreferences.Current.keyboard;
             var key = binding.Get(action);

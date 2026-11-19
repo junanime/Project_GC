@@ -85,6 +85,16 @@ namespace Vampire
             TrainingUITheme.Text(descriptionText,17,OctoberArt.Ink);
             FitCardText(descriptionText,new Vector2(.09f,.148f),new Vector2(.91f,.402f),17,TextAlignmentOptions.Center);
             descriptionText.fontSizeMin=12;
+            if (GStarDemo.Enabled && ability is Ver4AugmentOffer boothOffer)
+            {
+                descriptionText.text = AugmentBrief.For(boothOffer);
+                bool original = boothOffer.Kind == Ver4RewardKind.Original;
+                effectLabel.text = original ? Ver4AugmentCatalog.OriginalNames[(int)boothOffer.Parent.Type*3+boothOffer.Option]
+                    : boothOffer.Kind == Ver4RewardKind.NewSpecial ? "새로운 침 획득" : "공유 침 강화";
+                progressLabel.text = original ? $"이 효과 {boothOffer.OwnedOriginalCount+1}/3단계"
+                    : boothOffer.Kind == Ver4RewardKind.Numeric ? "모든 침에 적용" : "선택 시 획득";
+                return;
+            }
             var lines=PanelDescription().Split('\n').Where(s=>!string.IsNullOrWhiteSpace(s)).ToList();
             var progress=lines.Where(s=>s.StartsWith("이 항목 ")||s.StartsWith("오리지널 Lv.")||s.StartsWith("최초 획득")||s.Contains("지존 승급 완료")).ToList();
             lines.RemoveAll(s=>progress.Contains(s));

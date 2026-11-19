@@ -1055,6 +1055,17 @@ namespace Vampire
 
             UpdateLevelDisplay();
 
+            if (GStarDemo.Enabled)
+            {
+                // Live XP can arrive in a burst. Let the next gain reach this queue
+                // while the current card is on screen; a choice is owed per level.
+                while (alive && !abilitySelectionDialog.MenuOpen &&
+                       (Time.timeScale <= 0 || StageEntryLoading.IsLoading ||
+                        (ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page != "hud")))
+                    yield return null;
+                if (alive) abilitySelectionDialog.RequestLevelReward(currentLevel);
+                yield break;
+            }
             abilitySelectionDialog.Open();
 
             while (abilitySelectionDialog.MenuOpen)
@@ -1184,6 +1195,7 @@ namespace Vampire
             float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+            GStarCombatPacing.Contact();
             ToadCameraShake.PlayerHit(actualLoss, MaxHealth, knockback);
             items?.Hurt(actualLoss,pendingDamageMonsterBlueprint);
             Relics?.Hurt(actualLoss);

@@ -29,7 +29,7 @@ namespace Vampire
         LevelBlueprint preOralBlueprint;
         bool initialOralEntry;
         readonly Dictionary<Behaviour,bool> preOralDirectors=new Dictionary<Behaviour,bool>();
-        public bool BeginDirectOral(bool initialDeparture=false)
+        public bool BeginDirectOral(bool initialDeparture=false, StageEntryLoading departureLoading=null)
         {
             if(!StageZeroEnabled||level==null||level.IsLevelEnded||level.PlayerCharacter==null||!level.PlayerCharacter.IsAlive||Time.timeScale<=0||!level.InitialFieldObjectsReady||StageNumber!=1||Travelling||MiniStageRuntimeState.IsInsideMiniStage)return false;
             if(initialDeparture&&level.GetComponent<StageGrowthReset>().ResetCount!=0)return false;
@@ -38,11 +38,12 @@ namespace Vampire
             Travelling=true;level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
             TutorialGuide.Instance?.Close();
             if (!GStarDemo.Enabled) RunScore.Exclude("스테이지 0 구강 직접 입장");
-            StartCoroutine(EnterOral());return true;
+            StartCoroutine(EnterOral(departureLoading));return true;
         }
-        IEnumerator EnterOral()
+        IEnumerator EnterOral(StageEntryLoading departureLoading)
         {
-            var loading=StageEntryLoading.CreateOralTransfer(level.PlayerCharacter.Blueprint);
+            var loading=departureLoading!=null?departureLoading:StageEntryLoading.CreateOralTransfer(level.PlayerCharacter.Blueprint);
+            if (departureLoading != null) departureLoading.ContinueAsOralTransfer();
             TransitionPhase="oral-loading";yield return null;
             var map=FiniteStomachMap.Instance;
             var source=Resources.Load<StomachMapDefinition>("StomachMap/Stage1");
@@ -76,7 +77,7 @@ namespace Vampire
             // Only stomach-specific environmental events are suspended.
 
             level.SetRunFlowPaused(true);level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
-            loading.SetProgress(.55f);yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
+            loading.SetTransferProgress(.55f);yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
             if(!level.InitialFieldObjectsReady)
             {Debug.LogError("[OralStage] Field placement failed; returning to the menu.");loading.ReturnToMenu("구강 필드 준비에 실패했습니다. 메인 화면으로 돌아갑니다.");yield break;}
             OralStageRuntime runtime=null;

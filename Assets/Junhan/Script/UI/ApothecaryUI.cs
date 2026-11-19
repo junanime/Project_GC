@@ -403,7 +403,7 @@ namespace Vampire
             {
                 selection=Mathf.Clamp(selection,0,Config.augments.Length-1);
                 Grid(Config.augments.Length,i=>Config.augments[i].icon,i=>Config.augments[i].title,.12f,.27f,.56f,.70f);
-                var a=Config.augments[selection];title=a.title;description=a.description;icon=a.icon;action="플레이 중 획득";
+                var a=Config.augments[selection];title=a.title;description=GStarDemo.Enabled ? AugmentBrief.Noble(PhoenixNobleTheme.KeyForLabel(title)) ?? a.description : a.description;icon=a.icon;action="플레이 중 획득";
             }
             Panel(content,.595f,.22f,.88f,.70f);
             Label(content,title,.61f,.63f,.86f,.70f,27);

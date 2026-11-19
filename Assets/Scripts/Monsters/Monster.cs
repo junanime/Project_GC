@@ -569,6 +569,7 @@ namespace Vampire
                 return;
             }
 
+            if (knockback.sqrMagnitude > 0) GStarCombatPacing.Affected(this);
             rb.velocity += knockback * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag));
         }
 
@@ -607,9 +608,10 @@ namespace Vampire
 
             if (damage > 0f)
             {
-                GameAudioManager.PlaySfx(
-                    GameAudioManager.GameSfxId.MonsterHit
-                );
+                if (SuppressHitFlash || !GStarDemo.Enabled || !TryGetComponent(out OralMonsterMotion food) ||
+                    !food.React(damage, knockback, currentHealth <= 0))
+                    GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.MonsterHit);
+                GStarCombatPacing.Affected(this);
             }
 
             // 치명타 판정이면서 실제 피해가 0보다 클 때만
@@ -670,6 +672,11 @@ namespace Vampire
             GetComponent<ColonSpecialRuntime>()?.OnDeath();
             alive = false;
             WasKilledByPlayer = killedByPlayer;
+            if (killedByPlayer && GStarDemo.Enabled && !(this is BloodClotMonster) && !MiniStageRuntimeState.IsInsideMiniStage)
+            {
+                GStarImpactAudio.FieldKill();
+                GStarCombatPacing.Kill();
+            }
             if (killedByPlayer) RecordRankingKill();
             Died?.Invoke(this);
 

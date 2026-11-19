@@ -160,25 +160,15 @@ namespace Vampire
             if(Body!=null&&Hanging!=null&&LeftWing!=null&&RightWing!=null)return true;
             var atlas=Resources.Load<Texture2D>("OralMap/CeilingBats/Atlas");if(atlas==null)return false;
             // Read once on first use, rather than allocating the full atlas four times.
-            var pixels=atlas.isReadable?atlas.GetPixels32():null;
-            Hanging=Slice(atlas,pixels,0,new Vector2(.5f,.5f),.54f,false);
-            Body=Slice(atlas,pixels,1,new Vector2(.5f,.5f),.50f,false);
-            LeftWing=Slice(atlas,pixels,2,new Vector2(.98f,.52f),.52f,true);
-            RightWing=Slice(atlas,pixels,3,new Vector2(.02f,.52f),.52f,true);
+            Hanging=Slice(atlas,new Rect(115,650,420,514),new Vector2(.5f,.5f),.54f,false);
+            Body=Slice(atlas,new Rect(737,680,402,465),new Vector2(.5f,.5f),.50f,false);
+            LeftWing=Slice(atlas,new Rect(125,185,383,282),new Vector2(.98f,.52f),.52f,true);
+            RightWing=Slice(atlas,new Rect(746,185,383,282),new Vector2(.02f,.52f),.52f,true);
             return Body!=null&&Hanging!=null&&LeftWing!=null&&RightWing!=null;
         }
-        static Sprite Slice(Texture2D atlas,Color32[] pixels,int index,Vector2 pivot,float size,bool width)
+        static Sprite Slice(Texture2D atlas,Rect native,Vector2 pivot,float size,bool width)
         {
-            int w=atlas.width/2,h=atlas.height/2,x0=index%2*w,y0=(1-index/2)*h;
-            int l=x0,r=x0+w-1,b=y0,t=y0+h-1;
-            if(pixels!=null)
-            {
-                l=x0+w;r=x0;b=y0+h;t=y0;
-                for(int y=y0;y<y0+h;y++)for(int x=x0;x<x0+w;x++)if(pixels[y*atlas.width+x].a>32)
-                {l=Mathf.Min(l,x);r=Mathf.Max(r,x);b=Mathf.Min(b,y);t=Mathf.Max(t,y);}
-                if(r<=l||t<=b)return null;
-            }
-            var rect=new Rect(l,b,r-l+1,t-b+1);
+            var rect=OralEventArt.ImportedRect(atlas,1254,1254,native);
             return Sprite.Create(atlas,rect,pivot,(width?rect.width:rect.height)/size,0,SpriteMeshType.FullRect);
         }
     }

@@ -127,12 +127,12 @@
   },
   {
     "id": "event/oral-boulder",
-    "source": "output/game-explanation-gifs-20261113/stage0/gif/boulder.gif",
+    "source": "Library/GStarUIQA/field-balance/oral-remix/bowling-[0-9][0-9].png",
     "sourceType": "Unity runtime capture",
-    "frames": 96,
-    "fps": 12.0,
+    "frames": 16,
+    "fps": 9.0,
     "atlas": "Assets/Resources/TutorialClips/Sheets/live_event_oral_boulder.bytes",
-    "sha256": "2c7104ec971a37a5a463e2b345e253cad8f83b714302bcaec3831fb826799066"
+    "sha256": "3bf9f7ee22127d6b1bce66f11cb5d90ea728cacb32d9de9f0e2cb82d661c8380"
   },
   {
     "id": "event/oral-guard",
