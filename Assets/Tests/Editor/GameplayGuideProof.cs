@@ -134,8 +134,9 @@ namespace Vampire.Tests.Editor
                 GStarSession.CompleteAttempt(false);Check(GStarSession.ResetVisitor(),"next visitor reset");Check(!GStarSession.HasSeenGuide("event/colon-expulsion"),"next visitor receives guide again");
                 guide.Initialize(l);guide.enabled=false;Set(guide,"nextFieldScan",Time.unscaledTime+999);Set(guide,"nextDiscovery",0f);
                 var probe=new GameObject("First appearance probe");probe.transform.position=Vector3.one*10000;TutorialDiscoveryTrigger.Bind(probe,"monster/sniper");
-                var trigger=probe.GetComponent<TutorialDiscoveryTrigger>();Call(trigger,"Update");Call(guide,"Update");Check(!TutorialGuide.IsOpen,"off-screen enemy does not interrupt play");
-                probe.transform.position=p.transform.position;Set(trigger,"next",0f);Call(trigger,"Update");Call(guide,"Update");Check(TutorialGuide.IsOpen&&guide.CurrentId=="monster/sniper","visible enemy opens first-discovery guide");guide.Close();Object.Destroy(probe);
+                Check(probe.GetComponent<TutorialDiscoveryTrigger>()==null,"booth does not attach first-discovery triggers");
+                probe.transform.position=p.transform.position;TutorialGuide.QueueContent("monster/sniper");Call(guide,"Update");
+                Check(!TutorialGuide.IsOpen,"visible enemy never interrupts booth play");Object.Destroy(probe);
                 // Queue routing is exercised in the real stage-two and stage-zero runtimes.
                 guide.enabled=false;yield return ColonContentSmoke.Enter(l);Silence(l);
                 var roster=ColonMonsterRoster.Active;
@@ -144,9 +145,9 @@ namespace Vampire.Tests.Editor
                 foreach(ColonEventKind kind in new[]{ColonEventKind.Expulsion,ColonEventKind.Absorption,ColonEventKind.Residue,ColonEventKind.Nutrients})
                 {Check(ce.Begin(kind),"event hook "+kind);ce.Cancel();}
                 guide.Initialize(l);guide.enabled=true;TutorialGuide.QueueStageEvent("colon-expulsion");
-                Set(guide,"nextDiscovery",0f);yield return null;yield return null;Check(guide.CurrentId=="event/colon-expulsion"&&TutorialGuide.IsOpen,"first event opens actual guide");guide.Close();
-                Check(GStarSession.HasSeenGuide("event/colon-expulsion"),"first appearance receipt");
-                guide.Initialize(l);TutorialGuide.QueueStageEvent("colon-expulsion");guide.enabled=false;Check(GStarSession.HasSeenGuide("event/colon-expulsion"),"repeat kept suppressed");
+                Set(guide,"nextDiscovery",0f);yield return null;yield return null;
+                Check(!TutorialGuide.IsOpen && !GStarSession.HasSeenGuide("event/colon-expulsion"),"booth event does not pause or write a discovery receipt");
+                Check(guide.Review("event/colon-expulsion") && TutorialGuide.IsOpen,"journal review stays available on demand");guide.Close();
             }
             SessionState.SetBool(Key+"Done",true);
         }

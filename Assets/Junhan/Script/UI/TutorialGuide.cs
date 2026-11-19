@@ -80,37 +80,10 @@ namespace Vampire
             if (catalog == null || catalog.entries == null) return;
             foreach (var entry in catalog.entries)
                 if (entry != null && !string.IsNullOrEmpty(entry.id))
-                {
-                    ApplyDemoWording(entry);
                     entries[entry.id] = entry;
-                }
             font = Resources.Load<Font>("TrainingUI/Cafe24Ssurround");
             BuildCanvas();
             ready = true;
-        }
-
-        static void ApplyDemoWording(Entry entry)
-        {
-            if (!GStarDemo.Enabled) return;
-            switch (entry.id)
-            {
-                case "item/magnet":
-                    entry.what = "필드에 남은 경험치 보석을 한꺼번에 끌어옵니다.";
-                    entry.tip = "경험치가 많이 쌓였을 때 사용하세요. 골드와 실버 보상은 줍지 않아도 점수로 바로 더해집니다.";
-                    break;
-                case "event/gold-rush":
-                    entry.title = "골드 러시 · 추가 점수";
-                    entry.what = "처치 보상이 늘어나며 골드는 즉시 랭킹 점수로 전환됩니다.";
-                    entry.tip = "추가 골드를 주우러 갈 필요 없이 안전한 위치에서 몬스터를 처치하세요.";
-                    break;
-                case "monster/nutrition-thief":
-                    entry.what = "필드의 경험치 보석을 먹어 성장을 방해합니다.";
-                    entry.tip = "처치하면 모아 둔 경험치를 되찾고 보물 보상은 점수로 받습니다.";
-                    break;
-                case "monster/treasure-runner":
-                    entry.tip = "탈출하기 전에 길을 가로막고 공격하세요. 처치한 보물 보상은 즉시 점수로 받습니다.";
-                    break;
-            }
         }
 
         public static void QueueWeapon(SyringeSpecialAugmentAbility.SpecialAugmentType type) => Queue("weapon/" + type);
@@ -132,6 +105,7 @@ namespace Vampire
         }
         public static void QueueMonster(MonsterBlueprint blueprint, Monster monster = null)
         {
+            if (GStarDemo.Enabled) return;
             var id=ResolveMonsterId(blueprint,monster);
             if(monster!=null) TutorialDiscoveryTrigger.Bind(monster.gameObject,id,monster);
             else if(id!=null)Queue(id);
@@ -164,7 +138,7 @@ namespace Vampire
         }
         private static void Queue(string id)
         {
-            if (Instance == null || !Instance.ready) return;
+            if (GStarDemo.Enabled || Instance == null || !Instance.ready) return;
             Instance.Enqueue(id);
         }
         private void Enqueue(string id)
@@ -187,6 +161,7 @@ namespace Vampire
                 if (Time.unscaledTime-clipStart>.2f && (GameInput.GetKeyDown(KeyCode.Space)||GameInput.GetKeyDown(KeyCode.Escape))) Close();
                 return;
             }
+            if (GStarDemo.Enabled) return; // The field journal can still replay a guide on request.
             if (level.IsLevelEnded || level.IsRunFlowPaused || Time.timeScale <= 0f || Time.unscaledTime<nextDiscovery || (level.PlayerCharacter != null && (level.PlayerCharacter.IsPortalTravelling||level.PlayerCharacter.IsPortalPoseHeld))) return;
             if (level.EntityManager != null && level.EntityManager.AbilitySelectionDialog != null &&
                 level.EntityManager.AbilitySelectionDialog.MenuOpen) return;

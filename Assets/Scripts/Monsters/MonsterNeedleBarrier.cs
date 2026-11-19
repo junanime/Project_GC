@@ -9,16 +9,18 @@ namespace Vampire
     {
         public const float StartTime = 630f, SpawnChance = .10f;
         public const int RequiredHits = 3;
+        public const float SodaLifetime = 20f;
         const float PopDelay = .09f, PopDuration = .38f;
         public int Hits { get; private set; }
-        public bool IsProtected => armed && Hits < RequiredHits && isActiveAndEnabled && owner != null && owner.HP > 0;
+        public bool IsProtected => armed && !popping && isActiveAndEnabled && owner != null && owner.HP > 0;
         public Collider2D Surface => surface;
         public int AttachedNeedles => needles.Count;
         public Transform VisualRoot => view;
         public Vector2 Radii => radii;
         public int MeshRebuildCount { get; private set; }
         public bool SodaTint {get;set;}
-        bool armed;
+        bool armed, popping;
+        float sodaAge;
         Monster owner;
         SpriteRenderer body;
         Transform view;
@@ -93,7 +95,7 @@ namespace Vampire
         }
         public void ResetBarrier()
         {
-            SodaTint=false; armed = false; Hits = 0; popAge = 0; meshDirty=true;
+            SodaTint=false; armed = popping = false; Hits = 0; sodaAge = popAge = 0; meshDirty=true;
             if (surface != null) surface.enabled = false;
             foreach (var needle in needles) if (needle.sprite != null) { needle.sprite.gameObject.SetActive(false); Destroy(needle.sprite.gameObject); }
             needles.Clear();
@@ -136,7 +138,7 @@ namespace Vampire
             hitAngle = Mathf.Atan2(anchor.y,anchor.x); hitAge = 0;
             AddNeedle(source,anchor,travel);
             Hits++;
-            if (Hits >= RequiredHits) { surface.enabled = false; popAge = 0; }
+            if (Hits >= RequiredHits) BeginPop();
             UpdatePose(); Draw();
             return true;
         }
@@ -163,12 +165,21 @@ namespace Vampire
             if (owner == null || owner.HP <= 0 || body == null) { ResetBarrier(); return; }
             float delta = owner.IsFieldRuntimeSuspended ? 0 : Time.deltaTime;
             hitAge += delta;
-            if (Hits >= RequiredHits)
+            if (SodaTint && !popping)
+            {
+                sodaAge += delta;
+                if (sodaAge >= SodaLifetime) BeginPop();
+            }
+            if (popping)
             {
                 popAge += delta;
                 if (popAge >= PopDelay+PopDuration) { ResetBarrier(); return; }
             }
             UpdatePose(); Draw();
+        }
+        void BeginPop()
+        {
+            popping = true; surface.enabled = false; popAge = 0; meshDirty = true;
         }
         void UpdatePose()
         {
@@ -221,7 +232,7 @@ namespace Vampire
         void Draw()
         {
             if (mesh==null) return;
-            bool animated=hitAge<.24f||drawnHitAge<.24f||Hits>=RequiredHits;
+            bool animated=hitAge<.24f||drawnHitAge<.24f||popping;
             if(!meshDirty&&drawnSodaTint==SodaTint&&drawnHits==Hits&&
                 (!animated||(Mathf.Approximately(drawnHitAge,hitAge)&&Mathf.Approximately(drawnPopAge,popAge))))return;
             vertices.Clear(); colors.Clear(); triangles.Clear();

@@ -135,6 +135,7 @@ namespace Vampire
                 if (Page != "platformError") Show("platformError");
             }
             if (IntroMovie.BlocksMenuInput) return;
+            if (GStarControlPractice.Active) return;
             UpdateRanking();
             UpdateSkillUI();
             UpdateBossCompass();
@@ -352,14 +353,19 @@ namespace Vampire
         public void StartRun()
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
-            if(GStarDemo.Enabled){Show(GStarSession.VisitorFinished?"gstarSurvey":"gstarNext");return;}
+            if(GStarDemo.Enabled)
+            {
+                if (GStarSession.NeedsControlPractice) LaunchStage(0, true);
+                else Show(GStarSession.VisitorFinished ? "gstarSurvey" : "gstarNext");
+                return;
+            }
             stageChoiceOpen=true;Render();
         }
-        void LaunchStage(int stage)
+        void LaunchStage(int stage, bool practice = false)
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return;
             CrossSceneData.CharacterBlueprint=character;
-            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage)) return;
+            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage,practice)) return;
             stageChoiceOpen=false;starting=true;
             CrossSceneData.StartingLobbyItems=LobbyLoadoutData.ConsumeSelectedCarryItems();
             Time.timeScale=1;

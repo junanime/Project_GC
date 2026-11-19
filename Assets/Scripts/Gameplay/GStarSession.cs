@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Vampire
 {
-    // A visitor owns three departures, not three scenes. Menu changes never reset this file.
+    // Attempts count playable departures. Menu changes never reset this file.
     public static class GStarSession
     {
         [Serializable]
@@ -46,6 +46,7 @@ namespace Vampire
         public static bool LastSuccess => Current.lastSuccess;
         public static bool Interrupted => Current.interrupted;
         public static bool VisitorFinished => Current.visitorFinished;
+        public static bool NeedsControlPractice => GStarDemo.Enabled && !Current.visitorFinished && Current.usedAttempts == 0 && !Current.hasCompleted;
         public static string PlayerName => Current.playerName;
         public static string Phone => Current.phone;
         public static bool HasSeenGuide(string id) => Array.IndexOf(Current.seenGuides ?? Array.Empty<string>(),id)>=0;
@@ -100,7 +101,8 @@ namespace Vampire
             {
                 var value = JsonUtility.FromJson<State>(File.ReadAllText(path, Encoding.UTF8));
                 if (value == null || value.version != 1 || string.IsNullOrEmpty(value.sessionId) ||
-                    value.usedAttempts < 0 || value.usedAttempts > GStarDemo.AttemptLimit ||
+                    // Keep sessions written by the original three-attempt booth build readable.
+                    value.usedAttempts < 0 || value.usedAttempts > 3 ||
                     value.stageId < 0 || value.stageId > 2 || (value.active && string.IsNullOrEmpty(value.runId))) return null;
                 return value;
             }

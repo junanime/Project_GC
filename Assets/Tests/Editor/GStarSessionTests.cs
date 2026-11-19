@@ -24,16 +24,16 @@ namespace Vampire.Tests.Editor
             if (Directory.Exists(directory)) Directory.Delete(directory, true);
         }
 
-        [Test] public void ThreeDeparturesMayReplayTheSameStageAndCannotDoubleCharge()
+        [Test] public void TwoDeparturesMayReplayTheSameStageAndCannotDoubleCharge()
         {
             string session = GStarSession.SessionId, priorRun = "";
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 2; i++)
             {
                 Assert.IsTrue(GStarSession.TryBeginAttempt(2, out var reason), reason);
-                Assert.AreEqual(2 - i, GStarSession.RemainingAttempts);
+                Assert.AreEqual(1 - i, GStarSession.RemainingAttempts);
                 Assert.AreNotEqual(priorRun, GStarSession.RunId);
                 Assert.IsFalse(GStarSession.TryBeginAttempt(1, out _));
-                Assert.AreEqual(2 - i, GStarSession.RemainingAttempts);
+                Assert.AreEqual(1 - i, GStarSession.RemainingAttempts);
                 Assert.IsTrue(GStarSession.MarkAttemptStarted());
                 Assert.IsTrue(GStarSession.CompleteAttempt(i != 1));
                 Assert.IsFalse(GStarSession.CompleteAttempt(false));
@@ -50,25 +50,25 @@ namespace Vampire.Tests.Editor
             Assert.IsTrue(GStarSession.TryBeginAttempt(0, out _));
             Assert.IsTrue(GStarSession.CancelPendingAttempt());
             Assert.IsFalse(GStarSession.CancelPendingAttempt());
-            Assert.AreEqual(3, GStarSession.RemainingAttempts);
+            Assert.AreEqual(2, GStarSession.RemainingAttempts);
             Assert.IsTrue(GStarSession.TryBeginAttempt(1, out _));
             Assert.IsTrue(GStarSession.MarkAttemptStarted());
             Assert.IsFalse(GStarSession.CancelPendingAttempt());
             Assert.IsFalse(GStarSession.ResetVisitor());
-            Assert.AreEqual(2, GStarSession.RemainingAttempts);
+            Assert.AreEqual(1, GStarSession.RemainingAttempts);
         }
 
         [Test] public void RestartDuringLoadingRefundsAndRestartDuringGameplayConsumes()
         {
             Assert.IsTrue(GStarSession.TryBeginAttempt(0, out _));
             GStarSession.ReloadForTests();
-            Assert.AreEqual(3, GStarSession.RemainingAttempts);
+            Assert.AreEqual(2, GStarSession.RemainingAttempts);
             Assert.IsFalse(GStarSession.ActiveAttempt);
             Assert.IsTrue(GStarSession.TryBeginAttempt(2, out _));
             string run = GStarSession.RunId;
             Assert.IsTrue(GStarSession.MarkAttemptStarted());
             GStarSession.ReloadForTests();
-            Assert.AreEqual(2, GStarSession.RemainingAttempts);
+            Assert.AreEqual(1, GStarSession.RemainingAttempts);
             Assert.IsFalse(GStarSession.ActiveAttempt);
             Assert.IsTrue(GStarSession.Interrupted);
             Assert.IsTrue(GStarSession.HasCompletedAttempt);
@@ -84,7 +84,7 @@ namespace Vampire.Tests.Editor
             Assert.IsTrue(GStarSession.SetIdentity("테스트 참가자", "01000000000"));
             string run = GStarSession.RunId, session = GStarSession.SessionId;
             GStarSession.ReloadForTests();
-            Assert.AreEqual(2, GStarSession.RemainingAttempts);
+            Assert.AreEqual(1, GStarSession.RemainingAttempts);
             Assert.AreEqual(run, GStarSession.RunId);
             Assert.AreEqual(session, GStarSession.SessionId);
             Assert.AreEqual("테스트 참가자", GStarSession.PlayerName);
@@ -104,19 +104,34 @@ namespace Vampire.Tests.Editor
             Assert.AreNotEqual(session, GStarSession.SessionId);
             Assert.AreEqual("", GStarSession.PlayerName);
             Assert.AreEqual("", GStarSession.Phone);
-            Assert.AreEqual(3, GStarSession.RemainingAttempts);
+            Assert.AreEqual(2, GStarSession.RemainingAttempts);
             Assert.IsFalse(GStarSession.HasCompletedAttempt);
+        }
+
+        [Test] public void ExhaustedThreeAttemptLegacySessionKeepsItsIdentityAndRankLink()
+        {
+            string id = GStarSession.SessionId;
+            string saved = "{\"version\":1,\"usedAttempts\":3,\"stageId\":1,\"sessionId\":\"" + id + "\",\"hasCompleted\":true,\"lastRunId\":\"old-run\"}";
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(GStarSession.FilePath,saved);
+            GStarSession.ReloadForTests();
+            Assert.AreEqual(id,GStarSession.SessionId);
+            Assert.AreEqual("old-run",GStarSession.LastRunId);
+            Assert.AreEqual(0,GStarSession.RemainingAttempts);
+            Assert.IsFalse(GStarSession.NeedsControlPractice);
+            Assert.IsTrue(GStarSession.ResetVisitor());
+            Assert.IsTrue(GStarSession.NeedsControlPractice);
         }
 
         [Test] public void InvalidStageAndDisabledEventCannotConsumeAttempts()
         {
             Assert.IsFalse(GStarSession.TryBeginAttempt(-1, out _));
             Assert.IsFalse(GStarSession.TryBeginAttempt(3, out _));
-            Assert.AreEqual(3, GStarSession.RemainingAttempts);
+            Assert.AreEqual(2, GStarSession.RemainingAttempts);
             GStarDemo.TestOverride = false;
             Assert.IsTrue(GStarSession.TryBeginAttempt(1, out _));
             Assert.IsFalse(GStarSession.ActiveAttempt);
-            Assert.AreEqual(3, GStarSession.RemainingAttempts);
+            Assert.AreEqual(2, GStarSession.RemainingAttempts);
         }
 
         [Test] public void CorruptPrimaryRecoversBackupRatherThanCreatingANewVisitor()
@@ -129,7 +144,7 @@ namespace Vampire.Tests.Editor
             File.WriteAllText(GStarSession.FilePath, "not valid json");
             GStarSession.ReloadForTests();
             Assert.AreEqual(session, GStarSession.SessionId);
-            Assert.AreEqual(2, GStarSession.RemainingAttempts);
+            Assert.AreEqual(1, GStarSession.RemainingAttempts);
             Assert.IsTrue(GStarSession.HasCompletedAttempt);
         }
 
@@ -144,7 +159,7 @@ namespace Vampire.Tests.Editor
             Assert.IsNotEmpty(GStarSession.StorageError);
             Assert.IsFalse(GStarSession.TryBeginAttempt(1, out _));
             Assert.IsTrue(GStarSession.ResetVisitor());
-            Assert.AreEqual(3, GStarSession.RemainingAttempts);
+            Assert.AreEqual(2, GStarSession.RemainingAttempts);
         }
     }
 }

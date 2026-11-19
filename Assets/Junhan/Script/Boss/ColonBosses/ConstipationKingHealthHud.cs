@@ -7,6 +7,7 @@ namespace Vampire
     public sealed class ConstipationKingHealthHud : MonoBehaviour
     {
         ConstipationKingRuntime boss; GameObject root; FoodBossHealthRail rail; TextMeshProUGUI title, detail;
+        string firstPhaseTitle, secondPhaseTitle;
         public void Initialize(ConstipationKingRuntime owner)
         {
             boss = owner; root = new GameObject("변비왕 · final boss health", typeof(Canvas), typeof(CanvasScaler));
@@ -17,6 +18,9 @@ namespace Vampire
             rail = new GameObject("Health", typeof(RectTransform), typeof(CanvasRenderer), typeof(FoodBossHealthRail)).GetComponent<FoodBossHealthRail>(); rail.transform.SetParent(panel, false);
             rail.rectTransform.anchorMin = Vector2.zero; rail.rectTransform.anchorMax = Vector2.one; rail.rectTransform.offsetMin = rail.rectTransform.offsetMax = Vector2.zero; rail.raycastTarget = false;
             title = Label(panel, 26, 51, 20); detail = Label(panel, -25, -1, 12);
+            string tier = GStarDemo.Enabled ? " · 소환 " + (boss.SummonTier + 1) + "등급" : "";
+            firstPhaseTitle = "변비왕 · 1페이즈" + tier;
+            secondPhaseTitle = "변비왕 · 2페이즈" + tier;
         }
         TextMeshProUGUI Label(RectTransform parent, float bottom, float top, float size)
         {
@@ -31,7 +35,7 @@ namespace Vampire
             if (boss == null || root == null) return;
             root.SetActive(!boss.Dead && !MiniStageRuntimeState.IsInsideMiniStage && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud"));
             rail.Set(boss.Health / boss.MaxHealth, boss.PhaseTwo ? new Color(.75f, .24f, .14f) : new Color(.76f, .53f, .16f), boss.Transitioning ? .45f : 0);
-            title.text = boss.Arriving ? "변비왕이 깨어납니다" : "변비왕 · " + (boss.PhaseTwo ? "2" : "1") + "페이즈";
+            title.text = boss.Arriving ? "변비왕이 깨어납니다" : boss.PhaseTwo ? secondPhaseTitle : firstPhaseTitle;
             detail.text = boss.Arriving ? "왕의 변기가 역류하고 있습니다" : boss.Transitioning ? "왕의 수압 상승 · 잠시 무적" : boss.CurrentPattern == 7 ? "진상품 운반 몬스터를 처치해 회복을 막으세요" : "필수 최종보스 · 지팡이 열쇠로 출구 봉인 해제";
         }
         void OnDisable() { if (root != null) root.SetActive(false); }

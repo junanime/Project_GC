@@ -12,7 +12,6 @@ namespace Vampire
         private float damageDealt = 0;
         private float damageTaken = 0;
         private int coinsGained = 0;
-        private int displayedDemoScore = -1;
 
         public int MonstersKilled { get => monstersKilled; }
         public float DamageDealt { get => damageDealt; }
@@ -38,24 +37,7 @@ namespace Vampire
         {
             TrainingUITheme.Counter(monstersKilledText,"HudLeaf",156);
             TrainingUITheme.Counter(coinsGainedText,"HudCoin",22);
-            if (GStarDemo.Enabled && coinsGainedText != null)
-            {
-                var icon = coinsGainedText.transform.parent.Find("Counter icon")?.GetComponent<UnityEngine.UI.Image>();
-                if (icon != null) icon.sprite = GStarScoreTokenArt.Sprite;
-                coinsGainedText.fontSize = 20;
-                coinsGainedText.enableAutoSizing = true;
-                coinsGainedText.fontSizeMin = 13;
-                coinsGainedText.fontSizeMax = 20;
-            }
-        }
-
-        private void LateUpdate()
-        {
-            if (!GStarDemo.Enabled || coinsGainedText == null) return;
-            int score = RunScore.Current?.Data.Total ?? 0;
-            if (displayedDemoScore == score) return;
-            displayedDemoScore = score;
-            coinsGainedText.text = score.ToString("N0") + "점";
+            if (coinsGainedText != null) coinsGainedText.text = coinsGained.ToString();
         }
 
         public void IncrementMonstersKilled()
@@ -66,11 +48,6 @@ namespace Vampire
 
         public void IncreaseCoinsGained(int amount)
         {
-            if (GStarDemo.Enabled)
-            {
-                if (amount > 0) RunScore.Current?.Gold(amount);
-                return;
-            }
             coinsGained += amount;
             if (coinsGainedText != null) coinsGainedText.text = coinsGained.ToString();
         }

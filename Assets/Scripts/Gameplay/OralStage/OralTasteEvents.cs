@@ -136,7 +136,8 @@ namespace Vampire
                 if(LemonDirection.sqrMagnitude<.5f)LemonDirection=Vector2.right;
                 var visualObject=new GameObject("통레몬 · 금속 스프링");visualObject.transform.SetParent(artRoot,false);
                 LemonVisual=visualObject.AddComponent<OralLemonSpringVisual>();LemonVisual.Configure(lemon,lemonSpring,at,LemonLength);
-                for(int i=0;i<3;i++){var line=OralEventArt.Line(artRoot,"반동 방향",new Color(1,.96f,.55f,.85f),.045f,15,true);line.positionCount=3;var q=at+LemonDirection*(LemonLength*.6f+i*.18f);var side=new Vector2(-LemonDirection.y,LemonDirection.x)*.09f;line.SetPosition(0,q-LemonDirection*.1f+side);line.SetPosition(1,q);line.SetPosition(2,q-LemonDirection*.1f-side);}
+                Vector2 arrow = (ToothLanding(at) - at).normalized;
+                for(int i=0;i<3;i++){var line=OralEventArt.Line(artRoot,"치아 도약 방향",new Color(1,.96f,.55f,.85f),.045f,15,true);line.positionCount=3;var q=at+arrow*(LemonLength*.6f+i*.18f);var side=new Vector2(-arrow.y,arrow.x)*.09f;line.SetPosition(0,q-arrow*.1f+side);line.SetPosition(1,q);line.SetPosition(2,q-arrow*.1f-side);}
                 bouncePlayerCooldown=0;bounceCooldown.Clear();
             }
             else if(kind==OralTasteKind.Bitter)
@@ -277,7 +278,7 @@ namespace Vampire
         {
             LemonVisual?.Sample(dt);
             bouncePlayerCooldown=Mathf.Max(0,bouncePlayerCooldown-dt);var p=Level.PlayerCharacter;
-            if(bouncePlayerCooldown<=0&&!p.IsDashing&&!OralStageRuntime.Instance.IsAirborne && Vector2.Distance(p.Position,LemonPosition)<LemonLength*.42f)
+            if(bouncePlayerCooldown<=0&&!OralStageRuntime.Instance.IsAirborne && Vector2.Distance(p.Position,LemonPosition)<LemonLength*.42f)
             {if(StartBounce(p.gameObject,p.Position)){bouncePlayerCooldown=1.5f;}}
             Snapshot();stale.Clear();foreach(var pair in bounceCooldown){if(pair.Key==null||!pair.Key.gameObject.activeInHierarchy)stale.Add(pair.Key);}foreach(var key in stale)bounceCooldown.Remove(key);
             foreach(var m in scratch)
@@ -290,9 +291,19 @@ namespace Vampire
         bool StartBounce(GameObject actor,Vector2 from)
         {
             var bounce=actor.GetComponent<OralTasteBounce>()??actor.AddComponent<OralTasteBounce>();if(bounce.Active)return false;
-            Vector2 landing=OralMapGeometry.Clamp(map,from+LemonDirection*LemonBounceDistance,.55f,OralZone.Tongue);
-            LemonVisual?.Pulse();bounce.Begin(this,landing);return true;
+            bool toTooth = actor == Level.PlayerCharacter.gameObject;
+            if (toTooth && Level.PlayerCharacter.IsDashing)
+            {
+                // The pad takes over this ground dash; an existing tooth-crossing jump
+                // is already airborne and never enters here.
+                Level.PlayerCharacter.CancelDashForForcedMovement();
+                Level.PlayerCharacter.Skills?.DashFinished();
+            }
+            Vector2 landing = toTooth ? ToothLanding(from) : OralMapGeometry.Clamp(map,from+LemonDirection*LemonBounceDistance,.55f,OralZone.Tongue);
+            LemonVisual?.Pulse();bounce.Begin(this, landing, toTooth);return true;
         }
+        Vector2 ToothLanding(Vector2 from) =>
+            OralMapGeometry.ToothWalkCenter(map, OralMapGeometry.NearestTooth(map, from));
         public bool TryBounceBoulder(Vector2 position,out Vector2 direction)
         {
             direction=LemonDirection;
@@ -392,11 +403,22 @@ namespace Vampire
         Vector2 from,to;float age,height;SpriteRenderer body;Vector3 origin;Rigidbody2D rb;Monster monster;Character player;bool priorSuspended,priorSimulated,pendingPhysicsRestore;
         bool StageTravelling => Owner!=null&&Owner.Level!=null&&(Owner.Level.GetComponent<StageProgression>()?.Travelling??false);
         bool PlayerTransitionOwnsPhysics => StageEntryLoading.IsLoading||StageTravelling||(player!=null&&player.IsPortalTravelling);
-        public void Begin(OralTasteEvents owner,Vector2 landing)
+        bool toothFlight;
+        float flightDuration;
+        public void Begin(OralTasteEvents owner,Vector2 landing, bool toTooth = false)
         {
             Restore();Owner=owner;monster=GetComponent<Monster>();player=GetComponent<Character>();from=transform.position;to=landing;age=0;Active=true;
             body=monster!=null?monster.BodyRenderer:GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();if(body!=null)origin=body.transform.localPosition;rb=GetComponent<Rigidbody2D>();
             height=Mathf.Max(.35f,body!=null?body.bounds.size.y*1.5f:.6f);
+            toothFlight = toTooth && player != null;
+            flightDuration = .6f;
+            if (toothFlight)
+            {
+                float distance = Vector2.Distance(from, to);
+                flightDuration = Mathf.Clamp(distance / 24f, .45f, .85f);
+                height = Mathf.Clamp(distance * .13f, 1.2f, 2.6f);
+                player.LookDirection = (to - from).normalized;
+            }
             if(monster!=null){priorSuspended=monster.IsFieldRuntimeSuspended;monster.SetFieldRuntimeSuspended(true);}
             else if(rb!=null){priorSimulated=rb.simulated;rb.velocity=Vector2.zero;rb.simulated=false;}
         }
@@ -410,11 +432,15 @@ namespace Vampire
             if(Owner==null||!gameObject.activeInHierarchy||monster!=null&&!monster.IsAlive||player!=null&&(!player.IsAlive||player.IsPortalTravelling)){Restore();return;}
             if(Owner.FloorUnavailable)
             {if(MiniStageRuntimeState.IsInsideMiniStage||StageEntryLoading.IsLoading||OralFieldEvents.Instance?.CurrentEvent==OralEventKind.Ceiling)Restore();return;}
-            age+=Time.deltaTime;float t=Mathf.Clamp01((age-OralLemonSpringVisual.CompressionSeconds)/.6f);var p=Vector2.Lerp(from,to,Mathf.SmoothStep(0,1,t));transform.position=new Vector3(p.x,p.y,transform.position.z);
+            age+=Time.deltaTime;float t=Mathf.Clamp01((age-(toothFlight ? 0 : OralLemonSpringVisual.CompressionSeconds))/flightDuration);var p=Vector2.Lerp(from,to,Mathf.SmoothStep(0,1,t));transform.position=new Vector3(p.x,p.y,transform.position.z);
             if(rb!=null){rb.position=p;rb.velocity=Vector2.zero;}
             if(body!=null){var world=Vector3.up*Mathf.Sin(t*Mathf.PI)*height;body.transform.localPosition=origin+(body.transform.parent!=null?body.transform.parent.InverseTransformVector(world):world);}
             if(monster!=null)Owner.Level.EntityManager.Grid?.UpdateClient(monster);
-            if(t>=1)Restore();
+            if(t>=1)
+            {
+                if(toothFlight) OralStageRuntime.Instance?.TeleportPlayer(to, OralZone.Teeth);
+                Restore();
+            }
         }
         public void Restore()
         {

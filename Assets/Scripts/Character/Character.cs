@@ -565,7 +565,7 @@ namespace Vampire
 
         public bool TryDash()
         {
-            if (StageEntryLoading.IsLoading || TutorialGuide.BlocksMenuInput) return false;
+            if (StageEntryLoading.IsLoading || TutorialGuide.BlocksMenuInput || !GStarControlPractice.AllowsDash) return false;
             if (IsColonExitProtected) return false;
             if (IsOralSwallowing) return false;
             if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || (GetComponent<OralTasteBounce>()?.Active ?? false)) return false;
@@ -1184,6 +1184,7 @@ namespace Vampire
             float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+            ToadCameraShake.PlayerHit(actualLoss, MaxHealth, knockback);
             items?.Hurt(actualLoss,pendingDamageMonsterBlueprint);
             Relics?.Hurt(actualLoss);
 
@@ -1291,6 +1292,7 @@ namespace Vampire
             statsManager.IncreaseDamageTaken(loss);
             lastDamageMonsterBlueprint = null;
             GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            ToadCameraShake.PlayerHit(loss, MaxHealth, Vector2.zero);
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerHit);
             if (currentHealth <= 0)
             {
@@ -1305,12 +1307,17 @@ namespace Vampire
             return true;
         }
 
-        public void RelocateAfterAcidRevival(Vector2 position)
+        internal void CancelDashForForcedMovement()
         {
             if (dashCoroutine != null) { StopCoroutine(dashCoroutine); dashCoroutine = null; }
             RestoreDashCollisionGhost(); RestoreDashSpriteVisual();
             isDashing = false; dashInvincibleEndTime = -1;
             FinishSwallowDash();
+        }
+
+        public void RelocateAfterAcidRevival(Vector2 position)
+        {
+            CancelDashForForcedMovement();
             moveDirection = Vector2.zero;
             transform.position = new Vector3(position.x, position.y, transform.position.z);
             if (rb != null) { rb.position = position; rb.velocity = Vector2.zero; }
@@ -1385,6 +1392,17 @@ namespace Vampire
             AcidLakeEvent.Instance?.RelocateRevivedPlayer(this);
             if (relicRevival) ItemFeedback.For(this).Show(ItemFeedbackKind.Revival, transform.position, 1.2f, 1.1f, transform);
             hitAnimationCoroutine = StartCoroutine(HitAnimation());
+        }
+
+        const float MosquitoHealInterval = 1.5f;
+        float nextMosquitoHeal;
+        public bool TryMosquitoHeal(float amount)
+        {
+            if (!alive || amount <= 0 || currentHealth >= MaxHealth || Time.time < nextMosquitoHeal) return false;
+            nextMosquitoHeal = Time.time + MosquitoHealInterval;
+            float before = currentHealth;
+            GainHealth(amount);
+            return currentHealth > before;
         }
 
         public void GainHealth(float health)

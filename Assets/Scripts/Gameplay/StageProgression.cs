@@ -322,7 +322,7 @@ namespace Vampire
             TransitionPhase="eject";yield return travel.Eject(anchor,landing);Destroy(anchor.gameObject);
             travel.HoldForInteraction();if(shot!=null)shot.Release();TransitionPhase="settle";yield return new WaitForSeconds(1);
             travel.ReleasePose();Travelling=false;entering=false;TransitionPhase="field";level.EntityManager.SetFieldMonsterRuntimeSuspended(false);level.SetRunFlowPaused(false);GameAudioManager.ExitMiniStageAudio();
-            ColonBossDirector.ShowNotice("대장 탐험 시작","거주지를 깨워 선택 미니보스에 도전하세요 · 전부 처치는 선택사항");
+            ColonBossDirector.ShowNotice("대장 탐험 시작",GStarDemo.Enabled ? "거주지·왕좌의 보스는 일찍 깨울수록 체력이 낮아요" : "거주지를 깨워 선택 미니보스에 도전하세요 · 전부 처치는 선택사항");
         }
         void RestorePassenger(){if(hiddenPassenger==null)return;for(int i=0;i<hiddenPassenger.Length;i++)if(hiddenPassenger[i]!=null)hiddenPassenger[i].forceRenderingOff=hiddenStates[i];hiddenPassenger=null;}
         void OnDestroy(){RestorePassenger();if(stageTwo!=null)Destroy(stageTwo);if(oralDefinition!=null)Destroy(oralDefinition);if(oralBlueprint!=null)OralMonsterRoster.Release(oralBlueprint);if(Capsule!=null)Destroy(Capsule.gameObject);if(iris!=null)Destroy(iris.gameObject);}

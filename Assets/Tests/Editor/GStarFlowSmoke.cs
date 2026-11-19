@@ -287,7 +287,7 @@ namespace Vampire.Tests.Editor
             Application.runInBackground = true;
             var prefs = GamePreferences.Current.Copy(); prefs.pauseOnFocusLoss = false; prefs.muteOnFocusLoss = false; GamePreferences.Apply(prefs, false);
             ProgressPrefs.SetInt(CapsuleDoctorDialogue.SeenKey, 1);
-            Check(GStarSession.ResetVisitor(), "isolated visitor starts with three attempts");
+            Check(GStarSession.ResetVisitor(), "isolated visitor starts with two attempts");
             string session = GStarSession.SessionId;
             yield return Enter(0);
             var level = Object.FindObjectOfType<LevelManager>();
@@ -298,7 +298,7 @@ namespace Vampire.Tests.Editor
             while (!level.IsLevelEnded && Time.realtimeSinceStartup < until)
             { swallowed |= finale.IsSwallowing; yield return null; }
             Check(swallowed && finale.Age >= OralSwallowFinale.TransferTime && StageProgression.Ensure(level).TransitionPhase == "gstar-complete", "oral water/survival/swallow completes before result");
-            yield return Result(level, 0, true, 2);
+            yield return Result(level, 0, true, 1);
             ApothecaryUI.ReturnToPreparation();
 
             yield return Enter(1);
@@ -311,9 +311,11 @@ namespace Vampire.Tests.Editor
             while (!level.IsLevelEnded && Time.realtimeSinceStartup < until) { phases.Add(flow.TransitionPhase); yield return null; }
             foreach (var phase in new[] { "hatch-open", "boarding", "hatch-close", "capsule-travel", "outlet-open" }) Check(phases.Contains(phase), "stage-one ending preserved: " + phase);
             Check(flow.AtOutlet && flow.TransitionPhase == "gstar-complete", "capsule reaches outlet without colon transfer");
-            yield return Result(level, 1, true, 1);
+            yield return Result(level, 1, true, 0);
             ApothecaryUI.ReturnToPreparation();
 
+            Check(GStarSession.SessionId == session && !GStarSession.TryBeginAttempt(2,out _), "first two stages exhaust this visitor's attempts");
+            Check(GStarSession.ResetVisitor(), "new visitor for independent colon ending");
             yield return Enter(2);
             level = Object.FindObjectOfType<LevelManager>(); var king = ConstipationKingDirector.Ensure(level);
             Position(level.PlayerCharacter, king.Throne.transform.position);
@@ -334,9 +336,8 @@ namespace Vampire.Tests.Editor
             yield return Wait(() => exit.State == ColonExitSequence.ExitState.Open, 15, "lock turn seal break and gate opening complete");
             Check(exit.UnlockProgress > .99f && !level.IsLevelEnded, "result waits until complete gate interaction");
             Check(exit.InteractAtGate(level.PlayerCharacter, exit.Opening), "final exit interaction completes stage");
-            yield return Result(level, 2, true, 0);
-            Check(GStarSession.SessionId == session, "three stages share one visitor session");
-            Check(!GStarSession.TryBeginAttempt(1, out _), "fourth attempt blocked");
+            yield return Result(level, 2, true, 1);
+            Check(GStarSession.SessionId != session, "colon clear belongs to second visitor");
             ApothecaryUI.ReturnToPreparation();
 
             yield return Wait(() => SceneManager.GetActiveScene().buildIndex == 0 && ApothecaryUI.Instance != null, 45, "menu ready for next visitor");
@@ -355,7 +356,7 @@ namespace Vampire.Tests.Editor
             }
             yield return Wait(() => level.PlayerCharacter.GetComponent<CharacterExitSequence>() != null, 5, "HP-zero exit animation starts");
             Check(!level.IsLevelEnded && ApothecaryUI.Instance.Page != "result", "failure result waits for character exit");
-            yield return Result(level, 1, false, 2);
+            yield return Result(level, 1, false, 1);
             Check(level.PlayerCharacter.GetComponent<CharacterExitSequence>().Completed, "HP-zero exit completes before failure panel");
             SessionState.SetBool(Key + "Done", true);
         }

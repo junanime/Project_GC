@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace Vampire
@@ -145,7 +144,6 @@ namespace Vampire
         [Header("Explosion Visuals")]
         [SerializeField] private GameObject explosionEffectPrefab;
 
-        private static bool hasWarnedHealMethodMissing = false;
         private float baseTrailTime;
 
         public bool IsReturnMode =>
@@ -777,21 +775,6 @@ namespace Vampire
 
             markStatus.Apply(specials.markDuration);
         }
-        private void ApplyMosquitoHeal(Component damageableComponent)
-        {
-            if (specials.healingBlocked) return;
-            if (playerCharacter == null) return;
-
-            float healAmount = specials.mosquitoHealPerHit;
-
-            if (IsBossLikeTarget(damageableComponent))
-            {
-                healAmount *= specials.mosquitoBossHealMultiplier;
-            }
-
-            TryHealPlayer(healAmount, damageableComponent);
-        }
-
         private bool IsBossLikeTarget(Component damageableComponent)
         {
             if (damageableComponent == null) return false;
@@ -808,40 +791,6 @@ namespace Vampire
 
             string objectName = damageableComponent.gameObject.name;
             return objectName.Contains("Boss") || objectName.Contains("보스");
-        }
-
-        private void TryHealPlayer(float healAmount, Component impactSource)
-        {
-            if (playerCharacter == null || healAmount <= 0f) return;
-
-            string[] healMethodNames = { "GainHealth", "Heal", "AddHealth", "RestoreHealth" };
-            MethodInfo healMethod = null;
-
-            foreach (string methodName in healMethodNames)
-            {
-                healMethod = playerCharacter.GetType().GetMethod(
-                    methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null,
-                    new System.Type[] { typeof(float) },
-                    null
-                );
-
-                if (healMethod != null) break;
-            }
-
-            if (healMethod == null)
-            {
-                if (!hasWarnedHealMethodMissing)
-                {
-                    Debug.LogWarning("[모기침] Character에서 체력 회복 메서드를 찾지 못했습니다.");
-                    hasWarnedHealMethodMissing = true;
-                }
-                return;
-            }
-
-            healMethod.Invoke(playerCharacter, new object[] { healAmount });
-            SyringeAugmentVfx.PlayAbsorption(impactSource, playerCharacter);
         }
 
         // =====================================================================
@@ -1647,9 +1596,7 @@ namespace Vampire
 
             if (specials.mosquitoEnabled)
             {
-                ApplyMosquitoHeal(
-                    damageableComponent
-                );
+                SyringeSpecialHitEffectUtility.ApplyMosquitoHeal(damageableComponent, specials, playerCharacter);
             }
 
             if (specials.corrosionEnabled)

@@ -90,6 +90,7 @@ namespace Vampire.Editor
             var player=level.PlayerCharacter;var original=player.Blueprint;
             var ui=ApothecaryUI.Instance;
             var quest=player.GetComponent<PrescriptionRuntime>();var originalQuest=quest.Capture();
+            level.SetRunFlowPaused(false);
             quest.Restore(new PrescriptionState{tag=0,quests=new[]{0,1,3},progress=new[]{150f,1f,12f}});
             var inventory=level.EntityManager.Inventory;
             foreach(var c in ui.Config.characters)
@@ -113,7 +114,7 @@ namespace Vampire.Editor
                 yield return new WaitForSecondsRealtime(.35f);
                 Check(!view.Expanded&&view.Reveal==0,"closed "+c.name);
                 Check(view.Magnet.rectTransform.position==pin,"magnet stays fixed "+c.name);
-                Check(!view.Claim.gameObject.activeInHierarchy,"closed claim hidden "+c.name);Capture(OctoberArt.CharacterKey(c)+"-closed");
+                Check(!view.RewardStatus.gameObject.activeInHierarchy,"closed claim hidden "+c.name);Capture(OctoberArt.CharacterKey(c)+"-closed");
                 // Render the halfway geometry deterministically; slow editor frames may skip it in real time.
                 view.enabled=false;
                 typeof(PrescriptionScrollView).GetField("<Reveal>k__BackingField",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(view,.5f);
@@ -146,8 +147,7 @@ namespace Vampire.Editor
             }
             // Completion and reward use the same live runtime, and cannot be claimed twice.
             quest.Restore(new PrescriptionState{tag=0,quests=new[]{0,1,3},progress=new[]{150f,1f,25f}});
-            yield return Frame();var reward=Object.FindObjectOfType<PrescriptionScrollView>();Check(reward.Claim.interactable,"completed reward enabled");
-            Click("Noble reward claim");yield return Frame();Check(quest.Claimed&&level.EntityManager.AbilitySelectionDialog.MenuOpen,"quest reward opens existing noble selector");
+            yield return Frame();Check(quest.Claimed&&level.EntityManager.AbilitySelectionDialog.MenuOpen,"completed quest automatically opens the noble selector");
             Check(!quest.TryClaim(level.EntityManager.AbilitySelectionDialog),"reward cannot be claimed twice");
             level.EntityManager.AbilitySelectionDialog.Close();Time.timeScale=1;ui.Show("hud");yield return Frame();
             Check(Object.FindObjectOfType<PrescriptionScrollView>().Title.text.Contains("완료"),"claimed title retained");

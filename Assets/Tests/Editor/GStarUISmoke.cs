@@ -246,7 +246,7 @@ namespace Vampire.Tests.Editor
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
             DisableDesktopPointer(); keyboard = InputSystem.AddDevice<Keyboard>("GStar QA keyboard");
             Check(GStarDemo.DataDirectory == SessionState.GetString(Key + "Data", "") && GStarLeaderboard.ExportDirectory == GStarDemo.DataDirectory, "session and ranking storage are isolated");
-            Check(GStarSession.RemainingAttempts == 3 && UI.Page == "prepare", "fresh visitor starts with three attempts");
+            Check(GStarSession.RemainingAttempts == 2 && UI.Page == "main", "fresh visitor starts on title with two attempts");
             Check(GStarLeaderboard.CaptureCompleted("seed-record", "seed-visitor", 1, Score(false, 50)), "seed independent competitor record");
             Check(GStarLeaderboard.Submit("앞선참가자", "01000000002", 1, "seed-record", "seed-visitor", Score(false, 50)).success, "seed competitor ranked");
             string first = Complete(1, true); yield return Settled();
@@ -264,24 +264,25 @@ namespace Vampire.Tests.Editor
             Check(!Named<TMP_InputField>("GStar input name").interactable && !Button("register").IsInteractable(), "submitted record is locked against duplicate editing");
             Check(!UI.GetComponentsInChildren<TextMeshProUGUI>().Any(t => t.GetComponentInParent<TMP_InputField>() == null && t.text.Contains(TestPhone)), "contact never appears in public ranking text");
             Capture("02-clear-ranked"); Click("score details"); yield return Settled(); Check(Has("이번 도전 점수 내역"), "score breakdown opens"); Capture("03-score-details"); Click("close details"); yield return Settled();
-            Click("result next"); yield return Settled(); ValidateNext(2); Capture("04-next-two");
+            Click("result next"); yield return Settled(); ValidateNext(1); Capture("04-next-one");
             string visitor = GStarSession.SessionId; Click("change character");
             yield return Wait(() => UI != null && UI.Page == "prepare", 20, "character change opens actual preparation scene"); yield return Settled(); DisableDesktopPointer();
-            Check(GStarSession.SessionId == visitor && GStarSession.RemainingAttempts == 2, "character/loadout change preserves used chance"); Capture("05-preparation-return");
+            Check(GStarSession.SessionId == visitor && GStarSession.RemainingAttempts == 1, "character/loadout change preserves used chance"); Capture("05-preparation-return");
             string second = Complete(1, false, 10); yield return Settled(); SameGeometry(geometry);CheckResultLayout();
             var failedTitle = Text("스테이지 클리어 실패"); Check(failedTitle != null && failedTitle.colorGradient.bottomLeft.b > failedTitle.colorGradient.bottomLeft.r, "failure title uses purple treatment"); Capture("06-failure-unregistered");
             yield return RegisterInputs();
             var secondRank = GStarLeaderboard.GetRunRank(second);
             Check(secondRank != null && secondRank.score == firstRank.score && secondRank.runId == first && GStarLeaderboard.GetTop(1).Count == 2, "lower repeat retains official best and one prize place");
             Check(Has("개인 최고 기록"), "lower score explains official personal-best ranking"); Capture("07-failure-ranked");
-            Click("result next"); yield return Settled(); ValidateNext(1); Capture("08-next-one-red");Capture("08-next-one-1280",1280,720);
+            Click("result next"); yield return Settled(); ValidateNext(0); Capture("08-next-zero");
+            Check(!GStarSession.TryBeginAttempt(1, out _), "third attempt is refused");
+            Check(GStarSession.ResetVisitor(), "new visitor for independent stage leaderboard");
             string third = Complete(2, true, 250); yield return Settled();
             Check(((TMP_Text)Named<TMP_InputField>("GStar input phone").placeholder).text == "필수로 입력하지 않으셔도 됩니다!", "phone placeholder explicitly says optional");
             yield return RegisterInputs(false, "");
             Check(GStarLeaderboard.GetParticipantRank("", GStarSession.SessionId, 2) != null && Has("내 순위"), "anonymous registration needs no phone consent and shows own rank");
-            Check(GStarLeaderboard.GetRunRank(third).stageId == 2 && GStarLeaderboard.GetTop(2).Count == 1, "third attempt uses independent stage leaderboard");
-            Click("result next"); yield return Settled(); ValidateNext(0); Capture("09-next-zero-blocked");
-            Check(!GStarSession.TryBeginAttempt(1, out _), "fourth attempt refused by persistent session");
+            Check(GStarLeaderboard.GetRunRank(third).stageId == 2 && GStarLeaderboard.GetTop(2).Count == 1, "next visitor uses independent stage leaderboard");
+            Click("result next"); yield return Settled(); ValidateNext(1); Capture("09-next-one");
             Click("finish experience"); yield return Settled();
             Check(UI.Page == "gstarSurvey" && GStarSession.VisitorFinished, "finish opens survey and closes visitor");
             Check(Text("체험 설문").color == Color.black && Text("여러분의 의견을 들려주세요!").colorGradient.bottomLeft.g > .7f, "survey caption black and feedback heading mint");
@@ -305,13 +306,13 @@ namespace Vampire.Tests.Editor
             Check(File.Exists(Path.Combine(GStarLeaderboard.ExportDirectory, "prize-top3-private.csv")), "staff exports prize contacts locally");
             Check(!Bounds(Named<TextMeshProUGUI>("GStar staff status")).Overlaps(Bounds(Button("close staff"))),"prize export status remains separated from close button");Capture("11b-staff-after-export");
             int before = GStarLeaderboard.GetTop(1, 100).Count; Click("new visitor");
-            yield return Wait(() => UI != null && UI.Page == "prepare", 20, "staff reset returns to preparation"); yield return Settled();
-            Check(GStarSession.RemainingAttempts == 3 && GStarSession.SessionId != visitor && !GStarSession.VisitorFinished, "new visitor receives exactly three chances");
+            yield return Wait(() => UI != null && UI.Page == "main", 20, "staff reset returns to title"); yield return Settled();
+            Check(GStarSession.RemainingAttempts == 2 && GStarSession.SessionId != visitor && !GStarSession.VisitorFinished, "new visitor receives exactly two chances");
             Check(GStarLeaderboard.GetTop(1, 100).Count == before && GStarLeaderboard.GetRunRank(first).score == firstRank.score, "staff reset retains all cumulative rankings"); Capture("12-new-visitor-ranking-kept");
             InputSystem.RemoveDevice(keyboard); keyboard = null;
             SessionState.SetBool(Key + "Done", true);
         }
-        static void Capture(string name,int requestedWidth=0,int requestedHeight=0)
+        internal static void Capture(string name,int requestedWidth=0,int requestedHeight=0)
         {
             // Render actual runtime canvases through the active game camera, including in batch mode.
             var camera = Camera.main ?? Object.FindObjectOfType<Camera>();

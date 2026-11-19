@@ -33,6 +33,7 @@ namespace Vampire
         public float SpawnPotionRemaining { get; private set; }
         public void ActivateSpawnPotion() { SpawnPotionRemaining=SpawnPotionDuration; }
         private float timeSinceLastMonsterSpawned;
+        private int bonusWaveTenths;
         private float timeSinceLastChestSpawned;
         public int NormalMonstersSpawned { get; private set; }
         private TimedSpecialMonsterSpawner fieldSpawns;
@@ -57,6 +58,7 @@ namespace Vampire
             this.levelBlueprint = levelBlueprint;
 
             levelTime = 0f;
+            bonusWaveTenths = 0;
             SpawnPotionRemaining = 0f;
             if(gameTimer!=null)gameTimer.SetTime(LevelDuration);
             timeSinceLastMonsterSpawned = 0f;
@@ -127,6 +129,7 @@ namespace Vampire
             entityManager.ContinueInStage(next);
             levelBlueprint = next;
             levelTime = 0f;
+            bonusWaveTenths = 0;
             NormalMonstersSpawned = 0;
             SpawnPotionRemaining = 0f;
             timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
@@ -228,7 +231,17 @@ namespace Vampire
             float normalizedTime = GetNormalizedLevelTime();
 
             int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
-            SpawnMonsterByFlatIndex(monsterIndex);
+            var spawned = TrySpawnMonsterByFlatIndex(monsterIndex, 1f);
+            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance);
+            if (bonus == 0 || !GStarFieldBalance.IsOrdinary(spawned)) return;
+            // Preserve each original wave roll (including every special). Only successful
+            // ordinary rolls earn extra units, each with a separate legal spawn point.
+            bonusWaveTenths += bonus;
+            if (bonusWaveTenths >= 10)
+            {
+                bonusWaveTenths -= 10;
+                TrySpawnMonsterByFlatIndex(monsterIndex, 1f);
+            }
         }
 
         public void SpawnMonsterFromCurrentSpawnTable()
@@ -284,20 +297,27 @@ namespace Vampire
 
         public void SpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier = 1f)
         {
-            if (levelBlueprint != null && entityManager != null &&
-                entityManager.LivingMonsters.Count >= Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit)) return;
+            TrySpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
+        }
+
+        private Monster TrySpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier)
+        {
             if (levelBlueprint == null || entityManager == null)
             {
                 Debug.LogWarning(
                     "[LevelManager] SpawnMonsterByFlatIndex 실패: LevelBlueprint 또는 EntityManager가 비어 있습니다."
                 );
-                return;
+                return null;
             }
+
+            int baseLimit = Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit);
+            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance);
+            if (entityManager.LivingMonsters.Count >= baseLimit + Mathf.CeilToInt(baseLimit * bonus / 10f)) return null;
 
             if (!levelBlueprint.MonsterIndexMap.ContainsKey(monsterIndex))
             {
                 Debug.LogWarning($"[LevelManager] 잘못된 monsterIndex입니다: {monsterIndex}");
-                return;
+                return null;
             }
 
             (int poolIndex, int blueprintIndex) = levelBlueprint.MonsterIndexMap[monsterIndex];
@@ -305,14 +325,14 @@ namespace Vampire
             if (poolIndex < 0 || poolIndex >= levelBlueprint.monsters.Length)
             {
                 Debug.LogWarning($"[LevelManager] 잘못된 poolIndex입니다: {poolIndex}");
-                return;
+                return null;
             }
 
             if (blueprintIndex < 0 ||
                 blueprintIndex >= levelBlueprint.monsters[poolIndex].monsterBlueprints.Length)
             {
                 Debug.LogWarning($"[LevelManager] 잘못된 blueprintIndex입니다: {blueprintIndex}");
-                return;
+                return null;
             }
 
             MonsterBlueprint monsterBlueprint =
@@ -323,7 +343,7 @@ namespace Vampire
                 Debug.LogWarning(
                     $"[LevelManager] MonsterBlueprint가 비어 있습니다. monsterIndex={monsterIndex}"
                 );
-                return;
+                return null;
             }
 
             // 소화효소 처치 난이도 상승 연결:
@@ -334,6 +354,7 @@ namespace Vampire
 
             Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
             if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
+            return spawned;
         }
 
         public void SpawnRandomMonsterFromFlatIndexList(List<int> monsterIndices, float hpMultiplier = 1f)

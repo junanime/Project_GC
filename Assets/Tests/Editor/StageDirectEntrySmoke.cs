@@ -237,7 +237,8 @@ namespace Vampire.Tests.Editor
                 Position(player,map.ClampToFloor((Vector2)home.transform.position+Vector2.down*2.5f,1));yield return new WaitForSeconds(.2f);InteractionFocus.SelectTouched(home);home.TryInteract();yield return null;
                 var boss=ColonBossRuntime.Active.FirstOrDefault(b=>b!=null&&!b.Dead&&b.Kind==home.Kind);Check(boss!=null,"direct habitat interaction creates "+home.Kind);boss.AutoPatterns=false;
                 until=Time.time+25;while(boss.Arriving&&Time.time<until)yield return null;
-                Check(!boss.Arriving&&boss.MaxHealth==ColonBossDefinition.Get(home.Kind).Health,"direct optional boss matches its fixed shared HP profile: "+home.Kind);
+                float speciesHealth = ColonBossDefinition.Get(home.Kind).Health;
+                Check(!boss.Arriving&&boss.MaxHealth==(GStarDemo.Enabled ? GStarFieldBalance.HabitatHealth(speciesHealth, boss.SummonTier) : speciesHealth),"direct optional boss matches its summon-time HP profile: "+home.Kind);
                 Check(boss.Definition.ContactDamage>=12&&boss.Definition.ContactDamage<=14&&boss.Definition.AttackDamage>=16&&boss.Definition.AttackDamage<=20,"direct pattern damage profile applied: "+home.Kind);
                 Check(boss.Definition.Size==ColonBossDefinition.Get(home.Kind).Size,"difficulty does not change art size: "+home.Kind);
                 int before=boss.CompletedPatterns;Check(boss.PlayPattern(0),"direct dash starts "+home.Kind);until=Time.time+35;while(boss.Busy&&Time.time<until)yield return null;

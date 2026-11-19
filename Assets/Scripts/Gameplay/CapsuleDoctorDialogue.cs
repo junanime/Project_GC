@@ -7,7 +7,7 @@ namespace Vampire
     {
         public const string SeenKey="24tu.tutorial.first-boss-capsule.v1";
         public static CapsuleDoctorDialogue Instance {get;private set;}
-        public static bool Seen=>ProgressPrefs.GetInt(SeenKey,0)==1;
+        public static bool Seen=>GStarDemo.Enabled || ProgressPrefs.GetInt(SeenKey,0)==1;
         public bool Finished {get;private set;}
         public int Page {get;private set;}
         public Button NextButton;public TMP_Text Message,Counter,ButtonLabel;

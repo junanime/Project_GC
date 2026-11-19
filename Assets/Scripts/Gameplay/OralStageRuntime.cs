@@ -109,7 +109,7 @@ namespace Vampire
             var finale=OralSwallowFinale.Instance;
             if(finale!=null&&finale.IsSwallowing)return position;
             if(IsSliding)return slidePosition;
-            if(IsJumping)return position;
+            if(IsJumping || (Level.PlayerCharacter.GetComponent<OralTasteBounce>()?.Active ?? false)) return position;
             var events=GetComponent<OralFieldEvents>();
             if(events!=null&&events.OnCeiling&&(events.CeilingPhase==1||events.CeilingPhase==3))return position;
             if(OnCeiling)

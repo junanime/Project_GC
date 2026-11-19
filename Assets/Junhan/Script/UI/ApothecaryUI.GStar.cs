@@ -34,7 +34,7 @@ namespace Vampire
                 { passed=ended.data.success;gstarBoard=ended.stageId;return "result"; }
                 return "gstarNext";
             }
-            return "prepare";
+            return "main";
         }
         bool UpdateGStar()
         {
@@ -337,13 +337,13 @@ namespace Vampire
             var shade=GImage(null,0,0,Gw,Gh);shade.color=new Color(0,0,0,.78f);shade.raycastTarget=true;
             Panel(content,.18f,.18f,.82f,.82f);
             GText("직원용 · 다음 참가자 준비",355,224,962,70,45);
-            GText("새 참가자는 도전 기회 3회로 시작합니다.\n누적 랭킹과 경품 연락처는 그대로 보관됩니다.",346,316,980,101,33).enableWordWrapping=true;
+            GText($"새 참가자는 도전 기회 {GStarDemo.AttemptLimit}회로 시작합니다.\n누적 랭킹과 경품 연락처는 그대로 보관됩니다.",346,316,980,101,33).enableWordWrapping=true;
             GButton("export records","경품 기록 저장",374,463,425,86,()=>{gstarOperatorNotice=GStarLeaderboard.ExportCsv()?"경품 기록 저장 완료 · 지스타 저장 폴더에서 확인하세요.":GStarLeaderboard.LastError;Render();});
             GButton("new visitor","새 참가자 시작",856,463,425,86,()=>
             {
                 if(!GStarSession.ResetVisitor()){gstarNotice=GStarSession.StorageError;Render();return;}
                 LobbyLoadoutData.Clear();CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();
-                gstarDraftName=gstarDraftPhone=null;gstarConsent=false;gstarOperator=false;gstarNotice=gstarOperatorNotice="";ReturnToLobby(true);
+                gstarDraftName=gstarDraftPhone=null;gstarConsent=false;gstarOperator=false;gstarNotice=gstarOperatorNotice="";ReturnToLobby(false);
             },true);
             GButton("export qa","QA 자료 저장 · F8",570,565,532,65,ExportGStarQa);
             var status=GText(gstarOperatorNotice,344,636,980,48,20);status.name="GStar staff status";
@@ -362,7 +362,7 @@ namespace Vampire
                 $"보스 {d.boss:N0} × 5,000",
                 $"미니스테이지 성공 {d.cleared:N0} × 1,500",
                 $"과충전 성공 {d.overcharge:N0} × 1,000",
-                $"골드 보상 {d.gold:N0} × 1     실버 보상 {d.silver:N0} × 2",
+                d.gold > 0 ? $"골드 보상 {d.gold:N0} × 1     실버 보상 {d.silver:N0} × 2" : $"실버 보상 {d.silver:N0} × 2",
                 $"스테이지 클리어 {(d.success?10000:0):N0}점",
                 $"합계 {d.Total:N0}점"};
             for(int i=0;i<lines.Length;i++)GText(lines[i],372,243+i*56,928,52,31);

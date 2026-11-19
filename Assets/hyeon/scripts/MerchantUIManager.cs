@@ -445,7 +445,7 @@ namespace Vampire
 
         private bool ProcessPayment(int cost)
         {
-            if (GStarDemo.Enabled) return cost >= 0;
+            if (cost < 0) return false;
             StatsManager currentStats = FindObjectOfType<StatsManager>();
 
             if (currentStats != null)

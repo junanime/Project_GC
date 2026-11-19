@@ -269,7 +269,7 @@ namespace Vampire
                 case OralEventKind.Food: Duration = 6.5f; Banner = "한입 들어온다! | 그림자를 피하고 쏟아지는 음식 몬스터를 처치하세요"; break;
                 case OralEventKind.Water: Duration = 8f; Banner = "물이 들어온다! | 물살을 피해 아랫니로 이동할 수 있어요"; break;
                 case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피가 지나가면 몬스터들이 빨라집니다"; break;
-                case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 탄산에 닿은 몬스터의 막은 침 3회로 깨세요"; break;
+                case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 보호막은 20초 뒤 사라져요. 침 3회로 먼저 깨세요"; break;
                 case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아 주변으로 피하거나 바람을 타세요"; break;
                 case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장 몬스터를 모두 처치하면 내려옵니다"; break;
                 case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 몬스터들이 3초 동안 공중에 뜹니다"; break;
@@ -324,7 +324,7 @@ namespace Vampire
             if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 붉은 화상 원을 피해 빈 길로 이동하세요" :
                 kind == OralEventKind.Sweet ? "벌꿀집 발견! | 먹으러 모인 몬스터를 먼저 처치하세요" :
                 kind == OralEventKind.Salty ? "짠맛! | 소금결정 무리가 몰려옵니다" :
-                kind == OralEventKind.Sour ? "신맛! | 통레몬 스프링을 밟아 더 멀리 튀어 오르세요" :
+                kind == OralEventKind.Sour ? "신맛! | 통레몬 스프링을 밟으면 가까운 치아로 튀어 올라요" :
                 kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
                 kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
                 "구강 수호대! | 민트 수호대를 지켜 혀 점프대까지 호위하세요");

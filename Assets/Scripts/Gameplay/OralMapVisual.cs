@@ -288,6 +288,7 @@ namespace Vampire
             var scaler=hud.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1280,720);
             title=Label("진행 중인 이벤트",22,new Vector2(.5f,0),new Vector2(0,195),new Vector2(1080,35));
             hint=Label("조작 안내",16,new Vector2(.5f,0),new Vector2(0,164),new Vector2(1080,28));hint.color=new Color(1,.91f,.72f);
+            hint.enabled = !GStarDemo.Enabled; // At the booth, players discover field mechanics during play.
         }
         Text Label(string name,int size,Vector2 anchor,Vector2 pos,Vector2 dimensions)
         {var go=new GameObject(name,typeof(RectTransform),typeof(Text),typeof(Outline));go.transform.SetParent(hud.transform,false);var text=go.GetComponent<Text>();text.font=Resources.Load<Font>("TrainingUI/Cafe24Ssurround");text.fontSize=size;text.alignment=TextAnchor.MiddleCenter;text.color=Color.white;text.raycastTarget=false;var rt=text.rectTransform;rt.anchorMin=rt.anchorMax=anchor;rt.anchoredPosition=pos;rt.sizeDelta=dimensions;go.GetComponent<Outline>().effectColor=new Color(.13f,.04f,.08f,.95f);go.GetComponent<Outline>().effectDistance=new Vector2(2,-2);return text;}
@@ -316,7 +317,7 @@ namespace Vampire
                 // One existing HUD owns the finale too; two overlapping event
                 // banners never compete with the surviving actors and water.
                 float age=swallow.Age;
-                title.text=age<10?"꿀꺽 이벤트 · 음식 몬스터가 몰려옵니다!":age<16?"협곡에 물이 차오르고 있습니다!":age<20?"몸의 주인이 음식을 삼키려 합니다!":swallow.IsSwallowing?"꿀꺽! · 스테이지 1로 이동합니다":"꿀꺽 이벤트 · "+Mathf.CeilToInt(swallow.SurvivalRemaining)+"초만 더 버티세요!";
+                title.text=age<10?"꿀꺽 이벤트 · 음식 몬스터가 몰려옵니다!":age<16?"협곡에 물이 차오르고 있습니다!":age<20?"몸의 주인이 음식을 삼키려 합니다!":swallow.IsSwallowing?(GStarDemo.Enabled?"꿀꺽! · 구강 탐험 완료":"꿀꺽! · 스테이지 1로 이동합니다"):"꿀꺽 이벤트 · "+Mathf.CeilToInt(swallow.SurvivalRemaining)+"초만 더 버티세요!";
                 hint.text=age<16?"물살이 곧 혀 위까지 차오릅니다":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"물과 음식이 식도로 쓸려갑니다":"소용돌이를 피하세요 · 빨려들면 대쉬 한 번으로 탈출!";
             }
         }

@@ -88,17 +88,21 @@ namespace Vampire
             var relics=RelicSelectionPolicy.ForLobby(Config.relics);
             var items=ItemOfferPolicy.ForLobby(Config.items);
             var weapons=(Config.weapons??Array.Empty<SyringeSpecialAugmentAbility>()).OrderBy(w=>StartingNeedleSelection.Owned(w)?0:1).ThenBy(w=>(int)w.Type).ToArray();
-            int count=Tab==0?9:Tab==1?weapons.Length+1:Tab==2?relics.Length:items.Length;
+            bool skillShowcase = GStarDemo.Enabled && Tab == 0;
+            int count=Tab==0?(skillShowcase?Config.characters.Length:9):Tab==1?weapons.Length+1:Tab==2?relics.Length:items.Length;
             selection=Mathf.Clamp(selection,0,Mathf.Max(0,count-1));
-            int pages=Mathf.Max(1,Mathf.CeilToInt(count/6f));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
+            int perPage = skillShowcase ? 4 : 6;
+            int pages=Mathf.Max(1,Mathf.CeilToInt((float)count/perPage));pageIndex=Mathf.Clamp(pageIndex,0,pages-1);
             Func<int,bool> owned=i=>Tab==0?i<Config.characters.Length&&Owned(Config.characters[i]):Tab==1?i==0||StartingNeedleSelection.Owned(weapons[i-1]):Tab==2?RelicSaveData.IsUnlocked(relics[i].relicId):true;
             Func<int,Sprite> icon=i=>Tab==0?i<Config.characters.Length?CharacterProfile(Config.characters[i]):OctoberArt.Character(Config.characters[i%Config.characters.Length],0):Tab==1?i==0?Config.basicNeedle:weapons[i-1].Image:Tab==2?relics[i].icon:items[i].itemIcon;
             Func<int,string> name=i=>Tab==0?i<Config.characters.Length?Config.characters[i].name:"새로운 동료":Tab==1?i==0?"기본 침":Ver4AugmentCatalog.ParentNames[(int)weapons[i-1].Type]:Tab==2?relics[i].relicName:items[i].itemName;
-            for(int j=0;j<6;j++)
+            for(int j=0;j<perPage;j++)
             {
-                int index=pageIndex*6+j;if(index>=count)break;
-                float x=.478f+(j%3)*.135f,y=.752f-(j/3+1)*.174f;
-                var b=ActionButton(content,"",x,y,x+.126f,y+.162f,()=>{selection=index;if(Tab==0&&index<Config.characters.Length&&Owned(Config.characters[index])){characterIndex=index;character=Config.characters[index];}Render();},false,true,selection==index);SlotArt(b);b.name="Choice "+Tab+" "+index;
+                int index=pageIndex*perPage+j;if(index>=count)break;
+                float x=skillShowcase ? .478f+j*.1005f : .478f+(j%3)*.135f;
+                float y=skillShowcase ? .570f : .752f-(j/3+1)*.174f;
+                float right=x+(skillShowcase ? .0955f : .126f);
+                var b=ActionButton(content,"",x,y,right,skillShowcase?.748f:y+.162f,()=>{selection=index;if(Tab==0&&index<Config.characters.Length&&Owned(Config.characters[index])){characterIndex=index;character=Config.characters[index];}Render();},false,true,selection==index);SlotArt(b);b.name="Choice "+Tab+" "+index;
                 var v=b.transform.Find("Visual");var a=ImageAt(v,icon(index),.16f,.21f,.84f,.94f);
                 bool unlocked=owned(index);if(!unlocked){a.color=new Color(0,0,0,.65f);DrawLock(v,.38f,.35f,.62f,.65f);}
                 Label(v,unlocked?name(index):"잠김",.03f,.01f,.97f,.22f,15);
@@ -125,9 +129,10 @@ namespace Vampire
             }
             if(pages>1)
             {
-                ActionButton(content,"‹",.48f,.36f,.525f,.398f,()=>{pageIndex--;Render();},false,pageIndex>0);
-                Label(content,$"{pageIndex+1} / {pages}",.545f,.36f,.806f,.398f,14);
-                ActionButton(content,"›",.828f,.36f,.874f,.398f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
+                float bottom = skillShowcase ? .530f : .36f;
+                ActionButton(content,"‹",.48f,bottom,.525f,bottom+.038f,()=>{pageIndex--;Render();},false,pageIndex>0);
+                Label(content,$"{pageIndex+1} / {pages}",.545f,bottom,.806f,bottom+.038f,14);
+                ActionButton(content,"›",.828f,bottom,.874f,bottom+.038f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
             }
             string detail="",action="선택",title=count>0?name(selection):"",need="";Action accept=null;bool can=true;
             if(count==0){Label(content,"준비 중",.5f,.35f,.85f,.6f,24);return;}
@@ -165,6 +170,26 @@ namespace Vampire
                 accept=()=>{if(LobbyLoadoutData.IsEquipped(i)){LobbyLoadoutData.Unequip(i);SilverWallet.Add(i.silverCost);}else LobbyLoadoutData.TryBuyAndEquip(i,i.silverCost,out message);Render();};
             }
             if(GStarDemo.Enabled && has)need="체험판 · 사용 가능";
+            if (skillShowcase)
+            {
+                var shown = Config.characters[selection];
+                Panel(content,.474f,.165f,.878f,.525f);
+                var nameLabel = Label(content,SkillTitle(shown,true),.490f,.431f,.651f,.494f,24);
+                nameLabel.alignment=TMPro.TextAlignmentOptions.MidlineLeft;
+                nameLabel.fontStyle=TMPro.FontStyles.Bold;
+                var description=Label(content,SkillPreviewSummary(shown),.490f,.252f,.651f,.429f,17);
+                description.name="Selection description";
+                description.alignment=TMPro.TextAlignmentOptions.TopLeft;
+                description.enableWordWrapping=true;
+                var chooseCharacter=ActionButton(content,action,.489f,.181f,.640f,.247f,()=>accept?.Invoke(),true,can);
+                chooseCharacter.name="Selection action";
+                string key=GameInput.Label(GameKeyAction.Active);
+                Label(content,$"{key}  ·  액티브 스킬",.656f,.432f,.865f,.498f,18).fontStyle=TMPro.FontStyles.Bold;
+                var bounds=Rect("Skill film bounds",content,.658f,.185f,.863f,.431f);
+                var screen=Rect("Skill film",bounds,0,0,1,1);
+                screen.gameObject.AddComponent<PreparationSkillMovie>().Show(OctoberArt.CharacterKey(shown));
+                return;
+            }
             Panel(content,.474f,.165f,.878f,.352f);
             var titleLabel=Label(content,title,.486f,.305f,.706f,.347f,19);titleLabel.alignment=TMPro.TextAlignmentOptions.MidlineLeft;titleLabel.fontStyle=TMPro.FontStyles.Bold;
             var explanation=Label(content,detail,.486f,.179f,.708f,.304f,15);explanation.name="Selection description";
@@ -174,6 +199,22 @@ namespace Vampire
             choose.name="Selection action";
             Label(content,!has?need:Tab==0?"오른쪽 프로필을 눌러 변경":Tab==1?"체크한 침만 전투 중 등장":Tab==3?"아이템은 최대 2개":"선택한 유물로 출전",.718f,.178f,.865f,.239f,13);
 
+        }
+        string SkillPreviewSummary(CharacterBlueprint shown)
+        {
+            if (shown.skills == null) return SkillHelp(shown,true);
+            switch (shown.skills.kind)
+            {
+                case CharacterSkillDefinition.SkillKind.Ashi:
+                    return "빠르게 달리며 평소보다 두 배 많은 침을 쏩니다.";
+                case CharacterSkillDefinition.SkillKind.Ari:
+                    return "암석 봉황으로 변신합니다. 대시로 적에게 부딪쳐 밀어내세요.";
+                case CharacterSkillDefinition.SkillKind.Hyuki:
+                    return "눈보라로 주변 적을 얼립니다. 보스의 움직임도 느려져요.";
+                case CharacterSkillDefinition.SkillKind.Shini:
+                    return "불씨를 모아 전방에 불을 뿜습니다. 키를 꾹 누르면 불씨가 남은 동안 계속 뿜어요.";
+                default: return SkillHelp(shown,true);
+            }
         }
         void OctoberDetails(string title,string description)
         {

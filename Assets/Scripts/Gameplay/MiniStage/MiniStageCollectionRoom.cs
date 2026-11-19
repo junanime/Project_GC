@@ -587,14 +587,12 @@ namespace Vampire
             if (rewardKind == CollectionRewardKind.Gold)
             {
                 CoinType kind = PickRandomCoinType();
-                pickup = GStarDemo.Enabled
-                    ? entityManager.SpawnScoreToken(position, kind, useSpawnAnimation, collectableDuringSpawn)
-                    : entityManager.SpawnCoin(position, kind, useSpawnAnimation, collectableDuringSpawn);
+                pickup = entityManager.SpawnCoin(position, kind, useSpawnAnimation, collectableDuringSpawn);
                 if (pickup == null && fallbackCoinPrefab != null)
                 {
                     Coin coin = Instantiate(fallbackCoinPrefab, position, Quaternion.identity, parent);
                     coin.Init(entityManager, playerCharacter);
-                    coin.Setup(position, kind, useSpawnAnimation, collectableDuringSpawn, false, GStarDemo.Enabled);
+                    coin.Setup(position, kind, useSpawnAnimation, collectableDuringSpawn);
                     pickup = coin;
                     pooled = false;
                 }
@@ -658,7 +656,7 @@ namespace Vampire
             }
 
             int seconds = Mathf.CeilToInt(Mathf.Max(0f, remainingTime));
-            string prefix = GStarDemo.Enabled && rewardKind == CollectionRewardKind.Gold ? "점수 토큰 · 남은 시간 " : timerPrefix;
+            string prefix = timerPrefix;
             timerText.text = $"{prefix}{seconds}";
         }
 

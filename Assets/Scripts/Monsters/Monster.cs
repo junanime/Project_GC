@@ -829,6 +829,8 @@ namespace Vampire
                 if (lootBlueprint != null && lootBlueprint.coinLootTable != null &&
                     lootBlueprint.coinLootTable.TryDropLoot(out CoinType coinType))
                 {
+                    if (GStarDemo.Enabled && (int)coinType < (int)CoinType.Pouch30)
+                        coinType = GStarFieldBalance.UpgradeCoin(this, coinType, Random.value);
                     entityManager.SpawnCoin((Vector2)transform.position, coinType);
                     droppedCoinCount++;
                 }

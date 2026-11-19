@@ -37,19 +37,17 @@ namespace Vampire.Tests.Editor
         }
 
         [Test]
-        public void FieldCoinsCreditImmediatelyWithoutCreatingPickupsOrWalletBalance()
+        public void FieldGoldFundsMerchantWithoutAddingOrSpendingRankingPoints()
         {
             var entities = runObject.AddComponent<EntityManager>();
             var stats = runObject.AddComponent<StatsManager>();
             typeof(EntityManager).GetField("statsManager", Private).SetValue(entities, stats);
-            int existingCoins = Object.FindObjectsOfType<Coin>().Length;
-            Assert.IsNull(entities.SpawnCoin(Vector2.zero, CoinType.Gold5));
-            Assert.IsNull(entities.SpawnCoin(Vector2.one, CoinType.Silver2));
-            Assert.AreEqual(existingCoins, Object.FindObjectsOfType<Coin>().Length);
-            Assert.AreEqual(7, run.Data.gold, "silver-colored field coin is gold value 2, not persistent silver");
-            Assert.AreEqual(0, stats.CoinsGained);
-            stats.IncreaseCoinsGained(-20);
-            Assert.AreEqual(7, run.Data.gold, "free shop costs cannot deduct ranking points");
+            entities.AwardCoinValue((int)CoinType.Gold5);
+            entities.AwardCoinValue((int)CoinType.Silver2);
+            Assert.AreEqual(7, stats.CoinsGained);
+            stats.IncreaseCoinsGained(-5);
+            Assert.AreEqual(2, stats.CoinsGained);
+            Assert.AreEqual(0, run.Data.gold);
         }
 
         [Test]
@@ -67,12 +65,15 @@ namespace Vampire.Tests.Editor
         }
 
         [Test]
-        public void GoldRushMultiplierIsAppliedExactlyOnceBeforeScoreConversion()
+        public void GoldRushMultiplierIsAppliedExactlyOnceToTheSpendableBalance()
         {
             var entities = runObject.AddComponent<EntityManager>();
             typeof(StageEventRuntimeModifiers).GetProperty("CoinValueMultiplier").SetValue(null, 3f);
-            entities.SpawnCoin(Vector2.zero, CoinType.Gold5);
-            Assert.AreEqual(15, run.Data.gold);
+            var stats = runObject.AddComponent<StatsManager>();
+            typeof(EntityManager).GetField("statsManager", Private).SetValue(entities, stats);
+            entities.AwardCoinValue((int)CoinType.Gold5);
+            Assert.AreEqual(15, stats.CoinsGained);
+            Assert.AreEqual(0, run.Data.gold);
             Assert.AreEqual(0, run.Data.silver);
         }
 
@@ -115,23 +116,15 @@ namespace Vampire.Tests.Editor
         }
 
         [Test]
-        public void ChestAndJarCurrencyDoNotLeavePhysicalDropsOrDoubleCredit()
+        public void GoldJarLeavesPhysicalPickupButSilverStillCreditsOnBreak()
         {
-            var entities = runObject.AddComponent<EntityManager>();
-            var chest = runObject.AddComponent<Chest>();
-            typeof(Chest).GetField("entityManager", Private).SetValue(chest, entities);
-            var prefab = new GameObject("Coin reward prefab");
-            prefab.transform.SetParent(runObject.transform);
-            prefab.AddComponent<Coin>();
-            int coinsBefore = Object.FindObjectsOfType<Coin>().Length;
-            typeof(Chest).GetMethod("SpawnLoot", Private).Invoke(chest,
-                new object[] { new Loot<GameObject> { item = prefab, coinType = CoinType.Bag50 }, true });
-            Assert.AreEqual(coinsBefore, Object.FindObjectsOfType<Coin>().Length);
-            Assert.AreEqual(50, run.Data.gold);
-            int jarDropsBefore = Object.FindObjectsOfType<CurrencyJarDrop>().Length;
-            Assert.IsNull(CurrencyJarDrop.Create(null, Vector2.zero, false, 30, runObject.transform));
-            Assert.AreEqual(jarDropsBefore, Object.FindObjectsOfType<CurrencyJarDrop>().Length);
-            Assert.AreEqual(80, run.Data.gold);
+            var drop = CurrencyJarDrop.Create(null, Vector2.zero, false, 30, runObject.transform);
+            Assert.NotNull(drop);
+            Assert.AreEqual(30, drop.Amount);
+            Assert.IsFalse(drop.Silver);
+            Assert.IsNull(CurrencyJarDrop.Create(null, Vector2.zero, true, 10, runObject.transform));
+            Assert.AreEqual(0, run.Data.gold);
+            Assert.AreEqual(10, run.Data.silver);
         }
     }
 }

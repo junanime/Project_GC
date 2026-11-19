@@ -15,7 +15,7 @@ namespace Vampire.Tests.Editor
 {
     /// <summary>One real character session per process; run -oralCharacter=0..3 for the full matrix.</summary>
     [InitializeOnLoad]
-    public static class OralCeilingLemonSmoke
+    public static partial class OralCeilingLemonSmoke
     {
         const string Key="OralCeilingLemonSmoke", Root="Library/OralCeilingLemonProof";
         static readonly string[] Names={"ashi","ari","hyuki","shini"};
@@ -30,6 +30,14 @@ namespace Vampire.Tests.Editor
         static void SeedActualCharacterSelection()
         {
             if(!SessionState.GetBool(Key,false))return;
+            if(Environment.GetCommandLineArgs().Contains("-gstarFieldBalance"))
+            {
+                GStarDemo.TestOverride = true;
+                GStarDemo.TestDataDirectory = Path.GetFullPath(Root + "/isolated-field-session");
+                GStarSession.TestDirectory = GStarDemo.TestDataDirectory;
+                GStarLeaderboard.TestDirectory = GStarDemo.TestDataDirectory;
+                GStarSession.ReloadForTests(); GStarLeaderboard.ReloadForTests();
+            }
             // Editor domain reload clears CrossSceneData. Restore the same selection
             // before Character.Awake, exactly where a normal scene transfer uses it.
             CrossSceneData.CharacterBlueprint=AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/"+Blueprints[Index]+" Character Blueprint.asset");
@@ -129,6 +137,12 @@ namespace Vampire.Tests.Editor
         {
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Ceiling C02 and lemon spring controlled animation QA");Silence(level);
+            if (Environment.GetCommandLineArgs().Contains("-gstarFieldBalance"))
+            {
+                yield return GStarBalanceChecks(level);
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
             Check(StageProgression.Ensure(level).BeginDirectOral(true),"stage zero entry");
             while(OralStageRuntime.Instance==null||StageProgression.Ensure(level).Travelling)yield return null;
             Silence(level);Clear(level);
@@ -240,10 +254,9 @@ namespace Vampire.Tests.Editor
             var body=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
             File.WriteAllText(Output+"/spring-configuration.json","{\"lemonLength\":"+taste.LemonLength.ToString("F6",CultureInfo.InvariantCulture)+",\"playerBodyBoundsWidth\":"+body.bounds.size.x.ToString("F6",CultureInfo.InvariantCulture)+",\"playerBodyScale\":"+body.transform.lossyScale.x.ToString("F6",CultureInfo.InvariantCulture)+",\"playerVisibleWidth\":"+(PromptSpriteGeometry.Bounds(body.sprite).width*Mathf.Abs(body.transform.lossyScale.x)).ToString("F6",CultureInfo.InvariantCulture)+",\"previousDistance\":"+priorDistance.ToString("F6",CultureInfo.InvariantCulture)+",\"newDistance\":"+newDistance.ToString("F6",CultureInfo.InvariantCulture)+"}");
             Check(taste.LemonVisual!=null,"whole-lemon metal spring visual is installed");Check(Mathf.Abs(newDistance-priorDistance*2f)<.01f,"unclipped recoil is twice the previous size-dependent distance");
-            var launch=taste.LemonPosition;Place(player,launch+Vector2.right*1.2f);Vector2 expected=OralMapGeometry.Clamp(map,launch+taste.LemonDirection*taste.LemonBounceDistance,.55f,OralZone.Tongue);
-            Check(Mathf.Abs(Vector2.Distance(launch,expected)-newDistance)<.1f,"spring fixture has unobstructed tongue space for the doubled recoil");
+            var launch=taste.LemonPosition;Place(player,launch+Vector2.right*1.2f);Vector2 expected=OralMapGeometry.ToothWalkCenter(map,OralMapGeometry.NearestTooth(map,launch));
             bool bounced=false,landed=false;Vector2 actualLaunch=launch;float minExtension=1,maxExtension=1,actualDistance=0;int pulses=taste.LemonVisual.PulseCount;float began=Time.time;
-            captureFocus=(launch+expected)*.5f+Vector2.up*.35f;shotSize=4.6f;
+            captureFocus=(launch+expected)*.5f+Vector2.up*.35f;shotSize=Mathf.Max(4.6f,Vector2.Distance(launch,expected)*.57f);
             yield return Record("02-whole-lemon-spring",()=>Time.time-began<5,()=>{
                 var bounce=player.GetComponent<OralTasteBounce>();bool active=bounce!=null&&bounce.Active;
                 if(!bounced&&active)actualLaunch=player.Position;
@@ -252,7 +265,7 @@ namespace Vampire.Tests.Editor
                 if(bounced&&!active&&!landed){landed=true;actualDistance=Vector2.Distance(actualLaunch,player.Position);}
             });
             player.Move(Vector2.zero);captureFocus=null;
-            Check(bounced&&landed,"actual player enters and completes spring recoil");Check(Mathf.Abs(actualDistance-priorDistance*2f)<.12f,"measured player recoil travels twice the prior distance");Check(minExtension<.95f&&maxExtension>1.05f,"metal spring visibly compresses and expands");Check(taste.LemonVisual.PulseCount>pulses,"spring pulse is triggered by the actual rebound");
+            Check(bounced&&landed,"actual player enters and completes spring recoil");Check(OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth,"player remains on a tooth after landing");Check(minExtension<.95f&&maxExtension>1.05f,"metal spring visibly compresses and expands");Check(taste.LemonVisual.PulseCount>pulses,"spring pulse is triggered by the actual rebound");
             Check(Mathf.Abs(taste.LemonVisual.Extension-1)<.04f,"spring returns to its original extension");Check(player.GetComponent<Rigidbody2D>().simulated,"recoil restores player physics");
             var edge=OralMapGeometry.Clamp(map,tongue+taste.LemonDirection*50,.6f,OralZone.Tongue);Place(player,edge);
             var bounceMethod=typeof(OralTasteEvents).GetMethod("StartBounce",BindingFlags.Instance|BindingFlags.NonPublic);
@@ -261,8 +274,8 @@ namespace Vampire.Tests.Editor
             Time.timeScale=0;yield return new WaitForSecondsRealtime(.2f);
             Check(Vector2.Distance(frozenPosition,player.Position)<.001f&&Mathf.Abs(frozenExtension-taste.LemonVisual.Extension)<.001f,"pause freezes both spring and rebound");Time.timeScale=1;
             float stopAt=Time.time+2;while((player.GetComponent<OralTasteBounce>()?.Active??false)&&Time.time<stopAt)yield return null;
-            Check(!(player.GetComponent<OralTasteBounce>()?.Active??false)&&OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Tongue,"edge rebound lands safely on the tongue");
-            Check(Vector2.Distance(edge,player.Position)<=taste.LemonBounceDistance+.01f,"boundary clamp never extends recoil distance");
+            Check(!(player.GetComponent<OralTasteBounce>()?.Active??false)&&OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth,"edge rebound lands safely on a tooth");
+            Check(Vector2.Distance(OralMapGeometry.ToothWalkCenter(map,OralMapGeometry.NearestTooth(map,edge)),player.Position)<.15f,"boundary rebound targets the closest tooth");
             taste.Configure(level);yield return null;Check(!(player.GetComponent<OralTasteBounce>()?.Active??false),"spring teardown clears temporary motion ownership");
             File.WriteAllText(Output+"/spring-metrics.json","{\"previousDistance\":"+priorDistance.ToString("F6",CultureInfo.InvariantCulture)+",\"newDistance\":"+newDistance.ToString("F6",CultureInfo.InvariantCulture)+",\"measuredDistance\":"+actualDistance.ToString("F6",CultureInfo.InvariantCulture)+",\"springMinExtension\":"+minExtension.ToString("F3",CultureInfo.InvariantCulture)+",\"springMaxExtension\":"+maxExtension.ToString("F3",CultureInfo.InvariantCulture)+"}");
         }

@@ -10,7 +10,7 @@ namespace Vampire
     {
         public RectTransform Dock { get; private set; }
         public Button Toggle { get; private set; }
-        public Button Claim { get; private set; }
+        public TextMeshProUGUI RewardStatus { get; private set; }
         public TextMeshProUGUI Title { get; private set; }
         public TextMeshProUGUI Tag { get; private set; }
         public TextMeshProUGUI[] Rows { get; private set; }
@@ -23,7 +23,7 @@ namespace Vampire
         HudPaperGraphic paper, header, crease;
         Image titleFill;
         const float Width=312, SheetHeight=258, HeaderHeight=62;
-        public void Build(TMP_FontAsset font, Action toggle, Action claim, bool expanded, CharacterBlueprint character=null)
+        public void Build(TMP_FontAsset font, Action toggle, bool expanded, CharacterBlueprint character=null)
         {
             Dock=(RectTransform)transform;
             Dock.anchorMin=Dock.anchorMax=Dock.pivot=Vector2.one;
@@ -41,12 +41,9 @@ namespace Vampire
                 Rows[i]=Text("Quest objective "+i,paper.transform,font,19,.07f,.64f-i*.20f,.93f,.84f-i*.20f);
                 Rows[i].alignment=TextAlignmentOptions.MidlineLeft;
             }
-            var claimRect=AugmentPanelTheme.Rect("Noble reward claim",paper.transform);
-            AugmentPanelTheme.Anchors(claimRect,new Vector2(.07f,.04f),new Vector2(.93f,.20f));
-            var claimFace=claimRect.gameObject.AddComponent<HudPaperGraphic>();claimFace.color=CharacterHudTheme.Coral;claimFace.edge=new Color(.74f,.32f,.36f);
-            Claim=claimRect.gameObject.AddComponent<Button>();Claim.targetGraphic=claimFace;
-            Claim.onClick.AddListener(()=>claim?.Invoke());
-            var label=Text("Claim label",claimRect,font,16,.03f,.03f,.97f,.97f);label.text="고귀 증강 선택";
+            RewardStatus=Text("고귀 증강 안내",paper.transform,font,16,.07f,.04f,.93f,.20f);
+            RewardStatus.fontStyle=FontStyles.Bold;
+            RewardStatus.raycastTarget=false;
             // Layered paper under the header is visible even when the note is latched shut.
             var edge=CharacterHudTheme.PaperAt("Folded paper edge",transform,CharacterHudTheme.Edge(character));
             foldedEdge=edge.rectTransform;TopBox(foldedEdge,new Vector2(Width/2,-HeaderHeight+8),new Vector2(Width-8,12));

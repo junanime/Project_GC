@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace Vampire
@@ -24,7 +23,6 @@ namespace Vampire
     public static class SyringeSpecialHitEffectUtility
     {
         public static void ReapplyVer4Mark(Component target, SyringeSpecialRuntime runtime) => ApplyNeedleMark(target,runtime);
-        private static bool hasWarnedHealMethodMissing = false;
 
         public static bool TryGetValidDamageableTarget(
             Collider2D collider,
@@ -484,81 +482,12 @@ namespace Vampire
             );
         }
 
-        private static void ApplyMosquitoHeal(
-            Component damageableComponent,
-            SyringeSpecialRuntime runtime,
-            Character sourceCharacter)
+        public static void ApplyMosquitoHeal(Component target, SyringeSpecialRuntime runtime, Character source)
         {
-            if (runtime.healingBlocked)
-            {
-                return;
-            }
-
-            if (sourceCharacter == null)
-            {
-                return;
-            }
-
-            float healAmount = runtime.mosquitoHealPerHit;
-
-            if (IsBossLikeTarget(damageableComponent))
-            {
-                healAmount *= runtime.mosquitoBossHealMultiplier;
-            }
-
-            TryHealPlayer(sourceCharacter, healAmount, damageableComponent);
-        }
-
-        private static void TryHealPlayer(Character sourceCharacter, float healAmount, Component impactSource)
-        {
-            if (sourceCharacter == null || healAmount <= 0f)
-            {
-                return;
-            }
-
-            string[] healMethodNames =
-            {
-                "GainHealth",
-                "Heal",
-                "AddHealth",
-                "RestoreHealth"
-            };
-
-            MethodInfo healMethod = null;
-
-            foreach (string methodName in healMethodNames)
-            {
-                healMethod = sourceCharacter.GetType().GetMethod(
-                    methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null,
-                    new System.Type[] { typeof(float) },
-                    null
-                );
-
-                if (healMethod != null)
-                {
-                    break;
-                }
-            }
-
-            if (healMethod == null)
-            {
-                if (!hasWarnedHealMethodMissing)
-                {
-                    Debug.LogWarning(
-                        "[침 특수효과/모기침] Character에서 체력 회복 메서드를 찾지 못했습니다. " +
-                        "GainHealth(float), Heal(float), AddHealth(float), RestoreHealth(float) 중 하나가 필요합니다."
-                    );
-
-                    hasWarnedHealMethodMissing = true;
-                }
-
-                return;
-            }
-
-            healMethod.Invoke(sourceCharacter, new object[] { healAmount });
-            SyringeAugmentVfx.PlayAbsorption(impactSource, sourceCharacter);
+            if (source == null || runtime.healingBlocked) return;
+            float amount = runtime.mosquitoHealPerHit;
+            if (IsBossLikeTarget(target)) amount *= runtime.mosquitoBossHealMultiplier;
+            if (source.TryMosquitoHeal(amount)) SyringeAugmentVfx.PlayAbsorption(target, source);
         }
 
         private static void ApplyExplosion(

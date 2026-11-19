@@ -473,7 +473,8 @@ namespace Vampire.Tests.Editor
             Check(throneTop.y < .97f && watchingPlayer.y > .02f && watchingPlayer.x > .02f && watchingPlayer.x < .98f,
                 "Actual summon camera retains porcelain bowl and safe player flank without a capture override");
             Check(!director.TrySpawn() && ConstipationKingRuntime.Active.Count == 1, "Repeated spawn calls cannot duplicate the king");
-            Check(boss.MaxHealth == 34000 && boss.Health == 34000, "Fixed king health is 34000");
+            float summonHp = GStarDemo.Enabled ? GStarFieldBalance.KingHealth(0) : ConstipationKingRuntime.MaximumHealth;
+            Check(boss.MaxHealth == summonHp && boss.Health == summonHp, "King health matches the time-zero summon budget");
             Check(ColonBossDefinition.RequiredFinalBossImplemented, "Mandatory final-boss readiness flag is enabled");
             level.LevelPassed(null); Check(!level.IsLevelEnded, "Legacy victory callback cannot bypass required king");
             var map = FiniteStomachMap.Instance; var opening = StomachOpening.Find(false);
@@ -484,7 +485,7 @@ namespace Vampire.Tests.Editor
             Check(!director.Summoning && !director.ProtectsPlayer && !level.IsRunFlowPaused && !director.Throne.gameObject.activeSelf, "Arrival consumes empty throne and releases its scoped field pause");
             Check(Vector2.Distance(player.Position, (Vector2)boss.transform.position + Vector2.up*1.7f) >= 2.8f, "Summon releases player outside the king contact envelope on safe floor");
             Check(NeedleTargeting.IsValidBossTarget(boss, ~0) && BossTargetUtility.IsBossTarget(boss), "Needle targeting and boss multipliers recognize king");
-            Check(Ver4HitEffects.Health(boss) == 34000 && Ver4HitEffects.MaxHealth(boss) == 34000, "Damage accounting reads actual king HP");
+            Check(Ver4HitEffects.Health(boss) == summonHp && Ver4HitEffects.MaxHealth(boss) == summonHp, "Damage accounting reads actual king HP");
             Check(boss.Visual.Body.sprite != null && boss.Visual.CentralJetCount == 1, "Approved body is loaded with exactly one central water column");
             yield return new WaitForSeconds(.7f);
             var framing = Camera.main != null ? Camera.main.GetComponent<ColonBossEncounterCamera>() : null;
@@ -565,11 +566,11 @@ namespace Vampire.Tests.Editor
                 if (phase == 2)
                 {
                     yield return PrimeTributeMeal(boss);
-                    boss.TakeDamage(999999); Check(boss.Health == 17000 && boss.Transitioning && !boss.Dead, "Lethal phase-one hit reaches invulnerable midpoint transition");
+                    boss.TakeDamage(999999); Check(boss.Health == summonHp * .5f && boss.Transitioning && !boss.Dead, "Lethal phase-one hit reaches invulnerable midpoint transition");
                     Capture(boss, "phase-transition-hud", true, true);
                     float hp = boss.Health; boss.TakeDamage(100); Check(boss.Health == hp, "Transition rejects incoming damage");
                     yield return WaitFor(() => boss.PhaseTwo && !boss.Transitioning, 15, "Phase-two presentation releases invulnerability");
-                    Check(boss.Health == 17000 && !Object.FindObjectsOfType<ConstipationKingMinion>().Any(m => m.IsTribute), "Phase transition cancels chewing with no delayed healing");
+                    Check(boss.Health == summonHp * .5f && !Object.FindObjectsOfType<ConstipationKingMinion>().Any(m => m.IsTribute), "Phase transition cancels chewing with no delayed healing");
                     Check(!boss.PlayPattern(7), "Phase two cannot schedule the phase-one-only tribute technique");
                 }
                 for (int pattern = phase == 1 ? 2 : 0; pattern < ConstipationKingRuntime.PatternCount; pattern++)

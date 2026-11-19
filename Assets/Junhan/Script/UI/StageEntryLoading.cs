@@ -29,7 +29,7 @@ namespace Vampire
         Image[] peepers;
         Sprite[][] peeperFrames;
         float elapsed, baseRunnerHeight;
-        bool running, ownsPause, ownsFont;
+        bool running, ownsPause, ownsFont, practiceBeforeOral;
         AsyncOperation operation;
         Action failed;
         int entryStage=1;
@@ -39,9 +39,10 @@ namespace Vampire
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void Reset() { Instance = null; }
 
-        public static bool Begin(CharacterBlueprint character, Action onFailure = null, int stage = 1)
+        public static bool Begin(CharacterBlueprint character, Action onFailure = null, int stage = 1, bool practice = false)
         {
-            if (IsLoading || (stage!=0&&stage!=1&&stage!=2) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return false;
+            if (practice && (stage != 0 || !GStarSession.NeedsControlPractice)) return false;
+            if (GStarControlPractice.Active || IsLoading || (stage!=0&&stage!=1&&stage!=2) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return false;
             if (!Application.CanStreamedLevelBeLoaded(1)) { Debug.LogError("[StageEntryLoading] Level 1 is not in the build."); return false; }
             if (!GStarSession.TryBeginAttempt(stage, out var reason)) { Debug.LogWarning("[StageEntryLoading] " + reason); return false; }
             StageEntryLoading view;
@@ -56,6 +57,13 @@ namespace Vampire
             view.failed = onFailure;
             view.entryStage=stage;
             if(stage==2)view.SetColonLabels();if(stage==0)view.SetOralLabels();
+            view.practiceBeforeOral = practice;
+            if (practice)
+            {
+                view.heading.text = "조작 연습을 준비하고 있어요…";
+                foreach (var label in view.GetComponentsInChildren<TextMeshProUGUI>())
+                    if (label.name == "Stage") label.text = "조작 연습  ·  위장";
+            }
             view.running = true;
             DontDestroyOnLoad(view.gameObject);
             view.StartCoroutine(view.Load());
@@ -189,6 +197,9 @@ namespace Vampire
             // Let the complete overlay render before starting IO / scene deserialization.
             yield return null;
             yield return null;
+            // Hold the visitor's consumables for the scored scene; training uses a fresh actor.
+            var practiceItems = practiceBeforeOral ? CrossSceneData.StartingLobbyItems : null;
+            if (practiceBeforeOral) CrossSceneData.ClearStartingLobbyItems();
             try { operation = SceneManager.LoadSceneAsync(1, LoadSceneMode.Single); }
             catch (Exception error) { Debug.LogException(error); Fail(); yield break; }
             if (operation == null) { Fail(); yield break; }
@@ -200,7 +211,7 @@ namespace Vampire
                 yield return null;
             }
             // The last 6% includes actual world placement, not only scene deserialization.
-            heading.text = entryStage==0?"구강 진입과 필드 이벤트를 준비하고 있습니다…":entryStage==2?"대장 진입과 필드 오브젝트를 준비하고 있습니다…":"위장과 필드 오브젝트를 준비하고 있습니다…";
+            heading.text = practiceBeforeOral ? "위장 연습장을 준비하고 있어요…" : entryStage==0?"구강 진입과 필드 이벤트를 준비하고 있습니다…":entryStage==2?"대장 진입과 필드 오브젝트를 준비하고 있습니다…":"위장과 필드 오브젝트를 준비하고 있습니다…";
             ownsPause = true;
             Time.timeScale = 0; // No combat or timer elapses beneath the activation frame.
             operation.allowSceneActivation = true;
@@ -220,6 +231,29 @@ namespace Vampire
                     Fail();yield break;
                 }
                 yield return null;
+            }
+            if (practiceBeforeOral)
+            {
+                var level = FindObjectOfType<LevelManager>();
+                level.SetRunFlowPaused(true);
+                level.EntityManager.SetFieldMonsterRuntimeSuspended(true);
+                running = false;
+                var overlay = GetComponent<Canvas>();
+                overlay.enabled = false;
+                var training = GStarControlPractice.Show(level);
+                RestorePause();
+                while (training != null && !training.Complete) yield return null;
+                if (training != null) training.Finish();
+                overlay.enabled = true;
+                running = true;
+                ownsPause = true;
+                Time.timeScale = 0;
+                practiceBeforeOral = false;
+                CrossSceneData.StartingLobbyItems = practiceItems;
+                SetOralLabels();
+                SetProgress(0);
+                yield return Load();
+                yield break;
             }
             if(entryStage==2||entryStage==0)
             {

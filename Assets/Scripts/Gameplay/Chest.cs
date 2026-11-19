@@ -41,11 +41,6 @@ namespace Vampire
 
         private void SpawnLoot(Loot<GameObject> loot, bool openedByPlayer = true)
         {
-            if (GStarDemo.Enabled && loot.item != null && loot.item.GetComponent<Coin>() != null)
-            {
-                entityManager.AwardCoinValue((int)loot.coinType);
-                return;
-            }
             GameObject item = Instantiate(loot.item, chestItemsParent);
             item.transform.position = transform.position;
             transform.position += Vector3.back*0.001f;  // Nudge the collectable in front of the chest

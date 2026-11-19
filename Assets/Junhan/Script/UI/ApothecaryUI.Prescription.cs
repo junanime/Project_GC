@@ -15,7 +15,7 @@ namespace Vampire
         readonly Vector3[] prescriptionSafeCorners=new Vector3[4];
         TextMeshProUGUI prescriptionTitle;
         readonly TextMeshProUGUI[] prescriptionRows=new TextMeshProUGUI[3];
-        Button prescriptionClaim, overchargeButton;
+        Button overchargeButton;
         Action skillRewardCallback;
         bool skillRewardQueued;
         string[] analyticsSkillOffers;
@@ -26,10 +26,9 @@ namespace Vampire
             prescriptionScroll=AugmentPanelTheme.Rect("Vision scroll dock",prescriptionHud).gameObject.AddComponent<PrescriptionScrollView>();
             prescriptionScroll.Build(runtimeFont!=null?runtimeFont:Config.font,()=>{
                 prescriptionExpanded=!prescriptionExpanded;prescriptionScroll.SetExpanded(prescriptionExpanded);
-            },()=>Prescription?.TryClaim(FindObjectOfType<EntityManager>()?.AbilitySelectionDialog),prescriptionExpanded,level?.PlayerCharacter?.Blueprint??character);
+            },prescriptionExpanded,level?.PlayerCharacter?.Blueprint??character);
             prescriptionTitle=prescriptionScroll.Title;
             for(int i=0;i<3;i++)prescriptionRows[i]=prescriptionScroll.Rows[i];
-            prescriptionClaim=prescriptionScroll.Claim;
             overchargeButton=ActionButton(prescriptionHud,"혈전 과충전 / Q",.70f,.14f,.97f,.22f,()=>FindNearbyOvercharge()?.Begin(),true);
             overchargeButton.gameObject.SetActive(false);
         }
@@ -43,9 +42,14 @@ namespace Vampire
             if(Page=="hud")
             {
                 bool rewardOpen=level!=null && level.EntityManager!=null && level.EntityManager.AbilitySelectionDialog.MenuOpen;
+                var quest=Prescription;
+                if (!rewardOpen && !skillRewardQueued && quest != null && !quest.Claimed && quest.Ready &&
+                    level != null && !level.IsLevelEnded && !level.IsRunFlowPaused &&
+                    !StageEntryLoading.IsLoading && !MiniStageRuntimeState.IsInsideMiniStage &&
+                    level.EntityManager != null)
+                    rewardOpen = quest.TryClaim(level.EntityManager.AbilitySelectionDialog);
                 if(content!=null)content.gameObject.SetActive(!rewardOpen);
                 if(prescriptionHud!=null)prescriptionHud.gameObject.SetActive(!rewardOpen);
-                var quest=Prescription;
                 if(quest!=null && prescriptionTitle!=null)
                 {
                     prescriptionTitle.text=quest.Claimed?"퀘스트  3/3 · 완료":$"퀘스트  {quest.Completed}/3";
@@ -56,11 +60,7 @@ namespace Vampire
                         prescriptionRows[i].text=quest.IsComplete(i)?"<s>"+line+"</s>  완료":line;
                         prescriptionRows[i].color=quest.IsComplete(i)?new Color(.35f,.4f,.3f):Ink;
                     }
-                    if(prescriptionClaim!=null)
-                    {
-                        prescriptionClaim.interactable=quest.Ready&&Time.timeScale>0;
-                        prescriptionClaim.GetComponentInChildren<TextMeshProUGUI>().text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택":"퀘스트 3개 완료 → 고귀 증강";
-                    }
+                    prescriptionScroll.RewardStatus.text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택 대기 중":"모두 완료하면 고귀 증강 선택";
                 }
                 if(overchargeButton!=null)
                 {

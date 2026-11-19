@@ -118,7 +118,7 @@ namespace Vampire
         Vector3[] endpoints;
         public static CurrencyJarDrop Create(LevelManager owner, Vector2 position, bool silver, int amount, Transform parent)
         {
-            if (GStarDemo.Enabled)
+            if (GStarDemo.Enabled && silver)
             {
                 Credit(owner != null ? owner.PlayerCharacter : null, silver, amount);
                 return null;
@@ -169,8 +169,7 @@ namespace Vampire
                 if (stats != null) amount = stats.ApplyGoldGainMultiplier(amount);
                 var tracker = FindObjectOfType<StatsManager>();
                 if (tracker != null) tracker.IncreaseCoinsGained(amount);
-                else if (GStarDemo.Enabled) RunScore.Current?.Gold(amount);
-                if (!GStarDemo.Enabled && actor != null) HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(actor);
+                if (actor != null) HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(actor);
             }
             GameAudioManager.PlaySfx(silver ? GameAudioManager.GameSfxId.SilverPickup : GameAudioManager.GameSfxId.GoldPickup);
         }

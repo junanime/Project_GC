@@ -383,6 +383,7 @@ namespace Vampire
                 monsterBlueprint,
                 hpBuff
             );
+            GStarFieldBalance.TuneHealth(newMonster, FiniteStomachMap.Instance);
             if (colon != null && colon.TryGet(monsterBlueprint, out var colonEntry))
                 (newMonster.GetComponent<ColonMonsterVisual>() ?? newMonster.gameObject.AddComponent<ColonMonsterVisual>()).Configure(newMonster, colonEntry);
             if(colon!=null&&colon.TryGet(monsterBlueprint,out var specialEntry))
@@ -570,24 +571,10 @@ namespace Vampire
 
         public Coin SpawnCoin(Vector2 position, CoinType coinType, bool spawnAnimation, bool collectableDuringSpawn)
         {
-            if (GStarDemo.Enabled)
-            {
-                AwardCoinValue((int)coinType);
-                return null;
-            }
             Coin newCoin = coinPool.Get();
             newCoin.Setup(position, coinType, spawnAnimation, collectableDuringSpawn);
             if (MiniStageRuntimeState.IsInsideMiniStage) miniStageCoins.Add(newCoin);
             return newCoin;
-        }
-
-        // Only the timed collection room has physical score tokens. Field currency is credited immediately.
-        public Coin SpawnScoreToken(Vector2 position, CoinType value, bool spawnAnimation, bool collectableDuringSpawn)
-        {
-            Coin token = coinPool.Get();
-            token.Setup(position, value, spawnAnimation, collectableDuringSpawn, false, true);
-            if (MiniStageRuntimeState.IsInsideMiniStage) miniStageCoins.Add(token);
-            return token;
         }
 
         public void AwardCoinValue(int baseCoinValue)
@@ -596,7 +583,6 @@ namespace Vampire
             PlayerGeneralStatRuntime statRuntime = playerCharacter != null ? playerCharacter.GetComponent<PlayerGeneralStatRuntime>() : null;
             if (statRuntime != null) finalCoinValue = statRuntime.ApplyGoldGainMultiplier(finalCoinValue);
             if (statsManager != null) statsManager.IncreaseCoinsGained(finalCoinValue);
-            else if (GStarDemo.Enabled) RunScore.Current?.Gold(finalCoinValue);
             if (StageEventRuntimeModifiers.DebugGoldRush)
                 Debug.Log($"[GoldRush] Currency credited | base={baseCoinValue} | final={finalCoinValue}");
         }

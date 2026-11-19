@@ -7,7 +7,7 @@ namespace Vampire
     // Only the dedicated booth branch ships this resource marker. Normal builds keep their flow.
     public static class GStarDemo
     {
-        public const int AttemptLimit = 3;
+        public const int AttemptLimit = 2;
         public const string EventId = "gstar2026";
         static bool? enabled;
 #if UNITY_EDITOR

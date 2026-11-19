@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace Vampire
@@ -77,7 +76,6 @@ namespace Vampire
         private readonly List<GameObject> backDisplayNeedles = new List<GameObject>();
         private readonly Dictionary<int, float> nextDamageAllowedTimeByTarget = new Dictionary<int, float>();
 
-        private static bool hasWarnedHealMethodMissing = false;
 
         public static CursorControlledNeedleController Create(
             Character sourceCharacter,
@@ -1007,7 +1005,7 @@ float maxHitRadiusBonusFromSpecial)
 
             if (runtime.mosquitoEnabled)
             {
-                ApplyMosquitoHeal(damageableComponent, runtime);
+                SyringeSpecialHitEffectUtility.ApplyMosquitoHeal(damageableComponent, runtime, sourceCharacter);
             }
 
             if (runtime.explosionEnabled)
@@ -1149,23 +1147,6 @@ float maxHitRadiusBonusFromSpecial)
 
             markStatus.Apply(runtime.markDuration);
         }
-        private void ApplyMosquitoHeal(Component damageableComponent, SyringeSpecialRuntime runtime)
-        {
-            if (runtime.healingBlocked || sourceCharacter == null)
-            {
-                return;
-            }
-
-            float healAmount = runtime.mosquitoHealPerHit;
-
-            if (IsBossLikeTarget(damageableComponent))
-            {
-                healAmount *= runtime.mosquitoBossHealMultiplier;
-            }
-
-            TryHealPlayer(healAmount, damageableComponent);
-        }
-
         private bool IsBossLikeTarget(Component damageableComponent)
         {
             if (damageableComponent == null)
@@ -1192,58 +1173,6 @@ float maxHitRadiusBonusFromSpecial)
 
             string objectName = damageableComponent.gameObject.name;
             return objectName.Contains("Boss") || objectName.Contains("보스");
-        }
-
-        private void TryHealPlayer(float healAmount, Component impactSource)
-        {
-            if (sourceCharacter == null || healAmount <= 0f)
-            {
-                return;
-            }
-
-            string[] healMethodNames =
-            {
-                "GainHealth",
-                "Heal",
-                "AddHealth",
-                "RestoreHealth"
-            };
-
-            MethodInfo healMethod = null;
-
-            foreach (string methodName in healMethodNames)
-            {
-                healMethod = sourceCharacter.GetType().GetMethod(
-                    methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null,
-                    new System.Type[] { typeof(float) },
-                    null
-                );
-
-                if (healMethod != null)
-                {
-                    break;
-                }
-            }
-
-            if (healMethod == null)
-            {
-                if (!hasWarnedHealMethodMissing)
-                {
-                    Debug.LogWarning(
-                        "[이기어침/모기침] Character에서 체력 회복 메서드를 찾지 못했습니다. " +
-                        "GainHealth(float), Heal(float), AddHealth(float), RestoreHealth(float) 중 하나가 필요합니다."
-                    );
-
-                    hasWarnedHealMethodMissing = true;
-                }
-
-                return;
-            }
-
-            healMethod.Invoke(sourceCharacter, new object[] { healAmount });
-            SyringeAugmentVfx.PlayAbsorption(impactSource, sourceCharacter);
         }
 
         private void ApplyExplosion(GameObject originalTarget, SyringeSpecialRuntime runtime)

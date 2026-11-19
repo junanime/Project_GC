@@ -8,6 +8,7 @@ namespace Vampire
         string id;Monster owner;float next;
         public static void Bind(GameObject target,string key,Monster monster=null)
         {
+            if (GStarDemo.Enabled) return;
             var trigger=target.GetComponent<TutorialDiscoveryTrigger>();
             if(string.IsNullOrEmpty(key)||TutorialGuide.HasSeen(key)){if(trigger!=null)trigger.enabled=false;return;}
             if(trigger==null)trigger=target.AddComponent<TutorialDiscoveryTrigger>();

@@ -20,7 +20,7 @@ namespace Vampire
             rail=new GameObject("Shared pixel rail",typeof(RectTransform),typeof(CanvasRenderer),typeof(FoodBossHealthRail)).GetComponent<FoodBossHealthRail>();rail.transform.SetParent(panel,false);rail.rectTransform.anchorMin=Vector2.zero;rail.rectTransform.anchorMax=Vector2.one;rail.rectTransform.offsetMin=rail.rectTransform.offsetMax=Vector2.zero;rail.raycastTarget=false;
             title=new GameObject("Boss name",typeof(RectTransform),typeof(TextMeshProUGUI)).GetComponent<TextMeshProUGUI>();title.transform.SetParent(panel,false);title.rectTransform.anchorMin=Vector2.up;title.rectTransform.anchorMax=Vector2.one;title.rectTransform.offsetMin=new Vector2(0,2);title.rectTransform.offsetMax=new Vector2(0,23);title.alignment=TextAlignmentOptions.Center;title.fontSize=18;title.fontStyle=FontStyles.Bold;title.color=new Color(1,.95f,.8f);title.outlineWidth=.1f;title.outlineColor=new Color(.12f,.07f,.1f);title.raycastTarget=false;
             if(ApothecaryUI.Instance!=null)title.font=ApothecaryUI.Instance.Config.font;
-            title.text=b.Definition.Name;
+            title.text=GStarDemo.Enabled ? b.Definition.Name + " · 소환 " + (b.SummonTier + 1) + "등급" : b.Definition.Name;
         }
         void LateUpdate()
         {

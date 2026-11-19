@@ -76,6 +76,7 @@ namespace Vampire.Tests.Editor
         }
         private IEnumerator Start()
         {
+            GStarDemo.TestOverride = false; // This smoke covers automatic guides in the regular game.
             var oldCharacter = CrossSceneData.CharacterBlueprint;
             string acidKey = TutorialGuide.SeenKey("event/acid-secretion");
             string sniperKey = TutorialGuide.SeenKey("monster/sniper");

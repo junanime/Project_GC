@@ -5,7 +5,9 @@ using UnityEngine.UI;
 namespace Vampire
 {
     // Screen-sized meters follow stable idle-art landmarks, not animation bounds.
-    [DefaultExecutionOrder(1300)]
+    // Read the final actor pose and camera projection after spring flight, jaw and
+    // encounter-camera updates; fast arcs otherwise run one frame ahead of the HUD.
+    [DefaultExecutionOrder(30000)]
     public sealed class PlayerCombatBars : MonoBehaviour
     {
         public const float Width=76, Height=12, RowGap=3, DividerWidth=3;
