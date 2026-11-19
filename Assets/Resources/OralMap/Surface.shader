@@ -1,11 +1,11 @@
 Shader "OralStage/Surface" {
- Properties { _MainTex("Texture",2D)="white"{} _SecondTex("Palate",2D)="white"{} _DetailTex("Fine Surface",2D)="gray"{} _Color("Tint",Color)=(1,1,1,1) _Mode("Mode",Float)=0 _Clock("Clock",Float)=0 _Fluid("Fluid",Float)=0 _Progress("Progress",Float)=0 _Ceiling("Ceiling",Float)=0 _StripeWidth("Hatch world width",Float)=.85 _HatchContrast("Hatch contrast",Range(0,1))=.75 }
+ Properties { _MainTex("Texture",2D)="white"{} _SecondTex("Palate",2D)="white"{} _DetailTex("Fine Surface",2D)="gray"{} _Color("Tint",Color)=(1,1,1,1) _Mode("Mode",Float)=0 _Spice("Tongue heat",Vector)=(0,0,0,0) _Clock("Clock",Float)=0 _Fluid("Fluid",Float)=0 _Progress("Progress",Float)=0 _Ceiling("Ceiling",Float)=0 _StripeWidth("Hatch world width",Float)=.85 _HatchContrast("Hatch contrast",Range(0,1))=.75 }
  SubShader { Tags {"Queue"="Transparent" "RenderType"="Transparent"} Cull Off ZWrite Off Blend SrcAlpha OneMinusSrcAlpha
  Pass { CGPROGRAM
  #pragma vertex vert
  #pragma fragment frag
  #include "UnityCG.cginc"
- sampler2D _MainTex,_SecondTex,_DetailTex; float4 _Color,_HoleRect,_TongueCenter,_TongueRadii; float _Mode,_Clock,_Fluid,_Progress,_Ceiling,_Slant,_SolidFloor,_SouthFloor,_StripeWidth,_HatchContrast;
+ sampler2D _MainTex,_SecondTex,_DetailTex; float4 _Spice,_Color,_HoleRect,_TongueCenter,_TongueRadii; float _Mode,_Clock,_Fluid,_Progress,_Ceiling,_Slant,_SolidFloor,_SouthFloor,_StripeWidth,_HatchContrast;
  struct app {float4 vertex:POSITION;float2 uv:TEXCOORD0;float2 roofUV:TEXCOORD1;float4 color:COLOR;};
  struct vary {float4 vertex:SV_POSITION;float2 uv:TEXCOORD0;float2 roofUV:TEXCOORD1;float2 world:TEXCOORD2;float4 color:COLOR;};
  vary vert(app v){vary o;o.vertex=UnityObjectToClipPos(v.vertex);o.uv=v.uv;o.roofUV=v.roofUV;o.world=mul(unity_ObjectToWorld,v.vertex).xy;o.color=v.color;return o;}
@@ -45,7 +45,25 @@ Shader "OralStage/Surface" {
  float3 hatch=lerp(dark,bright,stripe);
  return float4(lerp(rgb,hatch,saturate(_HatchContrast))*_Color.rgb,_Color.a)*i.color;
  }
- if(_Mode>7.5){fixed4 floor=tex2D(_MainTex,uv);fixed4 roof=tex2D(_SecondTex,i.roofUV);roof.rgb=lerp(float3(.65,.32,.48),roof.rgb,roof.a);return float4(lerp(floor.rgb,roof.rgb,_Ceiling),1)*_Color*i.color;}
+ if(_Mode>7.5){
+ float3 tissue=tex2D(_MainTex,uv).rgb;
+ if(_Spice.x>0){
+   // Warm up the same painted tissue mesh used for ordinary walking. The
+   // pigment remains visible under the heat; tooth and chasm meshes are untouched.
+   float hot=_Spice.y, clock=_Spice.z;
+   float2 tile=floor(i.world*18)/18;
+   float scroll=tile.y*1.2+.38*sin(tile.x*1.45+sin(tile.y*.52))-.9*clock;
+   float wash=smoothstep(.52,.97,.5+.5*sin(scroll*4.2));
+   float pulse=.5+.5*cos(clock*4.0);
+   float detail=dot(tissue,float3(.31,.57,.12));
+   float3 warning=lerp(float3(.50,.15,.11),float3(1,.76,.33),detail);
+   float3 ember=lerp(float3(.50,.06,.11),float3(1,.59,.18),detail);
+   tissue=lerp(tissue,lerp(warning,ember,hot),_Spice.x*(.43+.23*hot+.11*pulse));
+   tissue+=float3(.15,.088,.012)*wash*_Spice.x*(.45+.55*hot);
+ }
+ float4 roof=tex2D(_SecondTex,i.roofUV);roof.rgb=lerp(float3(.65,.32,.48),roof.rgb,roof.a);
+ return float4(lerp(tissue,roof.rgb,_Ceiling),1)*_Color*i.color;
+ }
  if(_Mode<.5){
  float2 q=(uv-float2(.5,.45)); float inner=length(q/float2(.33,.29));
  // The lower gum mesh is the sole permanent gum rim. This surface supplies

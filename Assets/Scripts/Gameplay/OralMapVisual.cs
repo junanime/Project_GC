@@ -17,6 +17,10 @@ namespace Vampire
         readonly List<LineRenderer> cavityProgress=new List<LineRenderer>();
         readonly List<SpriteRenderer> cavities=new List<SpriteRenderer>();
         LineRenderer tongueOutline, tongueHighlight; GameObject hud; Text title, hint;
+        readonly List<OralGuardRoute> spiceEscapeRoutes = new List<OralGuardRoute>();
+        readonly LineRenderer[] spiceArrows = new LineRenderer[2];
+        static readonly int SpiceMaterialId = Shader.PropertyToID("_Spice");
+        bool spicyRoutesReady;
         LineRenderer foodWarning; MeshRenderer[] bubbleDiscs;Material bubbleMaterial; Sprite[] fragments;
         float clock; bool configured; Vector2[][] toothContours; Sprite cavityHole;
 
@@ -87,6 +91,13 @@ namespace Vampire
             for(int i=0;i<20;i++){bubbleDiscs[i]=Quad("기포 표면 "+i,new Rect(-1,-1,2,2),bubbleMaterial,0);GroundVisualSorting.Apply(bubbleDiscs[i],17);bubbleDiscs[i].enabled=false;}
             wind=new LineRenderer[32];for(int i=0;i<wind.Length;i++)wind[i]=Line("흐름과 재채기 "+i,.07f,new Color(.72f,.96f,1,.7f),20);
             jumpArcs=new LineRenderer[3];for(int i=0;i<3;i++)jumpArcs[i]=Line("협곡 점프 안내 "+i,.075f,new Color(.45f,1,.88f,.8f),5);
+            for (int i = 0; i < spiceArrows.Length; i++)
+            {
+                var arrow = Line("매운맛 · 대피 방향", .105f, new Color(.60f, 1, .89f), 25);
+                arrow.positionCount = 3;
+                arrow.enabled = false;
+                spiceArrows[i] = arrow;
+            }
             BuildHud();configured=true;
         }
         MeshRenderer Quad(string name,Rect rect,Material material,int order)
@@ -314,6 +325,7 @@ namespace Vampire
             title.text=!GStarDemo.Enabled&&events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
             hint.enabled=!GStarDemo.Enabled || swallow!=null;
             hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
+            if (UpdateSpice(events?.Tastes, kind, swallow != null)) return;
             if(swallow!=null)
             {
                 // One existing HUD owns the finale too; two overlapping event
@@ -325,6 +337,56 @@ namespace Vampire
                 hint.text=age<16?"혀 위에서 음식 몬스터를 피하세요":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"끝까지 살아남았어요":"소용돌이에 잡히면 대시로 빠져나오세요";
             }
         }
+        bool UpdateSpice(OralTasteEvents taste, OralEventKind kind, bool finale)
+        {
+            bool active = taste != null && taste.Active && taste.Kind == OralTasteKind.Spicy
+                && kind != OralEventKind.Ceiling && !finale && !StageEntryLoading.IsLoading;
+            if (!active)
+            {
+                tongueMaterial.SetVector(SpiceMaterialId, Vector4.zero);
+                foreach (var arrow in spiceArrows) arrow.enabled = false;
+                return false;
+            }
+
+            float age = taste.Age;
+            bool hot = taste.SpicyActive;
+            tongueMaterial.SetVector(SpiceMaterialId, new Vector4(
+                hot ? 1f : Mathf.Lerp(.55f, .92f, age / OralTasteEvents.SpicyWarning), hot ? 1f : 0f, age, 0));
+            var position = runtime.Level.PlayerCharacter.Position;
+            bool safe = OralMapGeometry.ZoneAt(map, position) == OralZone.Teeth;
+            if (!hot)
+                title.text = "이빨로 대피하세요!   " + Mathf.CeilToInt(OralTasteEvents.SpicyWarning - age) + "초";
+            else
+                title.text = safe ? "이빨 위는 안전해요!" : "혀가 뜨거워요! 이빨로 대피하세요!";
+            hint.enabled = true;
+            hint.text = safe ? "혀가 식을 때까지 이곳에서 버티세요" : "화살표를 따라 혀 끝에서 이빨 쪽으로 대시!";
+            if (!spicyRoutesReady)
+            {
+                for (int i = 0; i < OralMapGeometry.ToothCount; i++)
+                    if (OralGuardRoute.TryCreate(map, i, out var route)) spiceEscapeRoutes.Add(route);
+                spicyRoutesReady = true;
+            }
+            bool guide = !safe && !runtime.IsAirborne && spiceEscapeRoutes.Count > 0;
+            foreach (var arrow in spiceArrows) arrow.enabled = guide;
+            if (!guide) return true;
+
+            var best = spiceEscapeRoutes[0];
+            foreach (var route in spiceEscapeRoutes)
+                if ((route.Launch-position).sqrMagnitude < (best.Launch-position).sqrMagnitude) best = route;
+            Vector2 target = (best.Launch-position).sqrMagnitude < 3.24f ? best.Landing : best.Launch;
+            Vector2 dir = (target-position).normalized;
+            Vector2 side = new Vector2(-dir.y, dir.x);
+            for (int i = 0; i < spiceArrows.Length; i++)
+            {
+                var tip = position + dir * (1f + i*.37f + .12f*Mathf.Sin(age*5f));
+                var arrow = spiceArrows[i];
+                arrow.SetPosition(0, tip-dir*.24f+side*.19f);
+                arrow.SetPosition(1, tip);
+                arrow.SetPosition(2, tip-dir*.24f-side*.19f);
+            }
+            return true;
+        }
+
         void AnimateTongue(OralEventKind kind,float elapsed,bool ceiling)
         {
             var c=OralMapGeometry.TongueCenter(map);var r=OralMapGeometry.TongueRadii(map);

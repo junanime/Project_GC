@@ -28,7 +28,7 @@ oral=[
 ('salty','짠맛 · 소금결정','소금결정 무리가 혀로 몰려옵니다.','좁은 곳에 갇히지 말고 무리의 빈틈으로 이동하세요.','salt'),
 ('sour','신맛 · 레몬 스프링','통레몬을 밟으면 가장 가까운 이빨로 튀어 오릅니다.','적에게 몰렸을 때 레몬을 밟아 혀에서 벗어나세요.','lemon'),
 ('bitter','쓴 한입','쓴맛을 견디면 회복을 얻을 수 있습니다.','적과 거리를 벌린 뒤 선택해서 먹으세요.','bitter'),
-('spicy','매운맛 · 화상 원','경고 뒤 혀의 붉은 원이 뜨거워집니다. 위치는 매번 달라집니다.','원 사이 빈 길이나 치아 쪽으로 피하세요. 화상이 남을 수 있어요.','spicy'),
+('spicy','매운맛 · 혀 전체 화상','7초 뒤 혀 전체가 달아올라 10초 동안 매초 최대 체력의 10%를 잃어요.','이빨로 대피하세요! 화살표를 따라 혀 가장자리에서 어금니 쪽으로 대시하세요.','spicy'),
 ('boulder','치석 굴림돌','혀 곳곳에 놓인 치석을 밀면 부딪힌 적이 피해를 입습니다.','적을 향해 치석을 밀거나 대시로 세게 차세요.','boulder'),
 ('guard','민트 찹쌀 수호대','수호대가 혀 점프대를 향해 이동합니다. 체력은 80입니다.','몬스터를 막아 수호대가 살아서 점프하도록 호위하세요.','biker')]
 for id,t,w,h,f in oral:add('event/oral-'+id,t,w,h,gallery/'stage0/gif'/f'{f}.gif',5 if id=='spicy' else 0)
@@ -39,7 +39,7 @@ jobs['event/oral-boulder']=(lib/'GStarUIQA/field-balance/oral-remix',0)
 sequence_settings={'event/oral-boulder':('bowling-[0-9][0-9].png',9)}
 jobs['event/oral-guard']=(lib/'OralTasteContentProof/0-ashi/08-mint-guard',0)
 jobs['event/oral-sour']=(lib/'OralCeilingLemonProof/0-ashi/02-whole-lemon-spring',0)
-jobs['event/oral-spicy']=(lib/'GameplayGuideProof/captures/spicy',0)
+jobs['event/oral-spicy']=(lib/'OralTasteContentProof/0-ashi/05-spicy-tongue',4)
 add('event/oral-swallow','꿀꺽! · 소용돌이','구강 곳곳에 소용돌이가 생기고 마지막 삼키기가 시작됩니다.','소용돌이 사이를 피하고, 휩쓸릴 때는 대쉬로 탈출하세요.',gallery/'stage0/gif/spiral-dash.gif')
 for id,t,w,h,f in [
 ('expulsion','대변 배출','통로를 따라 강한 바람이 불며 캐릭터와 몬스터를 밀어냅니다.','반대로 이동하면 저항할 수 있습니다. 벽과 적에 몰리지 않게 움직이세요.','01-wind'),

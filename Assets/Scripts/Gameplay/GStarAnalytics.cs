@@ -44,7 +44,7 @@ namespace Vampire
         static StatsManager stats;
         public static string DirectoryPath => Path.Combine(GStarDemo.DataDirectory, "analytics");
         public static string LastError => store?.LastError ?? "";
-        public static bool IsRecording => GStarDemo.Enabled && active != null && active.status == "active";
+        public static bool IsRecording => GStarDemo.Enabled && !GStarControlPractice.Active && active != null && active.status == "active";
         static GStarAnalyticsStore Store => store ?? (store = new GStarAnalyticsStore(DirectoryPath));
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]

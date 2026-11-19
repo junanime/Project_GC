@@ -18,12 +18,15 @@ namespace Vampire.Tests.Editor
     {
         const string KeyName = "FieldDayControlsQA";
         static readonly bool RewardProofOnly = Environment.GetCommandLineArgs().Contains("-rewardProofOnly");
-        static string Folder => RewardProofOnly ? "reward-proof" : "field-day";
+        static readonly bool PracticeRoster = Environment.GetCommandLineArgs().Contains("-practiceRosterProof");
+        static string Folder => RewardProofOnly ? "reward-proof" : PracticeRoster ? "practice-roster" : "field-day";
         static string Output => "Library/GStarUIQA/"+Folder;
         static bool started;
         static double deadline;
         static Keyboard keyboard;
         static int frame;
+        static string characterFolder;
+        static float completionFirstSeen;
         static FieldDayControlsSmoke() { if (SessionState.GetBool(KeyName,false)) Attach(); }
 
         public static void Run()
@@ -51,7 +54,7 @@ namespace Vampire.Tests.Editor
 
         static void Attach()
         {
-            deadline = EditorApplication.timeSinceStartup+480;
+            deadline = EditorApplication.timeSinceStartup + (PracticeRoster ? 1200 : 480);
             started = false;
             EditorApplication.update -= Tick; EditorApplication.update += Tick;
             Application.logMessageReceived -= Log; Application.logMessageReceived += Log;
@@ -107,11 +110,22 @@ namespace Vampire.Tests.Editor
             for (int i=0;i<count;i++)
             {
                 yield return null;
-                Capture($"practice-{frame++:000}");
-                yield return null; // Two 20 fps simulation frames per capture, independent of disk latency.
+                if (float.IsNaN(completionFirstSeen) && GStarControlPractice.Instance != null && GStarControlPractice.Instance.Step==3)
+                {
+                    completionFirstSeen=Time.time;
+                    Mark("complete");
+                }
+                Capture($"{characterFolder}/{frame++:0000}");
+                yield return null; // Two 24 fps simulation frames per capture, independent of disk latency.
             }
         }
         static void Keys(params Key[] keys) => InputSystem.QueueStateEvent(keyboard,new KeyboardState(keys));
+        static void Mark(string name) => File.AppendAllText(Output+"/"+characterFolder+"/markers.txt",name+" "+frame+"\n");
+        static IEnumerator FilmUntil(Func<bool> reached, int maximumFrames, string description)
+        {
+            for (int i=0; i<maximumFrames && !reached(); i++) yield return Film(1);
+            Check(reached(),characterFolder+" "+description);
+        }
         static Button FindButton(string title) => ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.name==title);
 
         static void CheckSignature(LevelManager level)
@@ -244,6 +258,138 @@ namespace Vampire.Tests.Editor
             quest.Restore(before);
         }
 
+        static IEnumerator CheckPracticeToOral()
+        {
+            ApothecaryUI.Instance.StartRun();
+            yield return Wait(()=>GStarGaugeIntro.IsOpen,"festival gauge guide opens before control practice");
+            var level=Object.FindObjectOfType<LevelManager>();
+            CheckSignature(level);
+            var rehearsalPlayer=level.PlayerCharacter;
+            int originalId=rehearsalPlayer.GetInstanceID();
+            Check(StageProgression.Ensure(level).StageNumber==1&&level.IsRunFlowPaused&&!GStarAnalytics.IsRecording&&GStarSession.PendingAttempt,"practice has no real combat or scoring");
+            keyboard=InputSystem.AddDevice<Keyboard>("Booth test keyboard");
+            var controls=rehearsalPlayer.GetComponent<PlayerInput>();
+            if(controls!=null && controls.user.valid) InputUser.PerformPairingWithDevice(keyboard,controls.user);
+            keyboard.MakeCurrent();
+            float fieldTime=level.CurrentLevelTime;
+            yield return new WaitForSecondsRealtime(.35f);
+            Check(Time.timeScale==0 && level.CurrentLevelTime==fieldTime && !GStarControlPractice.Active && !GStarAnalytics.IsRecording,
+                "guide freezes the field and consumes no scored time");
+            Capture("gauge-guide-"+OctoberArt.CharacterKey(rehearsalPlayer.Blueprint));
+            Keys(Key.Space);
+            yield return null;yield return null;yield return null;
+            Check(GStarGaugeIntro.IsOpen && !rehearsalPlayer.Skills.Active,"held guide input cannot trigger a skill");
+            Keys();
+            yield return Wait(()=>GStarControlPractice.Active && !GStarGaugeIntro.IsOpen,"guide release begins stomach control practice");
+            var practice=GStarControlPractice.Instance;
+            characterFolder = OctoberArt.CharacterKey(rehearsalPlayer.Blueprint);
+            Directory.CreateDirectory(Output+"/"+characterFolder);
+            File.WriteAllText(Output+"/"+characterFolder+"/markers.txt","");
+            frame = 0;
+            completionFirstSeen = float.NaN;
+            Time.captureFramerate=24;
+            Mark("movement");
+            var origin = rehearsalPlayer.Position;
+            yield return Film(6);
+            Check(practice.Step==0 && practice.CompletedDirections==0,"standing still leaves all four directions open");
+            var cross=(RectTransform)practice.transform.Find("머리 위 방향 키");
+            var caps=cross.Cast<RectTransform>().ToDictionary(cap=>cap.GetComponentInChildren<TMPro.TMP_Text>().text);
+            Check(caps.Count==4 && caps["W"].anchoredPosition.y>caps["A"].anchoredPosition.y &&
+                caps["S"].anchoredPosition.y<caps["D"].anchoredPosition.y &&
+                caps["A"].anchoredPosition.x<caps["W"].anchoredPosition.x &&
+                caps["D"].anchoredPosition.x>caps["S"].anchoredPosition.x,"WASD caps form a cross");
+            var directions = new[]{Key.W,Key.S,Key.A,Key.D};
+            for (int i=0; i<directions.Length; i++)
+            {
+                int expected = i+1;
+                Keys(directions[i]);
+                yield return FilmUntil(()=>practice.CompletedDirections==expected,15,"accepted distinct direction "+directions[i]);
+                Check(!caps[directions[i].ToString()].gameObject.activeSelf &&
+                    caps.Values.Count(cap=>cap.gameObject.activeSelf)==4-expected,"only the pressed key disappears");
+                yield return Film(2);
+                if (i==0)
+                {
+                    Check(Vector2.Distance(origin,rehearsalPlayer.Position)>.05f,"movement inputs move the actual character");
+                    Keys();
+                    yield return Film(2);
+                    Keys(Key.W);
+                    yield return Film(3);
+                    Check(practice.CompletedDirections==1 && practice.Step==0,"repeat direction does not remove another key");
+                }
+                Keys();
+                yield return Film(2);
+            }
+            Check(practice.Step==1 && practice.DashUses==0,"four directions unlock dash");
+            Mark("dash");
+            yield return Film(3);
+            for(int i=1;i<=2;i++)
+            {
+                int expected = i;
+                var direction = i==1 ? Key.A : Key.D;
+                Keys(direction);
+                yield return Film(1);
+                Keys(direction,Key.LeftShift);
+                yield return FilmUntil(()=>practice.DashUses==expected,10,"registered real dash "+i);
+                Keys();
+                yield return FilmUntil(()=>!rehearsalPlayer.IsDashing,20,"dash movement ended");
+                if(i==1)
+                {
+                    yield return Film(5);
+                    Check(practice.Step==1,"a single dash cannot unlock skill");
+                    yield return FilmUntil(()=>rehearsalPlayer.CurrentDashCharges>0,90,"second dash recharged");
+                }
+            }
+            yield return FilmUntil(()=>practice.Step==2 && practice.Target!=null,20,"live skill target spawned");
+            var target=practice.Target;
+            Check(target.IsAlive && target.Position.x>rehearsalPlayer.Position.x,"live target is on the player's right");
+            Mark("target");
+            yield return Film(8);
+            Check(practice.Step==2 && target.IsAlive && !practice.SkillUsed,"target waits for active skill input");
+            yield return FilmUntil(()=>rehearsalPlayer.Skills.CanActivate,40,"skill can be activated");
+            Mark("active");
+            Keys(Key.Space);
+            yield return FilmUntil(()=>practice.SkillUsed,25,"real Space activated the chosen character's skill");
+            Keys();
+            if(rehearsalPlayer.Skills.IsAri && target!=null && target.IsAlive)
+            {
+                yield return Film(4);
+                yield return FilmUntil(()=>rehearsalPlayer.CurrentDashCharges>0,80,"Ari's attack dash is available");
+                Keys(Key.D);
+                yield return Film(1);
+                Keys(Key.D,Key.LeftShift);
+                yield return Film(2);
+                Keys();
+            }
+            yield return FilmUntil(()=>practice.Step==3,150,"actual target death opens completion");
+            Check(target==null || !target.IsAlive,"training target was killed");
+            var lines=practice.GetComponentsInChildren<TMPro.TMP_Text>().Select(t=>t.text).ToArray();
+            Check(lines.Contains("튜토리얼 완료!") && lines.Contains("이제 게임을 시작해볼까요~"),"both completion lines are visible");
+            Check(!GStarAnalytics.IsRecording && GStarSession.PendingAttempt,"training kill creates no scored run");
+            while (GStarControlPractice.Active && !StageEntryLoading.IsLoading) yield return Film(1);
+            float completionDuration=Time.time-completionFirstSeen;
+            Check(completionDuration>=3.85f && completionDuration<=4.2f,
+                $"completion stays for four game seconds before loading ({completionDuration:0.00}s)");
+            Time.captureFramerate=0;
+            Keys();
+            Mark("loading");
+            yield return Wait(()=>StageEntryLoading.IsLoading && StageEntryLoading.Instance.GetComponent<Canvas>().enabled &&
+                StageEntryLoading.Instance.GetComponentsInChildren<UnityEngine.UI.Image>().Count(image =>
+                    image.name == "Existing scene monster" && image.sprite != null && image.sprite.name.StartsWith("OralFood"))==3,
+                "all three crevices show the actual oral stage food silhouettes");
+            Capture(characterFolder+"/loading");
+            yield return Wait(()=>GStarSession.AttemptStarted && !StageEntryLoading.IsLoading && !GStarControlPractice.Active,"first scored run starts");
+            level=Object.FindObjectOfType<LevelManager>();
+            Check(level.PlayerCharacter.GetInstanceID()!=originalId && !level.PlayerCharacter.Skills.Active&&level.PlayerCharacter.Skills.CooldownRemaining<=0,"fresh player has no rehearsal cooldown");
+            CheckSignature(level);
+            Check(StageProgression.Ensure(level).StageNumber==0&&GStarSession.StageId==0&&GStarSession.RemainingAttempts==1,"stage zero is the first scored attempt");
+            TutorialGuide.QueueStageEvent("acid-secretion"); TutorialGuide.QueueBloodClot();
+            yield return new WaitForSecondsRealtime(.5f);
+            Check(!TutorialGuide.IsOpen && Time.timeScale>0 && GStarAnalytics.IsRecording,"discoveries never pause the booth run");
+            Capture(characterFolder+"/oral");
+            InputSystem.RemoveDevice(keyboard);
+            keyboard=null;
+        }
+
         static IEnumerator Drive()
         {
             Application.runInBackground=true;
@@ -286,58 +432,29 @@ namespace Vampire.Tests.Editor
                 Check(index>=0,"requested character exists");
                 FindButton("Choice 0 "+index).onClick.Invoke();
             }
-            ApothecaryUI.Instance.StartRun();
-            yield return Wait(()=>GStarGaugeIntro.IsOpen,"festival gauge guide opens before control practice");
+            if (PracticeRoster)
+            {
+                foreach (var name in new[]{"Ashi","Ari","Hyuki","Shini"})
+                {
+                    int index = Array.FindIndex(ApothecaryUI.Instance.Config.characters,c=>c!=null && OctoberArt.CharacterKey(c)==name);
+                    Check(index>=0,name+" available in departure preparation");
+                    FindButton("Choice 0 "+index).onClick.Invoke();
+                    yield return CheckPracticeToOral();
+                    Check(characterFolder==name,name+" verified on the actual field");
+                    Object.FindObjectOfType<LevelManager>().GameOver();
+                    yield return Wait(()=>ApothecaryUI.Instance.Page=="result",name+" completed the practice-to-result path");
+                    Check(GStarSession.FinishVisitor() && GStarSession.ResetVisitor(),"next isolated visitor can start a fresh practice");
+                    Time.timeScale=1;
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(0);
+                    yield return Wait(()=>ApothecaryUI.Instance!=null && ApothecaryUI.Instance.Page=="main","back to fresh title");
+                    ApothecaryUI.Instance.Show("prepare");
+                    yield return null;
+                }
+                SessionState.SetString(KeyName+"result","PASS");
+                yield break;
+            }
+            yield return CheckPracticeToOral();
             var level=Object.FindObjectOfType<LevelManager>();
-            CheckSignature(level);
-            var rehearsalPlayer=level.PlayerCharacter;
-            int originalId=rehearsalPlayer.GetInstanceID();
-            Check(StageProgression.Ensure(level).StageNumber==1&&level.IsRunFlowPaused&&!GStarAnalytics.IsRecording&&GStarSession.PendingAttempt,"practice has no real combat or scoring");
-            keyboard=InputSystem.AddDevice<Keyboard>("Booth test keyboard");
-            var controls=rehearsalPlayer.GetComponent<PlayerInput>();
-            if(controls!=null && controls.user.valid) InputUser.PerformPairingWithDevice(keyboard,controls.user);
-            keyboard.MakeCurrent();
-            float fieldTime=level.CurrentLevelTime;
-            yield return new WaitForSecondsRealtime(.35f);
-            Check(Time.timeScale==0 && level.CurrentLevelTime==fieldTime && !GStarControlPractice.Active && !GStarAnalytics.IsRecording,
-                "guide freezes the field and consumes no scored time");
-            Capture("gauge-guide-"+OctoberArt.CharacterKey(rehearsalPlayer.Blueprint));
-            Keys(Key.Space);
-            yield return null;yield return null;yield return null;
-            Check(GStarGaugeIntro.IsOpen && !rehearsalPlayer.Skills.Active,"held guide input cannot trigger a skill");
-            Keys();
-            yield return Wait(()=>GStarControlPractice.Active && !GStarGaugeIntro.IsOpen,"guide release begins stomach control practice");
-            var practice=GStarControlPractice.Instance;
-            Time.captureFramerate=20;
-            yield return Film(3);
-            Keys(Key.D);
-            yield return Wait(()=>practice.Step==1,"real D input moves the character",8);
-            yield return Film(3);
-            Keys(Key.D,Key.LeftShift);
-            yield return Wait(()=>practice.Step==2,"real Shift input starts dash",5);
-            yield return Film(4);
-            Keys();
-            yield return Wait(()=>rehearsalPlayer.Skills.CanActivate,"dash completes and skill becomes available",5);
-            yield return Film(2);
-            Keys(Key.Space);
-            yield return Wait(()=>practice.Step==3,"real Space input activates the selected skill",5);
-            Keys();
-            for(int i=0;i<13 && GStarControlPractice.Active;i++) yield return Film(1);
-            Time.captureFramerate=0;
-            yield return Wait(()=>StageEntryLoading.IsLoading && StageEntryLoading.Instance.GetComponent<Canvas>().enabled &&
-                StageEntryLoading.Instance.GetComponentsInChildren<UnityEngine.UI.Image>().Count(image =>
-                    image.name == "Existing scene monster" && image.sprite != null && image.sprite.name.StartsWith("OralFood"))==3,
-                "all three crevices show the actual oral stage food silhouettes");
-            Capture("stage0-loading-food");
-            yield return Wait(()=>GStarSession.AttemptStarted && !StageEntryLoading.IsLoading && !GStarControlPractice.Active,"first scored run starts");
-            level=Object.FindObjectOfType<LevelManager>();
-            Check(level.PlayerCharacter.GetInstanceID()!=originalId && !level.PlayerCharacter.Skills.Active&&level.PlayerCharacter.Skills.CooldownRemaining<=0,"fresh player has no rehearsal cooldown");
-            CheckSignature(level);
-            Check(StageProgression.Ensure(level).StageNumber==0&&GStarSession.StageId==0&&GStarSession.RemainingAttempts==1,"stage zero is the first scored attempt");
-            TutorialGuide.QueueStageEvent("acid-secretion"); TutorialGuide.QueueBloodClot();
-            yield return new WaitForSecondsRealtime(.5f);
-            Check(!TutorialGuide.IsOpen && Time.timeScale>0 && GStarAnalytics.IsRecording,"discoveries never pause the booth run");
-            Capture("first-oral-field");
             yield return GStarCombatFeedbackSmoke.CheckField(level);
             yield return CheckRewardChain(level);
             level.GameOver();
@@ -353,7 +470,6 @@ namespace Vampire.Tests.Editor
             Check(StageProgression.Ensure(level).StageNumber==1&&!GStarControlPractice.Active&&GStarSession.RemainingAttempts==0,"second choice is stage one without repeating practice");
             level.GameOver();
             Check(!GStarSession.TryBeginAttempt(0,out _),"third scored departure is blocked");
-            InputSystem.RemoveDevice(keyboard);
             SessionState.SetString(KeyName+"result","PASS");
         }
     }

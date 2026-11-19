@@ -96,7 +96,7 @@ namespace Vampire.Tests.Editor
                 foreach(var c in events.Cavities){c.Healed=true;c.Active=false;}
                 center=OralMapGeometry.TongueCenter(FiniteStomachMap.Instance);OralStageRuntime.Instance.TeleportPlayer(center,OralZone.Tongue);
                 Check(events.ForceEvent(OralEventKind.Spicy),"actual spicy event started");
-                Check(events.Tastes.SpiceCenters.Count==10,"ten randomized fire circles");
+                Check(events.Tastes.Duration==17f,"seven warning seconds before ten seconds of tongue heat");
                 yield return new WaitForSeconds(3);Time.captureFramerate=15;
                 yield return Clip("spicy",8,center,6.8f,t=>p.Move(t<2?Vector2.right:Vector2.zero));
                 p.Move(Vector2.zero);Time.captureFramerate=0;

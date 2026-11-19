@@ -59,6 +59,7 @@ namespace Vampire
         public bool IsComplete(int index) => state.progress[index] >= Target(index);
         public void Record(Goal goal, float amount=1)
         {
+            if (GStarControlPractice.Active) return;
             if(state==null || state.claimed || amount<=0) return;
             for(int i=0;i<3;i++) if(state.quests[i]==(int)goal)
             {

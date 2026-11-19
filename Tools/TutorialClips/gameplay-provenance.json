@@ -298,12 +298,12 @@
   },
   {
     "id": "event/oral-spicy",
-    "source": "Library/GameplayGuideProof/captures/spicy",
+    "source": "Library/OralTasteContentProof/0-ashi/05-spicy-tongue",
     "sourceType": "Unity runtime capture",
     "frames": 96,
     "fps": 12.0,
     "atlas": "Assets/Resources/TutorialClips/Sheets/live_event_oral_spicy.bytes",
-    "sha256": "c199505e4e9a54c5a75ed9db70a97cb2a1d97dc864dddd9eecefd31742781c94"
+    "sha256": "3ef1b0416cabc7a2b72669091b2cb253afb6e34f2195d6fe4ae7a7ed064eaa02"
   },
   {
     "id": "monster/sniper",

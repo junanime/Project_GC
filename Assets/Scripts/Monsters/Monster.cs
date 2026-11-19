@@ -562,7 +562,7 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (MonsterNeedleBarrier.Blocks(this)) return;
+            if (GStarControlPractice.Protects(this) || MonsterNeedleBarrier.Blocks(this)) return;
             var mole=GetComponent<NutritionThiefBacteriaMonster>();if(mole!=null&&mole.Underground&&!SuppressHitFlash)return;
             if (fieldRuntimeSuspended || rb == null)
             {
@@ -584,7 +584,7 @@ namespace Vampire
     Vector2 knockback = default(Vector2),
     bool isCritical = false)
         {
-            if (MonsterNeedleBarrier.Blocks(this)) return;
+            if (GStarControlPractice.Protects(this) || MonsterNeedleBarrier.Blocks(this)) return;
             var mole=GetComponent<NutritionThiefBacteriaMonster>();if(mole!=null&&mole.Underground&&!SuppressHitFlash)return;
             if (!alive || fieldRuntimeSuspended)
 
@@ -667,6 +667,8 @@ namespace Vampire
         {
             if (deathStarted) yield break;
             deathStarted = true;
+            bool trainingTarget = GStarControlPractice.HandleTargetDeath(this,killedByPlayer);
+            if (trainingTarget) killedByPlayer = false;
             var revival=GetComponent<ColonRevivalLink>();
             if(killedByPlayer&&revival!=null&&revival.CanRevive){alive=false;if(monsterHitbox!=null)monsterHitbox.enabled=false;yield return revival.Revive(this);if(currentHealth>0)yield break;}
             GetComponent<ColonSpecialRuntime>()?.OnDeath();
@@ -678,7 +680,7 @@ namespace Vampire
                 GStarCombatPacing.Kill();
             }
             if (killedByPlayer) RecordRankingKill();
-            Died?.Invoke(this);
+            if (!trainingTarget) Died?.Invoke(this);
 
             if (monsterHitbox != null)
             {
@@ -734,7 +736,7 @@ namespace Vampire
                 }
             }
 
-            OnKilled.Invoke(this);
+            if (!trainingTarget) OnKilled.Invoke(this);
             OnKilled.RemoveAllListeners();
 
             if (entityManager != null)

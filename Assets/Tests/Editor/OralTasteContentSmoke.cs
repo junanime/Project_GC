@@ -135,6 +135,10 @@ namespace Vampire.Tests.Editor
             var center=OralMapGeometry.TongueCenter(map);Place(player,center);Set(player,"isInvincible",true);
             var taste=OralTasteEvents.Instance;var ambient=OralAmbientContent.Instance;
             Check(taste!=null&&ambient!=null,"both production content controllers installed");
+            if(Environment.GetCommandLineArgs().Contains("-oralWholeTongue")){
+                yield return SpicyReview(level);
+                SessionState.SetBool(Key+"Done",true);yield break;
+            }
             if(Environment.GetCommandLineArgs().Contains("-oralDensity")){
                 yield return Retakes(level,events,player,center);
                 yield return Density(level,events,player,center);
@@ -278,56 +282,87 @@ namespace Vampire.Tests.Editor
         }
         static IEnumerator SpicyReview(LevelManager level)
         {
-            var player=level.PlayerCharacter;var map=FiniteStomachMap.Instance;
-            var center=OralMapGeometry.TongueCenter(map);var taste=OralTasteEvents.Instance;
-            Clear(level);Place(player,center);
-            Check(taste.Begin(OralTasteKind.Spicy),"scattered circular spicy patches begin");
-            Check(taste.SpiceCenters.Count==10,"ten unchanged-size spicy circles are distributed across the tongue");
-            var previousLayout=taste.SpiceCenters.ToArray();
-            int previousVariant=taste.SpiceLayoutVariant;
-            var hot=taste.SpiceCenters.OrderBy(p=>(p-center).sqrMagnitude).First();
-            var safeTongue=SpicySafePoint(map,taste.SpiceCenters,hot);Place(player,hot);
-            Check(taste.SpiceCenters.All(p=>Vector2.Distance(p,safeTongue)>=taste.SpiceRadius+.6f),"recorded safe point clears every circle with player-width margin");
-            captureFocus=map.WorldRect.center;shotSize=map.WorldRect.height*.53f;bool checkedCoverage=false,warningChecked=false,leftBurn=false,gapProtected=false,immuneChecked=false,fadeChecked=false;int ticksAtExit=-1,immuneTicks=-1;float activeSeconds=0;float start=Time.time;
-            Set(player,"currentHealth",player.MaxHealth);Set(player,"isInvincible",false);
-            var teeth=OralMapGeometry.ToothCenters(map);
-            float spicyHealth=player.CurrentHealth,immuneHealth=0;
-            float spicyWarning=OralTasteEvents.SpicyWarning;float spicyRecording=taste.Duration+1f;
-            yield return Record("05-spicy-tongue",()=>Time.time-start<spicyRecording,()=>{
+            var player = level.PlayerCharacter;
+            var map = FiniteStomachMap.Instance;
+            var taste = OralTasteEvents.Instance;
+            var oral = OralStageRuntime.Instance;
+            var events = OralFieldEvents.Instance;
+            var center = OralMapGeometry.TongueCenter(map);
+            var routes = new List<OralGuardRoute>();
+            for(int i=0; i<OralMapGeometry.ToothCount; i++)
+                if(OralGuardRoute.TryCreate(map,i,out var r)) routes.Add(r);
+            Check(routes.Count > 0, "a reachable molar matches the actual player jump test");
+            var route = routes.OrderBy(r=>Mathf.Abs((r.Launch-center).y)).First();
+            Clear(level); Place(player,route.Launch);
+            Set(player,"currentHealth",player.MaxHealth); Set(player,"isInvincible",false);
+            float startHp = player.CurrentHealth, safeHp = 0;
+            Check(events.ForceEvent(OralEventKind.Spicy), "scheduler starts the full-tongue hazard");
+            Check(!events.ForceEvent(OralEventKind.Jaw) && !events.ForceEvent(OralEventKind.Coffee), "teeth remain reachable throughout evacuation");
+            var visual=oral.GetComponent<OralMapVisual>();
+            bool warning=false,coverage=false,dashed=false,escaped=false;
+            var nearFocus=(route.Launch+route.Landing)*.5f;
+            var wideFocus=map.WorldRect.center;
+            float nearSize=Mathf.Max(5,Vector2.Distance(route.Launch,route.Landing)*.55f);
+            float wideSize=map.WorldRect.height*.47f;
+            float start=Time.time;
+            yield return Record("05-spicy-tongue",()=>Time.time-start<18f,()=>{
                 float age=Time.time-start;
-                if(age>spicyWarning-1&&age<spicyWarning-.05f&&!warningChecked){warningChecked=true;Check(!taste.ContainsSpice(hot)&&taste.BurnRemaining<=0,"warning circle cannot ignite the player");Check(Mathf.Approximately(player.CurrentHealth,spicyHealth),"warning does not remove HP");}
-                if(taste.SpicyActive){activeSeconds+=Time.deltaTime;if(!checkedCoverage){checkedCoverage=true;Check(taste.ContainsSpice(hot),"visible circle center belongs to spicy damage mask");Check(!taste.ContainsSpice(safeTongue),"walkable tongue gap lies outside all circles");Check(teeth.All(p=>!taste.ContainsSpice(p)),"every tooth excluded from spicy damage mask");}}
-                if(age>spicyWarning+3.2f&&!leftBurn){leftBurn=true;ticksAtExit=taste.BurnTicks;Check(player.CurrentHealth<spicyHealth&&ticksAtExit>0,"standing inside an active circle actually removes player HP");Place(player,safeTongue);Check(taste.BurnRemaining>0,"leaving hazard retains three-second burn");}
-                if(age>spicyWarning+7f&&!gapProtected){gapProtected=true;Check(taste.BurnTicks>ticksAtExit,"existing burn ticks continue after leaving a circle");Check(taste.BurnRemaining<=.01f,"burn expires in a safe tongue gap without refresh");Set(player,"isInvincible",true);immuneHealth=player.CurrentHealth;immuneTicks=taste.BurnTicks;Place(player,hot);}
-                if(age>spicyWarning+9f&&!immuneChecked){immuneChecked=true;Check(Mathf.Approximately(player.CurrentHealth,immuneHealth)&&taste.BurnTicks==immuneTicks,"burn respects player invincibility and does not count blocked ticks as damage");Place(player,safeTongue);}
-                if(age>spicyWarning+15f+.05f&&!fadeChecked){fadeChecked=true;Check(!taste.ContainsSpice(hot),"extinguishing visual has no remaining floor damage");}
+                float near=Mathf.SmoothStep(0,1,Mathf.Clamp01((age-1.5f)/2.5f))*
+                    (1-Mathf.SmoothStep(0,1,Mathf.Clamp01((age-13.4f)/2f)));
+                captureFocus=Vector2.Lerp(wideFocus,nearFocus,near);
+                shotSize=Mathf.Lerp(wideSize,nearSize,near);
+                if(!warning && taste.Age>6.5f && taste.Age<7f){
+                    warning=true;
+                    var label=visual.GetComponentsInChildren<UnityEngine.UI.Text>(true).FirstOrDefault(t=>t.name=="진행 중인 이벤트");
+                    Check(label!=null && label.text.Contains("이빨로 대피하세요!") && label.isActiveAndEnabled, "escape warning remains visible during the seventh second");
+                    Check(taste.BurnTicks==0 && Mathf.Approximately(startHp,player.CurrentHealth), "no damage during warning");
+                }
+                if(!coverage && taste.SpicyActive){
+                    coverage=true;
+                    Check(taste.ContainsSpice(center) && routes.All(r=>taste.ContainsSpice(r.Launch)), "tongue centre and every reachable tongue edge are hot");
+                    Check(OralMapGeometry.ToothCenters(map).All(tooth=>!taste.ContainsSpice(tooth)), "all fourteen teeth are outside the hot surface");
+                }
+                if(!dashed && taste.Age>9.15f){
+                    Check(taste.BurnTicks==2 && Mathf.Abs(player.CurrentHealth-(startHp-player.MaxHealth*.2f))<.05f, "after two seconds two pulses each remove exactly ten percent max HP");
+                    var dir=(route.Landing-route.Launch).normalized;
+                    player.Move(dir); dashed=player.TryDash(); player.Move(Vector2.zero);
+                    Check(dashed && oral.IsJumping, "normal player dash launches across the chasm from the hot tongue");
+                }
+                if(!escaped && dashed && !oral.IsJumping){
+                    escaped=true; safeHp=player.CurrentHealth;
+                    Check(OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth, "dash lands on a safe tooth");
+                }
             });
-            Check(warningChecked&&checkedCoverage&&gapProtected&&immuneChecked&&fadeChecked&&Mathf.Abs(activeSeconds-15)<.2f,"spicy active circles last exactly fifteen game seconds");Check(!taste.SpicyActive&&taste.SpiceCenters.Count==0,"spicy circles clean up after the harmless fade");
-            Set(player,"isInvincible",true);
-            for(int repeat=2;repeat<=3;repeat++)
+            Check(warning && coverage && escaped, "evacuation sequence completed");
+            Check(!taste.Active && !taste.ContainsSpice(center) && taste.BurnTicks==2 && Mathf.Approximately(safeHp,player.CurrentHealth),"safe teeth receive zero ticks and no lingering burn through expiration");
+            Check(Mathf.Abs(taste.Duration-17f)<.01f,"seven warning seconds plus ten active seconds");
+            if (Environment.GetCommandLineArgs().Contains("-oralWholeTongue"))
             {
-                taste.Configure(level);Check(taste.Begin(OralTasteKind.Spicy),"fresh random spicy event "+repeat);
-                var current=taste.SpiceCenters.ToArray();
-                Check(current.Length==10&&!current.SequenceEqual(previousLayout),"actual consecutive event changes all-layout coordinates without shrinking circles "+repeat);
-                Check(taste.SpiceLayoutVariant!=previousVariant,"consecutive spicy events never reuse the previous base arrangement "+repeat);
-                previousVariant=taste.SpiceLayoutVariant;
-                previousLayout=current;float preview=Time.time;
-                yield return Record("05-spicy-layout-"+repeat,()=>Time.time-preview<3.2f,()=>{});
-                Frame("spicy-layout-"+repeat);
+                player.GainHealth(player.MaxHealth);
+                var initialHp = player.CurrentHealth;
+                Check(events.ForceEvent(OralEventKind.Spicy), "a second occurrence begins with a fresh pulse clock");
+                var oldRate = Time.captureFramerate;
+                var oldScale = Time.timeScale;
+                Time.captureFramerate = 30; Time.timeScale = 3;
+                bool returned = false;
+                try
+                {
+                    var timeout = Time.realtimeSinceStartup + 45;
+                    while (taste.Active && Time.realtimeSinceStartup < timeout)
+                    {
+                        if (!returned && taste.Age >= 8.2f)
+                        {
+                            Check(taste.BurnTicks == 0 && Mathf.Approximately(player.CurrentHealth,initialHp), "an entire first tick on a tooth is harmless");
+                            Place(player, center); returned = true;
+                        }
+                        yield return null;
+                    }
+                    Check(returned && !taste.Active && taste.BurnTicks == 9 && Mathf.Abs(initialHp-player.CurrentHealth-player.MaxHealth*.9f)<.1f,
+                        "re-entry takes nine real ticks through the very last second without a duplicated expiration tick");
+                }
+                finally { Time.timeScale = oldScale; Time.captureFramerate = oldRate; }
             }
             captureFocus=null;shotSize=5;Set(player,"isInvincible",true);taste.Configure(level);Place(player,center);
-
-        }
-        static Vector2 SpicySafePoint(FiniteStomachMap map,IReadOnlyList<Vector2> centers,Vector2 near)
-        {
-            for(int i=0;i<360;i++)
-            {
-                float angle=i*Mathf.Deg2Rad;
-                var point=near+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*(OralSpicyHazard.Radius+.7f);
-                if(OralMapGeometry.TongueDistance(map,point,out _)>=.6f&&
-                    centers.All(p=>Vector2.Distance(p,point)>=OralSpicyHazard.Radius+.6f))return point;
-            }
-            throw new InvalidOperationException("No walkable safe point beside the recorded spicy circle");
         }
         static IEnumerator Retakes(LevelManager level,OralFieldEvents events,Character player,Vector2 center)
         {
@@ -408,10 +443,11 @@ namespace Vampire.Tests.Editor
                 // Coroutine captures run before Unity LateUpdate. Refresh the same real
                 // presentation ownership that the normal rendering phase executes.
                 foreach(var crush in Object.FindObjectsOfType<JawCrushVisual>())if(crush.enabled)typeof(JawCrushVisual).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(crush,null);
-                foreach(var bars in Object.FindObjectsOfType<PlayerCombatBars>())typeof(PlayerCombatBars).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(bars,null);
                 foreach(var bars in Object.FindObjectsOfType<OralGuardHealthBar>())typeof(OralGuardHealthBar).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(bars,null);
                 camera.targetTexture=rt;foreach(var c in overlays){c.renderMode=RenderMode.ScreenSpaceCamera;c.worldCamera=camera;c.planeDistance=camera.nearClipPlane+.1f;c.overrideSorting=true;c.sortingOrder=Mathf.Clamp(32100+c.sortingOrder,32100,32760);}
-                Canvas.ForceUpdateCanvases();camera.Render();RenderTexture.active=rt;image=new Texture2D(960,540,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,960,540),0,0);image.Apply();File.WriteAllBytes(Output+"/"+name+".png",image.EncodeToPNG());
+                Canvas.ForceUpdateCanvases();
+                foreach(var bars in Object.FindObjectsOfType<PlayerCombatBars>())typeof(PlayerCombatBars).GetMethod("LateUpdate",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(bars,null);
+                camera.Render();RenderTexture.active=rt;image=new Texture2D(960,540,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,960,540),0,0);image.Apply();File.WriteAllBytes(Output+"/"+name+".png",image.EncodeToPNG());
             }finally{
                 for(int i=0;i<overlays.Length;i++){overlays[i].renderMode=RenderMode.ScreenSpaceOverlay;overlays[i].worldCamera=cameras[i];overlays[i].planeDistance=distances[i];overlays[i].sortingOrder=orders[i];overlays[i].overrideSorting=flags[i];}
                 camera.targetTexture=target;camera.transform.position=position;camera.orthographicSize=zoom;RenderTexture.active=active;RenderTexture.ReleaseTemporary(rt);if(image!=null)Object.Destroy(image);Canvas.ForceUpdateCanvases();

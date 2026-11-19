@@ -91,7 +91,7 @@ namespace Vampire
         public int Level => level;
 
         public bool Owned => owned;
-        public bool AttacksBlocked => GStarControlPractice.Active || StageEntryLoading.IsLoading || Time.timeScale <= 0f ||
+        public bool AttacksBlocked => GStarControlPractice.BlocksBasicAttack || StageEntryLoading.IsLoading || Time.timeScale <= 0f ||
             (playerCharacter != null && (playerCharacter.IsPortalTravelling || playerCharacter.IsPortalPoseHeld || playerCharacter.IsTrapBound || playerCharacter.IsDashing || (playerCharacter.Skills != null && playerCharacter.Skills.IsCutin)));
 
         // Gate new emissions only, leaving already launched projectiles untouched.

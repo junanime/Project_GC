@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -23,6 +23,7 @@ namespace Vampire.Tests.Editor
 
         public static void Run()
         {
+            SessionState.SetString(Key + "Data", Path.GetFullPath("Library/GStarMusicQA/" + Guid.NewGuid().ToString("N")));
             SessionState.SetBool(Key, true);
             SessionState.SetBool(Key + "Done", false);
             SessionState.SetInt(Key + "Passed", 0);
@@ -30,6 +31,17 @@ namespace Vampire.Tests.Editor
             EditorSceneManager.OpenScene("Assets/Scripts/boyoung/test/Main Menu.unity");
             Attach();
             EditorApplication.EnterPlaymode();
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void IsolateBoothRecords()
+        {
+            if (!SessionState.GetBool(Key, false)) return;
+            GStarDemo.TestOverride = true;
+            GStarDemo.TestDataDirectory = SessionState.GetString(Key + "Data", "");
+            GStarSession.TestDirectory = GStarLeaderboard.TestDirectory = GStarDemo.TestDataDirectory;
+            GStarSession.ReloadForTests();
+            GStarLeaderboard.ReloadForTests();
         }
 
         static void Attach()
@@ -212,22 +224,18 @@ namespace Vampire.Tests.Editor
             var original = Field<AudioClip>(prefab, "ingameBgm");
             var additions = Field<AudioClip[]>(prefab, "additionalIngameBgms");
             Check(original != null && original.name == "01_ingame_steady_hunt_loop", "existing gameplay music remains assigned");
-            Check(additions != null && additions.Length == 4 && additions.All(c => c != null), "four approved additions are assigned on the shipping prefab");
-            if (original == null || additions == null || additions.Length != 4 || additions.Any(c => c == null))
-            { SessionState.SetBool(Key + "Done", true); yield break; }
-            var pool = new[] { original }.Concat(additions).ToArray();
-            Check(pool.Distinct().Count() == 5, "five distinct playable tracks including the original");
-            foreach (var clip in pool)
-            {
-                clip.LoadAudioData();
-                float until = Time.realtimeSinceStartup + 12;
-                while (clip.loadState == AudioDataLoadState.Loading && Time.realtimeSinceStartup < until) yield return null;
-                Check(clip.loadState == AudioDataLoadState.Loaded && clip.samples > 0 && clip.channels == 2,
-                    clip.name + " has decoded stereo audio");
-            }
+            Check(additions == null || additions.Length == 0, "booth prefab has no additional field tracks");
+            if (original == null) { SessionState.SetBool(Key + "Done", true); yield break; }
+            original.LoadAudioData();
+            float until = Time.realtimeSinceStartup + 12;
+            while (original.loadState == AudioDataLoadState.Loading && Time.realtimeSinceStartup < until) yield return null;
+            Check(original.loadState == AudioDataLoadState.Loaded && original.samples > 0 && original.channels == 2,
+                "original field loop decodes as stereo");
             var character = ApothecaryUI.Instance.Config.characters[0];
             foreach (int stage in new[] { 0, 1, 2 })
             {
+                if (stage == 2)
+                    Check(GStarSession.FinishVisitor() && GStarSession.ResetVisitor(), "fresh QA visitor for the third field");
                 CrossSceneData.CharacterBlueprint = character;
                 Check(StageEntryLoading.Begin(character, stage: stage), "direct stage " + stage + " loading accepted");
                 yield return null;
@@ -240,30 +248,38 @@ namespace Vampire.Tests.Editor
                 RunScore.Exclude("BGM playlist regression");
                 if (TutorialGuide.IsOpen) TutorialGuide.Instance.Close();
                 if (level.EntityManager.AbilitySelectionDialog.MenuOpen) level.EntityManager.AbilitySelectionDialog.Close();
-                level.SetRunFlowPaused(true);
                 Time.timeScale = 1;
                 Check(flow.StageNumber == stage && level.InitialFieldObjectsReady, "stage " + stage + " actual world prepared");
                 yield return Playing(Base, "stage " + stage + " field");
-                Check(pool.Contains(Base.clip), "stage " + stage + " selects from the shared five-track pool");
+                Check(Base.clip == original && Base.loop, "stage " + stage + " loops the original field clip");
                 OneLayer(Base, "stage " + stage + " field");
 
                 if (stage == 1)
                 {
-                    var seen = new HashSet<AudioClip>();
-                    bool rngPreserved = true;
-                    for (int draw = 0; draw < 128; draw++)
+                    bool onlyOriginal = true;
+                    for (int entry = 0; entry < 12; entry++)
                     {
-                        var randomBefore = UnityEngine.Random.state;
                         GameAudioManager.BeginNextStageMusic();
-                        rngPreserved &= randomBefore.Equals(UnityEngine.Random.state);
-                        seen.Add(Field<AudioClip>(GameAudioManager.Instance, "selectedGameplayBgm"));
+                        onlyOriginal &= Base.clip == original;
                     }
-                    Check(rngPreserved, "BGM draws do not consume gameplay/spawn Unity random state");
-                    Check(seen.Count == 5 && seen.All(pool.Contains), "128 independent stage draws cover the five valid tracks");
+                    Check(onlyOriginal, "repeat departures keep the original field track");
                     yield return Playing(Base, "post-draw field");
                 }
 
+                if (Environment.GetCommandLineArgs().Contains("-captureFieldMusic"))
+                {
+                    Directory.CreateDirectory("Library/GStarUIQA/field-music");
+                    for (int frame = 0; frame < 15; frame++)
+                    {
+                        yield return new WaitForSecondsRealtime(.1f);
+                        GStarUISmoke.Capture($"field-music/stage-{stage}-{frame:00}", 960, 540);
+                    }
+                    Check(Base.clip == original && Base.isPlaying, "field preview plays original track");
+                }
+                level.SetRunFlowPaused(true);
                 yield return LayerChecks(stage);
+                GStarAnalytics.Finish(false, "music_qa");
+                Check(GStarSession.CompleteAttempt(false), "finish isolated QA attempt");
                 yield return SceneManager.LoadSceneAsync(0);
                 yield return new WaitForSecondsRealtime(.5f);
                 yield return Playing(Base, "lobby return");

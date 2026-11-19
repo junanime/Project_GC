@@ -324,7 +324,8 @@ namespace Vampire
                 if (Tastes == null || Tastes.Active) return false;
                 begun = Tastes.Begin((OralTasteKind)((int)kind - (int)OralEventKind.Sweet));
             }
-            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 붉은 화상 원 사이 빈 길로 피하세요" :
+            // The tongue HUD owns the seven-second evacuation notice and its live countdown.
+            if (begun && kind != OralEventKind.Spicy) Notify(
                 kind == OralEventKind.Sweet ? "벌꿀집 발견! | 꿀에 모인 적들을 한꺼번에 처치하세요" :
                 kind == OralEventKind.Salty ? "짠맛! | 몰려오는 소금결정 무리를 쓰러뜨리세요" :
                 kind == OralEventKind.Sour ? "신맛! | 레몬을 밟아 가까운 치아로 건너가세요" :
@@ -332,14 +333,6 @@ namespace Vampire
                 "구강 수호대! | 수호대를 지켜 혀 점프대까지 호위하세요");
             if(begun){TutorialGuide.QueueStageEvent("oral-"+kind.ToString().ToLowerInvariant());GStarAnalytics.Record("field_event_start","oral/"+kind);}
             return begun;
-        }
-
-        void NotifyContent(OralEventKind kind, string message)
-        {
-            var toast = FindObjectOfType<StageEventToastUI>();
-            if (toast == null) return;
-            if (kind == OralEventKind.Spicy) toast.ShowImmediateEncounter(message);
-            else Notify(message);
         }
 
         void TickJaw(float previous)

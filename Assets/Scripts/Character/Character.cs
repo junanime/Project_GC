@@ -1116,6 +1116,7 @@ namespace Vampire
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
+            if (GStarControlPractice.Active) return;
             if (IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return;
             if (!alive)
             {
@@ -1191,6 +1192,20 @@ namespace Vampire
             var items=GetComponent<OctoberItemRuntime>();
             if(items!=null)damage=items.Incoming(damage,pendingDamageMonsterBlueprint);
             if (Relics != null) damage = Relics.Absorb(damage);
+            ApplyHealthDamage(damage, knockback, items);
+        }
+
+        // Area-wide field damage is settled against max HP. A fully transferred
+        // player still has the normal protection during scene travel and endings.
+        public void TakeGroundHazardDamage(float damage)
+        {
+            if (!alive || currentHealth <= 0 || IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return;
+            GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            ApplyHealthDamage(damage, Vector2.zero, GetComponent<OctoberItemRuntime>());
+        }
+
+        void ApplyHealthDamage(float damage, Vector2 knockback, OctoberItemRuntime items)
+        {
             if (damage <= 0) return;
             float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);

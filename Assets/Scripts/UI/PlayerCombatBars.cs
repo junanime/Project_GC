@@ -162,8 +162,9 @@ namespace Vampire
             var oral=OralStageRuntime.Instance;
             var travelOffset=oral!=null && oral.Level!=null && oral.Level.PlayerCharacter==owner
                 ? oral.TravelVisualWorldOffset : Vector3.zero;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)+travelOffset),null,out head);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)+travelOffset),null,out feet);
+            var uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)+travelOffset),uiCamera,out head);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)+travelOffset),uiCamera,out feet);
             health.root.anchoredPosition=head+Vector2.up*(Height*.5f+5);
             dash.root.anchoredPosition=feet-Vector2.up*(Height*.5f+6);
             active.root.anchoredPosition=dash.root.anchoredPosition-Vector2.up*(Height+RowGap);
