@@ -1,6 +1,6 @@
 Shader "Vampire/TimeSand"
 {
-    Properties { _Strength("Strength",Float)=0 _Phase("Phase",Float)=0 _Aspect("Aspect",Float)=1.7778 _Calm("Reduced motion",Float)=0 _AugmentOpacity("Augment opacity",Range(0,1))=1 }
+    Properties { _Strength("Strength",Float)=0 _Phase("Phase",Float)=0 _Release("Release",Float)=0 _AugmentOpacity("Augment opacity",Range(0,1))=1 }
     SubShader
     {
         Tags { "Queue"="Transparent+100" "RenderType"="Transparent" "IgnoreProjector"="True" }
@@ -13,20 +13,35 @@ Shader "Vampire/TimeSand"
             #include "UnityCG.cginc"
             struct appdata { float4 vertex:POSITION;float2 uv:TEXCOORD0; };
             struct v2f { float4 pos:SV_POSITION;float2 uv:TEXCOORD0; };
-            float _Strength,_Phase,_Aspect,_Calm,_AugmentOpacity;
-            v2f vert(appdata v){v2f o;o.pos=UnityObjectToClipPos(v.vertex);o.uv=v.uv;return o;}
-            float hash(float2 p){return frac(sin(dot(p,float2(127.1,311.7)))*43758.5453);}
-            float noise(float2 p){float2 i=floor(p),f=frac(p);f=f*f*(3-2*f);return lerp(lerp(hash(i),hash(i+float2(1,0)),f.x),lerp(hash(i+float2(0,1)),hash(i+1),f.x),f.y);}
+            float _Strength,_Phase,_Release,_AugmentOpacity;
+            // Anchor the ring to the actual render target, even on a resized game window.
+            v2f vert(appdata v){v2f o;o.pos=float4(v.vertex.x,v.vertex.y*_ProjectionParams.x,.5,1);o.uv=v.uv;return o;}
+            // Pixel-sized sand builds into curved gusts along the four edges.
+            float hash(float2 p) { return frac(52.9829189 * frac(dot(p, float2(.06711056, .00583715)))); }
             fixed4 frag(v2f i):SV_Target
             {
-                float2 p=(i.uv-.5)*float2(_Aspect,1);float phase=_Phase*(1-_Calm);
-                float cloud=noise(p*3+float2(phase*.055,-phase*.035))*.6+noise(p*8+float2(-phase*.08,phase*.05))*.4;
-                float edge=smoothstep(.12,.8,length(p));
-                // Quiet, coherent drifting grains rather than per-frame random noise.
-                float2 cells=(p+float2(phase*.025,-phase*.016))*float2(250,250);
-                float grain=step(.989,hash(floor(cells)))*(1-smoothstep(.08,.2,length(frac(cells)-.5)));
-                float alpha=(.035+cloud*.09+edge*.025+grain*.10*(1-_Calm*.7))*_Strength*_AugmentOpacity;
-                return fixed4(lerp(float3(.80,.72,.48),float3(1,.94,.72),cloud),alpha);
+                float aspect = _ScreenParams.x / _ScreenParams.y;
+                float2 pixel = floor(i.uv * float2(aspect,1) * 320.0) / 320.0;
+                float2 p = pixel - .5 * float2(aspect,1);
+                p.y += _Release * _Release * .12;
+                float2 rim = abs(i.uv - .5) * 2;
+                float edge = max(smoothstep(.60, .98, rim.x), smoothstep(.55, .98, rim.y));
+                // Leave the top bar, quest card and center item belt clear on every map.
+                edge *= 1.0-smoothstep(.94,.965,i.uv.y);
+                edge *= 1.0-smoothstep(.75,.80,i.uv.x)*smoothstep(.50,.55,i.uv.y);
+                edge *= 1.0-(1.0-smoothstep(.065,.105,abs(i.uv.x-.5)))*smoothstep(.72,.79,i.uv.y);
+                edge *= 1.0-(1.0-smoothstep(.175,.235,i.uv.y))*(1.0-smoothstep(.135,.20,abs(i.uv.x-.5)));
+                float sweep = p.x * .93 + p.y * .35 - _Phase * .72;
+                float bend = p.y + sin(p.x * 5.0 - _Phase * 2.2) * .055 + p.x * .17;
+                float2 cells = float2(sweep*29.0, bend*105.0);
+                float seed = hash(floor(cells));
+                float2 grain = abs(frac(cells) - .5);
+                float fleck = step(.60, seed) * step(grain.x, .14 + .25*seed) * step(grain.y,.31);
+                float ribbon = .5 + .5*sin(bend * 93.0 + sin(sweep*7.0)*1.4);
+                float streak = smoothstep(.78, .98, ribbon) * smoothstep(-.35,.65,sin(sweep*9.0+bend*16.0));
+                float alpha = edge * (.045 + streak*.26 + fleck*.78) * _Strength * _AugmentOpacity;
+                float3 color = lerp(float3(.69,.40,.15),float3(1,.88,.54), max(streak, fleck*seed));
+                return fixed4(color,alpha);
             }
             ENDCG
         }

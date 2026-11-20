@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace Vampire
 {
     // Rehearse on the real stomach map with the selected character and the normal input system.
-    // The loading screen creates a fresh combat scene when the three actions are complete.
+    // The first scored run starts only after the visitor confirms departure.
     public sealed class GStarControlPractice : MonoBehaviour
     {
         public static GStarControlPractice Instance { get; private set; }
@@ -19,7 +19,7 @@ namespace Vampire
         public int DashUses { get; private set; }
         public Monster Target { get; private set; }
         public bool SkillUsed { get; private set; }
-        public bool Complete => Step == 3 && Time.time >= finishAt;
+        public bool Complete { get; private set; }
 
         // Give each active its visible payoff before the equipped weapon can finish the target.
         bool AllowFollowup => Step == 2 && SkillUsed && Time.time >= followupAt && !player.Skills.IsSummoning;
@@ -34,14 +34,16 @@ namespace Vampire
         static readonly Color Cream = new Color(1f,.963f,.86f);
         static readonly Color Mint = new Color(.62f,.95f,.81f);
         readonly List<Canvas> hidden = new List<Canvas>();
-        readonly IdentityShape[] progress = new IdentityShape[3];
+        readonly IdentityShape[] progress = new IdentityShape[5];
         Character player;
         LevelManager level;
         Vector2 initialPosition;
-        RectTransform cross;
+        RectTransform cross, headKey, panel;
+        TextMeshProUGUI headKeyLabel;
         readonly GameObject[] caps = new GameObject[4];
         int directionMask;
-        float finishAt, followupAt, refillDashAt;
+        float followupAt, refillDashAt;
+        bool departureReleased;
         bool pendingDashRefill;
         bool pickupWasEnabled;
         Rigidbody2D targetBody;
@@ -97,7 +99,7 @@ namespace Vampire
             scaler.referenceResolution = new Vector2(1280,720);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 
-            var panel = new GameObject("연습 안내", typeof(RectTransform)).GetComponent<RectTransform>();
+            panel = new GameObject("연습 안내", typeof(RectTransform)).GetComponent<RectTransform>();
             panel.SetParent(transform,false);
             panel.anchorMin = panel.anchorMax = panel.pivot = new Vector2(.5f,0);
             panel.anchoredPosition = new Vector2(0,24);
@@ -112,12 +114,12 @@ namespace Vampire
             action = Label(panel,new Vector2(.325f,.16f),new Vector2(.965f,.57f),28,Cream,TextAlignmentOptions.Left);
             for (int i = 0; i < progress.Length; i++)
             {
-                float x = .814f + .05f * i;
-                progress[i] = TrainingUITheme.Pill("연습 진도",panel,Mint,new Vector2(x,.669f),new Vector2(x+.038f,.727f));
+                float x = .80f + .035f * i;
+                progress[i] = TrainingUITheme.Pill("연습 진도",panel,Mint,new Vector2(x,.669f),new Vector2(x+.025f,.727f));
             }
             keys = new[] {
                 "이동",
-                KeyName(GameKeyAction.Dash), KeyName(GameKeyAction.Active)
+                KeyName(GameKeyAction.Dash), KeyName(GameKeyAction.Active), KeyName(GameKeyAction.Journal)
             };
             skillName = player.Skills.Definition.activeName;
             cross = AugmentPanelTheme.Rect("머리 위 방향 키", transform);
@@ -135,6 +137,15 @@ namespace Vampire
                 glyph.text = KeyName(Directions[i]);
                 caps[i] = rect.gameObject;
             }
+            var capBase = TrainingUITheme.Pill("머리 위 조작 키",transform,Ink,Vector2.zero,Vector2.zero);
+            capBase.radius = 9;
+            headKey = (RectTransform)capBase.transform;
+            headKey.anchorMin = headKey.anchorMax = headKey.pivot = new Vector2(.5f,.5f);
+            headKey.sizeDelta = new Vector2(112,47);
+            var face = TrainingUITheme.Pill("키캡",headKey,Mint,new Vector2(.027f,.15f), new Vector2(.973f,.96f));
+            face.radius = 7;
+            headKeyLabel = Label(face.transform,new Vector2(.04f,0),new Vector2(.96f,1),23,Ink,TextAlignmentOptions.Center);
+            headKeyLabel.enableAutoSizing = true; headKeyLabel.fontSizeMin=13; headKeyLabel.fontSizeMax=23;
         }
 
         static TextMeshProUGUI Label(Transform parent, Vector2 min, Vector2 max, float size, Color color, TextAlignmentOptions align)
@@ -149,9 +160,9 @@ namespace Vampire
 
         void LateUpdate()
         {
+            if (Step != 4) PositionKeys();
             if (Step == 0)
             {
-                PositionCross();
                 for (int i = 0; i < Directions.Length; i++)
                 {
                     int bit = 1 << i;
@@ -161,11 +172,7 @@ namespace Vampire
                     caps[i].SetActive(false);
                     Draw();
                 }
-                if (CompletedDirections == Directions.Length)
-                {
-                    cross.gameObject.SetActive(false);
-                    Advance();
-                }
+                if (CompletedDirections == Directions.Length) Advance();
             }
             else if (Step == 1)
             {
@@ -198,9 +205,26 @@ namespace Vampire
                 if (Target != null && Target.IsAlive && Vector2.Distance(Target.transform.position,player.Position) > 4.2f)
                     PositionTarget();
             }
+            else if (Step == 3 && GameInput.Pressed(GameKeyAction.Journal))
+            {
+                var book = ApothecaryUI.Instance;
+                if (book != null && book.OpenPracticeBook()) Advance();
+            }
+            else if (Step == 4)
+            {
+                var book = ApothecaryUI.Instance;
+                if (book == null) return;
+                if (book.Page == "run" && GameInput.Pressed(GameKeyAction.Journal)) book.CloseRunBook();
+                if (book.Page == "hud") Advance();
+            }
+            else if (Step == 5)
+            {
+                if (!GameInput.Held(GameKeyAction.Active)) departureReleased = true;
+                else if (departureReleased && GameInput.Pressed(GameKeyAction.Active)) Complete = true;
+            }
         }
 
-        void PositionCross()
+        void PositionKeys()
         {
             var cam = Camera.main;
             if (cam == null) return;
@@ -210,6 +234,7 @@ namespace Vampire
             float x = Mathf.Clamp(local.x,canvasRect.rect.xMin+72,canvasRect.rect.xMax-72);
             float y = Mathf.Clamp(local.y+140,canvasRect.rect.yMin+52,canvasRect.rect.yMax-52);
             cross.anchoredPosition = new Vector2(x,y);
+            headKey.anchoredPosition = new Vector2(x,Mathf.Clamp(local.y+110,canvasRect.rect.yMin+36,canvasRect.rect.yMax-36));
         }
 
         void SpawnTarget()
@@ -280,7 +305,6 @@ namespace Vampire
             if (killedByPlayer && monster.HP <= 0 && view.Step == 2 && (view.SkillUsed || view.player.Skills.Active))
             {
                 if (!view.SkillUsed) view.RecordCast();
-                view.finishAt = Time.time + 4f;
                 view.Advance();
             }
             return true;
@@ -289,18 +313,26 @@ namespace Vampire
         void Advance() { Step++; Draw(); }
         void Draw()
         {
-            bool done = Step == 3;
-            key.text = done ? "완료" : Step == 2 && SkillUsed ? (player.Skills.IsAri ? keys[1] : "처치") : keys[Step];
-            counter.text = done ? "튜토리얼 완료!" : $"조작 연습   {Step+1} / 3";
+            bool done = Step == 5;
+            key.text = done ? keys[2] : Step >= 3 ? keys[3] :
+                Step == 2 && SkillUsed ? (player.Skills.IsAri ? keys[1] : "처치") : keys[Step];
+            counter.text = done ? "튜토리얼 완료!" : $"조작 연습   {Step+1} / 5";
             action.text = Step == 0 ? $"네 방향으로 움직여 보세요   {CompletedDirections}/4" :
                 Step == 1 ? $"두 번 대시해 보세요   {DashUses}/2" :
-                done ? "이제 게임을 시작해볼까요~" :
+                done ? "이제 구강으로 출발해 볼까요?" :
+                Step == 3 ? $"{keys[3]}을 눌러 캐릭터 상태를 확인하세요!" :
+                Step == 4 ? $"{keys[3]}을 다시 눌러 닫으세요." :
                 !SkillUsed ? $"오른쪽 적에게 {skillName} 사용" :
                 player.Skills.IsAri ? "변신했어요! 적을 향해 대시하세요" :
                 player.Skills.IsShini ? "적을 바라보고 불을 뿜으세요" :
                 needle != null && needle.HasCursorControlLegendary() ? "적 곁에서 회전하는 침을 맞히세요" :
                 player.Skills.IsHyuki ? "적이 얼면 침으로 마무리하세요" : "강화된 침으로 적을 처치하세요";
             action.enableAutoSizing = true; action.fontSizeMin = 18; action.fontSizeMax = 28;
+            panel.gameObject.SetActive(Step != 4);
+            cross.gameObject.SetActive(Step == 0);
+            headKey.gameObject.SetActive(Step != 0 && Step != 4 && (Step != 2 || !SkillUsed || player.Skills.IsAri));
+            headKeyLabel.text = key.text;
+            headKey.sizeDelta = new Vector2(key.text == "Space" ? 152 : Mathf.Clamp(24 + key.text.Length*16,58,144),47);
             for (int i = 0; i < progress.Length; i++)
                 progress[i].color = i <= Step ? Mint : new Color(.44f,.33f,.42f);
         }
@@ -309,6 +341,8 @@ namespace Vampire
         void OnDisable()
         {
             if (Instance != this) return;
+            var book = ApothecaryUI.Instance;
+            if (Step == 4 && book != null && book.Page == "run") book.CloseRunBook();
             Instance = null;
             ReleaseTargetPose();
             if (Target != null && Target.SpawnGeneration == targetGeneration && Target.gameObject.activeSelf)

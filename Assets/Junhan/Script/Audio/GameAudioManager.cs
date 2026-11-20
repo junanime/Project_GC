@@ -408,6 +408,10 @@ namespace Vampire
         private float lastMonsterHitTime =
             float.NegativeInfinity;
 
+        // Preserve the leading crit in a crowd hit; every damage/score event still resolves.
+        const double BoothCriticalHitInterval = .07;
+        double nextBoothCriticalHitTime;
+
         private float lastEliteSpawnTime =
             float.NegativeInfinity;
 
@@ -1206,6 +1210,12 @@ namespace Vampire
                     }
 
                     lastMonsterHitTime = now;
+                    break;
+
+                case GameSfxId.CriticalHit when GStarDemo.Enabled:
+                    double hitTime = Time.unscaledTimeAsDouble;
+                    if (hitTime < nextBoothCriticalHitTime) return;
+                    nextBoothCriticalHitTime = hitTime + BoothCriticalHitInterval;
                     break;
 
                 case GameSfxId.EliteSpawn:

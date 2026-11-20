@@ -15,7 +15,6 @@ namespace Vampire
         readonly Vector3[] prescriptionSafeCorners=new Vector3[4];
         TextMeshProUGUI prescriptionTitle;
         readonly TextMeshProUGUI[] prescriptionRows=new TextMeshProUGUI[3];
-        Button overchargeButton;
         Action skillRewardCallback;
         bool skillRewardQueued;
         string[] analyticsSkillOffers;
@@ -29,13 +28,6 @@ namespace Vampire
             },prescriptionExpanded,level?.PlayerCharacter?.Blueprint??character);
             prescriptionTitle=prescriptionScroll.Title;
             for(int i=0;i<3;i++)prescriptionRows[i]=prescriptionScroll.Rows[i];
-            overchargeButton=ActionButton(prescriptionHud,"혈전 과충전 / Q",.70f,.14f,.97f,.22f,()=>FindNearbyOvercharge()?.Begin(),true);
-            overchargeButton.gameObject.SetActive(false);
-        }
-        BloodClotOvercharge FindNearbyOvercharge()
-        {
-            foreach(var charge in FindObjectsOfType<BloodClotOvercharge>())if(charge.PlayerInside)return charge;
-            return null;
         }
         void UpdatePrescriptionUI()
         {
@@ -52,8 +44,8 @@ namespace Vampire
                 if(prescriptionHud!=null)prescriptionHud.gameObject.SetActive(!rewardOpen);
                 if(quest!=null && prescriptionTitle!=null)
                 {
-                    prescriptionTitle.text=quest.Claimed?"퀘스트  3/3 · 완료":$"퀘스트  {quest.Completed}/3";
-                    prescriptionScroll.Tag.text=$"[{PrescriptionRuntime.Tags[quest.Tag]}] 퀘스트";
+                    prescriptionTitle.text=quest.Claimed?"고귀 퀘스트  3/3 · 완료":$"고귀 퀘스트  {quest.Completed}/3";
+                    prescriptionScroll.Tag.text=$"고귀 퀘스트 · {PrescriptionRuntime.Tags[quest.Tag]}";
                     for(int i=0;i<3;i++)if(prescriptionRows[i]!=null)
                     {
                         string line=$"{quest.Description(i)}\n{Mathf.FloorToInt(quest.Progress(i))}/{quest.Target(i):0}";
@@ -61,12 +53,6 @@ namespace Vampire
                         prescriptionRows[i].color=quest.IsComplete(i)?new Color(.35f,.4f,.3f):Ink;
                     }
                     prescriptionScroll.RewardStatus.text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택 대기 중":"모두 완료하면 고귀 증강 선택";
-                }
-                if(overchargeButton!=null)
-                {
-                    var charge=FindNearbyOvercharge();
-                    overchargeButton.gameObject.SetActive(charge!=null&&!charge.Started&&!MiniStageRuntimeState.IsInsideMiniStage);
-                    overchargeButton.interactable=Time.timeScale>0;
                 }
                 if(skillRewardQueued && Time.timeScale>0 && CurrentSkills!=null && !CurrentSkills.IsCutin)
                 {

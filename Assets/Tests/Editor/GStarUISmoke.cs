@@ -225,6 +225,9 @@ namespace Vampire.Tests.Editor
             for (int i = 0; i < 3; i++)
             {
                 var button = Button("challenge " + i);
+                var hook = Text(new[] { "혀 끝에서 이빨로 대시!", "달콤한 냄새를 따라 보스 찾기", "잠든 중간보스를 골라 깨우기" }[i]);
+                Check(hook != null && !hook.isTextOverflowing && !Bounds(hook).Overlaps(Bounds(button)),
+                    "stage hook is legible above its own challenge button " + i);
                 Check(button.GetComponentInChildren<TextMeshProUGUI>().text == "도전하기", "each stage has the same challenge caption");
                 Check(button.IsInteractable() == (count > 0), "stage challenge availability " + i);
                 var skin=button.targetGraphic as Image;

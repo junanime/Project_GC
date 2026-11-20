@@ -73,7 +73,7 @@ namespace Vampire
 
         public void UseInputItem(UnityEngine.InputSystem.InputAction.CallbackContext context)
         {
-            if(!context.performed || Time.timeScale<=0 || GameInput.KeyboardBlocked)return;
+            if(!context.performed || Time.timeScale<=0 || NumberedCardChoice.CapturesInventoryAction(context.control) || GameInput.KeyboardBlocked)return;
             if(IsBomb)BombTargeting.For(this)?.ThrowAutomatic(this);else UseItem();
         }
 

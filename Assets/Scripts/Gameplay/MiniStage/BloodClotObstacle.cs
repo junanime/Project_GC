@@ -10,6 +10,9 @@ namespace Vampire
         public const string LayerName = "BloodClot Solid";
         internal static readonly HashSet<BloodClotObstacle> Active = new HashSet<BloodClotObstacle>();
         private CircleCollider2D solid;
+        private float portalBaseRadius = -1f;
+        // Keep a forgiving interaction margin outside the physical footprint on small portal art.
+        public const float PortalReachMargin = .6f;
         public Collider2D Solid => solid;
         private static readonly RaycastHit2D[] castHits = new RaycastHit2D[32];
 
@@ -37,7 +40,17 @@ namespace Vampire
                 solid.isTrigger = false;
             }
             // Keep the outer interaction ring reachable without entering the physical footprint.
-            solid.radius = source != null ? source.radius * (damageableClot ? 1f : 0.65f) : 0.3f;
+            bool portal = !damageableClot && source != null && source.isTrigger &&
+                (GetComponent<BloodClotMiniStagePortal>() != null || GetComponent<MiniStageReturnInteractable>() != null);
+            if (portal)
+            {
+                if (portalBaseRadius < 0f) portalBaseRadius = source.radius;
+                solid.radius = portalBaseRadius * .65f;
+                var worldScale = transform.lossyScale;
+                float scale = Mathf.Max(.01f, Mathf.Max(Mathf.Abs(worldScale.x), Mathf.Abs(worldScale.y)));
+                source.radius = Mathf.Max(portalBaseRadius, solid.radius + PortalReachMargin / scale);
+            }
+            else solid.radius = source != null ? source.radius * (damageableClot ? 1f : .65f) : .3f;
             solid.offset = source != null ? source.offset : Vector2.zero;
             if (damageableClot && source != null) source.isTrigger = true;
             var body = GetComponent<Rigidbody2D>();

@@ -47,8 +47,34 @@ namespace Vampire
         private static Transform poolRoot;
         private static readonly Dictionary<string, ObjectPool<SyringeAugmentVfx>> pools = new Dictionary<string, ObjectPool<SyringeAugmentVfx>>();
 
+        // Limit repeated flashes in dense packs while preserving each distinct impact type.
+        private struct BurstWindow
+        {
+            public int Count;
+            public float Until;
+            public Vector3 LastPosition;
+        }
+        private static readonly BurstWindow[] burstWindows = new BurstWindow[3];
+
+        private static bool AllowBurst(string effect, Vector3 position)
+        {
+            int slot = effect == "Explosion" ? 0 : effect == "WoodBranch" ? 1 : effect == "HeavySnipeImpact" ? 2 : -1;
+            if (slot < 0 || !GStarDemo.Enabled) return true;
+            ref var burst = ref burstWindows[slot];
+            float now = Time.time;
+            if (now >= burst.Until) { burst.Count = 0; burst.Until = now + .065f; }
+            if (burst.Count >= 4 || (burst.Count > 0 && (burst.LastPosition - position).sqrMagnitude < .25f)) return false;
+            burst.Count++;
+            burst.LastPosition = position;
+            return true;
+        }
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetPools() { pools.Clear(); poolRoot = null; }
+        private static void ResetPools()
+        {
+            pools.Clear(); poolRoot = null;
+            System.Array.Clear(burstWindows, 0, burstWindows.Length);
+        }
 
         public static SpriteRenderer FindTarget(Component owner)
         {
@@ -66,6 +92,7 @@ namespace Vampire
 
         public static SyringeAugmentVfx Play(string effect, Vector3 position, SpriteRenderer target = null)
         {
+            if (!AllowBurst(effect, position)) return null;
             if (poolRoot == null)
             {
                 pools.Clear();

@@ -270,6 +270,8 @@ namespace Vampire
             if(result.success){GStarSession.SetIdentity(gstarName.text,gstarPhone.text);gstarBoard=run.stageId;}
             Render();
         }
+        static readonly string[] StageHooks = { "혀 끝에서 이빨로 대시!", "달콤한 냄새를 따라 보스 찾기", "잠든 중간보스를 골라 깨우기" };
+
         void GStarNext()
         {
             GHeader(1);int left=GStarSession.RemainingAttempts;
@@ -280,7 +282,8 @@ namespace Vampire
             for(int i=0;i<3;i++)
             {
                 int stage=i;float x=187+i*460;
-                GText($"스테이지 {i} · {GStage(i)}",205+i*460,636,348,49,35);
+                GText($"스테이지 {i} · {GStage(i)}",205+i*460,630,348,32,29);
+                GText(StageHooks[i],x,662,381,23,20,new Color(.27f,.19f,.23f));
                 GButton("challenge "+i,"도전하기",x,700,381,90,()=>LaunchGStar(stage),true,left>0&&!starting&&!GStarSession.VisitorFinished);
             }
             // The old right separator crosses the new, wider instruction. Keep its paper

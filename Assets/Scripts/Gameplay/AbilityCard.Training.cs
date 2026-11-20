@@ -91,7 +91,7 @@ namespace Vampire
                 bool original = boothOffer.Kind == Ver4RewardKind.Original;
                 effectLabel.text = original ? Ver4AugmentCatalog.OriginalNames[(int)boothOffer.Parent.Type*3+boothOffer.Option]
                     : boothOffer.Kind == Ver4RewardKind.NewSpecial ? "새로운 침 획득" : "공유 침 강화";
-                progressLabel.text = original ? $"이 효과 {boothOffer.OwnedOriginalCount+1}/3단계"
+                progressLabel.text = original ? $"효과 단계 {boothOffer.OwnedOriginalCount} → {boothOffer.OwnedOriginalCount + 1} / 3"
                     : boothOffer.Kind == Ver4RewardKind.Numeric ? "모든 침에 적용" : "선택 시 획득";
                 return;
             }

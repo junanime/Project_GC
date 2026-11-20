@@ -228,13 +228,17 @@ namespace Vampire.Tests.Editor
                     card.transform.SetParent(root.transform);
                     SetPrivateField(card, "augmentType", selected);
                     card.Init(manager, null, null);
+                    bool retired = selected == SyringeSpecialAugmentAbility.SpecialAugmentType.Honey ||
+                        selected == SyringeSpecialAugmentAbility.SpecialAugmentType.WoodNeedle;
+                    Assert.That(StartingNeedleSelection.Available(selected), Is.EqualTo(!retired), $"catalog availability: {selected}");
+                    if (retired) Assert.That(card.RequirementsMet(), Is.False, $"retired parent offered: {selected}");
                     card.Select();
 
                     foreach (SyringeSpecialAugmentAbility.SpecialAugmentType candidate in
                              Enum.GetValues(typeof(SyringeSpecialAugmentAbility.SpecialAugmentType)))
                     {
                         Assert.That(ReadSpecialState(syringe, candidate),
-                            Is.EqualTo(candidate == selected), $"selected={selected}, state={candidate}");
+                            Is.EqualTo(!retired && candidate == selected), $"selected={selected}, state={candidate}");
                     }
                 }
                 finally

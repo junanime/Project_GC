@@ -13,16 +13,17 @@ namespace Vampire
         private AcupunctureFormationController formation;
         private Character source;
         private LayerMask layer;
+        private Ver4CombatSnapshot combat;
         private int burst;
         private float damage;
         private Vector2 previous;
         private bool leased;
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetRegistry() { active.Clear(); evaluatedFrame = -1; }
-        public void Initialize(SyringeProjectile projectile, AcupunctureFormationController owner, int id, float amount, Character character, LayerMask mask)
+        public void Initialize(SyringeProjectile projectile, AcupunctureFormationController owner, int id, float amount, Character character, LayerMask mask, Ver4CombatSnapshot snapshot = null)
         {
             ResetLease();
-            needle = projectile; formation = owner; burst = id; damage = amount; source = character; layer = mask;
+            combat = snapshot; needle = projectile; formation = owner; burst = id; damage = amount; source = character; layer = mask;
             previous = transform.position; leased = true; active.Add(this);
         }
         public void ResetLease() { leased = false; active.Remove(this); }
@@ -54,9 +55,11 @@ namespace Vampire
                     Vector2 delta = ((Vector2)a.transform.position - a.previous) - ((Vector2)b.transform.position - b.previous);
                     float t = delta.sqrMagnitude > .000001f ? Mathf.Clamp01(-Vector2.Dot(relative, delta) / delta.sqrMagnitude) : 0;
                     Vector2 position = (Vector2.Lerp(a.previous, a.transform.position, t) + Vector2.Lerp(b.previous, b.transform.position, t)) * .5f;
+                    var snapshot = a.damage > b.damage ? a.combat : b.combat;
                     a.leased = b.leased = false;
                     a.needle.RemoveForItem(); b.needle.RemoveForItem();
                     SyringeAugmentVfx.PlayRadius("Explosion", position, 1f);
+                    snapshot?.Impact(position, null, SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 1);
                     Ver4HitEffects.AreaDamage(position, 1f, Mathf.Max(a.damage, b.damage), 0, a.source, a.layer, "침술진");
                     break;
                 }

@@ -8,8 +8,11 @@ namespace Vampire
     {
         private readonly int[,] counts = new int[21,3];
         private readonly bool[] owned = new bool[21];
-        public Ver4CombatSnapshot(OriginalAugmentProgress progress)
+        readonly OriginalImpactFeedback feedback;
+        public Ver4CombatSnapshot(OriginalAugmentProgress progress) : this(progress, null) { }
+        internal Ver4CombatSnapshot(OriginalAugmentProgress progress, OriginalImpactFeedback feedback)
         {
+            this.feedback = feedback;
             for(int parent=0;parent<21;parent++)
             {
                 string id=((ParentType)parent).ToString();
@@ -17,6 +20,11 @@ namespace Vampire
                 for(int option=0;option<3;option++) counts[parent,option]=owned[parent] ? progress.Count(id,option) : 0;
             }
         }
+        internal bool PendingFeedback => feedback != null && feedback.Pending;
+        internal bool Impact(Vector3 point, Component target, ParentType proc, int option = -1)
+            => feedback != null && feedback.OnImpact(this, point, target, proc, option);
+        internal bool UseFrostRingAccent()
+            => feedback != null && feedback.TryConsume(this, ParentType.IceNeedle, 2);
         public bool Has(ParentType parent) => owned[(int)parent];
         public int Count(ParentType parent,int option) => counts[(int)parent,option];
         public float Factor(ParentType parent,int option,float perSelection) => 1f+Count(parent,option)*perSelection;

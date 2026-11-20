@@ -314,6 +314,7 @@ namespace Vampire
 
                 abilityCards[i].Init(this, abilities[i], cardPopupDelay * i);
                 abilityCards[i].gameObject.SetActive(true);
+                abilityCards[i].BindChoiceKey(i);
             }
 
             for (; i < abilityCards.Count; i++)

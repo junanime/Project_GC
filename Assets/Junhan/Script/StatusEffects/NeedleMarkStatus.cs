@@ -48,11 +48,13 @@ namespace Vampire
             return true;
         }
 
-        public void Apply(float duration)
+        public void Apply(float duration, Ver4CombatSnapshot snapshot = null, int option = 0)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             marked = true;
             expireTime = Time.time + Mathf.Max(0.1f, duration);
+            if (snapshot?.PendingFeedback == true && SyringeAugmentVfx.IsLiving(this))
+                snapshot.Impact(transform.position, this, SyringeSpecialAugmentAbility.SpecialAugmentType.MarkNeedle, option);
 
             EnsureAugmentVisual();
         }

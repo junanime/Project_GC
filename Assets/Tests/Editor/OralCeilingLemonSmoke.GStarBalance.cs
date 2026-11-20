@@ -16,6 +16,7 @@ namespace Vampire.Tests.Editor
             Directory.CreateDirectory("Library/GStarUIQA/" + FieldMedia + "/bubble");
             Set(level.PlayerCharacter, "isInvincible", true);
             yield return CheckOpeningWaves(level, 60, .65f, "stomach");
+            yield return CheckSandBackdrop(level, "stomach");
             CheckFieldInstructions();
             yield return CheckOverchargeRoutes(level);
 
@@ -30,6 +31,7 @@ namespace Vampire.Tests.Editor
             yield return CheckOralRemix(level, events);
             yield return CheckGStarSpring(level, events.Tastes);
             yield return CheckSodaLifetime(level, events);
+            yield return CheckBoothEncounters(level, events);
 
             // Travel through the existing non-exhibit bridge solely to restore the
             // stomach source blueprint and dispose oral terrain before the colon fixture.
@@ -40,6 +42,7 @@ namespace Vampire.Tests.Editor
             Silence(level); Clear(level);
             yield return ColonContentSmoke.Enter(level);
             Silence(level); Clear(level);
+            yield return CheckSandBackdrop(level, "colon");
             yield return CheckSummonTiers(level);
         }
 

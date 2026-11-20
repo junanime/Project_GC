@@ -23,8 +23,10 @@ namespace Vampire.Tests.Editor
             string unlockKey = "RelicUnlocked_lotus_chips", equipKey = "EquippedRelicId";
             bool hadUnlock = PlayerPrefs.HasKey(unlockKey), hadEquip = PlayerPrefs.HasKey(equipKey);
             int oldUnlock = PlayerPrefs.GetInt(unlockKey); string oldEquip = PlayerPrefs.GetString(equipKey);
+            var previousMode = GStarDemo.TestOverride;
             try
             {
+                GStarDemo.TestOverride = false;
                 PlayerPrefs.DeleteKey(unlockKey); PlayerPrefs.DeleteKey(equipKey);
                 Assert.AreEqual(33, RelicSelectionPolicy.ForLobby(catalog.relics).Length);
                 Assert.IsFalse(RelicSelectionPolicy.IsNewOffer(legacy));
@@ -34,9 +36,17 @@ namespace Vampire.Tests.Editor
                 Assert.AreEqual(34, RelicSelectionPolicy.ForLobby(catalog.relics).Length);
                 Assert.AreEqual("lotus_chips", RelicSaveData.GetEquippedRelicId());
                 Assert.IsFalse(RelicSelectionPolicy.IsNewOffer(legacy));
+
+                GStarDemo.TestOverride = true;
+                var boothOffers = RelicSelectionPolicy.ForLobby(catalog.relics);
+                Assert.AreEqual(33, boothOffers.Length);
+                CollectionAssert.DoesNotContain(boothOffers, legacy);
+                Assert.IsFalse(RelicSaveData.IsUnlocked(legacy.relicId));
+                Assert.AreEqual(legacy.relicId, PlayerPrefs.GetString(equipKey), "The booth preserves the regular game's equipped relic.");
             }
             finally
             {
+                GStarDemo.TestOverride = previousMode;
                 if(hadUnlock)PlayerPrefs.SetInt(unlockKey,oldUnlock);else PlayerPrefs.DeleteKey(unlockKey);
                 if(hadEquip)PlayerPrefs.SetString(equipKey,oldEquip);else PlayerPrefs.DeleteKey(equipKey);
                 PlayerPrefs.Save();

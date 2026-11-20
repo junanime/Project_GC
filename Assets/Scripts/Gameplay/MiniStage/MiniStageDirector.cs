@@ -58,12 +58,13 @@ namespace Vampire
         public bool CurrentEnhanced { get; private set; }
         public bool IsInsideMiniStage => isInsideMiniStage;
         public bool IsTransitioning => isTransitioning;
-        public bool CanEnterFromPortal => !isInsideMiniStage && !isTransitioning &&
+        private bool RunAcceptsTravel => levelManager != null && !levelManager.IsLevelEnded && !StageEntryLoading.IsLoading;
+        public bool CanEnterFromPortal => RunAcceptsTravel && !isInsideMiniStage && !isTransitioning &&
             !(OralFieldEvents.Instance!=null&&OralFieldEvents.Instance.OnCeiling) &&
             !(OralSwallowFinale.Instance!=null&&OralSwallowFinale.Instance.Active) && BloodClotTravel.CanTravel(playerCharacter);
         public bool CanReturnFromInteractable(MiniStageReturnInteractable interactable)
         {
-            return isInsideMiniStage && !isTransitioning && BloodClotTravel.CanTravel(playerCharacter) && currentRoom != null &&
+            return RunAcceptsTravel && isInsideMiniStage && !isTransitioning && BloodClotTravel.CanTravel(playerCharacter) && currentRoom != null &&
                 currentRoom.CanReturnFrom(interactable);
         }
         public MiniStageRoomBase CurrentRoom => currentRoom;
@@ -71,6 +72,7 @@ namespace Vampire
         private void Awake()
         {
             ResolveReferences();
+            gameObject.AddComponent<BloodClotGuideHUD>();
         }
 
         // Preserve an already separated room anchor. Only missing/overlapping anchors move.
@@ -279,7 +281,7 @@ namespace Vampire
 
         public void ReturnToFieldFromInteractable(MiniStageReturnInteractable interactable)
         {
-            if (!isInsideMiniStage || isTransitioning || !BloodClotTravel.CanTravel(playerCharacter) || Time.timeScale<=0)
+            if (!RunAcceptsTravel || !isInsideMiniStage || isTransitioning || !BloodClotTravel.CanTravel(playerCharacter) || Time.timeScale<=0)
             {
                 return;
             }

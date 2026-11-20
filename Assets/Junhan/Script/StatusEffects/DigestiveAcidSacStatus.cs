@@ -14,6 +14,7 @@ namespace Vampire
         private float puddleLifetime = 3f;
         private float puddleRadius = 1.2f;
         private float puddleDamagePerSecond = 2f;
+        Ver4CombatSnapshot feedbackSnapshot;
         private float puddleTickInterval = 0.5f;
         private Color puddleColor = new Color(0.6f, 1f, 0.15f, 0.75f);
 
@@ -58,9 +59,10 @@ namespace Vampire
             float puddleTickInterval,
             Color puddleColor,
             Character sourceCharacter,
-            string damageSourceName)
+            string damageSourceName, Ver4CombatSnapshot snapshot = null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
+            feedbackSnapshot = snapshot;
             this.puddleLifetime = Mathf.Max(0.1f, puddleLifetime);
             this.puddleRadius = Mathf.Max(0.1f, puddleRadius);
             this.puddleDamagePerSecond = Mathf.Max(0f, puddleDamagePerSecond);
@@ -125,7 +127,8 @@ namespace Vampire
                 puddleTickInterval,
                 puddleColor,
                 sourceCharacter,
-                damageSourceName
+                damageSourceName,
+                feedbackSnapshot
             );
         }
 

@@ -46,6 +46,9 @@ namespace Vampire
 
 
         private readonly List<Monster> spawnedSnipers = new List<Monster>();
+        public override string QuestName => Enhanced ? "순간이동 저격수" : "저격수 소탕";
+        public override string QuestHint => $"조준선을 피하며 저격수를 모두 처치하세요  ·  남은 {remainingSniperCount}마리";
+
         private int remainingSniperCount;
         float teleportAt = -1;
         float nextTeleportAllowed;

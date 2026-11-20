@@ -387,7 +387,12 @@ SyringeDartAbility sourceNeedleAbility)
                 finalDamage *= statusDamageMultiplier;
             }
 
+            float beforeMarkHit = consumedNeedleMark && runtime.ver4?.PendingFeedback == true
+                ? Ver4HitEffects.Health(target.component) : 0f;
             target.damageable.TakePeriodicDamage(finalDamage, Vector2.zero, false);
+            if (beforeMarkHit > 0 && beforeMarkHit > Ver4HitEffects.Health(target.component))
+                runtime.ver4.Impact(GetTargetWorldPosition(target), target.component,
+                    SyringeSpecialAugmentAbility.SpecialAugmentType.MarkNeedle, 1);
             HerbalGroundVisual.Create(target.component.transform, GetTargetWorldPosition(target), .24f, .24f, 2);
 
             // 장기압착은 Projectile.OnHitDamageable을 거치지 않는 독립 피해이므로

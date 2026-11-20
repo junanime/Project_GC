@@ -68,7 +68,7 @@ namespace Vampire
             float sourceDuration,
             float sourceTickInterval,
             float sourceTickDamage,
-            Character sourceCharacter)
+            Character sourceCharacter, Ver4CombatSnapshot snapshot = null)
         {
             if (!Enabled)
             {
@@ -137,7 +137,7 @@ namespace Vampire
                     sourceTickInterval,
                     sourceTickDamage * damageMultiplier,
                     sourceCharacter,
-                    "독 전염"
+                    "독 전염", snapshot
                 );
 
                 SyringeAugmentVfx.PlayTransfer("PoisonContagion", sourcePosition,

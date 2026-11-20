@@ -223,19 +223,20 @@ namespace Vampire
                 : GetFinalNeedleCount();
             float burstDamage = sourceNeedleAbility.GetAcupunctureFormationDamage() * damageMultiplier;
             int collision = sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 1);
-            Emit(origin, finalNeedleCount, burstDamage, collision);
+            var snapshot = sourceNeedleAbility.Ver4?.Combat;
+            Emit(origin, finalNeedleCount, burstDamage, collision, snapshot, endpoint ? 0 : -1);
             float chance = OriginalCombatRules.FormationRepeatChance(sourceNeedleAbility.OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, 2));
-            if (chance > 0 && Random.value < chance) StartCoroutine(Repeat(origin, finalNeedleCount, burstDamage, collision));
+            if (chance > 0 && Random.value < chance) StartCoroutine(Repeat(origin, finalNeedleCount, burstDamage, collision, snapshot));
         }
 
-        private IEnumerator Repeat(Vector3 origin, int count, float amount, int collision)
+        private IEnumerator Repeat(Vector3 origin, int count, float amount, int collision, Ver4CombatSnapshot snapshot)
         {
             yield return new WaitForSeconds(.2f);
             if (sourceCharacter != null && sourceCharacter.IsAlive && !sourceCharacter.IsTrapBound && !MiniStageRuntimeState.IsInsideMiniStage)
-                Emit(origin, count, amount, collision);
+                Emit(origin, count, amount, collision, snapshot, 2);
         }
 
-        private void Emit(Vector3 origin, int finalNeedleCount, float burstDamage, int collision)
+        private void Emit(Vector3 origin, int finalNeedleCount, float burstDamage, int collision, Ver4CombatSnapshot snapshot, int option)
         {
             int id = ++burstId;
             bool emitted = false;
@@ -366,11 +367,15 @@ namespace Vampire
                 );
                 if (collision > 0 && projectile is SyringeProjectile needle)
                     (needle.GetComponent<FormationNeedleCollision>() ?? needle.gameObject.AddComponent<FormationNeedleCollision>())
-                        .Initialize(needle, this, id, burstDamage * OriginalCombatRules.FormationCollisionDamage(collision), sourceCharacter, monsterLayer);
+                        .Initialize(needle, this, id, burstDamage * OriginalCombatRules.FormationCollisionDamage(collision), sourceCharacter, monsterLayer, snapshot);
                 emitted = true;
             }
             // No cosmetic-only ring on a blocked/ordinary dash. Keep it at the burst origin.
-            if (emitted) SyringeAugmentVfx.Play("AcupunctureFormation", origin, SyringeAugmentVfx.FindTarget(sourceCharacter));
+            if (emitted)
+            {
+                SyringeAugmentVfx.Play("AcupunctureFormation", origin, SyringeAugmentVfx.FindTarget(sourceCharacter));
+                if (option >= 0) snapshot?.Impact(origin, sourceCharacter, SyringeSpecialAugmentAbility.SpecialAugmentType.AcupunctureFormation, option);
+            }
         }
 
 

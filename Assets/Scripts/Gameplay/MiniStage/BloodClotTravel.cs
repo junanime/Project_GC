@@ -11,6 +11,7 @@ namespace Vampire
     {
         public const float Duration = 1.8f;
         public const float ExitInvincibilityDuration = .5f;
+        public const float LandingSettleDuration = .18f;
         public const float HyukiWalkEnd = .42f, HyukiLaunch = .54f, HyukiApex = .74f;
         public const int HyukiCurledFrame = 4;
         public bool Busy { get; private set; }
@@ -19,7 +20,17 @@ namespace Vampire
         public bool IsDamageProtected => isActiveAndEnabled && (Busy || Time.time < protectedUntil);
         float protectedUntil = -1f;
         bool reservedPose;
-        public void HoldForInteraction(){RestorePhysics();Busy=false;HoldingPose=true;reservedPose=true;protectedUntil=float.PositiveInfinity;}
+        float settleUntil;
+        public void HoldForInteraction()
+        {
+            RestorePhysics();
+            Busy = false;
+            HoldingPose = true;
+            reservedPose = true;
+            protectedUntil = float.PositiveInfinity;
+            if (Visual != null) Visual.gameObject.SetActive(true);
+            if (original != null) original.forceRenderingOff = true;
+        }
         public string CharacterKey { get; private set; }
         public SpriteRenderer Visual { get; private set; }
         public float ReferenceHeight => height;
@@ -118,6 +129,7 @@ namespace Vampire
             // Commit the landing again before room logic / collision callbacks observe it.
             SetPosition(landing);Physics2D.SyncTransforms();
             protectedUntil = Time.time + ExitInvincibilityDuration;
+            settleUntil = Time.time + LandingSettleDuration;
             Busy = false;
             HoldingPose = true;
         }
@@ -271,9 +283,9 @@ namespace Vampire
             if ((Busy || HoldingPose) && original != null) original.forceRenderingOff=true;
             if (!HoldingPose) return;
             if(reservedPose)return;
-            if (owner == null || !owner.IsAlive || owner.EffectiveMoveDirection.sqrMagnitude > .0001f) { ReleasePose(); return; }
+            if (owner == null || !owner.IsAlive || owner.EffectiveMoveDirection.sqrMagnitude > .0001f || Time.time >= settleUntil) { ReleasePose(); return; }
             Visual.transform.position=transform.position+footOffset+Vector3.up*GroundPivotOffset();
-            // Last frame stays frozen, but the orbiting dizziness indicator remains alive.
+            // A brief landing beat gives way to normal animation even without movement input.
             SetChicks(CharacterKey == "Ari", Time.time);
         }
         void RestorePhysics() { if (body != null) { body.velocity = Vector2.zero; body.angularVelocity = 0; body.simulated = simulated; } }
@@ -285,7 +297,12 @@ namespace Vampire
             HoldingPose = false;
             if (original != null) original.forceRenderingOff = originalHidden;
             if (Visual != null) Visual.gameObject.SetActive(false);
-            if (owner != null) { owner.StopWalkAnimation(); owner.StartIdleAnimation(); }
+            if (owner != null && owner.IsAlive)
+            {
+                owner.StopWalkAnimation();
+                if (owner.EffectiveMoveDirection.sqrMagnitude > .0001f) owner.StartWalkAnimation();
+                else owner.StartIdleAnimation();
+            }
         }
         public void Cancel()
         {

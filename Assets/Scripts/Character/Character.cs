@@ -171,7 +171,8 @@ namespace Vampire
         public bool IsOralSliding => OralStageRuntime.IsSlidingActor(this);
         public bool IsWhirlpoolCaptured => OralSwallowFinale.Instance?.CapturesPlayer(this) == true;
         public Vector2 EffectiveMoveDirection => IsTrapBound || IsOralSliding ? Vector2.zero :
-            (movementControlsReversed ? -moveDirection : moveDirection);
+            (movementControlsReversed || (OralFieldEvents.Instance != null && OralFieldEvents.Instance.ReversesControlsFor(this))
+                ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
         protected bool isDashing = false;
@@ -1192,7 +1193,10 @@ namespace Vampire
             var items=GetComponent<OctoberItemRuntime>();
             if(items!=null)damage=items.Incoming(damage,pendingDamageMonsterBlueprint);
             if (Relics != null) damage = Relics.Absorb(damage);
+            float hpBeforeImpact = currentHealth;
             ApplyHealthDamage(damage, knockback, items);
+            if (currentHealth < hpBeforeImpact && generalStatRuntime != null && generalStatRuntime.DamageReductionBonus > 0)
+                abilityManager?.Ver4?.Combat?.Impact(transform.position, this, SyringeSpecialAugmentAbility.SpecialAugmentType.Mosquito, 1);
         }
 
         // Area-wide field damage is settled against max HP. A fully transferred

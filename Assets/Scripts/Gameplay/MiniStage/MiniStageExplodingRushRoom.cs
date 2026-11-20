@@ -85,6 +85,9 @@ namespace Vampire
 
         private Coroutine spawnRoutine;
 
+        public override string QuestName => "자폭 돌진";
+        public override string QuestHint => $"몬스터를 처치하거나 자폭을 유도하세요  ·  {spawnedCount - remainingAliveCount}/{targetMonsterCount}마리";
+
         private int targetMonsterCount;
         private int spawnedCount;
         private int remainingAliveCount;

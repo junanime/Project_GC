@@ -19,6 +19,7 @@ namespace Vampire
         public ApothecaryUIConfig Config { get; private set; }
         RectTransform root, content, safe;
         TMP_FontAsset runtimeFont;
+        public TMP_FontAsset HudFont => runtimeFont != null ? runtimeFont : Config.font;
         TextMeshProUGUI silverLabel;
         Image portrait;
         CharacterBlueprint previewCharacter;
@@ -135,18 +136,18 @@ namespace Vampire
                 if (Page != "platformError") Show("platformError");
             }
             if (IntroMovie.BlocksMenuInput) return;
-            if (GStarControlPractice.Active) return;
+            if (GStarControlPractice.Active)
+            {
+                if (Page == "run") FitFrameToScreen();
+                return;
+            }
             UpdateRanking();
             UpdateSkillUI();
             UpdateBossCompass();
             UpdatePrescriptionUI();
             if (safe == null) return;
             UpdatePreferencesUI();
-            Rect area = Screen.safeArea;
-            safe.anchorMin = new Vector2(area.xMin / Screen.width,area.yMin / Screen.height);
-            safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
-            float scale = Mathf.Min(safe.rect.width / 1280, safe.rect.height / 720);
-            root.localScale = Vector3.one * scale;
+            FitFrameToScreen();
             if (ColonExitBlocksMenus) { UpdateColonExitModal(); return; }
             if (dirty && !starting) { dirty = false; Render(); }
             if (GStarDemo.Enabled && UpdateGStar()) return;
@@ -174,8 +175,17 @@ namespace Vampire
             }
             if (!GameInput.TextEntryFocused && GameInput.GetKeyDown(KeyCode.Escape)) Back();
         }
+        void FitFrameToScreen()
+        {
+            Rect area = Screen.safeArea;
+            safe.anchorMin = new Vector2(area.xMin / Screen.width,area.yMin / Screen.height);
+            safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
+            root.localScale = Vector3.one * Mathf.Min(safe.rect.width / 1280,safe.rect.height / 720);
+        }
+
         public void Show(string page, int tab = 0)
         {
+            if (GStarControlPractice.Active && page == "settings") return;
             if (ColonExitBlocksMenus && page != "result" && page != "platformError") return;
             stageChoiceOpen=false;
             page = SteamGuardPage(page);
@@ -201,6 +211,23 @@ namespace Vampire
         {
             RenderContent();
             if(!IsGStarPage) ApplyStitchTheme();
+            if (Page == "run" && GStarControlPractice.Active)
+            {
+                content.Find("Settings bookmark")?.gameObject.SetActive(false);
+                content.Find("Record consumables")?.gameObject.SetActive(false);
+                content.Find("Record guide")?.gameObject.SetActive(false);
+                var hint = TrainingUITheme.Pill("연습 기록 닫기",content,new Color(.63f,.94f,.82f),
+                    new Vector2(.695f,.909f),new Vector2(.932f,.973f));
+                hint.radius = 11;
+                var cap = TrainingUITheme.Pill("기록 키캡",hint.transform,Color.white,new Vector2(.025f,.13f),new Vector2(.31f,.88f));
+                cap.radius = 6;
+                var keyLabel = Label(cap.transform,GStarControlPractice.KeyName(GameKeyAction.Journal),.02f,0,.98f,1,19);
+                keyLabel.color = Ink;
+                keyLabel.enableWordWrapping = false;
+                var label = Label(hint.transform,"다시 눌러 닫기",.32f,0,.98f,1,20);
+                label.color = Ink;
+                label.enableWordWrapping = false;
+            }
             if(stageChoiceOpen) BuildStageChoice();
         }
         void RenderContent()
@@ -438,7 +465,22 @@ namespace Vampire
                 ActionButton(content,">",right-.07f,y-.065f,right,y-.003f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
             }
         }
+        internal bool OpenPracticeBook()
+        {
+            OpenRunBookCore();
+            if (Page != "run") return false;
+            safe.GetComponentInParent<Canvas>().enabled = true;
+            FitFrameToScreen();
+            return true;
+        }
+
         public void OpenRunBook()
+        {
+            if (GStarControlPractice.Active) return;
+            OpenRunBookCore();
+        }
+
+        void OpenRunBookCore()
         {
             if (ColonExitBlocksMenus) return;
             var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
@@ -453,6 +495,7 @@ namespace Vampire
             level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
             ownsPause=false;Show("hud");
+            if (GStarControlPractice.Active) safe.GetComponentInParent<Canvas>().enabled = false;
         }
         void RunBook()
         {

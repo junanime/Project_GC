@@ -955,22 +955,34 @@ namespace Vampire
                 if (i < frontCount)
                 {
                     Vector2 frontSpreadDirection = GetSpreadDirection(baseDirection, i, frontCount);
-                    LaunchAimedSyringe(frontSpreadDirection, false, OriginalCombatRules.BipolarDamage(cross, alternate, false, empowerFront), 1);
-                    if (cross > 0)
-                        LaunchAimedSyringe(GetSpreadDirection(leftDirection, i, frontCount), false, OriginalCombatRules.BipolarDamage(cross, alternate, true, empowerFront), 1);
+                    if (LaunchAimedSyringe(frontSpreadDirection, false, OriginalCombatRules.BipolarDamage(cross, alternate, false, empowerFront), 1))
+                        ReportPolarityShot(false, empowerFront, cross);
+                    if (cross > 0 && LaunchAimedSyringe(GetSpreadDirection(leftDirection, i, frontCount), false, OriginalCombatRules.BipolarDamage(cross, alternate, true, empowerFront), 1))
+                        ReportPolarityShot(true, empowerFront, cross);
                 }
 
                 if (i < backCount)
                 {
                     Vector2 backSpreadDirection = GetSpreadDirection(backDirection, i, backCount);
-                    LaunchAimedSyringe(backSpreadDirection, true, OriginalCombatRules.BipolarDamage(cross, alternate, false, !empowerFront), -1);
-                    if (cross > 0)
-                        LaunchAimedSyringe(GetSpreadDirection(rightDirection, i, backCount), false, OriginalCombatRules.BipolarDamage(cross, alternate, true, !empowerFront), -1);
+                    if (LaunchAimedSyringe(backSpreadDirection, true, OriginalCombatRules.BipolarDamage(cross, alternate, false, !empowerFront), -1))
+                        ReportPolarityShot(false, !empowerFront, cross);
+                    if (cross > 0 && LaunchAimedSyringe(GetSpreadDirection(rightDirection, i, backCount), false, OriginalCombatRules.BipolarDamage(cross, alternate, true, !empowerFront), -1))
+                        ReportPolarityShot(true, !empowerFront, cross);
                 }
 
                 yield return new WaitForSeconds(syringeDelay);
             }
         }
+        private void ReportPolarityShot(bool lateral, bool empowered, int cross)
+        {
+            var combat = Ver4?.Combat;
+            if (combat?.PendingFeedback != true) return;
+            if ((lateral && cross != 2) || (!lateral && cross == 2))
+                combat.Impact(transform.position, playerCharacter, SyringeSpecialAugmentAbility.SpecialAugmentType.BipolarNeedle, 0);
+            if (empowered)
+                combat.Impact(transform.position, playerCharacter, SyringeSpecialAugmentAbility.SpecialAugmentType.BipolarNeedle, 1);
+        }
+
         private bool LaunchSyringeProjectile(Vector2 direction, bool rear = false, float damageScale = 1f, int polarity = 0)
         {
             if (AttacksBlocked) return false;
@@ -2324,7 +2336,7 @@ namespace Vampire
         {
             float multiplier = lifeBurnEnabled ? lifeBurnDamageMultiplier : 1f;
             if (HasVer4Special(SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle))
-                multiplier *= 1.08f + .10f * OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle,1);
+                multiplier *= 1f + .01f * OriginalCombatRules.WindDamageBonusPercent(OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle,1));
 
             if (playerCharacter != null)
             {
@@ -2367,7 +2379,7 @@ namespace Vampire
             }
 
             if (HasVer4Special(SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle))
-                attackSpeedMultiplier *= 1.10f + .08f * OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle,0);
+                attackSpeedMultiplier *= 1f + .01f * OriginalCombatRules.WindSpeedBonusPercent(OriginalCount(SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle,0));
             return Mathf.Max(.04f, cooldown.Value / Mathf.Max(0.01f, attackSpeedMultiplier));
         }
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -33,6 +34,7 @@ namespace Vampire
         private float bossBonusPerStack = 0.05f;
         private int maxStacks = 3;
         private bool isBossTarget = false;
+        Ver4CombatSnapshot feedbackSnapshot;
 
         private CorrosionStatusIcon iconInstance;
 
@@ -50,13 +52,14 @@ namespace Vampire
             float normalBonusPerStack,
             float bossBonusPerStack,
             int maxStacks,
-            bool isBossTarget)
+            bool isBossTarget, Ver4CombatSnapshot snapshot = null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             this.normalBonusPerStack = Mathf.Max(0f, normalBonusPerStack);
             this.bossBonusPerStack = Mathf.Max(0f, bossBonusPerStack);
             this.maxStacks = Mathf.Max(1, maxStacks);
             this.isBossTarget = isBossTarget;
+            feedbackSnapshot = snapshot;
 
             RemoveExpiredStacks();
 
@@ -69,6 +72,12 @@ namespace Vampire
             }
 
             EnsureAugmentVisual();
+            if (snapshot != null)
+            {
+                snapshot.Impact(transform.position,this,Parent.CorrosionNeedle,0);
+                if (stackExpireTimes.Count > Mathf.Max(1,this.maxStacks - snapshot.Count(Parent.CorrosionNeedle,2)))
+                    snapshot.Impact(transform.position,this,Parent.CorrosionNeedle,2);
+            }
         }
 
         public float GetDamageTakenMultiplier()
@@ -81,6 +90,7 @@ namespace Vampire
             }
 
             float bonusPerStack = isBossTarget ? bossBonusPerStack : normalBonusPerStack;
+            if (bonusPerStack > 0) feedbackSnapshot?.Impact(transform.position,this,Parent.CorrosionNeedle,1);
             return 1f + bonusPerStack * stackExpireTimes.Count;
         }
 

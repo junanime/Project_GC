@@ -22,7 +22,7 @@ namespace Vampire
     /// </summary>
     public static class SyringeSpecialHitEffectUtility
     {
-        public static void ReapplyVer4Mark(Component target, SyringeSpecialRuntime runtime) => ApplyNeedleMark(target,runtime);
+        public static void ReapplyVer4Mark(Component target, SyringeSpecialRuntime runtime) => ApplyNeedleMark(target,runtime,2);
 
         public static bool TryGetValidDamageableTarget(
             Collider2D collider,
@@ -293,7 +293,8 @@ namespace Vampire
                 runtime.poisonTickInterval,
                 runtime.poisonTickDamage,
                 sourceCharacter,
-                "독침"
+                "독침",
+                snapshot: runtime.ver4
             );
         }
 
@@ -315,7 +316,8 @@ namespace Vampire
 
             honeySlowStatus.Apply(
                 runtime.honeyDuration,
-                runtime.honeySlowMultiplier
+                runtime.honeySlowMultiplier,
+                snapshot: runtime.ver4
             );
         }
 
@@ -361,7 +363,8 @@ namespace Vampire
                 runtime.corrosionDamageTakenBonusPerStack,
                 runtime.corrosionBossDamageTakenBonusPerStack,
                 runtime.corrosionMaxStacks,
-                isBossTarget
+                isBossTarget,
+                snapshot: runtime.ver4
             );
         }
 
@@ -384,7 +387,7 @@ namespace Vampire
             return markStatus.TryConsume();
         }
 
-        private static void ApplyNeedleMark(Component damageableComponent, SyringeSpecialRuntime runtime)
+        private static void ApplyNeedleMark(Component damageableComponent, SyringeSpecialRuntime runtime, int option=0)
         {
             Monster monster = GetMonster(damageableComponent);
 
@@ -400,7 +403,7 @@ namespace Vampire
                 markStatus = monster.gameObject.AddComponent<NeedleMarkStatus>();
             }
 
-            markStatus.Apply(runtime.markDuration);
+            markStatus.Apply(runtime.markDuration, runtime.ver4, option);
         }
 
         private static void ApplyDigestiveAcidSac(
@@ -434,7 +437,8 @@ namespace Vampire
                 runtime.digestiveAcidPuddleTickInterval,
                 runtime.digestiveAcidPuddleColor,
                 sourceCharacter,
-                "소화액낭침"
+                "소화액낭침",
+                snapshot: runtime.ver4
             );
         }
 
@@ -445,7 +449,8 @@ namespace Vampire
                 runtime.hungerStackDuration,
                 runtime.hungerAttackSpeedBonusPerStack,
                 runtime.hungerMaxStacks,
-                runtime.debugHungerNeedle
+                runtime.debugHungerNeedle,
+                snapshot: runtime.ver4
             );
         }
 
@@ -478,7 +483,8 @@ namespace Vampire
                 runtime.gutBacteriaBonusGemCount,
                 runtime.gutBacteriaBonusGemType,
                 runtime.gutBacteriaBonusGemSpawnRadius,
-                runtime.debugGutBacteria
+                runtime.debugGutBacteria,
+                snapshot: runtime.ver4
             );
         }
 
@@ -487,7 +493,13 @@ namespace Vampire
             if (source == null || runtime.healingBlocked) return;
             float amount = runtime.mosquitoHealPerHit;
             if (IsBossLikeTarget(target)) amount *= runtime.mosquitoBossHealMultiplier;
-            if (source.TryMosquitoHeal(amount)) SyringeAugmentVfx.PlayAbsorption(target, source);
+            float hp = source.CurrentHealth;
+            if (source.TryMosquitoHeal(amount))
+            {
+                SyringeAugmentVfx.PlayAbsorption(target, source);
+                if (source.CurrentHealth > hp)
+                    runtime.ver4?.Impact(source.CenterTransform.position, source, SyringeSpecialAugmentAbility.SpecialAugmentType.Mosquito, 0);
+            }
         }
 
         private static void ApplyExplosion(
@@ -497,6 +509,7 @@ namespace Vampire
             LayerMask damageableLayer,
             GameObject originalTarget)
         {
+            runtime.ver4?.Impact(hitPosition, sourceCharacter, SyringeSpecialAugmentAbility.SpecialAugmentType.Explosion, 0);
             SyringeAugmentVfx.PlayRadius("Explosion", hitPosition, runtime.explosionRadius,
                 originalTarget != null ? SyringeAugmentVfx.FindTarget(originalTarget.transform) : null);
             Collider2D[] hits = Physics2D.OverlapCircleAll(
@@ -547,12 +560,14 @@ namespace Vampire
 
                 float finalDamage = CombatStatusRules.DamageMultiplier(sourceCharacter,splashComponent) * runtime.explosionDamage * Ver4HitEffects.ExplosionCenterMultiplier(splashComponent,hitPosition,runtime);
 
+                float before = Ver4HitEffects.Health(splashComponent);
                 splashDamageable.TakeDamage(
                     finalDamage,
                     Vector2.zero,
                     false
                 );
 
+                Ver4HitEffects.ReportExplosionImpact(runtime, hitPosition, splashComponent, before);
                 // 이 폭발은 메인 적중 이벤트와 별개의 독립 피해이므로
                 // 기존 전체 피해량과 증강별 피해량에 각각 1회 기록한다.
                 if (finalDamage > 0f &&

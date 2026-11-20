@@ -26,7 +26,6 @@ namespace Vampire.Tests.Editor
         static Keyboard keyboard;
         static int frame;
         static string characterFolder;
-        static float completionFirstSeen;
         static FieldDayControlsSmoke() { if (SessionState.GetBool(KeyName,false)) Attach(); }
 
         public static void Run()
@@ -110,11 +109,6 @@ namespace Vampire.Tests.Editor
             for (int i=0;i<count;i++)
             {
                 yield return null;
-                if (float.IsNaN(completionFirstSeen) && GStarControlPractice.Instance != null && GStarControlPractice.Instance.Step==3)
-                {
-                    completionFirstSeen=Time.time;
-                    Mark("complete");
-                }
                 Capture($"{characterFolder}/{frame++:0000}");
                 yield return null; // Two 24 fps simulation frames per capture, independent of disk latency.
             }
@@ -258,6 +252,30 @@ namespace Vampire.Tests.Editor
             quest.Restore(before);
         }
 
+        static IEnumerator CheckCriticalSoundBurst()
+        {
+            var audio=GameAudioManager.Instance;
+            var source=(AudioSource)typeof(GameAudioManager).GetField("sfxSource",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(audio);
+            yield return new WaitForSecondsRealtime(.10f);
+            source.Stop();
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.CriticalHit);
+            Check(source.isPlaying,"first critical plays at once");
+            source.Stop();
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.CriticalHit);
+            Check(!source.isPlaying,"a simultaneous critical is coalesced");
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerDash);
+            Check(source.isPlaying,"dash audio still plays inside a critical burst");
+            source.Stop();
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.BossAppear);
+            Check(source.isPlaying,"boss warning still plays inside a critical burst");
+            source.Stop();
+            yield return new WaitForSecondsRealtime(.10f);
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.CriticalHit);
+            Check(source.isPlaying,"a later critical plays independently");
+            source.Stop();
+        }
+
         static IEnumerator CheckPracticeToOral()
         {
             ApothecaryUI.Instance.StartRun();
@@ -283,15 +301,22 @@ namespace Vampire.Tests.Editor
             yield return Wait(()=>GStarControlPractice.Active && !GStarGaugeIntro.IsOpen,"guide release begins stomach control practice");
             var practice=GStarControlPractice.Instance;
             characterFolder = OctoberArt.CharacterKey(rehearsalPlayer.Blueprint);
+            if (characterFolder=="Ashi") yield return CheckCriticalSoundBurst();
             Directory.CreateDirectory(Output+"/"+characterFolder);
             File.WriteAllText(Output+"/"+characterFolder+"/markers.txt","");
             frame = 0;
-            completionFirstSeen = float.NaN;
             Time.captureFramerate=24;
             Mark("movement");
             var origin = rehearsalPlayer.Position;
             yield return Film(6);
             Check(practice.Step==0 && practice.CompletedDirections==0,"standing still leaves all four directions open");
+            var book=ApothecaryUI.Instance;
+            book.OpenRunBook();
+            Keys(Key.Tab);
+            yield return Film(2);
+            Check(book.Page=="hud" && Time.timeScale>0,"neither the hidden HUD button nor an early Tab steals the rehearsal pause");
+            Keys();
+            yield return Film(1);
             var cross=(RectTransform)practice.transform.Find("머리 위 방향 키");
             var caps=cross.Cast<RectTransform>().ToDictionary(cap=>cap.GetComponentInChildren<TMPro.TMP_Text>().text);
             Check(caps.Count==4 && caps["W"].anchoredPosition.y>caps["A"].anchoredPosition.y &&
@@ -320,6 +345,8 @@ namespace Vampire.Tests.Editor
                 yield return Film(2);
             }
             Check(practice.Step==1 && practice.DashUses==0,"four directions unlock dash");
+            var overhead=practice.transform.Find("머리 위 조작 키").GetComponentInChildren<TMPro.TMP_Text>();
+            Check(overhead.isActiveAndEnabled && overhead.text=="Shift","dash keycap above the player uses the dash binding");
             Mark("dash");
             yield return Film(3);
             for(int i=1;i<=2;i++)
@@ -340,6 +367,7 @@ namespace Vampire.Tests.Editor
                 }
             }
             yield return FilmUntil(()=>practice.Step==2 && practice.Target!=null,20,"live skill target spawned");
+            Check(overhead.isActiveAndEnabled && overhead.text=="Space","active skill keycap above the player uses the active binding");
             var target=practice.Target;
             Check(target.IsAlive && target.Position.x>rehearsalPlayer.Position.x,"live target is on the player's right");
             Mark("target");
@@ -360,15 +388,39 @@ namespace Vampire.Tests.Editor
                 yield return Film(2);
                 Keys();
             }
-            yield return FilmUntil(()=>practice.Step==3,150,"actual target death opens completion");
+            yield return FilmUntil(()=>practice.Step==3,150,"actual target death unlocks the character status lesson");
             Check(target==null || !target.IsAlive,"training target was killed");
+            Mark("status-key");
+            Check(overhead.isActiveAndEnabled && overhead.text=="Tab","journal keycap shown over the character");
+            yield return Film(4);
+            Keys(Key.Tab);
+            yield return FilmUntil(()=>practice.Step==4 && book.Page=="run",20,"Tab opened the live character record");
+            var bookText=book.GetComponentsInChildren<TMPro.TMP_Text>().Where(t=>t.isActiveAndEnabled).ToArray();
+            Check(bookText.Any(t=>t.text.Contains("다시 눌러 닫기") && t.GetComponentInParent<Canvas>().enabled) &&
+                bookText.Any(t=>t.name=="Record character name" && t.text.Contains(rehearsalPlayer.DisplayName)),
+                "the real selected character and the close prompt are visible on the book");
+            Mark("status-open");
+            float pausedAt=Time.time;
+            yield return Film(4);
+            Check(Time.timeScale==0 && Time.time==pausedAt && practice.Step==4,"holding Tab keeps the book open and rehearsal time paused");
+            Keys(Key.Space); // hold the previous action while closing; a fresh press should be required
+            yield return Film(2);
+            Keys(Key.Space,Key.Tab);
+            yield return FilmUntil(()=>practice.Step==5 && book.Page=="hud",20,"second Tab closed the book and advanced to departure");
+            Check(Time.timeScale>0 && overhead.isActiveAndEnabled && overhead.text=="Space","closing restores time and shows the departure key");
             var lines=practice.GetComponentsInChildren<TMPro.TMP_Text>().Select(t=>t.text).ToArray();
-            Check(lines.Contains("튜토리얼 완료!") && lines.Contains("이제 게임을 시작해볼까요~"),"both completion lines are visible");
+            Check(lines.Contains("튜토리얼 완료!") && lines.Contains("이제 구강으로 출발해 볼까요?"),"both completion lines are visible");
             Check(!GStarAnalytics.IsRecording && GStarSession.PendingAttempt,"training kill creates no scored run");
-            while (GStarControlPractice.Active && !StageEntryLoading.IsLoading) yield return Film(1);
-            float completionDuration=Time.time-completionFirstSeen;
-            Check(completionDuration>=3.85f && completionDuration<=4.2f,
-                $"completion stays for four game seconds before loading ({completionDuration:0.00}s)");
+            Mark("complete");
+            yield return Film(4);
+            Check(!practice.Complete,"held Space cannot confirm departure");
+            Keys();
+            float waitingUntil=Time.time+5;
+            while(Time.time<waitingUntil && GStarControlPractice.Active) yield return null;
+            Check(GStarControlPractice.Active && !practice.Complete && !StageEntryLoading.IsLoading,"visitors can read the departure prompt beyond the old timeout");
+            Keys(Key.Space);
+            yield return null;
+            yield return null;
             Time.captureFramerate=0;
             Keys();
             Mark("loading");

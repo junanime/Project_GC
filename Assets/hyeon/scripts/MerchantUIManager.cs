@@ -318,6 +318,7 @@ namespace Vampire
                 if (card != null)
                 {
                     card.Setup(shopItems[i]);
+                    card.BindChoiceKey(i);
                     spawnedShopCards.Add(card);
                 }
                 else
@@ -333,6 +334,7 @@ namespace Vampire
             {
                 if (spawnedShopCards[i] != null)
                 {
+                    spawnedShopCards[i].gameObject.SetActive(false);
                     Destroy(spawnedShopCards[i].gameObject);
                 }
             }

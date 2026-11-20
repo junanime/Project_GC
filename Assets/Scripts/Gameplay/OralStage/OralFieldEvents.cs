@@ -42,6 +42,8 @@ namespace Vampire
         public float JawAmount { get; private set; }
         public bool OnCeiling => CurrentEvent == OralEventKind.Ceiling && CeilingPhase >= 1;
         public int CeilingPhase { get; private set; }
+        public bool ReversesControlsFor(Character actor) =>
+            isActiveAndEnabled && CurrentEvent == OralEventKind.Ceiling && CeilingPhase == 2 && actor == player;
         public int CeilingRemaining => CountLive(ceilingMonsters);
         public string Banner { get; private set; } = "";
         public bool AutoSchedule = true;
@@ -274,7 +276,7 @@ namespace Vampire
                 case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피콩이 도는 빠른 적과 거리를 벌리세요"; break;
                 case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 적의 거품을 침으로 세 번 맞혀 터뜨리세요"; break;
                 case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아에 올라 재채기 바람에 덜 밀리세요"; break;
-                case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장 몬스터를 모두 잡아 혀로 돌아오세요"; break;
+                case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장에서는 이동이 반대예요 · 박쥐를 모두 잡으세요"; break;
                 case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 적들이 떠 있는 동안 빈 길로 이동하세요"; break;
                 case OralEventKind.Brush: Duration = Additions.Begin(kind); Banner = "칫솔 청소! | 세 번 지나가는 칫솔의 예고선 밖으로 피하세요"; break;
                 case OralEventKind.BalloonDelivery: Duration = Additions.Begin(kind); Banner = "풍선껌 보물배송! | 풍선을 터뜨려 떨어지는 상자를 챙기세요"; break;
@@ -526,7 +528,7 @@ namespace Vampire
                     currentCeilingLift = 0; CeilingPhase = 2; ceilingPhaseAge = 0;
                     OralStageRuntime.Instance.SetCeiling(true);
                     player.GetComponent<PlayerMiniStageStunRuntime>()?.EndTravelLock(this);
-                    Banner = "입천장 전투 | 매달린 박쥐 10마리가 깨어납니다 · 모두 처치하면 혀로 돌아갑니다";
+                    Banner = "입천장 전투 | 이동·대시 방향이 반대예요! 박쥐 10마리를 처치하세요";
                 }
             }
             else if (CeilingPhase == 2)

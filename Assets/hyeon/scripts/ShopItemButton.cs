@@ -105,6 +105,11 @@ namespace Vampire
             }
         }
 
+        public void BindChoiceKey(int index)
+        {
+            NumberedCardChoice.Bind((RectTransform)transform, purchaseButton, index, true);
+        }
+
         private void OnPurchaseClicked()
         {
             if (currentItem == null || isSoldOut)

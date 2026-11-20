@@ -30,30 +30,6 @@ namespace Vampire
             "적중한 자리에서 충격파가 퍼져 주변 적을 밀어냅니다."
         };
 
-        static readonly string[] originals = {
-            "독이 더 큰 피해를 줍니다.", "독이 더 오래 남습니다.", "독이 더 자주 피해를 줍니다.",
-            "폭발 범위가 넓어집니다.", "폭발 피해가 커집니다.", "폭발 중심에 있는 적이 더 큰 피해를 받습니다.",
-            "더 멀리 있는 적을 감지합니다.", "침이 적을 향해 더 빠르게 방향을 틉니다.", "추적 중인 적을 맞히면 더 큰 피해를 줍니다.",
-            "침이 적 하나를 더 관통합니다.", "적을 관통할 때마다 침이 빨라집니다.", "앞서 관통한 적이 많을수록 다음 타격이 강해집니다.",
-            "맞은 적의 둔화가 더 오래갑니다.", "맞은 적을 더 느리게 만듭니다.", "둔화된 적이 더 큰 피해를 받습니다.",
-            "흡혈로 회복하는 체력이 늘어납니다.", "받는 피해가 줄어듭니다.", "최대 체력이 늘어납니다.",
-            "되돌아오는 침이 더 큰 피해를 줍니다.", "날아간 침이 더 빠르게 돌아옵니다.", "되돌아오는 침이 적을 바깥으로 밀어냅니다.",
-            "대시가 끝난 자리에도 침술진이 생깁니다.", "서로 다른 침술진의 침이 만나면 폭발합니다.", "침술진이 일정 확률로 한 번 더 발동합니다.",
-            "침이 남긴 실이 더 오래 남습니다.", "실에 닿은 적에게 더 큰 피해를 줍니다.", "침이 남기는 실의 폭이 넓어집니다.",
-            "적에게 쌓인 부식이 더 오래갑니다.", "부식 한 겹당 적이 받는 피해가 커집니다.", "부식을 더 많이 쌓을 수 있습니다.",
-            "침이 멀리 날아갈 때 피해가 더 크게 증가합니다.", "멀리서 줄 수 있는 최대 피해가 커집니다.", "침을 쏘는 순간부터 거리 피해 보너스를 얻습니다.",
-            "표식이 더 오래 남습니다.", "표식을 터뜨릴 때 더 큰 피해를 줍니다.", "터뜨린 표식이 일정 확률로 다시 생깁니다.",
-            "앞뒤에 더해 좌우로도 침을 쏩니다.", "쏠 때마다 강해지는 침의 방향이 바뀝니다.", "반대 극성의 침을 맞히면 낙인이 터집니다.",
-            "소화액 웅덩이가 더 오래 남습니다.", "소화액 웅덩이가 넓어집니다.", "소화액 웅덩이가 더 큰 피해를 줍니다.",
-            "침 적중으로 얻은 공격 속도가 더 오래갑니다.", "적중이 쌓일 때마다 공격 속도가 더 오릅니다.", "공격 속도 효과를 더 많이 쌓을 수 있습니다.",
-            "한 적에게 장내균을 더 많이 쌓을 수 있습니다.", "한 번 맞혀도 장내균이 두 겹 쌓일 수 있습니다.", "장내균이 많이 쌓인 적일수록 추가 경험치를 얻기 쉽습니다.",
-            "씨앗에서 뻗는 가지가 늘어납니다.", "씨앗에서 뻗은 가지가 더 큰 피해를 줍니다.", "가지로 적을 처치하면 회복 지대가 생깁니다.",
-            "겹쳐 붙은 화상이 더 큰 피해를 줍니다.", "화상이 더 오래갑니다.", "한 적에게 화상을 더 많이 쌓을 수 있습니다.",
-            "냉기가 쌓일 때마다 적이 더 느려집니다.", "빙결이 깨질 때 폭발합니다.", "빙결이 깨진 자리에 냉기 지대가 생깁니다.",
-            "질풍침을 더 자주 쏩니다.", "질풍침의 피해가 커집니다.", "질풍침을 한 발 더 쏩니다.",
-            "충격파가 더 넓게 퍼집니다.", "충격파가 더 큰 피해를 줍니다.", "충격파가 적을 더 멀리 밀어냅니다."
-        };
-
         static readonly string[] nobles = {
             "최대 체력이 1이 되고 회복이 막힙니다. 침의 위력·발사 수·사거리가 늘어납니다.",
             "분신이 따라다니며 내 침으로 함께 공격합니다.",
@@ -78,23 +54,38 @@ namespace Vampire
 
         public static string Original(int index, int ownedCount)
         {
-            if (ownedCount > 0)
+            if (ownedCount == OriginalAugmentProgress.MaxEffectSelections) return "최대 3단계에 도달했습니다.";
+            string full = OriginalAugmentDescription.Effect(index, ownedCount);
+            int rank = ownedCount + 1;
+            switch (index)
             {
-                switch (index)
-                {
-                    case 20: return "되돌아오는 침이 적을 더 멀리 밀어냅니다.";
-                    case 21: return "대시 종점의 침술진이 더 많은 침을 쏩니다.";
-                    case 22: return "침술진끼리 일으키는 폭발이 더 강해집니다.";
-                    case 23: return "침술진이 한 번 더 발동할 확률이 커집니다.";
-                    case 36: return ownedCount == 1 ? "앞뒤로 쏘는 침이 더 강해집니다." : "좌우로 쏘는 침이 더 강해집니다.";
-                    case 37: return "번갈아 강화되는 방향의 침이 더 강해집니다.";
-                    case 38: return "반대 극성으로 터뜨린 낙인이 더 큰 피해를 줍니다.";
-                    case 50: return "발아로 만든 회복 지대가 더 오래 남습니다.";
-                    case 55: return "빙결이 깨질 때의 폭발이 더 강해집니다.";
-                    case 56: return "빙결이 깨진 자리의 냉기 지대가 더 오래 남습니다.";
-                }
+                case 10: return $"관통할 때마다 탄속 +{5 + 5 * rank}% · 최대 {2 + rank}회";
+                case 11: return $"앞서 관통한 적 1마리당 추가 피해 {6 * ownedCount}% → {6 * rank}% · 최대 5마리";
+                case 13: return "적에게 거는 감속 +5%p";
+                case 20: return $"귀환 침이 적을 밀어내는 거리 {2 * ownedCount} → {2 * rank}";
+                case 21: return $"대시 종점에서 쏘는 침 {OriginalCombatRules.FormationEndpointCount(ownedCount)} → {OriginalCombatRules.FormationEndpointCount(rank)}발";
+                case 22: return $"서로 다른 진의 침이 충돌하면 침 피해의 {UnityEngine.Mathf.RoundToInt(100 * OriginalCombatRules.FormationCollisionDamage(rank))}%로 폭발";
+                case 23: return $"침술진 1회 추가 발동 확률 {UnityEngine.Mathf.RoundToInt(100 * OriginalCombatRules.FormationRepeatChance(ownedCount))}% → {UnityEngine.Mathf.RoundToInt(100 * OriginalCombatRules.FormationRepeatChance(rank))}%";
+                case 32: return $"거리에 따른 최대 피해 보너스의 {rank * 10}%를 발사 즉시 획득";
+                case 36: return ownedCount == 0 ? "침이 앞뒤 2방향에서 앞뒤·좌우 4방향으로 발사" : full;
+                case 37: return $"번갈아 강화되는 방향의 침 피해 +{UnityEngine.Mathf.RoundToInt(100 * OriginalCombatRules.AlternatingBonus(rank))}%";
+                case 38: return $"반대 극성으로 낙인을 터뜨리면 침 피해의 {40 + 20 * ownedCount}% 추가";
+                case 47: return $"처치 시 3중첩 초과분당 추가 경험치 구슬 확률 +{5 + 5 * rank}%p";
+                case 50: return $"발아 처치 시 회복 장판 유지 {1f + .5f * rank:0.#}초";
+                case 51: return $"화상 중첩당 지속 피해 보너스 +{12 * ownedCount}% → +{12 * rank}%";
+                case 52: return $"화상 지속 {3f * (1f + .12f * ownedCount):0.##}초 → {3f * (1f + .12f * rank):0.##}초";
+                case 53: return $"최대 화상 중첩 {3 + ownedCount} → {3 + rank}";
+                case 54: return "냉기 1중첩당 감속 +5%p";
+                case 55: return ownedCount == 0 ? "빙결이 깨지면 폭발 · 쇄빙 피해 +15%" : "쇄빙 폭발 피해 +15%";
+                case 56: return ownedCount == 0 ? "빙결이 깨진 자리에 냉기 장판 1.5초 생성" : full;
+                case 57: return $"공격 속도 보너스 +{OriginalCombatRules.WindSpeedBonusPercent(ownedCount)}% → +{OriginalCombatRules.WindSpeedBonusPercent(rank)}%";
+                case 58: return $"침 피해 보너스 +{OriginalCombatRules.WindDamageBonusPercent(ownedCount)}% → +{OriginalCombatRules.WindDamageBonusPercent(rank)}%";
+                case 59: return $"질풍침 추가 발사 수 {ownedCount} → {rank}발";
+                default:
+                    // Use the catalog's signed per-selection change; technical notes stay in the run book.
+                    int note = full.IndexOf(" (", StringComparison.Ordinal);
+                    return note >= 0 ? full.Substring(0, note) : full;
             }
-            return originals[index];
         }
 
         public static string For(Ability ability)

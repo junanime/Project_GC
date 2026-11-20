@@ -8,7 +8,7 @@ namespace Vampire
         private Character source;
         private SyringeDartAbility syringe;
         private LayerMask layer;
-        public static void Create(Vector2 position,float duration,bool healing,float damage,Character source,LayerMask layer)
+        public static void Create(Vector2 position,float duration,bool healing,float damage,Character source,LayerMask layer,bool emphasizeFrostRim = false)
         {
             var obj=new GameObject(healing ? "목침 회복 장판" : "빙결침 냉기 장판"); obj.transform.position=position;
             var effect=obj.AddComponent<Ver4GroundEffect>(); effect.end=Time.time+duration;
@@ -16,7 +16,7 @@ namespace Vampire
             effect.syringe=SyringeAbilityResolver.FindOwnedOrFirst(FindObjectOfType<AbilityManager>());
             if(!healing)
             {
-                obj.AddComponent<ColdGroundVisual>().Initialize(duration);
+                obj.AddComponent<ColdGroundVisual>().Initialize(duration, emphasizeFrostRim);
                 return;
             }
             HerbalGroundVisual.Create(obj.transform, position, 1, duration, 1);

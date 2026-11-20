@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -11,6 +12,7 @@ namespace Vampire
             new Dictionary<int, float>();
 
         private SyringeAugmentVfx augmentVisual;
+        Ver4CombatSnapshot feedbackSnapshot;
         private float createdAt;
         private float endsAt;
         private float visualAlpha = 1f;
@@ -70,7 +72,7 @@ namespace Vampire
             float width,
             Color lineColor,
             Character sourceCharacter,
-            string damageSourceName)
+            string damageSourceName, Ver4CombatSnapshot snapshot = null)
         {
             this.targetLayer = targetLayer;
             this.damagePerSecond = Mathf.Max(0f, damagePerSecond);
@@ -106,6 +108,12 @@ namespace Vampire
             BoxCollider2D boxCollider = gameObject.AddComponent<BoxCollider2D>();
             boxCollider.isTrigger = true;
             boxCollider.size = new Vector2(length, width);
+            feedbackSnapshot = snapshot;
+            if (snapshot != null)
+            {
+                snapshot.Impact(center,this,Parent.FiberNeedle,0);
+                snapshot.Impact(center,this,Parent.FiberNeedle,2);
+            }
 
             SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             augmentVisual = SyringeAugmentVfx.Play("FiberNeedle", center);
@@ -160,7 +168,8 @@ namespace Vampire
                 if (!NeedleTargeting.IsValidBossTarget(king, targetLayer)) return;
                 int bossId = king.gameObject.GetInstanceID();
                 if (nextDamageTimesByTarget.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) return;
-                Ver4HitEffects.Damage(king, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
+                if (Ver4HitEffects.Damage(king, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true))
+                    feedbackSnapshot?.Impact(king.transform.position,king,Parent.FiberNeedle,1);
                 nextDamageTimesByTarget[bossId] = Time.time + tickInterval;
                 return;
             }
@@ -170,7 +179,8 @@ namespace Vampire
                 if (!NeedleTargeting.IsValidBossTarget(colon, targetLayer)) return;
                 int bossId = colon.gameObject.GetInstanceID();
                 if (nextDamageTimesByTarget.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) return;
-                Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
+                if (Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true))
+                    feedbackSnapshot?.Impact(colon.transform.position,colon,Parent.FiberNeedle,1);
                 nextDamageTimesByTarget[bossId] = Time.time + tickInterval;
                 return;
             }
@@ -223,7 +233,9 @@ namespace Vampire
             }
 
             finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,monster);
+            float previousHealth = monster.HP;
             monster.TakePeriodicDamage(finalDamage);
+            if (monster.HP < previousHealth) feedbackSnapshot?.Impact(monster.transform.position,monster,Parent.FiberNeedle,1);
 
             // 기존 전체 피해량 시스템에도 포함
             if (sourceCharacter != null &&

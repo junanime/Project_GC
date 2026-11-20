@@ -23,6 +23,14 @@ namespace Vampire
         private SyringeSpecialAugmentAbility[] parents;
         private readonly List<string> acquisitions = new List<string>();
         private SyringeDartAbility syringe;
+        readonly OriginalImpactFeedback impactFeedback = new OriginalImpactFeedback();
+        bool showHealthGainAfterMenu;
+        void LateUpdate()
+        {
+            if (!showHealthGainAfterMenu || Time.timeScale <= 0f || playerCharacter == null) return;
+            if (Combat?.Impact(playerCharacter.CenterTransform.position, playerCharacter, ParentType.Mosquito, 2) == true)
+                showHealthGainAfterMenu = false;
+        }
         public override bool RequirementsMet() => false;
 
         public void Configure(Ver4AugmentBalance balance, AbilityManager manager, EntityManager entities, Character character)
@@ -53,7 +61,7 @@ namespace Vampire
         {
             foreach(var parent in parents)
                 if(parent.Owned && StartingNeedleSelection.Available(parent.Type)) Progress.RegisterOwnedParent(parent.Type.ToString());
-            Combat=new Ver4CombatSnapshot(Progress);
+            Combat=new Ver4CombatSnapshot(Progress, GStarDemo.Enabled ? impactFeedback : null);
         }
 
         internal void SeedSignatureOriginals(SyringeSpecialAugmentAbility parent)
@@ -231,7 +239,12 @@ namespace Vampire
             }
             var acquisition=new Acquisition { parent=offer.Parent.Type.ToString(), original=offer.Kind==Ver4RewardKind.Original,
                 option=offer.Option, grade=(int)offer.Grade, amount=offer.Amount };
+            float previousMaximum = playerCharacter.MaxHealth;
             ApplyAcquisition(acquisition);
+            if (GStarDemo.Enabled && acquisition.original && offer.Parent.Type == ParentType.Mosquito && offer.Option == 2 &&
+                playerCharacter.MaxHealth > previousMaximum) showHealthGainAfterMenu = true;
+            if (GStarDemo.Enabled && acquisition.original)
+                impactFeedback.Arm(offer.Parent.Type, offer.Option, Progress.Count(acquisition.parent, offer.Option));
             acquisitions.Add(JsonUtility.ToJson(acquisition));
             level=1+acquisitions.Count;
             RefreshProgress();

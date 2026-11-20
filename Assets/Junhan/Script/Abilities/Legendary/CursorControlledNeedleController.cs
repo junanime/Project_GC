@@ -926,7 +926,13 @@ float maxHitRadiusBonusFromSpecial)
             finalDamage *= debuffMultiplier;
             float before=Ver4HitEffects.Health(damageableComponent);
             damageable.TakeDamage(finalDamage, knockbackDirection * knockback, isCritical);
-            if(before>Ver4HitEffects.Health(damageableComponent))items?.AfterHit(damageableComponent,finalDamage,isCritical,false,before);
+            if (before > Ver4HitEffects.Health(damageableComponent))
+            {
+                if (consumedNeedleMark)
+                    runtime.ver4?.Impact(cursorNeedleTransform.position, damageableComponent,
+                        SyringeSpecialAugmentAbility.SpecialAugmentType.MarkNeedle, 1);
+                items?.AfterHit(damageableComponent,finalDamage,isCritical,false,before);
+            }
             var hitVisual = SyringeAugmentVfx.PlayDirected("CursorControlHit", cursorNeedleTransform.position, knockbackDirection, cursorNeedleRenderer);
             if (hitVisual != null) hitVisual.SetWorldSize(new Vector2(0.45f, 0.2f), new Vector2(0.9f, 0.4f));
             if (sourceNeedleAbility.HasHeavySnipeLegendary())

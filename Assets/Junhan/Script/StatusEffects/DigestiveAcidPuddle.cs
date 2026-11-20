@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -9,6 +10,7 @@ namespace Vampire
     /// </summary>
     public class DigestiveAcidPuddle : MonoBehaviour
     {
+        Ver4CombatSnapshot feedbackSnapshot;
         private readonly Dictionary<int, float> nextDamageTimes =
             new Dictionary<int, float>();
 
@@ -61,7 +63,7 @@ namespace Vampire
             float tickInterval,
             Color puddleColor,
             Character sourceCharacter,
-            string damageSourceName)
+            string damageSourceName, Ver4CombatSnapshot snapshot = null)
         {
             this.lifetime = Mathf.Max(0.1f, lifetime);
             this.radius = Mathf.Max(0.1f, radius);
@@ -76,6 +78,12 @@ namespace Vampire
                     : damageSourceName;
 
             endTime = Time.time + this.lifetime;
+            feedbackSnapshot = snapshot;
+            if (snapshot != null)
+            {
+                snapshot.Impact(transform.position,this,Parent.DigestiveAcidSacNeedle,0);
+                snapshot.Impact(transform.position,this,Parent.DigestiveAcidSacNeedle,1);
+            }
 
             CreateVisual();
         }
@@ -119,7 +127,8 @@ namespace Vampire
                     if (!NeedleTargeting.IsValidBossTarget(king, ~0)) continue;
                     int bossId = king.gameObject.GetInstanceID();
                     if (nextDamageTimes.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) continue;
-                    Ver4HitEffects.Damage(king, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
+                    if (Ver4HitEffects.Damage(king, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true))
+                        feedbackSnapshot?.Impact(king.transform.position,king,Parent.DigestiveAcidSacNeedle,2);
                     nextDamageTimes[bossId] = Time.time + tickInterval;
                     continue;
                 }
@@ -129,7 +138,8 @@ namespace Vampire
                     if (!NeedleTargeting.IsValidBossTarget(colon, ~0)) continue;
                     int bossId = colon.gameObject.GetInstanceID();
                     if (nextDamageTimes.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) continue;
-                    Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
+                    if (Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true))
+                        feedbackSnapshot?.Impact(colon.transform.position,colon,Parent.DigestiveAcidSacNeedle,2);
                     nextDamageTimes[bossId] = Time.time + tickInterval;
                     continue;
                 }
@@ -170,9 +180,9 @@ namespace Vampire
                 finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,monster);
                 if (finalDamage > 0f)
                 {
-                    monster.TakePeriodicDamage(
-                        finalDamage
-                    );
+                    float previousHealth = monster.HP;
+                    monster.TakePeriodicDamage(finalDamage);
+                    if (monster.HP < previousHealth) feedbackSnapshot?.Impact(monster.transform.position,monster,Parent.DigestiveAcidSacNeedle,2);
 
                     // 기존 전체 피해량 시스템에 포함
                     if (sourceCharacter != null &&

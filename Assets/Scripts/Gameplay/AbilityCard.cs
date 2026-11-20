@@ -461,6 +461,14 @@ namespace Vampire
             appearCoroutine = null;
         }
 
+        public void BindChoiceKey(int index)
+        {
+            var button = cardBackgroundImage != null ? cardBackgroundImage.GetComponent<Button>() : null;
+            if (nobleChoice != null && UsesNoblePanel && GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
+                nobleChoice.gameObject.SetActive(false);
+            NumberedCardChoice.Bind((RectTransform)transform, button, index, true, UsesNoblePanel);
+        }
+
         public void Selected()
         {
             if (ability == null || levelUpMenu == null || !levelUpMenu.MenuOpen)

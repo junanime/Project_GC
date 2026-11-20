@@ -560,7 +560,7 @@
       "id": "event/oral-ceiling",
       "kind": "event",
       "title": "혀가 뒤집힌다!",
-      "what": "혀에서 입천장으로 이동해 박쥐들과 싸웁니다.",
+      "what": "입천장에 매달리면 이동과 대시 방향이 반대로 바뀝니다.",
       "tip": "입천장 몬스터를 모두 처치하면 내려옵니다.",
       "effect": "live_event_oral_ceiling",
       "gameplay": true,

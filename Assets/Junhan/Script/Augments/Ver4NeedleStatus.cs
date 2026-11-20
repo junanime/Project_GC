@@ -14,7 +14,7 @@ namespace Vampire
                 return tags;
             }
         }
-        private struct Burn { public float end, nextTick, damage; public Character source; public int stacks; }
+        private struct Burn { public float end, nextTick, damage; public Character source; public Ver4CombatSnapshot snapshot; public int stacks; }
         private readonly List<Burn> burns=new List<Burn>();
         private int burnStacks;
         private Component target;
@@ -38,7 +38,9 @@ namespace Vampire
             if(Ver4HitEffects.Health(target)<=0) return;
             ApplyFire(runtime,source);
             if(s.Has(P.IceNeedle))
-                (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0),source);
+            {
+                (GetComponent<IceChillStatus>() ?? gameObject.AddComponent<IceChillStatus>()).Hit(s.Count(P.IceNeedle,0),source,s);
+            }
             if(s.Has(P.WoodNeedle))
             {
                 var sprout = SyringeAugmentVfx.Play("WoodSprout", transform.position, SyringeAugmentVfx.FindTarget(target));
@@ -52,12 +54,23 @@ namespace Vampire
                     {
                         if(other==target) continue;
                         SyringeAugmentVfx.PlayBranch(transform.position, other.transform.position, SyringeAugmentVfx.FindTarget(other));
+                        float before = Ver4HitEffects.Health(other);
                         bool killed=Ver4HitEffects.Damage(other,runtime.ver4HitDamage*.4f*s.Factor(P.WoodNeedle,1,.12f),Vector2.zero,source,"목침");
+                        if (before > Ver4HitEffects.Health(other))
+                        {
+                            s.Impact(other.transform.position,other,P.WoodNeedle,1);
+                            if (branches<=s.Count(P.WoodNeedle,0))
+                                s.Impact(other.transform.position,other,P.WoodNeedle,0);
+                        }
                         int ground=s.Count(P.WoodNeedle,2);
                         if(killed && ground>0 && !runtime.healingBlocked)
                         {
                             var clock=source.GetComponent<Ver4EffectClock>()??source.gameObject.AddComponent<Ver4EffectClock>();
-                            if(clock.TryHealingGround()) Ver4GroundEffect.Create(other.transform.position,1+ground*.5f,true,0,source,layer);
+                            if(clock.TryHealingGround())
+                            {
+                                Ver4GroundEffect.Create(other.transform.position,1+ground*.5f,true,0,source,layer);
+                                s.Impact(other.transform.position,other,P.WoodNeedle,2);
+                            }
                         }
                         if(--branches<=0) break;
                     }
@@ -80,13 +93,15 @@ namespace Vampire
                 }
                 float damage=Ver4HitEffects.MaxHealth(target)*.008f*s.Factor(P.FireNeedle,0,.12f);
                 if(Ver4HitEffects.IsBoss(target)) damage=Mathf.Min(damage,runtime.ver4HitDamage*.25f);
-                var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,stacks=1};
+                var added=new Burn {end=Time.time+3*s.Factor(P.FireNeedle,1,.12f),nextTick=Time.time+1,damage=damage,source=source,snapshot=s,stacks=1};
                 int last=burns.Count-1;
                 // Equal-timestamp stacks share bookkeeping, not a gameplay cap.
-                if(last>=0 && burns[last].end==added.end && burns[last].nextTick==added.nextTick && burns[last].damage==damage && burns[last].source==source)
+                if(last>=0 && burns[last].end==added.end && burns[last].nextTick==added.nextTick && burns[last].damage==damage && burns[last].source==source && burns[last].snapshot==s)
                 { var batch=burns[last];batch.stacks++;burns[last]=batch; }
                 else burns.Add(added);
                 burnStacks++;
+                s.Impact(transform.position, target, P.FireNeedle, 1);
+                if (cap > 3 && burnStacks == cap) s.Impact(transform.position, target, P.FireNeedle, 2);
             }
             if(burnStacks>0 && GetComponent<ShiniBurnVisual>()==null) gameObject.AddComponent<ShiniBurnVisual>();
         }
@@ -110,9 +125,15 @@ namespace Vampire
             shatterPending=false;
             var s=runtime.ver4;
             if(s.Count(P.IceNeedle,1)>0)
-                Ver4HitEffects.AreaDamage(transform.position,1,runtime.ver4HitDamage*.4f*s.Factor(P.IceNeedle,1,.15f),0,source,layer,"빙결침 쇄빙");
+            {
+                Ver4HitEffects.AreaDamage(transform.position,1,runtime.ver4HitDamage*.4f*s.Factor(P.IceNeedle,1,.15f),0,source,layer,"빙결침 쇄빙",s,P.IceNeedle);
+            }
             int ground=s.Count(P.IceNeedle,2);
-            if(ground>0) Ver4GroundEffect.Create(transform.position,1+ground*.5f,false,runtime.ver4HitDamage*.10f,source,layer);
+            if(ground>0)
+            {
+                Ver4GroundEffect.Create(transform.position,1+ground*.5f,false,runtime.ver4HitDamage*.10f,
+                    source, layer, s.UseFrostRingAccent());
+            }
         }
         private void Update()
         {
@@ -131,7 +152,10 @@ namespace Vampire
                 {
                     for(int stack=0;stack<burn.stacks;stack++)
                     {
+                        float before=burn.snapshot?.PendingFeedback==true ? Ver4HitEffects.Health(target) : 0f;
                         Ver4HitEffects.Damage(target,burn.damage,Vector2.zero,burn.source,"화염침",true);
+                        if (before>0 && before>Ver4HitEffects.Health(target))
+                            burn.snapshot.Impact(transform.position,target,P.FireNeedle,0);
                         if(!isActiveAndEnabled || Ver4HitEffects.Health(target)<=0) { burns.Clear(); burnStacks=0; return; }
                     }
                     burn.nextTick+=1;

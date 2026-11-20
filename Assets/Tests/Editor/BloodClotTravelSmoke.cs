@@ -113,8 +113,16 @@ namespace Vampire.Tests.Editor
                 var finalSprite=travel.Visual.sprite;yield return new WaitForSeconds(.12f);
                 Check(travel.HoldingPose&&travel.Visual.sprite==finalSprite,key+" stationary pose retained");
                 Capture(key);
-                player.Move(Vector2.left);yield return null;yield return null;
-                Check(!travel.HoldingPose,key+" movement releases pose");player.Move(Vector2.zero);
+                if (key == "Ashi")
+                {
+                    yield return new WaitForSeconds(.09f);
+                    Check(!travel.HoldingPose && !travel.Visual.gameObject.activeSelf, "standing still resumes Ashi idle");
+                }
+                else
+                {
+                    player.Move(Vector2.left); yield return null; yield return null;
+                    Check(!travel.HoldingPose,key+" movement releases pose"); player.Move(Vector2.zero);
+                }
                 if(key=="Shini")
                 {
                     Time.timeScale=0;yield return new WaitForSecondsRealtime(.6f);

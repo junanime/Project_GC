@@ -139,6 +139,12 @@ namespace Vampire
         private readonly List<MiniStageFallingFoodStrike> activeStrikes = new List<MiniStageFallingFoodStrike>();
 
         private Coroutine roomRoutine;
+        private float waveDeadline;
+        public override string QuestName => "음식물 낙하";
+        public override string QuestHint => spawnFinished || Time.time >= waveDeadline
+            ? "마지막 낙하 경고 원을 벗어나세요"
+            : $"{(Enhanced ? "착지 후 폭발까지" : "바닥의 경고 원을")} 피하세요  ·  남은 {Mathf.CeilToInt(waveDeadline - Time.time)}초";
+
         private bool spawnFinished;
         private bool roomCompleted;
 
@@ -165,6 +171,7 @@ namespace Vampire
                 StopCoroutine(roomRoutine);
             }
 
+            waveDeadline = Time.time + Mathf.Max(0f, startDelay) + roomDuration;
             roomRoutine = StartCoroutine(RoomRoutine());
 
             if (debugLog)

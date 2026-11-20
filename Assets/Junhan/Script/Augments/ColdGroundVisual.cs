@@ -16,8 +16,10 @@ namespace Vampire
         public const float Radius = 1;
         static readonly Color Blue = new Color(.24f,.64f,.92f), Frost = new Color(.62f,.91f,1), White = new Color(.91f,.99f,1);
 
-        public void Initialize(float duration)
+        bool emphasizeRim;
+        public void Initialize(float duration, bool emphasizeFrostRim = false)
         {
+            emphasizeRim = emphasizeFrostRim;
             born = Time.time; lifetime = Mathf.Max(.01f,duration);
             mesh = new Mesh { name = "Ice needle frosted floor" }; mesh.MarkDynamic();
             gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -61,6 +63,18 @@ namespace Vampire
             float fade=Mathf.Clamp01((lifetime-age)/Mathf.Min(.35f,lifetime*.4f));
             float alpha=reveal*fade;
             float scale=Mathf.Lerp(.45f,1,reveal);
+            if (emphasizeRim && age < .48f)
+            {
+                float t = age / .48f;
+                float ringRadius = Radius * (GamePreferences.Current.reducedMotion ? 1f : Mathf.Lerp(.85f, 1f, Mathf.SmoothStep(0,1,t)));
+                var rim = Alpha(Frost, .65f * Mathf.Sin(Mathf.PI * t));
+                for (int i=0;i<40;i++)
+                {
+                    var a=Direction(i * Mathf.PI / 20f);
+                    var b=Direction((i+1) * Mathf.PI / 20f);
+                    Quad(a*(ringRadius-.025f),a*ringRadius,b*ringRadius,b*(ringRadius-.025f),rim);
+                }
+            }
             // Open, soft irregular edge instead of a uniform wire circle.
             for(int i=0;i<48;i++)
             {

@@ -7,6 +7,7 @@ namespace Vampire
     public class Chest : MonoBehaviour
     {
         public static event Action<Chest> OnAnyChestOpened;
+        public static event Action<Chest> RewardResolved;
         protected ChestBlueprint chestBlueprint; 
         protected EntityManager entityManager;
         protected Character playerCharacter;
@@ -96,6 +97,9 @@ namespace Vampire
                 else if (GuaranteesOriginal) entityManager.AbilitySelectionDialog.OpenOvercharge();
                 else entityManager.AbilitySelectionDialog.Open(false);
             }
+            // A portal can safely unlock once the chest has granted loot or its choice has closed.
+            while (entityManager.AbilitySelectionDialog.MenuOpen) yield return null;
+            RewardResolved?.Invoke(this);
             yield return new WaitForSeconds(0.15f);
             float t = 0;
             while (t < 1.0f)

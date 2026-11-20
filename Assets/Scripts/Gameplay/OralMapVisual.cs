@@ -20,7 +20,9 @@ namespace Vampire
         readonly List<OralGuardRoute> spiceEscapeRoutes = new List<OralGuardRoute>();
         readonly LineRenderer[] spiceArrows = new LineRenderer[2];
         static readonly int SpiceMaterialId = Shader.PropertyToID("_Spice");
-        bool spicyRoutesReady;
+        readonly LineRenderer[] spiceGates = new LineRenderer[2];
+        Vector2 markedLaunch, markedLanding;
+        bool hasMarkedRoute, spicyRoutesReady;
         LineRenderer foodWarning; MeshRenderer[] bubbleDiscs;Material bubbleMaterial; Sprite[] fragments;
         float clock; bool configured; Vector2[][] toothContours; Sprite cavityHole;
 
@@ -97,6 +99,13 @@ namespace Vampire
                 arrow.positionCount = 3;
                 arrow.enabled = false;
                 spiceArrows[i] = arrow;
+            }
+            for (int i = 0; i < spiceGates.Length; i++)
+            {
+                var gate = Line(i == 0 ? "매운맛 · 도약 지점" : "매운맛 · 착지 지점", .12f,
+                    i == 0 ? new Color(.48f, .98f, .81f) : new Color(.79f, 1f, .89f), 24);
+                gate.positionCount = 19;
+                spiceGates[i] = gate;
             }
             BuildHud();configured=true;
         }
@@ -324,7 +333,7 @@ namespace Vampire
             // The booth toast already owns the event's action line. Do not repeat it over the field.
             title.text=!GStarDemo.Enabled&&events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
             hint.enabled=!GStarDemo.Enabled || swallow!=null;
-            hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
+            hint.text=ceiling?"입천장에 매달리면 이동·대시 방향이 반대예요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
             if (UpdateSpice(events?.Tastes, kind, swallow != null)) return;
             if(swallow!=null)
             {
@@ -345,6 +354,8 @@ namespace Vampire
             {
                 tongueMaterial.SetVector(SpiceMaterialId, Vector4.zero);
                 foreach (var arrow in spiceArrows) arrow.enabled = false;
+                foreach (var gate in spiceGates) gate.enabled = false;
+                hasMarkedRoute = false;
                 return false;
             }
 
@@ -359,32 +370,56 @@ namespace Vampire
             else
                 title.text = safe ? "이빨 위는 안전해요!" : "혀가 뜨거워요! 이빨로 대피하세요!";
             hint.enabled = true;
-            hint.text = safe ? "혀가 식을 때까지 이곳에서 버티세요" : "화살표를 따라 혀 끝에서 이빨 쪽으로 대시!";
+            hint.text = safe ? "혀가 식을 때까지 이곳에서 버티세요" : "민트색 표시로 이동한 뒤 이빨 쪽으로 대시!";
             if (!spicyRoutesReady)
             {
                 for (int i = 0; i < OralMapGeometry.ToothCount; i++)
-                    if (OralGuardRoute.TryCreate(map, i, out var route)) spiceEscapeRoutes.Add(route);
+                    if (OralGuardRoute.TryCreate(map, i, out var route) &&
+                        OralMapGeometry.TryJump(map, route.Launch, route.Landing - route.Launch, out var landing))
+                        spiceEscapeRoutes.Add(new OralGuardRoute(i, route.Launch, landing));
                 spicyRoutesReady = true;
             }
             bool guide = !safe && !runtime.IsAirborne && spiceEscapeRoutes.Count > 0;
             foreach (var arrow in spiceArrows) arrow.enabled = guide;
+            foreach (var gate in spiceGates) gate.enabled = guide || (!safe && runtime.IsAirborne && hasMarkedRoute);
+            if (safe) hasMarkedRoute = false;
             if (!guide) return true;
 
             var best = spiceEscapeRoutes[0];
             foreach (var route in spiceEscapeRoutes)
                 if ((route.Launch-position).sqrMagnitude < (best.Launch-position).sqrMagnitude) best = route;
+            if (!hasMarkedRoute || best.Launch != markedLaunch || best.Landing != markedLanding)
+            {
+                Vector2 across = (best.Landing - best.Launch).normalized;
+                DrawSpiceGate(spiceGates[0], best.Launch, across);
+                DrawSpiceGate(spiceGates[1], best.Landing, -across);
+                markedLaunch = best.Launch;
+                markedLanding = best.Landing;
+                hasMarkedRoute = true;
+            }
             Vector2 target = (best.Launch-position).sqrMagnitude < 3.24f ? best.Landing : best.Launch;
             Vector2 dir = (target-position).normalized;
             Vector2 side = new Vector2(-dir.y, dir.x);
             for (int i = 0; i < spiceArrows.Length; i++)
             {
-                var tip = position + dir * (1f + i*.37f + .12f*Mathf.Sin(age*5f));
+                float pulse = GamePreferences.Current.reducedMotion ? 0f : .12f * Mathf.Sin(age * 5f);
+                var tip = position + dir * (1f + i*.37f + pulse);
                 var arrow = spiceArrows[i];
                 arrow.SetPosition(0, tip-dir*.24f+side*.19f);
                 arrow.SetPosition(1, tip);
                 arrow.SetPosition(2, tip-dir*.24f-side*.19f);
             }
             return true;
+        }
+
+        static void DrawSpiceGate(LineRenderer gate, Vector2 center, Vector2 opening)
+        {
+            Vector2 side = new Vector2(-opening.y, opening.x);
+            for (int i = 0; i < gate.positionCount; i++)
+            {
+                float angle = Mathf.Lerp(-1.7f, 1.7f, i / (float)(gate.positionCount - 1));
+                gate.SetPosition(i, center + .78f * Mathf.Sin(angle) * side - .42f * Mathf.Cos(angle) * opening);
+            }
         }
 
         void AnimateTongue(OralEventKind kind,float elapsed,bool ceiling)
