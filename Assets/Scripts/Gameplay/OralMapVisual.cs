@@ -17,11 +17,13 @@ namespace Vampire
         readonly List<LineRenderer> cavityProgress=new List<LineRenderer>();
         readonly List<SpriteRenderer> cavities=new List<SpriteRenderer>();
         LineRenderer tongueOutline, tongueHighlight; GameObject hud; Text title, hint;
-        readonly List<OralGuardRoute> spiceEscapeRoutes = new List<OralGuardRoute>();
+        readonly List<(int Tooth, Vector2 Launch, Vector2 Landing)> spiceEscapeRoutes = new List<(int, Vector2, Vector2)>();
         readonly LineRenderer[] spiceArrows = new LineRenderer[2];
         static readonly int SpiceMaterialId = Shader.PropertyToID("_Spice");
         readonly LineRenderer[] spiceGates = new LineRenderer[2];
-        Vector2 markedLaunch, markedLanding;
+        Vector2 markedLanding, checkedSpicePosition;
+        int markedTooth;
+        bool canDashToMarkedTooth;
         bool hasMarkedRoute, spicyRoutesReady;
         LineRenderer foodWarning; MeshRenderer[] bubbleDiscs;Material bubbleMaterial; Sprite[] fragments;
         float clock; bool configured; Vector2[][] toothContours; Sprite cavityHole;
@@ -333,7 +335,7 @@ namespace Vampire
             // The booth toast already owns the event's action line. Do not repeat it over the field.
             title.text=!GStarDemo.Enabled&&events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
             hint.enabled=!GStarDemo.Enabled || swallow!=null;
-            hint.text=ceiling?"입천장에 매달리면 이동·대시 방향이 반대예요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
+            hint.text=ceiling?"입천장에 매달리면 이동·대시 방향이 반대예요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"혀와 이빨 사이를 건너려면 가장자리에서 건너편을 향해 대시하세요";
             if (UpdateSpice(events?.Tastes, kind, swallow != null)) return;
             if(swallow!=null)
             {
@@ -374,9 +376,8 @@ namespace Vampire
             if (!spicyRoutesReady)
             {
                 for (int i = 0; i < OralMapGeometry.ToothCount; i++)
-                    if (OralGuardRoute.TryCreate(map, i, out var route) &&
-                        OralMapGeometry.TryJump(map, route.Launch, route.Landing - route.Launch, out var landing))
-                        spiceEscapeRoutes.Add(new OralGuardRoute(i, route.Launch, landing));
+                    if (OralMapGeometry.TryGetCrossing(map, i, out var launch, out var landing))
+                        spiceEscapeRoutes.Add((i, launch, landing));
                 spicyRoutesReady = true;
             }
             bool guide = !safe && !runtime.IsAirborne && spiceEscapeRoutes.Count > 0;
@@ -388,17 +389,25 @@ namespace Vampire
             var best = spiceEscapeRoutes[0];
             foreach (var route in spiceEscapeRoutes)
                 if ((route.Launch-position).sqrMagnitude < (best.Launch-position).sqrMagnitude) best = route;
-            if (!hasMarkedRoute || best.Launch != markedLaunch || best.Landing != markedLanding)
+            bool routeChanged = !hasMarkedRoute || best.Tooth != markedTooth;
+            // Match the eight-direction input shown by the route, even if the player
+            // approaches off center. The far marker is where that input will land.
+            Vector2 crossing = (best.Landing - best.Launch).normalized;
+            if (routeChanged || checkedSpicePosition != position)
             {
-                Vector2 across = (best.Landing - best.Launch).normalized;
-                DrawSpiceGate(spiceGates[0], best.Launch, across);
-                DrawSpiceGate(spiceGates[1], best.Landing, -across);
-                markedLaunch = best.Launch;
-                markedLanding = best.Landing;
+                checkedSpicePosition = position;
+                canDashToMarkedTooth = OralMapGeometry.TryJump(map, position, crossing, out var actualLanding) &&
+                    OralMapGeometry.NearestTooth(map, actualLanding) == best.Tooth;
+                Vector2 destination = canDashToMarkedTooth ? actualLanding : best.Landing;
+                if (routeChanged)
+                    DrawSpiceGate(spiceGates[0], best.Launch, crossing);
+                if (routeChanged || destination != markedLanding)
+                    DrawSpiceGate(spiceGates[1], destination, -crossing);
+                markedLanding = destination;
+                markedTooth = best.Tooth;
                 hasMarkedRoute = true;
             }
-            Vector2 target = (best.Launch-position).sqrMagnitude < 3.24f ? best.Landing : best.Launch;
-            Vector2 dir = (target-position).normalized;
+            Vector2 dir = canDashToMarkedTooth ? crossing : (best.Launch - position).normalized;
             Vector2 side = new Vector2(-dir.y, dir.x);
             for (int i = 0; i < spiceArrows.Length; i++)
             {
@@ -497,10 +506,12 @@ namespace Vampire
         }
         void AnimateJump()
         {
-            var player=runtime.Level.PlayerCharacter;var c=OralMapGeometry.TongueCenter(map);var p=(Vector2)player.transform.position;var direction=(p-c).normalized;
-            if(OralMapGeometry.ZoneAt(map,p)==OralZone.Teeth)direction=-direction;
-            Vector2 landing=p;
-            bool show=Swallow==null&&!runtime.OnCeiling&&!runtime.IsSliding&&OralMapGeometry.TryJump(map,p,direction,out landing);
+            var player = runtime.Level.PlayerCharacter;
+            Vector2 p = player.Position, landing = p;
+            // Only preview the crossing the player's next dash would actually take.
+            bool show = Swallow == null && !runtime.OnCeiling && !runtime.IsAirborne &&
+                !runtime.Level.IsRunFlowPaused && !player.IsDashing && player.CurrentDashCharges > 0 &&
+                OralMapGeometry.TryJump(map, p, player.GetDashDirection(), out landing);
             for(int i=0;i<jumpArcs.Length;i++){var l=jumpArcs[i];l.enabled=show;if(!show)continue;l.positionCount=8;for(int j=0;j<8;j++){float u=(i/3f)+(j/7f)*.23f;var q=Vector2.Lerp(p,landing,u)+Vector2.up*(Mathf.Sin(u*Mathf.PI)*1.1f);l.SetPosition(j,q);}}
         }
         void OnDestroy()

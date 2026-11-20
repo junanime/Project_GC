@@ -12,6 +12,7 @@ namespace Vampire
         public const int ToothCount = 14;
         public const float ToothScale = 17.6f;
         public const float ToothFootRadius = .12f;
+        const float MaxJumpDistance = 20f;
         public const float JawSeamHalfWidth = .70f;
         public const int ToothSurfaceSamplesPerTooth = 24;
         const int SamplesPerTooth = ToothSurfaceSamplesPerTooth;
@@ -52,7 +53,7 @@ namespace Vampire
             int fromBack=Mathf.Min(index,ToothCount-1-index);
             return fromBack>=5?OralToothKind.Incisor:fromBack==4?OralToothKind.Canine:OralToothKind.Molar;
         }
-        public static bool CanJumpToTooth(int index) => index>=0 && index<ToothCount && ToothKind(index)==OralToothKind.Molar;
+        public static bool CanJumpToTooth(int index) => index >= 0 && index < ToothCount;
         public static float ToothAngle(int index) => cachedAngles!=null?cachedAngles[index]:0;
         public static int ToothDepth(int index) => Mathf.Abs(index*2-(ToothCount-1));
         public static Vector2 Rotate(Vector2 p,float degrees) {
@@ -150,18 +151,6 @@ namespace Vampire
             }
             return false;
         }
-        public static bool TrySlideToTongue(FiniteStomachMap map,Vector2 from,Vector2 attempted,out Vector2 landing) {
-            landing=attempted;
-            if((attempted-from).sqrMagnitude<.0000001f||TeethDistance(map,from,out _) < -.25f||TeethDistance(map,attempted,out _)>ToothFootRadius+.025f)return false;
-            float t=ClosestT(map,from);int tooth=Mathf.Clamp(Mathf.FloorToInt(t),0,ToothCount-1);
-            if(CanJumpToTooth(tooth))return false;
-            var towardInner=(Section(map,t,1)-Section(map,t,0)).normalized;
-            if(Vector2.Dot(attempted-from,towardInner)<=.00001f)return false;
-            // The outer edge remains a hard boundary; only the tongue-facing slope slides.
-            if(Vector2.Dot(attempted-Section(map,t,.5f),towardInner)<=0)return false;
-            landing=Clamp(map,attempted+((TongueCenter(map)-attempted).normalized*1.5f),1f,OralZone.Tongue);
-            return true;
-        }
         public static Vector2 TonguePoint(FiniteStomachMap map,Vector2 q) {
             var center=TongueCenter(map);var radii=TongueRadii(map);
             if(q.y>=0)return center+Vector2.Scale(q,radii);
@@ -223,19 +212,78 @@ namespace Vampire
             if(preferredZone==OralZone.Tongue)return TongueCenter(map);
             return Section(map,ClosestT(map,p),.5f);
         }
-        public static bool TryJump(FiniteStomachMap map,Vector2 from,Vector2 direction,out Vector2 landing) {
-            landing=from;var zone=ZoneAt(map,from);
-            if(direction.sqrMagnitude<.01f||zone==OralZone.Chasm)return false;
+        // The evacuation marker and the player's dash use the same ground-contact points.
+        public static bool TryGetCrossing(FiniteStomachMap map, int tooth, out Vector2 launch, out Vector2 landing)
+        {
+            launch = landing = default;
+            if (map == null || !CanJumpToTooth(tooth)) return false;
+            Vector2 crown = ToothWalkCenter(map, tooth);
+            Vector2 towardCrown = crown - Clamp(map, crown, .65f, OralZone.Tongue);
+            // Walk back from the crown on the nearest keyboard bearing. Rounding the
+            // arrow alone would send W or W+D to a neighbouring tooth in a bend.
+            float octant = Mathf.Round(Mathf.Atan2(towardCrown.y, towardCrown.x) / (Mathf.PI * .25f));
+            float angle = octant * (Mathf.PI * .25f);
+            Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+            for (float distance = .65f; distance < MaxJumpDistance; distance += .1f)
+            {
+                Vector2 candidate = crown - direction * distance;
+                if (TongueDistance(map, candidate, out _) < .65f) continue;
+                if (!TryJump(map, candidate, direction, out landing) || NearestTooth(map, landing) != tooth ||
+                    !TryJump(map, landing, -direction, out _)) return false;
+                launch = candidate;
+                return true;
+            }
+            return false;
+        }
+
+        public static bool TryJump(FiniteStomachMap map, Vector2 from, Vector2 direction, out Vector2 landing)
+        {
+            const float launchDepth = 1.8f, fullLandingDepth = .7f;
+            landing = from;
+            OralZone zone = ZoneAt(map, from);
+            if (direction.sqrMagnitude < .01f || zone == OralZone.Chasm) return false;
             direction.Normalize();
-            float edge=zone==OralZone.Tongue?TongueDistance(map,from,out var n):TeethDistance(map,from,out n);
-            if(edge>1.8f||Vector2.Dot(direction,-n)<.55f)return false;
-            var target=zone==OralZone.Tongue?OralZone.Teeth:OralZone.Tongue;
-            for(float d=1;d<20;d+=.10f) {
-                var p=from+direction*d;
-                float clearance=target==OralZone.Teeth?TeethDistance(map,p,out _):TongueDistance(map,p,out _);
-                if(clearance<.7f)continue;
-                if(target==OralZone.Teeth&&!CanJumpToTooth(NearestTooth(map,p)))return false;
-                landing=p;return true;
+            bool toTeeth = zone == OralZone.Tongue;
+            if (toTeeth)
+            {
+                if (TongueDistance(map, from, out var inward) > launchDepth || Vector2.Dot(direction, -inward) < .55f)
+                    return false;
+            }
+            else
+            {
+                // On a thin incisor the nearest edge can be the gum side even when the
+                // actor is only a few pixels from the tongue-facing lip.
+                float t = ClosestT(map, from);
+                Vector2 lip = Section(map, t, 1f);
+                Vector2 towardTongue = (TongueCenter(map) - from).normalized;
+                if ((from - lip).sqrMagnitude > launchDepth * launchDepth || Vector2.Dot(direction, towardTongue) < .55f)
+                    return false;
+            }
+            // The front ridge is narrower than a full landing margin. Fit the grounded
+            // foot there, while still landing farther inside on a broad molar.
+            float needed = toTeeth ? ToothFootRadius + .06f : fullLandingDepth;
+            for (float d = 1f; d < MaxJumpDistance;)
+            {
+                Vector2 candidate = from + direction * d;
+                float depth = toTeeth ? TeethDistance(map, candidate, out _) : TongueDistance(map, candidate, out _);
+                if (depth >= needed)
+                {
+                    landing = candidate;
+                    if (toTeeth)
+                    {
+                        while (depth < fullLandingDepth && d + .1f < MaxJumpDistance)
+                        {
+                            d += .1f;
+                            Vector2 deeper = from + direction * d;
+                            float nextDepth = TeethDistance(map, deeper, out _);
+                            if (nextDepth <= depth) break;
+                            landing = deeper;
+                            depth = nextDepth;
+                        }
+                    }
+                    return true;
+                }
+                d += toTeeth ? Mathf.Max(.1f, needed - depth) : .1f;
             }
             return false;
         }

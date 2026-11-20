@@ -28,7 +28,7 @@ oral=[
 ('salty','짠맛 · 소금결정','소금결정 무리가 혀로 몰려옵니다.','좁은 곳에 갇히지 말고 무리의 빈틈으로 이동하세요.','salt'),
 ('sour','신맛 · 레몬 스프링','통레몬을 밟으면 가장 가까운 이빨로 튀어 오릅니다.','적에게 몰렸을 때 레몬을 밟아 혀에서 벗어나세요.','lemon'),
 ('bitter','쓴 한입','쓴맛을 견디면 회복을 얻을 수 있습니다.','적과 거리를 벌린 뒤 선택해서 먹으세요.','bitter'),
-('spicy','매운맛 · 혀 전체 화상','7초 뒤 혀 전체가 달아올라 10초 동안 매초 최대 체력의 10%를 잃어요.','이빨로 대피하세요! 화살표를 따라 혀 가장자리에서 어금니 쪽으로 대시하세요.','spicy'),
+('spicy','매운맛 · 혀 전체 화상','7초 뒤 혀 전체가 달아올라 10초 동안 매초 최대 체력의 10%를 잃어요.','이빨로 대피하세요! 화살표를 따라 혀 가장자리에서 표시된 이빨 쪽으로 대시하세요.','spicy'),
 ('boulder','치석 굴림돌','혀 곳곳에 놓인 치석을 밀면 부딪힌 적이 피해를 입습니다.','적을 향해 치석을 밀거나 대시로 세게 차세요.','boulder'),
 ('guard','민트 찹쌀 수호대','수호대가 혀 점프대를 향해 이동합니다. 체력은 80입니다.','몬스터를 막아 수호대가 살아서 점프하도록 호위하세요.','biker')]
 for id,t,w,h,f in oral:add('event/oral-'+id,t,w,h,gallery/'stage0/gif'/f'{f}.gif',5 if id=='spicy' else 0)
@@ -72,7 +72,7 @@ colon=[
 for id,t,w,h in colon:add('monster/colon-'+id,t,w,h,gallery/'stage2/raw'/('special-'+id))
 add('monster/colon-trap','미역 함정','밟으면 붙잡혀 움직일 수 없게 됩니다.','표시된 방향키를 순서대로 입력해 탈출하세요.',gallery/'stage2/raw/special-seaweed')
 add('monster/colon-squirrel','호두 다람쥐 도둑','가까이 다가오면 빠르게 도망갑니다.','탈출하기 전에 처치해 점수를 얻으세요.',gallery/'stage2/raw/special-squirrel')
-add('mechanic/oral-travel','구강 탐험 · 혀와 치아','혀의 점프대를 이용해 치아로 이동할 수 있습니다.','치아와 혀 사이의 길을 익혀 위험한 바닥을 피하세요.',gallery/'stage0/gif/jump.gif')
+add('mechanic/oral-travel','구강 탐험 · 혀와 치아','혀와 이빨 사이를 건널 때는 가장자리에서 건너편을 향해 대시하세요.','앞니에서도 혀 쪽으로 대시하면 돌아갈 수 있어요.',gallery/'stage0/gif/jump.gif')
 add('mechanic/cavity','충치 치료','충치 주변에 머물러 치료하면 보상을 얻습니다.','치료 범위를 지키며 다가오는 몬스터를 막으세요.',gallery/'stage0/gif/cavity.gif')
 add('mechanic/colon-habitats','대장 탐험 · 선택 미니보스','여섯 거주지에서 원하는 미니보스를 소환할 수 있습니다.','미니보스는 선택입니다. 좌측 하단 왕좌에서 변비왕을 깨워 처치하고 지팡이 열쇠를 챙기세요.',gallery/'stage2/raw-view-final/boss-Flamingo-arrival')
 add('mechanic/boss-part','달콤한 향기 · 보스의 흔적','노란 향기가 오는 쪽을 따라가면 바닥에 묻힌 보스 파츠가 있습니다.','준비가 되면 파츠 가까이에서 E를 눌러 보스를 소환하세요.',gallery/'stage1/spawn-rolpangi.gif')

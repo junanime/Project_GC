@@ -1,5 +1,11 @@
 # Stage 0: tooth surfaces, safe seams and return slide
 
+**G-Star update, 2026-11-20.** Players can now dash between the tongue and all 14 lower teeth. Walking to the inner lip keeps the player on the tooth. During the spicy event, arrows guide the player to a valid takeoff and then across the gap. The dashed preview follows the next dash direction and clears when the player has no charge or is already airborne.
+
+Game captures: [tongue to front tooth](QA/GStarFrontTeeth20261120/01-tongue-to-incisor.gif) · [holding the edge and dashing back](QA/GStarFrontTeeth20261120/02-hold-and-dash-back.gif) · [following the spicy warning](QA/GStarFrontTeeth20261120/03-spicy-evacuation.gif).
+
+## Original 2026-11-10 behavior and captures
+
 The approved 1403 × 1121 oral map is the shared art/geometry coordinate system. The floor image contains no baked actors or props. The tongue remains a deformable mesh and continues to support liquid and ceiling events.
 
 - Only the flat chewing surfaces and the narrow incisor ridge are walkable. Tooth sides, gum and the intervening chasm are not floor.

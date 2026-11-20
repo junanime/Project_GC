@@ -39,7 +39,7 @@ namespace Vampire.Tests.Editor
                 for (int tooth = 0; tooth < OralMapGeometry.ToothCount; tooth++)
                 {
                     bool found = OralGuardRoute.TryCreate(map, tooth, out var route);
-                    Assert.AreEqual(OralMapGeometry.CanJumpToTooth(tooth), found, "tooth " + tooth);
+                    Assert.AreEqual(OralMapGeometry.ToothKind(tooth) == OralToothKind.Molar, found, "escort destination " + tooth);
                     if (!found) continue; valid++;
                     Assert.AreEqual(tooth, OralMapGeometry.NearestTooth(map, route.Landing));
                     Assert.AreEqual(OralZone.Teeth, OralMapGeometry.ZoneAt(map, route.Landing));

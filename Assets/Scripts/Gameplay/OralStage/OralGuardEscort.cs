@@ -45,13 +45,15 @@ namespace Vampire
         public static bool TryCreate(FiniteStomachMap map, int tooth, out OralGuardRoute route)
         {
             route = default;
-            if (map == null || !OralMapGeometry.CanJumpToTooth(tooth)) return false;
-            var landing = OralMapGeometry.ToothWalkCenter(map, tooth);
-            var launch = OralMapGeometry.Clamp(map, landing, .65f, OralZone.Tongue);
-            // Use the same permitted tongue edge and molar surface as player jumps.
-            if (!OralMapGeometry.TryJump(map, launch, landing - launch, out var checkedLanding) ||
-                OralMapGeometry.NearestTooth(map, checkedLanding) != tooth) return false;
-            route = new OralGuardRoute(tooth, launch, landing); return true;
+            if (map == null || !OralMapGeometry.CanJumpToTooth(tooth) ||
+                OralMapGeometry.ToothKind(tooth) != OralToothKind.Molar) return false;
+            // The escort takes the direct route to its assigned molar.
+            Vector2 crown = OralMapGeometry.ToothWalkCenter(map, tooth);
+            Vector2 launch = OralMapGeometry.Clamp(map, crown, .65f, OralZone.Tongue);
+            if (!OralMapGeometry.TryJump(map, launch, crown - launch, out var landing) ||
+                OralMapGeometry.NearestTooth(map, landing) != tooth) return false;
+            route = new OralGuardRoute(tooth, launch, crown);
+            return true;
         }
         public static bool SegmentOnTongue(FiniteStomachMap map, Vector2 from, Vector2 to, float clearance = .28f)
         {

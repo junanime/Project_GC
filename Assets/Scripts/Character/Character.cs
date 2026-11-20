@@ -628,7 +628,7 @@ namespace Vampire
             return true;
         }
 
-        private Vector2 GetDashDirection()
+        internal Vector2 GetDashDirection()
         {
             if (moveDirection != Vector2.zero)
             {
