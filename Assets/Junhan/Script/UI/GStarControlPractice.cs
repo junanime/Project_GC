@@ -1,13 +1,11 @@
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Vampire
 {
     // Rehearse on the real stomach map with the selected character and the normal input system.
     // The first scored run starts only after the visitor confirms departure.
-    public sealed class GStarControlPractice : MonoBehaviour
+    public sealed partial class GStarControlPractice : MonoBehaviour
     {
         public static GStarControlPractice Instance { get; private set; }
         public static bool Active => Instance != null;
@@ -26,21 +24,10 @@ namespace Vampire
         static readonly GameKeyAction[] Directions = {
             GameKeyAction.MoveUp, GameKeyAction.MoveLeft, GameKeyAction.MoveDown, GameKeyAction.MoveRight
         };
-        static readonly Vector2[] KeyOffsets = {
-            new Vector2(0,31), new Vector2(-44,0), new Vector2(0,-31), new Vector2(44,0)
-        };
-
-        static readonly Color Ink = new Color(.14f,.075f,.15f);
-        static readonly Color Cream = new Color(1f,.963f,.86f);
-        static readonly Color Mint = new Color(.62f,.95f,.81f);
         readonly List<Canvas> hidden = new List<Canvas>();
-        readonly IdentityShape[] progress = new IdentityShape[5];
         Character player;
         LevelManager level;
         Vector2 initialPosition;
-        RectTransform cross, headKey, panel;
-        TextMeshProUGUI headKeyLabel;
-        readonly GameObject[] caps = new GameObject[4];
         int directionMask;
         float followupAt, refillDashAt;
         bool departureReleased;
@@ -49,10 +36,7 @@ namespace Vampire
         Rigidbody2D targetBody;
         RigidbodyConstraints2D previousConstraints;
         uint targetGeneration;
-        TextMeshProUGUI key, action, counter;
         int firstDash;
-        string[] keys;
-        string skillName;
         SyringeDartAbility needle;
 
         public static GStarControlPractice Show(LevelManager level)
@@ -87,75 +71,6 @@ namespace Vampire
             if (key == KeyCode.None) key = binding.Get(action,1);
             if (key == KeyCode.LeftShift || key == KeyCode.RightShift) return "Shift";
             return KeyboardBindingValues.KeyLabel(key);
-        }
-
-        void Build()
-        {
-            var canvas = gameObject.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            canvas.sortingOrder = 32755;
-            var scaler = gameObject.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280,720);
-            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
-
-            panel = new GameObject("연습 안내", typeof(RectTransform)).GetComponent<RectTransform>();
-            panel.SetParent(transform,false);
-            panel.anchorMin = panel.anchorMax = panel.pivot = new Vector2(.5f,0);
-            panel.anchoredPosition = new Vector2(0,24);
-            panel.sizeDelta = new Vector2(736,110);
-            var plate = panel.gameObject.AddComponent<IdentityShape>();
-            plate.frame = true; plate.radius = 20; plate.color = Ink; plate.insetColor = new Color(.235f,.14f,.23f,.97f);
-            plate.raycastTarget = false;
-
-            var keycap = TrainingUITheme.Pill("조작 키",panel,Mint,new Vector2(.036f,.20f),new Vector2(.286f,.80f));
-            key = Label(keycap.transform,Vector2.zero,Vector2.one,26,Ink,TextAlignmentOptions.Center);
-            counter = Label(panel,new Vector2(.325f,.57f),new Vector2(.80f,.87f),17,Mint,TextAlignmentOptions.Left);
-            action = Label(panel,new Vector2(.325f,.16f),new Vector2(.965f,.57f),28,Cream,TextAlignmentOptions.Left);
-            for (int i = 0; i < progress.Length; i++)
-            {
-                float x = .80f + .035f * i;
-                progress[i] = TrainingUITheme.Pill("연습 진도",panel,Mint,new Vector2(x,.669f),new Vector2(x+.025f,.727f));
-            }
-            keys = new[] {
-                "이동",
-                KeyName(GameKeyAction.Dash), KeyName(GameKeyAction.Active), KeyName(GameKeyAction.Journal)
-            };
-            skillName = player.Skills.Definition.activeName;
-            cross = AugmentPanelTheme.Rect("머리 위 방향 키", transform);
-            cross.anchorMin = cross.anchorMax = new Vector2(.5f,.5f);
-            cross.sizeDelta = Vector2.zero;
-            for (int i = 0; i < Directions.Length; i++)
-            {
-                var cap = TrainingUITheme.Pill(KeyName(Directions[i]),cross,Cream,Vector2.zero,Vector2.zero);
-                var rect = (RectTransform)cap.transform;
-                rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f,.5f);
-                rect.sizeDelta = new Vector2(43,29);
-                rect.anchoredPosition = KeyOffsets[i];
-                var glyph = Label(rect,Vector2.zero,Vector2.one,20,Ink,TextAlignmentOptions.Center);
-                glyph.enableAutoSizing = true; glyph.fontSizeMin = 10; glyph.fontSizeMax = 20;
-                glyph.text = KeyName(Directions[i]);
-                caps[i] = rect.gameObject;
-            }
-            var capBase = TrainingUITheme.Pill("머리 위 조작 키",transform,Ink,Vector2.zero,Vector2.zero);
-            capBase.radius = 9;
-            headKey = (RectTransform)capBase.transform;
-            headKey.anchorMin = headKey.anchorMax = headKey.pivot = new Vector2(.5f,.5f);
-            headKey.sizeDelta = new Vector2(112,47);
-            var face = TrainingUITheme.Pill("키캡",headKey,Mint,new Vector2(.027f,.15f), new Vector2(.973f,.96f));
-            face.radius = 7;
-            headKeyLabel = Label(face.transform,new Vector2(.04f,0),new Vector2(.96f,1),23,Ink,TextAlignmentOptions.Center);
-            headKeyLabel.enableAutoSizing = true; headKeyLabel.fontSizeMin=13; headKeyLabel.fontSizeMax=23;
-        }
-
-        static TextMeshProUGUI Label(Transform parent, Vector2 min, Vector2 max, float size, Color color, TextAlignmentOptions align)
-        {
-            var rect = AugmentPanelTheme.Rect("안내 문구", parent);
-            AugmentPanelTheme.Anchors(rect,min,max);
-            var label = rect.gameObject.AddComponent<TextMeshProUGUI>();
-            TrainingUITheme.Text(label,size,color);
-            label.alignment = align; label.enableWordWrapping = false;
-            return label;
         }
 
         void LateUpdate()
@@ -215,26 +130,14 @@ namespace Vampire
                 var book = ApothecaryUI.Instance;
                 if (book == null) return;
                 if (book.Page == "run" && GameInput.Pressed(GameKeyAction.Journal)) book.CloseRunBook();
-                if (book.Page == "hud") Advance();
+                if (book.Page == "hud") BeginItemLesson();
             }
-            else if (Step == 5)
+            else if (Step >= 5 && Step <= 8) UpdateItemLesson();
+            else if (Step == 9)
             {
                 if (!GameInput.Held(GameKeyAction.Active)) departureReleased = true;
                 else if (departureReleased && GameInput.Pressed(GameKeyAction.Active)) Complete = true;
             }
-        }
-
-        void PositionKeys()
-        {
-            var cam = Camera.main;
-            if (cam == null) return;
-            var canvasRect = (RectTransform)transform;
-            var screen = cam.WorldToScreenPoint(player.CenterTransform.position);
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect,screen,null,out var local)) return;
-            float x = Mathf.Clamp(local.x,canvasRect.rect.xMin+72,canvasRect.rect.xMax-72);
-            float y = Mathf.Clamp(local.y+140,canvasRect.rect.yMin+52,canvasRect.rect.yMax-52);
-            cross.anchoredPosition = new Vector2(x,y);
-            headKey.anchoredPosition = new Vector2(x,Mathf.Clamp(local.y+110,canvasRect.rect.yMin+36,canvasRect.rect.yMax-36));
         }
 
         void SpawnTarget()
@@ -311,38 +214,13 @@ namespace Vampire
         }
 
         void Advance() { Step++; Draw(); }
-        void Draw()
-        {
-            bool done = Step == 5;
-            key.text = done ? keys[2] : Step >= 3 ? keys[3] :
-                Step == 2 && SkillUsed ? (player.Skills.IsAri ? keys[1] : "처치") : keys[Step];
-            counter.text = done ? "튜토리얼 완료!" : $"조작 연습   {Step+1} / 5";
-            action.text = Step == 0 ? $"네 방향으로 움직여 보세요   {CompletedDirections}/4" :
-                Step == 1 ? $"두 번 대시해 보세요   {DashUses}/2" :
-                done ? "이제 구강으로 출발해 볼까요?" :
-                Step == 3 ? $"{keys[3]}을 눌러 캐릭터 상태를 확인하세요!" :
-                Step == 4 ? $"{keys[3]}을 다시 눌러 닫으세요." :
-                !SkillUsed ? $"오른쪽 적에게 {skillName} 사용" :
-                player.Skills.IsAri ? "변신했어요! 적을 향해 대시하세요" :
-                player.Skills.IsShini ? "적을 바라보고 불을 뿜으세요" :
-                needle != null && needle.HasCursorControlLegendary() ? "적 곁에서 회전하는 침을 맞히세요" :
-                player.Skills.IsHyuki ? "적이 얼면 침으로 마무리하세요" : "강화된 침으로 적을 처치하세요";
-            action.enableAutoSizing = true; action.fontSizeMin = 18; action.fontSizeMax = 28;
-            panel.gameObject.SetActive(Step != 4);
-            cross.gameObject.SetActive(Step == 0);
-            headKey.gameObject.SetActive(Step != 0 && Step != 4 && (Step != 2 || !SkillUsed || player.Skills.IsAri));
-            headKeyLabel.text = key.text;
-            headKey.sizeDelta = new Vector2(key.text == "Space" ? 152 : Mathf.Clamp(24 + key.text.Length*16,58,144),47);
-            for (int i = 0; i < progress.Length; i++)
-                progress[i].color = i <= Step ? Mint : new Color(.44f,.33f,.42f);
-        }
-
         public void Finish() { gameObject.SetActive(false); Destroy(gameObject); }
         void OnDisable()
         {
             if (Instance != this) return;
             var book = ApothecaryUI.Instance;
             if (Step == 4 && book != null && book.Page == "run") book.CloseRunBook();
+            ClearItemLesson();
             Instance = null;
             ReleaseTargetPose();
             if (Target != null && Target.SpawnGeneration == targetGeneration && Target.gameObject.activeSelf)

@@ -111,7 +111,11 @@ namespace Vampire
                 Load();
                 if (unavailable || !Valid(run) || !runs.TryGetValue(run.runId, out var current) || current.run.sessionId != run.sessionId) return false;
                 if (current.run.status != "active") return false; // Finished records are immutable.
-                return SaveCore(run);
+                if (!SaveCore(run)) return false;
+                // First commit the authoritative snapshot and its backup. An operator
+                // can retry a locked CSV with F8 without reopening a finished run.
+                if (run.status != "active") Export();
+                return true;
             }
         }
         bool SaveCore(GStarAnalyticsRun run)
@@ -228,25 +232,32 @@ namespace Vampire
                     if (unavailable) return new GStarAnalyticsExportResult { success = false, directory = output, error = LastError };
                     var all = runs.Values.Select(r => r.run).OrderBy(r => r.startedUtc, StringComparer.Ordinal).ThenBy(r => r.runId, StringComparer.Ordinal).ToArray();
                     var events = ReadEvents();
-                    AtomicWrite(Path.Combine(output, "runs.jsonl"), string.Join("\n", all.Select(JsonUtility.ToJson)) + (all.Length > 0 ? "\n" : ""));
-                    AtomicWrite(Path.Combine(output, "events.jsonl"), string.Join("\n", events.Select(JsonUtility.ToJson)) + (events.Count > 0 ? "\n" : ""));
-                    AtomicWrite(Path.Combine(output, "runs.csv"), RunsCsv(all), true);
-                    AtomicWrite(Path.Combine(output, "character-summary.csv"), Summary(all, r => r.characterId ?? "unknown", "character_id"), true);
-                    AtomicWrite(Path.Combine(output, "stage-summary.csv"), Summary(all, r => r.stageId.ToString(), "stage"), true);
-                    AtomicWrite(Path.Combine(output, "character-stage-summary.csv"), Summary(all, r => (r.characterId ?? "unknown") + "/" + r.stageId, "character_stage"), true);
-                    AtomicWrite(Path.Combine(output, "events.csv"), EventsCsv(events), true);
-                    AtomicWrite(Path.Combine(output, "choices.csv"), EventsCsv(events.Where(ChoiceEvent)), true);
+                    var batch = new GStarReportBatch((name, contents) =>
+                        AtomicWrite(Path.Combine(output, name), contents, name.EndsWith(".csv", StringComparison.Ordinal)));
+                    batch.Write("runs.jsonl", string.Join("\n", all.Select(JsonUtility.ToJson)) + (all.Length > 0 ? "\n" : ""));
+                    batch.Write("events.jsonl", string.Join("\n", events.Select(JsonUtility.ToJson)) + (events.Count > 0 ? "\n" : ""));
+                    batch.Write("runs.csv", RunsCsv(all));
+                    batch.Write("character-summary.csv", Summary(all, r => r.characterId ?? "unknown", "character_id"));
+                    batch.Write("stage-summary.csv", Summary(all, r => r.stageId.ToString(), "stage"));
+                    batch.Write("character-stage-summary.csv", Summary(all, r => (r.characterId ?? "unknown") + "/" + r.stageId, "character_stage"));
+                    batch.Write("events.csv", EventsCsv(events));
+                    batch.Write("choices.csv", EventsCsv(events.Where(ChoiceEvent)));
                     var choices = new StringBuilder();
                     Row(choices, "event_type", "id", "recorded_count", "distinct_runs");
                     foreach (var group in events.Where(ChoiceEvent).GroupBy(e => new { e.type, e.id }).OrderBy(g => g.Key.type).ThenBy(g => g.Key.id))
                         Row(choices, group.Key.type, group.Key.id, group.Count(), group.Select(e => e.runId).Distinct().Count());
-                    AtomicWrite(Path.Combine(output, "choice-counts.csv"), choices.ToString(), true);
+                    batch.Write("choice-counts.csv", choices.ToString());
                     var offered = new StringBuilder();
                     Row(offered, "event_type", "offered_option", "times_offered", "distinct_runs");
                     foreach (var group in events.SelectMany(e => (e.offered ?? Array.Empty<string>()).Select(id => new { e.type, e.runId, id })).GroupBy(e => new { e.type, e.id }).OrderBy(g => g.Key.type).ThenBy(g => g.Key.id))
                         Row(offered, group.Key.type, group.Key.id, group.Count(), group.Select(e => e.runId).Distinct().Count());
-                    AtomicWrite(Path.Combine(output, "offered-counts.csv"), offered.ToString(), true);
-                    return new GStarAnalyticsExportResult { success = true, directory = output, error = LastError };
+                    batch.Write("offered-counts.csv", offered.ToString());
+                    if (!batch.Succeeded)
+                    {
+                        LastError = "QA 원본은 저장됐습니다. 갱신하지 못한 파일: " + batch.FailedNames;
+                        return new GStarAnalyticsExportResult { success = false, directory = output, error = LastError };
+                    }
+                    return new GStarAnalyticsExportResult { success = true, directory = output, error = "" };
                 }
                 catch (Exception e)
                 {

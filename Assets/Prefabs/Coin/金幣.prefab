@@ -54,6 +54,8 @@ MonoBehaviour:
   lerpTime: 0.4
   storeInInventory: 0
   magnetic: 1
+  onlyNotifyPickupLayer: 1
+  depthVisual: {fileID: 1803825477104208170}
   collectedAudio:
     clip: {fileID: 0}
     volume: 0

@@ -498,6 +498,11 @@ namespace Vampire
         [SerializeField] private bool debugHungrySpirit = false;
 
         private HungrySpiritController hungrySpiritController;
+        private bool hungrySpiritSettingsDirty = true;
+
+#if UNITY_EDITOR
+        private void OnValidate() => hungrySpiritSettingsDirty = true;
+#endif
 
         [Header("Legendary - Needle Shotgun / 침샷건")]
         [Tooltip("침샷건 최대 장전 수입니다. 그레이브즈 방식이지만 4발까지 장전됩니다.")]
@@ -704,6 +709,7 @@ namespace Vampire
         public override void Init(AbilityManager abilityManager, EntityManager entityManager, Character playerCharacter)
         {
             base.Init(abilityManager, entityManager, playerCharacter);
+            hungrySpiritSettingsDirty = true;
 
             // 인스펙터에서 체크해둔 테스트용 증강 중,
             // 컨트롤러 생성이나 대쉬 횟수 추가가 필요한 증강들을 실제 런타임 상태로 동기화합니다.
@@ -726,7 +732,7 @@ namespace Vampire
             {
                 EnableHedgehogNeedleLegendary();
             }
-            if (hungrySpiritEnabled)
+            if (hungrySpiritEnabled && (hungrySpiritSettingsDirty || hungrySpiritController == null))
             {
                 EnableHungrySpiritLegendary();
             }
@@ -1230,13 +1236,13 @@ namespace Vampire
             Vector2 origin = GetPlayerCenterPosition();
             float range = Mathf.Max(0.1f, needleShotgunDetectionRange);
 
-            Collider2D[] hits = Physics2D.OverlapCircleAll(origin, range, monsterLayer);
+            using var query = NeedleTargeting.QueryCircle(origin, range, monsterLayer, out var hits);
 
             float closestDistanceSqr = float.MaxValue;
             Vector2 closestDirection = targetDirection;
             bool found = false;
 
-            for (int i = 0; i < hits.Length; i++)
+            for (int i = 0; i < hits.Count; i++)
             {
                 Collider2D hit = hits[i];
 
@@ -2886,8 +2892,7 @@ namespace Vampire
                 hungrySpiritRangeBonusPerStack,
                 hungrySpiritAttackSpeedBonusPerStack,
                 debugHungrySpirit);
-
-            Debug.Log("[헝그리정신] 전설 증강 활성화.");
+            hungrySpiritSettingsDirty = false;
         }
 
         public bool HasHungrySpiritLegendary()

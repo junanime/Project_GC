@@ -76,8 +76,12 @@ namespace Vampire
                 if (!found) { bounds = b; found = true; } else bounds.Encapsulate(b);
             }
             if (!found) return;
-            box.offset = bounds.center;
-            box.size = new Vector2(Mathf.Max(.01f, bounds.size.x), Mathf.Max(.01f, bounds.size.y));
+            Vector2 offset = bounds.center;
+            Vector2 size = new Vector2(Mathf.Max(.01f, bounds.size.x), Mathf.Max(.01f, bounds.size.y));
+            // Exact comparison preserves every animation frame, while stationary
+            // hitboxes do not ask Physics2D to rebuild their shape twice per frame.
+            if (!box.offset.Equals(offset)) box.offset = offset;
+            if (!box.size.Equals(size)) box.size = size;
         }
     }
 

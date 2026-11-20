@@ -101,6 +101,45 @@ namespace Vampire.Tests.Editor
             yield return null;
         }
 
+        // Optional evidence recorded through the same production camera, canvases and
+        // input handling as the assertions below. Other test runs keep their normal pacing.
+        sealed class ChoiceFilm
+        {
+            readonly string destination;
+            readonly string temporary="numbered-choices/film-"+Guid.NewGuid().ToString("N");
+            int sequence;
+            ChoiceFilm(string path)
+            {
+                destination=Path.GetFullPath(path);
+                Directory.CreateDirectory(Path.Combine(destination,"frames"));
+                Directory.CreateDirectory(Path.Combine("Library/GStarUIQA",temporary));
+                Time.captureFramerate=60;
+            }
+            public static ChoiceFilm Start()
+            {
+                var args=Environment.GetCommandLineArgs();
+                int i=Array.IndexOf(args,"-qaChoiceFilm");
+                return i>=0 && i+1<args.Length ? new ChoiceFilm(args[i+1]) : null;
+            }
+            public IEnumerator Record(int count)
+            {
+                for(int i=0;i<count;i++)
+                {
+                    string name=(sequence++).ToString("D4");
+                    GStarUISmoke.Capture(temporary+"/"+name,960,540);
+                    File.Copy(Path.Combine("Library/GStarUIQA",temporary,name+".png"),Path.Combine(destination,"frames",name+".png"),true);
+                    // Input and animation are simulated at 60 Hz; save every fifth game frame.
+                    for(int tick=0;tick<5;tick++)yield return null;
+                }
+            }
+            public void Finish()
+            {
+                Time.captureFramerate=0;
+                File.WriteAllText(Path.Combine(destination,"film-checks.txt"),
+                    "PASS\nframes="+sequence+"\nfps=12\nwidth=960\nheight=540\nselected_columns=2,3\n");
+            }
+        }
+
         static IEnumerator CheckField()
         {
             var prefs=GamePreferences.Current.Copy();
@@ -153,6 +192,16 @@ namespace Vampire.Tests.Editor
                 "all three augment cards have fully appeared");
             yield return null;
             Canvas.ForceUpdateCanvases();
+            var fieldKey = Resources.Load<Sprite>("Interaction/KeycapE_Pixel");
+            for (int i = 0; i < cards.Length; i++)
+            {
+                var cap = cards[i].transform.Find("Choice keycap").GetComponent<InteractionKeycapGraphic>();
+                Check(cap != null && cap.Legend.text == (i + 1).ToString() && cap.mainTexture == fieldKey.texture &&
+                    cap.rectTransform.anchorMin == Vector2.up && cap.rectTransform.anchorMax == Vector2.up &&
+                    cap.rectTransform.rect.width >= 50 && cap.rectTransform.rect.height >= 50 &&
+                    !cap.raycastTarget && !cap.Legend.raycastTarget,
+                    "large field-style keyboard key at top left of augment " + (i + 1));
+            }
             GStarUISmoke.Capture("numbered-choices/augment",960,540);
             var clicks=new int[3];
             for (int i=0;i<3;i++)
@@ -168,17 +217,23 @@ namespace Vampire.Tests.Editor
             yield return Press();
             ApothecaryUI.Instance.CloseRunBook();
             yield return null;
+            var film=ChoiceFilm.Start();
+            if(film!=null)yield return film.Record(8);
             yield return Press(Key.Digit2);
             Check(clicks.SequenceEqual(new[]{0,1,0}) && dialog.SelectionAnimating,
                 $"2 selects the middle card once (clicks {string.Join(",",clicks)}, page {ApothecaryUI.Instance.Page})");
+            if(film!=null)yield return film.Record(13);
             yield return Wait(()=>!dialog.SelectionAnimating,"selection animation completes with the key held");
             yield return new WaitForSecondsRealtime(.3f);
             Check(clicks.SequenceEqual(new[]{0,1,0}) && dialog.MenuOpen,"holding 2 through next offer selects only middle card");
             yield return Press();
             yield return new WaitForSecondsRealtime(.55f);
+            if(film!=null)yield return film.Record(4);
             yield return Press(Key.Numpad3);
+            if(film!=null)yield return film.Record(11);
             yield return Wait(()=>!dialog.MenuOpen,"numpad 3 completes the remaining offer");
             Check(clicks.SequenceEqual(new[]{0,1,1}),"right card receives its real button click");
+            film?.Finish();
             yield return Press();
 
             var npc=Object.FindObjectOfType<MerchantNPC>();

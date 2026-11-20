@@ -15,9 +15,11 @@ namespace Vampire.Tests.Editor
             {
                 var importer=AssetImporter.GetAtPath(path) as TextureImporter;
                 if(importer==null)continue;
-                bool qr=Path.GetFileNameWithoutExtension(path).EndsWith("-qr",StringComparison.Ordinal);
-                importer.textureType=qr?TextureImporterType.Sprite:TextureImporterType.Default;
-                if(qr)importer.spriteImportMode=SpriteImportMode.Single;
+                string artwork = Path.GetFileNameWithoutExtension(path);
+                bool qr=artwork.EndsWith("-qr",StringComparison.Ordinal);
+                bool sprite = qr || artwork == "prize-draw-gift";
+                importer.textureType=sprite?TextureImporterType.Sprite:TextureImporterType.Default;
+                if(sprite)importer.spriteImportMode=SpriteImportMode.Single;
                 importer.npotScale=TextureImporterNPOTScale.None;importer.maxTextureSize=2048;
                 importer.mipmapEnabled=false;importer.filterMode=qr?FilterMode.Point:FilterMode.Bilinear;
                 if(qr)importer.wrapMode=TextureWrapMode.Clamp;

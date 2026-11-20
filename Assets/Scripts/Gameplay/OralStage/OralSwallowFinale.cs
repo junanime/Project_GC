@@ -49,6 +49,7 @@ namespace Vampire
         sealed class SpiralCapture
         {
             public OralWhirlpoolState Source;
+            public Rigidbody2D Body;
             public float Radius, Angle, DamageClock;
             public bool AtCenter, WasSuspended;
             public uint Generation;
@@ -314,13 +315,13 @@ namespace Vampire
             {
                 var source = FindContainingVortex(player.Position);
                 if (source == null) return;
-                playerCapture = Capture(source, player.Position);
+                playerCapture = Capture(source, player.Position, player.GetComponent<Rigidbody2D>());
                 player.StartIdleAnimation();
             }
             var capture = playerCapture;
             Vector2 target = SpiralPosition(capture, Time.deltaTime);
             target = OralMapGeometry.Clamp(stage.Map, target, PlayerRadius, OralZone.Tongue);
-            var body = player.GetComponent<Rigidbody2D>();
+            var body = capture.Body;
             if (body != null)
             {
                 target = BloodClotObstacle.ClampDash(body, target);
@@ -347,15 +348,19 @@ namespace Vampire
             OralWhirlpoolState source = null; float deepest = 0;
             foreach (var w in whirlpools)
             {
+                float square=(position-w.Position).sqrMagnitude;
+                // Keep the original penetration arithmetic on the boundary and for
+                // overlapping whirlpools, preserving the chosen source on ties.
+                if (square>w.Radius*w.Radius*1.000001f) continue;
                 float penetration = 1 - Vector2.Distance(position, w.Position) / w.Radius;
                 if (penetration > deepest) { source = w; deepest = penetration; }
             }
             return source;
         }
 
-        static SpiralCapture Capture(OralWhirlpoolState source, Vector2 position)
+        static SpiralCapture Capture(OralWhirlpoolState source, Vector2 position, Rigidbody2D body)
         {
-            var capture = new SpiralCapture { Source = source };
+            var capture = new SpiralCapture { Source = source, Body = body };
             UpdatePolar(capture, position);
             return capture;
         }
@@ -386,7 +391,7 @@ namespace Vampire
                     monster.IsFieldRuntimeSuspended || monsterCaptures.ContainsKey(monster)) continue;
                 var source = FindContainingVortex(monster.Position);
                 if (source == null) continue;
-                var capture = Capture(source, monster.Position);
+                var capture = Capture(source, monster.Position, monster.GetComponent<Rigidbody2D>());
                 capture.WasSuspended = monster.IsFieldRuntimeSuspended;
                 capture.Generation = monster.SpawnGeneration;
                 monsterCaptures.Add(monster, capture);
@@ -401,7 +406,7 @@ namespace Vampire
                 var target = SpiralPosition(capture, dt);
                 target = OralMapGeometry.Clamp(stage.Map, target, .2f, OralZone.Tongue);
                 monster.transform.position = new Vector3(target.x, target.y, monster.transform.position.z);
-                var body = monster.GetComponent<Rigidbody2D>(); if (body != null) body.position = target;
+                if (capture.Body != null) capture.Body.position = target;
                 level.EntityManager.Grid.UpdateClient(monster);
                 UpdatePolar(capture, target);
                 if (capture.Radius > CoreRadius) continue;

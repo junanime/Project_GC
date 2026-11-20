@@ -20,6 +20,25 @@ namespace Vampire
         static Vector2[] cachedCenters, band, centerSamples;
         static Vector2[][] walkPolygons, damagePolygons;
         static Rect[] damageBounds;
+        const int EdgesPerBlock = 16;
+        struct Edge
+        {
+            public Vector2 A, B, Delta;
+            public float LengthSquared;
+        }
+        struct EdgeBlock
+        {
+            public float Left, Right, Bottom, Top;
+            public int Start, End;
+            public float DistanceSquared(Vector2 p)
+            {
+                float x = p.x < Left ? Left-p.x : p.x > Right ? p.x-Right : 0;
+                float y = p.y < Bottom ? Bottom-p.y : p.y > Top ? p.y-Top : 0;
+                return x*x + y*y;
+            }
+        }
+        static Edge[] bandEdges;
+        static EdgeBlock[] bandBlocks;
         static float[] cachedAngles;
         // Each pair is a cross-section of the flat top: rear right, front,
         // rear left. Odd entries are tooth centers; even entries are seams.
@@ -108,6 +127,7 @@ namespace Vampire
             cachedRect=map.WorldRect;cachedCenters=new Vector2[ToothCount];cachedAngles=new float[ToothCount];
             walkPolygons=new Vector2[ToothCount][];damagePolygons=new Vector2[ToothCount][];damageBounds=new Rect[ToothCount];
             band=Surface(map,0,ToothCount);
+            CacheBandEdges();
             centerSamples=new Vector2[ToothCount*SamplesPerTooth+1];
             for(int i=0;i<centerSamples.Length;i++)centerSamples[i]=Section(map,i/(float)SamplesPerTooth,.5f);
             for(int i=0;i<ToothCount;i++) {
@@ -164,7 +184,73 @@ namespace Vampire
             inward=side<bottom?(p.x>center.x?Vector2.left:Vector2.right):Vector2.up;
             return Mathf.Min(side,bottom);
         }
-        public static float TeethDistance(FiniteStomachMap map,Vector2 p,out Vector2 inward) {Ensure(map);return PolygonDistance(p,band,out inward);}
+        static void CacheBandEdges()
+        {
+            bandEdges = new Edge[band.Length];
+            bandBlocks = new EdgeBlock[(band.Length+EdgesPerBlock-1)/EdgesPerBlock];
+            for (int i=0;i<bandBlocks.Length;i++)
+            {
+                int start=i*EdgesPerBlock, end=Mathf.Min(start+EdgesPerBlock,band.Length);
+                Vector2 a=band[(start+band.Length-1)%band.Length], low=a, high=a;
+                for (int j=start;j<end;j++)
+                {
+                    Vector2 b=band[j], delta=b-a;
+                    bandEdges[j]=new Edge { A=a, B=b, Delta=delta, LengthSquared=Mathf.Max(.000001f,delta.sqrMagnitude) };
+                    low=Vector2.Min(low,b); high=Vector2.Max(high,b); a=b;
+                }
+                // Projection (a + delta*t) and horizontal-ray intersections round in
+                // float. Keep the bounds slightly outside the authored end points.
+                float padX=(Mathf.Max(Mathf.Abs(low.x),Mathf.Abs(high.x))+1)*.000002f;
+                float padY=(Mathf.Max(Mathf.Abs(low.y),Mathf.Abs(high.y))+1)*.000002f;
+                bandBlocks[i]=new EdgeBlock { Start=start,End=end,Left=low.x-padX,Right=high.x+padX,
+                    Bottom=low.y-padY,Top=high.y+padY };
+            }
+        }
+
+        static Vector2 ClosestOnEdge(Vector2 p, Edge edge) =>
+            edge.A + edge.Delta*Mathf.Clamp01(Vector2.Dot(p-edge.A,edge.Delta)/edge.LengthSquared);
+
+        public static float TeethDistance(FiniteStomachMap map,Vector2 p,out Vector2 inward)
+        {
+            Ensure(map);
+            int seed=0;
+            float nearestBox=float.PositiveInfinity;
+            foreach (var block in bandBlocks)
+            {
+                float d=block.DistanceSquared(p);
+                if (d<nearestBox) { nearestBox=d; seed=(block.Start+block.End)/2; }
+            }
+            Vector2 closest=ClosestOnEdge(p,bandEdges[seed]);
+            float best=(p-closest).sqrMagnitude;
+            int bestIndex=seed;
+            bool inside=false;
+            foreach (var block in bandBlocks)
+            {
+                bool ray=p.y>=block.Bottom && p.y<=block.Top && p.x<block.Right;
+                if (ray && p.x<block.Left)
+                {
+                    // Every crossing is to the right of this ray; intermediate
+                    // up/down crossings cancel and only the two ends determine parity.
+                    if ((bandEdges[block.Start].A.y>p.y)!=(bandEdges[block.End-1].B.y>p.y)) inside=!inside;
+                    ray=false;
+                }
+                bool near=block.DistanceSquared(p)<=best;
+                if (!ray && !near) continue;
+                for (int j=block.Start;j<block.End;j++)
+                {
+                    var edge=bandEdges[j];
+                    if (ray && (edge.A.y>p.y)!=(edge.B.y>p.y) &&
+                        p.x<edge.Delta.x*(p.y-edge.A.y)/edge.Delta.y+edge.A.x) inside=!inside;
+                    if (!near) continue;
+                    Vector2 q=ClosestOnEdge(p,edge);
+                    float d=(p-q).sqrMagnitude;
+                    if (d<best || (d==best && j<bestIndex)) { best=d; closest=q; bestIndex=j; }
+                }
+            }
+            inward=(inside?p-closest:closest-p).normalized;
+            if (inward.sqrMagnitude<.00001f) inward=Vector2.up;
+            return Mathf.Sqrt(best)*(inside?1:-1);
+        }
         // Kept for old cavity-art callers. Navigation never samples opaque sprite sides.
         public static Vector2[] Crown;
         public static readonly Vector2[][] Crowns=new Vector2[3][];
@@ -201,7 +287,11 @@ namespace Vampire
         public static Vector2 Clamp(FiniteStomachMap map,Vector2 p,float radius=.25f,OralZone preferredZone=OralZone.None) {
             radius=Mathf.Clamp(radius,.1f,1.6f);
             if(preferredZone==OralZone.None||preferredZone==OralZone.Chasm)
-                preferredZone=TongueDistance(map,p,out _)>TeethDistance(map,p,out _)?OralZone.Tongue:OralZone.Teeth;
+            {
+                float tongue=TongueDistance(map,p,out _);
+                if(tongue>=radius-.002f)return p;
+                preferredZone=tongue>TeethDistance(map,p,out _)?OralZone.Tongue:OralZone.Teeth;
+            }
             // Teeth use the actor's ground-contact point. A full sprite radius
             // would make the intentionally narrow front ridge impossible to walk.
             if(preferredZone==OralZone.Teeth)radius=Mathf.Min(radius,ToothFootRadius);

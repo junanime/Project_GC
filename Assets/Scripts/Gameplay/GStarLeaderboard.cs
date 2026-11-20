@@ -413,8 +413,11 @@ namespace Vampire
                             string.IsNullOrEmpty(r.phone) ? "" : "'" + r.phone, r.data.Total.ToString(), r.data.success.ToString(), r.data.seconds.ToString("0.0", CultureInfo.InvariantCulture),
                             r.data.normal.ToString(), r.data.special.ToString(), r.data.elite.ToString(), r.data.miniBoss.ToString(), r.data.boss.ToString(), r.data.cleared.ToString(),
                             r.data.overcharge.ToString(), r.data.gold.ToString(), r.data.silver.ToString(), r.data.rules, r.exclusion);
-                    WriteExport("all-runs-private.csv", all.ToString());
+                    var batch = new GStarReportBatch(WriteExport);
+                    batch.Write("all-runs-private.csv", all.ToString());
                     var winners = new StringBuilder(); var publicBoard = new StringBuilder();
+                    var draw = new StringBuilder();
+                    CsvRow(draw, "stage", "rank", "name", "phone_private", "score", "run_id", "draw_weight");
                     CsvRow(winners, "stage", "rank", "name", "phone_private", "score", "run_id");
                     CsvRow(publicBoard, "stage", "rank", "name", "score");
                     for (int stage = 0; stage <= 2; stage++)
@@ -424,12 +427,23 @@ namespace Vampire
                         {
                             var r = board[i];
                             CsvRow(publicBoard, stage.ToString(), (i + 1).ToString(), r.name, r.data.Total.ToString());
-                            if (i < 3) CsvRow(winners, stage.ToString(), (i + 1).ToString(), r.name, string.IsNullOrEmpty(r.phone) ? "" : "'" + r.phone, r.data.Total.ToString(), r.runId);
+                            // One entry per person per stage. Rank weights decrease evenly
+                            // from twice the last place weight down to a positive minimum.
+                            long weight = board.Count == 1 ? 1L : 2L * (board.Count - 1) - i;
+                            // The personal best may have been registered without a phone.
+                            // Use the same visitor contact as the ranking identity for prize lists only.
+                            string contact = string.IsNullOrEmpty(r.phone) ? SessionPhone(r.sessionId) : r.phone;
+                            string prizePhone = string.IsNullOrEmpty(contact) ? "" : "'" + contact;
+                            CsvRow(draw, stage.ToString(), (i + 1).ToString(), r.name, prizePhone, r.data.Total.ToString(), r.runId,
+                                weight.ToString(CultureInfo.InvariantCulture));
+                            if (i < 3) CsvRow(winners, stage.ToString(), (i + 1).ToString(), r.name, prizePhone, r.data.Total.ToString(), r.runId);
                         }
                     }
-                    WriteExport("prize-top3-private.csv", winners.ToString());
-                    WriteExport("ranking-public.csv", publicBoard.ToString());
-                    return true;
+                    batch.Write("prize-draw-private.csv", draw.ToString());
+                    batch.Write("prize-top3-private.csv", winners.ToString());
+                    batch.Write("ranking-public.csv", publicBoard.ToString());
+                    if (!batch.Succeeded) LastError = "순위 원본은 저장됐습니다. 갱신하지 못한 파일: " + batch.FailedNames;
+                    return batch.Succeeded;
                 }
                 catch (Exception)
                 {

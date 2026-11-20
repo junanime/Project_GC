@@ -25,6 +25,39 @@ namespace Vampire.Tests.Editor
             Assert.IsTrue(store.CaptureCompleted(run, session, stage, data), store.LastError);
             return store.Submit(name, phone, stage, run, session, data);
         }
+        [Test] public void DrawIncludesLowerRanksAndKeepsOnlyPersonalStageBests()
+        {
+            for (int i = 0; i < 5; i++)
+                Assert.IsTrue(Register("draw-" + i, 0, "", 10 - i, session: "visitor" + i).success);
+            Assert.IsTrue(Register("repeat", 0, "", 1, session: "visitor4").success);
+            Assert.IsTrue(Register("alone", 2, "", 2, session: "visitor4").success);
+            Assert.IsTrue(store.CaptureCompleted("unregistered", "guest", 0, Score(50)));
+            var rows = File.ReadAllLines(Path.Combine(directory, "prize-draw-private.csv"));
+            Assert.AreEqual(7, rows.Length);
+            for (int i = 0; i < 5; i++)
+            {
+                StringAssert.Contains("\"draw-" + i + "\"", rows[1+i]);
+                StringAssert.EndsWith("\"" + (8 - i) + "\"", rows[1+i]);
+            }
+            StringAssert.EndsWith("\"1\"", rows[6]);
+            StringAssert.DoesNotContain("unregistered", string.Join("\n", rows));
+        }
+
+        [Test] public void OpenPrivateWorkbookDoesNotBlockUpdatedDrawOrPublicRanking()
+        {
+            Assert.IsTrue(Register("before", 2, "", 10).success);
+            string all = Path.Combine(directory, "all-runs-private.csv");
+            using (var workbook = File.Open(all, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                Assert.IsTrue(Register("during", 2, "", 4, "새참가자", "another").success);
+                StringAssert.Contains("새참가자", File.ReadAllText(Path.Combine(directory, "ranking-public.csv")));
+                StringAssert.Contains("\"during\"", File.ReadAllText(Path.Combine(directory, "prize-draw-private.csv")));
+                Assert.IsNotNull(new GStarLeaderboardStore(directory).GetRunRank("during"));
+            }
+            Assert.IsTrue(store.CaptureCompleted("after", "another", 1, Score()));
+            StringAssert.Contains("\"during\"", File.ReadAllText(all));
+        }
+
         [Test] public void OfficialStandingUsesOnePhoneBestPerStageAndPreservesAllRuns()
         {
             Assert.IsTrue(Register("first", 1, "010-1234-5678", 10).success);
@@ -105,6 +138,13 @@ namespace Vampire.Tests.Editor
             var anonymousLine = Array.Find(allRuns.Split('\n'), line => line.StartsWith("\"anonymous\","));
             Assert.IsNotNull(anonymousLine);
             Assert.IsFalse(anonymousLine.Contains("01012345678"), "Do not retroactively insert contact into anonymous record");
+            foreach (string file in new[] { "prize-draw-private.csv", "prize-top3-private.csv" })
+            {
+                string row = File.ReadAllLines(Path.Combine(directory, file))[1];
+                StringAssert.Contains("\"anonymous\"", row, "Personal best keeps its original run");
+                StringAssert.Contains("01012345678", row, "Private prize lists resolve the participant's later contact");
+            }
+            StringAssert.DoesNotContain("01012345678", File.ReadAllText(Path.Combine(directory, "ranking-public.csv")));
         }
         [Test] public void ExcludedAndUnfinishedRunsNeverEnterPublicRanking()
         {

@@ -36,7 +36,14 @@ namespace Vampire.Tests.Editor
             Time.captureFramerate = 24;
             var quest = player.GetComponent<PrescriptionRuntime>();
             var originalQuest = quest.Capture();
+            if (player.CurrentHealth < player.MaxHealth) player.GainHealth(player.MaxHealth - player.CurrentHealth);
             float startingHealth = player.CurrentHealth;
+            var runtime = new SyringeSpecialRuntime { mosquitoHealPerHit = 1f, mosquitoBossHealMultiplier = 1f };
+            var healDeadline = ColonContentSmoke.Field(player, "nextMosquitoHeal");
+            float initialDeadline = (float)healDeadline.GetValue(player);
+            SyringeSpecialHitEffectUtility.ApplyMosquitoHeal(player, runtime, player);
+            Check(player.CurrentHealth == player.MaxHealth && (float)healDeadline.GetValue(player) == initialDeadline,
+                "full HP keeps the mosquito cooldown available");
             var visibleCamera = Camera.main;
             Vector3 anchor = visibleCamera.transform.localPosition;
             float maxKick = 0;
@@ -53,7 +60,6 @@ namespace Vampire.Tests.Editor
             }
             Check(maxKick > .035f && Vector3.Distance(visibleCamera.transform.localPosition, anchor) < .015f,
                 "camera recoils and returns to its original anchor");
-            var runtime = new SyringeSpecialRuntime { mosquitoHealPerHit = 1f, mosquitoBossHealMultiplier = 1f };
             float before = player.CurrentHealth;
             for (int i = 0; i < 16; i++)
                 SyringeSpecialHitEffectUtility.ApplyMosquitoHeal(player, runtime, player);

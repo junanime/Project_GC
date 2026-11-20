@@ -16,6 +16,14 @@ namespace Vampire
         protected SpriteRenderer spriteRenderer;
         protected bool opened = false;
         public bool GuaranteesOriginal { get; set; }
+        GameObject guaranteedDrop;
+        Action<Collectable> configureDrop;
+        internal bool IsExpectingItem(Action<Collectable> onSpawn) => configureDrop == onSpawn;
+        internal void GuaranteeItem(GameObject prefab, Action<Collectable> onSpawn)
+        {
+            guaranteedDrop = prefab;
+            configureDrop = onSpawn;
+        }
         public bool CanInteract => !opened && chestBlueprint!=null && GetComponent<Collider2D>().enabled && !AcidLakeEvent.Contains(transform.position);
 
         public void Init(EntityManager entityManager, Character playerCharacter, Transform chestItemsParent)
@@ -31,6 +39,8 @@ namespace Vampire
         {
             this.chestBlueprint = chestBlueprint;
             GuaranteesOriginal = false;
+            guaranteedDrop = null;
+            configureDrop = null;
             transform.localScale = Vector3.one;
             spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.closedChest);
             opened = false;
@@ -47,6 +57,8 @@ namespace Vampire
             transform.position += Vector3.back*0.001f;  // Nudge the collectable in front of the chest
             Collectable collectable = item.GetComponent<Collectable>();
             collectable.Init(entityManager, playerCharacter);
+            configureDrop?.Invoke(collectable);
+            configureDrop = null;
             Coin coin = collectable as Coin;
             if (coin != null)
                 coin.Setup(transform.position, loot.coinType, true, false, true);
@@ -82,7 +94,13 @@ namespace Vampire
             bool spawnLoot = chestBlueprint.legendaryAugmentChest
                 ? !entityManager.AbilitySelectionDialog.HasAvailableLegendaryAbilities()
                 : !chestBlueprint.abilityChest || !entityManager.AbilitySelectionDialog.HasAvailableAbilities();
-            if (spawnLoot)
+            if (guaranteedDrop != null)
+            {
+                spawnLoot = true;
+                SpawnLoot(new Loot<GameObject> { item = guaranteedDrop }, openedByPlayer);
+                guaranteedDrop = null;
+            }
+            else if (spawnLoot)
                 SpawnLoot(chestBlueprint.lootTable.DropLootObject(), openedByPlayer);
             yield return new WaitForSeconds(0.1f);
             spriteRenderer.sprite = chestBlueprint.Visual(chestBlueprint.openChest);

@@ -40,9 +40,10 @@ namespace Vampire
                 return false;
             }
 
-            Component[] parentComponents = collider.GetComponentsInParent<Component>(true);
+            using var lease = UnityEngine.Pool.ListPool<IDamageable>.Get(out var parentComponents);
+            collider.GetComponentsInParent(true, parentComponents);
 
-            for (int i = 0; i < parentComponents.Length; i++)
+            for (int i = 0; i < parentComponents.Count; i++)
             {
                 Component component = parentComponents[i];
 
@@ -490,7 +491,7 @@ namespace Vampire
 
         public static void ApplyMosquitoHeal(Component target, SyringeSpecialRuntime runtime, Character source)
         {
-            if (source == null || runtime.healingBlocked) return;
+            if (source == null || runtime.healingBlocked || runtime.mosquitoHealPerHit == 0f || !source.CanReceiveMosquitoHeal) return;
             float amount = runtime.mosquitoHealPerHit;
             if (IsBossLikeTarget(target)) amount *= runtime.mosquitoBossHealMultiplier;
             float hp = source.CurrentHealth;

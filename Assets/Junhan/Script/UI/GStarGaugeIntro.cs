@@ -96,21 +96,36 @@ namespace Vampire
             var palette=new[]{Red,Blue,Gold};
             for(int i=0;i<6;i++){lines[i]=Fixed("Gauge connector "+i,frame,new Rect(0,0,1,2));lines[i].pivot=Vector2.one*.5f;var image=lines[i].gameObject.AddComponent<Image>();image.color=palette[i/2];image.raycastTarget=false;}
             Callout(new Rect(760,385,310,119),Red,"체력","빨간 게이지가 모두 줄면\n생존 종료");
-            Callout(new Rect(200,204,310,114),Blue,"대시 · "+GStarControlPractice.KeyName(GameKeyAction.Dash),"파란 게이지가 차면\n빠르게 회피");
+            Callout(new Rect(200,204,310,114),Blue,"대시","파란 게이지가 차면\n빠르게 회피",GStarControlPractice.KeyName(GameKeyAction.Dash));
             bool shini=level.PlayerCharacter.Skills.IsShini;
             string activeKey=GStarControlPractice.KeyName(GameKeyAction.Active);
-            Callout(new Rect(760,178,340,128),Gold,(shini?"액티브 연료 · ":"액티브 스킬 · ")+activeKey,shini?"노란 게이지는 불씨 연료\n키를 길게 누르면 연속 발사":"노란 게이지가 차면\n스킬 사용 가능");
+            Callout(new Rect(760,178,340,128),Gold,shini?"액티브 연료":"액티브 스킬",shini?"노란 게이지는 불씨 연료\n키를 길게 누르면 연속 발사":"노란 게이지가 차면\n스킬 사용 가능",activeKey);
             int signature = StartingNeedleSelection.DefaultId(level.PlayerCharacter.Blueprint);
             var names = Ver4AugmentCatalog.OriginalNames;
             Label($"시작 오리지널 · {names[signature*3]}  /  {names[signature*3+1]}  /  {names[signature*3+2]}  ·  각 1단계",new Rect(90,16,1100,48),19,Color.white);
             Plate("Continue",new Rect(350,78,580,64),Red,true);
-            Label("아무 곳이나 클릭 또는 Space로 조작 연습",new Rect(370,88,540,45),27,Color.white);
+            Label("클릭 또는", new Rect(374,88,133,45),24,Color.white);
+            var space = InteractionKeycapGraphic.Create("연습 시작 스페이스바", frame, "Space", 42);
+            space.Bounds.anchorMin = space.Bounds.anchorMax = Vector2.zero;
+            space.Bounds.anchoredPosition = new Vector2(604,110);
+            space.ShowKey("Space",42,true);
+            Label("눌러서 조작 연습",new Rect(701,88,214,45),24,Color.white);
         }
-        void Callout(Rect r,Color accent,string title,string text)
+        void Callout(Rect r,Color accent,string title,string text,string binding=null)
         {
             Plate(title,r,accent,false);
             Plate(title+" heading",new Rect(r.x+5,r.yMax-43,r.width-10,41),accent,true);
-            Label(title,new Rect(r.x+18,r.yMax-38,r.width-36,30),22,Color.white);
+            if (binding==null)
+                Label(title,new Rect(r.x+18,r.yMax-38,r.width-36,30),22,Color.white);
+            else
+            {
+                var cap=InteractionKeycapGraphic.Create(title+" 조작 키",frame,binding,30);
+                float titleWidth=Mathf.Min(title.Length*21+8,r.width-cap.Bounds.sizeDelta.x-34);
+                float left=r.center.x-(titleWidth+10+cap.Bounds.sizeDelta.x)*.5f;
+                Label(title,new Rect(left,r.yMax-38,titleWidth,30),22,Color.white);
+                cap.Bounds.anchorMin=cap.Bounds.anchorMax=Vector2.zero;
+                cap.Bounds.anchoredPosition=new Vector2(left+titleWidth+10+cap.Bounds.sizeDelta.x*.5f,r.yMax-23);
+            }
             Label(text,new Rect(r.x+16,r.y+12,r.width-32,r.height-56),21,Ink);
         }
         static RectTransform Node(string name,Transform parent)

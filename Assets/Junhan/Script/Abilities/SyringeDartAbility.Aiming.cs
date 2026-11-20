@@ -75,7 +75,8 @@ namespace Vampire
             }
             Vector2 targetPoint=target!=null?NeedleTargeting.Position(target):origin;
             bool found=target!=null;
-            foreach(var hit in Physics2D.OverlapCircleAll(origin,range,monsterLayer))
+            using var query = NeedleTargeting.QueryCircle(origin,range,monsterLayer,out var hits);
+            foreach(var hit in hits)
             {
                 if(!NeedleTargeting.IsValidBossTarget(hit,monsterLayer))continue;
                 float distance=((Vector2)hit.ClosestPoint(origin)-origin).sqrMagnitude;

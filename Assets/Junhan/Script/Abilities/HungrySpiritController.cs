@@ -67,6 +67,7 @@ namespace Vampire
             {
                 HungrySpiritPickupSignal.OnExpOrCoinPickedUp += HandleExpOrCoinPickedUp;
                 subscribed = true;
+                Debug.Log("[헝그리정신] 전설 증강 활성화.", this);
             }
 
             if (debugLog)

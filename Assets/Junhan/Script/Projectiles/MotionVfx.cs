@@ -18,7 +18,8 @@ namespace Vampire
         {
             public SpriteRenderer renderer;
             public Vector3 origin, drift;
-            public float started, lifetime, size, rotation;
+            public Transform transform;
+            public float started, lifetime, scale;
             public bool active, end;
         }
 
@@ -32,22 +33,20 @@ namespace Vampire
 
         public static void PlayTrail(Sprite sprite, Vector3 position, Vector2 heading, SpriteRenderer reference, int sequence)
         {
-            var puff = Emit(sprite, position, reference, false);
-            if (puff == null) return;
-            puff.drift = new Vector3(-heading.x * .08f, .1f - heading.y * .08f, 0);
-            puff.rotation = Mathf.Atan2(heading.y, heading.x) * Mathf.Rad2Deg + (sequence * 17 % 61 - 30);
-            Apply(puff, 0);
+            var drift = new Vector3(-heading.x * .08f, .1f - heading.y * .08f, 0);
+            float rotation = Mathf.Atan2(heading.y, heading.x) * Mathf.Rad2Deg + (sequence * 17 % 61 - 30);
+            Emit(sprite, position, reference, false, drift, rotation);
         }
 
         public static void PlayNeedleEnd(Vector3 position, SpriteRenderer reference)
         {
             if (needle == null) needle = Resources.Load<Sprite>("MotionVfx/NeedleEnd");
-            Emit(needle, position, reference, true);
+            Emit(needle, position, reference, true, Vector3.zero, 0);
         }
 
-        static Puff Emit(Sprite sprite, Vector3 position, SpriteRenderer reference, bool end)
+        static void Emit(Sprite sprite, Vector3 position, SpriteRenderer reference, bool end, Vector3 drift, float rotation)
         {
-            if (sprite == null) return null;
+            if (sprite == null) return;
             if (instance == null) instance = new GameObject("Character trails and needle glints").AddComponent<MotionVfx>();
             Puff puff = null;
             foreach (var candidate in instance.pool)
@@ -56,7 +55,7 @@ namespace Vampire
             {
                 var go = new GameObject("Motion VFX puff");
                 go.transform.SetParent(instance.transform, false);
-                puff = new Puff { renderer = go.AddComponent<SpriteRenderer>() };
+                puff = new Puff { renderer = go.AddComponent<SpriteRenderer>(), transform = go.transform };
                 instance.pool.Add(puff);
             }
             if (puff == null)
@@ -68,25 +67,26 @@ namespace Vampire
             puff.active = true;
             puff.end = end;
             puff.origin = position;
-            puff.drift = Vector3.zero;
-            puff.rotation = 0;
+            puff.drift = drift;
             puff.started = Time.time;
             puff.lifetime = end ? NeedleLifetime : .6f;
-            puff.size = end ? NeedleSize : .4f;
+            var size = sprite.bounds.size;
+            puff.scale = (end ? NeedleSize : .4f) / Mathf.Max(size.x, size.y);
             puff.renderer.sprite = sprite;
+            puff.transform.SetPositionAndRotation(position, Quaternion.Euler(0, 0, rotation));
             puff.renderer.sortingLayerID = reference != null ? reference.sortingLayerID : 0;
             puff.renderer.sortingOrder = (reference != null ? reference.sortingOrder : 0) + (end ? 3 : -1);
             puff.renderer.enabled = true;
             Apply(puff, 0);
-            return puff;
         }
 
         void Update()
         {
+            float now = Time.time;
             foreach (var puff in pool)
             {
                 if (!puff.active) continue;
-                float age = (Time.time - puff.started) / puff.lifetime;
+                float age = (now - puff.started) / puff.lifetime;
                 if (age >= 1) { puff.active = false; puff.renderer.enabled = false; }
                 else Apply(puff, age);
             }
@@ -95,10 +95,8 @@ namespace Vampire
         static void Apply(Puff puff, float age)
         {
             float scale = puff.end ? Mathf.Lerp(.55f, 1.2f, Mathf.Min(1, age * 3)) : Mathf.Lerp(1, .35f, age);
-            var size = puff.renderer.sprite.bounds.size;
-            puff.renderer.transform.localScale = Vector3.one * (puff.size / Mathf.Max(size.x, size.y) * scale);
-            puff.renderer.transform.position = puff.origin + puff.drift * age;
-            puff.renderer.transform.rotation = Quaternion.Euler(0, 0, puff.rotation);
+            puff.transform.localScale = Vector3.one * (puff.scale * scale);
+            if (!puff.end) puff.transform.position = puff.origin + puff.drift * age;
             puff.renderer.color = new Color(1, 1, 1, puff.end ? Mathf.Clamp01((1 - age) * 2) : Mathf.Pow(1 - age, .65f));
         }
 

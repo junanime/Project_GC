@@ -466,7 +466,7 @@ namespace Vampire
             var button = cardBackgroundImage != null ? cardBackgroundImage.GetComponent<Button>() : null;
             if (nobleChoice != null && UsesNoblePanel && GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
                 nobleChoice.gameObject.SetActive(false);
-            NumberedCardChoice.Bind((RectTransform)transform, button, index, true, UsesNoblePanel);
+            NumberedCardChoice.Bind((RectTransform)transform, button, index, below:false, augment:true);
         }
 
         public void Selected()

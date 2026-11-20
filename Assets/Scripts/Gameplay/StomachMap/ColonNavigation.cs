@@ -12,6 +12,8 @@ namespace Vampire
         FiniteStomachMap map;
         StomachMapDefinition definition;
         int w, h;
+        int targetFrame = -1, targetCell;
+        Vector2 targetPosition;
         long useSequence;
         bool[] walk;
         readonly Dictionary<int, FlowField> fields = new Dictionary<int, FlowField>();
@@ -69,17 +71,24 @@ namespace Vampire
         {
             if (map != m || definition != m.Definition || walk == null)
             {
-                map = m; definition = m.Definition;
+                map = m; definition = m.Definition; targetFrame = -1;
                 w = Mathf.CeilToInt(m.WorldRect.width / Cell); h = Mathf.CeilToInt(m.WorldRect.height / Cell);
                 walk = new bool[w * h]; fields.Clear(); queue.Clear(); useSequence = 0;
-                for (int i = 0; i < walk.Length; i++) walk[i] = m.NavigationDistance(Point(i), out _) >= m.ClimbLimit + .6f;
+                for (int i = 0; i < walk.Length; i++) walk[i] = m.NavigationClearance(Point(i)) >= m.ClimbLimit + .6f;
             }
             bool clear = true; int steps = Mathf.CeilToInt(Vector2.Distance(from, target) / 1.5f);
             for (int k = 1; k < steps; k++)
-                if (m.NavigationDistance(Vector2.Lerp(from, target, k / (float)steps), out _) < m.ClimbLimit + .6f) { clear = false; break; }
+                if (m.NavigationClearance(Vector2.Lerp(from, target, k / (float)steps)) < m.ClimbLimit + .6f) { clear = false; break; }
             if (clear) return (target - from).normalized;
-            int goal = Index(m.ClampToField(target, m.ClimbLimit + 1));
-            var distance = Distances(goal);
+            // Crowds often pursue the exact same point on the far side of a wall.
+            // Share only the projection of that destination; each actor still tests its own path.
+            if (targetFrame != Time.frameCount || !targetPosition.Equals(target))
+            {
+                targetCell = Index(m.ClampToField(target, m.ClimbLimit + 1));
+                targetPosition = target;
+                targetFrame = Time.frameCount;
+            }
+            var distance = Distances(targetCell);
             int here = Index(from), best = here;
             for (int dy = -1; dy <= 1; dy++) for (int dx = -1; dx <= 1; dx++)
             {

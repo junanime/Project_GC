@@ -853,7 +853,7 @@ namespace Vampire
 
         private Transform FindClosestTarget()
         {
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, specials.homingRange, targetLayer);
+            using var query = NeedleTargeting.QueryCircle(transform.position, specials.homingRange, targetLayer, out var hits);
             float closestDistance = specials.homingRange;
             Transform closestTarget = null;
 
@@ -1588,7 +1588,7 @@ namespace Vampire
 
             if (isCritical)
             {
-                Debug.Log(
+                TraceCombat(
                     $"[치명타] 침 공격 치명타 발생 | " +
                     $"피해 {actualReportedDamage:0.##}"
                 );
@@ -1788,10 +1788,10 @@ namespace Vampire
                 SyringeAugmentVfx.PlayRadius("Explosion", transform.position, specials.explosionRadius, SyringeAugmentVfx.FindTarget(originalTarget.transform));
             }
 
-            Debug.Log($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");
+            TraceCombat($"<color=orange><b>[💥 항생제 폭탄 발동]</b></color> 중심 타겟: {originalTarget.name} | 폭발 반경: {specials.explosionRadius}");
 
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, specials.explosionRadius);
-            HashSet<int> damagedIds = new HashSet<int>();
+            using var query = NeedleTargeting.QueryCircle(transform.position, specials.explosionRadius, Physics2D.DefaultRaycastLayers, out var hits);
+            using var ids = UnityEngine.Pool.HashSetPool<int>.Get(out var damagedIds);
             PlayerGeneralStatRuntime statRuntime = PlayerGeneralStatRuntime.GetOrCreate(playerCharacter);
 
             foreach (Collider2D hit in hits)
@@ -1840,7 +1840,7 @@ namespace Vampire
                     splashDamage
                 );
 
-                Debug.Log($"<color=yellow><b> └ [↳ 💥 스플래시 피해 완수]</b></color> 휩쓸린 몹: {monster.gameObject.name} | 입은 피해: {splashDamage}");
+                TraceCombat($"<color=yellow><b> └ [↳ 💥 스플래시 피해 완수]</b></color> 휩쓸린 몹: {monster.gameObject.name} | 입은 피해: {splashDamage}");
             }
         }
 
@@ -1918,14 +1918,14 @@ namespace Vampire
                 StartCoroutine(ReenableColliderNextFrame());
             }
 
-            Debug.Log($"<color=lightblue>[구강 청결제]</color> 투사체 반사 발동! 새로운 타겟 방향으로 꺾임.");
+            TraceCombat("<color=lightblue>[구강 청결제]</color> 투사체 반사 발동! 새로운 타겟 방향으로 꺾임.");
             return true;
         }
 
         private Transform FindClosestReflectTarget()
         {
             float reflectRadius = 4.0f;
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, reflectRadius);
+            using var query = NeedleTargeting.QueryCircle(transform.position, reflectRadius, Physics2D.DefaultRaycastLayers, out var hits);
             float closestDistance = float.MaxValue;
             Transform closestTarget = null;
 

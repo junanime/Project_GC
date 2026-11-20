@@ -144,6 +144,7 @@ namespace Vampire
 
         protected virtual void Awake()
         {
+            StageActorRegistry.Register(this);
             originalLocalScale = transform.localScale;
 
             rb = GetComponent<Rigidbody2D>();
@@ -160,6 +161,8 @@ namespace Vampire
 
             SetupHitboxReference();
         }
+
+        protected virtual void OnDestroy() => StageActorRegistry.Remove(this);
 
         private SpriteRenderer FindMainSpriteRenderer()
         {

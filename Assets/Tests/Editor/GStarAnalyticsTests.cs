@@ -54,6 +54,50 @@ namespace Vampire.Tests.Editor
             StringAssert.Contains("fire:화염침", Export("offered-counts.csv"));
             StringAssert.Contains("augment_selected", Export("choice-counts.csv"));
         }
+        [Test] public void FinishedRoundsRefreshQaExportsWithoutRegistrationOrF8()
+        {
+            foreach (string outcome in new[] { "clear", "fail" })
+            {
+                var run = Run("auto-" + outcome);
+                Assert.IsTrue(store.Begin(run));
+                run.status = outcome;
+                run.endedUtc = "2026-11-21T04:05:06Z";
+                run.normalKills = 17;
+                Assert.IsTrue(store.Save(run));
+                string output = Path.Combine(directory, "exports");
+                StringAssert.Contains(run.runId, File.ReadAllText(Path.Combine(output, "runs.csv")));
+                var saved = File.ReadAllLines(Path.Combine(output, "runs.jsonl")).Select(JsonUtility.FromJson<GStarAnalyticsRun>)
+                    .Single(row => row.runId == run.runId);
+                Assert.AreEqual(outcome, saved.status);
+                Assert.AreEqual(17, saved.normalKills);
+            }
+            Assert.AreEqual(3, File.ReadAllLines(Path.Combine(directory, "exports", "runs.csv")).Length);
+            Assert.IsTrue(File.Exists(Path.Combine(directory, "exports", "character-stage-summary.csv")));
+        }
+
+        [Test] public void LockedSummaryCannotLoseUnregisteredOutcomeAndNextFinishRefreshesIt()
+        {
+            var first = Run("first"); Assert.IsTrue(store.Begin(first));
+            first.status = "clear"; Assert.IsTrue(store.Save(first));
+            string csv = Path.Combine(directory, "exports", "runs.csv");
+            using (var workbook = File.Open(csv, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var second = Run("second"); Assert.IsTrue(store.Begin(second));
+                second.status = "fail"; second.dashCount = 9; Assert.IsTrue(store.Save(second));
+                string stageSummary = File.ReadAllText(Path.Combine(directory, "exports", "stage-summary.csv"));
+                StringAssert.Contains("\"1\",\"2\",\"1\",\"1\"", stageSummary, "Unlocked stage summary is current");
+                var recovered = new GStarAnalyticsStore(directory).GetRun("second");
+                Assert.AreEqual("fail", recovered.status);
+                Assert.AreEqual(9, recovered.dashCount);
+            }
+            // Run a third round through the ordinary end path, without invoking Export.
+            var third = Run("third"); Assert.IsTrue(store.Begin(third));
+            third.status = "clear"; Assert.IsTrue(store.Save(third));
+            var rows = File.ReadAllLines(csv);
+            Assert.AreEqual(4, rows.Length);
+            StringAssert.Contains("\"fail\"", rows.Single(row => row.StartsWith("\"second\",", StringComparison.Ordinal)));
+        }
+
         [Test] public void CompletedDataIsImmutableAndRestartRecoversActiveAsInterrupted()
         {
             var clear = Run("clear"); Assert.IsTrue(store.Begin(clear));

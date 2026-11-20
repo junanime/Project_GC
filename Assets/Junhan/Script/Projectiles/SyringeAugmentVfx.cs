@@ -83,10 +83,12 @@ namespace Vampire
             if (king != null && king.Visual != null) return king.Visual.Body;
             var colon = owner.GetComponentInParent<ColonBossRuntime>();
             if (colon != null && colon.Visual != null) return colon.Visual.Main;
-            foreach (var renderer in owner.GetComponentsInChildren<SpriteRenderer>(true))
+            using var lease = ListPool<SpriteRenderer>.Get(out var renderers);
+            owner.GetComponentsInChildren(true, renderers);
+            foreach (var renderer in renderers)
                 if (renderer.GetComponent<SyringeAugmentVfx>() == null &&
                     renderer.GetComponentInParent<StuckNeedleVisual>() == null &&
-                    !renderer.name.ToLowerInvariant().Contains("shadow")) return renderer;
+                    renderer.name.IndexOf("shadow", System.StringComparison.OrdinalIgnoreCase) < 0) return renderer;
             return null;
         }
 

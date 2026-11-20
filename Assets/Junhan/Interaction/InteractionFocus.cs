@@ -76,6 +76,13 @@ namespace Vampire
             get
             {
                 if (Time.timeScale <= 0f) return null;
+                if (GStarControlPractice.Active)
+                {
+                    var chest = GStarControlPractice.Instance.ItemInteraction;
+                    if (chest == null) return null;
+                    var only = entries.Find(entry => entry.owner == chest);
+                    return only != null && chest.isActiveAndEnabled && only.available() ? chest : null;
+                }
                 if (player == null || !player.gameObject.activeInHierarchy) player = UnityEngine.Object.FindObjectOfType<Character>();
                 if (player == null || !player.IsAlive) return null;
                 if (player.GetComponent<OralTasteBounce>()?.Active == true) return null;

@@ -153,6 +153,9 @@ namespace Vampire.Tests.Editor
         }
         static void CheckResultLayout()
         {
+            var portrait=Named<Image>("GStar result portrait");
+            Check(portrait!=null && portrait.sprite!=null && portrait.preserveAspect,"game character portrait keeps its native aspect");
+            Check(Has("누구나 경품 추첨") && Has("순위가 높을수록") && !Has("1·2·3위 상품"),"all ranks see the draw invitation");
             var consent=Named<Button>("GStar consent");
             if(consent!=null)
             {
@@ -161,6 +164,9 @@ namespace Vampire.Tests.Editor
                 Check(label!=null && label.alignment==TextAlignmentOptions.MidlineLeft,"consent label is joined to checkbox and left aligned");
                 Check(!Bounds(consent).Overlaps(Bounds(Button("register"))),"consent hit area does not overlap registration button");
             }
+            var gift = Named<Image>("GStar prize draw gift");
+            Check(gift != null && gift.sprite == Resources.Load<Sprite>("GStarDemo/prize-draw-gift") && gift.sprite != null,
+                "the common prize invitation includes its own transparent gift sprite");
             Check(Button("register").GetComponent<GStarPillGraphic>()==null && Button("register").GetComponent<Image>()!=null,"register uses exact plate skin without a second pill frame");
             Check(Button("result next").GetComponent<GStarPillGraphic>()==null,"result next has no duplicate button frame");
             var tray=Named<GStarPillGraphic>("GStar ranking tabs backing");Check(tray!=null && tray.color.a==1,"opaque ranking tray replaces baked middle selection");
@@ -312,6 +318,12 @@ namespace Vampire.Tests.Editor
             yield return Wait(() => UI != null && UI.Page == "main", 20, "staff reset returns to title"); yield return Settled();
             Check(GStarSession.RemainingAttempts == 2 && GStarSession.SessionId != visitor && !GStarSession.VisitorFinished, "new visitor receives exactly two chances");
             Check(GStarLeaderboard.GetTop(1, 100).Count == before && GStarLeaderboard.GetRunRank(first).score == firstRank.score, "staff reset retains all cumulative rankings"); Capture("12-new-visitor-ranking-kept");
+            Complete(1, false, 10); yield return Settled();
+            SameGeometry(geometry); CheckResultLayout();
+            Check(string.IsNullOrEmpty(Named<TMP_InputField>("GStar input name").text) &&
+                string.IsNullOrEmpty(Named<TMP_InputField>("GStar input phone").text),
+                "a new visitor's first defeat never prefills the preceding visitor's details");
+            Capture("13-first-defeat");
             InputSystem.RemoveDevice(keyboard); keyboard = null;
             SessionState.SetBool(Key + "Done", true);
         }

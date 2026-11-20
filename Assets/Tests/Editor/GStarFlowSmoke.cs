@@ -230,7 +230,11 @@ namespace Vampire.Tests.Editor
             Check(level.IsLevelEnded && RunScore.Current.IsFinished && RunScore.Current.Data.success == success, "finalized result has correct outcome");
             Check(StageProgression.Ensure(level).StageNumber == stage && SceneManager.GetActiveScene().buildIndex == 1, "result remains in original stage");
             Check(GStarSession.RemainingAttempts == remaining && !GStarSession.ActiveAttempt, "exactly one attempt consumed");
-            var analytics = AnalyticsRun();
+            string automaticFile = Path.Combine(GStarAnalytics.DirectoryPath, "exports", "runs.jsonl");
+            var analytics = File.ReadLines(automaticFile)
+                .Select(JsonUtility.FromJson<GStarAnalyticsRun>).Single(run => run.runId == GStarSession.RunId);
+            Check(analytics.status == (success ? "clear" : "fail"),
+                "unregistered round and final outcome are on disk before staff export or registration");
             Check(!GStarAnalytics.IsRecording && analytics.status == (success ? "clear" : "fail") && analytics.combatStatsAvailable, "actual ending finalizes analytics with combat statistics");
             Check(AnalyticsEvents().Count(e => e.type == "run_ended") == 1, "analytics has exactly one final outcome per attempt");
             level.LevelPassed(null); GStarSession.CompleteAttempt(!success);

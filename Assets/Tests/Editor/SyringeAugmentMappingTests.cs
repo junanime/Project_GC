@@ -366,6 +366,45 @@ namespace Vampire.Tests.Editor
             }
         }
 
+        [Test]
+        public void HungrySpiritPollingKeepsOneSubscriptionAndDoesNotResetItsTimerOrLogActivationAgain()
+        {
+            var owner = new GameObject("Hungry spirit activation test");
+            var actor = owner.AddComponent<Character>();
+            var needle = owner.AddComponent<SyringeDartAbility>();
+            var sync = typeof(SyringeDartAbility).GetMethod("ApplyInspectorForcedAugmentRuntimeSetup", BindingFlags.NonPublic | BindingFlags.Instance);
+            var timer = typeof(HungrySpiritController).GetField("noPickupTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+            int activations = 0;
+            void Log(string text, string stack, LogType type)
+            {
+                if (text == "[헝그리정신] 전설 증강 활성화.") activations++;
+            }
+            Application.logMessageReceived += Log;
+            try
+            {
+                SetPrivateField(needle, "playerCharacter", actor);
+                needle.EnableHungrySpiritLegendary();
+                var controller = owner.GetComponent<HungrySpiritController>();
+                Assert.IsNotNull(controller);
+                timer.SetValue(controller, .75f);
+                for (int i = 0; i < 217; i++) sync.Invoke(needle, null);
+                needle.EnableHungrySpiritLegendary();
+                Assert.AreEqual(1, activations);
+                Assert.AreEqual(.75f, (float)timer.GetValue(controller));
+                Assert.AreEqual(1, owner.GetComponents<HungrySpiritController>().Length);
+                HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(actor);
+                Assert.AreEqual(0f, (float)timer.GetValue(controller));
+            }
+            finally
+            {
+                Application.logMessageReceived -= Log;
+                var controller = owner.GetComponent<HungrySpiritController>();
+                if (controller != null)
+                    typeof(HungrySpiritController).GetMethod("OnDestroy", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(controller, null);
+                UnityEngine.Object.DestroyImmediate(owner);
+            }
+        }
+
         private static void SetPrivateField(object target, string name, object value)
         {
             Type type = target.GetType();

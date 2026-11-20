@@ -24,39 +24,24 @@ namespace Vampire
             }
         }
 
-        private void Awake()
-        {
-            TryResolvePlayerTransform(true);
-        }
-
         private void LateUpdate()
         {
+            // Spawned actors and loot receive their player in Init before their
+            // first frame. Only stand-alone scene objects need a player lookup.
             if (playerTransform == null)
             {
-                TryResolvePlayerTransform(false);
-
-                if (playerTransform == null)
-                {
-                    return;
-                }
+                if (Time.unscaledTime < nextPlayerResolveTime) return;
+                nextPlayerResolveTime = Time.unscaledTime + PlayerResolveRetryInterval;
+                Character player = FindObjectOfType<Character>();
+                if (player == null) return;
+                playerTransform = player.transform;
             }
 
-            Vector3 temp =
-                transform.position;
-
-            temp.z =
-                scale *
-                (
-                    (
-                        manuallySetZ
-                            ? manualY
-                            : temp.y
-                    ) -
-                    playerTransform.position.y
-                );
-
-            transform.position =
-                temp;
+            Vector3 position = transform.position;
+            float depth = scale * ((manuallySetZ ? manualY : position.y) - playerTransform.position.y);
+            if (position.z == depth) return;
+            position.z = depth;
+            transform.position = position;
         }
 
         public void ManuallySetZByY(float y)
@@ -70,34 +55,5 @@ namespace Vampire
             manuallySetZ = false;
         }
 
-        private void TryResolvePlayerTransform(
-            bool force)
-        {
-            if (playerTransform != null)
-            {
-                return;
-            }
-
-            if (!force &&
-                Time.unscaledTime < nextPlayerResolveTime)
-            {
-                return;
-            }
-
-            nextPlayerResolveTime =
-                Time.unscaledTime +
-                PlayerResolveRetryInterval;
-
-            Character foundPlayer =
-                FindObjectOfType<Character>();
-
-            if (foundPlayer == null)
-            {
-                return;
-            }
-
-            playerTransform =
-                foundPlayer.transform;
-        }
     }
 }

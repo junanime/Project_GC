@@ -14,7 +14,16 @@ Shader "Vampire/HerbalGround"
  float leaf(float2 p,float2 center,float rotation,float2 size){p-=center;float s=sin(rotation),c=cos(rotation);p=float2(c*p.x+s*p.y,-s*p.x+c*p.y)/size;return 1-smoothstep(.85,1.1,dot(p,p));}
  float hash(float2 p){return frac(sin(dot(p,float2(127.1,311.7)))*43758.5453);}
  fixed4 frag(v2f i):SV_Target {
- float2 p=(floor(i.uv*150)+.5)/150*2-1;float2 q=p/float2(1,.84);float r=length(q),a=atan2(q.y,q.x);
+ float2 p=(floor(i.uv*150)+.5)/150*2-1;float2 q=p/float2(1,.84);
+ // The brief impact only needs its two star axes.
+ UNITY_BRANCH if(_Style>=1.5){
+   float star=max(pow(saturate(1-abs(q.x)*15),3)*saturate(1-abs(q.y)),pow(saturate(1-abs(q.y)*15),3)*saturate(1-abs(q.x)));
+   return fixed4(float3(1,.85,.49),saturate(star)*_Fade*_AugmentOpacity);
+ }
+ float r=length(q);
+ // Every spiral layer, including the dots and the core, is fully transparent here.
+ UNITY_BRANCH if(_Style<.5 && r>=.88)return fixed4(0,0,0,0);
+ float a=atan2(q.y,q.x);
  float3 color=0;float alpha=0;
  if(_Style<.5){
    float flow=frac((a+_Age*.95+r*5.5)*3/6.283185);
@@ -27,7 +36,7 @@ Shader "Vampire/HerbalGround"
    float core=(1-smoothstep(.04,.13,r));color=lerp(color,float3(.28,.26,.40),core);alpha=max(alpha,core*.6);
    float dots=pow(saturate(cos(a*13+r*28+_Age*8)),24)*pow(saturate(sin(r*36+_Age*9)),18)*smoothstep(.12,.22,r)*edge;
    color=lerp(color,float3(1,.90,.59),dots);alpha=max(alpha,dots*.8);
- }else if(_Style<1.5){
+ }else{
    float fill=(1-smoothstep(.70,.88,r))*.17;float pulse=pow(saturate(cos(r*19-_Age*4)),10)*(1-smoothstep(.7,.88,r))*.09;
    color=float3(.68,.86,.42);alpha=fill+pulse;
    float root=(1-smoothstep(.012,.028,abs(r-(.73+.015*sin(a*7)))))*.48;
@@ -46,9 +55,6 @@ Shader "Vampire/HerbalGround"
      color=lerp(color,lerp(float3(.57,.76,.28),float3(.87,.94,.54),saturate(b.y*7)),l);
    }
    for(int n=0;n<3;n++){float t=frac(_Age*.28+n*.33);float2 pos=float2(sin(n*3.1+t)*.48,-.25+t*.95);float l=leaf(q,pos,-.6+t*.4,float2(.035,.017))*sin(t*3.14159);color=lerp(color,float3(.91,.97,.65),l);alpha=max(alpha,l*.65);}
- }else{
-   float star=max(pow(saturate(1-abs(q.x)*15),3)*saturate(1-abs(q.y)),pow(saturate(1-abs(q.y)*15),3)*saturate(1-abs(q.x)));
-   color=float3(1,.85,.49);alpha=star;
  }
  return fixed4(color,saturate(alpha)*_Fade*_AugmentOpacity);
  }

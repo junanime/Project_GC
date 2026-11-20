@@ -10,21 +10,22 @@ namespace Vampire
     {
         static readonly int Opacity = Shader.PropertyToID("_AugmentOpacity");
         readonly List<Material> ownedMaterials = new List<Material>();
-        Renderer[] visuals;
+        readonly List<Renderer> visuals = new List<Renderer>();
         MaterialPropertyBlock properties;
+        float lastOpacity = -1;
 
         public static void Mark(GameObject visualRoot)
         {
             if(visualRoot == null)return;
             var tag=visualRoot.GetComponent<AugmentVfxTag>();
-            if(tag == null)tag=visualRoot.AddComponent<AugmentVfxTag>();
-            tag.Refresh();
+            if(tag == null)visualRoot.AddComponent<AugmentVfxTag>(); // OnEnable refreshes the new tag.
+            else tag.Refresh();
         }
         void OnEnable(){Refresh();}
         void OnTransformChildrenChanged(){Refresh();}
         void Refresh()
         {
-            visuals=GetComponentsInChildren<Renderer>(true);
+            GetComponentsInChildren(true,visuals);
             properties=properties??new MaterialPropertyBlock();
             foreach(var visual in visuals)
             {
@@ -36,14 +37,19 @@ namespace Vampire
                 ownedMaterials.Add(replacement);
                 visual.sharedMaterial=replacement;
             }
-            Apply();
+            Apply(GamePreferences.Current.augmentVfxOpacity);
         }
-        void LateUpdate(){Apply();}
-        void OnDestroy(){foreach(var material in ownedMaterials)if(material!=null)Destroy(material);}
-        void Apply()
+        void LateUpdate()
         {
-            if(visuals==null)return;
-            float opacity=GamePreferences.Current.augmentVfxOpacity;
+            float opacity = GamePreferences.Current.augmentVfxOpacity;
+            // All tagged shaders default to 1 when a sibling renderer replaces its
+            // animated property block. Custom opacity still needs the late-layer override.
+            if (opacity != 1f || lastOpacity != 1f) Apply(opacity);
+        }
+        void OnDestroy(){foreach(var material in ownedMaterials)if(material!=null)Destroy(material);}
+        void Apply(float opacity)
+        {
+            lastOpacity=opacity;
             foreach(var visual in visuals)
             {
                 if(visual==null)continue;

@@ -20,7 +20,7 @@ namespace Vampire
         int slot;
         int boundFrame;
         float deniedUntil;
-        KeyboardKeycapGraphic keyShape;
+        Graphic keyShape;
         static readonly Color keyFace = new Color(1f,.945f,.79f);
         public bool ShowingUnavailable => Time.unscaledTime < deniedUntil;
 
@@ -55,7 +55,7 @@ namespace Vampire
             hits.Clear();
         }
 
-        public static void Bind(RectTransform card, Button button, int index, bool below, bool noble = false)
+        public static void Bind(RectTransform card, Button button, int index, bool below, bool augment = false)
         {
             if (!GStarDemo.Enabled || GamePlatform.UsesTouchControls || card == null || button == null ||
                 index < 0 || index >= 3) return;
@@ -68,23 +68,40 @@ namespace Vampire
             RectTransform holder;
             if (choice.keycap == null)
             {
-                holder = AugmentPanelTheme.Rect("Choice keycap", card);
+                if (augment)
+                {
+                    var cap = InteractionKeycapGraphic.Create("Choice keycap", card, (index + 1).ToString(), 54);
+                    holder = cap.rectTransform;
+                    choice.keyShape = cap;
+                }
+                else
+                {
+                    holder = AugmentPanelTheme.Rect("Choice keycap", card);
+                    var shape = holder.gameObject.AddComponent<KeyboardKeycapGraphic>();
+                    shape.face = keyFace;
+                    shape.raycastTarget = false;
+                    choice.keyShape = shape;
+                    var label = AugmentPanelTheme.Label("Key", holder, TrainingUITheme.Font, "", 20);
+                    AugmentPanelTheme.Anchors(label.rectTransform, Vector2.zero, Vector2.one);
+                    label.color = OctoberArt.Ink;
+                    label.fontStyle = FontStyles.Bold;
+                }
                 choice.keycap = holder.gameObject.AddComponent<CanvasGroup>();
                 choice.keycap.blocksRaycasts = false;
-                var shape = holder.gameObject.AddComponent<KeyboardKeycapGraphic>();
-                choice.keyShape = shape;
-                shape.face = keyFace;
-                shape.raycastTarget = false;
-                var label = AugmentPanelTheme.Label("Key", holder, TrainingUITheme.Font, "", 20);
-                AugmentPanelTheme.Anchors(label.rectTransform, Vector2.zero, Vector2.one);
-                label.color = OctoberArt.Ink;
-                label.fontStyle = FontStyles.Bold;
             }
             else holder = (RectTransform)choice.keycap.transform;
             holder.SetAsLastSibling();
-            holder.anchorMin = holder.anchorMax = below ? new Vector2(.5f, noble ? .092f : 0f) : new Vector2(.1f,.094f);
-            holder.anchoredPosition = below && !noble ? new Vector2(0,-2) : Vector2.zero;
-            holder.sizeDelta = new Vector2(34,26);
+            if (augment)
+            {
+                holder.anchorMin = holder.anchorMax = holder.pivot = new Vector2(0,1);
+                holder.anchoredPosition = new Vector2(9,-9);
+            }
+            else
+            {
+                holder.anchorMin = holder.anchorMax = below ? new Vector2(.5f,0) : new Vector2(.1f,.094f);
+                holder.anchoredPosition = below ? new Vector2(0,-2) : Vector2.zero;
+                holder.sizeDelta = new Vector2(34,26);
+            }
             holder.GetComponentInChildren<TMP_Text>().text = (index + 1).ToString();
             choice.keycap.alpha = button.interactable ? 1f : .43f;
         }
@@ -100,11 +117,11 @@ namespace Vampire
             keycap.alpha = available || denied ? 1f : .65f;
             if (denied)
                 keycap.transform.localScale = Vector3.one * (1f + .13f * Mathf.Sin(Mathf.PI * Mathf.Clamp01((deniedUntil-Time.unscaledTime)/.32f)));
-            else if (keyShape.face != keyFace)
+            else if (deniedUntil > 0f)
             {
+                deniedUntil = 0f;
                 keycap.transform.localScale = Vector3.one;
-                keyShape.face = keyFace;
-                keyShape.SetVerticesDirty();
+                keyShape.canvasRenderer.SetColor(Color.white);
             }
             if (boundFrame == Time.frameCount || claimedFrame == Time.frameCount ||
                 GameInput.KeyboardBlocked || TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading) return;
@@ -133,8 +150,7 @@ namespace Vampire
             else if (!action.interactable)
             {
                 deniedUntil = Time.unscaledTime + .32f;
-                keyShape.face = new Color(1f,.65f,.43f);
-                keyShape.SetVerticesDirty();
+                keyShape.canvasRenderer.SetColor(new Color(1f,.65f,.43f));
             }
         }
     }

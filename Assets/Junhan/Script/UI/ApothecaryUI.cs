@@ -216,15 +216,16 @@ namespace Vampire
                 content.Find("Settings bookmark")?.gameObject.SetActive(false);
                 content.Find("Record consumables")?.gameObject.SetActive(false);
                 content.Find("Record guide")?.gameObject.SetActive(false);
-                var hint = TrainingUITheme.Pill("연습 기록 닫기",content,new Color(.63f,.94f,.82f),
-                    new Vector2(.695f,.909f),new Vector2(.932f,.973f));
+                var hint = TrainingUITheme.Pill("연습 기록 닫기", content, new Color32(255,248,227,255),
+                    new Vector2(.675f,.903f), new Vector2(.932f,.975f));
                 hint.radius = 11;
-                var cap = TrainingUITheme.Pill("기록 키캡",hint.transform,Color.white,new Vector2(.025f,.13f),new Vector2(.31f,.88f));
-                cap.radius = 6;
-                var keyLabel = Label(cap.transform,GStarControlPractice.KeyName(GameKeyAction.Journal),.02f,0,.98f,1,19);
-                keyLabel.color = Ink;
-                keyLabel.enableWordWrapping = false;
-                var label = Label(hint.transform,"다시 눌러 닫기",.32f,0,.98f,1,20);
+                var cap = InteractionKeycapGraphic.Create("기록 키캡", hint.transform, GStarControlPractice.KeyName(GameKeyAction.Journal), 34);
+                cap.Bounds.anchorMin = cap.Bounds.anchorMax = new Vector2(0,.5f);
+                cap.Bounds.pivot = new Vector2(0,.5f);
+                cap.Bounds.anchoredPosition = new Vector2(10,0);
+                var label = Label(hint.transform,"다시 눌러 닫기",0,0,1,1,20);
+                label.rectTransform.offsetMin = new Vector2(cap.Bounds.sizeDelta.x + 18, 0);
+                label.rectTransform.offsetMax = new Vector2(-5, 0);
                 label.color = Ink;
                 label.enableWordWrapping = false;
             }

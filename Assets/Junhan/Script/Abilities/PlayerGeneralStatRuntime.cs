@@ -209,6 +209,7 @@ namespace Vampire
                 finalDamage *= critDamageMultiplier;
                 isCritical = true;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || VAMPIRE_TRACE_COMBAT
                 if (debugCriticalLog)
                 {
                     Debug.Log(
@@ -216,6 +217,7 @@ namespace Vampire
                         this
                     );
                 }
+#endif
             }
 
             return finalDamage;

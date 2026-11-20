@@ -276,6 +276,29 @@ namespace Vampire.Tests.Editor
             source.Stop();
         }
 
+        static void ValidatePracticeBubble(GStarControlPractice practice,Character actor,bool departure)
+        {
+            var surface=(RectTransform)practice.transform;
+            var bubble=(RectTransform)surface.Find("연습 말풍선");
+            var dialogue=bubble.Find("연습 대사").GetComponent<TMPro.TMP_Text>();
+            var key=bubble.Find("머리 위 조작 키").GetComponent<InteractionKeycapGraphic>();
+            Check(bubble.gameObject.activeInHierarchy && dialogue.isActiveAndEnabled && !string.IsNullOrEmpty(dialogue.text),
+                "one speech balloon groups the practice instruction and its key");
+            var corners=new Vector3[4];bubble.GetWorldCorners(corners);
+            var canvasRect=surface.rect;
+            Check(corners.All(p=>canvasRect.Contains((Vector2)surface.InverseTransformPoint(p))),"the whole speech balloon stays on screen");
+            Vector2 projected=Camera.main.WorldToScreenPoint(actor.CenterTransform.position);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,projected,null,out var local);
+            Check(bubble.anchoredPosition.y>local.y+12,"practice speech is over the actual actor");
+            Check(!surface.Find("연습 안내"),"previous bottom instruction panel has been removed");
+            if(departure)
+            {
+                Check(key.Highlighted && key.Legend.text=="Space" && key.Bounds.rect.width>4*key.Bounds.rect.height,
+                    "departure uses the long, highlighted space bar");
+                Check(bubble.Find("출발 키 안내").GetComponent<TMPro.TMP_Text>().isActiveAndEnabled,"departure explicitly invites a key press");
+            }
+        }
+
         static IEnumerator CheckPracticeToOral()
         {
             ApothecaryUI.Instance.StartRun();
@@ -317,7 +340,8 @@ namespace Vampire.Tests.Editor
             Check(book.Page=="hud" && Time.timeScale>0,"neither the hidden HUD button nor an early Tab steals the rehearsal pause");
             Keys();
             yield return Film(1);
-            var cross=(RectTransform)practice.transform.Find("머리 위 방향 키");
+            ValidatePracticeBubble(practice,rehearsalPlayer,false);
+            var cross=(RectTransform)practice.transform.Find("연습 말풍선/머리 위 방향 키");
             var caps=cross.Cast<RectTransform>().ToDictionary(cap=>cap.GetComponentInChildren<TMPro.TMP_Text>().text);
             Check(caps.Count==4 && caps["W"].anchoredPosition.y>caps["A"].anchoredPosition.y &&
                 caps["S"].anchoredPosition.y<caps["D"].anchoredPosition.y &&
@@ -345,7 +369,7 @@ namespace Vampire.Tests.Editor
                 yield return Film(2);
             }
             Check(practice.Step==1 && practice.DashUses==0,"four directions unlock dash");
-            var overhead=practice.transform.Find("머리 위 조작 키").GetComponentInChildren<TMPro.TMP_Text>();
+            var overhead=practice.transform.Find("연습 말풍선/머리 위 조작 키").GetComponent<InteractionKeycapGraphic>().Legend;
             Check(overhead.isActiveAndEnabled && overhead.text=="Shift","dash keycap above the player uses the dash binding");
             Mark("dash");
             yield return Film(3);
@@ -368,6 +392,7 @@ namespace Vampire.Tests.Editor
             }
             yield return FilmUntil(()=>practice.Step==2 && practice.Target!=null,20,"live skill target spawned");
             Check(overhead.isActiveAndEnabled && overhead.text=="Space","active skill keycap above the player uses the active binding");
+            ValidatePracticeBubble(practice,rehearsalPlayer,false);
             var target=practice.Target;
             Check(target.IsAlive && target.Position.x>rehearsalPlayer.Position.x,"live target is on the player's right");
             Mark("target");
@@ -406,13 +431,49 @@ namespace Vampire.Tests.Editor
             Keys(Key.Space); // hold the previous action while closing; a fresh press should be required
             yield return Film(2);
             Keys(Key.Space,Key.Tab);
-            yield return FilmUntil(()=>practice.Step==5 && book.Page=="hud",20,"second Tab closed the book and advanced to departure");
-            Check(Time.timeScale>0 && overhead.isActiveAndEnabled && overhead.text=="Space","closing restores time and shows the departure key");
+            yield return FilmUntil(()=>practice.Step==5 && book.Page=="hud",20,"second Tab closes the book and starts item training");
+            var beforeContact=rehearsalPlayer.Position;
+            float healthy=rehearsalPlayer.CurrentHealth;
+            var visitor=practice.Target;
+            Check(visitor!=null && visitor.IsAlive && visitor.Position.x>beforeContact.x,"a live monster approaches from the right");
+            Mark("item-approach");
+            Keys(Key.A,Key.Space,Key.LeftShift);
+            yield return Film(4);
+            Check(Vector2.Distance(beforeContact,rehearsalPlayer.Position)<.04f && practice.Step==5 && !rehearsalPlayer.IsDashing,
+                "holding movement and dash cannot dodge the controlled impact");
+            Keys();
+            yield return FilmUntil(()=>practice.Step==6 && practice.ItemChest!=null,55,"monster reaches the character and the right-side chest appears");
+            float injured=rehearsalPlayer.CurrentHealth;
+            Check(injured>0 && injured<healthy && !visitor.gameObject.activeSelf && practice.ItemChest.transform.position.x>beforeContact.x,
+                "the hit takes real nonlethal HP, removes the visitor without a kill, and exposes the real field chest");
+            Mark("item-chest");
+            Keys(Key.E);
+            yield return Film(3);
+            Check(practice.Step==6 && !practice.CrateInRange,"E outside the chest's reach produces no reward");
+            Keys(Key.D);
+            yield return FilmUntil(()=>practice.CrateInRange,100,"walking right brings the real chest into interaction focus");
+            Keys(Key.E);
+            yield return FilmUntil(()=>practice.Step==7 && practice.PracticeHeart!=null,16,"a fresh interaction opens the chest and drops the heart");
+            Keys();
+            Mark("item-heart");
+            yield return Film(18);
+            Check(practice.Step==7 && Mathf.Approximately(injured,rehearsalPlayer.CurrentHealth) && !practice.PracticeHeart.IsBeingCollected,
+                "the heart stays on the ground and HP stays reduced until pickup");
+            Keys(Key.D,Key.Space);
+            yield return FilmUntil(()=>practice.Step==8,100,"walking into the heart plays the pickup and recovery");
+            Keys(Key.Space);
+            Check(Mathf.Approximately(healthy,rehearsalPlayer.CurrentHealth) && !GStarAnalytics.IsRecording && GStarSession.PendingAttempt,
+                "the heart restores the lost HP without recording a booth attempt");
+            Mark("item-recovery");
+            yield return FilmUntil(()=>practice.Step==9,55,"brief usable-item tip leads to departure");
+            yield return Film(1);
+            ValidatePracticeBubble(practice,rehearsalPlayer,true);
+            Check(Time.timeScale>0 && overhead.isActiveAndEnabled && overhead.text=="Space","completion presents the departure key");
             var lines=practice.GetComponentsInChildren<TMPro.TMP_Text>().Select(t=>t.text).ToArray();
             Check(lines.Contains("튜토리얼 완료!") && lines.Contains("이제 구강으로 출발해 볼까요?"),"both completion lines are visible");
             Check(!GStarAnalytics.IsRecording && GStarSession.PendingAttempt,"training kill creates no scored run");
             Mark("complete");
-            yield return Film(4);
+            yield return Film(22); // Record a full cycle of the departure key's edge highlight.
             Check(!practice.Complete,"held Space cannot confirm departure");
             Keys();
             float waitingUntil=Time.time+5;

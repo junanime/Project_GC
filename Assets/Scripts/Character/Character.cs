@@ -475,6 +475,12 @@ namespace Vampire
         protected virtual void FixedUpdate()
         {
             if (!alive) return;
+            if (GStarControlPractice.HoldsForContact(this))
+            {
+                rb.velocity = Vector2.zero;
+                StartIdleAnimation();
+                return;
+            }
             if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || IsOralSwallowing || IsColonExitProtected)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
@@ -1427,18 +1433,43 @@ namespace Vampire
 
         const float MosquitoHealInterval = 1.5f;
         float nextMosquitoHeal;
+        internal bool CanReceiveMosquitoHeal =>
+            alive && Time.time >= nextMosquitoHeal && currentHealth < MaxHealth;
         public bool TryMosquitoHeal(float amount)
         {
-            if (!alive || amount <= 0 || currentHealth >= MaxHealth || Time.time < nextMosquitoHeal) return false;
+            if (amount <= 0 || !CanReceiveMosquitoHeal) return false;
             nextMosquitoHeal = Time.time + MosquitoHealInterval;
             float before = currentHealth;
             GainHealth(amount);
             return currentHealth > before;
         }
 
+        // The rehearsal has no scored combat. Show the normal hit reaction without
+        // consuming the visitor's shield, testing evasion, or feeding combat rewards.
+        internal float TakePracticeBump()
+        {
+            float loss = Mathf.Min(MaxHealth * .30f, currentHealth * .5f);
+            currentHealth -= loss;
+            healthBar.SubtractPoints(loss);
+            ToadCameraShake.PlayerHit(loss, MaxHealth, Vector2.left);
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerHit);
+            if (hitAnimationCoroutine != null) StopCoroutine(hitAnimationCoroutine);
+            hitAnimationCoroutine = StartCoroutine(HitAnimation());
+            return loss;
+        }
+
+        internal void RestorePracticeBump(float lostHealth)
+        {
+            float restored = Mathf.Min(lostHealth, MaxHealth - currentHealth);
+            currentHealth += restored;
+            healthBar.AddPoints(restored);
+        }
+
+        internal Collider2D PracticeContactHitbox => meleeHitboxCollider;
+
         public void GainHealth(float health)
         {
-            if (!alive) return;
+            if (!alive || GStarControlPractice.ReservesHeartRecovery(this)) return;
             LegendaryConditionalSpecialRuntime conditionalRuntime =
                 GetComponent<LegendaryConditionalSpecialRuntime>();
 

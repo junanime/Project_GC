@@ -24,9 +24,12 @@ namespace Vampire
         protected override void Awake()
         {
             base.Awake();
-            trailRenderer = GetComponent<TrailRenderer>();
+            StageActorRegistry.Register<ExpGem>(this);
+            trailRenderer = GetComponentInChildren<TrailRenderer>(true);
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
+
+        void OnDestroy() => StageActorRegistry.Remove<ExpGem>(this);
 
         public void Setup(Vector2 position, GemType gemType = GemType.White1, bool spawnAnimation = true)
         {

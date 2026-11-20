@@ -17,6 +17,7 @@ namespace Vampire
         {
             get { if(level==null)return false;if(progression==null)progression=level.GetComponent<StageProgression>();return progression==null || progression.StageNumber==1; }
         }
+        internal LevelManager Owner => level;
         public bool FieldActive => level != null && (progression == null || progression.StageNumber <= 2);
         public bool IsOral => Definition != null && Definition.oral;
         public bool IsColon => Definition != null && Definition.colon;
@@ -273,6 +274,14 @@ namespace Vampire
                 Color.Lerp(distanceSamples[index+FieldResolution],distanceSamples[index+FieldResolution+1],x-ix),y-iy);
             inward=new Vector2(sample.g,sample.b).normalized;return sample.r;
         }
+        // A distance-only boundary check on the baked colon field needs just one sample.
+        internal float NavigationClearance(Vector2 p)
+        {
+            if (IsColon && floorSamples != null && WorldRect.Contains(p))
+                return FloorClearance(p) + WallWidth;
+            return NavigationDistance(p, out _);
+        }
+
         public float NavigationDistance(Vector2 p, out Vector2 inward, bool exact = false)
         {
             if(IsOral)return OralMapGeometry.Distance(this,p,out inward);
@@ -437,7 +446,6 @@ namespace Vampire
             if(level==null || Definition==null || material==null) return;
             if(overviewTexture!=null && ApothecaryUI.Instance!=null && ApothecaryUI.Instance.Page=="run" && FieldActive &&
                 !MiniStageRuntimeState.IsInsideMiniStage && Time.unscaledTime>=nextOverview)CaptureOverview();
-            var stage=level.GetComponent<StageProgression>();
             bool stageOne=FieldActive;
             var player=level.PlayerCharacter;
             // Mini-stage rooms are separate islands at the existing anchor, not inside the stomach.

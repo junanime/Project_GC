@@ -196,12 +196,24 @@ namespace Vampire
             label.name="GStar consent label";label.alignment=TextAlignmentOptions.MidlineLeft;label.fontStyle=FontStyles.Bold;
             button.onClick.AddListener(()=>{gstarConsent=!gstarConsent;GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);Render();});
         }
+        void DrawGStarResultPortrait()
+        {
+            // Sample the matching paper above the old baked mascot. The actor itself
+            // is the expressive, transparent sprite from the title screen's atlas.
+            string skin = passed ? "clear" : "failed";
+            GImage(GSlice(skin, 99, 224, 220, 60), 98, 286, 307, 273).name = "GStar result portrait paper";
+            var actor = GImage(OctoberArt.Get("OctoberUI/AshiStates", passed ? "2" : "1"), 106, 290, 292, 265);
+            actor.name = "GStar result portrait";
+            actor.preserveAspect = true;
+        }
+
         void GStarResult()
         {
             var run=GCurrentRun();int stage=run?.stageId??GStarSession.StageId;
             if(gstarBoard<0)gstarBoard=stage;
             bool registered=run!=null&&GStarLeaderboard.GetRunRank(run.runId)!=null;
             GHeader(0);
+            DrawGStarResultPortrait();
             GText(passed?"스테이지 클리어!":"스테이지 클리어 실패",472,210,729,87,75,passed?GGold:new Color(.68f,.34f,1),true);
             GText("이번 도전 점수",413,317,284,55,37);
             var total=GText($"{(run?.data.Total??0):N0}점",379,384,379,95,77,GGold,true);total.name="GStar total score";
@@ -225,7 +237,11 @@ namespace Vampire
                 GConsent();
             }
             GButton("register",registered?"등록 완료":"등록하기",132,800,624,100,RegisterGStarScore,true,!registered&&run!=null&&string.IsNullOrEmpty(run.exclusion));
-            GText("스테이지별 1·2·3위 상품 증정",905,315,545,54,37);
+            var gift = GImage(Resources.Load<Sprite>("GStarDemo/prize-draw-gift"), 922, 316, 58, 52);
+            gift.name = "GStar prize draw gift";
+            gift.preserveAspect = true;
+            GText("랭킹에 등록하면 누구나 경품 추첨!", 979, 313, 451, 31, 28);
+            GText("순위가 높을수록 당첨 확률이 올라가요", 979, 344, 451, 24, 21);
             // The source art highlights the middle tab. An opaque tray replaces that strip
             // before live tabs are drawn, so the old pink tab cannot peek out on other stages.
             var tabs=GRect("GStar ranking tabs backing",content,825,375,700,78).gameObject.AddComponent<GStarPillGraphic>();
