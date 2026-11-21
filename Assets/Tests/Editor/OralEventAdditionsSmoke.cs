@@ -30,6 +30,10 @@ namespace Vampire.Tests.Editor
         static void SeedActualCharacterSelection()
         {
             if(!SessionState.GetBool(Key,false))return;
+            GStarDemo.TestDataDirectory = SessionState.GetString(Key+"Data", "");
+            GStarSession.TestDirectory = GStarLeaderboard.TestDirectory = GStarDemo.TestDataDirectory;
+            GStarSession.ReloadForTests();
+            GStarLeaderboard.ReloadForTests();
             // Editor domain reload clears CrossSceneData. Restore the same selection
             // before Character.Awake, exactly where a normal scene transfer uses it.
             CrossSceneData.CharacterBlueprint=AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/"+Blueprints[Index]+" Character Blueprint.asset");
@@ -38,6 +42,7 @@ namespace Vampire.Tests.Editor
         public static void Run()
         {
             Directory.CreateDirectory(Root);Restore();
+            SessionState.SetString(Key+"Data", Path.GetFullPath(Root+"/isolated-"+Guid.NewGuid().ToString("N")));
             File.WriteAllText(Root+"/result.txt","RUNNING");File.WriteAllText(Root+"/checks.txt","");File.WriteAllText(Root+"/errors.txt","");
             var keys=new[]{"Coins","LobbySilverCoins"};
             File.WriteAllText(Root+"/prefs.json",JsonUtility.ToJson(new Backup{prefs=keys.Select(k=>new Pref{key=k,had=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
@@ -132,6 +137,12 @@ namespace Vampire.Tests.Editor
             events.AutoSchedule=false;foreach(var c in events.Cavities){c.Healed=true;c.Active=false;}
             Place(player,OralMapGeometry.TongueCenter(map));Set(player,"isInvincible",true);
             var additions=events.Additions;Check(additions!=null,"new event controller installed");
+            if (Environment.GetCommandLineArgs().Contains("-oralSupplyAimOnly"))
+            {
+                yield return CheckSupplyAim(level);
+                SessionState.SetBool(Key+"Done", true);
+                yield break;
+            }
             var group=level.CurrentLevelBlueprint.monsters.Select((g,i)=>new{g,i}).First(x=>x.g.monsterBlueprints.Any(b=>b!=null&&OralMonsterRoster.IsBlueprint(b)));
             var bp=group.g.monsterBlueprints.First(b=>b!=null&&OralMonsterRoster.IsBlueprint(b));
             var monsters=new List<Monster>();
@@ -183,6 +194,62 @@ namespace Vampire.Tests.Editor
             Check(!Object.FindObjectsOfType<OralHiccupLift>().Any(l=>l.Active),"teardown restores every airborne actor");
             SessionState.SetBool(Key+"Done",true);
         }
+        public static IEnumerator CheckSupplyAim(LevelManager level)
+        {
+            Directory.CreateDirectory(Output);
+            var player = level.PlayerCharacter;
+            var events = OralFieldEvents.Instance;
+            Silence(level);
+            Clear(level);
+            Place(player, OralMapGeometry.TongueCenter(FiniteStomachMap.Instance));
+            Check(events.ForceEvent(OralEventKind.BalloonDelivery), "balloon spawns on the actual mouth field");
+            var balloon = events.Additions.Delivery;
+            var needle = SyringeAbilityResolver.FindOwnedOrFirst(Object.FindObjectOfType<AbilityManager>());
+            var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var autoAim = typeof(SyringeDartAbility).GetMethod("GetAutomaticNeedleDirection", flags);
+            var shotgun = typeof(SyringeDartAbility).GetMethod("TryFindNeedleShotgunTargetDirection", flags);
+            var launch = typeof(SyringeDartAbility).GetMethod("LaunchAimedSyringe", flags);
+            Place(player, balloon.BalloonPosition - Vector2.right * 2f);
+            var origin = needle.GetReturnCatchPosition(Vector2.right);
+            var towards = (balloon.BalloonPosition - origin).normalized;
+            var group = level.CurrentLevelBlueprint.monsters.Select((g,i) => new {g,i}).First(x =>
+                x.g.monsterBlueprints.Any(b => b != null && OralMonsterRoster.IsBlueprint(b)));
+            var blueprint = group.g.monsterBlueprints.First(b => b != null && OralMonsterRoster.IsBlueprint(b));
+            var blockers = new List<Monster>();
+            var health = new List<float>();
+            for (int i = 0; i < 10; i++)
+            {
+                // One nearer target on the opposite side plus a real crowd in the flight path.
+                var point = i == 0 ? origin - towards * .7f : origin + towards * (1f + (i % 3) * .12f);
+                var monster = level.EntityManager.SpawnMonster(group.i, point, blueprint, 0, false);
+                monster.enabled = false;
+                monster.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+                monster.transform.position += (Vector3)(point - NeedleTargeting.Position(monster));
+                blockers.Add(monster);
+                health.Add(monster.HP);
+            }
+            Physics2D.SyncTransforms();
+            var direction = (Vector2)autoAim.Invoke(needle, null);
+            Check(Vector2.Dot(direction, towards) > .98f, "automatic attack aims at the balloon over ten nearer ordinary monsters");
+            object[] shotgunArgs = { Vector2.zero };
+            Check((bool)shotgun.Invoke(needle, shotgunArgs) && Vector2.Dot((Vector2)shotgunArgs[0], towards) > .93f,
+                "shotgun automatic aim gives the reachable balloon priority");
+            Check(OralBalloonDelivery.WithinReach(origin - towards * 20, 3, needle.MonsterLayer) == null &&
+                OralBalloonDelivery.WithinReach(origin, 3, 0) == null, "balloon respects real attack range and target layers");
+            int before = Object.FindObjectsOfType<Chest>().Length;
+            Frame("supply-crowd");
+            Check((bool)launch.Invoke(needle, new object[]{direction, false, 1f, 0}), "scheduled player needle launches");
+            float deadline = Time.realtimeSinceStartup + 5;
+            while (balloon != null && !balloon.Popped && Time.realtimeSinceStartup < deadline) yield return null;
+            Check(balloon != null && balloon.Popped && !balloon.Targetable, "actual needle crosses the crowd and pops supply");
+            Check(blockers.Select((m,i) => Mathf.Approximately(m.HP, health[i])).All(same => same), "supply shot does not deal free damage to intervening monsters");
+            Check(Vector2.Dot((Vector2)autoAim.Invoke(needle, null), towards) < -.75f, "the next attack immediately reacquires the closest monster");
+            while (balloon != null && Time.realtimeSinceStartup < deadline) yield return null;
+            Check(balloon == null && Object.FindObjectsOfType<Chest>().Length == before + 1, "one intercepted delivery becomes exactly one real chest");
+            Frame("supply-landed");
+            Clear(level);
+        }
+
         static IEnumerator Record(string name,Func<bool> active,Action step)
         {
             string dir=Output+"/"+name;Directory.CreateDirectory(dir);foreach(var old in Directory.GetFiles(dir,"*.png"))File.Delete(old);

@@ -185,7 +185,7 @@ namespace Vampire
                 {
                     var king = ConstipationKingDirector.Active;
                     var exit = level.GetComponent<ColonExitSequence>();
-                    if (king == null || !king.Spawned) goal = "좌측 하단 왕좌에서 변비왕을 깨우세요.";
+                    if (king == null || !king.Spawned) goal = "지도에 표시된 변기에서 변비왕을 깨우세요.";
                     else if (!king.Defeated) goal = "변비왕을 처치하세요.";
                     else if (exit != null && exit.State == ColonExitSequence.ExitState.Open) goal = "봉인이 풀린 출구로 이동하세요.";
                     else if (exit != null && (exit.State == ColonExitSequence.ExitState.Carrying || exit.State == ColonExitSequence.ExitState.Unlocking))

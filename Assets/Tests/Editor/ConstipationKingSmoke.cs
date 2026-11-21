@@ -18,7 +18,8 @@ namespace Vampire.Tests.Editor
     {
         const string Key = "ConstipationKingSmoke";
         static readonly string[] SavedIntPrefs = { "Coins", "LobbySilverCoins", "October.StartingNeedle.Ashi", "October.StartingNeedle.Ari", "October.StartingNeedle.Hyuki", "October.StartingNeedle.Shini" };
-        static string Output => SessionState.GetBool(Key + "Death", false) ? "Library/ConstipationKingDeathProof" : SessionState.GetBool(Key + "Ending", false) ? "Library/ConstipationKingEndingProof" : "Library/ConstipationKingProof";
+        static readonly bool BossMapOnly = Environment.GetCommandLineArgs().Contains("-bossMapOnly");
+        static string Output => BossMapOnly ? "Library/KingMapProof" : SessionState.GetBool(Key + "Death", false) ? "Library/ConstipationKingDeathProof" : SessionState.GetBool(Key + "Ending", false) ? "Library/ConstipationKingEndingProof" : "Library/ConstipationKingProof";
         static bool started; static double deadline; static int checks;
         static ConstipationKingSmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
         public static void Run()
@@ -422,6 +423,55 @@ namespace Vampire.Tests.Editor
             yield return WaitFor(() => !boss.Arriving, 15, "Second final encounter arrival finishes");
             yield return VerifyEndingReturn(level, boss, director, "second-clear");
         }
+        static IEnumerator CheckBossLocation(LevelManager level, ConstipationKingDirector director)
+        {
+            var book = ApothecaryUI.Instance;
+            var throne = director.Throne;
+            var marker = throne.GetComponent<MapMarker>();
+            var worldSign = throne.GetComponentInChildren<Canvas>();
+            Check(worldSign != null && worldSign.enabled && marker.AlwaysVisible &&
+                marker.Icon == throne.Toilet.sprite, "unexplored throne uses its porcelain sprite and is globally discoverable");
+
+            void ReadMap(Sprite expected, string screenshot)
+            {
+                book.OpenRunBook();
+                Check(book.Page == "run", "TAB opens the actual exploration map");
+                Canvas.ForceUpdateCanvases();
+                var label = Object.FindObjectsOfType<TMPro.TextMeshProUGUI>().Single(t =>
+                    t.text == "보스 위치" && t.GetComponentInParent<RunBookMapZoom>() != null);
+                var icon = label.GetComponentInParent<UnityEngine.UI.Image>();
+                Check(icon != null && icon.sprite == expected && !label.isTextOverflowing,
+                    "one readable boss caption belongs to the current objective icon");
+                Capture(null, screenshot, false, true);
+                book.CloseRunBook();
+            }
+
+            ReadMap(throne.Toilet.sprite, "01-boss-location-map");
+            IEnumerator Approach(Vector2 position, string picture)
+            {
+                ColonContentSmoke.Position(level.PlayerCharacter, position);
+                yield return new WaitForSecondsRealtime(1.1f);
+                var signCorners = new Vector3[4];
+                ((RectTransform)worldSign.transform).GetWorldCorners(signCorners);
+                var camera = Camera.main;
+                Check(signCorners.All(p => {
+                    var screen = camera.WorldToViewportPoint(p);
+                    return screen.x > .02f && screen.x < .98f && screen.y > .12f && screen.y < .89f;
+                }), "entire sign clears the HUD and screen edge during " + picture);
+                Check(worldSign.transform.position.x > throne.Toilet.bounds.max.x,
+                    "the sign stays beside the toilet and away from the interaction key");
+                Capture(null, picture, false, true);
+            }
+            var map = FiniteStomachMap.Instance;
+            yield return Approach(map.ClampToFloor((Vector2)throne.transform.position + new Vector2(4, 1), .6f), "02a-boss-location-approach");
+            yield return Approach(throne.transform.position, "02-boss-location-field");
+            Check(director.TrySpawn() && !worldSign.enabled, "summoning dismisses the field sign");
+            director.Boss.AutoPatterns = false;
+            yield return WaitFor(() => !director.Summoning && director.Boss.Targetable, 15, "boss becomes targetable");
+            Check(!throne.gameObject.activeSelf, "old summoned throne no longer provides a map pin");
+            ReadMap(director.Boss.GetComponent<MapMarker>().Icon, "03-active-boss-map");
+        }
+
         static IEnumerator Exercise(LevelManager level)
         {
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
@@ -431,6 +481,12 @@ namespace Vampire.Tests.Editor
             foreach (var monster in level.EntityManager.LivingMonsters.ToArray()) monster.DespawnForStageTransfer();
             var director = ConstipationKingDirector.Ensure(level);
             Check(director.Throne != null && director.Throne.Toilet.sprite != null && !director.Spawned, "Stage entry installs an empty porcelain throne without the king body");
+            if (BossMapOnly)
+            {
+                yield return CheckBossLocation(level, director);
+                SessionState.SetBool(Key + "Done", true);
+                yield break;
+            }
             ColonContentSmoke.Set(level, "levelTime", 1200f); yield return null; yield return null;
             Check(!director.Spawned && director.Boss == null, "Passing the old deadline never automatically summons the king");
             ColonContentSmoke.Set(level, "levelTime", 0f);

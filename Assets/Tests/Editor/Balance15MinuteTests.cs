@@ -39,6 +39,38 @@ namespace Vampire.Tests.Editor
             finally { UnityEngine.Object.DestroyImmediate(host); }
         }
         [Test]
+        public void StomachHordeAddsFourExtraOrdinaryMonstersPerTenFromElevenMinutes()
+        {
+            var host = new GameObject("G-Star wave boundary");
+            host.SetActive(false);
+            var map = host.AddComponent<FiniteStomachMap>();
+            var data = ScriptableObject.CreateInstance<StomachMapDefinition>();
+            typeof(FiniteStomachMap).GetProperty("Definition").SetValue(map, data);
+            var prior = GStarDemo.TestOverride;
+            try
+            {
+                GStarDemo.TestOverride = true;
+                Assert.AreEqual(5, GStarFieldBalance.BonusPerTen(map, 659.99f));
+                Assert.AreEqual(9, GStarFieldBalance.BonusPerTen(map, 660f));
+                Assert.AreEqual(9, GStarFieldBalance.BonusPerTen(map, 900f));
+                data.oral = true;
+                Assert.AreEqual(3, GStarFieldBalance.BonusPerTen(map, 660f));
+                data.oral = false;
+                data.colon = true;
+                Assert.AreEqual(0, GStarFieldBalance.BonusPerTen(map, 660f));
+                data.colon = false;
+                GStarDemo.TestOverride = false;
+                Assert.AreEqual(0, GStarFieldBalance.BonusPerTen(map, 660f));
+            }
+            finally
+            {
+                GStarDemo.TestOverride = prior;
+                UnityEngine.Object.DestroyImmediate(host);
+                UnityEngine.Object.DestroyImmediate(data);
+            }
+        }
+
+        [Test]
         public void SpawnWeightsHandleBoundariesAndUnnormalizedInspectorValues()
         {
             var t = new MonsterSpawnTable { spawnChanceKeyframes = new[] {

@@ -90,6 +90,13 @@ namespace Vampire
             AugmentPanelTheme.Anchors(skipLight.rectTransform,Vector2.zero,Vector2.one);
             var skipText=AugmentPanelTheme.Label("Skip label",skipVisual,TrainingUITheme.Font,"건너뛰기",26);
             AugmentPanelTheme.Anchors(skipText.rectTransform,Vector2.zero,Vector2.one);skipText.fontStyle=FontStyles.Bold;skipText.color=Color.white;
+            if (GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
+            {
+                var cap = InteractionKeycapGraphic.Create("Skip keycap", skipVisual, "Esc", 39);
+                cap.Bounds.anchorMin = cap.Bounds.anchorMax = new Vector2(.18f,.5f);
+                cap.Bounds.anchoredPosition = Vector2.zero;
+                AugmentPanelTheme.Anchors(skipText.rectTransform,new Vector2(.26f,0),new Vector2(.95f,1));
+            }
             var skipFeedback=skipRoot.gameObject.AddComponent<ApothecaryButtonFeedback>();
             skipFeedback.button=skipButton;skipFeedback.visual=skipVisual;skipFeedback.body=skipBody;skipFeedback.sparkle=skipLight;skipFeedback.label=skipText;
             skipFeedback.useThemeStates=false;skipFeedback.borderOnly=true;
@@ -97,6 +104,8 @@ namespace Vampire
             skipButton.onClick.AddListener(SkipAbilities);
             UpdatePanelLayout();
         }
+
+        internal void SkipFromKeyboard() => NumberedCardChoice.TryShortcut(skipButton, KeyCode.Escape);
 
         public void SkipAbilities()
         {
@@ -125,11 +134,7 @@ namespace Vampire
         void LateUpdate()
         {
             if (panelContent != null) UpdatePanelLayout();
-            if (GStarDemo.Enabled && menuOpen && rerollButton != null && rerollButton.isActiveAndEnabled &&
-                rerollButton.IsInteractable() && !GameInput.KeyboardBlocked && !StageEntryLoading.IsLoading &&
-                !TutorialGuide.BlocksMenuInput && GameInput.GetKeyDown(KeyCode.R) &&
-                NumberedCardChoice.IsButtonOnTop(rerollButton, rerollButton.transform))
-                rerollButton.onClick.Invoke();
+            if (menuOpen) NumberedCardChoice.TryShortcut(rerollButton, KeyCode.R);
         }
 
         void UpdatePanelLayout()

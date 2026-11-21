@@ -63,6 +63,13 @@ namespace Vampire
             if (entityManager == null || playerCharacter == null) return lastNeedleDirection;
             Vector2 origin = GetProjectileSpawnPosition(lastNeedleDirection);
             float range = GetEffectiveSyringeMaxDistance() + (lifeBurnEnabled ? lifeBurnBonusRange : 0f);
+            var delivery = OralBalloonDelivery.WithinReach(origin, range, monsterLayer);
+            if (delivery != null)
+            {
+                Vector2 toBalloon = delivery.BalloonPosition - origin;
+                if (toBalloon.sqrMagnitude > .0001f) lastNeedleDirection = toBalloon.normalized;
+                return lastNeedleDirection;
+            }
             float closest = range * range;
             Monster target = null;
             foreach (var monster in entityManager.LivingMonsters)

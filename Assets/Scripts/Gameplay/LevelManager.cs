@@ -239,7 +239,7 @@ namespace Vampire
             }
 
             if (GStarDemo.Enabled)
-                waveFormation.DispatchCohort(this, bonusWaveTenths, GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance));
+                waveFormation.DispatchCohort(this, bonusWaveTenths, GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime));
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
@@ -273,7 +273,7 @@ namespace Vampire
             float normalizedTime = GetNormalizedLevelTime();
 
             int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
-            int bonusRate = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance);
+            int bonusRate = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime);
             if (GStarDemo.Enabled && levelBlueprint.MonsterIndexMap.TryGetValue(monsterIndex,out var entry))
             {
                 var group = levelBlueprint.monsters[entry.Item1];
@@ -290,7 +290,7 @@ namespace Vampire
         {
             var spawned = SpawnAtWaveSlot(monsterIndex, 1f, true,
                 points != null && slot < points.Length ? points[slot] : (Vector2?)null);
-            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance);
+            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime);
             if (bonus == 0 || !GStarFieldBalance.IsOrdinary(spawned)) return;
             // Preserve each original wave roll (including every special). Only successful
             // ordinary rolls earn extra units, each with a separate legal spawn point.
@@ -373,7 +373,7 @@ namespace Vampire
             }
 
             int baseLimit = Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit);
-            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance);
+            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime);
             if (entityManager.LivingMonsters.Count >= baseLimit + Mathf.CeilToInt(baseLimit * bonus / 10f)) return null;
 
             if (!levelBlueprint.MonsterIndexMap.ContainsKey(monsterIndex))

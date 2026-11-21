@@ -11,8 +11,13 @@ namespace Vampire
             monster.GetType() == typeof(MeleeMonster) &&
             monster.Blueprint != null && monster.Blueprint.GetType() == typeof(MeleeMonsterBlueprint);
 
-        public static int BonusPerTen(FiniteStomachMap map) =>
-            !GStarDemo.Enabled || map == null || map.IsColon ? 0 : map.IsOral ? 3 : 5;
+        public static int BonusPerTen(FiniteStomachMap map, float fieldSeconds)
+        {
+            if (!GStarDemo.Enabled || map == null || map.IsColon) return 0;
+            if (map.IsOral) return 3;
+            // Every ten ordinary rolls produce 15 enemies early, then 19 from 11:00.
+            return fieldSeconds >= 11f * 60f ? 9 : 5;
+        }
 
         public static void TuneHealth(Monster monster, FiniteStomachMap map)
         {

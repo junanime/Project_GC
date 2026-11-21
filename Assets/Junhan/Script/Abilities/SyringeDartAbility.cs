@@ -1025,6 +1025,8 @@ namespace Vampire
                 var shotRuntime = BuildSpecialRuntime();
                 shotRuntime.bipolarPolarity = polarity;
                 syringeProjectile.ConfigureSpecials(shotRuntime);
+                if (!hasPendingNeedleDirection && !itemEcho)
+                    syringeProjectile.AimAtReachableSupply(spawnPosition, direction);
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
                 syringeProjectile.ConfigureItemAttack(itemEchoScale,itemEcho);
             }
@@ -1235,6 +1237,14 @@ namespace Vampire
 
             Vector2 origin = GetPlayerCenterPosition();
             float range = Mathf.Max(0.1f, needleShotgunDetectionRange);
+            Vector2 muzzle = GetProjectileSpawnPosition(targetDirection);
+            var delivery = OralBalloonDelivery.WithinReach(muzzle, Mathf.Min(range, needleShotgunFixedRange), monsterLayer);
+            if (delivery != null)
+            {
+                Vector2 toBalloon = delivery.BalloonPosition - muzzle;
+                if (toBalloon.sqrMagnitude > .0001f) targetDirection = toBalloon.normalized;
+                return true;
+            }
 
             using var query = NeedleTargeting.QueryCircle(origin, range, monsterLayer, out var hits);
 
@@ -1254,7 +1264,7 @@ namespace Vampire
                 IDamageable damageable = hit.GetComponentInParent<IDamageable>();
                 Component damageableComponent = damageable as Component;
 
-                if (damageable == null || damageableComponent == null)
+                if (damageable == null || damageableComponent == null || damageable is OralBalloonDelivery)
                 {
                     continue;
                 }
@@ -1403,6 +1413,7 @@ namespace Vampire
             if (projectile is SyringeProjectile syringeProjectile)
             {
                 syringeProjectile.ConfigureSpecials(BuildNeedleShotgunRuntime());
+                syringeProjectile.AimAtReachableSupply(spawnPosition, direction);
                 syringeProjectile.ConfigureFlightVfx(bipolarNeedleEnabled, false);
                 syringeProjectile.ConfigureItemAttack(itemEchoScale,itemEcho);
             }

@@ -140,6 +140,12 @@ namespace Vampire.Tests.Editor
         static IEnumerator RunCases(LevelManager level,double loadMs)
         {
             Require(StageProgression.Ensure(level).StageNumber==Stage,"wrong map");
+            if (Args.Contains("-stomachWaveCheck"))
+            {
+                CheckStomachWaveSize(level);
+                SessionState.SetBool(Key + "done", true);
+                yield break;
+            }
             if(Args.Contains("-perfSoak"))
             {
                 yield return GStarLatePlaySoak.Play(level,Stage,Number("-perfSoakSeconds",120,24,540),Seed,Output);
@@ -180,6 +186,39 @@ namespace Vampire.Tests.Editor
             finally{cam.targetTexture=previous;rt.Release();Object.Destroy(rt);Time.captureFramerate=0;}
             File.AppendAllText(FileFor("progress.txt"),"PASS stage "+Stage+"\n");
             SessionState.SetBool(Key+"done",true);
+        }
+
+        // Count actual pooled monsters from identical ordinary rolls on either side of the field-clock boundary.
+        static void CheckStomachWaveSize(LevelManager level)
+        {
+            Require(Stage == 1 && !FiniteStomachMap.Instance.IsOral && !FiniteStomachMap.Instance.IsColon, "stomach stage");
+            var blueprint = level.CurrentLevelBlueprint;
+            var index = blueprint.MonsterIndexMap.First(entry =>
+            {
+                var pool = blueprint.monsters[entry.Value.Item1];
+                var species = pool.monsterBlueprints[entry.Value.Item2];
+                return species != null && species.GetType() == typeof(MeleeMonsterBlueprint) &&
+                    pool.monstersPrefab.TryGetComponent<Monster>(out var actor) && actor.GetType() == typeof(MeleeMonster);
+            }).Key;
+            var spawn = typeof(LevelManager).GetMethod("SpawnRolledWaveMonster",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            foreach (var second in new[] { 659f, 660f, 840f })
+            {
+                ColonContentSmoke.Set(level, "levelTime", second);
+                ColonContentSmoke.Set(level, "bonusWaveTenths", 0);
+                int actual = 0;
+                for (int batch = 0; batch < 10; batch++)
+                {
+                    foreach (var monster in level.EntityManager.LivingMonsters.ToArray())
+                        monster.DespawnForStageTransfer();
+                    // Ten at a time keeps the population cap from hiding changes in spawn frequency.
+                    for (int roll = 0; roll < 10; roll++)
+                        spawn.Invoke(level, new object[] { index, null, 0 });
+                    actual += level.EntityManager.LivingMonsters.Count(GStarFieldBalance.IsOrdinary);
+                }
+                File.AppendAllText(FileFor("stomach-waves.txt"), $"field_seconds={second} normal_rolls=100 spawned={actual}\n");
+                Require(actual == (second < 660 ? 150 : 190), "ordinary spawn count at second " + second + ": " + actual);
+            }
         }
 
         static IEnumerator Case(LevelManager level,SyringeDartAbility dart,Camera cam,Vector2 center,bool dense,double loadMs,bool oralFinale=false)

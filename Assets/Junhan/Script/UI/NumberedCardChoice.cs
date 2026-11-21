@@ -106,6 +106,17 @@ namespace Vampire
             choice.keycap.alpha = button.interactable ? 1f : .43f;
         }
 
+        internal static bool TryShortcut(Button action, KeyCode key)
+        {
+            if (!GStarDemo.Enabled || GamePlatform.UsesTouchControls || !GameInput.GetKeyDown(key) ||
+                GameInput.KeyboardBlocked || TutorialGuide.BlocksMenuInput || StageEntryLoading.IsLoading ||
+                action == null || !action.isActiveAndEnabled || !action.IsInteractable() ||
+                UnityEngine.InputSystem.Mouse.current?.leftButton.wasReleasedThisFrame == true ||
+                !IsButtonOnTop(action, action.transform)) return false;
+            action.onClick.Invoke();
+            return true;
+        }
+
         internal static bool IsButtonOnTop(Button action, Transform owner)
         {
             var events = EventSystem.current;

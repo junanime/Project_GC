@@ -100,7 +100,11 @@ namespace Vampire
                     if ((directionMask & bit) != 0 || !GameInput.Pressed(Directions[i])) continue;
                     directionMask |= bit;
                     CompletedDirections++;
-                    caps[i].SetActive(false);
+                    for (int slot = 0; slot < 2; slot++)
+                    {
+                        var cap = directionCaps[slot, i];
+                        if (cap != null) cap.gameObject.SetActive(false);
+                    }
                     Draw();
                 }
                 if (CompletedDirections == Directions.Length) Advance();

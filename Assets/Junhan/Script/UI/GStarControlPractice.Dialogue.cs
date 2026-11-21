@@ -9,8 +9,9 @@ namespace Vampire
         static readonly Color BalloonInk = new Color32(58, 37, 47, 255);
         static readonly Color BalloonPaper = new Color32(255, 248, 227, 255);
         static readonly Color CaptionInk = new Color32(133, 65, 59, 255);
-        readonly GameObject[] caps = new GameObject[4];
-        RectTransform bubble, tail, cross;
+        readonly RectTransform[,] directionCaps = new RectTransform[2, Directions.Length];
+        RectTransform bubble, tail, primaryKeys, alternateKeys;
+        TextMeshProUGUI alternativeHint;
         InteractionKeycapGraphic headKey;
         TextMeshProUGUI caption, action, departHint;
         PlayerCombatBars bars;
@@ -52,29 +53,48 @@ namespace Vampire
             departHint = BubbleText("출발 키 안내", 15, CaptionInk, TextAlignmentOptions.Center);
             departHint.text = "눌러서 출발";
 
-            cross = AugmentPanelTheme.Rect("머리 위 방향 키", bubble);
-            cross.anchorMin = cross.anchorMax = new Vector2(0, .5f);
-            cross.sizeDelta = Vector2.zero;
-            float[] widths = new float[Directions.Length];
-            for (int i = 0; i < Directions.Length; i++)
-            {
-                var cap = InteractionKeycapGraphic.Create(KeyName(Directions[i]), cross, KeyName(Directions[i]), 35);
-                cap.Bounds.anchorMin = cap.Bounds.anchorMax = Vector2.one * .5f;
-                widths[i] = cap.Bounds.sizeDelta.x;
-                caps[i] = cap.gameObject;
-            }
-            float middle = Mathf.Max(widths[0], widths[2]) * .5f;
-            SetCapOffset(0, 0, 34);
-            SetCapOffset(1, -middle - 2 - widths[1] * .5f, 0);
-            SetCapOffset(2, 0, -34);
-            SetCapOffset(3, middle + 2 + widths[3] * .5f, 0);
+            primaryKeys = BuildDirectionKeys("머리 위 방향 키", 0);
+            alternateKeys = BuildDirectionKeys("머리 위 보조 방향 키", 1);
+            alternativeHint = BubbleText("이동 키 구분", 15, CaptionInk, TextAlignmentOptions.Center);
+            alternativeHint.text = "또는";
+            var separator = alternativeHint.rectTransform;
+            separator.anchorMin = separator.anchorMax = new Vector2(0, .5f);
+            separator.sizeDelta = new Vector2(36, 25);
 
             headKey = InteractionKeycapGraphic.Create("머리 위 조작 키", bubble, KeyName(GameKeyAction.Dash), 43);
             headKey.Bounds.anchorMin = headKey.Bounds.anchorMax = new Vector2(0, .5f);
         }
 
-        void SetCapOffset(int index, float x, float y) =>
-            ((RectTransform)caps[index].transform).anchoredPosition = new Vector2(x, y);
+        RectTransform BuildDirectionKeys(string name, int slot)
+        {
+            var group = AugmentPanelTheme.Rect(name, bubble);
+            group.anchorMin = group.anchorMax = group.pivot = new Vector2(0, .5f);
+            var widths = new float[Directions.Length];
+            for (int i = 0; i < Directions.Length; i++)
+            {
+                var key = GamePreferences.Current.keyboard.Get(Directions[i], slot);
+                if (key == KeyCode.None) continue;
+                string legend = KeyboardBindingValues.KeyLabel(key);
+                var rect = InteractionKeycapGraphic.Create(legend, group, legend, 35).Bounds;
+                rect.anchorMin = rect.anchorMax = new Vector2(0, .5f);
+                widths[i] = rect.sizeDelta.x;
+                directionCaps[slot, i] = rect;
+            }
+            float middle = Mathf.Max(widths[0], widths[2]);
+            float left = widths[1] > 0 ? widths[1] + 2 : 0;
+            float right = widths[3] > 0 ? widths[3] + 2 : 0;
+            group.sizeDelta = new Vector2(left + middle + right, 104);
+            for (int i = 0; i < Directions.Length; i++)
+            {
+                var rect = directionCaps[slot, i];
+                if (rect == null) continue;
+                float x = i == 1 ? widths[1] / 2 : i == 3 ? left + middle + 2 + widths[3] / 2 : left + middle / 2;
+                // The alternate bank matches the inverted T printed on a physical keyboard.
+                float y = slot == 1 ? (i == 0 ? 18 : -18) : (i == 0 ? 36 : i == 2 ? -36 : 0);
+                rect.anchoredPosition = new Vector2(x, y);
+            }
+            return group;
+        }
 
         TextMeshProUGUI BubbleText(string name, float size, Color tint, TextAlignmentOptions alignment)
         {
@@ -205,21 +225,15 @@ namespace Vampire
             bool departure = Step == 10;
             caption.text = title;
             action.text = line;
-            cross.gameObject.SetActive(move);
+            primaryKeys.gameObject.SetActive(move);
+            alternateKeys.gameObject.SetActive(move);
+            bool bothBanks = primaryKeys.sizeDelta.x > 0 && alternateKeys.sizeDelta.x > 0;
+            alternativeHint.gameObject.SetActive(move && bothBanks);
             headKey.gameObject.SetActive(binding.HasValue);
             departHint.gameObject.SetActive(departure);
             float left = 22;
             float height = move ? 119 : 90;
-            if (move)
-            {
-                var leftCap = (RectTransform)caps[1].transform;
-                var rightCap = (RectTransform)caps[3].transform;
-                float start = leftCap.anchoredPosition.x - leftCap.sizeDelta.x * .5f;
-                float end = rightCap.anchoredPosition.x + rightCap.sizeDelta.x * .5f;
-                cross.anchoredPosition = new Vector2(left - start, 0);
-                left += end - start + 16;
-            }
-            else if (binding.HasValue)
+            if (binding.HasValue)
             {
                 headKey.ShowKey(Step == 8 ? HeartKeyLabel : KeyName(binding.Value), departure ? 47 : 43, departure || Step == 8);
                 float width = headKey.Bounds.sizeDelta.x;
@@ -235,9 +249,26 @@ namespace Vampire
                 left += width + 17;
             }
             float bodyWidth = Mathf.Clamp(action.GetPreferredValues(line, 1000, 100).x, 205, 360);
-            bubble.sizeDelta = new Vector2(left + bodyWidth + 22, height);
-            Insets(caption.rectTransform, left, height * .5f + 1, 17, height * .5f - 23);
-            Insets(action.rectTransform, left, 10, 17, height * .5f - 3);
+            float bodyEnd = left + bodyWidth;
+            float end = bodyEnd;
+            if (move)
+            {
+                end += 15;
+                primaryKeys.anchoredPosition = new Vector2(end, 0);
+                end += primaryKeys.sizeDelta.x;
+                if (bothBanks)
+                {
+                    float gap = alternativeHint.rectTransform.sizeDelta.x + 6;
+                    alternativeHint.rectTransform.anchoredPosition = new Vector2(end + gap * .5f, 0);
+                    end += gap;
+                }
+                alternateKeys.anchoredPosition = new Vector2(end, 0);
+                end += alternateKeys.sizeDelta.x;
+            }
+            bubble.sizeDelta = new Vector2(end + 22, height);
+            float rightInset = move ? end + 22 - bodyEnd : 17;
+            Insets(caption.rectTransform, left, height * .5f + 1, rightInset, height * .5f - 23);
+            Insets(action.rectTransform, left, 10, rightInset, height * .5f - 3);
             PositionKeys();
         }
     }

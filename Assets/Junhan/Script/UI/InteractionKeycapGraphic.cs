@@ -11,6 +11,7 @@ namespace Vampire
     {
         static Sprite keyArt;
         bool attention;
+        Vector2Int arrow;
         float attentionStarted, nextGlint;
         public TextMeshProUGUI Legend { get; private set; }
         public bool Highlighted => attention;
@@ -40,6 +41,15 @@ namespace Vampire
             var size = new Vector2(Mathf.Round(height * units), height);
             if (rectTransform.sizeDelta != size) rectTransform.sizeDelta = size;
             if (Legend.text != legend) Legend.text = legend;
+            // The booth's rounded Korean font has no arrow glyphs. Print the four arrows on the key face.
+            var direction = legend == "↑" ? Vector2Int.up : legend == "↓" ? Vector2Int.down :
+                legend == "←" ? Vector2Int.left : legend == "→" ? Vector2Int.right : Vector2Int.zero;
+            if (arrow != direction)
+            {
+                arrow = direction;
+                Legend.enabled = direction == Vector2Int.zero;
+                SetVerticesDirty();
+            }
             Legend.fontSizeMax = height * .56f;
             Legend.fontSizeMin = height * .31f;
             if (attention == highlight) return;
@@ -69,6 +79,24 @@ namespace Vampire
             Strip(vh, r.xMin, r.xMin + shoulder, r.yMin, r.yMax, uv, 3, 11, 3, 29, Color.white);
             Strip(vh, r.xMin + shoulder, r.xMax - shoulder, r.yMin, r.yMax, uv, 10.5f, 10.5f, 3, 29, Color.white);
             Strip(vh, r.xMax - shoulder, r.xMax, r.yMin, r.yMax, uv, 21, 29, 3, 29, Color.white);
+            if (arrow != Vector2Int.zero) DrawArrow(vh, r, uv);
+        }
+
+        void DrawArrow(VertexHelper mesh, Rect face, Vector4 uv)
+        {
+            float dot = Mathf.Max(1, Mathf.Round(face.height / 15f));
+            var center = face.center + Vector2.up * dot;
+            Color32 ink = new Color32(43, 42, 42, 255);
+            for (int row = -3; row <= 3; row++)
+            {
+                // One shaft, then a seven-dot shoulder tapering to the arrow tip.
+                float span = row < 0 ? 1.5f : 3.5f - row;
+                Vector2 at = center + (Vector2)arrow * (row * dot);
+                float halfX = arrow.x == 0 ? span * dot : .5f * dot;
+                float halfY = arrow.x == 0 ? .5f * dot : span * dot;
+                Strip(mesh, at.x - halfX, at.x + halfX, at.y - halfY, at.y + halfY,
+                    uv, 9, 9, 25.5f, 25.5f, ink);
+            }
         }
 
         static void Strip(VertexHelper vh, float x0, float x1, float y0, float y1,

@@ -9,6 +9,7 @@ namespace Vampire
         List<MerchantItemBlueprint> merchantItems;
         MerchantUIManager merchant;
         int merchantRerollCost;
+        Button merchantRerollButton;
         public void ShowOctoberShop(List<MerchantItemBlueprint> items,int cost,MerchantUIManager manager)
         {merchantItems=items;merchantRerollCost=cost;merchant=manager;Show("merchant");}
         void OctoberMerchant()
@@ -38,10 +39,22 @@ namespace Vampire
                 var runtime=level?.PlayerCharacter?.GetComponent<OctoberItemRuntime>();
                 int price=RelicRuntime.Price(level?.PlayerCharacter,item.cost);
                 bool owned=runtime!=null&&runtime.Has(item.octoberId);bool afford=stats!=null&&stats.CoinsGained>=price;
-                var purchase = ActionButton(card,owned?"보유 중":afford?$"구매 · {price} G":$"골드 부족 · {price} G",.13f,.04f,.87f,.138f,()=>merchant.OnClickPurchaseItem(item,null),true,!owned&&afford);
+                var purchase = ActionButton(card,owned?"보유 중":afford?$"구매 · {price} G":$"골드 부족 · {price} G",0,0,1,1,()=>merchant.OnClickPurchaseItem(item,null),true,!owned&&afford);
+                // The entire offer and its price plaque share one selectable and one payment.
+                var plaque = purchase.GetComponent<ApothecaryButtonFeedback>().visual;
+                AugmentPanelTheme.Anchors(plaque, new Vector2(.13f,.04f), new Vector2(.87f,.138f));
                 NumberedCardChoice.Bind(card, purchase, i, false);
             }
-            ActionButton(content,"새로고침 · "+merchantRerollCost+" G",.37f,.075f,.63f,.16f,()=>merchant.OnClickRerollItems(),false,stats!=null&&stats.CoinsGained>=merchantRerollCost);
+            merchantRerollButton = ActionButton(content,"새로고침 · "+merchantRerollCost+" G",.37f,.075f,.63f,.16f,()=>merchant.OnClickRerollItems(),false,stats!=null&&stats.CoinsGained>=merchantRerollCost);
+            if (GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
+            {
+                var visual = merchantRerollButton.GetComponent<ApothecaryButtonFeedback>();
+                var cap = InteractionKeycapGraphic.Create("Reroll keycap", visual.visual, "R", 39);
+                cap.Bounds.anchorMin = cap.Bounds.anchorMax = new Vector2(.14f,.5f);
+                cap.Bounds.anchoredPosition = Vector2.zero;
+                AugmentPanelTheme.Anchors(visual.label.rectTransform,new Vector2(.23f,.04f),new Vector2(.94f,.96f));
+                if (!merchantRerollButton.interactable) cap.gameObject.AddComponent<CanvasGroup>().alpha = .55f;
+            }
             ActionButton(content,"닫기",.77f,.075f,.92f,.16f,()=>merchant.CloseShop());
         }
     }

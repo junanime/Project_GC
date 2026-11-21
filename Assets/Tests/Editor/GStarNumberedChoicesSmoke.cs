@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.UI;
@@ -157,6 +158,7 @@ namespace Vampire.Tests.Editor
             CrossSceneData.CharacterBlueprint=selected;
             Check(StageEntryLoading.Begin(selected,null,0),"ordinary stage-zero departure");
             yield return Wait(()=>GStarSession.AttemptStarted && !StageEntryLoading.IsLoading,"field loaded",90);
+            booth=ApothecaryUI.Instance;
             var level=Object.FindObjectOfType<LevelManager>();
             var player=level.PlayerCharacter;
             var dialog=level.EntityManager.AbilitySelectionDialog;
@@ -236,6 +238,23 @@ namespace Vampire.Tests.Editor
             film?.Finish();
             yield return Press();
 
+            dialog.RequestLevelReward(4);
+            dialog.RequestLevelReward(5);
+            yield return new WaitForSecondsRealtime(.6f);
+            var skip=dialog.GetComponentsInChildren<Button>().First(b=>b.name=="Skip augment");
+            var skipKey=skip.GetComponentInChildren<InteractionKeycapGraphic>();
+            Check(skipKey.Legend.text=="Esc" && !skipKey.raycastTarget,"skip uses the field Esc keycap");
+            int skipped=0;
+            skip.onClick.AddListener(()=>skipped++);
+            yield return Press(Key.Escape);
+            Check(dialog.MenuOpen && skipped==1 && booth.Page=="hud","Esc skips exactly one queued offer and keeps settings closed");
+            yield return new WaitForSecondsRealtime(.2f);
+            Check(skipped==1 && dialog.MenuOpen,"holding Esc preserves the next offer");
+            yield return Press();
+            yield return Press(Key.Escape);
+            Check(!dialog.MenuOpen && skipped==2 && booth.Page=="hud","second discrete Esc closes last offer");
+            yield return Press();
+
             var npc=Object.FindObjectOfType<MerchantNPC>();
             if (npc==null)
                 npc=new GameObject("QA merchant",typeof(CircleCollider2D),typeof(MerchantNPC)).GetComponent<MerchantNPC>();
@@ -247,6 +266,13 @@ namespace Vampire.Tests.Editor
             stats.IncreaseCoinsGained(-stats.CoinsGained);
             MerchantUIManager.Instance.OpenShop(npc);
             yield return new WaitForSecondsRealtime(.2f);
+            var inactiveReroll=booth.GetComponentsInChildren<Button>().First(b=>b.name.StartsWith("Button 새로고침"));
+            var shopKey=inactiveReroll.GetComponentInChildren<InteractionKeycapGraphic>();
+            Check(!inactiveReroll.IsInteractable() && shopKey.Legend.text=="R" && !shopKey.raycastTarget,
+                "unaffordable refresh has a visible R keycap");
+            yield return Press(Key.R);
+            Check(npc.GetShopItems().SequenceEqual(offers) && stats.CoinsGained==0,"unaffordable R leaves offers and wallet unchanged");
+            yield return Press();
             yield return Press(Key.Numpad2);
             Check(ApothecaryUI.Instance.GetComponentsInChildren<NumberedCardChoice>().Any(c=>c.ShowingUnavailable),"unaffordable card responds with a local keycap pulse");
             Check(ApothecaryUI.Instance.Page=="merchant" && stats.CoinsGained==0 && !itemRuntime.Has(offers[1].octoberId),
@@ -264,6 +290,38 @@ namespace Vampire.Tests.Editor
             yield return new WaitForSecondsRealtime(.2f);
             Check(stats.CoinsGained==gold-price,"held key cannot repeat the transaction");
             yield return Press();
+            var nextNpc=new GameObject("QA reroll merchant",typeof(CircleCollider2D),typeof(MerchantNPC)).GetComponent<MerchantNPC>();
+            nextNpc.SetShopItems(offers);
+            MerchantUIManager.Instance.OpenShop(nextNpc);
+            yield return null;
+            var reroll=booth.GetComponentsInChildren<Button>().First(b=>b.name.StartsWith("Button 새로고침"));
+            int rerollCost=int.Parse(System.Text.RegularExpressions.Regex.Match(reroll.name,@"\d+").Value);
+            int wallet=stats.CoinsGained;
+            yield return Press(Key.R);
+            Check(booth.Page=="merchant" && stats.CoinsGained==wallet-rerollCost,"R rerolls offers and charges the displayed cost once");
+            yield return new WaitForSecondsRealtime(.2f);
+            Check(stats.CoinsGained==wallet-rerollCost,"holding R does not pay again on the regenerated page");
+            yield return Press();
+            var selectedItem=nextNpc.GetShopItems().First(i=>i.octoberId>0 && !itemRuntime.Has(i.octoberId));
+            var cardRect=booth.GetComponentsInChildren<RectTransform>().First(r=>r.name=="Merchant "+selectedItem.itemName);
+            var purchase=cardRect.GetComponentInChildren<Button>();
+            var events=EventSystem.current;
+            var canvas=cardRect.GetComponentInParent<Canvas>().rootCanvas;
+            var cam=canvas.renderMode==RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var hits=new System.Collections.Generic.List<RaycastResult>();
+            var pointer=new PointerEventData(events){button=PointerEventData.InputButton.Left};
+            foreach (float y in new[]{.09f,.35f,.76f})
+            {
+                pointer.position=RectTransformUtility.WorldToScreenPoint(cam,cardRect.TransformPoint(cardRect.rect.center+Vector2.up*(y-.5f)*cardRect.rect.height));
+                hits.Clear();
+                events.RaycastAll(pointer,hits);
+                Check(hits.Count>0 && ExecuteEvents.GetEventHandler<IPointerClickHandler>(hits[0].gameObject)==purchase.gameObject,
+                    "price, description and artwork share the same purchase hit target at "+y);
+            }
+            wallet=stats.CoinsGained;
+            ExecuteEvents.ExecuteHierarchy(hits[0].gameObject,pointer,ExecuteEvents.pointerClickHandler);
+            Check(booth.Page=="hud" && itemRuntime.Has(selectedItem.octoberId) &&
+                stats.CoinsGained==wallet-RelicRuntime.Price(player,selectedItem.cost),"clicking card artwork buys once");
             yield return Wait(()=>Object.FindObjectsOfType<Monster>().Any(m=>m.HP>0),"living field target",60);
             Time.timeScale=0;
             var victim=Object.FindObjectsOfType<Monster>().First(m=>m.HP>0 && !MonsterNeedleBarrier.Blocks(m));

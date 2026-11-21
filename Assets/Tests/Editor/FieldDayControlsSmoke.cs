@@ -20,7 +20,8 @@ namespace Vampire.Tests.Editor
         static readonly bool RewardProofOnly = Environment.GetCommandLineArgs().Contains("-rewardProofOnly");
         static readonly bool PracticeRoster = Environment.GetCommandLineArgs().Contains("-practiceRosterProof");
         static readonly bool InputRetest=Environment.GetCommandLineArgs().Contains("-boothInputRetest");
-        static string Folder => InputRetest ? "practice-input-retest" : RewardProofOnly ? "reward-proof" : PracticeRoster ? "practice-roster" : "field-day";
+        static readonly bool MovementOnly = Environment.GetCommandLineArgs().Contains("-movementKeysOnly");
+        static string Folder => MovementOnly ? "movement-keys" : InputRetest ? "practice-input-retest" : RewardProofOnly ? "reward-proof" : PracticeRoster ? "practice-roster" : "field-day";
         static string Output => "Library/GStarUIQA/"+Folder;
         static bool started;
         static double deadline;
@@ -396,14 +397,24 @@ namespace Vampire.Tests.Editor
                 caps["S"].anchoredPosition.y<caps["D"].anchoredPosition.y &&
                 caps["A"].anchoredPosition.x<caps["W"].anchoredPosition.x &&
                 caps["D"].anchoredPosition.x>caps["S"].anchoredPosition.x,"WASD caps form a cross");
-            var directions = new[]{Key.W,Key.S,Key.A,Key.D};
+            var alternate = (RectTransform)practice.transform.Find("연습 말풍선/머리 위 보조 방향 키");
+            var arrows = alternate.Cast<RectTransform>().ToDictionary(cap=>cap.GetComponentInChildren<TMPro.TMP_Text>().text);
+            Check(cross.position.x < alternate.position.x && arrows.Count == 4 &&
+                arrows["↑"].anchoredPosition.y > arrows["↓"].anchoredPosition.y &&
+                arrows["←"].anchoredPosition.x < arrows["↓"].anchoredPosition.x &&
+                arrows["→"].anchoredPosition.x > arrows["↓"].anchoredPosition.x, "second key bank matches physical arrow cluster to the right");
+            GStarUISmoke.Capture(Folder+"/tutorial-movement-both-key-banks",1280,720);
+            var directions = new[]{Key.UpArrow,Key.S,Key.LeftArrow,Key.D};
+            var letters = new[]{"W","S","A","D"};
+            var arrowKeys = new[]{"↑","↓","←","→"};
             for (int i=0; i<directions.Length; i++)
             {
                 int expected = i+1;
                 Keys(directions[i]);
                 yield return FilmUntil(()=>practice.CompletedDirections==expected,15,"accepted distinct direction "+directions[i]);
-                Check(!caps[directions[i].ToString()].gameObject.activeSelf &&
-                    caps.Values.Count(cap=>cap.gameObject.activeSelf)==4-expected,"only the pressed key disappears");
+                Check(!caps[letters[i]].gameObject.activeSelf && !arrows[arrowKeys[i]].gameObject.activeSelf &&
+                    caps.Values.Count(cap=>cap.gameObject.activeSelf)==4-expected &&
+                    arrows.Values.Count(cap=>cap.gameObject.activeSelf)==4-expected,"either binding dismisses only its direction in both banks");
                 yield return Film(2);
                 if (i==0)
                 {
@@ -418,6 +429,7 @@ namespace Vampire.Tests.Editor
                 yield return Film(2);
             }
             Check(practice.Step==1 && practice.DashUses==0,"four directions unlock dash");
+            if (MovementOnly) yield break;
             var overhead=practice.transform.Find("연습 말풍선/머리 위 조작 키").GetComponent<InteractionKeycapGraphic>().Legend;
             Check(overhead.isActiveAndEnabled && overhead.text=="Shift","dash keycap above the player uses the dash binding");
             Mark("dash");
@@ -715,6 +727,7 @@ namespace Vampire.Tests.Editor
                 yield break;
             }
             yield return CheckPracticeToOral();
+            if (MovementOnly) { SessionState.SetString(KeyName+"result","PASS"); yield break; }
             var level=Object.FindObjectOfType<LevelManager>();
             yield return GStarCombatFeedbackSmoke.CheckField(level);
             yield return CheckKeyboardRewards(level);

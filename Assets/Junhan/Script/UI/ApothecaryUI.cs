@@ -173,7 +173,14 @@ namespace Vampire
                 else if (Page == "run") CloseRunBook();
                 else if (Page == "settings") SelectCharacterBookmark();
             }
-            if (!GameInput.TextEntryFocused && GameInput.GetKeyDown(KeyCode.Escape)) Back();
+            if (Page == "merchant" && NumberedCardChoice.TryShortcut(merchantRerollButton, KeyCode.R)) return;
+            if (!GameInput.TextEntryFocused && GameInput.GetKeyDown(KeyCode.Escape))
+            {
+                var reward = level != null ? level.EntityManager?.AbilitySelectionDialog : null;
+                if (GStarDemo.Enabled && Page == "hud" && reward != null && reward.MenuOpen)
+                    reward.SkipFromKeyboard();
+                else Back();
+            }
         }
         void FitFrameToScreen()
         {

@@ -21,6 +21,15 @@ namespace Vampire
         private float launchSpeed;
         public bool IsFlying => isActiveAndEnabled && !isDespawning;
         private Transform ver4HomingTarget;
+        private OralBalloonDelivery aimedSupply;
+        private bool FlyingToSupply => aimedSupply != null && aimedSupply.Targetable && flightState == NeedleFlightState.Normal;
+
+        // Only the pellets actually aimed at the airborne supply pass above ground monsters.
+        public void AimAtReachableSupply(Vector2 origin, Vector2 shotDirection)
+        {
+            var supply = OralBalloonDelivery.WithinReach(origin, maxDistance + specials.rangeBonus, targetLayer);
+            aimedSupply = supply != null && supply.InFlightPath(origin, shotDirection) ? supply : null;
+        }
         private SyringeAugmentVfx bipolarVisual;
         private bool heavyImpactVisual;
         private bool absorbedByBarrier;
@@ -180,6 +189,7 @@ namespace Vampire
             if (trailRenderer != null) trailRenderer.time = baseTrailTime;
             ver4PiercedTargets = 0;
             ver4HomingTarget = null;
+            aimedSupply = null;
             nextHomingVfxTime = 0f;
             remainingPierces = 0;
             remainingBossPierces = 0;
@@ -331,7 +341,7 @@ namespace Vampire
                             yield break;
                         }
 
-                        if (specials.homingEnabled)
+                        if (specials.homingEnabled && !FlyingToSupply)
                         {
                             UpdateHomingDirection();
                         }
@@ -912,6 +922,7 @@ namespace Vampire
                     collider,
                     out monsterTarget
                 );
+            if (monsterTarget != null && FlyingToSupply) return;
             // Solid feet are movement contacts, not projectile anatomy.
             var barrier = monsterTarget != null ? monsterTarget.GetComponent<MonsterNeedleBarrier>() : null;
             if (monsterTarget != null && monsterTarget.BodyHitbox != null && collider != monsterTarget.BodyHitbox &&

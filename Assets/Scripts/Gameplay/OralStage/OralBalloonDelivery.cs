@@ -9,6 +9,24 @@ namespace Vampire
         public Chest LandedChest { get; private set; }
         public Vector2 BalloonPosition => balloon.transform.position + Vector3.up * .65f;
         public Sprite ChestSprite => chest.sprite;
+        public bool Targetable => isActiveAndEnabled && !Popped && hitbox != null && hitbox.enabled &&
+            !MiniStageRuntimeState.IsInsideMiniStage && !(OralFieldEvents.Instance?.OnCeiling ?? false) && !StageEntryLoading.IsLoading;
+
+        public static OralBalloonDelivery WithinReach(Vector2 origin, float range, LayerMask targetLayers)
+        {
+            var delivery = OralFieldEvents.Instance?.Additions?.Delivery;
+            if (delivery == null || !delivery.Targetable || (targetLayers.value & (1 << delivery.gameObject.layer)) == 0) return null;
+            float reach = range + delivery.hitbox.radius;
+            return (delivery.BalloonPosition - origin).sqrMagnitude <= reach * reach ? delivery : null;
+        }
+
+        public bool InFlightPath(Vector2 origin, Vector2 direction)
+        {
+            Vector2 toBalloon = BalloonPosition - origin;
+            float forward = Vector2.Dot(toBalloon, direction.normalized);
+            if (forward <= 0f) return false;
+            return toBalloon.sqrMagnitude - forward * forward <= hitbox.radius * hitbox.radius;
+        }
         LevelManager level; FiniteStomachMap map; ChestBlueprint blueprint;
         SpriteRenderer balloon, chest, shadow, burst; LineRenderer left, right;
         CircleCollider2D hitbox; Vector2 ground; float age, fallAge, dropHeight;
