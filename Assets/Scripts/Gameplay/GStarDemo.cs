@@ -32,6 +32,10 @@ namespace Vampire
 #if UNITY_EDITOR
                 if (!string.IsNullOrEmpty(TestDataDirectory)) return TestDataDirectory;
 #endif
+#if DEVELOPMENT_BUILD && !UNITY_EDITOR
+                // Natural exhibition QA uses a fresh booth ledger beside each run's recordings.
+                if (Tests.GStarNaturalBoothPatrol.Enabled) return Tests.GStarNaturalBoothPatrol.VisitorDirectory;
+#endif
                 return Path.Combine(Application.persistentDataPath, "GStar2026");
             }
         }

@@ -164,14 +164,18 @@ namespace Vampire.Tests.Editor
 
         static IEnumerator CheckSodaLifetime(LevelManager level, OralFieldEvents events)
         {
+            Clear(level);
             var player = level.PlayerCharacter;
             var bp = level.CurrentLevelBlueprint.monsters[0].monsterBlueprints[0];
-            var monster = level.EntityManager.SpawnMonster(0, player.Position + Vector2.right * 2.5f, bp);
+            var candidates=Enumerable.Range(0,10).Select(i=>level.EntityManager.SpawnMonster(0,
+                player.Position+Vector2.right*2.5f+Vector2.up*(i-5)*.16f,bp)).ToArray();
+            Check(events.ForceEvent(OralEventKind.Soda), "start real carbonation wave");
+            var eligible=(System.Collections.IDictionary)Field(events,"sodaTargets").GetValue(events);
+            var monster=candidates.First(m=>eligible.Contains(m));
             // Hold the subject beside the player for a readable shield-expiry shot.
             var body = monster.GetComponent<Rigidbody2D>();
             var constraints = body.constraints;
             body.constraints = RigidbodyConstraints2D.FreezeAll;
-            Check(events.ForceEvent(OralEventKind.Soda), "start real carbonation wave");
             float until = Time.time + 10;
             MonsterNeedleBarrier bubble = null;
             while ((bubble == null || !bubble.SodaTint) && Time.time < until)

@@ -28,6 +28,8 @@ namespace Vampire
         protected bool beingCollected = false;
         private bool waitingForSpawn;
         private bool requiresPickupRange;
+        private bool collectFromOpenedChest;
+        internal void DeliverAfterPop() => collectFromOpenedChest = true;
         public bool IsBeingCollected => beingCollected;
         protected virtual bool StoresInInventory => CollectableType.inventoryStackSize > 0;
         public uint SpawnGeneration { get; private set; }
@@ -65,6 +67,7 @@ namespace Vampire
             }
             waitingForSpawn = spawnAnimation && !collectableDuringSpawn;
             requiresPickupRange = requirePickupRange;
+            collectFromOpenedChest = false;
             col.enabled = !spawnAnimation || collectableDuringSpawn;
             beingCollected = false;
             enabled = true; //  [추가] 오브젝트 재사용을 위해 고유 Update 루프를 다시 켭니다.
@@ -94,8 +97,7 @@ namespace Vampire
             if (beingCollected || waitingForSpawn)
                 return;
 
-            // Chest rewards stay in the field until the player's pickup area reaches them,
-            // including when an automatic collection relic is active.
+            // Rewards from a chest opened by a monster still require physical pickup.
             if (requiresPickupRange)
             {
                 if (!col.enabled || !playerCharacter.CollectableCollider.enabled) return;
@@ -227,7 +229,8 @@ namespace Vampire
         protected virtual void Update()
         {
             // 플레이어가 MRI 자석을 보유하고 있고, 아직 수집이 시작되지 않은 보석이라면
-            if (playerCharacter != null && playerCharacter.AutoCollectItems && !beingCollected)
+            if (!beingCollected && !waitingForSpawn && playerCharacter != null && playerCharacter.IsAlive &&
+                (collectFromOpenedChest || playerCharacter.AutoCollectItems))
             {
                 Collect();
                 if (beingCollected) enabled = false;

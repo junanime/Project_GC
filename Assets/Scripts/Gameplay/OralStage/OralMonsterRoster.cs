@@ -9,7 +9,9 @@ namespace Vampire
     public static class OralMonsterRoster
     {
         static readonly string[] Names = { "줄무늬 사탕", "구미 곰", "말랑 찹쌀떡", "초코 샌드", "쿠키 조각", "면발 뭉치" };
-        static readonly float[] Health = { 6, 9, 11, 15, 18, 22 };
+        // G-Star's normal field template applies a further .70 HP modifier on spawn.
+        static readonly float[] BoothHealth = { 23, 34, 66, 99, 132, 167 };
+        static readonly float[] BoothSpeeds = { .69f, .79f, .66f, .78f, .92f, .85f };
         static readonly float[] Speeds = { .68f, .72f, .63f, .67f, .76f, .80f };
         static readonly float[] Heights = { .34f, .38f, .34f, .37f, .36f, .40f };
         static readonly Dictionary<MonsterBlueprint, int> kinds = new Dictionary<MonsterBlueprint, int>();
@@ -19,6 +21,52 @@ namespace Vampire
         static readonly Dictionary<LevelBlueprint, List<UnityEngine.Object>> owned = new Dictionary<LevelBlueprint, List<UnityEngine.Object>>();
         static readonly Dictionary<LevelBlueprint, Dictionary<int, int>> eliteIndices = new Dictionary<LevelBlueprint, Dictionary<int, int>>();
         static readonly Dictionary<LevelBlueprint, Dictionary<int, int>> sourceEliteIndices = new Dictionary<LevelBlueprint, Dictionary<int, int>>();
+
+        static readonly LootTable<GemType>[] oralGemTables = {
+            GemTable(0, 0), GemTable(.15f, 0), GemTable(.29f, .01f), GemTable(.37f, .02f)
+        };
+
+        static LootTable<GemType> GemTable(float blue, float green) => new LootTable<GemType>
+        {
+            lootTable = new[] {
+                new Loot<GemType> { item = GemType.Green10, dropChance = green },
+                new Loot<GemType> { item = GemType.Blue2, dropChance = blue },
+                new Loot<GemType> { item = GemType.White1, dropChance = 1f - green - blue }
+            }
+        };
+
+        public static LootTable<GemType> ExperienceTable(MonsterBlueprint loot, Monster actor)
+        {
+            var runtime = OralStageRuntime.Instance;
+            if (!GStarDemo.Enabled || runtime == null || runtime.Level == null || !GStarFieldBalance.IsOrdinary(actor) || !IsBlueprint(actor.Blueprint)) return loot.gemLootTable;
+            float t = runtime.Level.CurrentLevelTime;
+            return oralGemTables[t < 180f ? 0 : t < 300f ? 1 : t < 420f ? 2 : 3];
+        }
+
+        static readonly float[] UnlockAt = { 0, 45, 130, 225, 315, 400 };
+        static readonly HashSet<MonsterBlueprint> shownBase = new HashSet<MonsterBlueprint>();
+        static readonly float[] TierHealth = { 1f, 1.20f, 1.50f };
+        static readonly float[] TierSpeed = { 1f, 1.045f, 1.09f };
+        static readonly float[] TierAttack = { 1f, 1.10f, 1.22f };
+
+        // The two ramps let the player learn a newly introduced silhouette in its base palette
+        // even if its species first appears well into the run.
+        internal static int ChoosePalette(Monster actor, int kind, int available)
+        {
+            if (actor.OralPaletteTier >= 0) return actor.OralPaletteTier;
+            var runtime = OralStageRuntime.Instance;
+            if (!GStarDemo.Enabled || !GStarFieldBalance.IsOrdinary(actor) || runtime?.Level == null || available < 1) return 0;
+            float elapsed = runtime.Level.CurrentLevelTime;
+            float age = elapsed - UnlockAt[kind];
+            float mid = .34f * Mathf.InverseLerp(75, 310, elapsed) * Mathf.InverseLerp(35, 155, age);
+            float high = .16f * Mathf.InverseLerp(210, 470, elapsed) * Mathf.InverseLerp(90, 190, age);
+            float roll = UnityEngine.Random.value;
+            int tier = !shownBase.Add(actor.Blueprint) && age >= 35
+                ? (roll < high ? 2 : roll < high + mid ? 1 : 0) : 0;
+            tier = Mathf.Min(tier, available - 1);
+            actor.ApplyOralPalette(tier, TierHealth[tier], TierSpeed[tier], TierAttack[tier]);
+            return tier;
+        }
 
         public static bool IsBlueprint(MonsterBlueprint blueprint) => blueprint != null && kinds.ContainsKey(blueprint);
         public static bool IsLevel(LevelBlueprint level) => level != null && owned.ContainsKey(level);
@@ -71,8 +119,8 @@ namespace Vampire
                     var copy = UnityEngine.Object.Instantiate(template);
                     var sprite = CreateBody(atlas, kind); objects.Add(copy); objects.Add(sprite);
                     copy.name = Names[kind]; copy.description = "구강에 들어온 음식 조각. 입안의 환경 이벤트를 이용해 처치할 수 있습니다.";
-                    copy.hp = originals[Mathf.Min(kind,originals.Length-1)].hp*.9f; copy.atk = 4 + kind; copy.armor = 0; copy.recovery = 0;
-                    copy.movespeed = Speeds[kind]; copy.acceleration = 4f;
+                    copy.hp = GStarDemo.Enabled ? BoothHealth[kind] : originals[Mathf.Min(kind,originals.Length-1)].hp*.9f; copy.atk = 4 + kind; copy.armor = 0; copy.recovery = 0;
+                    copy.movespeed = GStarDemo.Enabled ? BoothSpeeds[kind] : Speeds[kind]; copy.acceleration = 4f;
                     copy.walkSpriteSequence = new[] { sprite }; copy.walkFrameTime = .14f; copy.resultSprite = sprite;
                     copy.useGroundShadowFootprint = true; copy.groundShadowCenterUV = new Vector2(.5f, .06f);
                     copy.groundShadowSizeUV = new Vector2(.68f, .13f); copy.preserveGroundShadowHeight = false;
@@ -98,14 +146,33 @@ namespace Vampire
                 group.monsterBlueprints[j]=elite;replacements[original]=elite;
             }
             var keys = new List<MonsterSpawnTable.SpawnChanceKeyframe>();
-            for (int tier = 0; tier < 3; tier++)
+            if (GStarDemo.Enabled)
             {
-                var weights = new float[flat];
-                for (int i = 0; i < (tier + 1) * 2; i++) weights[flatIndices[i]] = i >= tier * 2 ? 3 : 1;
-                if (tier > 0) keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t = tier / 3f, spawnChances = (float[])keys[keys.Count - 1].spawnChances.Clone() });
-                keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t = tier == 0 ? 0 : tier / 3f + .035f, spawnChances = weights });
+                void Mix(float seconds, params float[] food)
+                {
+                    var w = new float[flat];
+                    for (int i=0;i<food.Length;i++) w[flatIndices[i]]=food[i]*.01f;
+                    keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t=seconds/OralSpecialSpawnProfile.Duration, spawnChances=w });
+                }
+                Mix(0, 100); Mix(45, 100);
+                Mix(75, 62,38); Mix(130, 50,50);
+                Mix(160, 30,36,34); Mix(225, 25,35,40);
+                Mix(250, 18,25,35,22); Mix(315, 15,22,31,32);
+                Mix(335, 10,18,26,32,14); Mix(400, 8,14,24,30,24);
+                Mix(420, 7,13,20,27,25,8); Mix(480, 5,10,18,25,25,17);
+                Mix(555, 4,8,13,23,28,24); Mix(600, 4,8,13,23,28,24);
             }
-            keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t = 1, spawnChances = (float[])keys[keys.Count - 1].spawnChances.Clone() });
+            else
+            {
+                for (int tier = 0; tier < 3; tier++)
+                {
+                    var weights = new float[flat];
+                    for (int i = 0; i < (tier + 1) * 2; i++) weights[flatIndices[i]] = i >= tier * 2 ? 3 : 1;
+                    if (tier > 0) keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t = tier / 3f, spawnChances = (float[])keys[keys.Count - 1].spawnChances.Clone() });
+                    keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t = tier == 0 ? 0 : tier / 3f + .035f, spawnChances = weights });
+                }
+                keys.Add(new MonsterSpawnTable.SpawnChanceKeyframe { t = 1, spawnChances = (float[])keys[keys.Count - 1].spawnChances.Clone() });
+            }
             result.normalSpawnPopulationLimit = 96;
             result.monsterSpawnTable = new MonsterSpawnTable
             {
@@ -189,7 +256,7 @@ namespace Vampire
             if (level == null || !owned.TryGetValue(level, out var objects)) return;
             foreach (var value in objects)
             {
-                if (value is MonsterBlueprint bp) { kinds.Remove(bp); skins.Remove(bp); }
+                if (value is MonsterBlueprint bp) { kinds.Remove(bp); skins.Remove(bp); shownBase.Remove(bp); }
                 if (value != null) UnityEngine.Object.Destroy(value);
             }
             owned.Remove(level); UnityEngine.Object.Destroy(level);

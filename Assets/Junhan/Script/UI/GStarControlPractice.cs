@@ -30,13 +30,17 @@ namespace Vampire
         Vector2 initialPosition;
         int directionMask;
         float followupAt, refillDashAt;
+        public bool PracticingAugment { get; private set; }
+        bool openAugmentAfterKill;
+        Transform dialogParent;
+        int dialogSibling;
         bool departureReleased;
         bool pendingDashRefill;
         bool pickupWasEnabled;
         Rigidbody2D targetBody;
         RigidbodyConstraints2D previousConstraints;
         uint targetGeneration;
-        int firstDash;
+        int firstDash, lastAriPracticeDash;
         SyringeDartAbility needle;
 
         public static GStarControlPractice Show(LevelManager level)
@@ -75,6 +79,18 @@ namespace Vampire
 
         void LateUpdate()
         {
+            if (openAugmentAfterKill)
+            {
+                openAugmentAfterKill = false;
+                var dialog = level.EntityManager.AbilitySelectionDialog;
+                dialogParent = dialog.transform.parent;
+                dialogSibling = dialog.transform.GetSiblingIndex();
+                dialog.transform.SetParent(transform,false);
+                bubble.gameObject.SetActive(false);
+                dialog.OpenPractice(this);
+                return;
+            }
+            if (PracticingAugment) return;
             if (Step != 4) PositionKeys();
             if (Step == 0)
             {
@@ -115,6 +131,23 @@ namespace Vampire
                 if (Target == null || Target.SpawnGeneration != targetGeneration || !Target.gameObject.activeInHierarchy)
                     SpawnTarget();
                 if (!SkillUsed && player.Skills.Active) RecordCast();
+                if (SkillUsed && player.Skills.IsAri && Target != null && Target.IsAlive && !player.IsDashing)
+                {
+                    if (lastAriPracticeDash != player.Skills.DashSequence)
+                    {
+                        lastAriPracticeDash = player.Skills.DashSequence;
+                        PositionTarget();
+                        if (player.CurrentDashCharges == 0) player.RefreshSkillDashRecharge(true);
+                    }
+                    if (!player.Skills.Active)
+                    {
+                        // A visitor who missed the form's window can cast again immediately in rehearsal.
+                        player.Skills.Restore(0,0,0);
+                        SkillUsed = false;
+                        PositionTarget();
+                        Draw();
+                    }
+                }
                 if (SkillUsed && player.Skills.IsShini && !player.Skills.Breath.Busy && !player.Skills.Breath.CanStart)
                     player.Skills.Breath.RestoreFuel(player.Skills.Breath.Capacity);
                 if (Target != null && Target.IsAlive && Vector2.Distance(Target.transform.position,player.Position) > 4.2f)
@@ -132,8 +165,8 @@ namespace Vampire
                 if (book.Page == "run" && GameInput.Pressed(GameKeyAction.Journal)) book.CloseRunBook();
                 if (book.Page == "hud") BeginItemLesson();
             }
-            else if (Step >= 5 && Step <= 8) UpdateItemLesson();
-            else if (Step == 9)
+            else if (Step >= 5 && Step <= 9) UpdateItemLesson();
+            else if (Step == 10)
             {
                 if (!GameInput.Held(GameKeyAction.Active)) departureReleased = true;
                 else if (departureReleased && GameInput.Pressed(GameKeyAction.Active)) Complete = true;
@@ -166,14 +199,25 @@ namespace Vampire
         void PositionTarget()
         {
             var map = FiniteStomachMap.Instance;
-            Vector2 pos = player.Position + Vector2.right*2.15f;
-            if (map != null && (map.ClampToField(pos,1f)-pos).sqrMagnitude > .04f)
+            bool rollingLesson = player.Skills.IsAri && Step <= 2;
+            float gap = rollingLesson ? Mathf.Clamp(player.DashDistance * .44f,.8f,1.55f) : 2.15f;
+            var playerBody = player.GetComponent<Rigidbody2D>();
+            Vector2 pos = player.Position + Vector2.right * gap;
+            if ((map != null && (map.ClampToField(pos,1f)-pos).sqrMagnitude > .04f) ||
+                (rollingLesson && (BloodClotObstacle.ClampDash(playerBody,pos)-pos).sqrMagnitude > .04f))
             {
-                player.GetComponent<Rigidbody2D>().position = initialPosition;
+                playerBody.position = initialPosition;
                 player.transform.position = new Vector3(initialPosition.x,initialPosition.y,player.transform.position.z);
-                pos = initialPosition + Vector2.right*2.15f;
+                Physics2D.SyncTransforms();
+                pos = initialPosition + Vector2.right * gap;
             }
             var body = Target.GetComponent<Rigidbody2D>();
+            if (rollingLesson)
+            {
+                // Ari's swept strike follows the rigidbody, not either sprite's painted center.
+                pos = FiniteStomachMap.ClampDash(playerBody.position,BloodClotObstacle.ClampDash(playerBody,pos));
+                pos.y -= Target.BodyHitbox.bounds.center.y - body.position.y;
+            }
             body.position = pos;
             Target.transform.position = new Vector3(pos.x,pos.y,Target.transform.position.z);
             player.LookDirection = Vector2.right;
@@ -189,6 +233,11 @@ namespace Vampire
         void RecordCast()
         {
             SkillUsed = true;
+            if (player.Skills.IsAri && Target != null && Target.IsAlive)
+            {
+                lastAriPracticeDash = player.Skills.DashSequence;
+                PositionTarget();
+            }
             float presentation = player.Skills.IsAri ? 3.5f : player.Skills.IsShini ? 2.4f :
                 Mathf.Max(.65f,player.Skills.SummonRemaining+.65f);
             followupAt = Time.time + presentation;
@@ -208,13 +257,30 @@ namespace Vampire
             if (killedByPlayer && monster.HP <= 0 && view.Step == 2 && (view.SkillUsed || view.player.Skills.Active))
             {
                 if (!view.SkillUsed) view.RecordCast();
-                view.Advance();
+                view.PracticingAugment = true;
+                view.openAugmentAfterKill = true;
             }
             return true;
         }
 
+        internal void FinishAugmentLesson()
+        {
+            if (!PracticingAugment) return;
+            var dialog = level.EntityManager.AbilitySelectionDialog.transform;
+            dialog.SetParent(dialogParent,false);
+            dialog.SetSiblingIndex(dialogSibling);
+            PracticingAugment = false;
+            Advance();
+        }
+
         void Advance() { Step++; Draw(); }
-        public void Finish() { gameObject.SetActive(false); Destroy(gameObject); }
+        public void Finish()
+        {
+            // Unity forbids reparenting a child during its parent's OnDisable.
+            RestoreItemTray();
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
         void OnDisable()
         {
             if (Instance != this) return;

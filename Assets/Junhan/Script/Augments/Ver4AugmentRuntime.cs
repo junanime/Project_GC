@@ -188,6 +188,29 @@ namespace Vampire
             return result;
         }
 
+        internal List<Ability> CreatePracticeOffers(AugmentUpgradeGrade grade)
+        {
+            var result = new List<Ability>(3);
+            bool AvailableForLesson(SyringeSpecialAugmentAbility p) =>
+                StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p);
+            var parent = parents.FirstOrDefault(p => p.Owned && AvailableForLesson(p));
+            if (parent == null)
+            {
+                // A visitor may have disabled their signature needle and equipped no replacement.
+                // The rehearsal scene has its own ledger and is discarded before the scored run.
+                parent = parents.FirstOrDefault(p => AvailableForLesson(p) && abilityManager.CanAcquireForLoadout(p));
+                if (parent == null || !abilityManager.AcquireVer4Ability(parent,true)) return result;
+            }
+            // Same three stats on both draws let visitors compare the grades directly.
+            foreach (int option in new[] { 0, 3, 7 })
+            {
+                float amount = Balance.NumericValue(grade, option);
+                result.Add(Offer(Ver4RewardKind.Numeric, grade, parent, option, amount,
+                    ParentName(parent) + " · 수치 강화", Ver4AugmentCatalog.NumericDescription(option, amount)));
+            }
+            return result;
+        }
+
         private bool TryAddNumericFallback(List<Ability> result,List<SyringeSpecialAugmentAbility> ownedParents)
         {
             if(ownedParents==null || ownedParents.Count==0) return false;

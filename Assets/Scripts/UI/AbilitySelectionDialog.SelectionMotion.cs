@@ -20,7 +20,7 @@ namespace Vampire
 
         public void SelectWithMotion(AbilityCard card, Ability selectedAbility)
         {
-            if (!menuOpen || SelectionAnimating || selectedAbility == null) return;
+            if (!menuOpen || SelectionAnimating || selectedAbility == null || (practiceOwner != null && !rerollUsed)) return;
             SelectionAnimating = true; // Lock before Select: double clicks/touches cannot grant twice.
             string analyticsId=AnalyticsAugmentId(selectedAbility), analyticsName=selectedAbility.Name;
             bool validChoice=selectedAbility.RequirementsMet();

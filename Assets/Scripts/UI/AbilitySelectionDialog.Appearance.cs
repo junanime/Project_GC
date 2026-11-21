@@ -63,6 +63,12 @@ namespace Vampire
                 AugmentPanelTheme.Anchors(refresh.rectTransform,new Vector2(.08f,.16f),new Vector2(.23f,.84f));
                 refresh.button=rerollButton;refresh.index=1;refresh.hideIcon=false;refresh.decorationOnly=true;refresh.raycastTarget=false;
                 refresh.centerIcon=true;refresh.iconColor=OctoberArt.Ink;
+                if (GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
+                {
+                    refresh.gameObject.SetActive(false);
+                    rerollKey = InteractionKeycapGraphic.Create("Reroll keycap", visual, "R", 39);
+                    rerollKey.Bounds.anchorMin = rerollKey.Bounds.anchorMax = new Vector2(.18f,.5f);
+                }
                 rerollButtonText.fontStyle=FontStyles.Bold;rerollButtonText.color=OctoberArt.Ink;
                 var feedback=rerollButton.gameObject.AddComponent<ApothecaryButtonFeedback>();
                 feedback.button=rerollButton;feedback.visual=visual;feedback.body=body;feedback.sparkle=light;feedback.label=rerollButtonText;
@@ -94,7 +100,7 @@ namespace Vampire
 
         public void SkipAbilities()
         {
-            if(!menuOpen || SelectionAnimating)return;
+            if(!menuOpen || SelectionAnimating || practiceOwner != null)return;
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);
             Close(); // Consume this offer only; the normal level-up queue continues on the next frame.
         }
@@ -116,7 +122,15 @@ namespace Vampire
                 : "과충전 추가 보상 · 오리지날 강화 완료 · 일반 보상 3개 중 선택";
         }
 
-        void LateUpdate() { if (panelContent != null) UpdatePanelLayout(); }
+        void LateUpdate()
+        {
+            if (panelContent != null) UpdatePanelLayout();
+            if (GStarDemo.Enabled && menuOpen && rerollButton != null && rerollButton.isActiveAndEnabled &&
+                rerollButton.IsInteractable() && !GameInput.KeyboardBlocked && !StageEntryLoading.IsLoading &&
+                !TutorialGuide.BlocksMenuInput && GameInput.GetKeyDown(KeyCode.R) &&
+                NumberedCardChoice.IsButtonOnTop(rerollButton, rerollButton.transform))
+                rerollButton.onClick.Invoke();
+        }
 
         void UpdatePanelLayout()
         {

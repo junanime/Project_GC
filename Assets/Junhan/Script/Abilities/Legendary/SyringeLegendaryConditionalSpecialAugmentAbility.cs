@@ -359,7 +359,7 @@ namespace Vampire
                     return syringeDartAbility.HasHeavySnipeLegendary();
 
                 case LegendaryType.CursorControl:
-                    return syringeDartAbility.HasCursorControlLegendary();
+                    return !GStarDemo.Enabled && syringeDartAbility.HasCursorControlLegendary();
 
                 case LegendaryType.NeuralBlock:
                     return syringeDartAbility.HasNeuralBlockLegendary();

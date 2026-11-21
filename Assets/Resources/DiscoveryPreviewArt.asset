@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: DiscoveryPreviewArt
   m_EditorClassIdentifier: 
   health: {fileID: 21300000, guid: bfe81a5d0cc546d4b8a14fb7d2901d07, type: 3}
-  potion: {fileID: 21300000, guid: e5e31cfe3db15ac47a2f041080138efd, type: 3}
+  potion: {fileID: 21300000, guid: e93c7e7f292f40568bcccf9648edad93, type: 3}
   magnet: {fileID: 21300000, guid: b2feebc63f64bee4aa6f0a30021a70eb, type: 3}
   coin: {fileID: 21300000, guid: af9432daf23040d4ea5d927ceb689bc5, type: 3}
   gem: {fileID: 349093704, guid: 4a9825874034d4671b1dc9f6c8707eca, type: 3}

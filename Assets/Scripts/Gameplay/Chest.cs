@@ -53,18 +53,17 @@ namespace Vampire
         private void SpawnLoot(Loot<GameObject> loot, bool openedByPlayer = true)
         {
             GameObject item = Instantiate(loot.item, chestItemsParent);
-            item.transform.position = transform.position;
-            transform.position += Vector3.back*0.001f;  // Nudge the collectable in front of the chest
+            item.transform.position = transform.position + Vector3.back * .001f;
             Collectable collectable = item.GetComponent<Collectable>();
             collectable.Init(entityManager, playerCharacter);
             configureDrop?.Invoke(collectable);
             configureDrop = null;
             Coin coin = collectable as Coin;
             if (coin != null)
-                coin.Setup(transform.position, loot.coinType, true, false, true);
+                coin.Setup(item.transform.position, loot.coinType, true, false, !openedByPlayer);
             else
-                collectable.Setup(true, false, true);
-            // Finish the pop-out before allowing normal, range-based pickup.
+                collectable.Setup(true, false, !openedByPlayer);
+            if (openedByPlayer) collectable.DeliverAfterPop();
         }
 
         public void OpenChest(bool openedByPlayer = true)

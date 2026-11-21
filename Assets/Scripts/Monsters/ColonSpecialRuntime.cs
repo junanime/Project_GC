@@ -25,7 +25,7 @@ namespace Vampire {
    if(Kind=="beetle"&&cooldown>2){goal=(Vector2)transform.position+((Vector2)transform.position-goal).normalized*3;speed*=1.35f;}
    if(Kind=="yogurt"&&distance<3.7f){Vector2 radial=((Vector2)transform.position-goal).normalized;goal+=(radial*3+Vector2.Perpendicular(radial)*1.2f);}
    if(Kind=="stitch"&&distance<4)goal=(Vector2)transform.position+((Vector2)transform.position-goal).normalized;
-   Vector2 delta=ColonNavigation.Toward(transform.position,goal)*speed*monster.IceMoveMultiplier*Time.fixedDeltaTime;
+   Vector2 delta=ColonNavigation.Toward(transform.position,goal)*speed*monster.MovementMultiplier*Time.fixedDeltaTime;
    Vector2 next=ColonAttackWall.Stop(transform.position,(Vector2)transform.position+delta,.25f);body.velocity=(next-(Vector2)transform.position)/Time.fixedDeltaTime;entities.Grid?.UpdateClient(monster);
   }
   IEnumerator Wait(float d){for(float t=0;t<d;){if(!Active)yield break;if(!Paused)t+=Time.deltaTime;yield return null;}}

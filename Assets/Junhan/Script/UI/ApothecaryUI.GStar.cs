@@ -26,14 +26,14 @@ namespace Vampire
         string GStarInitialPage(bool prepare)
         {
             if(GStarSession.VisitorFinished) return "gstarSurvey";
-            if(prepare) return "prepare";
-            if(GStarSession.HasCompletedAttempt)
+            if(GStarSession.RegistrationRequested)
             {
-                var ended=GStarLeaderboard.GetCompletedRun(GStarSession.LastRunId);
-                if(ended!=null && GStarLeaderboard.GetRunRank(ended.runId)==null)
-                { passed=ended.data.success;gstarBoard=ended.stageId;return "result"; }
-                return "gstarNext";
+                var ended=GStarLeaderboard.GetVisitorRuns(GStarSession.SessionId).LastOrDefault();
+                passed=ended?.data.success??GStarSession.LastSuccess;gstarBoard=ended?.stageId??GStarSession.StageId;
+                return "result";
             }
+            if(prepare) return "prepare";
+            if(GStarSession.HasCompletedAttempt) return "gstarNext";
             return "main";
         }
         bool UpdateGStar()
@@ -135,7 +135,18 @@ namespace Vampire
                 logo.face=new Color(1,.96f,.87f);logo.gloss=false;logo.raycastTarget=false;
             }
             GText("지스타 체험판",675,28,322,52,40);
-            string[] titles={"01 기록 · 랭킹","02 다음 도전","03 체험 종료"};
+            string[] titles={"01 다음 도전","02 기록 · 랭킹","03 체험 종료"};
+            if(Page!="gstarSurvey")
+            {
+                // The approved plates have the old active step baked in. Replace the
+                // whole arrow strip once, using the same artwork with the correct step.
+                string bar=Page=="gstarNext"?"clear":"next";
+                var strip=GRect("GStar progress strip",content,346,137,979,66);
+                var shape=strip.gameObject.AddComponent<GStarPillGraphic>();shape.raycastTarget=false;
+                var mask=strip.gameObject.AddComponent<Mask>();mask.showMaskGraphic=false;
+                var art=Rect("Approved step arrows",strip,0,0,1,1).gameObject.AddComponent<Image>();
+                art.sprite=GSlice(bar,346,137,979,66);art.raycastTarget=false;
+            }
             float[] x={356,700,1014};float[] widths={328,303,303};
             for(int i=0;i<3;i++)GText(titles[i],x[i],145,widths[i],49,34,i==active?Color.white:GInk);
         }
@@ -146,13 +157,6 @@ namespace Vampire
             if(Page=="result")GStarResult();
             else if(Page=="gstarNext")GStarNext();
             else GStarSurvey();
-        }
-        GStarLeaderboard.CompletedRun GCurrentRun()
-        {
-            var score=RunScore.Current;
-            if(score!=null&&score.IsFinished && score.SessionId==GStarSession.SessionId)
-                return new GStarLeaderboard.CompletedRun{data=score.Data,runId=score.RunId,sessionId=score.SessionId,stageId=score.StageId,exclusion=score.Exclusion};
-            return GStarLeaderboard.GetCompletedRun(GStarSession.LastRunId);
         }
         TMP_InputField GInput(string key,string value,string hint,float x,float y,float w,float h,bool phone)
         {
@@ -209,34 +213,35 @@ namespace Vampire
 
         void GStarResult()
         {
-            var run=GCurrentRun();int stage=run?.stageId??GStarSession.StageId;
+            EnsureLastGStarScore();
+            var runs=GStarLeaderboard.GetVisitorRuns(GStarSession.SessionId);
+            var run=runs.LastOrDefault();
+            int stage=run?.stageId??GStarSession.StageId;
             if(gstarBoard<0)gstarBoard=stage;
-            bool registered=run!=null&&GStarLeaderboard.GetRunRank(run.runId)!=null;
-            GHeader(0);
+            bool eligible=runs.Any(r=>r.stageBest);
+            bool registered=eligible&&runs.Where(r=>r.stageBest).All(r=>r.registered);
+            GHeader(1);
             DrawGStarResultPortrait();
-            GText(passed?"스테이지 클리어!":"스테이지 클리어 실패",472,210,729,87,75,passed?GGold:new Color(.68f,.34f,1),true);
-            GText("이번 도전 점수",413,317,284,55,37);
-            var total=GText($"{(run?.data.Total??0):N0}점",379,384,379,95,77,GGold,true);total.name="GStar total score";
-            // Cover the entire old stomach badge, including the protruding organ, for every stage.
-            var badge=GRect("GStar live stage badge",content,404,475,316,88).gameObject.AddComponent<GStarPillGraphic>();
-            badge.face=passed?new Color(.68f,1,.81f):new Color(.84f,.70f,.98f);badge.raycastTarget=false;
-            GText(GStage(stage)+(passed?" · 클리어":" · 실패"),430,496,264,49,32);
+            string title=runs.Count>1?"두 판의 도전 기록":run==null?"이번 체험 기록":passed?"스테이지 클리어!":"스테이지 클리어 실패";
+            GText(title,472,210,729,87,75,passed?GGold:new Color(.68f,.34f,1),true);
+            DrawGStarAttempts(runs);
             GText("이름",138,590,168,61,35);GText("전화번호",138,669,168,61,32);
             gstarName=GInput("name",gstarDraftName??GStarSession.PlayerName,"별명으로 하셔도 괜찮아요",325,590,415,63,false);
-            gstarPhone=GInput("phone",gstarDraftPhone??GStarSession.Phone,"필수로 입력하지 않으셔도 됩니다!",325,669,415,62,true);
-            gstarName.interactable=gstarPhone.interactable=!registered;
+            string contact=gstarDraftPhone??GStarSession.Phone;
+            gstarPhone=GInput("phone",registered&&!string.IsNullOrEmpty(contact)?"연락처 저장 완료":contact,
+                registered?"미입력":"필수로 입력하지 않으셔도 됩니다!",325,669,415,62,true);
+            gstarName.interactable=gstarPhone.interactable=eligible&&!registered;
             string note=registered?"등록 완료 · 연락처는 순위표에 표시되지 않아요":gstarNotice;
             if(!string.IsNullOrEmpty(GStarLeaderboard.LastError))note=GStarLeaderboard.LastError;
-            if(string.IsNullOrEmpty(note))note=string.IsNullOrEmpty(run?.exclusion)?"전화번호는 경품 안내에만 사용됩니다.":"연습 실행 · 순위 등록에서 제외됩니다.";
+            if(string.IsNullOrEmpty(note) && GStarSession.Interrupted && runs.Count<GStarSession.UsedAttempts)
+                note="중단된 도전을 제외한 완료 기록만 등록합니다.";
+            if(string.IsNullOrEmpty(note))note=eligible?"전화번호는 경품 안내에만 사용됩니다.":"등록할 기록이 없어요. 설문으로 이동할 수 있어요.";
             // Replace the baked orange flourishes under the two live contact lines with
             // matching paper from the same plate; the checkbox/text must stay unobstructed.
             GImage(GSlice(passed?"clear":"failed",755,737,20,61),142,737,601,61).name="GStar contact note backing";
             GText(note,147,741,596,29,21,string.IsNullOrEmpty(run?.exclusion)?GInk:new Color(.55f,.18f,.50f));
-            if(!registered)
-            {
-                GConsent();
-            }
-            GButton("register",registered?"등록 완료":"등록하기",132,800,624,100,RegisterGStarScore,true,!registered&&run!=null&&string.IsNullOrEmpty(run.exclusion));
+            if(eligible&&!registered) GConsent();
+            GButton("register",registered?"등록 완료":"등록하기",132,800,624,100,RegisterGStarScore,true,!registered&&eligible);
             var gift = GImage(Resources.Load<Sprite>("GStarDemo/prize-draw-gift"), 922, 316, 58, 52);
             gift.name = "GStar prize draw gift";
             gift.preserveAspect = true;
@@ -269,32 +274,74 @@ namespace Vampire
                 var n=GText(row?.name??"첫 도전을 기다려요",954,y,269,57,31);n.richText=false;n.overflowMode=TextOverflowModes.Ellipsis;
                 GText(row!=null?$"{row.score:N0}점":"—",1227,y,195,57,31).fontSizeMin=16*720/Gh;
             }
-            GButton("result next","다음",1383,834,181,73,()=>Show("gstarNext"));
-            GButton("score details","점수 내역",817,850,235,46,ShowGStarScoreDetails,false,true,false);
-            if(registered && mine!=null && run!=null && mine.score>run.data.Total)
-                GText("순위는 스테이지별 개인 최고 기록 기준",1060,847,315,52,17);
+            GButton("result next",registered?"설문으로":"등록 없이 설문으로",1383,834,181,73,EndGStarVisitor);
+            if(run!=null)GButton("score details","점수 내역",817,850,235,46,()=>ShowGStarScoreDetails(runs),false,true,false);
         }
+        void DrawGStarAttempts(List<GStarLeaderboard.CompletedRun> runs)
+        {
+            // Cover the previous score heading and the protruding stomach badge together.
+            string skin=passed?"clear":"failed";
+            GImage(GSlice(skin,100,230,200,45),393,303,371,260).name="GStar attempts paper";
+            if(runs.Count==0)
+            {
+                GText("완료한 기록이 없어요",395,377,363,81,33);return;
+            }
+            int visible=Mathf.Min(3,runs.Count); // Includes visitors saved by the earlier three-round booth build.
+            float height=visible==1?160:visible==2?111:76;
+            for(int i=0;i<visible;i++)
+            {
+                var run=runs[i];float top=visible==1?339:307+i*(height+7);
+                var card=GRect("GStar attempt "+(i+1),content,403,top,346,height).gameObject.AddComponent<GStarPillGraphic>();
+                card.face=run.stageBest?new Color(.85f,1,.89f):new Color(.96f,.92f,.91f);
+                card.gloss=false;card.raycastTarget=false;
+                float line=height*.30f;
+                GText($"{i+1}차  ·  {GStage(run.stageId)}  ·  {(run.data.success?"클리어":"실패")}",414,top+height*.055f,324,line,visible==3?18:23);
+                var score=GText($"{run.data.Total:N0}점",414,top+height*.32f,324,line*1.25f,visible==3?27:visible==2?37:45,GInk);
+                score.name="GStar attempt score "+(i+1);
+                bool repeated=runs.Count(r=>r.stageId==run.stageId)>1;
+                string label=!string.IsNullOrEmpty(run.exclusion)?"연습 기록":!run.stageBest?"도전 기록":repeated?"이번 체험 최고 기록":GStage(run.stageId)+" 랭킹";
+                if(run.registered && run.stageBest)
+                {
+                    var rank=GStarLeaderboard.GetRunRank(run.runId);
+                    if(rank!=null)label=$"등록 완료 · {GStage(run.stageId)} {rank.rank:N0}위";
+                }
+                GText(label,414,top+height*.73f,324,height*.21f,visible==3?15:19,new Color(.13f,.29f,.25f));
+            }
+        }
+
         void RegisterGStarScore()
         {
-            var run=GCurrentRun();if(run==null)return;
             if(!string.IsNullOrWhiteSpace(gstarPhone.text)&&!gstarConsent){gstarNotice="연락처 저장 동의를 선택해 주세요.";Render();return;}
-            if(!GStarLeaderboard.CaptureCompleted(run.runId,run.sessionId,run.stageId,run.data,run.exclusion))
-            {gstarNotice=GStarLeaderboard.LastError;Render();return;}
-            GStarSession.CompleteAttempt(run.data.success);
-            var result=GStarLeaderboard.Submit(gstarName.text,gstarPhone.text,run.stageId,run.runId,run.sessionId,run.data,run.exclusion);
+            var result=GStarLeaderboard.SubmitVisitor(gstarName.text,gstarPhone.text,GStarSession.SessionId);
             gstarNotice=result.message;
-            if(result.success){GStarSession.SetIdentity(gstarName.text,gstarPhone.text);gstarBoard=run.stageId;}
+            if(result.success)
+            {
+                if(!GStarSession.SetIdentity(gstarName.text,gstarPhone.text))gstarNotice=GStarSession.StorageError;
+                var best=GStarLeaderboard.GetVisitorRuns(GStarSession.SessionId).FirstOrDefault(r=>r.stageBest);
+                if(best!=null)gstarBoard=best.stageId;
+            }
             Render();
         }
         static readonly string[] StageHooks = { "혀 끝에서 이빨로 대시!", "달콤한 냄새를 따라 보스 찾기", "잠든 중간보스를 골라 깨우기" };
 
+        bool EnsureLastGStarScore()
+        {
+            var score=RunScore.Current;
+            if(score==null || !score.IsFinished || score.SessionId!=GStarSession.SessionId ||
+               score.RunId!=GStarSession.LastRunId || GStarLeaderboard.GetCompletedRun(score.RunId)!=null) return true;
+            if(GStarLeaderboard.CaptureCompleted(score.RunId,score.SessionId,score.StageId,score.Data,score.Exclusion)) return true;
+            gstarNotice=GStarLeaderboard.LastError;return false;
+        }
         void GStarNext()
         {
-            GHeader(1);int left=GStarSession.RemainingAttempts;
+            GHeader(0);int left=GStarSession.RemainingAttempts;
             GText("남은 도전 기회",503,251,499,84,64,new Color(0,.12f,.16f));
             GText(left.ToString(),1001,243,103,101,87,left==1?new Color(1,.1f,.2f):GGold,true);
             GText("회!",1100,251,136,84,64,new Color(0,.12f,.16f));
-            GText(left>0?"같은 스테이지도 다시 도전할 수 있어요!":"모든 도전을 마쳤어요! 체험 마치기를 눌러 주세요.",493,344,763,62,37);
+            var previous=GStarLeaderboard.GetCompletedRun(GStarSession.LastRunId);
+            string outcome=previous==null?"같은 스테이지도 다시 도전할 수 있어요!":
+                $"{GStage(previous.stageId)} {(previous.data.success?"클리어!":"도전 종료")}  ·  {previous.data.Total:N0}점";
+            GText(outcome,493,344,763,62,37);
             for(int i=0;i<3;i++)
             {
                 int stage=i;float x=187+i*460;
@@ -305,13 +352,22 @@ namespace Vampire
             // The old right separator crosses the new, wider instruction. Keep its paper
             // texture while clearing that decoration before rendering the live message.
             GImage(GSlice("next",360,834,385,63),345,834,701,63).name="GStar next instruction backing";
-            GText(string.IsNullOrEmpty(gstarNotice)?(GStarSession.Interrupted?"이전 도전이 중단됐어요. 남은 기회로 도전해 주세요.":"장비를 바꾸어 다시 도전할 수 있어요."):gstarNotice,358,842,665,52,25);
-            GButton("change character","캐릭터 변경",1059,833,233,72,()=>ReturnToLobby(true),false,left>0);
-            GButton("finish experience","체험 마치기",1304,833,233,72,EndGStarVisitor);
+            GText(string.IsNullOrEmpty(gstarNotice)?(GStarSession.Interrupted?"이전 도전이 중단됐어요. 남은 기회로 도전해 주세요.":"같은 스테이지에도 다시 도전할 수 있어요."):gstarNotice,358,842,665,52,25);
+            GButton("change character","캐릭터 변경",1059,833,233,72,()=>
+            {
+                if(EnsureLastGStarScore())ReturnToLobby(true);else Render();
+            },false,left>0);
+            GButton("finish experience","그만하기",1304,833,233,72,()=>
+            {
+                if(!EnsureLastGStarScore()){Render();return;}
+                if(!GStarSession.RequestRegistration()){gstarNotice=GStarSession.StorageError;Render();return;}
+                gstarNotice="";Show(GStarInitialPage(false));
+            });
         }
         void LaunchGStar(int stage)
         {
             if(GStarSession.RemainingAttempts<=0||GStarSession.VisitorFinished||starting)return;
+            if(!EnsureLastGStarScore()){Render();return;}
             LaunchStage(stage);
             if(!starting){gstarNotice=string.IsNullOrEmpty(GStarSession.StorageError)?"출전을 시작하지 못했어요. 다시 선택해 주세요.":GStarSession.StorageError;Render();}
         }
@@ -369,12 +425,12 @@ namespace Vampire
             status.enableWordWrapping=true;status.overflowMode=TextOverflowModes.Ellipsis;
             GButton("close staff","닫기",660,700,352,66,()=>{gstarOperator=false;Render();});
         }
-        void ShowGStarScoreDetails()
+        void ShowGStarScoreDetails(List<GStarLeaderboard.CompletedRun> runs,int index=0)
         {
-            var run=GCurrentRun();if(run==null)return;var d=run.data;
+            var run=runs[index];var d=run.data;
             var shade=GImage(null,0,0,Gw,Gh);shade.color=new Color(0,0,0,.72f);shade.raycastTarget=true;
             Panel(content,.20f,.13f,.80f,.88f);
-            GText("이번 도전 점수 내역",379,159,916,65,45);
+            GText($"{index+1}차 · {GStage(run.stageId)} 점수 내역",379,159,916,65,45);
             string[] lines={
                 $"일반 몬스터 {d.normal:N0} × 10     특수 몬스터 {d.special:N0} × 75",
                 $"엘리트 {d.elite:N0} × 250     미니보스 {d.miniBoss:N0} × 1,500",
@@ -385,7 +441,12 @@ namespace Vampire
                 $"스테이지 클리어 {(d.success?10000:0):N0}점",
                 $"합계 {d.Total:N0}점"};
             for(int i=0;i<lines.Length;i++)GText(lines[i],372,243+i*56,928,52,31);
-            GButton("close details","닫기",660,723,352,72,Render);
+            if(runs.Count>1)
+            {
+                int other=(index+1)%runs.Count;
+                GButton("other details",$"{other+1}차 점수 내역",423,723,382,72,()=>{Render();ShowGStarScoreDetails(runs,other);});
+            }
+            GButton("close details","닫기",runs.Count>1?859:660,723,352,72,Render);
         }
     }
 }

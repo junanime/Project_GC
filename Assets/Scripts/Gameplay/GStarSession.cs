@@ -13,7 +13,7 @@ namespace Vampire
         {
             public int version = 1, usedAttempts, stageId = 1;
             public string sessionId, runId = "", lastRunId = "", playerName = "", phone = "";
-            public bool active, started, hasCompleted, lastSuccess, interrupted, visitorFinished;
+            public bool active, started, hasCompleted, lastSuccess, interrupted, visitorFinished, registrationRequested;
             public string[] seenGuides = Array.Empty<string>();
         }
 
@@ -47,6 +47,15 @@ namespace Vampire
         public static bool Interrupted => Current.interrupted;
         public static bool VisitorFinished => Current.visitorFinished;
         public static bool NeedsControlPractice => GStarDemo.Enabled && !Current.visitorFinished && Current.usedAttempts == 0 && !Current.hasCompleted;
+        public static bool RegistrationRequested => Current.registrationRequested || (Current.hasCompleted && RemainingAttempts == 0);
+        public static bool RequestRegistration()
+        {
+            if (Current.active || !Current.hasCompleted || Current.visitorFinished) return false;
+            if (RegistrationRequested) return true;
+            var next = Copy(Current);
+            next.registrationRequested = true;
+            return Commit(next);
+        }
         public static string PlayerName => Current.playerName;
         public static string Phone => Current.phone;
         public static bool HasSeenGuide(string id) => Array.IndexOf(Current.seenGuides ?? Array.Empty<string>(),id)>=0;
@@ -143,6 +152,7 @@ namespace Vampire
             if (stage < 0 || stage > 2) { reason = "선택한 스테이지를 확인해 주세요."; return false; }
             if (current.active) { reason = "이미 출전 중입니다."; return false; }
             if (current.visitorFinished) { reason = "직원에게 다음 체험 시작을 요청해 주세요."; return false; }
+            if (current.registrationRequested) { reason = "이번 체험의 점수 등록을 진행해 주세요."; return false; }
             if (RemainingAttempts == 0) { reason = "도전 기회를 모두 사용했습니다."; return false; }
             var next = Copy(current);
             next.usedAttempts++; next.stageId = stage; next.runId = Guid.NewGuid().ToString("N");

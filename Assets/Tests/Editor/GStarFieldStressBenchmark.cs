@@ -64,7 +64,8 @@ namespace Vampire.Tests.Editor
                 var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions {
                     scenes=EditorBuildSettings.scenes.Where(s=>s.enabled).Select(s=>s.path).ToArray(),
                     locationPathName=location,target=BuildTarget.StandaloneWindows64,
-                    options=BuildOptions.Development|BuildOptions.CompressWithLz4 });
+                    options=BuildOptions.Development|BuildOptions.CompressWithLz4 |
+                        (Args.Contains("-perfScriptsOnly") ? BuildOptions.BuildScriptsOnly : BuildOptions.None) });
                 Require(report.summary.result==UnityEditor.Build.Reporting.BuildResult.Succeeded,"QA player build");
             }
             finally{PlayerSettings.productName=name;PlayerSettings.enableFrameTimingStats=frameTiming;EditorUserBuildSettings.development=oldDev;}

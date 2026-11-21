@@ -227,7 +227,14 @@ namespace Vampire
         {float before=currentHealth;GainHealth(Relics != null ? Relics.PickupHealing(amount) : amount);Relics?.PickupHealed(currentHealth-before);}
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
         public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && !IsOralSliding && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
-        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
+        public bool HourglassActive { get; private set; }
+        internal void SetHourglassPace(bool active)
+        {
+            HourglassActive = active;
+            UpdateMoveSpeed();
+        }
+        float HourglassMoveMultiplier => HourglassActive ? LevelManager.HourglassPlayerSpeed : 1f;
+        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier * HourglassMoveMultiplier;
         private float SnailSlowMultiplier => (GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f) *
             (OralAmbientContent.Instance != null && OralAmbientContent.Instance.Level != null && OralAmbientContent.Instance.Level.PlayerCharacter == this ? OralAmbientContent.Instance.PlayerMoveMultiplier : 1f);
         public float CurrentArmor => armor != null ? armor.Value : 0f;
@@ -254,7 +261,8 @@ namespace Vampire
                     finalSpeed += thermometerStacks * 0.03f;
                 }
 
-                return finalSpeed * (Skills != null && Skills.AshiPassive ? 1.2f : 1);
+                return finalSpeed * (Skills != null && Skills.AshiPassive ? 1.2f : 1f)
+                    * (HourglassActive ? LevelManager.HourglassAttackSpeed : 1f);
             }
         }
 
@@ -1505,7 +1513,7 @@ namespace Vampire
             if (rb == null || movementSpeed == null || characterBlueprint == null) return;
             float speed = Mathf.Max(.01f,movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0));
             // Existing movement uses acceleration/drag; halve drag for twice the actual speed.
-            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null ? Skills.MovementMultiplier : 1) * Mathf.Max(.05f, SnailSlowMultiplier));
+            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null ? Skills.MovementMultiplier : 1) * Mathf.Max(.05f, SnailSlowMultiplier) * HourglassMoveMultiplier);
         }
 
         public void AddHealOnIdle(float amount)

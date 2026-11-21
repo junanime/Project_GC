@@ -7,7 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.InputSystem.Users;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -19,13 +19,16 @@ namespace Vampire.Tests.Editor
         const string KeyName = "FieldDayControlsQA";
         static readonly bool RewardProofOnly = Environment.GetCommandLineArgs().Contains("-rewardProofOnly");
         static readonly bool PracticeRoster = Environment.GetCommandLineArgs().Contains("-practiceRosterProof");
-        static string Folder => RewardProofOnly ? "reward-proof" : PracticeRoster ? "practice-roster" : "field-day";
+        static readonly bool InputRetest=Environment.GetCommandLineArgs().Contains("-boothInputRetest");
+        static string Folder => InputRetest ? "practice-input-retest" : RewardProofOnly ? "reward-proof" : PracticeRoster ? "practice-roster" : "field-day";
         static string Output => "Library/GStarUIQA/"+Folder;
         static bool started;
         static double deadline;
         static Keyboard keyboard;
+        static InputSettings inputBeforeProof, focusedInput;
+        static Mouse proofMouse;
         static int frame;
-        static string characterFolder;
+        static string characterFolder, lastMarker;
         static FieldDayControlsSmoke() { if (SessionState.GetBool(KeyName,false)) Attach(); }
 
         public static void Run()
@@ -72,7 +75,12 @@ namespace Vampire.Tests.Editor
             var result = SessionState.GetString(KeyName+"result","");
             if (result.Length>0)
             {
-                if (EditorApplication.isPlaying) { EditorApplication.ExitPlaymode(); return; }
+                if (EditorApplication.isPlaying)
+                {
+                    if (focusedInput!=null) { InputSystem.settings=inputBeforeProof; Object.Destroy(focusedInput); }
+                    EditorApplication.ExitPlaymode();
+                    return;
+                }
                 if (EditorApplication.isPlayingOrWillChangePlaymode) return;
                 SessionState.SetBool(KeyName,false);
                 File.WriteAllText(Output+"/result.txt",result);
@@ -109,12 +117,35 @@ namespace Vampire.Tests.Editor
             for (int i=0;i<count;i++)
             {
                 yield return null;
-                Capture($"{characterFolder}/{frame++:0000}");
+                if (!InputRetest || (characterFolder=="Ari" && lastMarker=="active"))
+                    Capture($"{characterFolder}/{frame:0000}");
+                frame++;
                 yield return null; // Two 24 fps simulation frames per capture, independent of disk latency.
             }
         }
+        static void AttachKeyboard(Character actor)
+        {
+            if (focusedInput==null)
+            {
+                inputBeforeProof=InputSystem.settings;
+                focusedInput=Object.Instantiate(inputBeforeProof);
+                focusedInput.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+                focusedInput.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+                InputSystem.settings=focusedInput;
+            }
+            EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView")).Focus();
+            keyboard=InputSystem.AddDevice<Keyboard>("Booth proof keyboard");
+            proofMouse=Mouse.current ?? InputSystem.AddDevice<Mouse>("Booth proof mouse");
+            actor.GetComponent<PlayerInput>().SwitchCurrentControlScheme("Keyboard&Mouse",keyboard,proofMouse);
+            if (!keyboard.enabled) InputSystem.EnableDevice(keyboard);
+            keyboard.MakeCurrent();
+        }
         static void Keys(params Key[] keys) => InputSystem.QueueStateEvent(keyboard,new KeyboardState(keys));
-        static void Mark(string name) => File.AppendAllText(Output+"/"+characterFolder+"/markers.txt",name+" "+frame+"\n");
+        static void Mark(string name)
+        {
+            lastMarker=name;
+            File.AppendAllText(Output+"/"+characterFolder+"/markers.txt",name+" "+frame+"\n");
+        }
         static IEnumerator FilmUntil(Func<bool> reached, int maximumFrames, string description)
         {
             for (int i=0; i<maximumFrames && !reached(); i++) yield return Film(1);
@@ -236,13 +267,34 @@ namespace Vampire.Tests.Editor
             yield return new WaitForSecondsRealtime(.60f);
             CaptureDisplay("augment-level");
             Capture("augment-level");
-            card().Selected();
+            if (characterFolder=="reward-keys")
+            {
+                AttachKeyboard(level.PlayerCharacter);
+                Keys(Key.R);
+                yield return Film(3);
+                Check(!dialog.GetComponentsInChildren<Button>().First(b=>b.GetComponentsInChildren<InteractionKeycapGraphic>().Any(c=>c.Legend.text=="R")).interactable,
+                    "regular augment rerolls from the real R shortcut once");
+                Keys();
+                yield return Film(8);
+                Keys(Key.Digit1);
+                yield return Film(2);
+                Keys();
+            }
+            else card().Selected();
             yield return Wait(()=>!dialog.SelectionAnimating && quest.Claimed && manager.LegendaryRewardContext,"completed quest chains after first choice",8);
             Check(dialog.MenuOpen && Time.timeScale==0,"quest cards stay in the same pause");
             yield return new WaitForSecondsRealtime(.60f);
             CaptureDisplay("augment-noble");
             Capture("augment-noble");
-            card().Selected();
+            if (characterFolder=="reward-keys")
+            {
+                Mark("noble-choice");
+                yield return Film(12);
+                Keys(Key.Numpad1);
+                yield return Film(4);
+                Keys();
+            }
+            else card().Selected();
             yield return Wait(()=>!dialog.SelectionAnimating && !manager.LegendaryRewardContext && dialog.MenuOpen,"second earned level follows the noble choice",8);
             Check(Time.timeScale==0, "third choice still owns the original pause");
             yield return new WaitForSecondsRealtime(.60f);
@@ -308,10 +360,7 @@ namespace Vampire.Tests.Editor
             var rehearsalPlayer=level.PlayerCharacter;
             int originalId=rehearsalPlayer.GetInstanceID();
             Check(StageProgression.Ensure(level).StageNumber==1&&level.IsRunFlowPaused&&!GStarAnalytics.IsRecording&&GStarSession.PendingAttempt,"practice has no real combat or scoring");
-            keyboard=InputSystem.AddDevice<Keyboard>("Booth test keyboard");
-            var controls=rehearsalPlayer.GetComponent<PlayerInput>();
-            if(controls!=null && controls.user.valid) InputUser.PerformPairingWithDevice(keyboard,controls.user);
-            keyboard.MakeCurrent();
+            AttachKeyboard(rehearsalPlayer);
             float fieldTime=level.CurrentLevelTime;
             yield return new WaitForSecondsRealtime(.35f);
             Check(Time.timeScale==0 && level.CurrentLevelTime==fieldTime && !GStarControlPractice.Active && !GStarAnalytics.IsRecording,
@@ -407,13 +456,45 @@ namespace Vampire.Tests.Editor
             {
                 yield return Film(4);
                 yield return FilmUntil(()=>rehearsalPlayer.CurrentDashCharges>0,80,"Ari's attack dash is available");
+                var roller=rehearsalPlayer.GetComponent<AriSkillRuntime>();
+                var hit=target.BodyHitbox;
+                var start=rehearsalPlayer.Position;
+                int dashCount=rehearsalPlayer.Skills.DashSequence;
                 Keys(Key.D);
                 yield return Film(1);
                 Keys(Key.D,Key.LeftShift);
-                yield return Film(2);
+                yield return FilmUntil(()=>rehearsalPlayer.Skills.DashSequence>dashCount,12,"Ari actually dashes in her transformed form");
                 Keys();
+                yield return FilmUntil(()=>!rehearsalPlayer.IsDashing || practice.PracticingAugment,20,"Ari reaches the training target");
+                File.AppendAllText(Output+"/report.txt",$"Ari sweep origin={start} end={rehearsalPlayer.Position} hitBox={hit.bounds.center} radius={roller.ContactRadius} hits={roller.DashHitCount} hp={target.HP} suspended={target.IsFieldRuntimeSuspended} step={practice.Step} practiceOffers={practice.PracticingAugment}\n");
+                Check(roller.DashHitCount>0,"a real empowered dash hits a damageable target");
             }
-            yield return FilmUntil(()=>practice.Step==3,150,"actual target death unlocks the character status lesson");
+            var practiceDialog=level.EntityManager.AbilitySelectionDialog;
+            var practiceAugments=Object.FindObjectOfType<AbilityManager>().Ver4;
+            var originalAcquisitions=practiceAugments.CaptureRunSceneConditionalAugmentIds();
+            yield return FilmUntil(()=>practice.PracticingAugment && practiceDialog.MenuOpen,180,"actual target death opens the practice augment cards");
+            Mark("augments-common");
+            yield return Film(14);
+            var choices=practiceDialog.GetComponentsInChildren<AbilityCard>();
+            Check(choices.Length==3 && choices.All(c=>c.SelectionGrade==AugmentUpgradeGrade.Common),"all initial rehearsal offers are common");
+            Keys(Key.Digit1);
+            yield return Film(3);
+            Check(practiceDialog.MenuOpen && !practiceDialog.SelectionAnimating,"a card cannot bypass the highlighted reroll");
+            Keys();
+            yield return Film(3);
+            Keys(Key.R);
+            yield return FilmUntil(()=>choices.All(c=>c.SelectionGrade==AugmentUpgradeGrade.Supreme),15,"R changes all three offers to supreme");
+            Keys();
+            Mark("augments-supreme");
+            yield return Film(20);
+            Check(choices.All(c=>c.transform.Find("Choice keycap").GetComponent<InteractionKeycapGraphic>().Highlighted),
+                "all three selection keys are visible and highlighted");
+            Keys(Key.Numpad2);
+            yield return FilmUntil(()=>practiceDialog.SelectionAnimating,18,"number-pad 2 confirms a real card");
+            Keys();
+            yield return FilmUntil(()=>practice.Step==3,75,"chosen card resolves before character status lesson");
+            Check(practiceAugments.CaptureRunSceneConditionalAugmentIds().Count==originalAcquisitions.Count+1,
+                "the selected supreme augment actually modifies the rehearsal character once");
             Check(target==null || !target.IsAlive,"training target was killed");
             Mark("status-key");
             Check(overhead.isActiveAndEnabled && overhead.text=="Tab","journal keycap shown over the character");
@@ -456,16 +537,33 @@ namespace Vampire.Tests.Editor
             yield return FilmUntil(()=>practice.Step==7 && practice.PracticeHeart!=null,16,"a fresh interaction opens the chest and drops the heart");
             Keys();
             Mark("item-heart");
-            yield return Film(18);
-            Check(practice.Step==7 && Mathf.Approximately(injured,rehearsalPlayer.CurrentHealth) && !practice.PracticeHeart.IsBeingCollected,
-                "the heart stays on the ground and HP stays reduced until pickup");
-            Keys(Key.D,Key.Space);
-            yield return FilmUntil(()=>practice.Step==8,100,"walking into the heart plays the pickup and recovery");
+            Vector2 pickupPosition=rehearsalPlayer.Position;
+            var heartSlot=level.PlayerInventory.Slots[1];
+            yield return FilmUntil(()=>practice.Step==8,165,"without moving, the popped heart flies into the visible inventory");
+            Check(heartSlot.Count==1 && Mathf.Approximately(injured,rehearsalPlayer.CurrentHealth) &&
+                Vector2.Distance(pickupPosition,rehearsalPlayer.Position)<.1f && !GStarAnalytics.IsRecording,
+                "stored heart does not heal on collection");
+            yield return Film(12);
+            Mark("item-use");
+            if (characterFolder=="Hyuki")
+            {
+                Canvas.ForceUpdateCanvases();
+                var button=heartSlot.GetComponent<Button>();
+                var rect=(RectTransform)button.transform;
+                var point=RectTransformUtility.WorldToScreenPoint(null,rect.TransformPoint(rect.rect.center));
+                var pointer=new PointerEventData(EventSystem.current) {position=point,button=PointerEventData.InputButton.Left};
+                var hits=new System.Collections.Generic.List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointer,hits);
+                Check(hits.Count>0 && hits[0].gameObject.GetComponentInParent<Button>()==button,"the actual heart card receives the pointer above the visible rehearsal HUD");
+                ExecuteEvents.ExecuteHierarchy(hits[0].gameObject,pointer,ExecuteEvents.pointerClickHandler);
+            }
+            else Keys(characterFolder=="Ari"?Key.X:Key.Digit2);
+            yield return FilmUntil(()=>practice.Step==9,12,"using the real heart slot consumes the stored heart");
             Keys(Key.Space);
-            Check(Mathf.Approximately(healthy,rehearsalPlayer.CurrentHealth) && !GStarAnalytics.IsRecording && GStarSession.PendingAttempt,
-                "the heart restores the lost HP without recording a booth attempt");
+            Check(heartSlot.Count==0 && Mathf.Approximately(healthy,rehearsalPlayer.CurrentHealth) && GStarSession.PendingAttempt,
+                "actual item restores training injury and leaves the scored attempt untouched");
             Mark("item-recovery");
-            yield return FilmUntil(()=>practice.Step==9,55,"brief usable-item tip leads to departure");
+            yield return FilmUntil(()=>practice.Step==10,100,"brief usable-item tip leads to departure");
             yield return Film(1);
             ValidatePracticeBubble(practice,rehearsalPlayer,true);
             Check(Time.timeScale>0 && overhead.isActiveAndEnabled && overhead.text=="Space","completion presents the departure key");
@@ -494,6 +592,8 @@ namespace Vampire.Tests.Editor
             level=Object.FindObjectOfType<LevelManager>();
             Check(level.PlayerCharacter.GetInstanceID()!=originalId && !level.PlayerCharacter.Skills.Active&&level.PlayerCharacter.Skills.CooldownRemaining<=0,"fresh player has no rehearsal cooldown");
             CheckSignature(level);
+            Check(Object.FindObjectOfType<AbilityManager>().Ver4.CaptureRunSceneConditionalAugmentIds().SequenceEqual(originalAcquisitions),
+                "the scored character starts fresh without the rehearsal augment");
             Check(StageProgression.Ensure(level).StageNumber==0&&GStarSession.StageId==0&&GStarSession.RemainingAttempts==1,"stage zero is the first scored attempt");
             TutorialGuide.QueueStageEvent("acid-secretion"); TutorialGuide.QueueBloodClot();
             yield return new WaitForSecondsRealtime(.5f);
@@ -501,6 +601,51 @@ namespace Vampire.Tests.Editor
             Capture(characterFolder+"/oral");
             InputSystem.RemoveDevice(keyboard);
             keyboard=null;
+        }
+
+        static IEnumerator CheckKeyboardRewards(LevelManager field)
+        {
+            characterFolder="reward-keys";frame=0;
+            Directory.CreateDirectory(Output+"/"+characterFolder);
+            File.WriteAllText(Output+"/"+characterFolder+"/markers.txt","");
+            Time.captureFramerate=24;
+            Mark("level-reroll");
+            yield return CheckRewardChain(field);
+            var ui=ApothecaryUI.Instance;
+            var skills=field.PlayerCharacter.Skills;
+            int initialDash=skills.DashRewardUpgrades;
+            bool confirmed=false;
+            Check(ui.RequestSkillReward(()=>confirmed=true),"offer the actual mini-stage completion reward");
+            yield return Wait(()=>ui.Page=="skillReward","enter real mini reward UI");
+            Mark("mini-choices");
+            yield return Film(15);
+            Check(ui.GetComponentsInChildren<NumberedCardChoice>().Count(c=>c.isActiveAndEnabled)==3,
+                "three actual mini reward cards have keyboard bindings");
+            Keys(Key.Digit3);
+            yield return FilmUntil(()=>confirmed,14,"number 3 confirms dash reward and resumes play");
+            Keys();
+            Check(skills.DashRewardUpgrades==initialDash+1 && ui.Page=="hud","real selected mini reward granted once");
+            Mark("back-to-field");yield return Film(5);
+            var director=Object.FindObjectOfType<MiniStageDirector>();
+            var portals=Object.FindObjectsOfType<BloodClotMiniStagePortal>();
+            director.OpenEntrancePortal(field.PlayerCharacter.transform.position+Vector3.right);
+            var entry=Object.FindObjectsOfType<BloodClotMiniStagePortal>().First(p=>!portals.Contains(p));
+            var trigger=entry.GetComponents<Collider2D>().First(c=>c.isTrigger);
+            Vector3 stand=trigger.bounds.center+Vector3.left*trigger.bounds.extents.x*.9f;
+            field.PlayerCharacter.transform.position=stand;
+            field.PlayerCharacter.GetComponent<Rigidbody2D>().position=stand;
+            Physics2D.SyncTransforms();
+            var guide=director.GetComponent<BloodClotGuideHUD>();
+            var charge=entry.GetComponent<BloodClotOvercharge>();
+            yield return FilmUntil(()=>charge.AtEntrance && guide.Detail.Contains("일반 입장"),36,"reachable blood clot advertises entry");
+            var caps=guide.GetComponentsInChildren<InteractionKeycapGraphic>().Where(c=>c.isActiveAndEnabled).Select(c=>c.Legend.text).ToArray();
+            Check(caps.Contains("E") && caps.Contains("Q"),"the actual mini-stage portal shows both keyboard caps");
+            Mark("portal-keys");yield return Film(12);
+            Keys(Key.Q);
+            yield return FilmUntil(()=>charge.Started,16,"Q activates the real mini-stage overcharge");
+            Keys();yield return Film(14);Mark("portal-active");
+            InputSystem.RemoveDevice(keyboard);keyboard=null;
+            Time.captureFramerate=0;
         }
 
         static IEnumerator Drive()
@@ -519,7 +664,7 @@ namespace Vampire.Tests.Editor
                 CrossSceneData.CharacterBlueprint=selected;
                 Check(StageEntryLoading.Begin(selected,null,0),"direct scored test departure");
                 yield return Wait(()=>GStarSession.AttemptStarted && !StageEntryLoading.IsLoading,"oral field ready");
-                yield return CheckRewardChain(Object.FindObjectOfType<LevelManager>());
+                yield return CheckKeyboardRewards(Object.FindObjectOfType<LevelManager>());
                 SessionState.SetString(KeyName+"result","PASS");
                 yield break;
             }
@@ -547,15 +692,18 @@ namespace Vampire.Tests.Editor
             }
             if (PracticeRoster)
             {
-                foreach (var name in new[]{"Ashi","Ari","Hyuki","Shini"})
+                var roster=InputRetest ? new[]{"Ari","Hyuki","Shini","Ashi"} : new[]{"Ashi","Ari","Hyuki","Shini"};
+                foreach (var name in roster)
                 {
                     int index = Array.FindIndex(ApothecaryUI.Instance.Config.characters,c=>c!=null && OctoberArt.CharacterKey(c)==name);
                     Check(index>=0,name+" available in departure preparation");
                     FindButton("Choice 0 "+index).onClick.Invoke();
                     yield return CheckPracticeToOral();
                     Check(characterFolder==name,name+" verified on the actual field");
-                    Object.FindObjectOfType<LevelManager>().GameOver();
-                    yield return Wait(()=>ApothecaryUI.Instance.Page=="result",name+" completed the practice-to-result path");
+                    var played=Object.FindObjectOfType<LevelManager>();
+                    if (name=="Ashi" && !InputRetest) yield return CheckKeyboardRewards(played);
+                    played.GameOver();
+                    yield return Wait(()=>ApothecaryUI.Instance.Page=="gstarNext",name+" completed the practice-to-next-challenge path");
                     Check(GStarSession.FinishVisitor() && GStarSession.ResetVisitor(),"next isolated visitor can start a fresh practice");
                     Time.timeScale=1;
                     UnityEngine.SceneManagement.SceneManager.LoadScene(0);
@@ -569,11 +717,9 @@ namespace Vampire.Tests.Editor
             yield return CheckPracticeToOral();
             var level=Object.FindObjectOfType<LevelManager>();
             yield return GStarCombatFeedbackSmoke.CheckField(level);
-            yield return CheckRewardChain(level);
+            yield return CheckKeyboardRewards(level);
             level.GameOver();
-            yield return Wait(()=>ApothecaryUI.Instance.Page=="result","actual end callback opens score panel");
-            FindButton("GStar result next").onClick.Invoke();
-            yield return null;
+            yield return Wait(()=>ApothecaryUI.Instance.Page=="gstarNext","first actual end callback opens next challenge directly");
             Check(ApothecaryUI.Instance.Page=="gstarNext"&&GStarSession.RemainingAttempts==1,"all stages available for second departure");
             Capture("second-challenge");
             FindButton("GStar challenge 1").onClick.Invoke();

@@ -106,6 +106,22 @@ namespace Vampire
             choice.keycap.alpha = button.interactable ? 1f : .43f;
         }
 
+        internal static bool IsButtonOnTop(Button action, Transform owner)
+        {
+            var events = EventSystem.current;
+            if (events == null) return false;
+            var canvas = action.GetComponentInParent<Canvas>()?.rootCanvas;
+            if (canvas == null) return false;
+            var buttonRect = (RectTransform)action.transform;
+            var camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var point = RectTransformUtility.WorldToScreenPoint(camera, buttonRect.TransformPoint(buttonRect.rect.center));
+            hits.Clear();
+            events.RaycastAll(new PointerEventData(events) { position = point }, hits);
+            bool onTop = hits.Count > 0 && hits[0].gameObject.transform.IsChildOf(owner);
+            hits.Clear();
+            return onTop;
+        }
+
         void OnEnable() { activeChoices++; }
         void OnDisable() { activeChoices = Mathf.Max(0, activeChoices - 1); claimedFrame = Time.frameCount; }
 
@@ -132,18 +148,7 @@ namespace Vampire
                 if (!GameInput.GetKeyDown(key)) return;
             }
             if (UnityEngine.InputSystem.Mouse.current?.leftButton.wasReleasedThisFrame == true) return;
-            var events = EventSystem.current;
-            if (events == null) return;
-            var canvas = action.GetComponentInParent<Canvas>()?.rootCanvas;
-            if (canvas == null) return;
-            var buttonRect = (RectTransform)action.transform;
-            var camera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
-            var point = RectTransformUtility.WorldToScreenPoint(camera, buttonRect.TransformPoint(buttonRect.rect.center));
-            hits.Clear();
-            events.RaycastAll(new PointerEventData(events) { position = point }, hits);
-            bool onTop = hits.Count > 0 && hits[0].gameObject.transform.IsChildOf(card);
-            hits.Clear();
-            if (!onTop) return;
+            if (!IsButtonOnTop(action,card)) return;
             claimedKey = key;
             claimedFrame = Time.frameCount;
             if (available) action.onClick.Invoke();

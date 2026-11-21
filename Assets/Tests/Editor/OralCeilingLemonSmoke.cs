@@ -41,11 +41,13 @@ namespace Vampire.Tests.Editor
             // Editor domain reload clears CrossSceneData. Restore the same selection
             // before Character.Awake, exactly where a normal scene transfer uses it.
             CrossSceneData.CharacterBlueprint=AssetDatabase.LoadAssetAtPath<CharacterBlueprint>("Assets/Blueprints/Characters/"+Blueprints[Index]+" Character Blueprint.asset");
-            CrossSceneData.StartingLobbyItems=Array.Empty<MerchantItemBlueprint>();
+            CrossSceneData.StartingLobbyItems=Environment.GetCommandLineArgs().Contains("-oralNatural")
+                ? new[]{AssetDatabase.LoadAssetAtPath<MerchantItemBlueprint>("Assets/hyeon/Items/Common/Vita C.asset")}
+                : Array.Empty<MerchantItemBlueprint>();
         }
         public static void Run()
         {
-            Directory.CreateDirectory(Root);Restore();
+            Directory.CreateDirectory(Root);Restore();SessionState.SetInt(Key+"NaturalRound",0);
             File.WriteAllText(Root+"/result.txt","RUNNING");File.WriteAllText(Root+"/checks.txt","");File.WriteAllText(Root+"/errors.txt","");
             var keys=new[]{"Coins","LobbySilverCoins"};
             File.WriteAllText(Root+"/prefs.json",JsonUtility.ToJson(new Backup{prefs=keys.Select(k=>new Pref{key=k,had=PlayerPrefs.HasKey(k),value=PlayerPrefs.GetInt(k)}).ToArray()}));
@@ -90,6 +92,13 @@ namespace Vampire.Tests.Editor
                 if(EditorApplication.isPlaying){EditorApplication.ExitPlaymode();return;}
                 if(EditorApplication.isPlayingOrWillChangePlaymode)return;
                 bool failed=SessionState.GetBool(Key+"Failed",false);
+                int round=SessionState.GetInt(Key+"NaturalRound",0);
+                if(!failed && Environment.GetCommandLineArgs().Contains("-oralNatural") && round<3)
+                {
+                    SessionState.SetInt(Key+"NaturalRound",round+1);
+                    BeginSession();
+                    return;
+                }
                 string result=(failed?"FAIL":"PASS")+" checks="+SessionState.GetInt(Key+"Checks",0)+" character="+Names[Index]+" characterSessions=1";
                 File.WriteAllText(Root+"/result.txt",result);File.WriteAllText(Output+"/result.txt",result);
                 File.Copy(Root+"/checks.txt",Output+"/checks.txt",true);File.Copy(Root+"/errors.txt",Output+"/errors.txt",true);
@@ -136,7 +145,15 @@ namespace Vampire.Tests.Editor
         static IEnumerator Checks(LevelManager level)
         {
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
-            Application.runInBackground=true;Time.timeScale=1;RunScore.Exclude("Ceiling C02 and lemon spring controlled animation QA");Silence(level);
+            Application.runInBackground=true;Time.timeScale=1;
+            if (Environment.GetCommandLineArgs().Contains("-oralDayThree"))
+            {
+                if(Environment.GetCommandLineArgs().Contains("-oralNatural"))yield return DayThreeNatural(level);
+                else yield return DayThreeField(level);
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
+            RunScore.Exclude("Ceiling C02 and lemon spring controlled animation QA");Silence(level);
             if (Environment.GetCommandLineArgs().Contains("-gstarFieldBalance"))
             {
                 yield return GStarBalanceChecks(level);

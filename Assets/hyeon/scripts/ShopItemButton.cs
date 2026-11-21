@@ -69,7 +69,7 @@ namespace Vampire
                 itemNameText.text = item.itemName;
 
             if (itemDescriptionText != null)
-                itemDescriptionText.text = item.description;
+                itemDescriptionText.text = item.ChoiceDescription;
 
             if (itemCostText != null)
             {

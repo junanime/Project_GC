@@ -92,6 +92,21 @@ namespace Vampire.Tests.Editor
             Assert.IsTrue(GStarSession.LastSuccess);
         }
 
+        [Test] public void EarlyRegistrationResumesUntilSurveyAndCannotConsumeSecondChance()
+        {
+            Assert.IsTrue(GStarSession.TryBeginAttempt(0,out _));
+            Assert.IsTrue(GStarSession.MarkAttemptStarted());
+            Assert.IsTrue(GStarSession.CompleteAttempt(false));
+            Assert.IsTrue(GStarSession.RequestRegistration());
+            GStarSession.ReloadForTests();
+            Assert.IsTrue(GStarSession.RegistrationRequested);
+            Assert.IsFalse(GStarSession.TryBeginAttempt(2,out _));
+            Assert.AreEqual(1,GStarSession.RemainingAttempts);
+            Assert.IsTrue(GStarSession.FinishVisitor());
+            Assert.IsTrue(GStarSession.ResetVisitor());
+            Assert.IsFalse(GStarSession.RegistrationRequested);
+        }
+
         [Test] public void SurveyPersistsUntilExplicitNextVisitorAndClearsContactData()
         {
             Assert.IsTrue(GStarSession.SetIdentity("테스트", "01000000000"));

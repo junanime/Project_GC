@@ -28,7 +28,7 @@ namespace Vampire
                 nameText.text = item.itemName;
 
             if (descriptionText != null)
-                descriptionText.text = item.description;
+                descriptionText.text = item.ChoiceDescription;
 
             if (costText != null)
                 costText.text = $"{item.silverCost} Silver";

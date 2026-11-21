@@ -97,7 +97,7 @@ namespace Vampire.Tests.Editor
                 string id="item/"+TutorialGuide.ItemId(item);PlayerPrefs.DeleteKey(TutorialGuide.SeenKey(id));
                 item.transform.position=origin+Vector2.up*7;item.Init(level.EntityManager,level.PlayerCharacter);item.Setup(false);
                 yield return AwaitGuide(id);TutorialGuide.QueueItem(item);yield return null;yield return null;Check(!TutorialGuide.IsOpen,"Repeated item suppressed "+id);
-            if(item is RedPotion){item.Use();Check(level.SpawnPotionRemaining==30,"Potion activates spawn buff");level.ActivateSpawnPotion();Check(level.SpawnPotionRemaining==30&&LevelManager.SpawnPotionMultiplier==1.5f,"Potion refresh without stacking");}
+            if(item is RedPotion){item.Use();Check(level.HourglassRemaining==20,"Potion activates spawn buff");level.ActivateHourglass();Check(level.HourglassRemaining==20&&LevelManager.HourglassSpawnRate==1.2f,"Hourglass does not stack");}
                 else Object.Destroy(item.gameObject);
             }
             var bomb=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Chest/Bomb.prefab");Check(TutorialGuide.ItemId(bomb.GetComponent<Collectable>())==null,"Bomb excluded");

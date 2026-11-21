@@ -25,6 +25,19 @@ namespace Vampire
         private bool hasOriginalDrag = false;
         private float originalDrag;
 
+        // Field pacing and movement buffs can change the base while honey and ice coexist.
+        // Honey restores the most recent base; the ice layer continues to own its final multiplier.
+        internal static void SetUnslowedDrag(Rigidbody2D body, float drag)
+        {
+            var honey = body.GetComponent<HoneySlowStatus>();
+            if (honey != null && honey.hasOriginalDrag)
+            {
+                honey.originalDrag = drag;
+                drag /= honey.SpeedMultiplier * honey.SpeedMultiplier;
+            }
+            IceChillStatus.SetBaseDrag(body, drag);
+        }
+
         private void Awake()
         {
             targetRigidbody = GetComponent<Rigidbody2D>();
@@ -92,9 +105,10 @@ namespace Vampire
 
         private void RestoreOriginalDrag()
         {
-            if (targetRigidbody != null && hasOriginalDrag)
+            if (hasOriginalDrag)
             {
-                IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag);
+                hasOriginalDrag = false;
+                if (targetRigidbody != null) IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag);
             }
 
             slowCoroutine = null;

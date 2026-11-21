@@ -21,6 +21,7 @@ namespace Vampire
             var canvas = gameObject.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 32755;
+            gameObject.AddComponent<GraphicRaycaster>();
             var scaler = gameObject.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1280, 720);
@@ -153,7 +154,7 @@ namespace Vampire
                     }
                     else if (player.Skills.IsAri)
                     {
-                        line = "변신했어요! 적을 향해 대시하세요.";
+                        line = "변신했어요! 오른쪽 적에게 대시하세요.";
                         binding = GameKeyAction.Dash;
                     }
                     else if (player.Skills.IsShini)
@@ -181,10 +182,15 @@ namespace Vampire
                     if (CrateInRange) binding = GameKeyAction.Interact;
                     break;
                 case 7:
-                    title = "체력 회복";
-                    line = "하트에 다가가 체력을 회복하세요.";
+                    title = "아이템 획득";
+                    line = "하트가 아래 아이템 칸에 들어가요.";
                     break;
                 case 8:
+                    title = "체력 회복";
+                    line = "아래 칸의 하트를 사용해 보세요.";
+                    binding = GameKeyAction.Slot2;
+                    break;
+                case 9:
                     title = "체력을 회복했어요!";
                     line = "필드의 다른 아이템도 찾아보세요.";
                     break;
@@ -196,7 +202,7 @@ namespace Vampire
             }
 
             bool move = Step == 0;
-            bool departure = Step == 9;
+            bool departure = Step == 10;
             caption.text = title;
             action.text = line;
             cross.gameObject.SetActive(move);
@@ -215,7 +221,7 @@ namespace Vampire
             }
             else if (binding.HasValue)
             {
-                headKey.ShowKey(KeyName(binding.Value), departure ? 47 : 43, departure);
+                headKey.ShowKey(Step == 8 ? HeartKeyLabel : KeyName(binding.Value), departure ? 47 : 43, departure || Step == 8);
                 float width = headKey.Bounds.sizeDelta.x;
                 headKey.Bounds.anchoredPosition = new Vector2(left + width * .5f, departure ? 8 : 0);
                 if (departure)

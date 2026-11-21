@@ -15,6 +15,7 @@ namespace Vampire
         public ItemTag itemTag;
 
         [TextArea] public string description;
+        public string ChoiceDescription => GStarDemo.Enabled ? OctoberItemBalance.ChoiceText(octoberId, description) : description;
         public Sprite itemIcon;
         public int cost;
 

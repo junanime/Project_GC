@@ -30,9 +30,11 @@ namespace Vampire.Tests.Editor
         static Keyboard keyboard;
         static GStarUITestHost host;
         static GStarUISmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
-        public static void Run()
+        public static void Run() => Begin(false);
+        public static void RunWithFieldFinishes() => Begin(true);
+        static void Begin(bool runFieldFinishes)
         {
-            GStarBuild.PrepareArt();
+            SessionState.SetBool(Key+"ThenField",runFieldFinishes);
             Directory.CreateDirectory(Output);
             File.WriteAllText(Output + "/checks.txt", ""); File.WriteAllText(Output + "/errors.txt", "");
             SessionState.SetString(Key + "Data", Path.GetFullPath(Path.Combine(Output, "data-" + Guid.NewGuid().ToString("N"))));
@@ -53,7 +55,7 @@ namespace Vampire.Tests.Editor
         }
         static void Attach()
         {
-            started = false; deadline = EditorApplication.timeSinceStartup + 240;
+            started = false; deadline = EditorApplication.timeSinceStartup + 600;
             EditorApplication.update -= Tick; EditorApplication.update += Tick;
             Application.logMessageReceived -= Log; Application.logMessageReceived += Log;
         }
@@ -78,7 +80,16 @@ namespace Vampire.Tests.Editor
                 bool failed = SessionState.GetBool(Key + "Fail", false);
                 SessionState.SetBool(Key, false);
                 File.WriteAllText(Output + "/result.txt", failed ? "FAIL" : "PASS: live result registration, rankings, next attempts, preparation and staff reset");
-                EditorApplication.Exit(failed ? 1 : 0); return;
+                bool fieldNext=SessionState.GetBool(Key+"ThenField",false);
+                SessionState.SetBool(Key+"ThenField",false);
+                if(fieldNext && !failed)
+                {
+                    EditorApplication.update-=Tick;
+                    Application.logMessageReceived-=Log;
+                    EditorApplication.delayCall+=GStarFlowSmoke.Run;
+                }
+                else EditorApplication.Exit(failed?1:0);
+                return;
             }
             if (!EditorApplication.isPlaying || started || ApothecaryUI.Instance == null) return;
             started = true;
@@ -132,25 +143,6 @@ namespace Vampire.Tests.Editor
             var corners = new Vector3[4]; ((RectTransform)component.transform).GetWorldCorners(corners);
             return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
         }
-        static Dictionary<string, Rect> Geometry()
-        {
-            var result = new Dictionary<string, Rect>();
-            foreach (string name in new[] { "GStar input name", "GStar input phone", "GStar register", "GStar result next", "GStar total score", "GStar ranking stage 0", "GStar ranking stage 1", "GStar ranking stage 2" })
-                result[name] = Bounds(Named<RectTransform>(name));
-            foreach (string text in new[] { "01 기록 · 랭킹", "02 다음 도전", "03 체험 종료", "이번 도전 점수" }) result[text] = Bounds(Text(text));
-            result["title"] = Bounds(Text("스테이지 클리어!") ?? Text("스테이지 클리어 실패"));
-            return result;
-        }
-        static void SameGeometry(Dictionary<string, Rect> expected)
-        {
-            var actual = Geometry();
-            foreach (var entry in expected)
-            {
-                Rect a = actual[entry.Key], b = entry.Value;
-                Check(Mathf.Abs(a.x - b.x) < .5f && Mathf.Abs(a.y - b.y) < .5f && Mathf.Abs(a.width - b.width) < .5f && Mathf.Abs(a.height - b.height) < .5f,
-                    "clear/failure geometry identical: " + entry.Key);
-            }
-        }
         static void CheckResultLayout()
         {
             var portrait=Named<Image>("GStar result portrait");
@@ -188,7 +180,8 @@ namespace Vampire.Tests.Editor
             Check(GStarLeaderboard.CaptureCompleted(id, GStarSession.SessionId, stage, Score(success, normal)), "capture finished combat snapshot");
             Check(GStarSession.CompleteAttempt(success), "complete attempt once");
             Set("passed", success); Set("gstarBoard", stage); Set("gstarNotice", ""); Set("gstarConsent", false);
-            UI.Show("result"); return id;
+            var route=typeof(ApothecaryUI).GetMethod("GStarInitialPage",BindingFlags.Instance|BindingFlags.NonPublic);
+            UI.Show((string)route.Invoke(UI,new object[]{false})); return id;
         }
         static IEnumerator RegisterInputs(bool consent = true, string phoneValue = TestPhone)
         {
@@ -244,56 +237,104 @@ namespace Vampire.Tests.Editor
         }
         static IEnumerator KeyPress(InputKey key)
         {
-            keyboard.MakeCurrent(); InputSystem.QueueStateEvent(keyboard, new KeyboardState(key));
-            yield return null; yield return null;
-            InputSystem.QueueStateEvent(keyboard, new KeyboardState());
-            yield return null; yield return Settled();
+            keyboard.MakeCurrent();
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState());InputSystem.Update();
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState(key));InputSystem.Update();
+            Check(keyboard[key].wasPressedThisFrame,"real key reached the test keyboard: "+key);
+            UI.SendMessage("Update",SendMessageOptions.RequireReceiver);
+            InputSystem.QueueStateEvent(keyboard,new KeyboardState());InputSystem.Update();
+            yield return Settled();
         }
+        static IEnumerator FilmRanking(string sequence,int frames)
+        {
+            string folder=Path.Combine(Output,sequence);
+            Directory.CreateDirectory(folder);
+            int offset=Directory.GetFiles(folder,"*.png").Length;
+            for(int i=0;i<frames;i++)
+            {
+                yield return new WaitForSecondsRealtime(.10f);
+                Capture(sequence+"/"+(offset+i).ToString("D3"),960,540);
+            }
+        }
+        static IEnumerator FilmNameEntry(string sequence,string nickname)
+        {
+            var field=Named<TMP_InputField>("GStar input name");
+            field.ActivateInputField();
+            foreach(char letter in nickname)
+            {
+                field.text+=letter;
+                field.caretPosition=field.text.Length;
+                yield return FilmRanking(sequence,1);
+            }
+            field.DeactivateInputField();
+            EventSystem.current.SetSelectedGameObject(null);
+        }
+
         static IEnumerator Checks()
         {
             Application.runInBackground = true;
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
+            var oldInput=InputSystem.settings;
+            var input=Object.Instantiate(oldInput);
+            input.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            input.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+            InputSystem.settings=input;
             DisableDesktopPointer(); keyboard = InputSystem.AddDevice<Keyboard>("GStar QA keyboard");
+            if(!keyboard.enabled)InputSystem.EnableDevice(keyboard);
             Check(GStarDemo.DataDirectory == SessionState.GetString(Key + "Data", "") && GStarLeaderboard.ExportDirectory == GStarDemo.DataDirectory, "session and ranking storage are isolated");
             Check(GStarSession.RemainingAttempts == 2 && UI.Page == "main", "fresh visitor starts on title with two attempts");
             Check(GStarLeaderboard.CaptureCompleted("seed-record", "seed-visitor", 1, Score(false, 50)), "seed independent competitor record");
             Check(GStarLeaderboard.Submit("앞선참가자", "01000000002", 1, "seed-record", "seed-visitor", Score(false, 50)).success, "seed competitor ranked");
+            string sameFilm="same-"+GStarSession.SessionId.Substring(0,8);
+            string differentFilm="different-"+GStarSession.SessionId.Substring(0,8);
+            File.WriteAllLines(Path.Combine(Output,"rank-film-directories.txt"),new[]{sameFilm,differentFilm});
             string first = Complete(1, true); yield return Settled();
-            Check(Has("스테이지 클리어!") && Has("이번 도전 점수"), "clear title and live score visible");
-            var geometry = Geometry(); CheckResultLayout(); Capture("01-clear-unregistered");Capture("01-clear-1280",1280,720);
-            Click("ranking stage 0");yield return Settled();CheckResultLayout();Capture("01b-ranking-mouth");
-            Click("ranking stage 2");yield return Settled();CheckResultLayout();Capture("01c-ranking-colon");
-            Click("ranking stage 1");yield return Settled();
-            yield return CheckInputFocus();
-            yield return RegisterInputs(false);
-            Check(Has("연락처 저장 동의") && GStarLeaderboard.GetRunRank(first) == null, "registration requires actual consent");
-            Click("consent"); yield return Settled(); Click("register"); yield return Settled();
-            var firstRank = GStarLeaderboard.GetRunRank(first);
-            Check(firstRank != null && firstRank.rank == 1 && Has("내 순위") && Has("등록 완료"), "registration updates official rank live");
-            Check(!Named<TMP_InputField>("GStar input name").interactable && !Button("register").IsInteractable(), "submitted record is locked against duplicate editing");
-            Check(!UI.GetComponentsInChildren<TextMeshProUGUI>().Any(t => t.GetComponentInParent<TMP_InputField>() == null && t.text.Contains(TestPhone)), "contact never appears in public ranking text");
-            Capture("02-clear-ranked"); Click("score details"); yield return Settled(); Check(Has("이번 도전 점수 내역"), "score breakdown opens"); Capture("03-score-details"); Click("close details"); yield return Settled();
-            Click("result next"); yield return Settled(); ValidateNext(1); Capture("04-next-one");
+            yield return FilmRanking(sameFilm,5);
+            ValidateNext(1);
+            Check(Has("위장 클리어!") && Has("그만하기") && Named<TMP_InputField>("GStar input name")==null,"first ending shows result summary and second stage choice without an identity form");
+            Capture("01-first-next");Capture("01-first-next-1280",1280,720);
             string visitor = GStarSession.SessionId; Click("change character");
             yield return Wait(() => UI != null && UI.Page == "prepare", 20, "character change opens actual preparation scene"); yield return Settled(); DisableDesktopPointer();
-            Check(GStarSession.SessionId == visitor && GStarSession.RemainingAttempts == 1, "character/loadout change preserves used chance"); Capture("05-preparation-return");
-            string second = Complete(1, false, 10); yield return Settled(); SameGeometry(geometry);CheckResultLayout();
-            var failedTitle = Text("스테이지 클리어 실패"); Check(failedTitle != null && failedTitle.colorGradient.bottomLeft.b > failedTitle.colorGradient.bottomLeft.r, "failure title uses purple treatment"); Capture("06-failure-unregistered");
-            yield return RegisterInputs();
-            var secondRank = GStarLeaderboard.GetRunRank(second);
-            Check(secondRank != null && secondRank.score == firstRank.score && secondRank.runId == first && GStarLeaderboard.GetTop(1).Count == 2, "lower repeat retains official best and one prize place");
-            Check(Has("개인 최고 기록"), "lower score explains official personal-best ranking"); Capture("07-failure-ranked");
-            Click("result next"); yield return Settled(); ValidateNext(0); Capture("08-next-zero");
-            Check(!GStarSession.TryBeginAttempt(1, out _), "third attempt is refused");
-            Check(GStarSession.ResetVisitor(), "new visitor for independent stage leaderboard");
-            string third = Complete(2, true, 250); yield return Settled();
-            Check(((TMP_Text)Named<TMP_InputField>("GStar input phone").placeholder).text == "필수로 입력하지 않으셔도 됩니다!", "phone placeholder explicitly says optional");
-            yield return RegisterInputs(false, "");
-            Check(GStarLeaderboard.GetParticipantRank("", GStarSession.SessionId, 2) != null && Has("내 순위"), "anonymous registration needs no phone consent and shows own rank");
-            Check(GStarLeaderboard.GetRunRank(third).stageId == 2 && GStarLeaderboard.GetTop(2).Count == 1, "next visitor uses independent stage leaderboard");
-            Click("result next"); yield return Settled(); ValidateNext(1); Capture("09-next-one");
-            Click("finish experience"); yield return Settled();
-            Check(UI.Page == "gstarSurvey" && GStarSession.VisitorFinished, "finish opens survey and closes visitor");
+            Check(GStarSession.SessionId == visitor && GStarSession.RemainingAttempts == 1, "character/loadout change preserves used chance");
+            string second = Complete(1, false, 10); yield return Settled();
+            Check(UI.Page=="result" && Has("두 판의 도전 기록") && Has("이번 체험 최고 기록"),"second stage repeat opens both scores, highlights its best");
+            Check(Has($"{Score(true).Total:N0}점") && Has($"{Score(false,10).Total:N0}점"),"both completed scores are visible");
+            Check(!GStarSession.TryBeginAttempt(1,out _),"third departure is refused");
+            CheckResultLayout(); Capture("02-same-before");
+            yield return FilmRanking(sameFilm,4);
+            yield return FilmNameEntry(sameFilm,"체험검수");
+            Named<TMP_InputField>("GStar input name").text="";
+            yield return CheckInputFocus();
+            yield return RegisterInputs(false);
+            Check(Has("연락처 저장 동의") && GStarLeaderboard.GetRunRank(first)==null,"optional contact needs consent");
+            Click("consent");yield return Settled();Click("register");yield return Settled();
+            var firstRank=GStarLeaderboard.GetRunRank(first);
+            Check(firstRank!=null && firstRank.score==Score(true).Total && GStarLeaderboard.GetRunRank(second)==null,"only the higher-scoring repeat entered the ranking");
+            Check(GStarLeaderboard.GetTop(1).Count==2 && Has("내 순위")&&!Button("register").IsInteractable(),"one prize place per person per stage");
+            Check(!UI.GetComponentsInChildren<TextMeshProUGUI>().Any(v=>v.text.Contains(TestPhone)),"contact stays private after registration, including locked fields");
+            yield return FilmRanking(sameFilm,5);
+            Capture("03-same-ranked");Click("score details");yield return Settled();
+            Check(Has("1차 · 위장 점수 내역"),"first score details");Click("other details");yield return Settled();
+            Check(Has("2차 · 위장 점수 내역"),"second score details");Click("close details");yield return Settled();
+            Click("result next");yield return Settled();
+            Check(UI.Page=="gstarSurvey"&&GStarSession.VisitorFinished,"same-stage visit goes to survey");
+            Check(GStarSession.ResetVisitor(),"start isolated two-stage visit");
+            Set("gstarDraftName",null);Set("gstarDraftPhone",null);
+            string third=Complete(0,false,50);yield return Settled();ValidateNext(1);Capture("04-different-first");
+            yield return FilmRanking(differentFilm,4);
+            string fourth=Complete(2,true,250);yield return Settled();
+            Check(Has("구강 랭킹")&&Has("대장 랭킹"),"different stages show two registration targets");
+            Capture("05-different-before");
+            yield return FilmRanking(differentFilm,4);yield return FilmNameEntry(differentFilm,"체험검수");
+            yield return RegisterInputs(false,"");
+            Check(GStarLeaderboard.GetRunRank(third)?.score==Score(false,50).Total &&
+                GStarLeaderboard.GetRunRank(fourth)?.score==Score(true,250).Total,"one click registers each stage's best without phone");
+            Check(Has("등록 완료 · 구강 1위")&&Has("등록 완료 · 대장 1위"),"both personal stage rankings visible simultaneously");
+            Click("ranking stage 0");yield return Settled();Check(Has("내 순위")&&Has("구강 TOP 3"),"first stage ranking visible");Capture("06-different-mouth");yield return FilmRanking(differentFilm,5);
+            Click("ranking stage 2");yield return Settled();Check(Has("내 순위")&&Has("대장 TOP 3"),"second stage ranking visible");Capture("07-different-colon");yield return FilmRanking(differentFilm,5);
+            Click("result next");yield return Settled();
+            Check(UI.Page=="gstarSurvey"&&GStarSession.VisitorFinished,"registered two-stage visitor reaches survey");
+            yield return FilmRanking(differentFilm,4);
             Check(Text("체험 설문").color == Color.black && Text("여러분의 의견을 들려주세요!").colorGradient.bottomLeft.g > .7f, "survey caption black and feedback heading mint");
             foreach(string qr in new[]{"survey-qr","homepage-qr"})
             {
@@ -319,12 +360,16 @@ namespace Vampire.Tests.Editor
             Check(GStarSession.RemainingAttempts == 2 && GStarSession.SessionId != visitor && !GStarSession.VisitorFinished, "new visitor receives exactly two chances");
             Check(GStarLeaderboard.GetTop(1, 100).Count == before && GStarLeaderboard.GetRunRank(first).score == firstRank.score, "staff reset retains all cumulative rankings"); Capture("12-new-visitor-ranking-kept");
             Complete(1, false, 10); yield return Settled();
-            SameGeometry(geometry); CheckResultLayout();
+            ValidateNext(1);Click("finish experience");yield return Settled();CheckResultLayout();
+            Check(UI.Page=="result"&&GStarSession.RegistrationRequested,"early finish opens one-score registration");
             Check(string.IsNullOrEmpty(Named<TMP_InputField>("GStar input name").text) &&
                 string.IsNullOrEmpty(Named<TMP_InputField>("GStar input phone").text),
                 "a new visitor's first defeat never prefills the preceding visitor's details");
-            Capture("13-first-defeat");
-            InputSystem.RemoveDevice(keyboard); keyboard = null;
+            Capture("13-first-defeat");Click("result next");yield return Settled();
+            Check(UI.Page=="gstarSurvey"&&GStarSession.VisitorFinished&&GStarLeaderboard.GetRunRank(GStarSession.LastRunId)==null,
+                "skip registration finishes this visitor without ranking their score");
+            InputSystem.RemoveDevice(keyboard);keyboard=null;
+            InputSystem.settings=oldInput;Object.Destroy(input);
             SessionState.SetBool(Key + "Done", true);
         }
         internal static void Capture(string name,int requestedWidth=0,int requestedHeight=0)

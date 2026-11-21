@@ -458,7 +458,7 @@ namespace Vampire
         private void UpdateCurveMovement()
         {
             float safeMoveDuration = Mathf.Max(0.1f, moveDuration);
-            moveElapsed += Time.fixedDeltaTime * IceMoveMultiplier;
+            moveElapsed += Time.fixedDeltaTime * MovementMultiplier;
 
             float t = Mathf.Clamp01(moveElapsed / safeMoveDuration);
 
@@ -467,7 +467,7 @@ namespace Vampire
             Vector2 targetPosition = linearPosition + curveOffset;
 
             Vector2 currentPosition = rb.position;
-            float maxStep = Mathf.Max(0.05f, leechMoveSpeed) * IceMoveMultiplier * Time.fixedDeltaTime;
+            float maxStep = Mathf.Max(0.05f, leechMoveSpeed) * MovementMultiplier * Time.fixedDeltaTime;
             Vector2 nextPosition = Vector2.MoveTowards(currentPosition, targetPosition, maxStep);
 
             rb.MovePosition(nextPosition);

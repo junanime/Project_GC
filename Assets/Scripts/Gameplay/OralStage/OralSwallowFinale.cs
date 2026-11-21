@@ -44,6 +44,11 @@ namespace Vampire
         readonly Dictionary<Monster, SpiralCapture> monsterCaptures = new Dictionary<Monster, SpiralCapture>();
         readonly List<Monster> monsterScratch = new List<Monster>();
         readonly List<Monster> releasedMonsters = new List<Monster>();
+        readonly Dictionary<ExpGem, SpiralCapture> gemCaptures = new Dictionary<ExpGem, SpiralCapture>();
+        readonly List<ExpGem> gemScratch = new List<ExpGem>();
+        readonly List<ExpGem> releasedGems = new List<ExpGem>();
+        float nextGemSweep;
+        public int SwallowedGems { get; private set; }
         SpiralCapture playerCapture;
         const float SpiralSeconds = 2.6f, SpiralAngularSpeed = 3.2f, CoreRadius = .16f;
         sealed class SpiralCapture
@@ -79,7 +84,8 @@ namespace Vampire
             events = owner.GetComponent<OralFieldEvents>();
             age = 0; spawnClock = 0; shortcutHeld = false; transferring = false;
             PairBounces = BoundaryBounces = 0;
-            PlayerCoreDamageTicks = SwallowedMonsters = 0;
+            PlayerCoreDamageTicks = SwallowedMonsters = SwallowedGems = 0;
+            nextGemSweep = 0;
             Instance = this;
         }
 
@@ -310,6 +316,7 @@ namespace Vampire
             if (!VorticesActive || level.IsRunFlowPaused || player.IsChoosingAugment ||
                 StageEntryLoading.IsLoading || MiniStageRuntimeState.IsInsideMiniStage) return;
             TickMonsterCaptures(Time.deltaTime);
+            if (GStarDemo.Enabled) TickGemCaptures(Time.deltaTime);
             if (player.IsDashing || pullGrace > 0 || stage.IsAirborne) return;
             if (playerCapture == null)
             {
@@ -418,9 +425,59 @@ namespace Vampire
             foreach (var monster in releasedMonsters) monsterCaptures.Remove(monster);
         }
 
+        internal bool TryClaimGem(ExpGem gem)
+        {
+            if (!GStarDemo.Enabled || !VorticesActive || level.IsRunFlowPaused || MiniStageRuntimeState.IsInsideMiniStage ||
+                gem == null || !gem.gameObject.activeInHierarchy || gem.IsBeingCollected) return false;
+            var pos = (Vector2)gem.transform.position;
+            var vortex = FindContainingVortex(pos);
+            if (vortex == null) return false;
+            var capture = Capture(vortex, pos, null);
+            capture.Generation = gem.SpawnGeneration;
+            gemCaptures[gem] = capture;
+            gem.EnterWhirlpool();
+            return true;
+        }
+
+        void TickGemCaptures(float dt)
+        {
+            nextGemSweep -= dt;
+            if (nextGemSweep <= 0)
+            {
+                nextGemSweep = .12f;
+                StageActorRegistry.CopyActiveGems(gemScratch);
+                foreach (var gem in gemScratch) TryClaimGem(gem);
+            }
+            releasedGems.Clear();
+            foreach (var pair in gemCaptures)
+            {
+                var gem = pair.Key;
+                var capture = pair.Value;
+                if (gem == null || !gem.gameObject.activeInHierarchy || gem.SpawnGeneration != capture.Generation)
+                {
+                    releasedGems.Add(gem);
+                    continue;
+                }
+                var target = SpiralPosition(capture, dt);
+                gem.transform.position = new Vector3(target.x, target.y, gem.transform.position.z);
+                if (capture.Radius > CoreRadius) continue;
+                level.EntityManager.DespawnGem(gem);
+                SwallowedGems++;
+                releasedGems.Add(gem);
+            }
+            foreach (var gem in releasedGems) gemCaptures.Remove(gem);
+        }
+
         void ReleaseCaptures()
         {
             playerCapture = null;
+            foreach (var pair in gemCaptures)
+            {
+                var gem = pair.Key;
+                if (gem == null || !gem.gameObject.activeInHierarchy || gem.SpawnGeneration != pair.Value.Generation) continue;
+                if (level != null && level.EntityManager != null) level.EntityManager.DespawnGem(gem);
+            }
+            gemCaptures.Clear(); gemScratch.Clear(); releasedGems.Clear();
             foreach (var entry in monsterCaptures)
             {
                 var monster = entry.Key;

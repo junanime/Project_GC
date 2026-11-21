@@ -52,7 +52,7 @@ namespace Vampire
         protected override void FixedUpdate()
         {
             if(!alive||IsFieldRuntimeSuspended||ChameleonTime.Paused||playerCharacter==null){if(rb!=null)rb.velocity=Vector2.zero;return;}
-            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*Blueprint.movespeed*IceMoveMultiplier:Vector2.zero;
+            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*Blueprint.movespeed*MovementMultiplier:Vector2.zero;
             if(entityManager?.Grid!=null)entityManager.Grid.UpdateClient(this);
         }
         public bool UsePattern(Pattern pattern)

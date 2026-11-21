@@ -93,7 +93,10 @@ namespace Vampire
             OralEventKind.Water, OralEventKind.Brush, OralEventKind.Sneeze,
             OralEventKind.Soda, OralEventKind.Food, OralEventKind.Coffee, OralEventKind.Ceiling };
 
-        struct SpawnChoice { public int Pool; public MonsterBlueprint Blueprint; }
+        struct SpawnChoice { public int Pool, Flat; public MonsterBlueprint Blueprint; }
+        readonly float[] foodWeights = new float[6];
+        int weightedSecond = -1;
+        float foodWeightSum;
         sealed class SuspendedMonster
         {
             public Monster Monster;
@@ -148,14 +151,14 @@ namespace Vampire
             swallowSuppressed = false; earlyDoubleShield = null;
             choices.Clear();
             var data = level.CurrentLevelBlueprint;
+            weightedSecond = -1;
             if (data != null && data.monsters != null)
-                for (int i = 0; i < data.monsters.Length; i++)
+                foreach (var slot in data.MonsterIndexMap)
                 {
-                    var group = data.monsters[i];
-                    if (group.monstersPrefab == null || !(group.monstersPrefab.GetComponent<Monster>() is MeleeMonster)) continue;
-                    foreach (var bp in group.monsterBlueprints)
-                        if (bp != null && OralMonsterRoster.IsBlueprint(bp)) choices.Add(new SpawnChoice { Pool = i, Blueprint = bp });
-                    if (choices.Count >= 6) break;
+                    var pool = slot.Value.Item1;
+                    var bp = data.monsters[pool].monsterBlueprints[slot.Value.Item2];
+                    if (!OralMonsterRoster.IsBlueprint(bp)) continue;
+                    choices.Add(new SpawnChoice { Pool = pool, Flat = slot.Key, Blueprint = bp });
                 }
             BuildCavities();
             var additionsObject = new GameObject("구강 추가 이벤트");
@@ -263,7 +266,11 @@ namespace Vampire
             if (kind == OralEventKind.Ceiling && OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue) return false;
             if (kind == OralEventKind.Ceiling && !PrepareCeilingBats()) return false;
             if (kind == OralEventKind.Ceiling) Tastes?.CancelBounces();
-            CurrentEvent = kind; sodaCoated.Clear(); Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
+            CurrentEvent = kind;
+            sodaCoated.Clear();
+            sodaTargets.Clear();
+            if (kind == OralEventKind.Soda && GStarDemo.Enabled) ChooseSodaTargets();
+            Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
             nextEvent = UnityEngine.Random.Range(18f, 27f);
             JawAmount = 0; CeilingPhase = 0; ceilingPhaseAge = 0; CeilingTravel01 = 0;
             TargetPosition = OralMapGeometry.Clamp(map, player.Position + player.EffectiveMoveDirection.normalized * 3f, 2.5f, OralZone.Tongue);
@@ -398,6 +405,30 @@ namespace Vampire
         }
 
         readonly HashSet<Monster> sodaCoated=new HashSet<Monster>();
+        readonly Dictionary<Monster, uint> sodaTargets = new Dictionary<Monster, uint>();
+        readonly List<Monster> sodaCandidates = new List<Monster>();
+
+        void ChooseSodaTargets()
+        {
+            SnapshotMonsters();
+            sodaCandidates.Clear();
+            foreach (var monster in monsterScratch)
+            {
+                if (Live(monster) && !monster.IsMiniStageOwned && !monster.IsFieldRuntimeSuspended &&
+                    !(monster is BloodClotMonster) && OralMapGeometry.ZoneAt(map,monster.Position) == OralZone.Tongue)
+                    sodaCandidates.Add(monster);
+            }
+            // One draw without replacement. Recycled enemies and new arrivals cannot reroll every frame.
+            int quota = Mathf.FloorToInt(sodaCandidates.Count * .4f);
+            for (int i = 0; i < quota; i++)
+            {
+                int other = UnityEngine.Random.Range(i, sodaCandidates.Count);
+                var chosen = sodaCandidates[other];
+                sodaCandidates[other] = sodaCandidates[i]; sodaCandidates[i] = chosen;
+                sodaTargets.Add(chosen, chosen.SpawnGeneration);
+            }
+        }
+
         Monster earlyDoubleShield;
         uint earlyDoubleGeneration;
         void TickSoda(float dt) {
@@ -406,6 +437,7 @@ namespace Vampire
             SnapshotMonsters();
             foreach(var monster in monsterScratch) {
                 if(!Live(monster)||monster.IsMiniStageOwned||monster.IsFieldRuntimeSuspended||sodaCoated.Contains(monster)||monster is BloodClotMonster)continue;
+                if (GStarDemo.Enabled && (!sodaTargets.TryGetValue(monster, out uint generation) || generation != monster.SpawnGeneration)) continue;
                 var rect=map.WorldRect;var uv=new Vector2((monster.Position.x-rect.xMin)/rect.width,(monster.Position.y-rect.yMin)/rect.height);
                 float wave=Mathf.Sin(uv.x*26+Elapsed*3)*.015f+Mathf.Sin(uv.x*51-Elapsed*4)*.006f;
                 float d=uv.y+(uv.x-.5f)*FlowDirection.x-front+wave;
@@ -767,10 +799,37 @@ namespace Vampire
 
         public Monster SpawnFinaleMonster(Vector2 position) => SpawnAt(position, OralZone.Tongue, false);
 
+        SpawnChoice SelectFood()
+        {
+            if (!GStarDemo.Enabled) return choices[UnityEngine.Random.Range(0, choices.Count)];
+            int second = Mathf.FloorToInt(level.CurrentLevelTime);
+            if (weightedSecond != second)
+            {
+                weightedSecond = second;
+                foodWeightSum = 0;
+                var table = level.CurrentLevelBlueprint.monsterSpawnTable;
+                float time = level.GetNormalizedLevelTime();
+                for (int i = 0; i < choices.Count; i++)
+                {
+                    foodWeightSum += table.GetProbability(time, choices[i].Flat);
+                    foodWeights[i] = foodWeightSum;
+                }
+            }
+            // Cavity defenders, food arrivals and the finale share the live field's
+            // ordinary mix. Picking from all six uniformly would reveal late species at 0:00.
+            float roll = UnityEngine.Random.value * foodWeightSum;
+            for (int i = 0; i < choices.Count; i++)
+                if (roll < foodWeights[i]) return choices[i];
+            // Random.value can equal 1, so choose the last nonzero entry on its upper boundary.
+            for (int i = choices.Count - 1; i > 0; i--)
+                if (foodWeights[i] > foodWeights[i-1]) return choices[i];
+            return choices[0];
+        }
+
         Monster SpawnAt(Vector2 position, OralZone zone, bool ceiling)
         {
             if (choices.Count == 0 || level == null || level.EntityManager == null || (!ceiling && FieldPopulation >= 112)) return null;
-            var choice = choices[UnityEngine.Random.Range(0, choices.Count)];
+            var choice = SelectFood();
             position = OralMapGeometry.Clamp(map, position, .8f, zone);
             var monster = level.EntityManager.SpawnMonster(choice.Pool, position, choice.Blueprint);
             if (monster == null) return null;

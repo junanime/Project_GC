@@ -275,8 +275,13 @@ namespace Vampire.Tests.Editor
                 }
                 StandAtTrigger(actor,portal);
                 yield return new WaitForSeconds(.16f);
-                string entryKey = $"[{GameInput.Label(GameKeyAction.Interact)}] 일반 입장";
-                yield return Wait(()=>portal.CanInteract && hud.Detail.Contains(entryKey) && charge.AtEntrance,"ordinary entry key has real portal focus");
+                yield return Wait(()=>portal.CanInteract && hud.Detail.Contains("일반 입장") && charge.AtEntrance,"ordinary entry action has real portal focus");
+                if (GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
+                {
+                    var caps=hud.GetComponentsInChildren<InteractionKeycapGraphic>().Where(c=>c.isActiveAndEnabled).Select(c=>c.Legend.text).ToArray();
+                    Check(caps.Contains(GameInput.Label(GameKeyAction.Interact)) &&
+                        caps.Contains(GameInput.Label(GameKeyAction.Overcharge)),"live field guide shows both physical action keys");
+                }
                 bool enhanced=rooms[index] is MiniStageSniperRoom;
                 if (enhanced)
                 {

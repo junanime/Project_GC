@@ -106,7 +106,7 @@ namespace Vampire
             caption.text=magnet?"자석 사용 → 코인·경험치 수집":"체력 회복 아이템 사용";
             if(potion)
             {
-                caption.text="30초 동안 일반 몬스터 스폰 +50%";
+                caption.text="사용하면 20초 동안 시간이 2배로 흐릅니다.";
                 warning.gameObject.SetActive(false);stream.gameObject.SetActive(false);
                 for(int i=0;i<extras.Length;i++)
                 {

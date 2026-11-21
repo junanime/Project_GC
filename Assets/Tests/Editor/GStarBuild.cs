@@ -17,11 +17,12 @@ namespace Vampire.Tests.Editor
                 if(importer==null)continue;
                 string artwork = Path.GetFileNameWithoutExtension(path);
                 bool qr=artwork.EndsWith("-qr",StringComparison.Ordinal);
-                bool sprite = qr || artwork == "prize-draw-gift";
+                bool hourglass = artwork.StartsWith("broken-hourglass-", StringComparison.Ordinal);
+                bool sprite = qr || hourglass || artwork == "prize-draw-gift";
                 importer.textureType=sprite?TextureImporterType.Sprite:TextureImporterType.Default;
                 if(sprite)importer.spriteImportMode=SpriteImportMode.Single;
                 importer.npotScale=TextureImporterNPOTScale.None;importer.maxTextureSize=2048;
-                importer.mipmapEnabled=false;importer.filterMode=qr?FilterMode.Point:FilterMode.Bilinear;
+                importer.mipmapEnabled=false;importer.filterMode=qr||hourglass?FilterMode.Point:FilterMode.Bilinear;
                 if(qr)importer.wrapMode=TextureWrapMode.Clamp;
                 importer.textureCompression=TextureImporterCompression.Uncompressed;
                 importer.SaveAndReimport();

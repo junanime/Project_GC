@@ -258,7 +258,7 @@ namespace Vampire
                 * Mathf.Sin(Time.time * 2.5f)
                 * approachSideNoiseStrength;
 
-            rb.velocity = (direction + sideNoise).normalized * approachMoveSpeed * IceMoveMultiplier;
+            rb.velocity = (direction + sideNoise).normalized * approachMoveSpeed * MovementMultiplier;
             if (entityManager?.Grid != null) entityManager.Grid.UpdateClient(this);
         }
 
@@ -300,7 +300,7 @@ namespace Vampire
             if (map != null && map.IsColon && map.AppliesAt(rb.position))
                 fleeDirection = ColonNavigation.Toward(rb.position,
                     map.ClampToField(rb.position + fleeDirection * 12f, map.WallWidth + 1f));
-            rb.velocity = fleeDirection * speed * IceMoveMultiplier;
+            rb.velocity = fleeDirection * speed * MovementMultiplier;
         }
 
         private void DropTreasureReward()

@@ -148,7 +148,7 @@ namespace Vampire
             if (safe == null) return;
             UpdatePreferencesUI();
             FitFrameToScreen();
-            if (ColonExitBlocksMenus) { UpdateColonExitModal(); return; }
+            if (ColonExitBlocksMenus && !IsGStarPage) { UpdateColonExitModal(); return; }
             if (dirty && !starting) { dirty = false; Render(); }
             if (GStarDemo.Enabled && UpdateGStar()) return;
             if (portrait != null && portrait.GetComponentInParent<CharacterIdlePreview>() == null && previewCharacter != null && !(Page == "result" && !passed))
@@ -186,7 +186,8 @@ namespace Vampire
         public void Show(string page, int tab = 0)
         {
             if (GStarControlPractice.Active && page == "settings") return;
-            if (ColonExitBlocksMenus && page != "result" && page != "platformError") return;
+            if (ColonExitBlocksMenus && page != "result" && page != "platformError" &&
+                !(GStarDemo.Enabled && level.IsLevelEnded && (page=="gstarNext" || page=="gstarSurvey"))) return;
             stageChoiceOpen=false;
             page = SteamGuardPage(page);
             if(page=="settings" && Page!="settings")BeginSettings();
@@ -374,7 +375,7 @@ namespace Vampire
             Grid(items.Length,i=>items[i].itemIcon,i=>items[i].itemName,.52f,.43f,.88f,.73f);
             var item=items[selection];
             bool full=LobbyLoadoutData.SelectedCarryItems.Count>=2, bought=LobbyLoadoutData.IsEquipped(item), afford=SilverWallet.CanSpend(item.silverCost);
-            Label(content,item.description,.53f,.29f,.88f,.355f,18);
+            Label(content,item.ChoiceDescription,.53f,.29f,.88f,.355f,18);
             string label=full?"구매 불가 · 2 / 2":bought?"구매 완료":!afford?"실버 부족":$"구매하기 · {item.silverCost} 실버";
             ActionButton(content,label,.55f,.205f,.86f,.28f,()=>{LobbyLoadoutData.TryBuyAndEquip(item,item.silverCost,out message);Render();},true,!full&&!bought&&afford);
         }
@@ -384,7 +385,7 @@ namespace Vampire
             if(GStarDemo.Enabled)
             {
                 if (GStarSession.NeedsControlPractice) LaunchStage(0, true);
-                else Show(GStarSession.VisitorFinished ? "gstarSurvey" : "gstarNext");
+                else Show(GStarInitialPage(false));
                 return;
             }
             stageChoiceOpen=true;Render();
@@ -425,7 +426,7 @@ namespace Vampire
             {
                 selection=Mathf.Clamp(selection,0,Config.items.Length-1);
                 Grid(Config.items.Length,i=>Config.items[i].itemIcon,i=>Config.items[i].itemName,.12f,.27f,.56f,.70f);
-                var item=Config.items[selection];title=item.itemName;description=item.description+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
+                var item=Config.items[selection];title=item.itemName;description=item.ChoiceDescription+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
             }
             else if(Tab==3 && Config.augments.Length>0)
             {
@@ -513,7 +514,8 @@ namespace Vampire
         {
             if(Instance==null || Instance.level==null)return false;
             if(GStarDemo.Enabled){RunScore.Current?.Finish(success);GStarSession.CompleteAttempt(success);Instance.gstarBoard=GStarSession.StageId;}
-            Instance.passed=success;Instance.ownsPause=false;Time.timeScale=0;Instance.Show("result");return true;
+            Instance.passed=success;Instance.ownsPause=false;Time.timeScale=0;
+            Instance.Show(GStarDemo.Enabled && GStarSession.HasCompletedAttempt ? Instance.GStarInitialPage(false) : "result");return true;
         }
         void LegacyResult()
         {

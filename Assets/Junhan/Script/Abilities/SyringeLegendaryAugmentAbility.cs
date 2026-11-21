@@ -49,7 +49,8 @@ namespace Vampire
         public override string Description => AvailableAsNoble ? PhoenixNobleTheme.DescriptionFor(augmentType.ToString()) : base.Description;
         public override Sprite Image => AvailableAsNoble ? PhoenixNobleArt.Get(augmentType.ToString()) ?? base.Image : base.Image;
         // Keep the serialized ID and implementation for a future reward category.
-        public bool AvailableAsNoble => augmentType != LegendaryAugmentType.PoisonContagion && augmentType != LegendaryAugmentType.NeedleShotgun;
+        public bool AvailableAsNoble => augmentType != LegendaryAugmentType.PoisonContagion && augmentType != LegendaryAugmentType.NeedleShotgun &&
+            !(GStarDemo.Enabled && augmentType == LegendaryAugmentType.CursorControl);
 
         [Header("Debug")]
         [Tooltip("전설증강 적용/조건 검사 로그를 출력할지 여부입니다.")]

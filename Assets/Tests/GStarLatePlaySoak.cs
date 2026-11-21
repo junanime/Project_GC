@@ -288,7 +288,7 @@ namespace Vampire.Tests
             File.AppendAllLines(Path.Combine(directory,"soak-stage"+stage+"-pairs.csv"),rows);
         }
 
-        sealed class PlaybackKeyboard : IDisposable
+        public sealed class PlaybackKeyboard : IDisposable
         {
             readonly InputSettings original, testSettings;
             readonly Keyboard keys;

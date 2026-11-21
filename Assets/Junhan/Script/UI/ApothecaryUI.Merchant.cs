@@ -34,7 +34,7 @@ namespace Vampire
                 ImageAt(card,item.itemIcon,.16f,.58f,.84f,.91f);
                 Label(card,AugmentUpgradeOdds.DisplayName(grade),.25f,.50f,.75f,.565f,16).color=AugmentPanelTheme.Accent(grade)*.7f;
                 Label(card,item.itemName,.08f,.405f,.92f,.50f,23).fontStyle=TMPro.FontStyles.Bold;
-                Label(card,item.description,.11f,.155f,.89f,.401f,18);
+                Label(card,item.ChoiceDescription,.11f,.155f,.89f,.401f,18);
                 var runtime=level?.PlayerCharacter?.GetComponent<OctoberItemRuntime>();
                 int price=RelicRuntime.Price(level?.PlayerCharacter,item.cost);
                 bool owned=runtime!=null&&runtime.Has(item.octoberId);bool afford=stats!=null&&stats.CoinsGained>=price;

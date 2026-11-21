@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Vampire
 {
@@ -9,6 +10,28 @@ namespace Vampire
         public bool CrateInRange { get; private set; }
         internal LootInteraction ItemInteraction { get; private set; }
         float practiceInjury, contactStartsAt, tipEndsAt;
+        InventorySlot heartSlot;
+        RectTransform itemTray;
+        Transform trayParent;
+        int traySibling;
+        InteractionKeycapGraphic slotKey;
+        Image heartFlight;
+        Vector2 flightStart;
+        float flightAge;
+
+        internal static bool AllowsItemUse(InventorySlot slot) => !Active ||
+            (Instance.Step == 8 && Instance.heartSlot == slot);
+
+        static string HeartKeyLabel
+        {
+            get
+            {
+                var binding = GamePreferences.Current.keyboard;
+                // Feature the number row in the booth. Either actual binding can be used.
+                var second = binding.Get(GameKeyAction.Slot2,1);
+                return second != KeyCode.None ? KeyboardBindingValues.KeyLabel(second) : KeyName(GameKeyAction.Slot2);
+            }
+        }
 
         internal static bool HoldsForContact(Character actor) =>
             Active && Instance.player == actor && Instance.Step == 5;
@@ -76,15 +99,23 @@ namespace Vampire
             }
             else if (Step == 7)
             {
-                if (PracticeHeart == null || PracticeHeart.IsBeingCollected) return;
-                var heartBox = PracticeHeart.GetComponent<Collider2D>();
-                // A magnet or a large pickup radius must not complete the lesson at
-                // the unopened chest. Let the real pop and pickup flight play in full.
-                if (!heartBox.enabled || heartBox.Distance(player.PracticeContactHitbox).distance > .22f) return;
-                player.CollectableCollider.enabled = true;
-                PracticeHeart.Collect();
+                if (PracticeHeart == null || PracticeHeart.gameObject.activeSelf) return;
+                // Storage finalized on the real slot after the chest reward flew to the player.
+                if (heartSlot.Count == 0) return;
+                if (heartFlight == null) BeginSlotFlight();
+                flightAge += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(flightAge / .35f);
+                Vector2 end = TrayPoint(RectTransformUtility.WorldToScreenPoint(null,heartSlot.IconImage.transform.position));
+                heartFlight.rectTransform.anchoredPosition = Vector2.Lerp(flightStart,end,t*t*(3-2*t)) + Vector2.up*(Mathf.Sin(t*Mathf.PI)*38);
+                heartFlight.rectTransform.localScale = Vector3.one*Mathf.Lerp(.65f,1,t);
+                if (t >= 1)
+                {
+                    Destroy(heartFlight.gameObject);
+                    slotKey.gameObject.SetActive(true);
+                    Advance();
+                }
             }
-            else if (Time.time >= tipEndsAt)
+            else if (Step == 9 && Time.time >= tipEndsAt)
             {
                 departureReleased = false;
                 Advance();
@@ -104,20 +135,42 @@ namespace Vampire
         void SetupHeart(Collectable drop)
         {
             PracticeHeart = (Health)drop;
-            var from = (Vector2)ItemChest.transform.position;
-            var away = (from - player.Position).normalized;
-            if (away.sqrMagnitude < .1f) away = Vector2.right;
-            var p = FiniteStomachMap.SafeSpawn(from + away * 1.35f,.32f);
-            drop.transform.position = new Vector3(p.x,p.y,drop.transform.position.z);
-            PracticeHeart.PracticePickup = RecoverFromHeart;
+            PracticeHeart.PracticeUse = RecoverFromHeart;
+            level.PlayerInventory.TryGetInventorySlot(drop,out heartSlot);
+            itemTray = (RectTransform)heartSlot.transform.parent;
+            trayParent = itemTray.parent;
+            traySibling = itemTray.GetSiblingIndex();
+            itemTray.SetParent(transform,false);
+            slotKey = InteractionKeycapGraphic.Create("회복 사용 키",heartSlot.transform,HeartKeyLabel,40);
+            slotKey.Bounds.anchorMin = slotKey.Bounds.anchorMax = new Vector2(.84f,.96f);
+            slotKey.ShowKey(HeartKeyLabel,40,true);
+            slotKey.gameObject.SetActive(false);
             ItemInteraction = null;
             CrateInRange = false;
             Advance();
         }
 
+        Vector2 TrayPoint(Vector2 screen)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)transform,screen,null,out var point);
+            return point;
+        }
+
+        void BeginSlotFlight()
+        {
+            flightStart = TrayPoint(Camera.main.WorldToScreenPoint(player.CenterTransform.position));
+            heartFlight = AugmentPanelTheme.Fill("약함으로 들어가는 하트",transform,Color.white);
+            AugmentPanelTheme.Box(heartFlight.rectTransform,flightStart,new Vector2(57,57));
+            heartFlight.sprite = heartSlot.IconImage.sprite;
+            heartFlight.preserveAspect = true;
+            heartFlight.raycastTarget = false;
+            flightAge = 0;
+        }
+
         void RecoverFromHeart()
         {
-            if (Step != 7) return;
+            if (Step != 8) return;
+            slotKey.gameObject.SetActive(false);
             player.RestorePracticeBump(practiceInjury);
             practiceInjury = 0;
             player.CollectableCollider.enabled = false;
@@ -126,11 +179,20 @@ namespace Vampire
             Advance();
         }
 
+        void RestoreItemTray()
+        {
+            if (itemTray == null || trayParent == null) return;
+            itemTray.SetParent(trayParent,false);
+            itemTray.SetSiblingIndex(traySibling);
+            itemTray = null;
+        }
+
         void ClearItemLesson()
         {
+            if (slotKey != null) Destroy(slotKey.gameObject);
             if (PracticeHeart != null)
             {
-                PracticeHeart.PracticePickup = null;
+                PracticeHeart.PracticeUse = null;
                 if (level != null && level.EntityManager != null) PracticeHeart.DissolveInAcidLake();
                 else Destroy(PracticeHeart.gameObject);
             }

@@ -304,10 +304,17 @@ namespace Vampire
             int count=Mathf.Max(2,Mathf.CeilToInt(points.Length*progress));line.positionCount=count;
             for(int i=0;i<count;i++)line.SetPosition(i,center+points[i%points.Length]);
         }
+        InteractionKeycapGraphic dashCrossingKey;
         void BuildHud()
         {
             hud=new GameObject("구강 이벤트 안내",typeof(Canvas),typeof(CanvasScaler));hud.transform.SetParent(root,false);var canvas=hud.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.sortingOrder=40;
             var scaler=hud.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1280,720);
+            if (GStarDemo.Enabled)
+            {
+                dashCrossingKey = InteractionKeycapGraphic.Create("혀와 이빨 건너기", hud.transform, "Shift", 31);
+                dashCrossingKey.Bounds.anchorMin = dashCrossingKey.Bounds.anchorMax = Vector2.one * .5f;
+                dashCrossingKey.gameObject.SetActive(false);
+            }
             title=Label("진행 중인 이벤트",22,new Vector2(.5f,0),new Vector2(0,195),new Vector2(1080,35));
             hint=Label("조작 안내",16,new Vector2(.5f,0),new Vector2(0,164),new Vector2(1080,28));hint.color=new Color(1,.91f,.72f);
             hint.enabled = !GStarDemo.Enabled; // At the booth, players discover field mechanics during play.
@@ -512,6 +519,23 @@ namespace Vampire
             bool show = Swallow == null && !runtime.OnCeiling && !runtime.IsAirborne &&
                 !runtime.Level.IsRunFlowPaused && !player.IsDashing && player.CurrentDashCharges > 0 &&
                 OralMapGeometry.TryJump(map, p, player.GetDashDirection(), out landing);
+            if (dashCrossingKey != null)
+            {
+                var cam = Camera.main;
+                bool canShow = show && cam != null && !player.IsChoosingAugment && !StageEntryLoading.IsLoading;
+                if (dashCrossingKey.gameObject.activeSelf != canShow) dashCrossingKey.gameObject.SetActive(canShow);
+                if (canShow)
+                {
+                    var container = (RectTransform)hud.transform;
+                    var screen = cam.WorldToScreenPoint(player.CenterTransform.position);
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(container, screen, null, out var local);
+                    dashCrossingKey.Bounds.anchoredPosition = local + Vector2.up * 64f;
+                    var keys = GamePreferences.Current.keyboard;
+                    var binding = keys.Get(GameKeyAction.Dash);
+                    if (binding == KeyCode.None) binding = keys.Get(GameKeyAction.Dash, 1);
+                    dashCrossingKey.ShowKey(binding == KeyCode.LeftShift || binding == KeyCode.RightShift ? "Shift" : KeyboardBindingValues.KeyLabel(binding), 31, true);
+                }
+            }
             for(int i=0;i<jumpArcs.Length;i++){var l=jumpArcs[i];l.enabled=show;if(!show)continue;l.positionCount=8;for(int j=0;j<8;j++){float u=(i/3f)+(j/7f)*.23f;var q=Vector2.Lerp(p,landing,u)+Vector2.up*(Mathf.Sin(u*Mathf.PI)*1.1f);l.SetPosition(j,q);}}
         }
         void OnDestroy()

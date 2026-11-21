@@ -221,12 +221,22 @@ namespace Vampire.Tests.Editor
             }, 150, "stage " + stage + " field and opening ready");
             Check(GStarSession.AttemptStarted, "attempt marked started only after valid field");
             Check(GStarAnalytics.IsRecording && AnalyticsRun().stageId == stage && AnalyticsRun().status == "active", "actual departure begins correct stage analytics");
+            // Exercise the retail registration callback on real finishes without ever ranking
+            // a QA session in the booth profile. Batch mode normally excludes those runs.
+            string testRoot=Path.GetFullPath(SessionState.GetString(Key+"Data",""));
+            Check(GStarDemo.TestOverride==true && GStarDemo.DataDirectory==testRoot &&
+                GStarLeaderboard.ExportDirectory==testRoot && GStarSession.TestDirectory==testRoot &&
+                testRoot.StartsWith(Path.GetFullPath(Output)+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase),
+                "live scoring writes only to this invocation's isolated test profile");
+            if(RunScore.Current.Exclusion=="자동 검수 실행") Set(RunScore.Current,"<Exclusion>k__BackingField",null);
+            Check(string.IsNullOrEmpty(RunScore.Current.Exclusion),"live normal stage eligible in isolated ranking test");
             Silence(Object.FindObjectOfType<LevelManager>());
             Time.timeScale = 2;
         }
         static IEnumerator Result(LevelManager level, int stage, bool success, int remaining)
         {
-            yield return Wait(() => ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == "result", 15, "stage " + stage + " shared result shown");
+            string expectedPage = remaining > 0 ? "gstarNext" : "result";
+            yield return Wait(() => ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page == expectedPage, 15, "stage " + stage + " shared result shown");
             Check(level.IsLevelEnded && RunScore.Current.IsFinished && RunScore.Current.Data.success == success, "finalized result has correct outcome");
             Check(StageProgression.Ensure(level).StageNumber == stage && SceneManager.GetActiveScene().buildIndex == 1, "result remains in original stage");
             Check(GStarSession.RemainingAttempts == remaining && !GStarSession.ActiveAttempt, "exactly one attempt consumed");
@@ -240,12 +250,33 @@ namespace Vampire.Tests.Editor
             level.LevelPassed(null); GStarSession.CompleteAttempt(!success);
             Check(GStarSession.RemainingAttempts == remaining && GStarSession.LastSuccess == success, "duplicate end callback cannot alter result or attempts");
             yield return new WaitForSecondsRealtime(1.1f);
-            Check(!StageEntryLoading.IsLoading && SceneManager.GetActiveScene().buildIndex == 1 && ApothecaryUI.Instance.Page == "result", "result does not load next stage or auto-return");
+            Check(!StageEntryLoading.IsLoading && SceneManager.GetActiveScene().buildIndex == 1 && ApothecaryUI.Instance.Page == expectedPage, "result does not load next stage or auto-return");
             Capture("stage-" + stage + (success ? "-clear" : "-failure"));
             yield return null;
             yield return new WaitForSecondsRealtime(.25f);
         }
 
+        static IEnumerator RegisterCompletedVisit(bool differentStages)
+        {
+            var ui=ApothecaryUI.Instance;
+            var runs=GStarLeaderboard.GetVisitorRuns(GStarSession.SessionId);
+            Check(ui.Page=="result" && runs.Count==2 && runs.All(r=>!r.registered),"two real game finishes precede registration");
+            Check(differentStages==(runs[0].stageId!=runs[1].stageId),"actual pair has expected stages");
+            var name=ui.GetComponentsInChildren<TMPro.TMP_InputField>().Single(x=>x.name=="GStar input name");
+            name.text=differentStages?"두스테이지":"같은스테이지";
+            yield return null;
+            var register=ui.GetComponentsInChildren<UnityEngine.UI.Button>().Single(x=>x.name=="GStar register");
+            Check(register.interactable,"rank form accepts completed gameplay");
+            register.onClick.Invoke();yield return null;yield return null;
+            foreach(var group in runs.GroupBy(r=>r.stageId))
+            {
+                var winner=group.OrderByDescending(r=>r.data.Total).First();
+                var row=GStarLeaderboard.GetParticipantRank("",GStarSession.SessionId,group.Key);
+                Check(row!=null && row.runId==winner.runId && row.score==winner.data.Total,"actual stage "+group.Key+" registered its best completed score");
+                Check(GStarLeaderboard.GetVisitorRuns(GStarSession.SessionId).Count(r=>r.stageId==group.Key&&r.registered)==1,"only one ranked record for this visitor and stage");
+            }
+            Capture(differentStages?"registered-different":"registered-same");
+        }
         static void Capture(string name)
         {
             var camera = Camera.main ?? Object.FindObjectOfType<Camera>();
@@ -297,7 +328,11 @@ namespace Vampire.Tests.Editor
             var level = Object.FindObjectOfType<LevelManager>();
             yield return AnalyticsActions(level);
             var finale = level.GetComponent<OralSwallowFinale>();
-            Check(finale != null && finale.StartForTesting(), "actual oral swallowing finale begins");
+            Check(finale != null, "timed oral finale installed");
+            // Cross the normal director threshold; the F1+F2 preview intentionally makes a
+            // run ineligible for ranking and would test a different registration case.
+            Set(level, "levelTime", OralSwallowFinale.StartTime);
+            yield return Wait(() => finale.Active, 20, "normal timed oral swallowing finale begins");
             bool swallowed = false; float until = Time.realtimeSinceStartup + 60;
             while (!level.IsLevelEnded && Time.realtimeSinceStartup < until)
             { swallowed |= finale.IsSwallowing; yield return null; }
@@ -316,6 +351,7 @@ namespace Vampire.Tests.Editor
             foreach (var phase in new[] { "hatch-open", "boarding", "hatch-close", "capsule-travel", "outlet-open" }) Check(phases.Contains(phase), "stage-one ending preserved: " + phase);
             Check(flow.AtOutlet && flow.TransitionPhase == "gstar-complete", "capsule reaches outlet without colon transfer");
             yield return Result(level, 1, true, 0);
+            yield return RegisterCompletedVisit(true);
             ApothecaryUI.ReturnToPreparation();
 
             Check(GStarSession.SessionId == session && !GStarSession.TryBeginAttempt(2,out _), "first two stages exhaust this visitor's attempts");
@@ -362,6 +398,12 @@ namespace Vampire.Tests.Editor
             Check(!level.IsLevelEnded && ApothecaryUI.Instance.Page != "result", "failure result waits for character exit");
             yield return Result(level, 1, false, 1);
             Check(level.PlayerCharacter.GetComponent<CharacterExitSequence>().Completed, "HP-zero exit completes before failure panel");
+            ApothecaryUI.ReturnToPreparation();
+            yield return Enter(1);
+            level=Object.FindObjectOfType<LevelManager>();
+            level.LevelPassed(null);
+            yield return Result(level,1,true,0);
+            yield return RegisterCompletedVisit(false);
             SessionState.SetBool(Key + "Done", true);
         }
     }

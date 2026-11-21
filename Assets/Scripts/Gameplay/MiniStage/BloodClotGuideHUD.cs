@@ -19,6 +19,7 @@ namespace Vampire
         TextMeshProUGUI heading, detail, buttonText, pointerText;
         IdentityShape frame;
         Button chargeButton;
+        InteractionKeycapGraphic actionCap, chargeCap;
         Image progress;
         TMP_FontAsset font;
         Transform target;
@@ -93,6 +94,7 @@ namespace Vampire
             bool open = exit != null && exit.IsUnlocked && room.CanReturnFrom(exit);
             bool atExit = open && exit.CanInteract && InteractionFocus.IsFocused(exit);
             string title, hint;
+            bool canUse = atExit;
             target = null;
             if (room.AwaitingSkillReward)
             {
@@ -102,14 +104,16 @@ namespace Vampire
             else if (room.RoomCleared && room.RewardChest != null && !room.RewardChestOpened && !open)
             {
                 title = room.Enhanced ? "과충전 보상 상자 도착!" : "보상 상자 도착!";
-                hint = $"혈전 오른쪽 상자에 다가가 [{GameInput.Label(GameKeyAction.Interact)}]로 여세요";
+                var interaction = room.RewardChest.GetComponentInChildren<LootInteraction>(true);
+                canUse = interaction != null && InteractionFocus.IsFocused(interaction);
+                hint = canUse ? KeyHint(GameKeyAction.Interact,"보상 상자 열기") : "혈전 오른쪽 상자에 다가가세요";
                 target = room.RewardChest.transform;
             }
             else if (open)
             {
                 title = room.EndedWithoutReward ? "보상 없이 귀환 · 혈전 구멍이 열렸어요" :
                     room.RoomCleared ? "도전 완료 · 혈전 구멍이 열렸어요!" : "도전 중 · 지금 귀환할 수도 있어요";
-                hint = atExit ? $"[{GameInput.Label(GameKeyAction.Interact)}] 원래 필드로 돌아가기" : "화살표가 가리키는 혈전으로 이동하세요";
+                hint = atExit ? KeyHint(GameKeyAction.Interact,"원래 필드로 돌아가기") : "화살표가 가리키는 혈전으로 이동하세요";
                 if (!room.RoomCleared && !atExit) hint = room.QuestHint + "  ·  중도 귀환 가능";
                 if (!atExit) target = exit.transform;
             }
@@ -119,26 +123,28 @@ namespace Vampire
                 hint = room.QuestHint;
             }
             Show(title, hint, open ? Mint : room.Enhanced ? Gold : Rose);
+            SetActionCap(canUse);
             pointerText.text = open ? "출구" : "보상";
         }
 
         void ShowField(BloodClotOvercharge current)
         {
             target = null;
-            string use = GameInput.Label(GameKeyAction.Interact);
+            bool canEnter = current.AtEntrance && director.CanEnterFromPortal;
             if (current.Enhanced)
             {
-                Show("과충전 성공!  ·  격화 혈전", current.AtEntrance ?
-                    $"[{use}] 입장  ·  클리어하면 스킬 보상과 추가 상자를 받아요" : "열린 혈전 구멍에 다가가세요  ·  클리어 보상에 상자 추가", Mint);
+                Show("과충전 성공!  ·  격화 혈전", canEnter ?
+                    KeyHint(GameKeyAction.Interact,"입장  ·  클리어하면 스킬 보상과 추가 상자를 받아요") : "열린 혈전 구멍에 다가가세요  ·  클리어 보상에 상자 추가", Mint);
             }
             else if (!current.Started)
             {
-                string ordinary = current.AtEntrance ? $"[{use}] 일반 입장" : "구멍 근처에서 일반 입장";
+                string ordinary = canEnter ? KeyHint(GameKeyAction.Interact,"일반 입장") : "구멍 근처에서 일반 입장";
                 Show("혈전 과충전  ·  추가 보상", current.Objective + "  /  " + ordinary, Gold);
                 if (current.CanBegin)
                 {
                     chargeButton.gameObject.SetActive(true);
-                    buttonText.text = $"[{GameInput.Label(GameKeyAction.Overcharge)}] 과충전 시작";
+                    buttonText.text = KeyHint(GameKeyAction.Overcharge,"과충전 시작");
+                    if (chargeCap != null) chargeCap.ShowKey(GStarControlPractice.KeyName(GameKeyAction.Overcharge),25);
                 }
             }
             else
@@ -159,6 +165,18 @@ namespace Vampire
                 bar.gameObject.SetActive(true);
                 progress.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(current.Progress / Mathf.Max(1,current.Target)), 1f);
             }
+            SetActionCap(canEnter && (!current.Started || current.Enhanced));
+        }
+
+        static string KeyHint(GameKeyAction action, string text) =>
+            GStarDemo.Enabled || GamePlatform.UsesTouchControls ? text : $"[{GameInput.Label(action)}] {text}";
+
+        void SetActionCap(bool active)
+        {
+            if (actionCap == null) return;
+            actionCap.gameObject.SetActive(active);
+            if (active) actionCap.ShowKey(GStarControlPractice.KeyName(GameKeyAction.Interact),28,true);
+            detail.rectTransform.anchorMin = new Vector2(active ? .215f : .14f,.10f);
         }
 
         void Show(string title, string body, Color accent)
@@ -241,6 +259,15 @@ namespace Vampire
             buttonText = Label("과충전 키",buttonRect,new Vector2(.025f,0),new Vector2(.975f,1),17);
             buttonText.alignment = TextAlignmentOptions.Center;
             buttonText.color = Ink;
+            if (GStarDemo.Enabled && !GamePlatform.UsesTouchControls)
+            {
+                chargeCap = InteractionKeycapGraphic.Create("과충전 키캡",buttonRect,GStarControlPractice.KeyName(GameKeyAction.Overcharge),25);
+                chargeCap.Bounds.anchorMin = chargeCap.Bounds.anchorMax = new Vector2(.15f,.5f);
+                buttonText.rectTransform.anchorMin = new Vector2(.28f,0);
+                actionCap = InteractionKeycapGraphic.Create("상호작용 키캡",card,GStarControlPractice.KeyName(GameKeyAction.Interact),28);
+                actionCap.Bounds.anchorMin = actionCap.Bounds.anchorMax = new Vector2(.174f,.31f);
+                actionCap.gameObject.SetActive(false);
+            }
             bar = AugmentPanelTheme.Rect("과충전 진행",card);
             AugmentPanelTheme.Anchors(bar,new Vector2(.14f,.065f),new Vector2(.96f,.11f));
             var track = bar.gameObject.AddComponent<Image>();

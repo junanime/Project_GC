@@ -207,14 +207,14 @@ namespace Vampire
             monsters.Clear(); foreach (var m in level.EntityManager.LivingMonsters) monsters.Add(m);
             foreach (var m in monsters)
             {
-                if (!Eligible(m) || m.Blueprint == null || m.Blueprint.atk <= 0 || OralMapGeometry.ZoneAt(map, m.Position) != OralZone.Tongue) continue;
+                if (!Eligible(m) || m.Blueprint == null || m.ContactDamage <= 0 || OralMapGeometry.ZoneAt(map, m.Position) != OralZone.Tongue) continue;
                 if (contacts.TryGetValue(m, out var prior) && prior.Generation == m.SpawnGeneration && Age < prior.Next) continue;
                 float radius = Radius + Mathf.Clamp(m.Size.x * .5f, .12f, .8f);
                 for (int i = 0; i < members.Count; i++)
                 {
                     if (!members[i].Walking || (members[i].Ground - m.Position).sqrMagnitude > radius * radius ||
                         !OralGuardRoute.SegmentOnTongue(map, m.Position, members[i].Ground, 0)) continue;
-                    if (TakeMemberDamage(i, m.Blueprint.atk)) contacts[m] = new Contact { Generation = m.SpawnGeneration,
+                    if (TakeMemberDamage(i, m.ContactDamage)) contacts[m] = new Contact { Generation = m.SpawnGeneration,
                         Next = Age + Mathf.Max(OralGuardHealth.HitInterval, m.Blueprint.atkspeed > 0 ? 1f / m.Blueprint.atkspeed : 1f) };
                     break;
                 }

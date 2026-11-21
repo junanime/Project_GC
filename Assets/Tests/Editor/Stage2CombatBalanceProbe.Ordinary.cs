@@ -100,7 +100,7 @@ namespace Vampire.Tests.Editor
                 elite.hp = elite.blueprint.hp = originalHp[i] * ratio;
                 File.AppendAllText(DirectoryPath + "/ordinary-hp.csv", Row(character, ratio, ordinary.id, AssetDatabase.GetAssetPath(originals[i]), originalHp[i], ordinary.hp, elite.hp, ((EliteMonsterBlueprint)elite.blueprint).hpMultiplier));
             }
-            if (roster.Level.normalSpawnPopulationLimit != 242 || level.SpawnPotionRemaining > 0 || !Mathf.Approximately(DigestiveEnzymeDifficultyManager.SpawnRateMultiplier, 1))
+            if (roster.Level.normalSpawnPopulationLimit != 242 || level.HourglassRemaining > 0 || !Mathf.Approximately(DigestiveEnzymeDifficultyManager.SpawnRateMultiplier, 1))
                 throw new Exception("Unexpected spawn cap or external spawn-rate modifier");
             var opening = StomachOpening.Find(false);
             Vector2 center = map.ClampToFloor(opening.FrontLip + opening.Inward * 3, 6.5f);

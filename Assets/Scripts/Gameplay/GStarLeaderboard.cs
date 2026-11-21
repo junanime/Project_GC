@@ -30,6 +30,7 @@ namespace Vampire
             public RunScoreData data;
             public int stageId;
             public string sessionId, runId, exclusion;
+            public bool registered, stageBest;
         }
         static GStarLeaderboardStore store;
 #if UNITY_EDITOR
@@ -59,6 +60,8 @@ namespace Vampire
                 Store.CaptureCompleted(run.RunId, run.SessionId, run.StageId, run.Data, run.Exclusion);
             return Store.Submit(name, phone, stage, runId, sessionId, data, exclusion);
         }
+        public static List<CompletedRun> GetVisitorRuns(string sessionId) => Store.GetVisitorRuns(sessionId);
+        public static Registration SubmitVisitor(string name, string phone, string sessionId) => Store.SubmitVisitor(name, phone, sessionId);
         public static List<Row> GetTop(int stage, int limit = 3) => Store.GetTop(stage, limit);
         public static Row GetRunRank(string runId) => Store.GetRunRank(runId);
         public static Row GetPlayerRank(string phone, int stage) => Store.GetPlayerRank(phone, stage);
@@ -243,13 +246,8 @@ namespace Vampire
                     return Failure("종료 기록을 찾을 수 없습니다. 도전을 마친 뒤 등록해 주세요.");
                 if (!string.IsNullOrEmpty(entry.exclusion) || !string.IsNullOrEmpty(exclusion))
                     return Failure("연습·검수 기록은 순위에 등록할 수 없습니다.");
-                string normalizedPhone = string.IsNullOrWhiteSpace(phone) ? "" : NormalizePhone(phone);
-                string normalizedName = NormalizeName(name);
-                if (normalizedName == null) return Failure("이름을 1~16자로 입력해 주세요. 줄바꿈과 특수 기호는 사용할 수 없습니다.");
-                if (normalizedPhone == null) return Failure("전화번호를 확인하거나 비워 두고 등록해 주세요.");
-                string knownPhone = SessionPhone(sessionId);
-                if (normalizedPhone.Length > 0 && knownPhone != null && normalizedPhone != knownPhone)
-                    return Failure("이번 체험에서 처음 등록한 전화번호와 다릅니다. 같은 번호를 입력하거나 비워 두고 등록해 주세요.");
+                string error = ValidateIdentity(name, phone, sessionId, out var normalizedName, out var normalizedPhone);
+                if (error != null) return Failure(error);
                 if (entry.registered)
                 {
                     if (entry.phone != normalizedPhone) return Failure("이미 등록된 기록입니다. 등록한 연락처를 변경할 수 없습니다.");
@@ -266,6 +264,74 @@ namespace Vampire
                 return Result(registered, false, improved);
             }
         }
+        string ValidateIdentity(string name, string phone, string sessionId, out string normalizedName, out string normalizedPhone)
+        {
+            normalizedName = NormalizeName(name);
+            normalizedPhone = string.IsNullOrWhiteSpace(phone) ? "" : NormalizePhone(phone);
+            if (normalizedName == null) return "이름을 1~16자로 입력해 주세요. 줄바꿈과 특수 기호는 사용할 수 없습니다.";
+            if (normalizedPhone == null) return "전화번호를 확인하거나 비워 두고 등록해 주세요.";
+            string knownPhone = SessionPhone(sessionId);
+            if (normalizedPhone.Length > 0 && knownPhone != null && normalizedPhone != knownPhone)
+                return "이번 체험에서 처음 등록한 전화번호와 다릅니다. 같은 번호를 입력하거나 비워 두고 등록해 주세요.";
+            return null;
+        }
+
+        // The ranking preview and the atomic write must choose the same winner on ties.
+        Dictionary<int, Entry> VisitorBests(string sessionId)
+        {
+            var best = new Dictionary<int, Entry>();
+            foreach (var entry in ledger.runs)
+            {
+                if (entry.sessionId != sessionId || !string.IsNullOrEmpty(entry.exclusion)) continue;
+                if (!best.TryGetValue(entry.stageId, out var previous) || Compare(entry, previous) < 0)
+                    best[entry.stageId] = entry;
+            }
+            return best;
+        }
+
+        public List<GStarLeaderboard.CompletedRun> GetVisitorRuns(string sessionId)
+        {
+            lock (gate)
+            {
+                Load();
+                var best = VisitorBests(sessionId);
+                return ledger.runs.Where(run => run.sessionId == sessionId)
+                    .Select(run => new GStarLeaderboard.CompletedRun {
+                        runId = run.runId, sessionId = run.sessionId, stageId = run.stageId,
+                        data = GStarScoreRules.Snapshot(run.data), exclusion = run.exclusion,
+                        registered = run.registered,
+                        stageBest = best.TryGetValue(run.stageId, out var winner) && winner == run
+                    }).ToList();
+            }
+        }
+
+        public GStarLeaderboard.Registration SubmitVisitor(string name, string phone, string sessionId)
+        {
+            lock (gate)
+            {
+                Load();
+                if (blocked) return Failure(LastError);
+                var best = VisitorBests(sessionId);
+                if (best.Count == 0) return Failure("등록할 도전 기록이 없습니다.");
+                string error = ValidateIdentity(name, phone, sessionId, out var normalizedName, out var normalizedPhone);
+                if (error != null) return Failure(error);
+                var pending = new HashSet<string>(best.Values.Where(entry => !entry.registered).Select(entry => entry.runId));
+                if (pending.Count == 0)
+                    return new GStarLeaderboard.Registration { success = true, duplicate = true, message = "이미 등록된 기록입니다." };
+
+                // Update every stage in one durable revision, including the derived prize exports.
+                var next = Copy(ledger);
+                foreach (var entry in next.runs.Where(entry => pending.Contains(entry.runId)))
+                {
+                    entry.name = normalizedName;
+                    entry.phone = normalizedPhone;
+                    entry.registered = true;
+                }
+                if (!Commit(next)) return Failure(LastError);
+                return new GStarLeaderboard.Registration { success = true, message = "스테이지별 최고 기록을 등록했습니다." };
+            }
+        }
+
         static GStarLeaderboard.Registration Failure(string message) => new GStarLeaderboard.Registration { message = message };
         GStarLeaderboard.Registration Result(Entry entry, bool duplicate, bool improved)
         {

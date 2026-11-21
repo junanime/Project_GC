@@ -15,11 +15,14 @@ using Object=UnityEngine.Object;
 namespace Vampire.Tests.Editor
 {
     [InitializeOnLoad]
-    public static class ChestLootSmoke
+    public static partial class ChestLootSmoke
     {
         const string Key="ChestLootSmoke";
         static bool PickupProofOnly => Environment.GetCommandLineArgs().Contains("-pickupFilterProof");
-        static string Output => PickupProofOnly ? "Library/GStarPickupFilterProof" : "Library/ChestLootProof";
+        static bool DayThreeBatch => Environment.GetCommandLineArgs().Contains("-hourglassPair");
+        static int BatchPass => SessionState.GetInt(Key + "PairPass", 0);
+        static bool HourglassProof => DayThreeBatch ? BatchPass < 2 : Environment.GetCommandLineArgs().Contains("-hourglassProof");
+        static string Output => HourglassProof ? "Library/GStarUIQA/" + HourglassFolder : PickupProofOnly ? "Library/GStarPickupFilterProof" : "Library/ChestLootProof";
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void IsolateSession()
         {
@@ -76,7 +79,15 @@ namespace Vampire.Tests.Editor
                 if(EditorApplication.isPlaying){EditorApplication.ExitPlaymode();return;}
                 if(EditorApplication.isPlayingOrWillChangePlaymode)return;
                 Restore();SessionState.SetBool(Key,false);bool failed=SessionState.GetBool(Key+"Failed",false);
-                File.WriteAllText(Output+"/result.txt",failed?"FAIL":"PASS");Debug.Log("[ChestLoot] FINISHED failed="+failed);EditorApplication.Exit(failed?1:0);return;
+                File.WriteAllText(Output+"/result.txt",failed?"FAIL":"PASS");
+                Debug.Log("[ChestLoot] FINISHED "+Output+" failed="+failed);
+                if (DayThreeBatch && !failed && BatchPass < 2)
+                {
+                    SessionState.SetInt(Key + "PairPass", BatchPass + 1);
+                    EditorApplication.delayCall += Run;
+                    return;
+                }
+                EditorApplication.Exit(failed?1:0);return;
             }
             var level=Object.FindObjectOfType<LevelManager>();
             if(!started&&EditorApplication.isPlaying&&level!=null&&level.PlayerCharacter!=null&&level.CurrentLevelTime>.1f)
@@ -201,6 +212,12 @@ namespace Vampire.Tests.Editor
             Application.runInBackground=true;Time.timeScale=1;Time.captureDeltaTime=1f/60;
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             var guide=Object.FindObjectOfType<TutorialGuide>();if(guide!=null){guide.Close();guide.enabled=false;}
+            if (HourglassProof)
+            {
+                yield return HourglassChecks(level);
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
             foreach(var b in Object.FindObjectsOfType<MonoBehaviour>())if(b is StageEventDirector||b is TimedSpecialMonsterSpawner||b is AcidToadSpawn||b is NPCSpawner||b is SupplyCapsuleDirector){b.enabled=false;b.StopAllCoroutines();}
             level.enabled=false;var entities=level.EntityManager;entities.enabled=false;entities.StopAllCoroutines();
             foreach(var m in entities.LivingMonsters.ToArray())m.gameObject.SetActive(false);
@@ -242,26 +259,17 @@ namespace Vampire.Tests.Editor
                 Check(renderer!=null&&renderer.sprite!=null&&renderer.enabled&&renderer.color.a>.9f,drop.item.name+" has visible drop sprite");
                 Check(item.transform.position.y>position.y+.05f&&!item.IsBeingCollected&&!item.GetComponent<Collider2D>().enabled,drop.item.name+" pops upward before pickup unlocks");
                 if(item is Bomb)yield return Capture("bomb-pop-out");
-                Set(player,"autoCollectItems",true);
-                yield return new WaitForSeconds(1.3f);
-                Check(item.gameObject.activeSelf&&!item.IsBeingCollected&&Mathf.Abs(item.transform.position.y-position.y)<.03f,drop.item.name+" waits on ground outside pickup range, including auto-collect relic");
-                if(item is Bomb)yield return Capture("bomb-on-ground");
-                Set(player,"autoCollectItems",false);
                 InventorySlot slot=null;entities.Inventory.TryGetInventorySlot(item,out slot);
                 int beforeCount=slot!=null?slot.Count:0;
-                Vector2 pickupCenter=player.CollectableCollider.bounds.center;
-                player.transform.position+=(Vector3)((Vector2)item.transform.position-pickupCenter);
-                Physics2D.SyncTransforms();
-                yield return new WaitForFixedUpdate();yield return new WaitForFixedUpdate();yield return null;
-                Check(item.IsBeingCollected,drop.item.name+" is collected automatically by pickup collider");
-                // Follow every visible frame: destination must stay near the character, never travel to HUD.
-                float timeout=Time.time+3;
-                while(item.gameObject.activeSelf&&Time.time<timeout)
+                float timeout=Time.time+8;
+                bool began=false;
+                while(item!=null && item.gameObject.activeSelf && Time.time<timeout)
                 {
-                    Check(Vector2.Distance(item.transform.position,player.CenterTransform.position)<4f,drop.item.name+" pickup stays in world near character");
+                    began |= item.IsBeingCollected;
                     yield return null;
                 }
-                Check(!item.gameObject.activeSelf,drop.item.name+" pickup completes");
+                Check(began,drop.item.name+" completes its pop then travels to a stationary player outside pickup range");
+                Check(item==null || !item.gameObject.activeSelf,drop.item.name+" delivery completes without contact");
                 if(slot!=null)
                 {
                     Check(slot.Count==beforeCount+1,drop.item.name+" adds exactly one stored item without using it");

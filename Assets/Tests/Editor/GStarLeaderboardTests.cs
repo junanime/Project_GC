@@ -25,6 +25,61 @@ namespace Vampire.Tests.Editor
             Assert.IsTrue(store.CaptureCompleted(run, session, stage, data), store.LastError);
             return store.Submit(name, phone, stage, run, session, data);
         }
+        [TestCase(false)]
+        [TestCase(true)]
+        public void VisitorRegistersOneBestPerStageWithoutMergingBystanders(bool different)
+        {
+            int secondStage=different?2:0;
+            Assert.IsTrue(store.CaptureCompleted("one","this",0,Score(20)));
+            Assert.IsTrue(store.CaptureCompleted("two","this",secondStage,Score(5)));
+            Assert.IsTrue(store.CaptureCompleted("bystander","other",0,Score(80)));
+            Assert.IsTrue(store.CaptureCompleted("practice","this",1,Score(90),"검수"));
+            Assert.IsFalse(store.SubmitVisitor("",null,"this").success);
+            Assert.IsFalse(store.SubmitVisitor("참가자","잘못된번호","this").success);
+            Assert.IsNull(store.GetRunRank("one"));
+            Assert.IsNull(store.GetRunRank("two"));
+            var before=store.GetVisitorRuns("this");
+            Assert.AreEqual(3,before.Count);
+            Assert.IsTrue(before[0].stageBest);
+            Assert.AreEqual(different,before[1].stageBest);
+            Assert.IsFalse(before[2].stageBest);
+            Assert.IsTrue(store.SubmitVisitor("참가자",null,"this").success);
+            store=new GStarLeaderboardStore(directory);
+            Assert.IsTrue(store.SubmitVisitor("참가자",null,"this").duplicate);
+            Assert.AreEqual(1,store.GetTop(0).Count);
+            Assert.AreEqual(200,store.GetRunRank("one").score);
+            if(different)Assert.AreEqual(50,store.GetRunRank("two").score);
+            else Assert.IsNull(store.GetRunRank("two"));
+            Assert.IsNull(store.GetRunRank("practice"));
+            Assert.IsNull(store.GetRunRank("bystander"));
+            Assert.AreEqual(different?3:2,File.ReadAllLines(Path.Combine(directory,"prize-draw-private.csv")).Length);
+        }
+
+        [Test] public void BatchRegistrationAtomicFailureLeavesBothBoardsUntouchedAndCanRetry()
+        {
+            Assert.IsTrue(store.CaptureCompleted("left","v",0,Score(11)));
+            Assert.IsTrue(store.CaptureCompleted("right","v",2,Score(12)));
+            using(var locked=File.Open(store.FilePath+".tmp",FileMode.Create,FileAccess.Write,FileShare.None))
+            {
+                Assert.IsFalse(store.SubmitVisitor("별명","","v").success);
+                Assert.IsNull(store.GetRunRank("left"));Assert.IsNull(store.GetRunRank("right"));
+            }
+            Assert.IsTrue(store.SubmitVisitor("별명","010-0000-1234","v").success);
+            Assert.NotNull(store.GetPlayerRank("01000001234",0));
+            Assert.NotNull(store.GetPlayerRank("01000001234",2));
+        }
+
+        [Test] public void MoreRecentHigherRunWinsSameStageAndTiesPreferEarlierCompletion()
+        {
+            Assert.IsTrue(store.CaptureCompleted("weak","v",0,Score(1)));
+            Assert.IsTrue(store.CaptureCompleted("best","v",0,Score(2)));
+            Assert.IsTrue(store.CaptureCompleted("tie-later","v",0,Score(2)));
+            Assert.IsTrue(store.SubmitVisitor("참가자","","v").success);
+            Assert.AreEqual("best",store.GetTop(0)[0].runId);
+            Assert.IsNull(store.GetRunRank("weak"));
+            Assert.IsNull(store.GetRunRank("tie-later"));
+        }
+
         [Test] public void DrawIncludesLowerRanksAndKeepsOnlyPersonalStageBests()
         {
             for (int i = 0; i < 5; i++)

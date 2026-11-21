@@ -248,7 +248,7 @@ namespace Vampire
 
             UpdateRerollButtonState();
 
-            displayedAbilities = abilityManager.SelectAbilities();
+            displayedAbilities = practiceOwner != null ? abilityManager.Ver4.CreatePracticeOffers(AugmentUpgradeGrade.Common) : abilityManager.SelectAbilities();
 
             if (displayedAbilities.Count > 0)
             {
@@ -256,6 +256,7 @@ namespace Vampire
                 // 현재 BGM을 Pause하고 증강 선택 전용 BGM을 시작합니다.
                 GameAudioManager.EnterAugmentSelectionAudio();
                 Populate(displayedAbilities);
+                if (practiceOwner != null) ShowPracticeSpotlight(false);
             }
             else
             {
@@ -406,6 +407,17 @@ namespace Vampire
                 return;
             }
 
+            if (practiceOwner != null)
+            {
+                abilityManager.ReturnAbilities(displayedAbilities);
+                displayedAbilities = abilityManager.Ver4.CreatePracticeOffers(AugmentUpgradeGrade.Supreme);
+                rerollUsed = true;
+                UpdateRerollButtonState();
+                Populate(displayedAbilities);
+                ShowPracticeSpotlight(true);
+                return;
+            }
+
             List<Ability> previousAbilities = new List<Ability>(displayedAbilities);
 
             abilityManager.ReturnAbilities(displayedAbilities);
@@ -489,7 +501,7 @@ namespace Vampire
         public override void Close()
         {
             if (SelectionAnimating) return;
-            if (GStarDemo.Enabled && menuOpen && playerCharacter != null && playerCharacter.IsAlive)
+            if (practiceOwner == null && GStarDemo.Enabled && menuOpen && playerCharacter != null && playerCharacter.IsAlive)
             {
                 if (!MiniStageRuntimeState.IsInsideMiniStage && !StageEntryLoading.IsLoading &&
                     (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud") &&
@@ -543,7 +555,11 @@ namespace Vampire
                 abilityCardsParent.localScale = cardParentBaseScale;
             }
 
+            var rehearsal = practiceOwner;
+            practiceOwner = null;
+            if (rehearsal != null) HidePracticeSpotlight();
             base.Close();
+            if (rehearsal != null) rehearsal.FinishAugmentLesson();
         }
 
         public bool HasAvailableAbilities()

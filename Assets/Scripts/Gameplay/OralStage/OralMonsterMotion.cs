@@ -24,7 +24,7 @@ namespace Vampire
             rotation = body.transform.localRotation; rootScale = transform.localScale;
             if (variants != null && variants.Length > 0)
             {
-                skin = variants[Random.Range(0, variants.Length)];
+                skin = variants[OralMonsterRoster.ChoosePalette(monster, kind, variants.Length)];
                 body.sprite = skin.Body;
                 // Scale the actor: body, hurtbox, ground collider and shadow stay together.
                 transform.localScale = rootScale * Random.Range(.94f, 1.065f);

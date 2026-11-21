@@ -91,6 +91,12 @@ namespace Vampire.Tests.Editor
             Assert.IsFalse(LobbyUnlockSave.IsUnlocked("Needle", "WoodNeedle"));
             Assert.IsTrue(LobbyUnlockSave.IsUnlocked("Needle", "FireNeedle"));
             Assert.IsFalse(RelicSaveData.IsUnlocked("lotus_chips"));
+            var orbit = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Junhan/Prefabs/Abilities/Legendary/CursorControl.prefab")
+                .GetComponent<SyringeLegendaryAugmentAbility>();
+            Assert.IsFalse(orbit.AvailableAsNoble, "The booth omits the figure-eight needle.");
+            GStarDemo.TestOverride = false;
+            Assert.IsTrue(orbit.AvailableAsNoble, "Normal campaigns still offer the needle.");
+            GStarDemo.TestOverride = true;
             string savedRelic = ProgressPrefs.GetString("EquippedRelicId", "");
             RelicSaveData.Equip("beads");
             Assert.AreEqual("beads", RelicSaveData.GetEquippedRelicId());
