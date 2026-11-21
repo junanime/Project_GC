@@ -164,10 +164,12 @@ namespace Vampire
             var bg=rect.gameObject.AddComponent<Image>();bg.color=Color.clear;
             var field=rect.gameObject.AddComponent<TMP_InputField>();field.targetGraphic=bg;
             var viewport=Rect("Viewport",rect,.035f,.1f,.965f,.9f);viewport.gameObject.AddComponent<RectMask2D>();
-            var text=Label(viewport,"",0,0,1,1,29*720/Gh);text.richText=false;text.alignment=TextAlignmentOptions.MidlineLeft;
+            var text=Label(viewport,"",0,0,1,1,29*720/Gh);text.alignment=TextAlignmentOptions.MidlineLeft;
             var placeholder=Label(viewport,hint,0,0,1,1,(phone?21:26)*720/Gh);placeholder.color=new Color(.63f,.62f,.64f);placeholder.alignment=TextAlignmentOptions.MidlineLeft;
             placeholder.fontSizeMin=15*720/Gh;placeholder.enableWordWrapping=false;
             field.textViewport=viewport;field.textComponent=text;field.placeholder=placeholder;
+            // TMP_InputField itself inserts formatting around IME pre-edit when rich text is on.
+            field.richText=false;
             field.contentType=TMP_InputField.ContentType.Standard;field.lineType=TMP_InputField.LineType.SingleLine;
             field.characterLimit=phone?15:12;field.keyboardType=phone?TouchScreenKeyboardType.PhonePad:TouchScreenKeyboardType.Default;
             field.customCaretColor=true;field.caretColor=new Color(.95f,.08f,.28f);field.caretWidth=3;field.caretBlinkRate=.85f;
@@ -223,7 +225,7 @@ namespace Vampire
             GHeader(1);
             DrawGStarResultPortrait();
             string title=runs.Count>1?"두 판의 도전 기록":run==null?"이번 체험 기록":passed?"스테이지 클리어!":"스테이지 클리어 실패";
-            GText(title,472,210,729,87,75,passed?GGold:new Color(.68f,.34f,1),true);
+            DrawGStarResultHeadings(title);
             DrawGStarAttempts(runs);
             GText("이름",138,590,168,61,35);GText("전화번호",138,669,168,61,32);
             gstarName=GInput("name",gstarDraftName??GStarSession.PlayerName,"별명으로 하셔도 괜찮아요",325,590,415,63,false);
@@ -242,20 +244,12 @@ namespace Vampire
             GText(note,147,741,596,29,21,string.IsNullOrEmpty(run?.exclusion)?GInk:new Color(.55f,.18f,.50f));
             if(eligible&&!registered) GConsent();
             GButton("register",registered?"등록 완료":"등록하기",132,800,624,100,RegisterGStarScore,true,!registered&&eligible);
-            var gift = GImage(Resources.Load<Sprite>("GStarDemo/prize-draw-gift"), 922, 316, 58, 52);
-            gift.name = "GStar prize draw gift";
-            gift.preserveAspect = true;
-            GText("랭킹에 등록하면 누구나 경품 추첨!", 979, 313, 451, 31, 28);
-            GText("순위가 높을수록 당첨 확률이 올라가요", 979, 344, 451, 24, 21);
-            // The source art highlights the middle tab. An opaque tray replaces that strip
-            // before live tabs are drawn, so the old pink tab cannot peek out on other stages.
-            var tabs=GRect("GStar ranking tabs backing",content,825,375,700,78).gameObject.AddComponent<GStarPillGraphic>();
-            tabs.face=new Color(1,.94f,.83f);tabs.gloss=false;tabs.raycastTarget=false;
             for(int i=0;i<3;i++)
             {
-                int s=i;var b=GButton("ranking stage "+i,GStage(i),833+i*228,383,222,62,()=>{gstarBoard=s;Render();},i==gstarBoard);
-                if(i!=gstarBoard)b.GetComponent<GStarPillGraphic>().face=new Color(1,.94f,.83f);
-                b.GetComponentInChildren<TextMeshProUGUI>().fontSize=33*720/Gh;
+                int stageTab=i;
+                bool selected=stageTab==gstarBoard;
+                var tab=GButton("ranking stage "+i,GStage(i),829+i*237,383,217,61,()=>{gstarBoard=stageTab;Render();},selected);
+                if(!selected)tab.GetComponent<GStarPillGraphic>().face=new Color(1,.94f,.83f);
             }
             GText(GStage(gstarBoard)+" TOP 3",979,451,407,48,37);
             var mine=GStarLeaderboard.GetParticipantRank(GStarSession.Phone,GStarSession.SessionId,gstarBoard);
@@ -276,6 +270,29 @@ namespace Vampire
             }
             GButton("result next",registered?"설문으로":"등록 없이 설문으로",1383,834,181,73,EndGStarVisitor);
             if(run!=null)GButton("score details","점수 내역",817,850,235,46,()=>ShowGStarScoreDetails(runs),false,true,false);
+        }
+        void DrawGStarResultHeadings(string resultTitle)
+        {
+            string skin=passed?"clear":"failed";
+            // Both original illustrations have a fixed pink middle tab and a narrow prize plaque.
+            // Reuse each illustration's paper so only the three live controls carry tab borders.
+            var paper=GSlice(skin,812,208,315,77);
+            GImage(paper,378,204,146,92).name="GStar result heading paper";
+            GImage(paper,797,204,756,245).name="GStar ranking paper";
+
+            var leftAccent=passed?GSlice(skin,458,205,62,90):GSlice(skin,386,216,73,71);
+            var rightAccent=passed?GSlice(skin,1151,205,62,90):GSlice(skin,1212,214,75,78);
+            GImage(leftAccent,111,231,47,60).preserveAspect=true;
+            GImage(rightAccent,699,231,47,60).preserveAspect=true;
+            GText(resultTitle,157,223,540,79,58,passed?GGold:new Color(.68f,.34f,1),true).name="GStar result heading";
+
+            GText("랭킹에 등록하면",902,205,547,43,35,GInk).name="GStar prize draw lead";
+            GImage(GSlice(skin,804,294,738,85),804,250,738,92).name="GStar prize draw banner";
+            var gift=GImage(Resources.Load<Sprite>("GStarDemo/prize-draw-gift"),918,262,76,74);
+            gift.name="GStar prize draw gift";
+            gift.preserveAspect=true;
+            GText("누구나 경품 추첨!",998,261,429,75,61,new Color(.21f,.055f,.105f)).name="GStar prize draw headline";
+            GText("순위가 높을수록 당첨 확률이 올라가요",846,343,657,35,27,GInk).name="GStar prize draw odds";
         }
         void DrawGStarAttempts(List<GStarLeaderboard.CompletedRun> runs)
         {

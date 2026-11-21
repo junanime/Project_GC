@@ -161,13 +161,46 @@ namespace Vampire.Tests.Editor
                 "the common prize invitation includes its own transparent gift sprite");
             Check(Button("register").GetComponent<GStarPillGraphic>()==null && Button("register").GetComponent<Image>()!=null,"register uses exact plate skin without a second pill frame");
             Check(Button("result next").GetComponent<GStarPillGraphic>()==null,"result next has no duplicate button frame");
-            var tray=Named<GStarPillGraphic>("GStar ranking tabs backing");Check(tray!=null && tray.color.a==1,"opaque ranking tray replaces baked middle selection");
-            for(int i=0;i<2;i++) Check(!Bounds(Button("ranking stage "+i)).Overlaps(Bounds(Button("ranking stage "+(i+1)))),"ranking tabs have distinct nonoverlapping bounds "+i);
+            CheckPrizeAndRankingTabs(1);
             foreach(var text in UI.GetComponentsInChildren<TextMeshProUGUI>())
             {
                 if(text.name=="GStar heading outline" || text.GetComponentInParent<TMP_InputField>()!=null || string.IsNullOrEmpty(text.text))continue;
                 text.ForceMeshUpdate();
                 Check(!text.isTextOverflowing || text.overflowMode==TextOverflowModes.Ellipsis,"result text fits or intentionally ellipsizes: "+text.name);
+            }
+        }
+        static void CheckPrizeAndRankingTabs(int selectedStage)
+        {
+            var paper=Named<Image>("GStar ranking paper");
+            Check(paper!=null && paper.sprite!=null && !paper.raycastTarget &&
+                Named<GStarPillGraphic>("GStar ranking tabs backing")==null,"only the three live ranking tabs have a frame");
+            var lead=Named<TextMeshProUGUI>("GStar prize draw lead");
+            var headline=Named<TextMeshProUGUI>("GStar prize draw headline");
+            var odds=Named<TextMeshProUGUI>("GStar prize draw odds");
+            var result=Named<TextMeshProUGUI>("GStar result heading");
+            var gift=Named<Image>("GStar prize draw gift");
+            foreach(var label in new[]{lead,headline,odds,result})
+            {
+                Check(label!=null,"ranking heading exists");
+                label.ForceMeshUpdate();
+                Check(!label.isTextOverflowing && !label.isTextTruncated && label.textInfo.lineCount==1,
+                    "complete ranking heading is legible: "+label.text);
+            }
+            float headlineSize=headline.textInfo.characterInfo[0].pointSize;
+            Check(headlineSize>=odds.textInfo.characterInfo[0].pointSize*1.65f &&
+                headlineSize>=result.textInfo.characterInfo[0].pointSize*.85f,"prize draw carries the visual weight of a title");
+            Check(!Bounds(lead).Overlaps(Bounds(headline)) && !Bounds(headline).Overlaps(Bounds(odds)) &&
+                !Bounds(gift).Overlaps(Bounds(headline)) && !Bounds(result).Overlaps(Bounds(lead)),
+                "prize copy, gift and result title occupy distinct areas");
+            for(int i=0;i<3;i++)
+            {
+                var button=Button("ranking stage "+i);
+                var skin=button.GetComponent<GStarPillGraphic>();
+                Check(button.IsInteractable() && skin!=null && button.targetGraphic==skin,"standalone ranking tab is clickable "+i);
+                Check((skin.face.g<.4f)==(i==selectedStage),"only the active ranking stage is highlighted "+i);
+                var bounds=Bounds(button);
+                Check(Bounds(paper).Contains(bounds.center) && !bounds.Overlaps(Bounds(odds)) &&
+                    (i==0 || !bounds.Overlaps(Bounds(Button("ranking stage "+(i-1))))),"no stacked or overlapping ranking tabs "+i);
             }
         }
         static RunScoreData Score(bool success, int normal = 200) => new RunScoreData
@@ -214,6 +247,74 @@ namespace Vampire.Tests.Editor
             field.DeactivateInputField(); EventSystem.current.SetSelectedGameObject(null);
             yield return Settled();
             Check(!field.isFocused && field.placeholder.enabled, "empty input hint returns after losing focus");
+        }
+        // Feed composition through the same BaseInput bridge TMP 3.0.7 reads from on Windows.
+        // The input field owns the displayed label, committed value, caret and placeholder throughout.
+        static IEnumerator CheckImeEntry()
+        {
+            var system = EventSystem.current;
+            var module = system.currentInputModule;
+            var fallback = module == null ? system.gameObject.AddComponent<GStarImeProbeModule>() : null;
+            if (fallback != null) module = fallback;
+            var savedInput = module.inputOverride;
+            var probe = system.gameObject.AddComponent<GStarImeProbeInput>();
+            module.inputOverride = probe;
+            try
+            {
+                yield return Wait(() => system.currentInputModule == module, 3f, "IME bridge attached to the real registration form");
+                var name = Named<TMP_InputField>("GStar input name");
+                var phone = Named<TMP_InputField>("GStar input phone");
+                Check(!name.richText && !name.textComponent.richText && !phone.richText && !phone.textComponent.richText,
+                    "name and contact use plain text in both input and rendering");
+                system.SetSelectedGameObject(name.gameObject);
+                name.ActivateInputField();
+                yield return Settled();
+                name.text = "구강탐험";
+                name.stringPosition = name.text.Length;
+                foreach (string preedit in new[] { "ㄱ", "가", "각", "가" })
+                {
+                    probe.preedit = preedit;
+                    name.ForceLabelUpdate();
+                    Check(name.text == "구강탐험" && InputLabel(name) == "구강탐험" + preedit,
+                        "uncommitted two-beolsik composition displayed exactly once: " + preedit);
+                }
+                Canvas.ForceUpdateCanvases();
+                Capture("01b-name-ime-korean", 1920, 1080);
+                probe.preedit = "";
+                name.ForceLabelUpdate();
+                TypeCharacters(name, "가A");
+                Check(name.text == "구강탐험가A" && InputLabel(name) == name.text, "committed Korean and Latin characters remain plain text");
+                name.stringPosition = 2;
+                probe.preedit = "속";
+                name.ForceLabelUpdate();
+                Check(name.text == "구강탐험가A" && InputLabel(name) == "구강속탐험가A", "composition is inserted at the caret");
+                probe.preedit = "";
+                name.ForceLabelUpdate();
+                Check(InputLabel(name) == name.text, "cancelled composition does not enter the nickname");
+                name.DeactivateInputField();
+                system.SetSelectedGameObject(phone.gameObject);
+                phone.ActivateInputField();
+                yield return Settled();
+                phone.text = "";
+                TypeCharacters(phone, "010-0000-0001");
+                Check(phone.text == "010-0000-0001" && InputLabel(phone) == phone.text, "phone punctuation and digits stay visible while editing");
+                phone.DeactivateInputField();
+                system.SetSelectedGameObject(null);
+            }
+            finally
+            {
+                probe.preedit = "";
+                module.inputOverride = savedInput;
+                Object.Destroy(probe);
+                if (fallback != null) Object.Destroy(fallback);
+            }
+        }
+        static string InputLabel(TMP_InputField field) => field.textComponent.text.TrimEnd('\u200B');
+        static void TypeCharacters(TMP_InputField field, string characters)
+        {
+            foreach (char character in characters)
+                field.ProcessEvent(new Event { type = EventType.KeyDown, character = character });
+            field.ForceLabelUpdate();
         }
         static void ValidateNext(int count)
         {
@@ -305,15 +406,17 @@ namespace Vampire.Tests.Editor
             yield return FilmNameEntry(sameFilm,"체험검수");
             Named<TMP_InputField>("GStar input name").text="";
             yield return CheckInputFocus();
-            yield return RegisterInputs(false);
+            yield return CheckImeEntry();
+            Click("register");yield return Settled();
             Check(Has("연락처 저장 동의") && GStarLeaderboard.GetRunRank(first)==null,"optional contact needs consent");
             Click("consent");yield return Settled();Click("register");yield return Settled();
             var firstRank=GStarLeaderboard.GetRunRank(first);
+            Check(firstRank!=null && firstRank.name=="구강탐험가A" && Text("구강탐험가A")!=null,"saved ranking displays the committed Korean and Latin nickname");
             Check(firstRank!=null && firstRank.score==Score(true).Total && GStarLeaderboard.GetRunRank(second)==null,"only the higher-scoring repeat entered the ranking");
             Check(GStarLeaderboard.GetTop(1).Count==2 && Has("내 순위")&&!Button("register").IsInteractable(),"one prize place per person per stage");
-            Check(!UI.GetComponentsInChildren<TextMeshProUGUI>().Any(v=>v.text.Contains(TestPhone)),"contact stays private after registration, including locked fields");
+            Check(!UI.GetComponentsInChildren<TextMeshProUGUI>().Any(v=>v.text.Contains(TestPhone)||v.text.Contains("010-0000-0001")),"contact stays private after registration, including locked fields");
             yield return FilmRanking(sameFilm,5);
-            Capture("03-same-ranked");Click("score details");yield return Settled();
+            CheckPrizeAndRankingTabs(1);Capture("03-same-ranked");Click("score details");yield return Settled();
             Check(Has("1차 · 위장 점수 내역"),"first score details");Click("other details");yield return Settled();
             Check(Has("2차 · 위장 점수 내역"),"second score details");Click("close details");yield return Settled();
             Click("result next");yield return Settled();
@@ -324,14 +427,14 @@ namespace Vampire.Tests.Editor
             yield return FilmRanking(differentFilm,4);
             string fourth=Complete(2,true,250);yield return Settled();
             Check(Has("구강 랭킹")&&Has("대장 랭킹"),"different stages show two registration targets");
-            Capture("05-different-before");
+            CheckPrizeAndRankingTabs(2);Capture("05-different-before");Capture("05-ranking-4x3",1024,768);
             yield return FilmRanking(differentFilm,4);yield return FilmNameEntry(differentFilm,"체험검수");
             yield return RegisterInputs(false,"");
             Check(GStarLeaderboard.GetRunRank(third)?.score==Score(false,50).Total &&
                 GStarLeaderboard.GetRunRank(fourth)?.score==Score(true,250).Total,"one click registers each stage's best without phone");
             Check(Has("등록 완료 · 구강 1위")&&Has("등록 완료 · 대장 1위"),"both personal stage rankings visible simultaneously");
-            Click("ranking stage 0");yield return Settled();Check(Has("내 순위")&&Has("구강 TOP 3"),"first stage ranking visible");Capture("06-different-mouth");yield return FilmRanking(differentFilm,5);
-            Click("ranking stage 2");yield return Settled();Check(Has("내 순위")&&Has("대장 TOP 3"),"second stage ranking visible");Capture("07-different-colon");yield return FilmRanking(differentFilm,5);
+            Click("ranking stage 0");yield return Settled();Check(Has("내 순위")&&Has("구강 TOP 3"),"first stage ranking visible");CheckPrizeAndRankingTabs(0);Capture("06-different-mouth");yield return FilmRanking(differentFilm,5);
+            Click("ranking stage 2");yield return Settled();Check(Has("내 순위")&&Has("대장 TOP 3"),"second stage ranking visible");CheckPrizeAndRankingTabs(2);Capture("07-different-colon");Capture("07-ranking-ultrawide",1680,720);yield return FilmRanking(differentFilm,5);
             Click("result next");yield return Settled();
             Check(UI.Page=="gstarSurvey"&&GStarSession.VisitorFinished,"registered two-stage visitor reaches survey");
             yield return FilmRanking(differentFilm,4);
@@ -424,6 +527,17 @@ namespace Vampire.Tests.Editor
                 if (pixels != null) Object.Destroy(pixels); Canvas.ForceUpdateCanvases();
             }
         }
+    }
+    public sealed class GStarImeProbeInput : BaseInput
+    {
+        public string preedit = "";
+        public override string compositionString => preedit;
+        public override IMECompositionMode imeCompositionMode { get; set; }
+        public override Vector2 compositionCursorPos { get; set; }
+    }
+    public sealed class GStarImeProbeModule : BaseInputModule
+    {
+        public override void Process() { }
     }
     public sealed class GStarUITestHost : MonoBehaviour { }
 }

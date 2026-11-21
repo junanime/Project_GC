@@ -169,6 +169,8 @@ namespace Vampire.Tests.Editor
             StringAssert.Contains("\"익명참가자\",\"\",", privateCsv);
             Assert.IsFalse(Register("invalid-phone", 0, "not-a-phone").success);
             Assert.IsFalse(Register("missing-name", 0, "", 1, "").success);
+            Assert.IsFalse(Register("markup", 0, "", 1, "<u>별명</u>").success);
+            Assert.IsNull(store.GetRunRank("markup"));
         }
         [Test] public void LaterPhoneLinksAnonymousAttemptsWithoutAddingContactToOriginalRecord()
         {
