@@ -50,6 +50,7 @@ namespace Vampire.Editor
             var ui=ApothecaryUI.Instance;yield return null;yield return null;
             Check(FestivalDemo.Settings.duration==45&&!FestivalDemo.Settings.enableSpecialMonsters,"45 second festival rules with special monsters disabled");
             Check(FestivalLeaderboard.FilePath.Contains("WkuDepartmentPromo"),"school ledger isolated");
+            yield return WkuSkillMovieChecks.Run(Check,Capture);
             foreach(bool success in new[]{true,false})
             {
                 ApothecaryUI.WkuPreviewData=new RunScoreData{seconds=success?45:28.4f,success=success,normal=success?82:37};Set("passed",success);ui.Show("result");

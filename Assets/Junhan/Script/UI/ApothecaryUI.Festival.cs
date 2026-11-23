@@ -143,7 +143,7 @@ namespace Vampire
         {
             var root=Rect("Festival skill summaries",content,.74f,.175f,.965f,.88f);
             StitchPatchTheme.Attach(root,PreparationIdentity.ColorFor(character),true,true);
-            Label(root,"캐릭터 능력",.08f,.88f,.92f,.98f,24);
+            Label(root,"캐릭터 능력",.08f,.91f,.92f,.99f,24);
             string passive,active;
             switch(OctoberArt.CharacterKey(character))
             {
@@ -153,14 +153,18 @@ namespace Vampire
                 default:passive="대시 후 잠시 침 개수와\n공격 속도가 증가합니다.";active="10초간 침 개수와\n침 속도가 증가합니다.";break;
             }
             var skill=character.skills;
-            ImageAt(root,skill.passiveIcon,.08f,.73f,.31f,.86f);
-            Label(root,"패시브",.34f,.79f,.93f,.86f,17);
-            Label(root,skill.passiveName,.30f,.70f,.96f,.80f,20);
-            var p=Label(root,passive,.09f,.52f,.91f,.69f,19);p.alignment=TextAlignmentOptions.MidlineLeft;
-            ImageAt(root,skill.activeIcon,.08f,.36f,.31f,.49f);
-            Label(root,"액티브 · Space",.32f,.42f,.94f,.49f,17);
-            Label(root,skill.activeName,.30f,.33f,.96f,.43f,20);
-            var a=Label(root,active,.09f,.06f,.91f,.32f,19);a.alignment=TextAlignmentOptions.MidlineLeft;
+            ImageAt(root,skill.passiveIcon,.08f,.775f,.31f,.885f);
+            Label(root,"패시브",.34f,.835f,.93f,.89f,16);
+            Label(root,skill.passiveName,.30f,.75f,.96f,.835f,19);
+            var p=Label(root,passive,.09f,.62f,.91f,.75f,16);p.alignment=TextAlignmentOptions.MidlineLeft;
+            ImageAt(root,skill.activeIcon,.08f,.49f,.31f,.60f);
+            Label(root,"액티브 · Space",.34f,.55f,.94f,.60f,16);
+            Label(root,skill.activeName,.30f,.47f,.96f,.55f,19);
+            var a=Label(root,active,.09f,.345f,.91f,.47f,15);a.alignment=TextAlignmentOptions.MidlineLeft;
+            var film=Rect("WKU active skill film",root,.045f,.035f,.955f,.34f);
+            film.gameObject.AddComponent<RectMask2D>();
+            var screen=Rect("WKU active skill movie",film,0,0,1,1);
+            screen.gameObject.AddComponent<PreparationSkillMovie>().Show(OctoberArt.CharacterKey(character));
         }
         void BuildFestivalRanking()
         {
