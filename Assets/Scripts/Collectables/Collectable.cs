@@ -16,6 +16,11 @@ namespace Vampire
         [SerializeField] protected float lerpTime = 1;
         [Header("Attributes")]
         [SerializeField] protected bool magnetic = false;
+        [Tooltip("Only deliver this pickup's own trigger messages for the collector's layer. Does not change physics contacts.")]
+        [SerializeField] private bool onlyNotifyPickupLayer;
+        [Tooltip("Optional visual child for depth sorting. Its parent keeps the grounded pickup collider stationary.")]
+        [SerializeField] private Transform depthVisual;
+        private int authoredCallbackLayers;
         protected EntityManager entityManager;
         protected Character playerCharacter;
         protected ZPositioner zPositioner;
@@ -23,27 +28,46 @@ namespace Vampire
         protected bool beingCollected = false;
         private bool waitingForSpawn;
         private bool requiresPickupRange;
+        private bool collectFromOpenedChest;
+        internal void DeliverAfterPop() => collectFromOpenedChest = true;
         public bool IsBeingCollected => beingCollected;
+        protected virtual bool StoresInInventory => CollectableType.inventoryStackSize > 0;
         public uint SpawnGeneration { get; private set; }
 
         protected virtual void Awake()
         {
             col = GetComponent<Collider2D>();
-            zPositioner = gameObject.AddComponent<ZPositioner>();
+            if (onlyNotifyPickupLayer) authoredCallbackLayers = col.callbackLayers;
+            zPositioner = (depthVisual != null ? depthVisual.gameObject : gameObject).AddComponent<ZPositioner>();
         }
 
         public virtual void Init(EntityManager entityManager, Character playerCharacter)
         {
             this.entityManager = entityManager;
             this.playerCharacter = playerCharacter;
+            if (onlyNotifyPickupLayer && playerCharacter.CollectableCollider != null)
+            {
+                // The coin/gem only handles the player's pickup collider. This is
+                // a per-side notification filter, so other actors still receive contacts.
+                col.callbackLayers = authoredCallbackLayers & (1 << playerCharacter.CollectableCollider.gameObject.layer);
+            }
             zPositioner.Init(playerCharacter.transform);
         }
 
         public virtual void Setup(bool spawnAnimation = true, bool collectableDuringSpawn = true, bool requirePickupRange = false)
         {
             unchecked { SpawnGeneration++; }
+            if (depthVisual != null)
+            {
+                // Pooled pickups start each bounce at their new spawn depth.
+                var offset = depthVisual.localPosition;
+                offset.z = 0f;
+                depthVisual.localPosition = offset;
+                zPositioner.enabled = true;
+            }
             waitingForSpawn = spawnAnimation && !collectableDuringSpawn;
             requiresPickupRange = requirePickupRange;
+            collectFromOpenedChest = false;
             col.enabled = !spawnAnimation || collectableDuringSpawn;
             beingCollected = false;
             enabled = true; //  [추가] 오브젝트 재사용을 위해 고유 Update 루프를 다시 켭니다.
@@ -58,6 +82,9 @@ namespace Vampire
             //  [추가] 만약 보석이 스폰되는 시점에 이미 MRI 자석을 보유 중이라면 즉시 흡수!
             if (playerCharacter != null && playerCharacter.AutoCollectItems)
             {
+                // Immediately after a spawn teleport, Distance can still see the prefab's
+                // previous physics position until FixedUpdate. Only chest rewards need this.
+                if (requiresPickupRange && !waitingForSpawn) Physics2D.SyncTransforms();
                 Collect();
             }
         }
@@ -70,16 +97,19 @@ namespace Vampire
             if (beingCollected || waitingForSpawn)
                 return;
 
-            // Chest rewards stay in the field until the player's pickup area reaches them,
-            // including when an automatic collection relic is active.
-            if (requiresPickupRange && (!col.enabled || !playerCharacter.CollectableCollider.enabled ||
-                col.Distance(playerCharacter.CollectableCollider).distance > 0f))
-                return;
+            // Rewards from a chest opened by a monster still require physical pickup.
+            if (requiresPickupRange)
+            {
+                if (!col.enabled || !playerCharacter.CollectableCollider.enabled) return;
+                var separation = col.Distance(playerCharacter.CollectableCollider);
+                if (!separation.isValid || separation.distance > 0f) return;
+            }
 
             // Don't collect if storable in inventory and inventory is full
-            bool storeInInventory = CollectableType.inventoryStackSize > 0;
-            bool hasInventorySlot = entityManager.Inventory.TryGetInventorySlot(this, out InventorySlot inventorySlot);
-            if (storeInInventory && hasInventorySlot && inventorySlot.IsFull())
+            bool storeInInventory = StoresInInventory;
+            InventorySlot inventorySlot = null;
+            bool hasInventorySlot = storeInInventory && entityManager.Inventory.TryGetInventorySlot(this, out inventorySlot);
+            if (hasInventorySlot && inventorySlot.IsFull())
                 return;
             
             // Flag that this is being collected so that it does not accidentally get collected a second time
@@ -89,7 +119,7 @@ namespace Vampire
                 entityManager.MagneticCollectables.Remove(this);
 
             // Both consumables and immediate rewards are absorbed by the character.
-            if (storeInInventory && hasInventorySlot)
+            if (hasInventorySlot)
                 StartCoroutine(StoreAfterPickup(inventorySlot, collectionMode));
             else
                 StartCoroutine(FlyToPlayer(collectionMode));
@@ -199,7 +229,8 @@ namespace Vampire
         protected virtual void Update()
         {
             // 플레이어가 MRI 자석을 보유하고 있고, 아직 수집이 시작되지 않은 보석이라면
-            if (playerCharacter != null && playerCharacter.AutoCollectItems && !beingCollected)
+            if (!beingCollected && !waitingForSpawn && playerCharacter != null && playerCharacter.IsAlive &&
+                (collectFromOpenedChest || playerCharacter.AutoCollectItems))
             {
                 Collect();
                 if (beingCollected) enabled = false;

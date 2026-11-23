@@ -18,11 +18,8 @@ namespace Vampire.Tests.Editor
             var initial=director.Part;var choice=director.SelectedKind;
             director.PrepareStage(origin);
             Check(director.Part==initial&&director.SelectedKind==choice,"prepare/revisit never rerolls this stage");
-            var altar=Object.FindObjectOfType<FinalBossSummonInteractable>();
-            Check(altar!=null&&altar.OpenBossChoice(player),"old selection altar remains usable");
-            Check(!initial.Activate(player),"natural part cannot summon while test choice is open");
-            ApothecaryUI.Instance.CloseBossChoice();
-            Check(!FinalBossSummonInteractable.IsSummoning,"cancel releases shared summon lock");
+            Check(Object.FindObjectOfType<FinalBossSummonInteractable>() == null, "no selection altar remains in the stomach");
+            Check(level.GetComponentInChildren<BossScentGuide>(true) != null, "the buried boss enables its directional scent");
             foreach(var tip in Object.FindObjectsOfType<HudTooltip>())tip.enabled=false;
             Time.captureDeltaTime=.04f;
             foreach(FoodBossKind kind in Enum.GetValues(typeof(FoodBossKind)))
@@ -46,7 +43,7 @@ namespace Vampire.Tests.Editor
                     Check(InteractionFocus.SelectAtScreenPoint(Camera.main.WorldToScreenPoint(part.Presentation.PartBounds.center),Camera.main),"mobile touch selects the original noodle mesh");
                 part.TryInteract();
                 Check(BuriedBossDirector.Pending==director,"actual interaction activates part: "+kind);
-                Check(!altar.OpenBossChoice(player),"test altar blocked during ground emergence: "+kind);
+                Check(!director.TryAutomaticSummon(),"automatic summon blocked during ground emergence: "+kind);
                 Check(!part.Activate(player),"rapid double interaction rejected: "+kind);
                 FoodBossRuntime boss=null;
                 for(int f=0;f<115;f++)
@@ -73,31 +70,21 @@ namespace Vampire.Tests.Editor
             retry.gameObject.SetActive(false);yield return null;yield return null;
             Check(!FinalBossSummonInteractable.IsSummoning,"disabling an emerging part releases summon gate");
             Object.Destroy(retry.gameObject);yield return null;
-            var map=FiniteStomachMap.Instance;
-            var colon=Resources.Load<StomachMapDefinition>("ColonMap/Stage2");map.ChangeDefinition(colon);
-            Set(StageProgression.Ensure(level),"<StageNumber>k__BackingField",2);
-            var inlet=StomachOpening.Find(true);var landing=map.ClampToField(inlet.FrontLip+Vector2.down*2,map.WallWidth+.6f);
-            Position(player,landing);
-            yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
-            Check(director.PreparedStage==2&&director.Part!=null&&!director.Consumed,"stage-two loading places its own newly selected part");
-            distance=Vector2.Distance(landing,director.Part.transform.position);
-            Check(distance>=5.999f&&distance<=8.001f,"colon entry part obeys 6–8 ring: "+distance);
-            Check(map.NavigationDistance(director.Part.transform.position,out _,true)>=map.WallWidth+2.4f,"colon part has full boss clearance from walls and inlet");
-            for(int i=0;i<100;i++)
-            {
-                CheckQuiet(BuriedBossDirector.TryPosition(landing,out var candidate),"colon random placement always finds valid reachable entry ring");
-                CheckQuiet(Vector2.Distance(landing,candidate)>=5.999f&&Vector2.Distance(landing,candidate)<=8.001f,"placement never clamps outside ring");
-            }
-            Check(true,"100 colon entry placements passed");
-            Capture("buried-stage2-placement");
             var savedKind=director.SelectedKind;
-            Object.Destroy(director.Part.gameObject);yield return null;
             Check(director.TryAutomaticSummon(),"scheduled event recovers a dissolved/missing part without needing a surviving altar");
             float end=Time.time+5;
             while(Object.FindObjectOfType<FoodBossRuntime>()==null&&Time.time<end)yield return null;
             var recovered=Object.FindObjectOfType<FoodBossRuntime>();
             Check(recovered!=null&&recovered.Kind==savedKind,"recovered automatic summon preserves the original stage roll");
             Object.Destroy(recovered.gameObject);yield return null;
+            var map=FiniteStomachMap.Instance;
+            var colon=Resources.Load<StomachMapDefinition>("ColonMap/Stage2");map.ChangeDefinition(colon);
+            Set(StageProgression.Ensure(level),"<StageNumber>k__BackingField",2);
+            var inlet=StomachOpening.Find(true);var landing=map.ClampToField(inlet.FrontLip+Vector2.down*2,map.WallWidth+.6f);
+            Position(player,landing);
+            yield return level.GetComponent<FieldObjectLayout>().RebuildForStage();
+            Check(director.PreparedStage == 2 && director.Part == null && director.Consumed && !director.CanSummon,
+                "stomach parts cannot displace the colon royal throne or habitat bosses");
         }
         static void CheckQuiet(bool ok,string message){if(!ok)throw new Exception(message);}
         static void CaptureBuried(string name)

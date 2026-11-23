@@ -261,6 +261,11 @@ namespace Vampire
                 );
         }
 
+        // Detailed per-hit traces can be enabled when investigating damage. Keeping
+        // them out of a booth build also skips formatting and stack trace collection.
+        [System.Diagnostics.Conditional("VAMPIRE_TRACE_COMBAT")]
+        protected static void TraceCombat(string message) => Debug.Log(message);
+
         protected virtual void HitDamageable(IDamageable damageable)
         {
             if (isDespawning)
@@ -288,7 +293,7 @@ namespace Vampire
                 finalDamage *=
                     criticalDamageMultiplier;
 
-                Debug.Log(
+                TraceCombat(
                     $"<color=red>[치명타]</color> " +
                     $"Critical Hit! Damage: {finalDamage}"
                 );

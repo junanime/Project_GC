@@ -9,6 +9,7 @@ namespace Vampire
         List<MerchantItemBlueprint> merchantItems;
         MerchantUIManager merchant;
         int merchantRerollCost;
+        Button merchantRerollButton;
         public void ShowOctoberShop(List<MerchantItemBlueprint> items,int cost,MerchantUIManager manager)
         {merchantItems=items;merchantRerollCost=cost;merchant=manager;Show("merchant");}
         void OctoberMerchant()
@@ -34,13 +35,26 @@ namespace Vampire
                 ImageAt(card,item.itemIcon,.16f,.58f,.84f,.91f);
                 Label(card,AugmentUpgradeOdds.DisplayName(grade),.25f,.50f,.75f,.565f,16).color=AugmentPanelTheme.Accent(grade)*.7f;
                 Label(card,item.itemName,.08f,.405f,.92f,.50f,23).fontStyle=TMPro.FontStyles.Bold;
-                Label(card,item.description,.11f,.155f,.89f,.401f,18);
+                Label(card,item.ChoiceDescription,.11f,.155f,.89f,.401f,18);
                 var runtime=level?.PlayerCharacter?.GetComponent<OctoberItemRuntime>();
                 int price=RelicRuntime.Price(level?.PlayerCharacter,item.cost);
                 bool owned=runtime!=null&&runtime.Has(item.octoberId);bool afford=stats!=null&&stats.CoinsGained>=price;
-                ActionButton(card,owned?"보유 중":$"구매 · {price} G",.13f,.04f,.87f,.138f,()=>merchant.OnClickPurchaseItem(item,null),true,!owned&&afford);
+                var purchase = ActionButton(card,owned?"보유 중":afford?$"구매 · {price} G":$"골드 부족 · {price} G",0,0,1,1,()=>merchant.OnClickPurchaseItem(item,null),true,!owned&&afford);
+                // The entire offer and its price plaque share one selectable and one payment.
+                var plaque = purchase.GetComponent<ApothecaryButtonFeedback>().visual;
+                AugmentPanelTheme.Anchors(plaque, new Vector2(.13f,.04f), new Vector2(.87f,.138f));
+                NumberedCardChoice.Bind(card, purchase, i, false);
             }
-            ActionButton(content,"새로고침 · "+merchantRerollCost+" G",.37f,.075f,.63f,.16f,()=>merchant.OnClickRerollItems(),false,stats!=null&&stats.CoinsGained>=merchantRerollCost);
+            merchantRerollButton = ActionButton(content,"새로고침 · "+merchantRerollCost+" G",.37f,.075f,.63f,.16f,()=>merchant.OnClickRerollItems(),false,stats!=null&&stats.CoinsGained>=merchantRerollCost);
+            if (!GamePlatform.UsesTouchControls)
+            {
+                var visual = merchantRerollButton.GetComponent<ApothecaryButtonFeedback>();
+                var cap = InteractionKeycapGraphic.Create("Reroll keycap", visual.visual, "R", 39);
+                cap.Bounds.anchorMin = cap.Bounds.anchorMax = new Vector2(.14f,.5f);
+                cap.Bounds.anchoredPosition = Vector2.zero;
+                AugmentPanelTheme.Anchors(visual.label.rectTransform,new Vector2(.23f,.04f),new Vector2(.94f,.96f));
+                if (!merchantRerollButton.interactable) cap.gameObject.AddComponent<CanvasGroup>().alpha = .55f;
+            }
             ActionButton(content,"닫기",.77f,.075f,.92f,.16f,()=>merchant.CloseShop());
         }
     }

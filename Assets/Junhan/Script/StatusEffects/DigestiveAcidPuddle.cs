@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -9,6 +10,7 @@ namespace Vampire
     /// </summary>
     public class DigestiveAcidPuddle : MonoBehaviour
     {
+        Ver4CombatSnapshot feedbackSnapshot;
         private readonly Dictionary<int, float> nextDamageTimes =
             new Dictionary<int, float>();
 
@@ -61,7 +63,7 @@ namespace Vampire
             float tickInterval,
             Color puddleColor,
             Character sourceCharacter,
-            string damageSourceName)
+            string damageSourceName, Ver4CombatSnapshot snapshot = null)
         {
             this.lifetime = Mathf.Max(0.1f, lifetime);
             this.radius = Mathf.Max(0.1f, radius);
@@ -76,6 +78,12 @@ namespace Vampire
                     : damageSourceName;
 
             endTime = Time.time + this.lifetime;
+            feedbackSnapshot = snapshot;
+            if (snapshot != null)
+            {
+                snapshot.Impact(transform.position,this,Parent.DigestiveAcidSacNeedle,0);
+                snapshot.Impact(transform.position,this,Parent.DigestiveAcidSacNeedle,1);
+            }
 
             CreateVisual();
         }
@@ -98,68 +106,26 @@ namespace Vampire
 
         private void ApplyDamage()
         {
-            Collider2D[] hits =
-                Physics2D.OverlapCircleAll(
-                    transform.position,
-                    radius
-                );
-
-            for (int i = 0; i < hits.Length; i++)
+            using var overlap = NeedleTargeting.QueryCircle(transform.position, radius, Physics2D.DefaultRaycastLayers, out var hits);
+            using var scratch = UnityEngine.Pool.ListPool<IDamageable>.Get(out var parents);
+            for (int i = 0; i < hits.Count; i++)
             {
-                Collider2D hit = hits[i];
+                var hit = hits[i];
+                if (hit == null) continue;
+                var actor = NeedleTargeting.FindResidueTarget(hit, parents);
+                if (actor == null) continue;
+                int id = actor.gameObject.GetInstanceID();
+                if (nextDamageTimes.TryGetValue(id, out float nextTick) && Time.time < nextTick) continue;
 
-                if (hit == null)
+                if (!(actor is Monster monster))
                 {
+                    if (!NeedleTargeting.IsValidBossTarget(actor, ~0)) continue;
+                    if (Ver4HitEffects.Damage(actor, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true))
+                        feedbackSnapshot?.Impact(actor.transform.position, actor, Parent.DigestiveAcidSacNeedle, 2);
+                    nextDamageTimes[id] = Time.time + tickInterval;
                     continue;
                 }
-
-                var king = hit.GetComponentInParent<ConstipationKingRuntime>();
-                if (king != null)
-                {
-                    if (!NeedleTargeting.IsValidBossTarget(king, ~0)) continue;
-                    int bossId = king.gameObject.GetInstanceID();
-                    if (nextDamageTimes.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) continue;
-                    Ver4HitEffects.Damage(king, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
-                    nextDamageTimes[bossId] = Time.time + tickInterval;
-                    continue;
-                }
-                var colon = hit.GetComponentInParent<ColonBossRuntime>();
-                if (colon != null)
-                {
-                    if (!NeedleTargeting.IsValidBossTarget(colon, ~0)) continue;
-                    int bossId = colon.gameObject.GetInstanceID();
-                    if (nextDamageTimes.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) continue;
-                    Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
-                    nextDamageTimes[bossId] = Time.time + tickInterval;
-                    continue;
-                }
-
-                Monster monster =
-                    hit.GetComponentInParent<Monster>();
-
-                if (monster == null ||
-                    !monster.gameObject.activeInHierarchy)
-                {
-                    continue;
-                }
-
-                if (monster.HP <= 0f)
-                {
-                    continue;
-                }
-
-                int id =
-                    monster.gameObject.GetInstanceID();
-
-                if (nextDamageTimes.TryGetValue(
-                        id,
-                        out float nextTime))
-                {
-                    if (Time.time < nextTime)
-                    {
-                        continue;
-                    }
-                }
+                if (!monster.gameObject.activeInHierarchy || monster.HP <= 0f) continue;
 
                 // 현재 실제로 몬스터 TakeDamage에 전달되는 피해값.
                 // 게임의 기존 피해 계산은 바꾸지 않고,
@@ -170,9 +136,9 @@ namespace Vampire
                 finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,monster);
                 if (finalDamage > 0f)
                 {
-                    monster.TakePeriodicDamage(
-                        finalDamage
-                    );
+                    float previousHealth = monster.HP;
+                    monster.TakePeriodicDamage(finalDamage);
+                    if (monster.HP < previousHealth) feedbackSnapshot?.Impact(monster.transform.position,monster,Parent.DigestiveAcidSacNeedle,2);
 
                     // 기존 전체 피해량 시스템에 포함
                     if (sourceCharacter != null &&

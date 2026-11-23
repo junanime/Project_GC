@@ -5,7 +5,9 @@ using UnityEngine.UI;
 namespace Vampire
 {
     // Screen-sized meters follow stable idle-art landmarks, not animation bounds.
-    [DefaultExecutionOrder(1300)]
+    // Read the final actor pose and camera projection after spring flight, jaw and
+    // encounter-camera updates; fast arcs otherwise run one frame ahead of the HUD.
+    [DefaultExecutionOrder(30000)]
     public sealed class PlayerCombatBars : MonoBehaviour
     {
         public const float Width=76, Height=12, RowGap=3, DividerWidth=3;
@@ -145,7 +147,7 @@ namespace Vampire
             if(owner==null||canvas==null)return;
             if(progression==null)progression=FindObjectOfType<StageProgression>();
             var camera=Camera.main;var ui=ApothecaryUI.Instance;
-            bool shown=!(progression!=null&&progression.CapsuleBoarded)&&owner.IsAlive&&camera!=null&&(ui==null||ui.Page=="hud")&&Time.timeScale>0;
+            bool shown=!(progression!=null&&progression.CapsuleBoarded)&&owner.IsAlive&&camera!=null&&(ui==null||ui.Page=="hud")&&(Time.timeScale>0 || GStarGaugeIntro.IsOpen);
             canvas.enabled=shown;if(!shown)return;
             SetSegments(dash,owner.MaxDashCharges);
             Fill(health,0,owner.MaxHealth>0?owner.CurrentHealth/owner.MaxHealth:0);
@@ -160,8 +162,9 @@ namespace Vampire
             var oral=OralStageRuntime.Instance;
             var travelOffset=oral!=null && oral.Level!=null && oral.Level.PlayerCharacter==owner
                 ? oral.TravelVisualWorldOffset : Vector3.zero;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)+travelOffset),null,out head);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)+travelOffset),null,out feet);
+            var uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(headLocal)+travelOffset),uiCamera,out head);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(surface,camera.WorldToScreenPoint(owner.transform.TransformPoint(feetLocal)+travelOffset),uiCamera,out feet);
             health.root.anchoredPosition=head+Vector2.up*(Height*.5f+5);
             dash.root.anchoredPosition=feet-Vector2.up*(Height*.5f+6);
             active.root.anchoredPosition=dash.root.anchoredPosition-Vector2.up*(Height+RowGap);

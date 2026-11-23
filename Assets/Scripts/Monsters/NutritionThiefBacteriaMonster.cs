@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -173,7 +174,7 @@ namespace Vampire
                 velocity = GetIdleWanderVelocity();
             }
 
-            rb.velocity = velocity * IceMoveMultiplier;
+            rb.velocity = velocity * MovementMultiplier;
         }
 
         public override IEnumerator Killed(bool killedByPlayer = true)
@@ -289,6 +290,9 @@ namespace Vampire
             }
         }
 
+        readonly List<ExpGem> gems = new List<ExpGem>();
+        readonly List<Coin> coins = new List<Coin>();
+
         private void FindNearestCollectableTarget()
         {
             targetGem = null;
@@ -297,9 +301,9 @@ namespace Vampire
             float nearestSqrDistance = collectableSearchRadius * collectableSearchRadius;
             Vector2 myPosition = transform.position;
 
-            ExpGem[] gems = FindObjectsOfType<ExpGem>();
+            StageActorRegistry.CopyActiveGems(gems);
 
-            for (int i = 0; i < gems.Length; i++)
+            for (int i = 0; i < gems.Count; i++)
             {
                 ExpGem gem = gems[i];
 
@@ -318,9 +322,9 @@ namespace Vampire
                 }
             }
 
-            Coin[] coins = FindObjectsOfType<Coin>();
+            StageActorRegistry.CopyActiveCoins(coins);
 
-            for (int i = 0; i < coins.Length; i++)
+            for (int i = 0; i < coins.Count; i++)
             {
                 Coin coin = coins[i];
 

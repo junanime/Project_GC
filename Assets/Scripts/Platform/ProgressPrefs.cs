@@ -43,6 +43,7 @@ namespace Vampire
         static IEnumerable<string> LegacyKeys()
         {
             yield return "LobbySilverCoins"; yield return "Coins"; yield return "EquippedRelicId"; yield return CapsuleDoctorDialogue.SeenKey;
+            yield return GStarControlPractice.CompletionKey;
             var config = Resources.Load<ApothecaryUIConfig>("ApothecaryUIConfig");
             if (config != null)
             {

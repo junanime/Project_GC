@@ -42,18 +42,39 @@ namespace Vampire
             if(UsesStomachMap)
             {
                 UpdateMarkerDiscovery();
+                var king = ConstipationKingDirector.Active;
+                Transform bossLocation = null;
+                if (king != null && !king.Defeated)
+                {
+                    if (!king.Spawned && king.Throne != null) bossLocation = king.Throne.transform;
+                    else if (king.Boss != null && !king.Boss.Dead) bossLocation = king.Boss.transform;
+                }
+                MapMarker bossPin = null;
                 foreach(var marker in markers.OrderBy(m=>m!=null&&m.GetComponent<ColonBossHabitat>()!=null?1:0))
                 {
                     if(marker==null || !marker.gameObject.activeInHierarchy || !marker.ShowOnFullMap)continue;
                     if(!marker.AlwaysVisible && marker.HideUntilDiscovered && !marker.IsDiscovered)continue;
                     var point=WorldToMapNormalized(marker.transform.position);
                     if(point.x<0 || point.y<0 || point.x>1 || point.y>1)continue;
+                    // Draw the objective last so nearby habitats cannot paint over its caption.
+                    if (marker.transform == bossLocation) { bossPin = marker; continue; }
+                    if (king != null && king.Throne != null && marker.transform == king.Throne.transform) continue;
                     var icon=AddBookIcon(parent,marker.Icon,point,marker.GetComponent<ColonBossHabitat>()!=null?24:20);StyleEncounter(icon,marker);
                 }
                 if(playerCharacter!=null)
                 {
                     var renderer=playerCharacter.GetComponentInChildren<SpriteAnimator>()?.GetComponent<SpriteRenderer>();
                     AddBookIcon(parent,renderer!=null?renderer.sprite:runtimeWhiteSprite,WorldToMapNormalized(playerCharacter.transform.position),26);
+                }
+                if (bossPin != null)
+                {
+                    var point = WorldToMapNormalized(bossPin.transform.position);
+                    var icon = AddBookIcon(parent, bossPin.Icon, point, 24);
+                    var badge = KingSummonThrone.CreateLocationBadge(icon.transform);
+                    bool faceRight = point.x <= .5f;
+                    badge.anchorMin = badge.anchorMax = new Vector2(faceRight ? 1 : 0, .5f);
+                    badge.pivot = new Vector2(faceRight ? 0 : 1, .5f);
+                    badge.anchoredPosition = new Vector2(faceRight ? 2 : -2, 0);
                 }
                 return;
             }

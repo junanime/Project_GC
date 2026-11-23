@@ -383,6 +383,7 @@ namespace Vampire
                 monsterBlueprint,
                 hpBuff
             );
+            GStarFieldBalance.TuneHealth(newMonster, FiniteStomachMap.Instance);
             if (colon != null && colon.TryGet(monsterBlueprint, out var colonEntry))
                 (newMonster.GetComponent<ColonMonsterVisual>() ?? newMonster.gameObject.AddComponent<ColonMonsterVisual>()).Configure(newMonster, colonEntry);
             if(colon!=null&&colon.TryGet(monsterBlueprint,out var specialEntry))
@@ -486,7 +487,10 @@ namespace Vampire
                 Vector2.Dot(playerCharacter.Velocity.normalized, sideDirections[2]),
                 Vector2.Dot(playerCharacter.Velocity.normalized, sideDirections[3])
             };
-            float extraWeight = sideWeights.Sum()/playerDirectionSpawnWeight;
+            // Opposing dot products sum to zero. Reserve some flank/rear weight while moving.
+            float frontWeight = 0f;
+            for (int i = 0; i < sideWeights.Length; i++) frontWeight += Mathf.Max(0f, sideWeights[i]);
+            float extraWeight = frontWeight / Mathf.Max(1f, playerDirectionSpawnWeight);
             int badSideCount = sideWeights.Where(x => x <= 0).Count();
             for (int i = 0; i < sideWeights.Length; i++)
             {
@@ -497,7 +501,7 @@ namespace Vampire
 
             float rand = Random.Range(0f, totalSideWeight);
             float cumulative = 0;
-            int sideIndex = -1;
+            int sideIndex = sideWeights.Length - 1;
             for (int i = 0; i < sideWeights.Length; i++)
             {
                 cumulative += sideWeights[i];
@@ -576,34 +580,27 @@ namespace Vampire
             return newCoin;
         }
 
+        public void AwardCoinValue(int baseCoinValue)
+        {
+            int finalCoinValue = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(baseCoinValue);
+            PlayerGeneralStatRuntime statRuntime = playerCharacter != null ? playerCharacter.GetComponent<PlayerGeneralStatRuntime>() : null;
+            if (statRuntime != null) finalCoinValue = statRuntime.ApplyGoldGainMultiplier(finalCoinValue);
+            if (statsManager != null) statsManager.IncreaseCoinsGained(finalCoinValue);
+            if (StageEventRuntimeModifiers.DebugGoldRush)
+                Debug.Log($"[GoldRush] Currency credited | base={baseCoinValue} | final={finalCoinValue}");
+        }
+
         public void DespawnCoin(Coin coin, bool pickedUpByPlayer = true)
         {
             miniStageCoins.Remove(coin);
             if (MagneticCollectables.Contains(coin)) MagneticCollectables.Remove(coin);
             if (pickedUpByPlayer)
             {
-                int baseCoinValue = (int)coin.CoinType;
-                int finalCoinValue = StageEventRuntimeModifiers.ApplyCoinValueMultiplier(baseCoinValue);
-
-                PlayerGeneralStatRuntime statRuntime =
-                    playerCharacter != null
-                        ? playerCharacter.GetComponent<PlayerGeneralStatRuntime>()
-                        : null;
-
-                if (statRuntime != null)
-                {
-                    finalCoinValue = statRuntime.ApplyGoldGainMultiplier(finalCoinValue);
-                }
-
-                statsManager.IncreaseCoinsGained(finalCoinValue);
-
-                if (StageEventRuntimeModifiers.DebugGoldRush)
-                {
-                    Debug.Log($"[GoldRush] Coin collected | base={baseCoinValue} | final={finalCoinValue}");
-                }
+                AwardCoinValue((int)coin.CoinType);
             }
 
-            coinPool.Release(coin);
+            if (coin.GetComponentInParent<CoinPool>() != null) coinPool.Release(coin);
+            else Destroy(coin.gameObject); // Chest rewards are instantiated outside the pool.
         }
         ////////////////////////////////////////////////////////////////////////////////
         /// Chest Spawning

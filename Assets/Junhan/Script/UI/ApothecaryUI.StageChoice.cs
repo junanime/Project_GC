@@ -6,6 +6,7 @@ namespace Vampire
     public sealed partial class ApothecaryUI
     {
         bool stageChoiceOpen;
+        bool practiceOnDeparture;
         void CloseStageChoice(){if(starting)return;stageChoiceOpen=false;Render();}
         void BuildStageChoice()
         {
@@ -26,7 +27,14 @@ namespace Vampire
             Label(panel,"필드 이벤트 탐험 · 랭킹 제외",.04f,.30f,.35f,.43f,15).alignment=TextAlignmentOptions.Center;
             Label(panel,"일반 진행 · 랭킹 집계",.35f,.30f,.65f,.43f,15).alignment=TextAlignmentOptions.Center;
             Label(panel,StageProgression.StageTwoEnabled?"직접 입장 · 랭킹 제외":"웹 데모는 스테이지 1까지",.65f,.30f,.96f,.43f,15).alignment=TextAlignmentOptions.Center;
-            var cancel=ActionButton(panel,"돌아가기",.33f,.075f,.67f,.24f,CloseStageChoice);
+            bool keyboard = !GamePlatform.UsesTouchControls;
+            if (keyboard)
+            {
+                var practice = ActionButton(panel, practiceOnDeparture ? "조작 연습 · 켜짐" : "조작 연습 다시하기",
+                    .10f,.075f,.49f,.24f,()=>{practiceOnDeparture = !practiceOnDeparture; Render();});
+                StitchPatchTheme.Button(practice.GetComponent<ApothecaryButtonFeedback>(),practiceOnDeparture);
+            }
+            var cancel=ActionButton(panel,"돌아가기",keyboard ? .54f : .33f,.075f,keyboard ? .89f : .67f,.24f,CloseStageChoice);
             StitchPatchTheme.Button(cancel.GetComponent<ApothecaryButtonFeedback>(),false);
         }
     }

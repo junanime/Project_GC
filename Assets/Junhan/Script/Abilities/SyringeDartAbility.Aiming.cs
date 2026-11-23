@@ -63,6 +63,13 @@ namespace Vampire
             if (entityManager == null || playerCharacter == null) return lastNeedleDirection;
             Vector2 origin = GetProjectileSpawnPosition(lastNeedleDirection);
             float range = GetEffectiveSyringeMaxDistance() + (lifeBurnEnabled ? lifeBurnBonusRange : 0f);
+            var delivery = OralBalloonDelivery.WithinReach(origin, range, monsterLayer);
+            if (delivery != null)
+            {
+                Vector2 toBalloon = delivery.BalloonPosition - origin;
+                if (toBalloon.sqrMagnitude > .0001f) lastNeedleDirection = toBalloon.normalized;
+                return lastNeedleDirection;
+            }
             float closest = range * range;
             Monster target = null;
             foreach (var monster in entityManager.LivingMonsters)
@@ -75,7 +82,8 @@ namespace Vampire
             }
             Vector2 targetPoint=target!=null?NeedleTargeting.Position(target):origin;
             bool found=target!=null;
-            foreach(var hit in Physics2D.OverlapCircleAll(origin,range,monsterLayer))
+            using var query = NeedleTargeting.QueryCircle(origin,range,monsterLayer,out var hits);
+            foreach(var hit in hits)
             {
                 if(!NeedleTargeting.IsValidBossTarget(hit,monsterLayer))continue;
                 float distance=((Vector2)hit.ClosestPoint(origin)-origin).sqrMagnitude;

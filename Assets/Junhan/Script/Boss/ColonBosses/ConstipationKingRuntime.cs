@@ -15,7 +15,8 @@ namespace Vampire
         public ConstipationKingVisual Visual { get; private set; }
         public Transform Effects { get; private set; }
         public float Health { get; private set; }
-        public float MaxHealth => MaximumHealth;
+        public float MaxHealth { get; private set; }
+        public int SummonTier { get; private set; }
         public bool Dead { get; private set; }
         public bool Arriving { get; private set; }
         public bool Transitioning { get; private set; }
@@ -50,7 +51,9 @@ namespace Vampire
             go.layer = LayerMask.NameToLayer("Monster Full");
             go.transform.position = FiniteStomachMap.SafeSpawn(at, BodyRadius + .2f);
             var boss = go.AddComponent<ConstipationKingRuntime>();
-            boss.level = level; boss.director = director; boss.Player = level.PlayerCharacter; boss.Health = MaximumHealth;
+            boss.level = level; boss.director = director; boss.Player = level.PlayerCharacter;
+            boss.SummonTier = GStarFieldBalance.SummonTier(level.CurrentLevelTime);
+            boss.MaxHealth = boss.Health = GStarFieldBalance.KingHealth(boss.SummonTier);
             boss.body = go.AddComponent<Rigidbody2D>(); boss.body.gravityScale = 0; boss.body.bodyType = RigidbodyType2D.Kinematic;
             boss.body.constraints = RigidbodyConstraints2D.FreezeRotation;
             boss.hitbox = go.AddComponent<CapsuleCollider2D>(); boss.hitbox.isTrigger = true;

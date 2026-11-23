@@ -171,7 +171,8 @@ namespace Vampire
         public bool IsOralSliding => OralStageRuntime.IsSlidingActor(this);
         public bool IsWhirlpoolCaptured => OralSwallowFinale.Instance?.CapturesPlayer(this) == true;
         public Vector2 EffectiveMoveDirection => IsTrapBound || IsOralSliding ? Vector2.zero :
-            (movementControlsReversed ? -moveDirection : moveDirection);
+            (movementControlsReversed || (OralFieldEvents.Instance != null && OralFieldEvents.Instance.ReversesControlsFor(this))
+                ? -moveDirection : moveDirection);
         public void SetMovementControlsReversed(bool value) { movementControlsReversed = value; }
 
         protected bool isDashing = false;
@@ -226,7 +227,14 @@ namespace Vampire
         {float before=currentHealth;GainHealth(Relics != null ? Relics.PickupHealing(amount) : amount);Relics?.PickupHealed(currentHealth-before);}
         public int SkillProjectileCount(int count) => Skills != null ? Skills.ProjectileCount(count) : Mathf.Max(1,count);
         public bool IsSkillIdle => alive && !IsPortalTravelling && !IsPortalPoseHeld && !IsDashing && !IsTrapBound && !IsOralSliding && moveDirection.sqrMagnitude < .0001f && visualState == CharacterVisualState.Idle;
-        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier;
+        public bool HourglassActive { get; private set; }
+        internal void SetHourglassPace(bool active)
+        {
+            HourglassActive = active;
+            UpdateMoveSpeed();
+        }
+        float HourglassMoveMultiplier => HourglassActive ? LevelManager.HourglassPlayerSpeed : 1f;
+        public float CurrentMoveSpeed => (movementSpeed != null ? movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0) : 0f) * (Skills != null ? Skills.MovementMultiplier : 1) * SnailSlowMultiplier * HourglassMoveMultiplier;
         private float SnailSlowMultiplier => (GetComponent<SnailSlowStatus>()?.Multiplier ?? 1f) *
             (OralAmbientContent.Instance != null && OralAmbientContent.Instance.Level != null && OralAmbientContent.Instance.Level.PlayerCharacter == this ? OralAmbientContent.Instance.PlayerMoveMultiplier : 1f);
         public float CurrentArmor => armor != null ? armor.Value : 0f;
@@ -253,7 +261,8 @@ namespace Vampire
                     finalSpeed += thermometerStacks * 0.03f;
                 }
 
-                return finalSpeed * (Skills != null && Skills.AshiPassive ? 1.2f : 1);
+                return finalSpeed * (Skills != null && Skills.AshiPassive ? 1.2f : 1f)
+                    * (HourglassActive ? LevelManager.HourglassAttackSpeed : 1f);
             }
         }
 
@@ -474,6 +483,12 @@ namespace Vampire
         protected virtual void FixedUpdate()
         {
             if (!alive) return;
+            if (GStarControlPractice.HoldsForContact(this))
+            {
+                rb.velocity = Vector2.zero;
+                StartIdleAnimation();
+                return;
+            }
             if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || IsOralSwallowing || IsColonExitProtected)
             {
                 if (rb != null) rb.velocity = Vector2.zero;
@@ -565,6 +580,7 @@ namespace Vampire
 
         public bool TryDash()
         {
+            if (StageEntryLoading.IsLoading || TutorialGuide.BlocksMenuInput || !GStarControlPractice.AllowsDash) return false;
             if (IsColonExitProtected) return false;
             if (IsOralSwallowing) return false;
             if (IsPortalTravelling || IsPortalPoseHeld || IsOralSliding || (GetComponent<OralTasteBounce>()?.Active ?? false)) return false;
@@ -625,7 +641,7 @@ namespace Vampire
             return true;
         }
 
-        private Vector2 GetDashDirection()
+        internal Vector2 GetDashDirection()
         {
             if (moveDirection != Vector2.zero)
             {
@@ -1053,12 +1069,12 @@ namespace Vampire
 
             UpdateLevelDisplay();
 
-            abilitySelectionDialog.Open();
-
-            while (abilitySelectionDialog.MenuOpen)
-            {
+            // Keep one choice for each level, even when several pickups arrive together.
+            while (alive && !abilitySelectionDialog.MenuOpen &&
+                   (Time.timeScale <= 0 || StageEntryLoading.IsLoading ||
+                    (ApothecaryUI.Instance != null && ApothecaryUI.Instance.Page != "hud")))
                 yield return null;
-            }
+            if (alive) abilitySelectionDialog.RequestLevelReward(currentLevel);
         }
 
         private void UpdateLevelDisplay()
@@ -1103,6 +1119,7 @@ namespace Vampire
 
         public override void TakeDamage(float damage, Vector2 knockback = default(Vector2), bool isCritical = false)
         {
+            if (GStarControlPractice.Active) return;
             if (IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return;
             if (!alive)
             {
@@ -1178,10 +1195,29 @@ namespace Vampire
             var items=GetComponent<OctoberItemRuntime>();
             if(items!=null)damage=items.Incoming(damage,pendingDamageMonsterBlueprint);
             if (Relics != null) damage = Relics.Absorb(damage);
+            float hpBeforeImpact = currentHealth;
+            ApplyHealthDamage(damage, knockback, items);
+            if (currentHealth < hpBeforeImpact && generalStatRuntime != null && generalStatRuntime.DamageReductionBonus > 0)
+                abilityManager?.Ver4?.Combat?.Impact(transform.position, this, SyringeSpecialAugmentAbility.SpecialAugmentType.Mosquito, 1);
+        }
+
+        // Area-wide field damage is settled against max HP. A fully transferred
+        // player still has the normal protection during scene travel and endings.
+        public void TakeGroundHazardDamage(float damage)
+        {
+            if (!alive || currentHealth <= 0 || IsPortalDamageProtected || IsOralSwallowing || IsColonExitProtected) return;
+            GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            ApplyHealthDamage(damage, Vector2.zero, GetComponent<OctoberItemRuntime>());
+        }
+
+        void ApplyHealthDamage(float damage, Vector2 knockback, OctoberItemRuntime items)
+        {
             if (damage <= 0) return;
             float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+            CombatPacingProbe.Contact();
+            ToadCameraShake.PlayerHit(actualLoss, MaxHealth, knockback);
             items?.Hurt(actualLoss,pendingDamageMonsterBlueprint);
             Relics?.Hurt(actualLoss);
 
@@ -1289,6 +1325,7 @@ namespace Vampire
             statsManager.IncreaseDamageTaken(loss);
             lastDamageMonsterBlueprint = null;
             GetComponent<MucosalFortressShieldController>()?.NotifyPlayerDamaged();
+            ToadCameraShake.PlayerHit(loss, MaxHealth, Vector2.zero);
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerHit);
             if (currentHealth <= 0)
             {
@@ -1303,12 +1340,17 @@ namespace Vampire
             return true;
         }
 
-        public void RelocateAfterAcidRevival(Vector2 position)
+        internal void CancelDashForForcedMovement()
         {
             if (dashCoroutine != null) { StopCoroutine(dashCoroutine); dashCoroutine = null; }
             RestoreDashCollisionGhost(); RestoreDashSpriteVisual();
             isDashing = false; dashInvincibleEndTime = -1;
             FinishSwallowDash();
+        }
+
+        public void RelocateAfterAcidRevival(Vector2 position)
+        {
+            CancelDashForForcedMovement();
             moveDirection = Vector2.zero;
             transform.position = new Vector3(position.x, position.y, transform.position.z);
             if (rb != null) { rb.position = position; rb.velocity = Vector2.zero; }
@@ -1385,9 +1427,45 @@ namespace Vampire
             hitAnimationCoroutine = StartCoroutine(HitAnimation());
         }
 
+        const float MosquitoHealInterval = 1.5f;
+        float nextMosquitoHeal;
+        internal bool CanReceiveMosquitoHeal =>
+            alive && Time.time >= nextMosquitoHeal && currentHealth < MaxHealth;
+        public bool TryMosquitoHeal(float amount)
+        {
+            if (amount <= 0 || !CanReceiveMosquitoHeal) return false;
+            nextMosquitoHeal = Time.time + MosquitoHealInterval;
+            float before = currentHealth;
+            GainHealth(amount);
+            return currentHealth > before;
+        }
+
+        // The rehearsal has no scored combat. Show the normal hit reaction without
+        // consuming the visitor's shield, testing evasion, or feeding combat rewards.
+        internal float TakePracticeBump()
+        {
+            float loss = Mathf.Min(MaxHealth * .30f, currentHealth * .5f);
+            currentHealth -= loss;
+            healthBar.SubtractPoints(loss);
+            ToadCameraShake.PlayerHit(loss, MaxHealth, Vector2.left);
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.PlayerHit);
+            if (hitAnimationCoroutine != null) StopCoroutine(hitAnimationCoroutine);
+            hitAnimationCoroutine = StartCoroutine(HitAnimation());
+            return loss;
+        }
+
+        internal void RestorePracticeBump(float lostHealth)
+        {
+            float restored = Mathf.Min(lostHealth, MaxHealth - currentHealth);
+            currentHealth += restored;
+            healthBar.AddPoints(restored);
+        }
+
+        internal Collider2D PracticeContactHitbox => meleeHitboxCollider;
+
         public void GainHealth(float health)
         {
-            if (!alive) return;
+            if (!alive || GStarControlPractice.ReservesHeartRecovery(this)) return;
             LegendaryConditionalSpecialRuntime conditionalRuntime =
                 GetComponent<LegendaryConditionalSpecialRuntime>();
 
@@ -1423,7 +1501,7 @@ namespace Vampire
             if (rb == null || movementSpeed == null || characterBlueprint == null) return;
             float speed = Mathf.Max(.01f,movementSpeed.Value + (Relics != null ? Relics.MoveSpeedBonus : 0));
             // Existing movement uses acceleration/drag; halve drag for twice the actual speed.
-            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null ? Skills.MovementMultiplier : 1) * Mathf.Max(.05f, SnailSlowMultiplier));
+            rb.drag = characterBlueprint.acceleration / (speed * speed * (Skills != null ? Skills.MovementMultiplier : 1) * Mathf.Max(.05f, SnailSlowMultiplier) * HourglassMoveMultiplier);
         }
 
         public void AddHealOnIdle(float amount)

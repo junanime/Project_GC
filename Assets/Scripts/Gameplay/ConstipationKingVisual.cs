@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Vampire
 {
-    public enum KingPose { Idle, Move, Barrage, Fan, Charge, Shoot, Dash, Hook, Paper, Flush, Tribute, Eat, Shield, Summon, Phase, Death, DashCharge }
+    public enum KingPose { Idle, Move, Barrage, Fan, Charge, Shoot, Dash, Hook, Paper, Flush, Tribute, Eat, Shield, Summon, Phase, Death, DashCharge, EmptyTray }
 
     /// <summary>
     /// Approved A movement and V3 action poses share a fixed porcelain-seat anchor.
@@ -160,6 +160,8 @@ namespace Vampire
             Pose = value; poseAge = 0; progress = 0; Sample();
         }
         public void SetPoseProgress(float value) { progress = Mathf.Clamp01(value); Sample(); }
+        float missedGift;
+        public void MissTribute() { missedGift = .38f; }
         public void Flash() { flash = .10f; }
         public void SetEmergence(float raised, float worldBowlY, float settled)
         {
@@ -176,6 +178,7 @@ namespace Vampire
         public void Tick(float dt)
         {
             if (dt <= 0) return;
+            missedGift = Mathf.Max(0,missedGift-dt);
             clock += dt; poseAge += dt; flash = Mathf.Max(0, flash - dt);
             travel = Mathf.MoveTowards(travel, moving ? 1 : 0, dt * 3);
             float slam = Pose == KingPose.Paper && phase == 2
@@ -212,6 +215,7 @@ namespace Vampire
                 case KingPose.Hook: return 3;
                 case KingPose.Paper: return phase == 2 ? (progress < .32f ? 5 : 6) : (progress < .65f ? 3 : -1);
                 case KingPose.Flush: return progress < .22f ? 8 : phase == 2 && progress >= .45f ? 10 : 9;
+                case KingPose.EmptyTray: return progress < .44f ? 5 : 6;
                 case KingPose.Eat: return 7;
                 case KingPose.Shield: return poseAge < .75f ? 5 : -1;
                 case KingPose.Summon: return 5;
@@ -237,6 +241,8 @@ namespace Vampire
             float gesture = Pose == KingPose.Eat ? Mathf.Sin(poseAge * 14) * .35f
                 : Pose == KingPose.Summon ? Mathf.Sin(poseAge * 9) * .5f
                 : Pose == KingPose.Flush ? -Facing * Mathf.Sin(progress * Mathf.PI) * 1.2f : 0;
+            if (missedGift > 0) gesture += Facing * 5.5f * Mathf.Sin(missedGift/.38f*Mathf.PI*2f) * (missedGift/.38f);
+            if (Pose == KingPose.EmptyTray) gesture += Facing * 7 * Mathf.Sin(progress*Mathf.PI*2f);
             pivot.localRotation = Quaternion.Euler(0, 0, lean + gesture);
             Body.transform.localScale = Vector3.one * unit * 100;
             Body.transform.localPosition = new Vector3(-10 * Facing * unit, (pose < 0 ? -40 : -10) * unit, 0);

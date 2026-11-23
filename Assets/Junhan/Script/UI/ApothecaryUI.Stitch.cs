@@ -75,7 +75,7 @@ namespace Vampire
                 StitchMotif(key,"tab left",.466f,.793f,25);StitchMotif(key,"tab right",.884f,.793f,25);
                 StitchMotif(key,"stats top left",.132f,.499f);StitchMotif(key,"stats top right",.433f,.499f);
                 StitchMotif(key,"stats bottom left",.132f,.339f);StitchMotif(key,"stats bottom right",.433f,.339f);
-                StitchMotif(key,"description top left",.470f,.352f,22);StitchMotif(key,"description bottom right",.874f,.171f);
+                StitchMotif(key,"description top left",.470f,Tab==0 ? .525f : .352f,22);StitchMotif(key,"description bottom right",.874f,.171f);
                 Sticker(.131f,.795f,22,new Color(1,.79f,.38f));Sticker(.133f,.728f,18,new Color(1,.57f,.63f));Sticker(.131f,.584f,17,StitchPatchTheme.Mint);
                 Sticker(.882f,.623f,18,new Color(1,.79f,.38f));
                 SilverStitchPanel();

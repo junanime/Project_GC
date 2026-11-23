@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -21,6 +22,7 @@ namespace Vampire
         private int requiredStacks = 3;
         private int maxStacks = 5;
         private int bonusGemCount = 1;
+        Ver4CombatSnapshot feedbackSnapshot;
         public int HarvestRank { get; set; }
         public float ExtraGemChance => OriginalCombatRules.BacteriaHarvestChance(HarvestRank, CurrentStacks);
         private GemType bonusGemType = GemType.White1;
@@ -46,7 +48,7 @@ namespace Vampire
             int bonusGemCount,
             GemType bonusGemType,
             float bonusGemSpawnRadius,
-            bool debugLog)
+            bool debugLog, Ver4CombatSnapshot snapshot = null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             this.stackDuration = Mathf.Max(0.1f, stackDuration);
@@ -56,6 +58,7 @@ namespace Vampire
             this.bonusGemType = bonusGemType;
             this.bonusGemSpawnRadius = Mathf.Max(0f, bonusGemSpawnRadius);
             this.debugLog = debugLog;
+            feedbackSnapshot = snapshot;
 
             if (!initialized)
             {
@@ -72,6 +75,8 @@ namespace Vampire
                 stackExpireTimes.RemoveAt(0);
             }
 
+            if (snapshot != null && stackExpireTimes.Count > Mathf.Max(this.requiredStacks,this.maxStacks - snapshot.Count(Parent.GutBacteriaNeedle,0)))
+                snapshot.Impact(transform.position,this,Parent.GutBacteriaNeedle,0);
             if (augmentVisual == null && SyringeAugmentVfx.IsLiving(this))
                 augmentVisual = SyringeAugmentVfx.Play("GutBacteriaNeedle", transform.position, SyringeAugmentVfx.FindTarget(ownerMonster));
             if (augmentVisual != null) augmentVisual.SetStrength(Mathf.Lerp(0.4f, 1f, stackExpireTimes.Count / (float)this.maxStacks));
@@ -148,6 +153,7 @@ namespace Vampire
                 : (Vector2)transform.position;
 
             int finalGemCount = bonusGemCount + (Random.value < ExtraGemChance ? 1 : 0);
+            if (finalGemCount > bonusGemCount) feedbackSnapshot?.Impact(center,this,Parent.GutBacteriaNeedle,2);
             for (int i = 0; i < finalGemCount; i++)
             {
                 Vector2 offset = Random.insideUnitCircle * bonusGemSpawnRadius;

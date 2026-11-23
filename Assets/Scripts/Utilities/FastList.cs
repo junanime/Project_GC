@@ -63,17 +63,10 @@ namespace Vampire
             return indexByItem.ContainsKey(item);
         }
 
-        public IEnumerator<T> GetEnumerator()
-        {
-            foreach (T item in itemList)
-            {
-                yield return item;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        // Concrete field loops can enumerate hundreds of monsters without creating
+        // a state-machine object. Interface callers retain normal IEnumerable support.
+        public List<T>.Enumerator GetEnumerator() => itemList.GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

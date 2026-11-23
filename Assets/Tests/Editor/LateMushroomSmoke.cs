@@ -88,7 +88,7 @@ namespace Vampire.Tests.Editor
                 var m=entity.SpawnMonster(pool,(Vector2)player.transform.position+new Vector2(index==king?-1:1,1),flat[index]);
                 Check(m!=null&&m.GetType()==typeof(MeleeMonster)&&!RunScore.IsSpecial(m),flat[index].name+" ordinary melee and score path");
                 m.GetComponent<MonsterNeedleBarrier>()?.ResetBarrier();
-                Check(Mathf.Approximately(m.HP,flat[index].hp),m.Blueprint.name+" health");
+                Check(Mathf.Approximately(m.HP,flat[index].hp * .65f),m.Blueprint.name+" health");
                 var start=m.transform.position;var frames=new HashSet<Sprite>();float until=Time.time+1.2f;
                 while(Time.time<until){frames.Add(m.BodyRenderer.sprite);yield return null;}
                 Check(frames.Count==8,m.Blueprint.name+" all eight approved walk frames run");

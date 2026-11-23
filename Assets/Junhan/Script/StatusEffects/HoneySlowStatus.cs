@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -24,6 +25,19 @@ namespace Vampire
         private bool hasOriginalDrag = false;
         private float originalDrag;
 
+        // Field pacing and movement buffs can change the base while honey and ice coexist.
+        // Honey restores the most recent base; the ice layer continues to own its final multiplier.
+        internal static void SetUnslowedDrag(Rigidbody2D body, float drag)
+        {
+            var honey = body.GetComponent<HoneySlowStatus>();
+            if (honey != null && honey.hasOriginalDrag)
+            {
+                honey.originalDrag = drag;
+                drag /= honey.SpeedMultiplier * honey.SpeedMultiplier;
+            }
+            IceChillStatus.SetBaseDrag(body, drag);
+        }
+
         private void Awake()
         {
             targetRigidbody = GetComponent<Rigidbody2D>();
@@ -34,7 +48,7 @@ namespace Vampire
             }
         }
 
-        public void Apply(float duration, float slowMultiplier, bool showHoneyTrail = true)
+        public void Apply(float duration, float slowMultiplier, bool showHoneyTrail = true, Ver4CombatSnapshot snapshot = null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             if (targetRigidbody == null)
@@ -75,6 +89,11 @@ namespace Vampire
             statusExpires = Time.time + Mathf.Max(0, duration);
             slowCoroutine = StartCoroutine(SlowRoutine(duration));
             if(showHoneyTrail)EnsureAugmentVisual();
+            if (duration > 0 && slowMultiplier < 1f && snapshot != null)
+            {
+                snapshot.Impact(transform.position,this,Parent.Honey,0);
+                snapshot.Impact(transform.position,this,Parent.Honey,1);
+            }
         }
 
         private IEnumerator SlowRoutine(float duration)
@@ -86,9 +105,10 @@ namespace Vampire
 
         private void RestoreOriginalDrag()
         {
-            if (targetRigidbody != null && hasOriginalDrag)
+            if (hasOriginalDrag)
             {
-                IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag);
+                hasOriginalDrag = false;
+                if (targetRigidbody != null) IceChillStatus.SetBaseDrag(targetRigidbody, originalDrag);
             }
 
             slowCoroutine = null;

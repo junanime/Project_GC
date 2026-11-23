@@ -50,6 +50,7 @@ namespace Vampire
             PreparedStage = stage;
             nextAutomaticAttempt = 0;
             Part = BuriedBossPart.Create(this, SelectedKind, point);
+            BossScentGuide.Ensure(this, level);
         }
 
         public static bool TryPosition(Vector2 start, out Vector2 point)
@@ -128,6 +129,7 @@ namespace Vampire
                 if (level == null || level.IsLevelEnded || level.CurrentLevelBlueprint != blueprint || source == null) yield break;
                 var spawned = level.EntityManager.SpawnFinalBoss(blueprint, source.transform.position, 0, SelectedKind);
                 if (spawned == null) yield break;
+
                 success = true;
                 NotifySpawned();
                 level.NotifyExternalFinalBossSpawned();

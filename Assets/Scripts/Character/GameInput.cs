@@ -19,10 +19,15 @@ namespace Vampire
             }
         }
         public static bool KeyboardBlocked => EditingKeyboard || TextEntryFocused;
-        public static bool Pressed(GameKeyAction action) => !KeyboardBlocked &&
-            (GetKeyDown(GamePreferences.Current.keyboard.Get(action)) || GetKeyDown(GamePreferences.Current.keyboard.Get(action,1)));
-        public static bool Held(GameKeyAction action) => !KeyboardBlocked &&
-            (GetKey(GamePreferences.Current.keyboard.Get(action)) || GetKey(GamePreferences.Current.keyboard.Get(action,1)));
+        public static bool Pressed(GameKeyAction action) => !KeyboardBlocked && !TutorialGuide.BlocksMenuInput &&
+            (GameplayKey(GamePreferences.Current.keyboard.Get(action), true) || GameplayKey(GamePreferences.Current.keyboard.Get(action,1), true));
+        public static bool Held(GameKeyAction action) => !KeyboardBlocked && !TutorialGuide.BlocksMenuInput &&
+            (GameplayKey(GamePreferences.Current.keyboard.Get(action), false) || GameplayKey(GamePreferences.Current.keyboard.Get(action,1), false));
+        static bool GameplayKey(KeyCode key, bool pressed)
+        {
+            if (NumberedCardChoice.ReservesKey(key)) return false;
+            return pressed ? GetKeyDown(key) : GetKey(key);
+        }
         public static string Label(GameKeyAction action) => GamePreferences.Current.keyboard.Label(action);
         public static bool DebugPressed(KeyCode key) => !KeyboardBlocked && !GamePreferences.Current.keyboard.Find(key,out _,out _) && GetKeyDown(key);
         private static readonly Dictionary<KeyCode,Key> Keys = new Dictionary<KeyCode,Key>();

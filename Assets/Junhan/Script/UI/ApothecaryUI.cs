@@ -19,6 +19,7 @@ namespace Vampire
         public ApothecaryUIConfig Config { get; private set; }
         RectTransform root, content, safe;
         TMP_FontAsset runtimeFont;
+        public TMP_FontAsset HudFont => runtimeFont != null ? runtimeFont : Config.font;
         TextMeshProUGUI silverLabel;
         Image portrait;
         CharacterBlueprint previewCharacter;
@@ -107,8 +108,9 @@ namespace Vampire
             AudioListener.volume = GamePreferences.Current.muted ? 0 : GamePreferences.Current.master;
             bool returningToPreparation = lobby && prepareOnReturn;
             if (lobby) prepareOnReturn = false;
-            Show(lobby ? (returningToPreparation ? "prepare" : "main") : "hud");
-            if (lobby && !returningToPreparation && Page != "platformError") IntroMovie.TryShow(this);
+            string initialPage=lobby ? (returningToPreparation ? "prepare" : "main") : "hud";
+            Show(initialPage);
+            if (lobby && !returningToPreparation && Page == "main") IntroMovie.TryShow(this);
         }
         void OnDestroy()
         {
@@ -132,17 +134,18 @@ namespace Vampire
                 if (Page != "platformError") Show("platformError");
             }
             if (IntroMovie.BlocksMenuInput) return;
+            if (GStarControlPractice.Active)
+            {
+                if (Page == "run") FitFrameToScreen();
+                return;
+            }
             UpdateRanking();
             UpdateSkillUI();
             UpdateBossCompass();
             UpdatePrescriptionUI();
             if (safe == null) return;
             UpdatePreferencesUI();
-            Rect area = Screen.safeArea;
-            safe.anchorMin = new Vector2(area.xMin / Screen.width,area.yMin / Screen.height);
-            safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
-            float scale = Mathf.Min(safe.rect.width / 1280, safe.rect.height / 720);
-            root.localScale = Vector3.one * scale;
+            FitFrameToScreen();
             if (ColonExitBlocksMenus) { UpdateColonExitModal(); return; }
             if (dirty && !starting) { dirty = false; Render(); }
             if (portrait != null && portrait.GetComponentInParent<CharacterIdlePreview>() == null && previewCharacter != null && !(Page == "result" && !passed))
@@ -167,10 +170,26 @@ namespace Vampire
                 else if (Page == "run") CloseRunBook();
                 else if (Page == "settings") SelectCharacterBookmark();
             }
-            if (!GameInput.TextEntryFocused && GameInput.GetKeyDown(KeyCode.Escape)) Back();
+            if (Page == "merchant" && NumberedCardChoice.TryShortcut(merchantRerollButton, KeyCode.R)) return;
+            if (!GameInput.TextEntryFocused && GameInput.GetKeyDown(KeyCode.Escape))
+            {
+                var reward = level != null ? level.EntityManager?.AbilitySelectionDialog : null;
+                if (Page == "hud" && reward != null && reward.MenuOpen)
+                    reward.SkipFromKeyboard();
+                else Back();
+            }
         }
+        void FitFrameToScreen()
+        {
+            Rect area = Screen.safeArea;
+            safe.anchorMin = new Vector2(area.xMin / Screen.width,area.yMin / Screen.height);
+            safe.anchorMax = new Vector2(area.xMax / Screen.width,area.yMax / Screen.height);
+            root.localScale = Vector3.one * Mathf.Min(safe.rect.width / 1280,safe.rect.height / 720);
+        }
+
         public void Show(string page, int tab = 0)
         {
+            if (GStarControlPractice.Active && page == "settings") return;
             if (ColonExitBlocksMenus && page != "result" && page != "platformError") return;
             stageChoiceOpen=false;
             page = SteamGuardPage(page);
@@ -195,6 +214,24 @@ namespace Vampire
         {
             RenderContent();
             ApplyStitchTheme();
+            if (Page == "run" && GStarControlPractice.Active)
+            {
+                content.Find("Settings bookmark")?.gameObject.SetActive(false);
+                content.Find("Record consumables")?.gameObject.SetActive(false);
+                content.Find("Record guide")?.gameObject.SetActive(false);
+                var hint = TrainingUITheme.Pill("연습 기록 닫기", content, new Color32(255,248,227,255),
+                    new Vector2(.675f,.903f), new Vector2(.932f,.975f));
+                hint.radius = 11;
+                var cap = InteractionKeycapGraphic.Create("기록 키캡", hint.transform, GStarControlPractice.KeyName(GameKeyAction.Journal), 34);
+                cap.Bounds.anchorMin = cap.Bounds.anchorMax = new Vector2(0,.5f);
+                cap.Bounds.pivot = new Vector2(0,.5f);
+                cap.Bounds.anchoredPosition = new Vector2(10,0);
+                var label = Label(hint.transform,"다시 눌러 닫기",0,0,1,1,20);
+                label.rectTransform.offsetMin = new Vector2(cap.Bounds.sizeDelta.x + 18, 0);
+                label.rectTransform.offsetMax = new Vector2(-5, 0);
+                label.color = Ink;
+                label.enableWordWrapping = false;
+            }
             if(stageChoiceOpen) BuildStageChoice();
         }
         void RenderContent()
@@ -339,22 +376,26 @@ namespace Vampire
             Grid(items.Length,i=>items[i].itemIcon,i=>items[i].itemName,.52f,.43f,.88f,.73f);
             var item=items[selection];
             bool full=LobbyLoadoutData.SelectedCarryItems.Count>=2, bought=LobbyLoadoutData.IsEquipped(item), afford=SilverWallet.CanSpend(item.silverCost);
-            Label(content,item.description,.53f,.29f,.88f,.355f,18);
+            Label(content,item.ChoiceDescription,.53f,.29f,.88f,.355f,18);
             string label=full?"구매 불가 · 2 / 2":bought?"구매 완료":!afford?"실버 부족":$"구매하기 · {item.silverCost} 실버";
             ActionButton(content,label,.55f,.205f,.86f,.28f,()=>{LobbyLoadoutData.TryBuyAndEquip(item,item.silverCost,out message);Render();},true,!full&&!bought&&afford);
         }
         public void StartRun()
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character)) return;
+            practiceOnDeparture = !GamePlatform.UsesTouchControls && (GStarControlPractice.NeedsIntroduction || GStarControlPractice.ReplayOnNextDeparture);
             stageChoiceOpen=true;Render();
         }
         void LaunchStage(int stage)
         {
             if(starting || StageEntryLoading.IsLoading || !Owned(character) || (stage==2&&!StageProgression.StageTwoEnabled) || (stage==0&&!StageProgression.StageZeroEnabled)) return;
             CrossSceneData.CharacterBlueprint=character;
-            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage)) return;
+            if(!StageEntryLoading.Begin(character,()=>{starting=false;message="로딩을 시작하지 못했습니다. 다시 출전해 주세요.";dirty=true;},stage,practiceOnDeparture)) return;
             stageChoiceOpen=false;starting=true;
-            CrossSceneData.StartingLobbyItems=LobbyLoadoutData.ConsumeSelectedCarryItems();
+            CrossSceneData.StartingLobbyItems = practiceOnDeparture ? Array.Empty<MerchantItemBlueprint>() : LobbyLoadoutData.ConsumeSelectedCarryItems();
+            if (!practiceOnDeparture && !GamePlatform.UsesTouchControls && GStarControlPractice.NeedsIntroduction)
+                GStarControlPractice.RememberDeparture(false);
+            GStarControlPractice.ReplayOnNextDeparture = false;
             Time.timeScale=1;
         }
         void Unlock()
@@ -384,13 +425,13 @@ namespace Vampire
             {
                 selection=Mathf.Clamp(selection,0,Config.items.Length-1);
                 Grid(Config.items.Length,i=>Config.items[i].itemIcon,i=>Config.items[i].itemName,.12f,.27f,.56f,.70f);
-                var item=Config.items[selection];title=item.itemName;description=item.description+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
+                var item=Config.items[selection];title=item.itemName;description=item.ChoiceDescription+(ItemOfferPolicy.CanOffer(item)?"\n출전 준비에서 실버로 구매합니다.":"\n판매 종료 · 기존 보유 효과는 유지됩니다.");icon=item.itemIcon;action="사용 가능";
             }
             else if(Tab==3 && Config.augments.Length>0)
             {
                 selection=Mathf.Clamp(selection,0,Config.augments.Length-1);
                 Grid(Config.augments.Length,i=>Config.augments[i].icon,i=>Config.augments[i].title,.12f,.27f,.56f,.70f);
-                var a=Config.augments[selection];title=a.title;description=a.description;icon=a.icon;action="플레이 중 획득";
+                var a=Config.augments[selection];title=a.title;description=AugmentBrief.Noble(PhoenixNobleTheme.KeyForLabel(title)) ?? a.description;icon=a.icon;action="플레이 중 획득";
             }
             Panel(content,.595f,.22f,.88f,.70f);
             Label(content,title,.61f,.63f,.86f,.70f,27);
@@ -425,7 +466,22 @@ namespace Vampire
                 ActionButton(content,">",right-.07f,y-.065f,right,y-.003f,()=>{pageIndex++;Render();},false,pageIndex<pages-1);
             }
         }
+        internal bool OpenPracticeBook()
+        {
+            OpenRunBookCore();
+            if (Page != "run") return false;
+            safe.GetComponentInParent<Canvas>().enabled = true;
+            FitFrameToScreen();
+            return true;
+        }
+
         public void OpenRunBook()
+        {
+            if (GStarControlPractice.Active) return;
+            OpenRunBookCore();
+        }
+
+        void OpenRunBookCore()
         {
             if (ColonExitBlocksMenus) return;
             var reward=level!=null ? level.EntityManager?.AbilitySelectionDialog : null;
@@ -440,6 +496,7 @@ namespace Vampire
             level?.EntityManager?.AbilitySelectionDialog?.SetCoveredByRunBook(false);
             if(ownsPause && level!=null&&!level.IsLevelEnded)Time.timeScale=previousTime;
             ownsPause=false;Show("hud");
+            if (GStarControlPractice.Active) safe.GetComponentInParent<Canvas>().enabled = false;
         }
         void RunBook()
         {
@@ -455,7 +512,8 @@ namespace Vampire
         public static bool TryShowResult(bool success)
         {
             if(Instance==null || Instance.level==null)return false;
-            Instance.passed=success;Instance.ownsPause=false;Time.timeScale=0;Instance.Show("result");return true;
+            Instance.passed=success;Instance.ownsPause=false;Time.timeScale=0;
+            Instance.Show("result");return true;
         }
         void LegacyResult()
         {

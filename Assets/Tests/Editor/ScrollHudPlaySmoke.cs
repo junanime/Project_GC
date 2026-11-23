@@ -120,9 +120,10 @@ namespace Vampire.Tests.Editor
             var mobileSettings=ui.GetComponentsInChildren<Button>().Single(b=>b.name=="Settings bookmark");mobileSettings.onClick.Invoke();Check(ui.Page=="settings","Mobile settings button functions");ui.Back();
             Capture("mobile-navigation");SetMobile(false);ui.Show("hud");yield return null;
             view=ui.GetComponentInChildren<PrescriptionScrollView>();
+            level.SetRunFlowPaused(false);
             foreach(int id in quest.Capture().quests)quest.Record((PrescriptionRuntime.Goal)id,10000);yield return null;
-            Check(view.Claim.interactable&&view.Claim.GetComponentInChildren<TextMeshProUGUI>().text=="고귀 증강 선택","Completed prescription offers Noble reward");
-            view.Claim.onClick.Invoke();yield return new WaitForSecondsRealtime(.6f);
+            yield return new WaitForSecondsRealtime(.6f);
+            Check(quest.Claimed && dialog.MenuOpen, "Completion automatically opens the Noble reward");
             var offers=(List<Ability>)Get(dialog,"displayedAbilities");var cards=dialog.GetComponentsInChildren<AbilityCard>();
             Check(offers.Count==3&&offers.All(a=>a.Name.StartsWith("고귀 증강: ")),"All mechanic rewards are named Noble augments");
             Check(cards.All(c=>c.UsesNoblePanel),"Noble rewards use their dedicated liquid overframe art");

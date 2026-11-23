@@ -42,6 +42,11 @@ namespace Vampire
         [SerializeField] private bool debugLog = false;
 
         private Camera mainCamera;
+        private readonly List<Monster> monsters = new List<Monster>();
+        private readonly List<Monster> layerMatchedTargets = new List<Monster>();
+        private readonly List<Monster> fallbackTargets = new List<Monster>();
+        private readonly List<Vector2> positions = new List<Vector2>();
+        private readonly List<Collider2D> colliders = new List<Collider2D>();
         private float timer = 0f;
         private SyringeDartAbility sourceNeedleAbility;
 
@@ -134,7 +139,7 @@ SyringeDartAbility sourceNeedleAbility)
 
             List<Monster> screenMonsters = GetScreenMonsters();
 
-            var positions = new List<Vector2>(screenMonsters.Count + ColonBossRuntime.Active.Count);
+            positions.Clear();
             foreach (var monster in screenMonsters)
                 if (monster != null) positions.Add(GetMonsterWorldPosition(monster));
             LayerMask targets = monsterLayer.value == 0 ? (LayerMask)~0 : monsterLayer;
@@ -190,12 +195,11 @@ SyringeDartAbility sourceNeedleAbility)
 
         private List<Monster> GetScreenMonsters()
         {
-            List<Monster> layerMatchedTargets = new List<Monster>();
-            List<Monster> fallbackTargets = new List<Monster>();
+            layerMatchedTargets.Clear();
+            fallbackTargets.Clear();
+            StageActorRegistry.CopyActiveMonsters(monsters);
 
-            Monster[] monsters = FindObjectsOfType<Monster>();
-
-            for (int i = 0; i < monsters.Length; i++)
+            for (int i = 0; i < monsters.Count; i++)
             {
                 Monster monster = monsters[i];
 
@@ -256,9 +260,9 @@ SyringeDartAbility sourceNeedleAbility)
                 return true;
             }
 
-            Collider2D[] colliders = monster.GetComponentsInChildren<Collider2D>(true);
+            monster.GetComponentsInChildren(true, colliders);
 
-            for (int i = 0; i < colliders.Length; i++)
+            for (int i = 0; i < colliders.Count; i++)
             {
                 Collider2D col = colliders[i];
 

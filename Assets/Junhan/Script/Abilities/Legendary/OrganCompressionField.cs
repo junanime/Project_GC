@@ -7,11 +7,17 @@ namespace Vampire
     /// 장기압착이 생성하는 원형 압착장.
     /// 범위 안의 적을 중앙으로 끌어당기고 주기적으로 피해를 준다.
     /// 
-    /// OverlapCircleAll이 레이어 문제로 비어도 FindObjectsOfType<Monster>() fallback으로 작동한다.
+    /// 일반 몬스터와 중립 소화효소는 레이어가 일치하지 않아도 범위 내에서 흡입된다.
     /// </summary>
     public class OrganCompressionField : MonoBehaviour
     {
         private readonly Dictionary<int, float> nextDamageTimes = new Dictionary<int, float>();
+        private readonly List<CompressionTarget> targetsInRange = new List<CompressionTarget>();
+        private readonly HashSet<int> addedIds = new HashSet<int>();
+        private readonly List<Collider2D> hits = new List<Collider2D>();
+        private readonly List<IDamageable> parents = new List<IDamageable>();
+        private readonly List<Monster> monsters = new List<Monster>();
+        private readonly List<DigestiveEnzymeMonster> enzymes = new List<DigestiveEnzymeMonster>();
         private HerbalGroundVisual augmentVisual;
 
         private Vector2 center;
@@ -29,7 +35,6 @@ namespace Vampire
         private struct CompressionTarget
         {
             public IDamageable damageable;
-            public Component component;
             public int id;
         }
         public void Init(
@@ -75,7 +80,6 @@ SyringeDartAbility sourceNeedleAbility)
             }
 
             ApplyCompression();
-            UpdateVisual();
         }
 
         private void ApplyCompression()
@@ -87,12 +91,12 @@ SyringeDartAbility sourceNeedleAbility)
             {
                 CompressionTarget target = targets[i];
 
-                if (target.damageable == null || target.component == null)
+                if (target.damageable == null)
                 {
                     continue;
                 }
 
-                if (!target.component.gameObject.activeInHierarchy)
+                if (!target.damageable.gameObject.activeInHierarchy)
                 {
                     continue;
                 }
@@ -104,196 +108,62 @@ SyringeDartAbility sourceNeedleAbility)
 
         private List<CompressionTarget> GetDamageableTargetsInRadius()
         {
-            List<CompressionTarget> result = new List<CompressionTarget>();
-            HashSet<int> addedIds = new HashSet<int>();
+            targetsInRange.Clear();
+            addedIds.Clear();
+            NeedleTargeting.FillCircle(center, radius, monsterLayer, hits);
 
-            Collider2D[] hits = Physics2D.OverlapCircleAll(center, radius, monsterLayer);
-
-            for (int i = 0; i < hits.Length; i++)
+            for (int i = 0; i < hits.Count; i++)
             {
-                CompressionTarget target;
-
-                if (!TryBuildCompressionTargetFromCollider(hits[i], out target))
-                {
-                    continue;
-                }
-
-                if (addedIds.Add(target.id))
-                {
-                    result.Add(target);
-                }
+                var actor = FirstEligibleParent(hits[i]);
+                if (actor == null) continue;
+                int id = actor.gameObject.GetInstanceID();
+                if (addedIds.Add(id))
+                    targetsInRange.Add(new CompressionTarget { damageable = actor, id = id });
             }
 
-            // fallback 1: 기존 일반 Monster 직접 검색
-            Monster[] monsters = FindObjectsOfType<Monster>();
-
-            for (int i = 0; i < monsters.Length; i++)
-            {
-                Monster monster = monsters[i];
-
-                if (!IsValidMonsterForCompression(monster))
-                {
-                    continue;
-                }
-
-                CompressionTarget target;
-                if (!TryBuildCompressionTargetFromComponent(monster, out target))
-                {
-                    continue;
-                }
-
-                if (Vector2.Distance(center, GetTargetWorldPosition(target)) > radius)
-                {
-                    continue;
-                }
-
-                if (addedIds.Add(target.id))
-                {
-                    result.Add(target);
-                }
-            }
-
-            // fallback 2: 중립 소화효소 몬스터 직접 검색
-            DigestiveEnzymeMonster[] enzymes = FindObjectsOfType<DigestiveEnzymeMonster>();
-
-            for (int i = 0; i < enzymes.Length; i++)
-            {
-                DigestiveEnzymeMonster enzyme = enzymes[i];
-
-                if (enzyme == null || !enzyme.gameObject.activeInHierarchy)
-                {
-                    continue;
-                }
-
-                CompressionTarget target;
-                if (!TryBuildCompressionTargetFromComponent(enzyme, out target))
-                {
-                    continue;
-                }
-
-                if (Vector2.Distance(center, GetTargetWorldPosition(target)) > radius)
-                {
-                    continue;
-                }
-
-                if (addedIds.Add(target.id))
-                {
-                    result.Add(target);
-                }
-            }
-
-            return result;
+            // Preserve the two fallbacks for off-layer targets, including neutral enzymes.
+            // The registry supplies active objects in the original InstanceID order.
+            StageActorRegistry.CopyActiveMonsters(monsters);
+            for (int i = 0; i < monsters.Count; i++)
+                if (monsters[i].HP > 0f) AddFallback(monsters[i]);
+            StageActorRegistry.CopyActiveEnzymes(enzymes);
+            for (int i = 0; i < enzymes.Count; i++) AddFallback(enzymes[i]);
+            return targetsInRange;
         }
 
-        private bool TryBuildCompressionTargetFromCollider(Collider2D collider, out CompressionTarget target)
+        void AddFallback(IDamageable actor)
         {
-            target = default;
-
-            if (collider == null)
-            {
-                return false;
-            }
-
-            Component[] parentComponents = collider.GetComponentsInParent<Component>(true);
-
-            for (int i = 0; i < parentComponents.Length; i++)
-            {
-                Component component = parentComponents[i];
-
-                if (component == null)
-                {
-                    continue;
-                }
-
-                if (!component.gameObject.activeInHierarchy)
-                {
-                    continue;
-                }
-
-                IDamageable damageable = component as IDamageable;
-
-                if (damageable == null)
-                {
-                    continue;
-                }
-
-                Monster monster = component as Monster;
-
-                if (monster != null && !IsValidMonsterForCompression(monster))
-                {
-                    continue;
-                }
-
-                target = new CompressionTarget
-                {
-                    damageable = damageable,
-                    component = component,
-                    id = component.gameObject.GetInstanceID()
-                };
-
-                return true;
-            }
-
-            return false;
+            int id = actor.gameObject.GetInstanceID();
+            if (addedIds.Contains(id)) return;
+            var target = new CompressionTarget { damageable = actor, id = id };
+            if (Vector2.Distance(center, GetTargetWorldPosition(target)) > radius) return;
+            addedIds.Add(id);
+            targetsInRange.Add(target);
         }
 
-        private bool TryBuildCompressionTargetFromComponent(Component component, out CompressionTarget target)
+        IDamageable FirstEligibleParent(Collider2D hit)
         {
-            target = default;
-
-            if (component == null)
-            {
-                return false;
-            }
-
-            if (!component.gameObject.activeInHierarchy)
-            {
-                return false;
-            }
-
-            IDamageable damageable = component as IDamageable;
-
-            if (damageable == null)
-            {
-                return false;
-            }
-
-            target = new CompressionTarget
-            {
-                damageable = damageable,
-                component = component,
-                id = component.gameObject.GetInstanceID()
-            };
-
-            return true;
+            if (hit == null) return null;
+            var first = hit.GetComponentInParent<IDamageable>(true);
+            if (first == null || Eligible(first)) return first;
+            // A dead inner actor may cover a live parent, or another component on
+            // the same object. Only this unusual hierarchy needs the full ordered list.
+            hit.GetComponentsInParent(true, parents);
+            for (int i = 0; i < parents.Count; i++)
+                if (Eligible(parents[i])) return parents[i];
+            return null;
         }
 
-        private bool IsValidMonsterForCompression(Monster monster)
-        {
-            if (monster == null)
-            {
-                return false;
-            }
-
-            if (!monster.gameObject.activeInHierarchy)
-            {
-                return false;
-            }
-
-            if (monster.HP <= 0f)
-            {
-                return false;
-            }
-
-            return true;
-        }
+        static bool Eligible(IDamageable actor) =>
+            actor != null && actor.gameObject.activeInHierarchy &&
+            (!(actor is Monster monster) || monster.HP > 0f);
 
         private void PullTarget(CompressionTarget target)
         {
-            if (target.component.GetComponentInParent<BloodClotObstacle>() != null) return;
+            if (target.damageable.GetComponentInParent<BloodClotObstacle>() != null) return;
             // Respect colon encounters' scripted movement and habitat territory. Damage
             // and marks still apply, but a suction field cannot drag them through walls.
-            if (target.component is ColonBossRuntime || target.component is ConstipationKingRuntime) return;
+            if (target.damageable is ColonBossRuntime || target.damageable is ConstipationKingRuntime) return;
             Vector2 targetPosition = GetTargetWorldPosition(target);
             Vector2 toCenter = center - targetPosition;
             float distance = toCenter.magnitude;
@@ -314,8 +184,7 @@ SyringeDartAbility sourceNeedleAbility)
 
             Vector2 delta = nextPosition - targetPosition;
 
-            Rigidbody2D rb = target.component.GetComponent<Rigidbody2D>() ??
-                             target.component.GetComponentInParent<Rigidbody2D>();
+            Rigidbody2D rb = target.damageable.GetComponentInParent<Rigidbody2D>();
 
             if (rb != null)
             {
@@ -325,38 +194,38 @@ SyringeDartAbility sourceNeedleAbility)
             }
             else
             {
-                target.component.transform.position += (Vector3)delta;
+                target.damageable.transform.position += (Vector3)delta;
             }
         }
 
         private Vector2 GetTargetWorldPosition(CompressionTarget target)
         {
-            if (target.component == null)
+            if (target.damageable == null)
             {
                 return Vector2.zero;
             }
 
-            Monster monster = target.component as Monster;
+            Monster monster = target.damageable as Monster;
 
             if (monster != null && monster.CenterTransform != null)
             {
                 return monster.CenterTransform.position;
             }
 
-            Collider2D collider = target.component.GetComponentInChildren<Collider2D>();
+            Collider2D collider = target.damageable.GetComponentInChildren<Collider2D>();
 
             if (collider != null)
             {
                 return collider.bounds.center;
             }
 
-            return target.component.transform.position;
+            return target.damageable.transform.position;
         }
 
         private void TryDamageTarget(CompressionTarget target)
         {
             if (sourceCharacter != null && sourceCharacter.IsTrapBound) return;
-            if (target.damageable == null || target.component == null)
+            if (target.damageable == null)
             {
                 return;
             }
@@ -369,7 +238,7 @@ SyringeDartAbility sourceNeedleAbility)
                 }
             }
 
-            float debuffMultiplier = CombatStatusRules.DamageMultiplier(sourceCharacter,target.component);
+            float debuffMultiplier = CombatStatusRules.DamageMultiplier(sourceCharacter,target.damageable);
             float finalDamage = damagePerTick * debuffMultiplier;
             bool consumedNeedleMark = false;
             SyringeSpecialRuntime runtime = default;
@@ -379,7 +248,7 @@ SyringeDartAbility sourceNeedleAbility)
                 runtime = sourceNeedleAbility.GetCurrentSpecialRuntime();
 
                 float statusDamageMultiplier = SyringeSpecialHitEffectUtility.GetPreDamageMultiplier(
-                    target.component,
+                    target.damageable,
                     runtime,
                     out consumedNeedleMark
                 );
@@ -387,8 +256,13 @@ SyringeDartAbility sourceNeedleAbility)
                 finalDamage *= statusDamageMultiplier;
             }
 
+            float beforeMarkHit = consumedNeedleMark && runtime.ver4?.PendingFeedback == true
+                ? Ver4HitEffects.Health(target.damageable) : 0f;
             target.damageable.TakePeriodicDamage(finalDamage, Vector2.zero, false);
-            HerbalGroundVisual.Create(target.component.transform, GetTargetWorldPosition(target), .24f, .24f, 2);
+            if (beforeMarkHit > 0 && beforeMarkHit > Ver4HitEffects.Health(target.damageable))
+                runtime.ver4.Impact(GetTargetWorldPosition(target), target.damageable,
+                    SyringeSpecialAugmentAbility.SpecialAugmentType.MarkNeedle, 1);
+            HerbalGroundVisual.Create(target.damageable.transform, GetTargetWorldPosition(target), .24f, .24f, 2);
 
             // 장기압착은 Projectile.OnHitDamageable을 거치지 않는 독립 피해이므로
             // 기존 전체 피해량 시스템에 여기서 정확히 1회 기록한다.
@@ -412,12 +286,12 @@ SyringeDartAbility sourceNeedleAbility)
             if (sourceNeedleAbility != null)
             {
                 SyringeSpecialHitEffectUtility.ApplyPostHitEffects(
-                    target.component,
+                    target.damageable,
                     runtime,
                     sourceCharacter,
                     GetTargetWorldPosition(target),
                     monsterLayer,
-                    target.component.gameObject,
+                    target.damageable.gameObject,
                     consumedNeedleMark,
                     finalDamage / debuffMultiplier
                 );
@@ -430,7 +304,6 @@ SyringeDartAbility sourceNeedleAbility)
             if (augmentVisual != null) Destroy(augmentVisual.gameObject);
             augmentVisual = HerbalGroundVisual.Create(transform, center, radius, duration, 0);
         }
-        private void UpdateVisual() { }
         private void OnDisable() { if (augmentVisual != null) Destroy(augmentVisual.gameObject); }
     }
 }

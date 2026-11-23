@@ -22,7 +22,16 @@ namespace Vampire
         public Ver4CombatSnapshot Combat { get; private set; }
         private SyringeSpecialAugmentAbility[] parents;
         private readonly List<string> acquisitions = new List<string>();
+        bool starterLedgerOnly = true;
         private SyringeDartAbility syringe;
+        readonly OriginalImpactFeedback impactFeedback = new OriginalImpactFeedback();
+        bool showHealthGainAfterMenu;
+        void LateUpdate()
+        {
+            if (!showHealthGainAfterMenu || Time.timeScale <= 0f || playerCharacter == null) return;
+            if (Combat?.Impact(playerCharacter.CenterTransform.position, playerCharacter, ParentType.Mosquito, 2) == true)
+                showHealthGainAfterMenu = false;
+        }
         public override bool RequirementsMet() => false;
 
         public void Configure(Ver4AugmentBalance balance, AbilityManager manager, EntityManager entities, Character character)
@@ -53,13 +62,37 @@ namespace Vampire
         {
             foreach(var parent in parents)
                 if(parent.Owned && StartingNeedleSelection.Available(parent.Type)) Progress.RegisterOwnedParent(parent.Type.ToString());
-            Combat=new Ver4CombatSnapshot(Progress);
+            Combat=new Ver4CombatSnapshot(Progress, impactFeedback);
+        }
+
+        internal void SeedSignatureOriginals(SyringeSpecialAugmentAbility parent)
+        {
+            if (!parent.Owned || !StartingNeedleSelection.Available(parent.Type) ||
+                (int)parent.Type != StartingNeedleSelection.DefaultId(playerCharacter.Blueprint)) return;
+            string id = parent.Type.ToString();
+            for (int i=0; i<OriginalAugmentProgress.EffectsPerParent; i++)
+            {
+                if (Progress.Count(id,i) != 0) continue;
+                var entry = new Acquisition { parent=id, original=true, option=i, grade=(int)AugmentUpgradeGrade.Original };
+                ApplyAcquisition(entry);
+                acquisitions.Add(JsonUtility.ToJson(entry));
+            }
+            level=1+acquisitions.Count;
+            RefreshProgress();
         }
 
         public bool HasEligibleOriginal => parents != null && parents.Any(p=>p.Owned && StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p)
             && Enumerable.Range(0,3).Any(option=>Progress.CanSelect(p.Type.ToString(),option)));
 
-        public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount, bool guaranteeOriginal = false)
+        static bool ChangesTrajectory(ParentType type)
+        {
+            return type == ParentType.Pierce || type == ParentType.Homing ||
+                   type == ParentType.ReturnNeedle || type == ParentType.BipolarNeedle ||
+                   type == ParentType.Explosion || type == ParentType.AcupunctureFormation ||
+                   type == ParentType.VibrationNeedle;
+        }
+
+        public List<Ability> CreateOffers(bool legendaryOnly, int requestedCount, bool guaranteeOriginal = false, bool favorTrajectory = false)
         {
             RefreshProgress();
             var result=new List<Ability>();
@@ -88,9 +121,14 @@ namespace Vampire
                 // Acquisition is a reward type decision, never a seventh grade.
                 // With no parent yet, expose three distinct acquisition choices.
                 bool forceOriginal = guaranteeOriginal && slot==0 && originals.Count>0;
-                if(!forceOriginal && newParents.Count>0 && (ownedParents.Count==0 || UnityEngine.Random.value<Balance.newSpecialChance))
+                var visible = slot==0 && favorTrajectory && !forceOriginal
+                    ? newParents.FindAll(p=>ChangesTrajectory(p.Type)) : null;
+                bool offerVisible = visible != null && visible.Count > 0;
+                if(!forceOriginal && newParents.Count>0 && (offerVisible || ownedParents.Count==0 || UnityEngine.Random.value<Balance.newSpecialChance))
                 {
-                    int index=UnityEngine.Random.Range(0,newParents.Count); var parent=newParents[index]; newParents.RemoveAt(index);
+                    var pool = offerVisible ? visible : newParents;
+                    var parent=pool[UnityEngine.Random.Range(0,pool.Count)];
+                    newParents.Remove(parent);
                     result.Add(Offer(Ver4RewardKind.NewSpecial,AugmentUpgradeGrade.Common,parent,0,0,
                         "특수 증강: "+ParentName(parent),parent.Description+"\n최초 획득 · 오리지널 Lv.0/9"));
                     continue;
@@ -151,6 +189,29 @@ namespace Vampire
             return result;
         }
 
+        internal List<Ability> CreatePracticeOffers(AugmentUpgradeGrade grade)
+        {
+            var result = new List<Ability>(3);
+            bool AvailableForLesson(SyringeSpecialAugmentAbility p) =>
+                StartingNeedleSelection.Owned(p) && StartingNeedleSelection.Enabled(p);
+            var parent = parents.FirstOrDefault(p => p.Owned && AvailableForLesson(p));
+            if (parent == null)
+            {
+                // A visitor may have disabled their signature needle and equipped no replacement.
+                // The rehearsal scene has its own ledger and is discarded before the scored run.
+                parent = parents.FirstOrDefault(p => AvailableForLesson(p) && abilityManager.CanAcquireForLoadout(p));
+                if (parent == null || !abilityManager.AcquireVer4Ability(parent,true)) return result;
+            }
+            // Same three stats on both draws let visitors compare the grades directly.
+            foreach (int option in new[] { 0, 3, 7 })
+            {
+                float amount = Balance.NumericValue(grade, option);
+                result.Add(Offer(Ver4RewardKind.Numeric, grade, parent, option, amount,
+                    ParentName(parent) + " · 수치 강화", Ver4AugmentCatalog.NumericDescription(option, amount)));
+            }
+            return result;
+        }
+
         private bool TryAddNumericFallback(List<Ability> result,List<SyringeSpecialAugmentAbility> ownedParents)
         {
             if(ownedParents==null || ownedParents.Count==0) return false;
@@ -202,7 +263,13 @@ namespace Vampire
             }
             var acquisition=new Acquisition { parent=offer.Parent.Type.ToString(), original=offer.Kind==Ver4RewardKind.Original,
                 option=offer.Option, grade=(int)offer.Grade, amount=offer.Amount };
+            float previousMaximum = playerCharacter.MaxHealth;
             ApplyAcquisition(acquisition);
+            if (acquisition.original && offer.Parent.Type == ParentType.Mosquito && offer.Option == 2 &&
+                playerCharacter.MaxHealth > previousMaximum) showHealthGainAfterMenu = true;
+            if (acquisition.original)
+                impactFeedback.Arm(offer.Parent.Type, offer.Option, Progress.Count(acquisition.parent, offer.Option));
+            starterLedgerOnly = false;
             acquisitions.Add(JsonUtility.ToJson(acquisition));
             level=1+acquisitions.Count;
             RefreshProgress();
@@ -242,9 +309,7 @@ namespace Vampire
         public bool RestoreRunSceneConditionalAugments(IReadOnlyList<string> ids)
         {
             if(ids==null) return false;
-            // Repeated restore on the same live run must never double-apply stats.
-            if(acquisitions.Count>0) return acquisitions.SequenceEqual(ids);
-            RefreshProgress();
+            // Validate before replacing the fresh signature, so malformed saves leave the loadout intact.
             var validated=new List<Acquisition>();
             var validationProgress=new OriginalAugmentProgress();
             foreach(var parent in parents.Where(p=>p.Owned || !StartingNeedleSelection.Available(p.Type))) validationProgress.RegisterOwnedParent(parent.Type.ToString());
@@ -266,8 +331,34 @@ namespace Vampire
                 }
             }
             catch(ArgumentException) { return false; }
-            foreach(var entry in validated) ApplyAcquisition(entry);
-            acquisitions.AddRange(ids); level=1+acquisitions.Count; RefreshProgress();
+            // Older saves can have fewer than three signature effects. Keep earned
+            // ranks and fill only the missing first ranks after reading every entry.
+            var normalized = new List<string>(ids);
+            var signatureType = (ParentType)StartingNeedleSelection.DefaultId(playerCharacter.Blueprint);
+            string signature = signatureType.ToString();
+            if (parents.Any(p => p.Owned && p.Type == signatureType))
+            {
+                for (int option = 0; option < OriginalAugmentProgress.EffectsPerParent; option++)
+                {
+                    if (validationProgress.Count(signature, option) > 0) continue;
+                    var entry = new Acquisition { parent = signature, original = true, option = option, grade = (int)AugmentUpgradeGrade.Original };
+                    validated.Add(entry);
+                    normalized.Add(JsonUtility.ToJson(entry));
+                }
+            }
+            if (acquisitions.SequenceEqual(normalized)) return true;
+            if (!starterLedgerOnly) return false;
+
+            // Innate effects for the four starters are read directly from Progress.
+            // Only these initial counts may be replaced before loading a run.
+            Progress = new OriginalAugmentProgress();
+            RefreshProgress();
+            foreach (var entry in validated) ApplyAcquisition(entry);
+            acquisitions.Clear();
+            acquisitions.AddRange(normalized);
+            starterLedgerOnly = false;
+            level = 1 + acquisitions.Count;
+            RefreshProgress();
             return true;
         }
     }

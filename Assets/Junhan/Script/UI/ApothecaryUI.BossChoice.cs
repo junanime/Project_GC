@@ -7,7 +7,7 @@ namespace Vampire
         FinalBossSummonInteractable bossChoiceOwner;Action<FoodBossKind> bossChosen;Action bossChoiceCancelled;
         public bool ShowBossChoice(FinalBossSummonInteractable owner,Action<FoodBossKind> choose,Action cancel)
         {
-            if(level==null||level.IsLevelEnded||Page!="hud"||Time.timeScale<=0)return false;
+            if(level==null||level.IsLevelEnded||Page!="hud"||Time.timeScale<=0||level.GetComponent<BuriedBossDirector>()!=null)return false;
             bossChoiceOwner=owner;bossChosen=choose;bossChoiceCancelled=cancel;previousTime=Time.timeScale;ownsPause=true;Time.timeScale=0;Show("bossChoice");return true;
         }
         public void CancelBossChoice(FinalBossSummonInteractable owner){if(Page=="bossChoice"&&bossChoiceOwner==owner)CloseBossChoice();}

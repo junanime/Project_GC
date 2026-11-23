@@ -98,7 +98,7 @@ namespace Vampire
         public bool Active => IsShini ? Breath!=null&&Breath.Busy : ActiveRemaining > 0;
         public int DashSequence { get; private set; }
         public float LastDashTime { get; private set; } = float.NegativeInfinity;
-        public bool CanActivate => (!IsShini || Breath!=null&&Breath.CanStart) && Definition != null && owner.IsAlive && !owner.IsColonExitProtected && !owner.IsOralSwallowing && !owner.IsPortalTravelling && !owner.IsTrapBound && !owner.IsDashing && !owner.IsOralSliding && !IsCutin && !IsSummoning && CooldownRemaining <= 0 && Time.timeScale > 0 && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud");
+        public bool CanActivate => GStarControlPractice.AllowsSkill && !StageEntryLoading.IsLoading && (!IsShini || Breath!=null&&Breath.CanStart) && Definition != null && owner.IsAlive && !owner.IsColonExitProtected && !owner.IsOralSwallowing && !owner.IsPortalTravelling && !owner.IsPortalPoseHeld && !owner.IsTrapBound && !owner.IsDashing && !owner.IsOralSliding && !IsCutin && !IsSummoning && CooldownRemaining <= 0 && Time.timeScale > 0 && (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud");
         SkillWindVisual aura;
         public void Initialize(Character character) { owner=character; aura=gameObject.AddComponent<SkillWindVisual>(); aura.Bind(this); if(IsShini){Breath=gameObject.AddComponent<ShiniEmberRuntime>();Breath.Bind(character,this);} gameObject.AddComponent<PhoenixSkillVisual>().Bind(character,this); if(IsAri)gameObject.AddComponent<AriSkillRuntime>().Bind(character,this); }
         public void DashFinished() { if (Definition != null && !IsHyuki && !IsShini && !IsAri && owner.IsAlive) PassiveRemaining=EffectivePassiveDuration; }
@@ -110,12 +110,17 @@ namespace Vampire
             if(IsShini)Breath?.Cancel();
             if(IsAri) GetComponent<AriSkillRuntime>()?.BeginDash();
         }
-        public void DashStep(Vector2 from,Vector2 to) { if(IsAri)GetComponent<AriSkillRuntime>()?.Sweep(from,to); }
+        public void DashStep(Vector2 from,Vector2 to)
+        {
+            OralAmbientContent.Instance?.PushAlongDash(owner,from,to,DashSequence);
+            if(IsAri)GetComponent<AriSkillRuntime>()?.Sweep(from,to);
+        }
         public int ProjectileCount(int count) => Mathf.Max(1,count) * (AshiActive ? 2 : 1);
         public bool TryActivate()
         {
             if (!CanActivate) return false;
             if(IsShini)return Breath!=null&&Breath.Tap();
+            CombatPacingProbe.Skill();
             owner.GetComponent<PrescriptionRuntime>()?.Record(PrescriptionRuntime.Goal.ActiveUses);
             if(IsAri)
             {

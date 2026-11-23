@@ -15,9 +15,14 @@ using Object=UnityEngine.Object;
 namespace Vampire.Tests.Editor
 {
     [InitializeOnLoad]
-    public static class ChestLootSmoke
+    public static partial class ChestLootSmoke
     {
-        const string Key="ChestLootSmoke",Output="Library/ChestLootProof";
+        const string Key="ChestLootSmoke";
+        static bool PickupProofOnly => Environment.GetCommandLineArgs().Contains("-pickupFilterProof");
+        static bool DayThreeBatch => Environment.GetCommandLineArgs().Contains("-hourglassPair");
+        static int BatchPass => SessionState.GetInt(Key + "PairPass", 0);
+        static bool HourglassProof => DayThreeBatch ? BatchPass < 2 : Environment.GetCommandLineArgs().Contains("-hourglassProof");
+        static string Output => HourglassProof ? "Library/HourglassQA/" + HourglassFolder : PickupProofOnly ? "Library/PickupFilterProof" : "Library/ChestLootProof";
         static double deadline;static bool started;
         [Serializable] class Entry{public string id;}
         [Serializable] class Catalog{public Entry[] entries;}
@@ -66,7 +71,15 @@ namespace Vampire.Tests.Editor
                 if(EditorApplication.isPlaying){EditorApplication.ExitPlaymode();return;}
                 if(EditorApplication.isPlayingOrWillChangePlaymode)return;
                 Restore();SessionState.SetBool(Key,false);bool failed=SessionState.GetBool(Key+"Failed",false);
-                File.WriteAllText(Output+"/result.txt",failed?"FAIL":"PASS");Debug.Log("[ChestLoot] FINISHED failed="+failed);EditorApplication.Exit(failed?1:0);return;
+                File.WriteAllText(Output+"/result.txt",failed?"FAIL":"PASS");
+                Debug.Log("[ChestLoot] FINISHED "+Output+" failed="+failed);
+                if (DayThreeBatch && !failed && BatchPass < 2)
+                {
+                    SessionState.SetInt(Key + "PairPass", BatchPass + 1);
+                    EditorApplication.delayCall += Run;
+                    return;
+                }
+                EditorApplication.Exit(failed?1:0);return;
             }
             var level=Object.FindObjectOfType<LevelManager>();
             if(!started&&EditorApplication.isPlaying&&level!=null&&level.PlayerCharacter!=null&&level.CurrentLevelTime>.1f)
@@ -79,18 +92,136 @@ namespace Vampire.Tests.Editor
         static object Call(object o,string name,params object[] args)
         {for(var t=o.GetType();t!=null;t=t.BaseType){var m=t.GetMethod(name,BindingFlags.Instance|BindingFlags.NonPublic|BindingFlags.Public|BindingFlags.DeclaredOnly);if(m!=null)return m.Invoke(o,args);}throw new MissingMethodException(name);}
         static Button Button(string text)=>ApothecaryUI.Instance.GetComponentsInChildren<Button>().First(b=>b.GetComponentInChildren<TMP_Text>()?.text==text);
+        static void CheckPickupDepth(Collectable item, Character player)
+        {
+            var sprite = item.GetComponentInChildren<SpriteRenderer>();
+            float depth = .01f * (item.transform.position.y - player.transform.position.y);
+            Check(Vector2.Distance(sprite.transform.position, item.transform.position) < .0001f &&
+                Mathf.Abs(sprite.transform.position.z-depth) < .0001f,
+                item.name + " sprite retains its original XY and camera-relative depth");
+            if (item is ExpGem gem)
+                Check(Vector3.Distance(gem.TrailRenderer.transform.position, sprite.transform.position) < .0001f &&
+                    gem.TrailRenderer.transform.lossyScale == gem.transform.lossyScale,
+                    "XP trail uses the same camera depth and original world scale");
+        }
+
+        static IEnumerator PickupFilterChecks(LevelManager level)
+        {
+            var player=level.PlayerCharacter;
+            var entities=level.EntityManager;
+            var stats=Object.FindObjectOfType<StatsManager>();
+            Set(player,"nextLevelExp",9999f);
+            float initialXp=(float)Field(player,"currentExp").GetValue(player);
+            int initialGold=stats.CoinsGained;
+            int collectorLayer=player.CollectableCollider.gameObject.layer;
+            var far=player.Position+Vector2.right*7;
+            var control=entities.SpawnExpGem(far,GemType.White1,false);
+            var filtered=entities.SpawnExpGem(far,GemType.Blue2,false);
+            var coin=entities.SpawnCoin(far,CoinType.Gold5,false);
+            Vector3 initialPlayer = player.transform.position;
+            var playerBody = player.GetComponent<Rigidbody2D>();
+            Vector3 groundedGem = filtered.transform.position, groundedCoin = coin.transform.position;
+            for (int i=0;i<4;i++)
+            {
+                Vector3 to = initialPlayer + Vector3.up * ((i%2==0 ? 1 : -1) * 2);
+                player.transform.position=to; if(playerBody!=null) playerBody.position=to;
+                yield return null; yield return new WaitForFixedUpdate();
+                Check(filtered.transform.position.Equals(groundedGem) && coin.transform.position.Equals(groundedCoin),
+                    "moving the player vertically never moves a resting XP/coin physics root");
+                CheckPickupDepth(filtered,player); CheckPickupDepth(coin,player);
+            }
+            player.transform.position=initialPlayer; if(playerBody!=null) playerBody.position=initialPlayer;
+            yield return null; yield return new WaitForFixedUpdate();
+            var filteredBox=filtered.GetComponent<Collider2D>();
+            var controlBox=control.GetComponent<Collider2D>();
+            Check(filteredBox.callbackLayers==(1<<collectorLayer) && coin.GetComponent<Collider2D>().callbackLayers==(1<<collectorLayer),
+                "ordinary coin and XP filter only notifications on their own side");
+            controlBox.callbackLayers=~0;
+            var body=new GameObject("Opposite-side contact probe");
+            body.layer=6; body.transform.position=far;
+            var contact=body.AddComponent<CircleCollider2D>(); contact.radius=.7f;
+            var rb=body.AddComponent<Rigidbody2D>(); rb.gravityScale=0; rb.constraints=RigidbodyConstraints2D.FreezeAll;
+            rb.sleepMode=RigidbodySleepMode2D.NeverSleep;
+            var all=control.gameObject.AddComponent<PickupNotificationCounter>(); all.first=contact;
+            var only=filtered.gameObject.AddComponent<PickupNotificationCounter>(); only.first=contact;
+            var opposite=body.AddComponent<PickupNotificationCounter>(); opposite.first=controlBox; opposite.second=filteredBox;
+            Physics2D.SyncTransforms();
+            for (int i=0;i<30;i++) yield return new WaitForFixedUpdate();
+            Check(all.firstCount>0 && only.firstCount==0 && opposite.firstCount>0 && opposite.secondCount>0,
+                $"monster overlap callbacks: old={all.firstCount}, filtered={only.firstCount}, other side={opposite.firstCount}/{opposite.secondCount}");
+            Object.Destroy(body); Object.Destroy(all); Object.Destroy(only);
+            controlBox.callbackLayers=1<<collectorLayer;
+            entities.DespawnGem(control);
+            var pickup=(Vector2)player.CollectableCollider.bounds.center;
+            filtered.transform.position=pickup; coin.transform.position=pickup;
+            Physics2D.SyncTransforms();
+            yield return new WaitForSeconds(1.6f);
+            Check(!filtered.gameObject.activeSelf && !coin.gameObject.activeSelf,"the actual player trigger picks up both rewards");
+            Check(Mathf.Approximately((float)Field(player,"currentExp").GetValue(player)-initialXp,2*player.ExperienceMultiplier) &&
+                stats.CoinsGained-initialGold==5,"normal field XP and gold are credited exactly once");
+            MiniStageRuntimeState.EnterMiniStage(null);
+            var roomGem=entities.SpawnExpGem(far,GemType.White1,false);
+            var roomCoin=entities.SpawnCoin(far,CoinType.Bag50,false);
+            uint generation=roomCoin.SpawnGeneration;
+            entities.ClearMiniStagePickups();
+            MiniStageRuntimeState.ExitMiniStage(null);
+            Check(!roomGem.gameObject.activeSelf && !roomCoin.gameObject.activeSelf && stats.CoinsGained-initialGold==5,
+                "leaving a mini-stage clears its remaining drops without granting them");
+            var reused=entities.SpawnCoin(far,CoinType.Silver2,false);
+            var existing=entities.SpawnExpGem(far+Vector2.up*2,GemType.White1,false);
+            Check(reused==roomCoin && reused.SpawnGeneration!=generation && reused.GetComponent<Collider2D>().callbackLayers==(1<<collectorLayer),
+                "a previously returned mini-stage coin is valid on the field with its new generation");
+            player.EnableAutoCollect();
+            var fresh=entities.SpawnExpGem(far,GemType.Blue2,false);
+            yield return new WaitForSeconds(.25f); yield return new WaitForFixedUpdate();
+            Check(existing.IsBeingCollected && existing.gameObject.activeSelf, "pooled XP is in flight before its award");
+            CheckPickupDepth(existing,player);
+            yield return new WaitForSeconds(3.1f);
+            Check(!existing.gameObject.activeSelf && !fresh.gameObject.activeSelf && !reused.gameObject.activeSelf &&
+                Mathf.Approximately((float)Field(player,"currentExp").GetValue(player)-initialXp,5*player.ExperienceMultiplier) && stats.CoinsGained-initialGold==7,
+                "MRI collects both existing and newly spawned XP/coins at range");
+            var source=level.CurrentLevelBlueprint.chestBlueprint.lootTable.lootTable.First(drop=>drop.item.GetComponent<Coin>()!=null);
+            var bonus=Object.Instantiate(source.item).GetComponent<Coin>();
+            bonus.Init(entities,player); bonus.Setup(far,CoinType.Pouch30,false,false,true);
+            yield return new WaitForSeconds(.3f);
+            Check(!bonus.IsBeingCollected && stats.CoinsGained-initialGold==7,
+                $"a bonus chest coin still requires pickup range with MRI (collected={bonus.IsBeingCollected}, amount={stats.CoinsGained-initialGold})");
+            bonus.transform.position=pickup;Physics2D.SyncTransforms();
+            yield return new WaitForSeconds(1.6f);
+            Check(bonus==null && stats.CoinsGained-initialGold==37,"the non-pooled chest payout grants its full gold once");
+            var authored=new GameObject("Prefab callback mask"); authored.SetActive(false);
+            var box=authored.AddComponent<CircleCollider2D>();
+            box.callbackLayers=1<<6;
+            var optIn=authored.AddComponent<Coin>();Set(optIn,"onlyNotifyPickupLayer",true);
+            authored.SetActive(true); optIn.Init(entities,player);
+            Check(box.callbackLayers==0,"an authored mask which excludes the player is never broadened");
+            Object.Destroy(authored);
+        }
+
         static IEnumerator Capture(string name){yield return null;ScreenCapture.CaptureScreenshot(Output+"/"+name+".png");yield return null;yield return null;}
         static IEnumerator Checks(LevelManager level)
         {
             Application.runInBackground=true;Time.timeScale=1;Time.captureDeltaTime=1f/60;
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;prefs.muteOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             var guide=Object.FindObjectOfType<TutorialGuide>();if(guide!=null){guide.Close();guide.enabled=false;}
+            if (HourglassProof)
+            {
+                yield return HourglassChecks(level);
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
             foreach(var b in Object.FindObjectsOfType<MonoBehaviour>())if(b is StageEventDirector||b is TimedSpecialMonsterSpawner||b is AcidToadSpawn||b is NPCSpawner||b is SupplyCapsuleDirector){b.enabled=false;b.StopAllCoroutines();}
             level.enabled=false;var entities=level.EntityManager;entities.enabled=false;entities.StopAllCoroutines();
             foreach(var m in entities.LivingMonsters.ToArray())m.gameObject.SetActive(false);
             foreach(var c in Object.FindObjectsOfType<Collectable>())c.gameObject.SetActive(false);
             var player=level.PlayerCharacter;Set(player,"isInvincible",true);
             var needle=SyringeAbilityResolver.FindOwnedOrFirst(Object.FindObjectOfType<AbilityManager>());needle.enabled=false;needle.StopAllCoroutines();
+            if (PickupProofOnly)
+            {
+                yield return PickupFilterChecks(level);
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
             var blueprint=AssetDatabase.LoadAssetAtPath<ChestBlueprint>("Assets/Blueprints/Chests/Default Chest.asset");
             Check(level.CurrentLevelBlueprint.chestBlueprint==blueprint,"Level 1 uses updated normal chest");
             var drops=blueprint.lootTable.lootTable;
@@ -120,26 +251,17 @@ namespace Vampire.Tests.Editor
                 Check(renderer!=null&&renderer.sprite!=null&&renderer.enabled&&renderer.color.a>.9f,drop.item.name+" has visible drop sprite");
                 Check(item.transform.position.y>position.y+.05f&&!item.IsBeingCollected&&!item.GetComponent<Collider2D>().enabled,drop.item.name+" pops upward before pickup unlocks");
                 if(item is Bomb)yield return Capture("bomb-pop-out");
-                Set(player,"autoCollectItems",true);
-                yield return new WaitForSeconds(1.3f);
-                Check(item.gameObject.activeSelf&&!item.IsBeingCollected&&Mathf.Abs(item.transform.position.y-position.y)<.03f,drop.item.name+" waits on ground outside pickup range, including auto-collect relic");
-                if(item is Bomb)yield return Capture("bomb-on-ground");
-                Set(player,"autoCollectItems",false);
                 InventorySlot slot=null;entities.Inventory.TryGetInventorySlot(item,out slot);
                 int beforeCount=slot!=null?slot.Count:0;
-                Vector2 pickupCenter=player.CollectableCollider.bounds.center;
-                player.transform.position+=(Vector3)((Vector2)item.transform.position-pickupCenter);
-                Physics2D.SyncTransforms();
-                yield return new WaitForFixedUpdate();yield return new WaitForFixedUpdate();yield return null;
-                Check(item.IsBeingCollected,drop.item.name+" is collected automatically by pickup collider");
-                // Follow every visible frame: destination must stay near the character, never travel to HUD.
-                float timeout=Time.time+3;
-                while(item.gameObject.activeSelf&&Time.time<timeout)
+                float timeout=Time.time+8;
+                bool began=false;
+                while(item!=null && item.gameObject.activeSelf && Time.time<timeout)
                 {
-                    Check(Vector2.Distance(item.transform.position,player.CenterTransform.position)<4f,drop.item.name+" pickup stays in world near character");
+                    began |= item.IsBeingCollected;
                     yield return null;
                 }
-                Check(!item.gameObject.activeSelf,drop.item.name+" pickup completes");
+                Check(began,drop.item.name+" completes its pop then travels to a stationary player outside pickup range");
+                Check(item==null || !item.gameObject.activeSelf,drop.item.name+" delivery completes without contact");
                 if(slot!=null)
                 {
                     Check(slot.Count==beforeCount+1,drop.item.name+" adds exactly one stored item without using it");
@@ -169,6 +291,16 @@ namespace Vampire.Tests.Editor
             Check(coin.IsBeingCollected,"pooled coin resets chest range restriction for ordinary drops");
             Object.Destroy(forced);yield return Capture("collected-inventory");
             SessionState.SetBool(Key+"Done",true);
+        }
+    }
+    sealed class PickupNotificationCounter : MonoBehaviour
+    {
+        public Collider2D first, second;
+        public int firstCount, secondCount;
+        void OnTriggerStay2D(Collider2D other)
+        {
+            if (other==first) firstCount++;
+            if (other==second) secondCount++;
         }
     }
 }

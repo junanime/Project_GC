@@ -46,6 +46,12 @@ namespace Vampire
                 Vector2 entry=direction.sqrMagnitude>.001f?-direction.normalized:Vector2.left;entry=OralMapGeometry.Rotate(entry,(Hits-2)*13);pinAnchors.Add(entry);
             }
             if(Hits>=RequiredHits)fractureAge=0;
+            if (Hits == RequiredHits)
+            {
+                owner.GetComponent<OralMonsterMotion>()?.React(1,direction,false);
+                if (owner.TryGetComponent<Rigidbody2D>(out var body) && body.simulated)
+                    body.velocity += direction.normalized * .85f;
+            }
             Pose();return true;
         }
         void LateUpdate()
@@ -67,7 +73,11 @@ namespace Vampire
             bool hidden=!body.enabled||(!lifted&&body.forceRenderingOff)||(!lifted&&!bouncing&&owner.IsFieldRuntimeSuspended);
             for(int i=0;i<plates.Count;i++)
             {
-                var r=plates[i];r.enabled=!hidden&&armed;if(r.sprite==null)continue;
+                var r=plates[i];
+                // Recede from the impact edge in two steps before the remaining shell bursts.
+                bool chipped = Hits == 1 ? i == 0 || i == 3 :
+                    Hits >= 2 && (i == 0 || i == 3 || i == 1 || i == 4);
+                r.enabled=!hidden&&armed&&!chipped;if(!r.enabled||r.sprite==null)continue;
                 var p=offsets[i];r.transform.position=b.center+new Vector3(p.x*b.size.x,p.y*b.size.y,0)*(1+scatter*1.4f)+Vector3.down*(scatter*scatter*.25f);
                 r.transform.rotation=Quaternion.Euler(0,0,i*53+scatter*(i%2==0?90:-90));
                 float size=Mathf.Min(b.size.x,b.size.y)*(.29f+(i%3)*.025f);r.transform.localScale=Vector3.one*(size/r.sprite.bounds.size.x/Mathf.Max(.001f,Mathf.Abs(transform.lossyScale.x)));

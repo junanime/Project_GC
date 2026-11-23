@@ -1384,7 +1384,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &271402289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44584,7 +44584,7 @@ PrefabInstance:
     - target: {fileID: 8188805818370081222, guid: cb898dd879eac436cabcd5ae25a3a4bd, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: e5e31cfe3db15ac47a2f041080138efd, type: 3}
+      objectReference: {fileID: 21300000, guid: e93c7e7f292f40568bcccf9648edad93, type: 3}
     - target: {fileID: 8867614504195791090, guid: cb898dd879eac436cabcd5ae25a3a4bd, type: 3}
       propertyPath: CollectableType
       value: 

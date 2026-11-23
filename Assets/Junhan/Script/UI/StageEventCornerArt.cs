@@ -40,13 +40,13 @@ namespace Vampire
         {
             switch (kind)
             {
-                case StageEventVisualKind.Infection: return "몰려오는 적을 돌파하세요";
-                case StageEventVisualKind.Gold: return "적을 처치하고 골드를 모으세요";
-                case StageEventVisualKind.AcidRain: return "위산 장판을 피하세요";
-                case StageEventVisualKind.Reflux: return "톡톡의 볼이 부풀면 환타 파도 경로를 피하세요";
-                case StageEventVisualKind.Drift: return "꾸룩의 박수 후 쏠림 방향이 바뀝니다";
-                case StageEventVisualKind.Coffee: return "빨라진 몬스터를 조심하세요";
-                default: return "거품 안으로 이동하세요";
+                case StageEventVisualKind.Infection: return "몰려오는 적 사이로 대시해 길을 여세요.";
+                case StageEventVisualKind.Gold: return "적을 처치하고 떨어진 골드를 모으세요.";
+                case StageEventVisualKind.AcidRain: return "바닥의 위산 웅덩이 밖으로 이동하세요.";
+                case StageEventVisualKind.Reflux: return "톡톡의 볼이 부풀면 파도 옆으로 피하세요.";
+                case StageEventVisualKind.Drift: return "꾸룩이 박수치면 바뀌는 방향을 살피세요.";
+                case StageEventVisualKind.Coffee: return "빨라진 적과 거리를 벌리세요.";
+                default: return "거품 안에 들어가 피해를 피하세요.";
             }
         }
     }

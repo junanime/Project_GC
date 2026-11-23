@@ -189,7 +189,13 @@ namespace Vampire
 
         public override bool RequirementsMet()
         {
-            if(!StartingNeedleSelection.Owned(this)||!StartingNeedleSelection.Enabled(this))return false;
+            return StartingNeedleSelection.Enabled(this) && CanAcquireParent();
+        }
+
+        // Character signatures are innate even if that needle is disabled for future offers.
+        internal bool CanAcquireParent(bool intrinsic = false)
+        {
+            if (!StartingNeedleSelection.Available(augmentType) || (!intrinsic && !StartingNeedleSelection.Owned(this))) return false;
             RefreshSyringeDartAbilityReference();
             if ((int)augmentType >= 16)
                 return syringeDartAbility != null && !syringeDartAbility.HasVer4Special(augmentType) && base.RequirementsMet();

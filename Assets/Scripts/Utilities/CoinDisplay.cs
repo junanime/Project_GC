@@ -11,11 +11,12 @@ namespace Vampire
         void Start()
         {
             coinText = GetComponent<TextMeshProUGUI>();
-            coinText.text = ProgressPrefs.GetInt("Coins").ToString();
+            UpdateDisplay();
         }
 
         public void UpdateDisplay()
         {
+            if (coinText == null) coinText = GetComponent<TextMeshProUGUI>();
             coinText.text = ProgressPrefs.GetInt("Coins").ToString();
         }
     }

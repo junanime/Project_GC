@@ -142,7 +142,7 @@ namespace Vampire.Tests.Editor
             {
                 var center=OralMapGeometry.ToothWalkCenter(map,i);
                 Check(OralMapGeometry.ZoneAt(map,center)==OralZone.Teeth&&OralMapGeometry.IsJawDanger(map,center),"lit crown center is both walkable and crushable "+i);
-                Check(OralMapGeometry.CanJumpToTooth(i)==(i<4||i>=10),"only rear eight teeth accept a direct dash jump "+i);
+                Check(OralMapGeometry.CanJumpToTooth(i),"highlighted tooth accepts a direct dash "+i);
             }
             for(int i=0;i<13;i++)
             {
@@ -178,7 +178,7 @@ namespace Vampire.Tests.Editor
             Check(player.IsAlive&&player.CurrentHealth<hp,"standing in narrow front warning still causes real damage");
             Check(visual.JawWarningCount==0&&visual.JawWarningFillCount==0,"all threat outlines and filled hatching disappear after closure");
             Set(player,"isInvincible",true);player.GainHealth(9999);
-            yield return JumpAndSlide(level,runtime,map,player,events);
+            yield return CrossFrontRidge(runtime,map,player);
             var savedMesh=mesh;var savedMaterial=lighting.sharedMaterial;
             Check(StageProgression.Ensure(level).BeginOralToStomach(),"exit begins after tooth traversal and crush cycles");
             until=Time.realtimeSinceStartup+120;while(StageProgression.Ensure(level).Travelling&&Time.realtimeSinceStartup<until)yield return null;
@@ -214,33 +214,25 @@ namespace Vampire.Tests.Editor
             }while((events.CurrentEvent!=OralEventKind.None||JawCrushVisual.ForActor(player)!=null)&&Time.realtimeSinceStartup<until);
             Time.captureFramerate=oldRate;Check(events.CurrentEvent==OralEventKind.None&&snapped,"front warning and closure clip completes");
         }
-        static IEnumerator JumpAndSlide(LevelManager level,OralStageRuntime runtime,FiniteStomachMap map,Character player,OralFieldEvents events)
+        static IEnumerator CrossFrontRidge(OralStageRuntime runtime,FiniteStomachMap map,Character player)
         {
-            var center=OralMapGeometry.TongueCenter(map);var radii=OralMapGeometry.TongueRadii(map);
-            var front=OralMapGeometry.Clamp(map,center+Vector2.up*radii.y,.4f,OralZone.Tongue);
-            Check(!OralMapGeometry.TryJump(map,front,Vector2.up,out _),"tongue direct jump to front ridge remains blocked");
-            Vector2 from=default,direction=default,landing=default;bool found=false;
-            for(int j=0;j<360&&!found;j++)
-            {
-                float a=j*Mathf.Deg2Rad;var dir=new Vector2(Mathf.Cos(a),Mathf.Sin(a));
-                for(float s=.8f;s<1.02f&&!found;s+=.01f){var p=center+Vector2.Scale(dir,radii)*s;if(OralMapGeometry.ZoneAt(map,p)==OralZone.Tongue&&OralMapGeometry.TryJump(map,p,dir,out var end)){from=p;landing=end;direction=dir;found=true;}}
-            }
-            Check(found,"tongue edge retains reachable rear tooth departure");Place(player,from);Set(player,"lookDirection",direction);Set(player,"currentDashCharges",1);
-            Check(player.TryDash()&&runtime.IsJumping,"actual dash enters tooth jump");float until=Time.realtimeSinceStartup+6;
-            while(runtime.IsJumping&&Time.realtimeSinceStartup<until)yield return null;
-            Check(!runtime.IsJumping&&OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth&&OralMapGeometry.CanJumpToTooth(OralMapGeometry.NearestTooth(map,player.Position)),"actual dash lands on highlighted rear tooth only");
-            Frame("09-jump-landing",player.Position,7.4f);
-            Place(player,OralMapGeometry.ToothWalkCenter(map,4));var origin=player.Position;var inward=(center-origin).normalized;bool slide=false,hop=false;until=Time.realtimeSinceStartup+12;
-            while(Time.realtimeSinceStartup<until)
-            {
-                if(!slide)player.Move(inward);else player.Move(Vector2.zero);
-                if(runtime.IsSliding){slide=true;if(runtime.SlideVisualHeight>.55f&&!hop){hop=true;Frame("10-slide-hop",player.Position,7.4f);}}
-                else if(slide)break;
-                yield return null;
-            }
+            const int frontTooth = 6;
+            Check(OralMapGeometry.TryGetCrossing(map,frontTooth,out var launch,out var landing),"front approach has an actual tooth landing");
+            Place(player,launch);
+            Set(player,"currentDashCharges",1);
+            player.Move((landing-launch).normalized);
+            Check(player.TryDash() && runtime.IsJumping,"actual dash enters front crossing");
             player.Move(Vector2.zero);
-            Check(slide&&hop&&!runtime.IsSliding&&runtime.SlideVisualHeight==0,"walking over shaded inner canine slope slides then visibly hops");
-            Check(OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Tongue,"slope return lands on original tongue safely");Frame("11-slide-landing",player.Position,7.4f);
+            yield return new WaitForSeconds(.75f);
+            Check(!runtime.IsJumping && OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth &&
+                OralMapGeometry.NearestTooth(map,player.Position)==frontTooth,"dash lands on the lit front tooth");
+            Frame("09-front-arrival",player.Position,7.4f);
+            Set(player,"currentDashCharges",1);
+            player.Move((launch-player.Position).normalized);
+            Check(player.TryDash() && runtime.IsJumping,"return from the front tooth takes a deliberate dash");
+            player.Move(Vector2.zero);
+            yield return new WaitForSeconds(.75f);
+            Check(OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Tongue,"return dash lands on tongue");
         }
         static float Cross(Vector2 a,Vector2 b)=>a.x*b.y-a.y*b.x;
         static bool InTriangle(Vector2 p,Vector2 a,Vector2 b,Vector2 c){float x=Cross(b-a,p-a),y=Cross(c-b,p-b),z=Cross(a-c,p-c);return (x>=0&&y>=0&&z>=0)||(x<=0&&y<=0&&z<=0);}

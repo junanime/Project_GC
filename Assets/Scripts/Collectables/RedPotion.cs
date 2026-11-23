@@ -2,21 +2,24 @@ using UnityEngine;
 
 namespace Vampire
 {
+    // Retains the original prefab component identity so existing loadouts still resolve.
     public class RedPotion : Collectable
     {
-
-        protected override void OnCollected()
+        protected override void Awake()
         {
-            var level=FindObjectOfType<LevelManager>();
-            if(level!=null)level.ActivateSpawnPotion();
-
-            // RedPotion을 실제 획득하여
-            // 스폰 증가 효과가 시작된 순간 1회만 재생합니다.
-            GameAudioManager.PlaySfx(
-                GameAudioManager.GameSfxId.RedPotionPickup
-            );
-            Destroy(gameObject);
+            base.Awake();
+            BrokenHourglassArt.Attach(gameObject);
         }
 
+        protected override void OnCollected() => TryActivate();
+
+        internal bool TryActivate()
+        {
+            var level = FindObjectOfType<LevelManager>();
+            if (level == null || !level.ActivateHourglass()) return false;
+            GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.RedPotionPickup);
+            Destroy(gameObject);
+            return true;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -26,6 +27,9 @@ namespace Vampire
         [SerializeField] private bool debugLog = true;
 
         private bool unlocked;
+        private LineRenderer openingRipple;
+        public const float OpeningPulseDuration = .34f;
+        public bool ShowingOpeningPulse => openingRipple != null && openingRipple.enabled;
         private readonly HashSet<Collider2D> playerColliders = new HashSet<Collider2D>();
         private bool playerInside => playerColliders.Count > 0;
 
@@ -35,6 +39,7 @@ namespace Vampire
         [SerializeField] private Sprite unlockedSprite;
         private bool travelOpen;
         private bool enhanced;
+        private Color? authoredTint;
         public void SetTravelVisual(bool open, bool overcharged)
         {
             travelOpen=open; enhanced=overcharged;
@@ -43,9 +48,14 @@ namespace Vampire
         private void RefreshSprite()
         {
             if(portalRenderer==null)portalRenderer=GetComponentInChildren<SpriteRenderer>(true);
-            var sprite=(unlocked || travelOpen)?unlockedSprite:lockedSprite;
-            if(portalRenderer!=null && sprite!=null)portalRenderer.sprite=sprite;
-            if(enhanced)BloodClotOverchargedArt.Apply(gameObject);
+            if (portalRenderer == null) return;
+            if (!authoredTint.HasValue) authoredTint = portalRenderer.color;
+            bool open = unlocked || travelOpen;
+            var sprite = open ? unlockedSprite : lockedSprite;
+            if (sprite != null) portalRenderer.sprite = sprite;
+            // The enhanced art depicts an open hole. Keep the sealed silhouette during its mission.
+            portalRenderer.color = enhanced && !open ? authoredTint.Value * new Color(.90f,.78f,1f) : authoredTint.Value;
+            if (enhanced && open) BloodClotOverchargedArt.Apply(gameObject);
         }
 
         public bool IsUnlocked => unlocked;
@@ -55,13 +65,13 @@ namespace Vampire
         private void OnDisable()
         {
             playerColliders.Clear();
+            if (openingRipple != null) openingRipple.enabled = false;
             SetGuideVisible(false);
         }
 
         private void Awake()
         {
             BloodClotObstacle.Ensure(gameObject);
-            InteractionFocus.ReduceTrigger(GetComponent<Collider2D>());
             InteractionFocus.Register(this, () => CanInteract);
             if (miniStageDirector == null)
             {
@@ -103,8 +113,11 @@ namespace Vampire
 
         public void SetUnlocked(bool value)
         {
+            bool opening = value && !unlocked;
             unlocked = value;
             RefreshSprite();
+            if (opening && Application.isPlaying && isActiveAndEnabled && portalRenderer != null)
+                StartCoroutine(ShowOpeningPulse());
 
             if (debugLog)
             {
@@ -121,11 +134,54 @@ namespace Vampire
             }
         }
 
+        private IEnumerator ShowOpeningPulse()
+        {
+            if (openingRipple == null)
+            {
+                var wave = new GameObject("혈전 개방 물결");
+                wave.transform.SetParent(transform, false);
+                openingRipple = wave.AddComponent<LineRenderer>();
+                var material = new Material(Shader.Find("Sprites/Default"));
+                wave.AddComponent<RemakeMaterialCleanup>().Material = material;
+                openingRipple.sharedMaterial = material;
+                openingRipple.useWorldSpace = false;
+                openingRipple.loop = true;
+                openingRipple.positionCount = 40;
+                openingRipple.sortingLayerID = portalRenderer.sortingLayerID;
+                openingRipple.sortingOrder = portalRenderer.sortingOrder + 2;
+                for (int i = 0; i < openingRipple.positionCount; i++)
+                {
+                    float a = i * Mathf.PI * 2f / openingRipple.positionCount;
+                    openingRipple.SetPosition(i, new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0f));
+                }
+            }
+
+            var geometry = PromptSpriteGeometry.WorldBounds(portalRenderer);
+            var anchor = openingRipple.transform;
+            anchor.position = geometry.center;
+            var scale = transform.lossyScale;
+            float width = Mathf.Clamp(geometry.extents.x, .42f, 1.25f) / Mathf.Max(.01f, Mathf.Abs(scale.x));
+            float height = Mathf.Clamp(geometry.extents.y * .68f, .24f, .65f) / Mathf.Max(.01f, Mathf.Abs(scale.y));
+            var color = enhanced ? new Color(1f,.85f,.44f) : new Color(.65f,1f,.83f);
+            openingRipple.enabled = true;
+            for (float elapsed = 0f; elapsed < OpeningPulseDuration && unlocked; elapsed += Time.deltaTime)
+            {
+                float t = elapsed / OpeningPulseDuration;
+                float size = GamePreferences.Current.reducedMotion ? 1.15f : Mathf.Lerp(.60f, 1.65f, 1f - (1f-t)*(1f-t));
+                anchor.localScale = new Vector3(width * size, height * size, 1f);
+                color.a = 1f - t;
+                openingRipple.startColor = openingRipple.endColor = color;
+                openingRipple.widthMultiplier = Mathf.Lerp(.10f, .025f, t);
+                yield return null;
+            }
+            openingRipple.enabled = false;
+        }
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             Character character = other.GetComponentInParent<Character>();
 
-            if (character == null)
+            if (character == null || other == character.CollectableCollider)
             {
                 return;
             }

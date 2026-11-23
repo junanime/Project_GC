@@ -61,7 +61,17 @@ namespace Vampire
         // 다른 코드에서 OnKilled.AddListener(OnEliteKilled(Monster)) 식으로 쓰고 있으므로 Monster 인자를 넘긴다.
         public UnityEvent<Monster> OnKilled { get; } = new UnityEvent<Monster>();
 
+        internal bool UsesHourglassPace => !miniStageOwned && !(this is BossMonster) && !(this is MiniBossMonster);
+        float FieldPace => UsesHourglassPace && playerCharacter != null && playerCharacter.HourglassActive
+            ? LevelManager.HourglassMonsterSpeed : 1f;
         public float IceMoveMultiplier => GetComponent<IceChillStatus>()?.SpeedMultiplier ?? 1f;
+        protected internal float MovementMultiplier => IceMoveMultiplier * FieldPace;
+
+        internal void RefreshMovementDrag()
+        {
+            if (rb != null && runtimeMoveSpeed > 0f && currentAcceleration > 0f)
+                HoneySlowStatus.SetUnslowedDrag(rb, currentAcceleration / (runtimeMoveSpeed * runtimeMoveSpeed * FieldPace));
+        }
         public float HP => currentHealth;
         public SpriteRenderer BodyRenderer => monsterSpriteRenderer;
         public BoxCollider2D BodyHitbox => monsterHitbox;
@@ -90,6 +100,21 @@ namespace Vampire
         }
         public float SpawnMaxHealth { get; protected set; }
         public uint SpawnGeneration { get; private set; }
+        public int OralPaletteTier { get; private set; } = -1;
+        protected float contactDamageMultiplier = 1f;
+        public float ContactDamage => (monsterBlueprint != null ? monsterBlueprint.atk : 0) * contactDamageMultiplier;
+
+        internal void ApplyOralPalette(int tier, float health, float speed, float attack)
+        {
+            if (OralPaletteTier >= 0) return;
+            OralPaletteTier = tier;
+            ScaleHealthCapacity(health);
+            // Preserve the player's existing monster-haste item without randomising the
+            // base speed within a palette. Field debuffs continue to adjust the actor's drag.
+            bool haste = playerCharacter != null && playerCharacter.GetComponent<OctoberItemRuntime>()?.Has(25) == true;
+            moveSpeed = monsterBlueprint.movespeed * speed * (haste ? 1.15f : 1f);
+            contactDamageMultiplier = attack;
+        }
         public void ScaleHealthCapacity(float factor){SpawnMaxHealth*=factor;currentHealth=Mathf.Max(0,currentHealth*factor);}
         public void RestoreLinkedHealth(float fraction){currentHealth=SpawnMaxHealth*Mathf.Clamp01(fraction);alive=true;deathStarted=false;if(monsterHitbox!=null)monsterHitbox.enabled=true;}
         public bool IsAlive=>alive;
@@ -134,16 +159,13 @@ namespace Vampire
             {
                 // 속도가 0 이하로 내려가서 무한대 드래그가 걸리는 것을 방지
                 runtimeMoveSpeed = Mathf.Max(0.05f, value);
-                if (rb != null)
-                {
-                    //  속도가 변하면 가속도와 비례하여 물리 마찰력(drag)을 실시간으로 재계산합니다!
-                    IceChillStatus.SetBaseDrag(rb, currentAcceleration / (runtimeMoveSpeed * runtimeMoveSpeed));
-                }
+                RefreshMovementDrag();
             }
         }
 
         protected virtual void Awake()
         {
+            StageActorRegistry.Register(this);
             originalLocalScale = transform.localScale;
 
             rb = GetComponent<Rigidbody2D>();
@@ -160,6 +182,8 @@ namespace Vampire
 
             SetupHitboxReference();
         }
+
+        protected virtual void OnDestroy() => StageActorRegistry.Remove(this);
 
         private SpriteRenderer FindMainSpriteRenderer()
         {
@@ -235,6 +259,8 @@ namespace Vampire
         public void PrepareForSpawnRuntime(bool isMiniStageOwned)
         {
             SpawnGeneration++;
+            OralPaletteTier = -1;
+            contactDamageMultiplier = 1f;
             GetComponent<MonsterNeedleBarrier>()?.ResetBarrier();
             GetComponent<OralTartarArmor>()?.ResetForPool();
             GetComponent<ColonSpecialRuntime>()?.ResetForPool();
@@ -562,13 +588,14 @@ namespace Vampire
 
         public override void Knockback(Vector2 knockback)
         {
-            if (MonsterNeedleBarrier.Blocks(this)) return;
+            if (GStarControlPractice.Protects(this) || MonsterNeedleBarrier.Blocks(this)) return;
             var mole=GetComponent<NutritionThiefBacteriaMonster>();if(mole!=null&&mole.Underground&&!SuppressHitFlash)return;
             if (fieldRuntimeSuspended || rb == null)
             {
                 return;
             }
 
+            if (knockback.sqrMagnitude > 0) CombatPacingProbe.Affected(this);
             rb.velocity += knockback * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag));
         }
 
@@ -583,7 +610,7 @@ namespace Vampire
     Vector2 knockback = default(Vector2),
     bool isCritical = false)
         {
-            if (MonsterNeedleBarrier.Blocks(this)) return;
+            if (GStarControlPractice.Protects(this) || MonsterNeedleBarrier.Blocks(this)) return;
             var mole=GetComponent<NutritionThiefBacteriaMonster>();if(mole!=null&&mole.Underground&&!SuppressHitFlash)return;
             if (!alive || fieldRuntimeSuspended)
 
@@ -607,9 +634,10 @@ namespace Vampire
 
             if (damage > 0f)
             {
-                GameAudioManager.PlaySfx(
-                    GameAudioManager.GameSfxId.MonsterHit
-                );
+                if (SuppressHitFlash || !TryGetComponent(out OralMonsterMotion food) ||
+                    !food.React(damage, knockback, currentHealth <= 0))
+                    GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.MonsterHit);
+                CombatPacingProbe.Affected(this);
             }
 
             // 치명타 판정이면서 실제 피해가 0보다 클 때만
@@ -665,13 +693,17 @@ namespace Vampire
         {
             if (deathStarted) yield break;
             deathStarted = true;
+            bool trainingTarget = GStarControlPractice.HandleTargetDeath(this,killedByPlayer);
+            if (trainingTarget) killedByPlayer = false;
             var revival=GetComponent<ColonRevivalLink>();
             if(killedByPlayer&&revival!=null&&revival.CanRevive){alive=false;if(monsterHitbox!=null)monsterHitbox.enabled=false;yield return revival.Revive(this);if(currentHealth>0)yield break;}
             GetComponent<ColonSpecialRuntime>()?.OnDeath();
             alive = false;
             WasKilledByPlayer = killedByPlayer;
+            if (killedByPlayer && !(this is BloodClotMonster) && !MiniStageRuntimeState.IsInsideMiniStage)
+                GStarImpactAudio.FieldKill();
             if (killedByPlayer) RecordRankingKill();
-            Died?.Invoke(this);
+            if (!trainingTarget) Died?.Invoke(this);
 
             if (monsterHitbox != null)
             {
@@ -727,7 +759,7 @@ namespace Vampire
                 }
             }
 
-            OnKilled.Invoke(this);
+            if (!trainingTarget) OnKilled.Invoke(this);
             OnKilled.RemoveAllListeners();
 
             if (entityManager != null)
@@ -780,7 +812,7 @@ namespace Vampire
 
             if (lootBlueprint != null &&
                 lootBlueprint.gemLootTable != null &&
-                lootBlueprint.gemLootTable.TryDropLoot(out GemType gemType))
+                OralMonsterRoster.ExperienceTable(lootBlueprint, this).TryDropLoot(out GemType gemType))
             {
                 entityManager.SpawnExpGem((Vector2)transform.position, gemType);
             }
@@ -829,6 +861,8 @@ namespace Vampire
                 if (lootBlueprint != null && lootBlueprint.coinLootTable != null &&
                     lootBlueprint.coinLootTable.TryDropLoot(out CoinType coinType))
                 {
+                    if ((int)coinType < (int)CoinType.Pouch30)
+                        coinType = GStarFieldBalance.UpgradeCoin(this, coinType, Random.value);
                     entityManager.SpawnCoin((Vector2)transform.position, coinType);
                     droppedCoinCount++;
                 }

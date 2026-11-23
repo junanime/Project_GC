@@ -106,7 +106,7 @@ static IEnumerator Checks(LevelManager level){
  Check(bacteria.CurrentStacks==3&&bacteria.ExtraGemChance==0,"expired excess stacks cannot keep cached harvest chance");
  gems=Object.FindObjectsOfType<ExpGem>().Length;dummy.OnKilled.Invoke(dummy);Check(Object.FindObjectsOfType<ExpGem>().Length==gems+1,"three remaining stacks pay only basic reward");
  dummy.gameObject.SetActive(false);Check(bacteria.CurrentStacks==0&&bacteria.HarvestRank==0,"pooled status clears harvest state");
- Original(rt,new[]{0,0,0});
+ Original(rt,new[]{1,1,1});
  UnityEngine.Random.InitState(29019);int normalWithout=0,multiple=0;
  for(int i=0;i<400;i++){
   var offers=rt.CreateOffers(false,3,true);var cards=offers.Cast<Ver4AugmentOffer>().ToArray();var originals=cards.Where(c=>c.Kind==Ver4RewardKind.Original).ToArray();
@@ -114,12 +114,12 @@ static IEnumerator Checks(LevelManager level){
   if(originals.Length>1)multiple++;manager.ReturnAbilities(offers);
   offers=rt.CreateOffers(false,3);if(offers.Cast<Ver4AugmentOffer>().All(c=>c.Kind!=Ver4RewardKind.Original))normalWithout++;manager.ReturnAbilities(offers);
  }
- Check(multiple>0&&normalWithout>0&&rt.Progress.Level("WindNeedle")==0,"other slots retain random pool; previews never grant originals");
+ Check(multiple>0&&normalWithout>0&&rt.Progress.Level("WindNeedle")==3,"other slots retain random pool; previews never grant originals");
  // Actual UI reroll, one-click acquisition and queued chest contexts.
  var dialog=level.EntityManager.AbilitySelectionDialog;
  dialog.OpenOvercharge();Check(manager.OriginalRewardContext&&Cards(dialog).Any(c=>c.Kind==Ver4RewardKind.Original),"overcharge dialog guarantees original");
- dialog.RerollAbilities();Check(Cards(dialog).Any(c=>c.Kind==Ver4RewardKind.Original)&&rt.Progress.Level("WindNeedle")==0,"reroll retains guarantee without applying previews");
- var selected=Cards(dialog).First(c=>c.Kind==Ver4RewardKind.Original);selected.Select();selected.Select();Check(rt.Progress.Level("WindNeedle")==1,"double selection grants one rank");
+ dialog.RerollAbilities();Check(Cards(dialog).Any(c=>c.Kind==Ver4RewardKind.Original)&&rt.Progress.Level("WindNeedle")==3,"reroll retains guarantee without applying previews");
+ var selected=Cards(dialog).First(c=>c.Kind==Ver4RewardKind.Original);selected.Select();selected.Select();Check(rt.Progress.Level("WindNeedle")==4,"double selection grants one rank");
  dialog.Close();Check(!manager.OriginalRewardContext&&!manager.LegendaryRewardContext,"close clears both reward contexts");
  var chestBp=RemakeBalance.Current.levelUpChest;var first=level.EntityManager.SpawnChest(chestBp,player.transform.position+Vector3.up*6);first.GuaranteesOriginal=true;
  var second=level.EntityManager.SpawnChest(chestBp,player.transform.position+Vector3.up*7);Check(!second.GuaranteesOriginal,"ordinary chest starts without guarantee");

@@ -137,8 +137,11 @@ namespace Vampire
         void RecordMap(Character player)
         {
             var map=ExplorationMapSystem.Instance;
-            bool colon=FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon;
-            var viewport=RecordRect("Record map viewport",content,.499f,.214f,.347f,colon?.316f:.360f);viewport.gameObject.AddComponent<RectMask2D>();
+            var terrain = FiniteStomachMap.Instance;
+            bool colon = terrain != null && terrain.IsColon;
+            bool oral = terrain != null && terrain.IsOral;
+            bool fieldObjective = terrain != null;
+            var viewport=RecordRect("Record map viewport",content,.499f,.214f,.347f,fieldObjective?.316f:.360f);viewport.gameObject.AddComponent<RectMask2D>();
             var frame=viewport;frame.gameObject.AddComponent<Image>().color=Color.clear;
             viewport=Rect("Zoomable map",frame,0,0,1,1);
             if(map!=null && map.UsesStomachMap)
@@ -173,14 +176,56 @@ namespace Vampire
                 RecordText("Map zoom hint","휠 / 두 손가락 · 드래그",.70f,.165f,.24f,.022f,11,TextAlignmentOptions.Right);
             }
             else RecordText("Map unavailable","탐험 지도를 준비하고 있습니다",.515f,.355f,.305f,.065f,18,TextAlignmentOptions.Center);
-            if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon){var director=FindObjectOfType<ColonBossDirector>();
-                RecordText("Colon objective",director!=null?$"선택 미니보스 {director.DefeatedCount}/6 · 전부 처치는 선택":"선택 미니보스를 찾아 성장하세요",.507f,.537f,.335f,.020f,12).color=new Color(1,.94f,.80f);
-                RecordText("Colon encounter legend","흰색: 대기   느낌표: 전투 중   초록 체크: 완료",.507f,.558f,.335f,.018f,11).color=new Color(.91f,.85f,.78f);}
-            string[] labels={"플레이어","일반 몬스터","엘리트 몬스터","보스","보물상자","골드","경험치 보석","특수 오브젝트","혈전","상인","자판기","보스 제단","미니보스"};
-            Sprite[] icons={CharacterProfile(player.Blueprint),RunBookArt.Icon(12),RunBookArt.Icon(13),OctoberArt.Get("OctoberUI/MapSymbols","Boss"),OctoberArt.Get("OctoberUI/ItemChestIcon"),RunBookArt.Icon(11),RunBookArt.Icon(14),RunBookArt.Icon(15),OctoberArt.Get("OctoberUI/MapSymbols","Portal"),OctoberArt.Get("OctoberUI/MapSymbols","Merchant"),OctoberArt.Get("OctoberUI/MapSymbols","Vending"),OctoberArt.Get("OctoberUI/BossAltarIcon"),ChameleonArt.Portrait(ChameleonKind.Fanta,0,true)};
+            var buried = level != null ? level.GetComponent<BuriedBossDirector>() : null;
+            var director = colon && level != null ? level.GetComponent<ColonBossDirector>() : null;
+            if (fieldObjective)
+            {
+                string goal, detail;
+                if (colon)
+                {
+                    var king = ConstipationKingDirector.Active;
+                    var exit = level.GetComponent<ColonExitSequence>();
+                    if (king == null || !king.Spawned) goal = "지도에 표시된 변기에서 변비왕을 깨우세요.";
+                    else if (!king.Defeated) goal = "변비왕을 처치하세요.";
+                    else if (exit != null && exit.State == ColonExitSequence.ExitState.Open) goal = "봉인이 풀린 출구로 이동하세요.";
+                    else if (exit != null && (exit.State == ColonExitSequence.ExitState.Carrying || exit.State == ColonExitSequence.ExitState.Unlocking))
+                        goal = "지팡이 열쇠로 좌측 하단 봉인을 여세요.";
+                    else goal = "변비왕이 떨어뜨린 지팡이 열쇠를 챙기세요.";
+                    detail = $"선택 미니보스 {director?.DefeatedCount ?? 0}/6 · 흰색 대기 / 느낌표 전투 / 체크 완료";
+                }
+                else if (oral)
+                {
+                    goal = "마지막 삼키기까지 살아남으세요.";
+                    detail = "혀의 치석은 적 쪽으로 밀거나 대시로 찰 수 있어요.";
+                }
+                else if (level.GetComponent<StageProgression>()?.FirstBossDefeated == true)
+                {
+                    goal = "근처에 도착한 캡슐에 탑승하세요.";
+                    detail = "캡슐 옆에서 상호작용하면 다음 구역으로 이동합니다.";
+                }
+                else
+                {
+                    goal = buried != null && buried.Consumed ? "깨어난 위장 보스를 처치하세요." : "달콤한 향이 불어오는 쪽에서 보스 흔적을 찾으세요.";
+                    detail = buried != null && buried.Consumed ? "화면 가장자리의 보스 표식을 따라가세요." : "땅에 박힌 파츠에 다가가 상호작용하세요.";
+                }
+                RecordText("Field objective",goal,.507f,.537f,.335f,.020f,12).color=new Color(1,.94f,.80f);
+                RecordText("Field detail",detail,.507f,.558f,.335f,.018f,11).color=new Color(.91f,.85f,.78f);
+            }
+            string[] labels={"플레이어","일반 몬스터","엘리트 몬스터","보스","보물상자","골드","경험치 보석","특수 오브젝트","혈전","상인","자판기",colon ? "보스 거주지" : "보스 흔적","미니보스"};
+            Sprite[] icons={CharacterProfile(player.Blueprint),RunBookArt.Icon(12),RunBookArt.Icon(13),OctoberArt.Get("OctoberUI/MapSymbols","Boss"),OctoberArt.Get("OctoberUI/ItemChestIcon"),RunBookArt.Icon(11),RunBookArt.Icon(14),RunBookArt.Icon(15),OctoberArt.Get("OctoberUI/MapSymbols","Portal"),OctoberArt.Get("OctoberUI/MapSymbols","Merchant"),OctoberArt.Get("OctoberUI/MapSymbols","Vending"),RunBookArt.Icon(15),ChameleonArt.Portrait(ChameleonKind.Fanta,0,true)};
+            if (colon && director != null && director.Habitats.Count > 0)
+            {
+                icons[11] = OctoberMapIcons.For(director.Habitats[0].GetComponent<MapMarker>());
+            }
+            else if (!oral && !colon && buried != null && buried.Part != null)
+            {
+                icons[11] = OctoberMapIcons.For(buried.Part.GetComponent<MapMarker>());
+            }
+            int row = 0;
             for(int i=0;i<labels.Length;i++)
             {
-                float y=.218f+i*.0273f;RecordImage("Map legend icon "+i,icons[i],.866f,y,.023f,.025f);
+                if (oral && (i == 3 || i == 11 || i == 12)) continue;
+                float y=.218f+row++*.0273f;RecordImage("Map legend icon "+i,icons[i],.866f,y,.023f,.025f);
                 RecordText("Map legend "+i,labels[i],.895f,y,.069f,.025f,12);
             }
         }

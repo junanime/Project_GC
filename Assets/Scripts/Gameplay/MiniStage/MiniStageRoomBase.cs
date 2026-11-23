@@ -65,6 +65,11 @@ namespace Vampire
         public bool RoomCleared => roomCleared;
         public bool RewardChestOpened => rewardChestOpened;
         public bool OptionalReturnUnlocked => optionalReturnUnlocked;
+        public bool AwaitingSkillReward => awaitingSkillReward;
+        public Chest RewardChest => activeRewardChest;
+        public bool EndedWithoutReward { get; private set; }
+        public virtual string QuestName => "혈전 도전";
+        public virtual string QuestHint => "방의 목표를 완료하세요";
 
         public void InitRoom(
             MiniStageDirector owner,
@@ -77,6 +82,7 @@ namespace Vampire
             this.playerCharacter = playerCharacter;
 
             roomStarted = false;
+            EndedWithoutReward = false;
             roomCleared = false;
             rewardChestOpened = false;
             optionalReturnUnlocked = false;
@@ -93,8 +99,8 @@ namespace Vampire
                 returnInteractable.SetUnlocked(false);
             }
 
-            Chest.OnAnyChestOpened -= OnAnyChestOpened;
-            Chest.OnAnyChestOpened += OnAnyChestOpened;
+            Chest.RewardResolved -= OnChestRewardResolved;
+            Chest.RewardResolved += OnChestRewardResolved;
 
             MiniStageArenaGeometry.Install(this, playerCharacter);
             OnInitRoom();
@@ -135,6 +141,12 @@ namespace Vampire
             }
 
             roomCleared = true;
+            // A player who stayed past an optional exit must still collect the earned reward.
+            if (optionalReturnUnlocked)
+            {
+                optionalReturnUnlocked = false;
+                if (returnInteractable != null) returnInteractable.SetUnlocked(false);
+            }
 
             if (debugLog)
             {
@@ -161,6 +173,7 @@ namespace Vampire
             }
 
             roomCleared = true;
+            EndedWithoutReward = true;
             rewardChestOpened = true;
 
             // 미니 스테이지 보상 획득 SFX
@@ -296,7 +309,7 @@ namespace Vampire
             return legacyFallback.position + Vector3.right * RewardChestRightOffset;
         }
 
-        private void OnAnyChestOpened(Chest openedChest)
+        private void OnChestRewardResolved(Chest openedChest)
         {
             if (!roomStarted || !roomCleared)
             {
@@ -380,7 +393,7 @@ namespace Vampire
 
         public void CleanupRoom()
         {
-            Chest.OnAnyChestOpened -= OnAnyChestOpened;
+            Chest.RewardResolved -= OnChestRewardResolved;
             OnCleanupRoom();
 
             if (debugLog)
@@ -413,7 +426,7 @@ namespace Vampire
 
         private void OnDestroy()
         {
-            Chest.OnAnyChestOpened -= OnAnyChestOpened;
+            Chest.RewardResolved -= OnChestRewardResolved;
         }
     }
 }

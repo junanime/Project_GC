@@ -32,8 +32,7 @@ namespace Vampire
             }
         }
         public const float SlideSeconds = 1.12f, SlideGroundSeconds = .65f;
-        Vector2 lastSupportedPosition, slideStart, slideLaunch, slidePosition;
-        bool hasSupportedPosition;
+        Vector2 slideStart, slideLaunch, slidePosition;
         float slideElapsed;
         SpriteRenderer slideVisual; Vector3 slideVisualOrigin; Quaternion slideVisualRotation;
         Rigidbody2D slideBody; RigidbodyType2D slideBodyType;
@@ -53,8 +52,7 @@ namespace Vampire
             (runtime.GetComponent<OralCeilingArenaVisual>()??runtime.gameObject.AddComponent<OralCeilingArenaVisual>()).Configure(runtime);
             (runtime.GetComponent<OralSwallowFinale>()??runtime.gameObject.AddComponent<OralSwallowFinale>()).Configure(runtime);
             (runtime.GetComponent<OralSwallowVisual>()??runtime.gameObject.AddComponent<OralSwallowVisual>()).Configure(runtime);
-            runtime.lastSupportedPosition=level.PlayerCharacter.Position;
-            runtime.hasSupportedPosition=true;runtime.Ready=true;return runtime;
+            runtime.Ready=true;return runtime;
         }
         public static bool IsSlidingActor(Character actor) => Instance!=null && Instance.IsSliding &&
             Instance.Level!=null && actor==Instance.Level.PlayerCharacter;
@@ -82,7 +80,6 @@ namespace Vampire
             if(Level==null||Map==null)return;
             var player=Level.PlayerCharacter;if(player==null)return;
             var p=value?OralCeilingArenaGeometry.Clamp(Map,player.transform.position,.5f):OralMapGeometry.Clamp(Map,player.transform.position,.5f,OralZone.Tongue);
-            lastSupportedPosition=p;hasSupportedPosition=true;
             player.transform.position=p;var rb=player.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=p;rb.velocity=Vector2.zero;}
         }
         public bool BeginJump(Character player,Vector2 direction,out Vector2 landing)
@@ -102,40 +99,27 @@ namespace Vampire
             if(jumpVisual!=null)jumpVisual.transform.localPosition=visualOrigin;
             jumpVisual=null;IsJumping=false;
             if(Map!=null)playerZone=OralMapGeometry.ZoneAt(Map,JumpLanding);
-            lastSupportedPosition=JumpLanding;hasSupportedPosition=true;
         }
         public Vector2 ConstrainPlayer(Vector2 position,float radius)
         {
             var finale=OralSwallowFinale.Instance;
             if(finale!=null&&finale.IsSwallowing)return position;
             if(IsSliding)return slidePosition;
-            if(IsJumping)return position;
+            if(IsJumping || (Level.PlayerCharacter.GetComponent<OralTasteBounce>()?.Active ?? false)) return position;
             var events=GetComponent<OralFieldEvents>();
             if(events!=null&&events.OnCeiling&&(events.CeilingPhase==1||events.CeilingPhase==3))return position;
             if(OnCeiling)
             {
                 playerZone=OralZone.Tongue;
-                var ceilingPoint=OralCeilingArenaGeometry.Clamp(Map,position,radius);
-                lastSupportedPosition=ceilingPoint;hasSupportedPosition=true;return ceilingPoint;
+                return OralCeilingArenaGeometry.Clamp(Map,position,radius);
             }
             if(finale!=null&&finale.Active&&finale.Age>=18f)
             {
                 playerZone=OralZone.Tongue;
-                var tonguePoint=OralMapGeometry.Clamp(Map,position,radius,OralZone.Tongue);
-                lastSupportedPosition=tonguePoint;hasSupportedPosition=true;return tonguePoint;
             }
-            if(Ready && !OnCeiling && playerZone==OralZone.Teeth && hasSupportedPosition &&
-                Level!=null && Level.PlayerCharacter!=null && Level.PlayerCharacter.IsAlive &&
-                !Level.IsRunFlowPaused && !Level.PlayerCharacter.IsPortalTravelling &&
-                !MiniStageRuntimeState.IsInsideMiniStage &&
-                OralMapGeometry.TrySlideToTongue(Map,lastSupportedPosition,position,out var landing))
-            {
-                BeginSlide(lastSupportedPosition,landing);
-                return slidePosition;
-            }
-            var supported=OralMapGeometry.Clamp(Map,position,radius,playerZone);
-            lastSupportedPosition=supported;hasSupportedPosition=true;
-            return supported;
+            // Walking, knockback and an ordinary dash stay on the current surface.
+            // Only a valid crossing or a scripted event can carry the player across.
+            return OralMapGeometry.Clamp(Map,position,radius,playerZone);
         }
         void BeginSlide(Vector2 from,Vector2 landing)
         {
@@ -197,13 +181,11 @@ namespace Vampire
                 var p=OralMapGeometry.Clamp(Map,SlideLanding,.65f,OralZone.Tongue);
                 var player=Level.PlayerCharacter;player.transform.position=new Vector3(p.x,p.y,player.transform.position.z);
                 var rb=player.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=p;rb.velocity=Vector2.zero;}
-                lastSupportedPosition=p;hasSupportedPosition=true;
             }
         }
         public void TeleportPlayer(Vector2 position,OralZone zone)
         {
             EndJump();EndSlide(false);playerZone=zone;position=OnCeiling?OralCeilingArenaGeometry.Clamp(Map,position,.5f):OralMapGeometry.Clamp(Map,position,.5f,zone);
-            lastSupportedPosition=position;hasSupportedPosition=true;
             var player=Level.PlayerCharacter;player.transform.position=position;
             var rb=player.GetComponent<Rigidbody2D>();if(rb!=null){rb.position=position;rb.velocity=Vector2.zero;}
         }

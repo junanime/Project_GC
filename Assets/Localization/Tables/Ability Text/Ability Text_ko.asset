@@ -72,9 +72,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 276407085163663360
-    m_Localized: "\uCE68\uC774 \uC801\uC5D0\uAC8C \uC801\uC911\uD560 \uB54C\uB9C8\uB2E4
-      \uCCB4\uB825\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4. \uBCF4\uC2A4\uC5D0\uAC8C
-      \uC801\uC911\uD558\uBA74 \uB354 \uB9CE\uC774 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+    m_Localized: "침으로 적을 맞히면 체력을 회복합니다. 흡혈은 모든 침이 1.5초의 재사용 시간을 공유합니다."
     m_Metadata:
       m_Items: []
   - m_Id: 276407136451612672

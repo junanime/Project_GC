@@ -8,6 +8,8 @@ public class MiscTesting : MonoBehaviour
     [SerializeField] private Character character;
     [SerializeField] private AudioClip audioClip;
 
+    [SerializeField] private bool enableTestKeys;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -18,6 +20,7 @@ public class MiscTesting : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!Application.isEditor || !enableTestKeys) return;
         // if (Vampire.GameInput.GetKeyDown(KeyCode.RightArrow))
         //     healthBar.AddPoints(1);
         // if (Vampire.GameInput.GetKeyDown(KeyCode.LeftArrow))

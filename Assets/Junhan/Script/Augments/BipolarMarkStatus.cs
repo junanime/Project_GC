@@ -15,7 +15,7 @@ namespace Vampire
 
         public static float Bonus(int stage) => stage <= 0 ? 0f : .2f + .2f * Mathf.Clamp(stage, 1, 3);
 
-        public void Hit(Component victim, int incoming, int stage, float hitDamage, Character owner)
+        public void Hit(Component victim, int incoming, int stage, float hitDamage, Character owner, Ver4CombatSnapshot snapshot = null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             if (incoming == 0 || stage <= 0 || Ver4HitEffects.Health(victim) <= 0) return;
@@ -27,7 +27,10 @@ namespace Vampire
             {
                 var tags=CombatStatusRules.ActiveTags(victim);
                 Clear();
+                float before=Ver4HitEffects.Health(victim);
                 Ver4HitEffects.Damage(victim, hitDamage * Bonus(stage), Vector2.zero, owner, "양극침 — 반극 낙인",statusBeforeHit:tags);
+                if (Ver4HitEffects.Health(victim) < before)
+                    snapshot?.Impact(victim.transform.position, victim, SyringeSpecialAugmentAbility.SpecialAugmentType.BipolarNeedle, 2);
                 return;
             }
             Polarity = incoming;

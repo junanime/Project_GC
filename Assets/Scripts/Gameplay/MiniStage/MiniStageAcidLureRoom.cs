@@ -76,6 +76,9 @@ namespace Vampire
         private Coroutine spawnRoutine;
         private Coroutine optionalReturnRoutine;
 
+        public override string QuestName => "위산으로 유인";
+        public override string QuestHint => $"몬스터를 각 위산 웅덩이로 {requiredKillsPerField}마리씩 유인하세요";
+
         private bool roomRunning;
         private bool roomEnded;
 

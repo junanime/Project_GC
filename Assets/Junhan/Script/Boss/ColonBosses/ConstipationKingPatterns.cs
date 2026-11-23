@@ -200,8 +200,16 @@ namespace Vampire
                     { var point = new Vector2(x, y); if (Fits(point)) return point; }
             throw new System.InvalidOperationException("No clear floor for independent king vortex " + index);
         }
+        int interruptedGifts;
+        internal void GiftIntercepted()
+        {
+            if (CurrentPattern != 7 || PhaseTwo || !Targetable) return;
+            interruptedGifts++;
+            Visual.MissTribute();
+        }
         IEnumerator Tribute()
         {
+            interruptedGifts = 0;
             Visual.SetPose(KingPose.Tribute); yield return Wait(.9f);
             var carriers = new ConstipationKingMinion[3];
             for (int i = 0; i < 3; i++)
@@ -218,6 +226,11 @@ namespace Vampire
                 yield return null;
             }
             foreach (var carrier in carriers) if (carrier != null) { carrier.gameObject.SetActive(false); Destroy(carrier.gameObject); }
+            if (interruptedGifts == carriers.Length)
+            {
+                Visual.SetPose(KingPose.EmptyTray);
+                yield return Tween(.82f,q=>Visual.SetPoseProgress(q));
+            }
         }
         IEnumerator Shield()
         {

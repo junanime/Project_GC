@@ -14,6 +14,7 @@ namespace Vampire
         public Ver4AugmentRuntime Ver4 { get; private set; }
         public bool LegendaryRewardContext { get; set; }
         public bool OriginalRewardContext { get; set; }
+        internal bool FavorOpeningTrajectory { get; set; }
 
         [Header("Base Tier Odds")]
         [SerializeField] private float baseGeneralChance = 55f;
@@ -126,9 +127,19 @@ namespace Vampire
             }
         }
 
-        public bool AcquireVer4Ability(Ability ability)
+        internal bool CanAcquireForLoadout(Ability ability)
         {
-            if (ability==null || ability.Owned || !ability.RequirementsMet() || !newAbilities.Remove(ability)) return false;
+            // An existing loadout survives changes to the lobby's future-offer toggles.
+            if (ability is SyringeSpecialAugmentAbility parent)
+                return parent.CanAcquireParent(intrinsic: (int)parent.Type == StartingNeedleSelection.DefaultId(playerCharacter.Blueprint));
+            return ability.RequirementsMet();
+        }
+
+        public bool AcquireVer4Ability(Ability ability, bool intrinsicStarter = false)
+        {
+            if (ability == null || ability.Owned) return false;
+            bool eligible = intrinsicStarter ? CanAcquireForLoadout(ability) : ability.RequirementsMet();
+            if (!eligible || !newAbilities.Remove(ability)) return false;
             ability.Select();
             ownedAbilities.Add(ability);
             if (ability is SyringeSpecialAugmentAbility special)
@@ -179,7 +190,7 @@ namespace Vampire
         /// </summary>
         public List<Ability> SelectAbilities(IReadOnlyCollection<Ability> rerollExcludedAbilities)
         {
-            if (Ver4 != null) return Ver4.CreateOffers(LegendaryRewardContext, selectionCount, OriginalRewardContext);
+            if (Ver4 != null) return Ver4.CreateOffers(LegendaryRewardContext, selectionCount, OriginalRewardContext, FavorOpeningTrajectory);
             List<Ability> selectedAbilities = new List<Ability>();
 
             WeightedAbilities availableOwnedAbilities = ExtractAvailableAbilities(ownedAbilities);
@@ -757,7 +768,7 @@ namespace Vampire
                         while (ability.Level <
                                targetLevel)
                         {
-                            if (!ability.RequirementsMet())
+                            if (!CanAcquireForLoadout(ability))
                             {
                                 Debug.LogWarning(
                                     $"[RunSceneTransfer][AbilityManager] " +

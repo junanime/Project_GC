@@ -15,6 +15,7 @@ namespace Vampire
         public ItemTag itemTag;
 
         [TextArea] public string description;
+        public string ChoiceDescription => OctoberItemBalance.ChoiceText(octoberId, description);
         public Sprite itemIcon;
         public int cost;
 

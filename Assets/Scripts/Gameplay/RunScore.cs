@@ -44,10 +44,12 @@ namespace Vampire
             var run = owner.gameObject.AddComponent<RunScore>();
             Current = run; run.level = owner;
             run.ticket = BeginAfterPrevious();
+            CombatPacingProbe.Begin();
         }
         void OnDestroy() { if (Current == this) Current = null; }
         void Update()
         {
+            if (!finished) CombatPacingProbe.Tick(level, Time.deltaTime);
             if (!finished && !StageEntryLoading.IsLoading && level != null && !level.IsLevelEnded)
                 Data.seconds += Time.deltaTime;
         }
@@ -58,6 +60,7 @@ namespace Vampire
         public void Kill(Monster monster)
         {
             if (finished || monster == null) return;
+            if (!(monster is BloodClotMonster)) CombatPacingProbe.Kill();
             if (monster is BossMonster) Data.boss++;
             else if (monster is MiniBossMonster) Data.miniBoss++;
             else if (monster.Blueprint is EliteMonsterBlueprint) Data.elite++;
@@ -78,6 +81,7 @@ namespace Vampire
         {
             if (finished) return;
             finished = true; Data.success = success;
+            CombatPacingProbe.End();
             pendingFinish = FinishOnline();
         }
         async Task FinishOnline()

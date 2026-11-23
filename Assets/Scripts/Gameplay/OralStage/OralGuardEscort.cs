@@ -45,13 +45,15 @@ namespace Vampire
         public static bool TryCreate(FiniteStomachMap map, int tooth, out OralGuardRoute route)
         {
             route = default;
-            if (map == null || !OralMapGeometry.CanJumpToTooth(tooth)) return false;
-            var landing = OralMapGeometry.ToothWalkCenter(map, tooth);
-            var launch = OralMapGeometry.Clamp(map, landing, .65f, OralZone.Tongue);
-            // Use the same permitted tongue edge and molar surface as player jumps.
-            if (!OralMapGeometry.TryJump(map, launch, landing - launch, out var checkedLanding) ||
-                OralMapGeometry.NearestTooth(map, checkedLanding) != tooth) return false;
-            route = new OralGuardRoute(tooth, launch, landing); return true;
+            if (map == null || !OralMapGeometry.CanJumpToTooth(tooth) ||
+                OralMapGeometry.ToothKind(tooth) != OralToothKind.Molar) return false;
+            // The escort takes the direct route to its assigned molar.
+            Vector2 crown = OralMapGeometry.ToothWalkCenter(map, tooth);
+            Vector2 launch = OralMapGeometry.Clamp(map, crown, .65f, OralZone.Tongue);
+            if (!OralMapGeometry.TryJump(map, launch, crown - launch, out var landing) ||
+                OralMapGeometry.NearestTooth(map, landing) != tooth) return false;
+            route = new OralGuardRoute(tooth, launch, crown);
+            return true;
         }
         public static bool SegmentOnTongue(FiniteStomachMap map, Vector2 from, Vector2 to, float clearance = .28f)
         {
@@ -205,14 +207,14 @@ namespace Vampire
             monsters.Clear(); foreach (var m in level.EntityManager.LivingMonsters) monsters.Add(m);
             foreach (var m in monsters)
             {
-                if (!Eligible(m) || m.Blueprint == null || m.Blueprint.atk <= 0 || OralMapGeometry.ZoneAt(map, m.Position) != OralZone.Tongue) continue;
+                if (!Eligible(m) || m.Blueprint == null || m.ContactDamage <= 0 || OralMapGeometry.ZoneAt(map, m.Position) != OralZone.Tongue) continue;
                 if (contacts.TryGetValue(m, out var prior) && prior.Generation == m.SpawnGeneration && Age < prior.Next) continue;
                 float radius = Radius + Mathf.Clamp(m.Size.x * .5f, .12f, .8f);
                 for (int i = 0; i < members.Count; i++)
                 {
                     if (!members[i].Walking || (members[i].Ground - m.Position).sqrMagnitude > radius * radius ||
                         !OralGuardRoute.SegmentOnTongue(map, m.Position, members[i].Ground, 0)) continue;
-                    if (TakeMemberDamage(i, m.Blueprint.atk)) contacts[m] = new Contact { Generation = m.SpawnGeneration,
+                    if (TakeMemberDamage(i, m.ContactDamage)) contacts[m] = new Contact { Generation = m.SpawnGeneration,
                         Next = Age + Mathf.Max(OralGuardHealth.HitInterval, m.Blueprint.atkspeed > 0 ? 1f / m.Blueprint.atkspeed : 1f) };
                     break;
                 }

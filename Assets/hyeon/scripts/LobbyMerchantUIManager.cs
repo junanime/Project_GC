@@ -171,6 +171,7 @@ namespace Vampire
                 }
 
                 card.SetupForLobby(item, item.silverCost, TryBuyItem);
+                card.BindChoiceKey(spawnedCards.Count);
 
                 if (LobbyLoadoutData.IsEquipped(item))
                     card.MarkAsSoldOut("ภๅย๘ตส");
@@ -204,7 +205,10 @@ namespace Vampire
             foreach (ShopItemButton card in spawnedCards)
             {
                 if (card != null)
+                {
+                    card.gameObject.SetActive(false);
                     Destroy(card.gameObject);
+                }
             }
 
             spawnedCards.Clear();

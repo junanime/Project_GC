@@ -506,7 +506,7 @@ namespace Vampire
                 surgeEvent.started = true;
                 surgeEvent.spawnAccumulator = 0f;
 
-                ShowEventStartedUI(surgeEvent.eventName);
+                ShowEventStartedUI(surgeEvent.eventName, StageEventVisualKind.Infection);
                 TutorialGuide.QueueStageEvent("monster-surge");
 
                 
@@ -580,7 +580,7 @@ namespace Vampire
             {
                 goldRushEvent.started = true;
 
-                ShowEventStartedUI(goldRushEvent.eventName);
+                ShowEventStartedUI(goldRushEvent.eventName, StageEventVisualKind.Gold);
                 TutorialGuide.QueueStageEvent("gold-rush");
 
                 
@@ -634,7 +634,7 @@ namespace Vampire
 
                 PlayAcidRainVFX();
 
-                ShowEventStartedUI(acidEvent.eventName);
+                ShowEventStartedUI(acidEvent.eventName, StageEventVisualKind.AcidRain);
                 TutorialGuide.QueueStageEvent("acid-secretion");
 
                
@@ -845,7 +845,7 @@ namespace Vampire
             }
         }
 
-        private void ShowEventStartedUI(string eventName)
+        private void ShowEventStartedUI(string eventName, StageEventVisualKind kind)
         {
             string safeEventName =
                 string.IsNullOrEmpty(eventName)
@@ -865,7 +865,7 @@ namespace Vampire
 
             if (eventToastUI != null)
             {
-                eventToastUI.Show(message);
+                eventToastUI.ShowField(kind, message);
             }
 
             if (logEventState)

@@ -1,11 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
     public class PoisonStatus : MonoBehaviour, ICombatStatus
     {
         private float statusExpires;
+        Ver4CombatSnapshot feedbackSnapshot;
         public CombatStatusTag ActiveStatusTags => poisonActive && Time.time < statusExpires ? CombatStatusTag.Poison : CombatStatusTag.None;
         private Monster targetMonster;
         private Coroutine poisonCoroutine;
@@ -69,7 +71,7 @@ namespace Vampire
             float tickInterval,
             float tickDamage,
             Character sourceCharacter,
-            string damageSourceName)
+            string damageSourceName, Ver4CombatSnapshot snapshot = null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             if (targetMonster == null)
@@ -82,6 +84,7 @@ namespace Vampire
                 return;
             }
 
+            feedbackSnapshot = snapshot;
             currentDuration = Mathf.Max(0.05f, duration);
             currentTickInterval = Mathf.Max(0.05f, tickInterval);
             currentTickDamage = Mathf.Max(0f, tickDamage);
@@ -94,6 +97,8 @@ namespace Vampire
 
             statusExpires = Time.time + currentDuration;
             poisonActive = true;
+            if (targetMonster.HP > 0 && targetMonster.gameObject.activeInHierarchy)
+                snapshot?.Impact(transform.position,targetMonster,Parent.Poison,1);
             contagionAlreadyTriggered = false;
 
             if (poisonVisual == null && targetMonster.HP > 0f && targetMonster.gameObject.activeInHierarchy)
@@ -144,7 +149,7 @@ namespace Vampire
                     yield break;
                 }
 
-                DealPoisonDamage(tickDamage);
+                DealPoisonDamage(tickDamage, true);
                 elapsed += tickInterval;
             }
 
@@ -160,7 +165,7 @@ namespace Vampire
         /// 현재 PoisonStatus의 실제 TakeDamage 값은 tickDamage 자체이므로
         /// 이것이 이 시스템에서의 최종 계산 피해량이다.
         /// </summary>
-        private void DealPoisonDamage(float finalDamage)
+        private void DealPoisonDamage(float finalDamage, bool intervalElapsed = false)
         {
             if (finalDamage <= 0f)
             {
@@ -174,7 +179,13 @@ namespace Vampire
             }
 
             finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,targetMonster);
+            float previousHealth = targetMonster.HP;
             targetMonster.TakePeriodicDamage(finalDamage);
+            if (targetMonster.HP < previousHealth && feedbackSnapshot != null)
+            {
+                feedbackSnapshot.Impact(transform.position,targetMonster,Parent.Poison,0);
+                if (intervalElapsed) feedbackSnapshot.Impact(transform.position,targetMonster,Parent.Poison,2);
+            }
 
             // 기존 총 피해량 시스템에 포함
             if (sourceCharacter != null &&
@@ -212,7 +223,8 @@ namespace Vampire
                 currentDuration,
                 currentTickInterval,
                 currentTickDamage,
-                sourceCharacter
+                sourceCharacter,
+                feedbackSnapshot
             );
         }
 

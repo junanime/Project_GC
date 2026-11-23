@@ -107,6 +107,9 @@ namespace Vampire
         private bool roomFinished;
         private bool initialSpawnFinished;
 
+        public override string QuestName => "위산 농도 조절";
+        public override string QuestHint => $"시간 종료 시 슬라임을 {requiredMinAliveCount}~{requiredMaxAliveCount}마리 남기세요  ·  현재 {GetCurrentAliveCount()}마리";
+
         private float elapsedTime;
         private float nextWaveTimer;
         private int pendingInitialSpawnCount;

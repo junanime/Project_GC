@@ -59,6 +59,7 @@ namespace Vampire
         public bool IsComplete(int index) => state.progress[index] >= Target(index);
         public void Record(Goal goal, float amount=1)
         {
+            if (GStarControlPractice.Active) return;
             if(state==null || state.claimed || amount<=0) return;
             for(int i=0;i<3;i++) if(state.quests[i]==(int)goal)
             {
@@ -95,6 +96,13 @@ namespace Vampire
                 for(int i=0;i<3;i++)if(state.quests[i]==(int)Goal.Burst&&!IsComplete(i))state.progress[i]=recentKills.Count;
             }
             previous=position;
+        }
+        internal bool TryChainNoble(AbilitySelectionDialog dialog)
+        {
+            if (!Ready || owner == null || !owner.IsAlive || owner.Skills!=null && owner.Skills.IsCutin) return false;
+            if (!dialog.OfferNobleInOpenPanel()) return false;
+            state.claimed=true;
+            return true;
         }
         public bool TryClaim(AbilitySelectionDialog dialog)
         {

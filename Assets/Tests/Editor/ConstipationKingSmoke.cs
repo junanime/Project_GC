@@ -298,7 +298,7 @@ namespace Vampire.Tests.Editor
             Check(player.CurrentHealth < protectedHealth, round + " ordinary damage works again after unlock"); player.GainHealth(player.MaxHealth); ColonContentSmoke.Set(player, "isInvincible", true);
             CaptureExit(exit, round + "-open-exit", false);
             yield return Interact(player, exit.Opening);
-            Check(exit.State == ColonExitSequence.ExitState.Demo && exit.Dialogue != null && exit.Dialogue.Message.text == "데모 버전은 여기까지입니다!", round + " separate exit interaction shows exact festival demo message");
+            Check(exit.State == ColonExitSequence.ExitState.Demo && exit.Dialogue != null && exit.Dialogue.Message.text == "대장 탐험을 완료했습니다!", round + " separate exit interaction shows campaign completion message");
             Check(Time.timeScale == 0 && !level.IsLevelEnded && !data.success, round + " demo waits for explicit confirmation before saving success");
             ApothecaryUI.Instance.Back(); ApothecaryUI.Instance.OpenRunBook(); ApothecaryUI.Instance.OpenSettings();
             yield return null;
@@ -464,7 +464,7 @@ namespace Vampire.Tests.Editor
             File.WriteAllText(Output + "/summon-toast.txt", "active=" + (summonToast != null && summonToast.isActiveAndEnabled) +
                 "\nheading=" + summonHeading?.text + "\nalpha=" + summonBanner?.alpha +
                 "\nage=" + (summonToast != null ? ColonContentSmoke.Field(summonToast,"age").GetValue(summonToast) : null) +
-                "\npending=" + (summonToast != null ? string.Join("; ", (System.Collections.Generic.Queue<string>)ColonContentSmoke.Field(summonToast,"pending").GetValue(summonToast)) : "missing"));
+                "\npending=" + (summonToast != null ? ((System.Collections.ICollection)ColonContentSmoke.Field(summonToast,"pending").GetValue(summonToast)).Count.ToString() : "missing"));
             Capture(null, "summon-actual-camera-hud", false, true);
             Check(summonBanner != null && summonBanner.alpha > .9f && summonHeading != null && summonHeading.text == "왕의 변기가 역류합니다",
                 "Actual summon notice becomes visible while the throne owns the field pause");
@@ -473,7 +473,7 @@ namespace Vampire.Tests.Editor
             Check(throneTop.y < .97f && watchingPlayer.y > .02f && watchingPlayer.x > .02f && watchingPlayer.x < .98f,
                 "Actual summon camera retains porcelain bowl and safe player flank without a capture override");
             Check(!director.TrySpawn() && ConstipationKingRuntime.Active.Count == 1, "Repeated spawn calls cannot duplicate the king");
-            Check(boss.MaxHealth == 34000 && boss.Health == 34000, "Fixed king health is 34000");
+            Check(boss.MaxHealth == GStarFieldBalance.KingHealth(boss.SummonTier) && boss.Health == boss.MaxHealth, "Full initial health reflects the summon tier");
             Check(ColonBossDefinition.RequiredFinalBossImplemented, "Mandatory final-boss readiness flag is enabled");
             level.LevelPassed(null); Check(!level.IsLevelEnded, "Legacy victory callback cannot bypass required king");
             var map = FiniteStomachMap.Instance; var opening = StomachOpening.Find(false);
@@ -484,7 +484,7 @@ namespace Vampire.Tests.Editor
             Check(!director.Summoning && !director.ProtectsPlayer && !level.IsRunFlowPaused && !director.Throne.gameObject.activeSelf, "Arrival consumes empty throne and releases its scoped field pause");
             Check(Vector2.Distance(player.Position, (Vector2)boss.transform.position + Vector2.up*1.7f) >= 2.8f, "Summon releases player outside the king contact envelope on safe floor");
             Check(NeedleTargeting.IsValidBossTarget(boss, ~0) && BossTargetUtility.IsBossTarget(boss), "Needle targeting and boss multipliers recognize king");
-            Check(Ver4HitEffects.Health(boss) == 34000 && Ver4HitEffects.MaxHealth(boss) == 34000, "Damage accounting reads actual king HP");
+            Check(Ver4HitEffects.Health(boss) == boss.MaxHealth && Ver4HitEffects.MaxHealth(boss) == boss.MaxHealth, "Damage accounting reads actual king HP");
             Check(boss.Visual.Body.sprite != null && boss.Visual.CentralJetCount == 1, "Approved body is loaded with exactly one central water column");
             yield return new WaitForSeconds(.7f);
             var framing = Camera.main != null ? Camera.main.GetComponent<ColonBossEncounterCamera>() : null;
@@ -565,11 +565,11 @@ namespace Vampire.Tests.Editor
                 if (phase == 2)
                 {
                     yield return PrimeTributeMeal(boss);
-                    boss.TakeDamage(999999); Check(boss.Health == 17000 && boss.Transitioning && !boss.Dead, "Lethal phase-one hit reaches invulnerable midpoint transition");
+                    boss.TakeDamage(999999); Check(boss.Health == boss.MaxHealth * .5f && boss.Transitioning && !boss.Dead, "Lethal phase-one hit reaches invulnerable midpoint transition");
                     Capture(boss, "phase-transition-hud", true, true);
                     float hp = boss.Health; boss.TakeDamage(100); Check(boss.Health == hp, "Transition rejects incoming damage");
                     yield return WaitFor(() => boss.PhaseTwo && !boss.Transitioning, 15, "Phase-two presentation releases invulnerability");
-                    Check(boss.Health == 17000 && !Object.FindObjectsOfType<ConstipationKingMinion>().Any(m => m.IsTribute), "Phase transition cancels chewing with no delayed healing");
+                    Check(boss.Health == boss.MaxHealth * .5f && !Object.FindObjectsOfType<ConstipationKingMinion>().Any(m => m.IsTribute), "Phase transition cancels chewing with no delayed healing");
                     Check(!boss.PlayPattern(7), "Phase two cannot schedule the phase-one-only tribute technique");
                 }
                 for (int pattern = phase == 1 ? 2 : 0; pattern < ConstipationKingRuntime.PatternCount; pattern++)

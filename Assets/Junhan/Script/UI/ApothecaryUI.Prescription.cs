@@ -14,7 +14,6 @@ namespace Vampire
         readonly Vector3[] prescriptionSafeCorners=new Vector3[4];
         TextMeshProUGUI prescriptionTitle;
         readonly TextMeshProUGUI[] prescriptionRows=new TextMeshProUGUI[3];
-        Button prescriptionClaim, overchargeButton;
         Action skillRewardCallback;
         bool skillRewardQueued;
         PrescriptionRuntime Prescription => level!=null && level.PlayerCharacter!=null?level.PlayerCharacter.GetComponent<PrescriptionRuntime>():null;
@@ -24,47 +23,34 @@ namespace Vampire
             prescriptionScroll=AugmentPanelTheme.Rect("Vision scroll dock",prescriptionHud).gameObject.AddComponent<PrescriptionScrollView>();
             prescriptionScroll.Build(runtimeFont!=null?runtimeFont:Config.font,()=>{
                 prescriptionExpanded=!prescriptionExpanded;prescriptionScroll.SetExpanded(prescriptionExpanded);
-            },()=>Prescription?.TryClaim(FindObjectOfType<EntityManager>()?.AbilitySelectionDialog),prescriptionExpanded,level?.PlayerCharacter?.Blueprint??character);
+            },prescriptionExpanded,level?.PlayerCharacter?.Blueprint??character);
             prescriptionTitle=prescriptionScroll.Title;
             for(int i=0;i<3;i++)prescriptionRows[i]=prescriptionScroll.Rows[i];
-            prescriptionClaim=prescriptionScroll.Claim;
-            overchargeButton=ActionButton(prescriptionHud,"혈전 과충전 / Q",.70f,.14f,.97f,.22f,()=>FindNearbyOvercharge()?.Begin(),true);
-            overchargeButton.gameObject.SetActive(false);
-        }
-        BloodClotOvercharge FindNearbyOvercharge()
-        {
-            foreach(var charge in FindObjectsOfType<BloodClotOvercharge>())if(charge.PlayerInside)return charge;
-            return null;
         }
         void UpdatePrescriptionUI()
         {
             if(Page=="hud")
             {
                 bool rewardOpen=level!=null && level.EntityManager!=null && level.EntityManager.AbilitySelectionDialog.MenuOpen;
+                var quest=Prescription;
+                if (!rewardOpen && !skillRewardQueued && quest != null && !quest.Claimed && quest.Ready &&
+                    level != null && !level.IsLevelEnded && !level.IsRunFlowPaused &&
+                    !StageEntryLoading.IsLoading && !MiniStageRuntimeState.IsInsideMiniStage &&
+                    level.EntityManager != null)
+                    rewardOpen = quest.TryClaim(level.EntityManager.AbilitySelectionDialog);
                 if(content!=null)content.gameObject.SetActive(!rewardOpen);
                 if(prescriptionHud!=null)prescriptionHud.gameObject.SetActive(!rewardOpen);
-                var quest=Prescription;
                 if(quest!=null && prescriptionTitle!=null)
                 {
-                    prescriptionTitle.text=quest.Claimed?"퀘스트  3/3 · 완료":$"퀘스트  {quest.Completed}/3";
-                    prescriptionScroll.Tag.text=$"[{PrescriptionRuntime.Tags[quest.Tag]}] 퀘스트";
+                    prescriptionTitle.text=quest.Claimed?"고귀 퀘스트  3/3 · 완료":$"고귀 퀘스트  {quest.Completed}/3";
+                    prescriptionScroll.Tag.text=$"고귀 퀘스트 · {PrescriptionRuntime.Tags[quest.Tag]}";
                     for(int i=0;i<3;i++)if(prescriptionRows[i]!=null)
                     {
                         string line=$"{quest.Description(i)}\n{Mathf.FloorToInt(quest.Progress(i))}/{quest.Target(i):0}";
                         prescriptionRows[i].text=quest.IsComplete(i)?"<s>"+line+"</s>  완료":line;
                         prescriptionRows[i].color=quest.IsComplete(i)?new Color(.35f,.4f,.3f):Ink;
                     }
-                    if(prescriptionClaim!=null)
-                    {
-                        prescriptionClaim.interactable=quest.Ready&&Time.timeScale>0;
-                        prescriptionClaim.GetComponentInChildren<TextMeshProUGUI>().text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택":"퀘스트 3개 완료 → 고귀 증강";
-                    }
-                }
-                if(overchargeButton!=null)
-                {
-                    var charge=FindNearbyOvercharge();
-                    overchargeButton.gameObject.SetActive(charge!=null&&!charge.Started&&!MiniStageRuntimeState.IsInsideMiniStage);
-                    overchargeButton.interactable=Time.timeScale>0;
+                    prescriptionScroll.RewardStatus.text=quest.Claimed?"고귀 증강 획득 완료":quest.Ready?"고귀 증강 선택 대기 중":"모두 완료하면 고귀 증강 선택";
                 }
                 if(skillRewardQueued && Time.timeScale>0 && CurrentSkills!=null && !CurrentSkills.IsCutin)
                 {
@@ -110,33 +96,50 @@ namespace Vampire
         void BuildSkillReward()
         {
             Label(content,"처방 강화",.25f,.84f,.75f,.94f,34).color=Color.white;
-            Label(content,"패시브 · 액티브 · 대쉬 중 하나를 선택하세요",.15f,.75f,.85f,.82f,23).color=Color.white;
             var skills=CurrentSkills;
             if(skills==null)return;
-            for(int i=0;i<2;i++)
+            if (!skills.CanUpgrade(false) && !skills.CanUpgrade(true) && !skills.CanUpgradeDash)
             {
-                bool active=i==1;float x=.055f+i*.30f;
-                Panel(content,x,.20f,x+.28f,.72f);
-                var d=skills.Definition;int current=active?skills.ActiveLevel:skills.PassiveLevel;int max=active?skills.ActiveMaxLevel:skills.PassiveMaxLevel;
-                ImageAt(content,active?d.activeIcon:d.passiveIcon,x+.06f,.49f,x+.22f,.68f);
-                Label(content,active?"액티브 강화":"패시브 강화",x+.02f,.425f,x+.26f,.49f,23);
-                Label(content,skills.UpgradeDescription(active),x+.025f,.30f,x+.255f,.425f,17);
-                bool available=skills.CanUpgrade(active);
-                var upgradeButton=ActionButton(content,available?$"Lv.{current} → Lv.{current+1}":current>=max?"최대 레벨":"최대 강화 제한",x+.025f,.22f,x+.255f,.295f,()=>FinishSkillReward(active),true,available);
-                if(!available)HudTooltip.Bind(upgradeButton.gameObject,()=>"강화 제한",()=>skills.UpgradeUnavailableReason(active));
+                Label(content,"강화가 모두 끝났어요. 회복 보상을 받으세요.",.15f,.75f,.85f,.82f,23).color=Color.white;
+                var heal = Rect("회복 보상",content,.34f,.20f,.66f,.72f);
+                Panel(heal,0,0,1,1);
+                ImageAt(heal,level.PlayerInventory.Slots[1].IconImage.sprite,.23f,.45f,.77f,.88f);
+                Label(heal,"최대 체력의 20% 회복",.05f,.25f,.95f,.46f,23);
+                var button = ActionButton(heal,"회복하고 계속",.08f,.04f,.92f,.2f,()=>FinishSkillReward(null),true);
+                NumberedCardChoice.Bind(heal,button,0,false,true);
+                return;
             }
-            Panel(content,.655f,.20f,.935f,.72f);
-            var dash=Rect("Shared dash reward icon",content,.725f,.49f,.865f,.68f).gameObject.AddComponent<SharedDashIcon>();
-            dash.color=new Color(.12f,.65f,.63f);dash.raycastTarget=false;
-            Label(content,$"대쉬 +1 · {skills.DashRewardUpgrades}/{CharacterSkillRuntime.MaxDashRewardUpgrades}",.675f,.425f,.915f,.49f,23);
-            Label(content,"최대 대쉬 횟수 +1\n대쉬 충전 1회 즉시 획득\n한 판에 최대 3회 강화",.68f,.30f,.91f,.425f,17);
-            ActionButton(content,skills.CanUpgradeDash?"대쉬 횟수 증가":"최대 강화",.695f,.22f,.895f,.295f,FinishDashReward,true,skills.CanUpgradeDash);
-            if(!skills.CanUpgrade(false) && !skills.CanUpgrade(true) && !skills.CanUpgradeDash)
+            Label(content,"패시브 · 액티브 · 대시 중 하나를 선택하세요",.15f,.75f,.85f,.82f,23).color=Color.white;
+            for(int i=0;i<3;i++)
             {
-                Label(content,"강화 완료 · 최대 체력의 20% 회복으로 대체",.12f,.12f,.88f,.185f,20).color=Color.white;
-                ActionButton(content,"회복하고 계속",.34f,.025f,.66f,.105f,()=>FinishSkillReward(null),true);
+                float x=.055f+i*.30f;
+                var card=Rect("처방 보상 "+(i+1),content,x,.20f,x+.28f,.72f);
+                Panel(card,0,0,1,1);
+                Button button;
+                if (i==2)
+                {
+                    var dash=Rect("Shared dash reward icon",card,.25f,.56f,.75f,.92f).gameObject.AddComponent<SharedDashIcon>();
+                    dash.color=new Color(.12f,.65f,.63f);dash.raycastTarget=false;
+                    Label(card,$"대시 +1 · {skills.DashRewardUpgrades}/{CharacterSkillRuntime.MaxDashRewardUpgrades}",.05f,.43f,.95f,.56f,23);
+                    Label(card,"최대 대시 횟수 +1\n대시 충전 1회 즉시 획득\n한 판에 최대 3회 강화",.07f,.19f,.93f,.43f,17);
+                    button=ActionButton(card,skills.CanUpgradeDash?"대시 횟수 증가":"최대 강화",.09f,.04f,.91f,.18f,FinishDashReward,true,skills.CanUpgradeDash);
+                }
+                else
+                {
+                    bool active=i==1;
+                    var d=skills.Definition;
+                    int current=active?skills.ActiveLevel:skills.PassiveLevel;
+                    int max=active?skills.ActiveMaxLevel:skills.PassiveMaxLevel;
+                    ImageAt(card,active?d.activeIcon:d.passiveIcon,.21f,.56f,.79f,.92f);
+                    Label(card,active?"액티브 강화":"패시브 강화",.07f,.43f,.93f,.56f,23);
+                    Label(card,skills.UpgradeDescription(active),.09f,.19f,.91f,.43f,17);
+                    bool available=skills.CanUpgrade(active);
+                    button=ActionButton(card,available?$"Lv.{current} → Lv.{current+1}":current>=max?"최대 레벨":"최대 강화 제한",.09f,.04f,.91f,.18f,()=>FinishSkillReward(active),true,available);
+                    if(!available)HudTooltip.Bind(button.gameObject,()=>"강화 제한",()=>skills.UpgradeUnavailableReason(active));
+                }
+                NumberedCardChoice.Bind(card,button,i,false,true);
             }
-            else Label(content,"액티브와 패시브 중 한 스킬만 최대 레벨까지 강화할 수 있습니다.",.12f,.10f,.88f,.17f,17).color=Color.white;
+            Label(content,"액티브와 패시브 중 한 스킬만 최대 레벨까지 강화할 수 있습니다.",.12f,.10f,.88f,.17f,17).color=Color.white;
         }
         void FinishSkillReward(bool? active)
         {

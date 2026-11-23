@@ -64,8 +64,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 276407085163663360
-    m_Localized: Restores health whenever a needle hits an enemy. Hitting a boss
-      restores more health.
+    m_Localized: "A needle hit restores health. All needles share a 1.5-second healing cooldown."
     m_Metadata:
       m_Items: []
   - m_Id: 276407136451612672

@@ -310,6 +310,7 @@ namespace Vampire
                 if (card != null)
                 {
                     card.Setup(shopItems[i]);
+                    card.BindChoiceKey(i);
                     spawnedShopCards.Add(card);
                 }
                 else
@@ -325,6 +326,7 @@ namespace Vampire
             {
                 if (spawnedShopCards[i] != null)
                 {
+                    spawnedShopCards[i].gameObject.SetActive(false);
                     Destroy(spawnedShopCards[i].gameObject);
                 }
             }
@@ -354,7 +356,6 @@ namespace Vampire
 
                 UpdateRerollCostText();
                 DisplayCurrentShopItems();
-
                 Debug.Log($"[상점] 리롤 성공! 전체 리롤 횟수: {globalRerollCount}, 다음 리롤 비용: {currentRerollCost}G");
             }
             else
@@ -436,6 +437,7 @@ namespace Vampire
 
         private bool ProcessPayment(int cost)
         {
+            if (cost < 0) return false;
             StatsManager currentStats = FindObjectOfType<StatsManager>();
 
             if (currentStats != null)

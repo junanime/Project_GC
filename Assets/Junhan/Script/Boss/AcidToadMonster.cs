@@ -52,7 +52,7 @@ namespace Vampire
         protected override void FixedUpdate()
         {
             if(!alive||IsFieldRuntimeSuspended||ChameleonTime.Paused||playerCharacter==null){if(rb!=null)rb.velocity=Vector2.zero;return;}
-            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*Blueprint.movespeed*IceMoveMultiplier:Vector2.zero;
+            Vector2 d=(Vector2)playerCharacter.transform.position-rb.position;rb.velocity=!Busy&&d.magnitude>4?d.normalized*Blueprint.movespeed*MovementMultiplier:Vector2.zero;
             if(entityManager?.Grid!=null)entityManager.Grid.UpdateClient(this);
         }
         public bool UsePattern(Pattern pattern)
@@ -199,9 +199,59 @@ namespace Vampire
     [DefaultExecutionOrder(10000)]
     public sealed class ToadCameraShake:MonoBehaviour
     {
-        float left,total,strength;Vector3 offset,lastApplied;
-        public static void Play(float duration,float strength){var c=Camera.main;if(c==null)return;var s=c.GetComponent<ToadCameraShake>()??c.gameObject.AddComponent<ToadCameraShake>();s.left=s.total=duration;s.strength=strength;}
-        void LateUpdate(){if((transform.position-lastApplied).sqrMagnitude<.000001f)transform.position-=offset;offset=Vector3.zero;if(Time.timeScale<=0||MiniStageRuntimeState.IsInsideMiniStage)return;if(left<=0)return;left-=Time.deltaTime;offset=(Vector3)(Random.insideUnitCircle*strength*Mathf.Clamp01(left/total));transform.position+=offset;lastApplied=transform.position;}
-        void OnDisable(){if((transform.position-lastApplied).sqrMagnitude<.000001f)transform.position-=offset;offset=Vector3.zero;}
+        float age, duration, amplitude;
+        bool directional;
+        Vector2 direction;
+        Vector3 offset, lastApplied;
+
+        public static void Play(float duration, float strength) =>
+            Begin(duration, strength, Vector2.zero, false);
+
+        public static void PlayerHit(float damage, float maxHealth, Vector2 knockback)
+        {
+            if (damage <= 0 || GamePreferences.Current.reducedMotion) return;
+            float weight = Mathf.InverseLerp(0f, .20f, damage / Mathf.Max(1f, maxHealth));
+            var axis = knockback.sqrMagnitude > .001f ? knockback.normalized : new Vector2(-.38f, .92f);
+            Begin(Mathf.Lerp(.15f, .22f, weight), Mathf.Lerp(.075f, .16f, weight), axis, true);
+        }
+
+        static void Begin(float duration, float strength, Vector2 axis, bool hit)
+        {
+            var camera = Camera.main;
+            if (camera == null || duration <= 0 || GamePreferences.Current.reducedMotion) return;
+            var shake = camera.GetComponent<ToadCameraShake>() ?? camera.gameObject.AddComponent<ToadCameraShake>();
+            shake.age = 0;
+            shake.duration = duration;
+            shake.amplitude = strength;
+            shake.direction = axis;
+            shake.directional = hit;
+        }
+
+        void RemoveOffset()
+        {
+            // The camera can follow a moving parent or be repositioned by a cutscene.
+            if ((transform.localPosition - lastApplied).sqrMagnitude < .000001f)
+                transform.localPosition -= offset;
+            offset = Vector3.zero;
+        }
+
+        void LateUpdate()
+        {
+            RemoveOffset();
+            if (age >= duration || Time.deltaTime <= 0 || GamePreferences.Current.reducedMotion) return;
+            if (!directional && MiniStageRuntimeState.IsInsideMiniStage) return;
+            float t = Mathf.Clamp01(age / duration);
+            float envelope = (1f - t) * (1f - t);
+            Vector2 displacement = directional
+                ? direction * Mathf.Cos(t * Mathf.PI * 3f) +
+                    Vector2.Perpendicular(direction) * (.25f * Mathf.Sin(t * Mathf.PI * 4f))
+                : Random.insideUnitCircle;
+            offset = displacement * (amplitude * envelope);
+            transform.localPosition += offset;
+            lastApplied = transform.localPosition;
+            age += Time.deltaTime;
+        }
+
+        void OnDisable() => RemoveOffset();
     }
 }

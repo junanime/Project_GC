@@ -171,6 +171,7 @@ namespace Vampire
         private readonly List<RuntimeTrapFieldState> runtimeTrapFieldStates = new List<RuntimeTrapFieldState>();
 
         private float elapsedTime = 0f;
+        private float accountedHourglassTime;
         private bool runtimeScheduleBuilt = false;
         private bool reportedMiniStagePause;
 
@@ -225,7 +226,9 @@ namespace Vampire
                 return;
             }
             reportedMiniStagePause = false;
-            elapsedTime += Time.deltaTime;
+            float extra = levelManager != null ? levelManager.HourglassExtraStageTime : 0f;
+            elapsedTime += Time.deltaTime + Mathf.Max(0f, extra - accountedHourglassTime);
+            accountedHourglassTime = extra;
 
             UpdateTimedSpawnEvents();
             UpdateTrapFieldStates();
@@ -241,6 +244,7 @@ namespace Vampire
             RemoveAllTrapListeners();
 
             elapsedTime = 0f;
+            accountedHourglassTime = levelManager != null ? levelManager.HourglassExtraStageTime : 0f;
             reportedMiniStagePause = false;
             runtimeScheduleBuilt = false;
 

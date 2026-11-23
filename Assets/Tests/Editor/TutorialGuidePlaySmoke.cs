@@ -109,7 +109,8 @@ namespace Vampire.Tests.Editor
                 Check(ApothecaryUI.Instance.Page == "hud", "HUD is visible");
                 TutorialGuide.QueueStageEvent("acid-secretion");
                 yield return new WaitForSecondsRealtime(.25f);
-                Check(TutorialGuide.IsOpen && Time.timeScale == 0f, "first event opens and pauses");
+                Check(!TutorialGuide.IsOpen && Time.timeScale > 0f, "first event does not interrupt combat");
+                Check(TutorialGuide.Instance.Review("event/acid-secretion") && Time.timeScale == 0f, "journal opens event on request and pauses");
                 Check(FindObjectsOfType<Text>().Any(x => x.text == "위산분비"), "event content displayed");
                 yield return new WaitForEndOfFrame();
                 Capture("01-event-card");
@@ -122,16 +123,16 @@ namespace Vampire.Tests.Editor
                 var sniper = AssetDatabase.LoadAssetAtPath<MonsterBlueprint>("Assets/Prefabs/Monsters/genral Monster BP/Sniper Monster.asset");
                 TutorialGuide.QueueMonster(sniper);
                 yield return new WaitForSecondsRealtime(.25f);
-                Check(TutorialGuide.IsOpen && Time.timeScale == 0f, "different monster gets its own first discovery");
+                Check(!TutorialGuide.IsOpen && TutorialGuide.Instance.Review("monster/sniper"), "sniper guide opens only on request");
                 Check(FindObjectsOfType<Text>().Any(x => x.text == "타코야키 저격수"), "monster content displayed");
                 yield return new WaitForEndOfFrame();
                 Capture("02-monster-card");
                 TutorialGuide.Instance.Close();
                 TutorialGuide.QueueBloodClot();
                 yield return new WaitForSecondsRealtime(.25f);
-                Check(TutorialGuide.IsOpen && FindObjectsOfType<Text>().Any(x => x.text == "혈전 과충전"),
+                Check(!TutorialGuide.IsOpen && TutorialGuide.Instance.Review("mechanic/blood-clot") && FindObjectsOfType<Text>().Any(x => x.text == "혈전 과충전"),
                     "first blood clot has a dedicated overcharge card");
-                Check(FindObjectsOfType<Text>().Any(x => x.text.Contains("E로 격화 난이도")),
+                Check(FindObjectsOfType<Text>().Any(x => x.text.Contains("Q로 과충전 시작") && x.text.Contains("E로 격화 입장")),
                     "blood clot card explains harder stage and reward");
                 yield return new WaitForEndOfFrame();
                 Capture("03-blood-clot-card");
@@ -148,8 +149,8 @@ namespace Vampire.Tests.Editor
                 PlayerPrefs.DeleteKey(weaponKey);
                 Check(abilities.AcquireVer4Ability(weapon), "new special weapon acquired through game path");
                 yield return new WaitForSecondsRealtime(.25f);
-                Check(TutorialGuide.IsOpen && FindObjectsOfType<Text>().Any(x => x.text == "새 무기"),
-                    "weapon acquisition opens its own card");
+                Check(!TutorialGuide.IsOpen && TutorialGuide.Instance.Review("weapon/" + weapon.Type) && FindObjectsOfType<Text>().Any(x => x.text == "무기 안내"),
+                    "weapon acquisition permits manual review without interruption");
                 yield return new WaitForEndOfFrame();
                 Capture("04-weapon-card");
                 TutorialGuide.Instance.Close();

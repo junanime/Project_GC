@@ -141,14 +141,7 @@ namespace Vampire
             return ability.Name.Replace(" · 수치 강화", "").Replace(" · 오리지널 강화", "");
         }
 
-        string PanelDescription()
-        {
-            // Noble acquisition rules live in the prescription. Reserve the card for its effect.
-            if (UsesNoblePanel) return (ability is Ver4AugmentOffer nobleOffer ? nobleOffer.Source.Description : ability.Description).Trim();
-            if (!(ability is Ver4AugmentOffer offer) || !themedCard) return ability.Description;
-            // The grade has its own badge. Keep every effect, numeric value and progress line.
-            return ability.Description.Replace("강화 등급: "+AugmentUpgradeOdds.DisplayName(offer.Grade)+"\n", "");
-        }
+        string PanelDescription() => AugmentBrief.For(ability);
 
         void OnDestroy() { if (legacyPanelSprite != null) Destroy(legacyPanelSprite); }
     }

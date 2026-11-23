@@ -1,9 +1,44 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace Vampire
 {
     public static class NeedleTargeting
     {
+        // List overload grows to fit the entire physics result instead of silently
+        // dropping later hits in crowded packs. Match the legacy layer/trigger filter.
+        public static void FillCircle(Vector2 origin, float range, int layerMask, List<Collider2D> hits)
+        {
+            var filter = new ContactFilter2D { useTriggers = Physics2D.queriesHitTriggers };
+            filter.SetLayerMask(layerMask);
+            Physics2D.OverlapCircle(origin, range, filter, hits);
+        }
+
+        internal static PooledObject<List<Collider2D>> QueryCircle(Vector2 origin, float range, int layerMask, out List<Collider2D> hits)
+        {
+            var lease = ListPool<Collider2D>.Get(out hits);
+            FillCircle(origin, range, layerMask, hits);
+            return lease;
+        }
+        // A hitbox can sit under more than one damageable type. The existing attack
+        // prioritizes the nearest king, then the nearest colon boss, then a regular monster.
+        internal static IDamageable FindResidueTarget(Collider2D hit, List<IDamageable> parents)
+        {
+            var nearest = hit.GetComponentInParent<IDamageable>();
+            if (nearest == null || nearest is ConstipationKingRuntime) return nearest;
+            hit.GetComponentsInParent(false, parents);
+            ColonBossRuntime colon = null;
+            Monster monster = null;
+            foreach (var actor in parents)
+            {
+                if (actor is ConstipationKingRuntime king) return king;
+                if (actor is ColonBossRuntime boss && colon == null) colon = boss;
+                else if (actor is Monster mob && monster == null) monster = mob;
+            }
+            return colon != null ? (IDamageable)colon : monster;
+        }
+
         public static bool IsValidBossTarget(Component target,LayerMask targets)
         {
             if(target==null||!target.gameObject.activeInHierarchy)return false;

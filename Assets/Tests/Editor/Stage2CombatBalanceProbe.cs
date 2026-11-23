@@ -49,6 +49,8 @@ namespace Vampire.Tests.Editor
         static string DirectoryPath => Output + "/" + SessionState.GetString(Key + "OutputName", Mode);
         static Stage2CombatBalanceProbe() { if (SessionState.GetBool(Key, false)) Attach(); }
 
+        public static void RunCampaignWaves() => Begin("campaign-waves", 1);
+        public static void RunShippedSummons() => Begin("shipped-summons", 1);
         public static void RunCalibration() => Begin("calibration", 12);
         public static void RunEncounters() => Begin("encounters", 48);
         public static void RunPatterns() => Begin("patterns", 8);
@@ -101,7 +103,7 @@ namespace Vampire.Tests.Editor
                 "Each character/build/encounter/policy reloads the actual Level 1 scene and performs the actual Stage2 reset entry. Before EVERY window, only special-needle parents actually present in the observed fixture are temporarily unlocked/enabled so a user's original purchase settings cannot veto fixture restoration. All legacy preferences are restored on completion/stop. AbilityManager.ResetForStage destroys the entire existing ability graph and rebuilds only the fixture; a full owned-ability/type/level/acquisition signature must match. Player/general numeric snapshots and owned item assets are restored. User-selected starting weapons cannot remain as extra attacks. No purchased departure gear is added.\n" +
                 "Independent-start normalization: full HP, skill active/passive durations/cooldown and dash charges reset; item proc cooldowns ready, charges/streaks/recent-hit/heal/kill state cleared; no delayed EXP or preloaded overflow/retaliation damage. Item elapsed growth and learned resistance are retained. This deliberately does NOT restore the original live item proc state, which the growth serializer did not capture. Restore never calls GainHealth, so normalization cannot charge healing-triggered items. Each window's field clock starts at its fixture checkpoint and advances normally without background spawns. No pickups or additional upgrades during measurement. Actual weapons, projectile collisions, armor, critical hits, statuses, skill cooldowns, healing and boss phases remain active. Seed is paired across the two policies. Time scale 1; all durations are game seconds unless explicitly wall_seconds. Each result records frames, maximum game-frame duration, and frames reaching 99% of Time.maximumDeltaTime so frame-limited attack throughput remains auditable.\n" +
                 "Arena: unchanged Stage2 terrain. Stationary calibration and generic encounters use the fixed lower-left reference approach derived from the opening (FrontLip + Inward * 3, clamped for the king footprint), then a nearby footprint verified to provide at least6.45 clear-floor units. This reference is not the current production throne spawn. Reference position, measured arena and offset distance are logged; no walls are added or removed. For optional-mobile, reference_approach and arena are the actual summoned habitat position; arena_floor_clearance is the recorded clearance at that anchor, not a claim that the wall-mounted house is an open-floor arena. Actual combat movement is unrestricted by this log anchor. The player starts outside all enabled body colliders with floor clearance at least0.55. Placement first seeks a shot-origin ring at80% of base needle reach (maximum3.5), then0.95 reach, then a wider ring still requiring actual collider-surface reach. Initial reach/line of sight and at least one valid movement direction are required.\n" +
-                "Calibration: invulnerable stationary player, no active skills, real stationary bodies: Stage1 Tangdengi 24000 HP reference, Stage2 Turtle " + ColonBossDefinition.Get(ColonBossKind.Turtle).Health.ToString("0", CultureInfo.InvariantCulture) + " HP, King 34000 HP. Body AI is disabled only after arrival. Phase invulnerability still runs. Initial aim is toward the actual collider center within measured needle reach. Limits: 45/90/180 seconds for t0/t450/t885. Measured TTK is populated ONLY after actual defeat; time-limited trials are right-censored. HP/net-DPS is a separately named naive extrapolation, never a measured kill time.\n" +
+                "Calibration: invulnerable stationary player, no active skills, real stationary bodies: Stage1 Tangdengi 24000 HP reference, Stage2 Turtle " + ColonBossDefinition.Get(ColonBossKind.Turtle).Health.ToString("0", CultureInfo.InvariantCulture) + " late-summon HP, King 12000 to 34000 HP by summon tier. Body AI is disabled only after arrival. Phase invulnerability still runs. Initial aim is toward the actual collider center within measured needle reach. Limits: 45/90/180 seconds for t0/t450/t885. Measured TTK is populated ONLY after actual defeat; time-limited trials are right-censored. HP/net-DPS is a separately named naive extrapolation, never a measured kill time.\n" +
                 "Optional calibration subset: all six bodies use their current fixed per-concept HP on the same verified open-floor arena, with no habitat behavior, 25 seconds per body after arrival. Manatee presents its ordinary full body here; pipe-only head exposure is measured separately in optional-mobile. Real needle/owned passive damage only, no active skills, no field actors or pickups. Earlier t450 fixtures stay fixed so the HP revision can be compared without confusing it with a newly generated growth curve.\n" +
                 "Optional mobile subset: Shark and Manatee are summoned through the real director at their actual generated habitats. The Manatee retains all three doors, territory clamp, hidden travel and narrow head hitboxes. No background ordinary/special/event spawning; boss-authored effects and projectiles remain active. Reactive policy and ordinary skill/dash cooldowns are used for 45 seconds or until player/target defeat. body_targetable_fraction measures enabled damageable optional-body windows; in_range_fraction excludes hidden bodies, and in_range_when_targetable_fraction divides reachable frames by exposed frames. A disabled collider returning its query point is never counted as needle reach. Partial windows and naive HP/DPS are not actual kill times or human clear estimates.\n" +
                 "Encounters: actual player HP, no invulnerability, no field background mobs/events/specials. Optional Turtle and King retain actual movement and pattern AI. Limits: 60/90/180 seconds. orbit_control follows a collider-centered ring at 80% of actual needle reach, observes walls/bodies, and cannot predict projectiles. Both policies decide every 0.15 seconds among16 directions using wall lookahead=currentMoveSpeed*0.18 (minimum0.22). reactive_world additionally scores currently visible projectiles projected0.5 seconds, vortex boundaries and minions. Dashes require a clear full path. If pushed onto a wall boundary, the bot permits ordinary movement only toward increasing clearance; it never teleports during measurement. Neither policy learns patterns or guarantees optimal evasion. Both attempt normal skills and use real dash charges. Rows with blocked decisions above20%, negative wall penetration below-0.05, in-range frames below40%, or no damage are labelled balance_valid=false rather than interpreted as difficulty evidence.\n" +
@@ -338,10 +340,22 @@ namespace Vampire.Tests.Editor
             var preferences = GamePreferences.Current.Copy(); preferences.pauseOnFocusLoss = false; preferences.muteOnFocusLoss = false; GamePreferences.Apply(preferences, false);
             Application.runInBackground = true; RunScore.Exclude("Fresh Stage2 controlled combat balance probe"); Silence(level); Fire(false);
             ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", true);
+            if (Mode == "campaign-waves")
+            {
+                yield return CheckCampaignWaves(level);
+                SessionState.SetBool(Key + "Done", true);
+                yield break;
+            }
             if (Mode == "ordinary-ab") UnityEngine.Random.InitState(OrdinarySeed(round));
             yield return ColonContentSmoke.Enter(level); Silence(level); Clear(level); Time.timeScale = Speed;
             var reset = level.GetComponent<StageGrowthReset>(); if (reset == null || reset.ResetCount != 1) throw new Exception("Combat fixture must enter through the actual fresh growth reset");
             string character = Characters[CharacterIndex(round)]; int checkpoint = Checkpoint(round);
+            if (Mode == "shipped-summons")
+            {
+                yield return CheckShippedSummons(level);
+                SessionState.SetBool(Key + "Done", true);
+                yield break;
+            }
             yield return Restore(level, character, checkpoint, true); Fire(false); yield return null; Clear(level);
             if (Mode == "ordinary-ab")
             {
@@ -420,10 +434,75 @@ namespace Vampire.Tests.Editor
             level.PlayerCharacter.Move(Vector2.zero); SessionState.SetBool(Key + "Done", true);
         }
 
+        // This check uses the scene's actual starting loadout in both windows. It
+        // measures projectile contact and HP changes, not late-run player growth.
+        static IEnumerator CheckShippedSummons(LevelManager level)
+        {
+            string path = DirectoryPath + "/summon-health.csv";
+            File.WriteAllText(path, "field_seconds,boss,tier,summoned_hp,weapon_damage,two_phase_midpoint\n");
+            File.WriteAllText(DirectoryPath + "/method.txt",
+                "Normal stage transition and starter build. All six habitat bodies and the King spawn at two clock checkpoints. "
+                + "The King windows allow eight seconds of starter-weapon fire, then a scripted hit checks the phase threshold. "
+                + "This does not measure kill time or natural player progression.\n");
+            var player = level.PlayerCharacter;
+            foreach (int checkpoint in new[] { 0, 900 })
+            {
+                ColonContentSmoke.Set(level, "levelTime", (float)checkpoint);
+                int tier = checkpoint == 0 ? 0 : 10;
+                foreach (ColonBossKind kind in Enum.GetValues(typeof(ColonBossKind)))
+                {
+                    var target = Spawn(level, 1, kind);
+                    float budget = ColonBossDefinition.Get(kind).Health;
+                    float expected = Mathf.Round(checkpoint == 0 ? budget * .45f : budget);
+                    if (target.Optional.SummonTier != tier || target.Optional.Health != expected ||
+                        target.Optional.MaxHealth != expected)
+                        throw new Exception("Incorrect summon health for " + kind + " at " + checkpoint);
+                    File.AppendAllText(path, Row(checkpoint, kind, tier, target.Health, "", ""));
+                    target.Destroy();
+                    yield return null;
+                }
+
+                var finalTarget = Spawn(level, 2);
+                yield return Ready(finalTarget);
+                var boss = finalTarget.King;
+                float initial = checkpoint == 0 ? 12000f : 34000f;
+                if (boss.SummonTier != tier || boss.MaxHealth != initial || boss.Health != initial)
+                    throw new Exception("Incorrect King summon health at " + checkpoint);
+                PlaceInReach(player, finalTarget);
+                player.Move(Vector2.left); player.Move(Vector2.zero);
+                Fire(true);
+                float start = Time.time;
+                while (Time.time - start < 8f)
+                {
+                    if (level.EntityManager.AbilitySelectionDialog.MenuOpen)
+                        level.EntityManager.AbilitySelectionDialog.Close();
+                    yield return null;
+                }
+                Fire(false);
+                float removed = initial - boss.Health;
+                if (removed <= 0) throw new Exception("Starter weapon did not hit the King at " + checkpoint);
+                boss.TakeDamage(initial);
+                if (!boss.Transitioning || boss.Health != initial * .5f)
+                    throw new Exception("Incorrect phase threshold at " + checkpoint);
+                File.AppendAllText(path, Row(checkpoint, "King", tier, initial, removed, boss.Health));
+                finalTarget.Destroy();
+                Clear(level);
+                yield return null;
+            }
+            for (int step = 1; step <= GStarFieldBalance.LastTier; step++)
+            {
+                int boundary = step * GStarFieldBalance.SecondsPerTier;
+                if (GStarFieldBalance.SummonTier(boundary - .01f) != step - 1 ||
+                    GStarFieldBalance.SummonTier(boundary) != step ||
+                    !Mathf.Approximately(GStarFieldBalance.KingHealth(step), 12000 + 2200 * step))
+                    throw new Exception("Non-monotonic King summon bracket at " + boundary);
+            }
+        }
+
         sealed class Target
         {
             public FoodBossRuntime Food; public ColonBossRuntime Optional; public ConstipationKingRuntime King;
-            public string Name => Food != null ? "Stage1_Tangdengi_24000" : Optional != null ? "Stage2_" + Optional.Kind + "_" + Optional.MaxHealth.ToString("0", CultureInfo.InvariantCulture) : "Stage2_King_34000";
+            public string Name => Food != null ? "Stage1_Tangdengi_24000" : Optional != null ? "Stage2_" + Optional.Kind + "_" + Optional.MaxHealth.ToString("0", CultureInfo.InvariantCulture) : "Stage2_King_" + King.MaxHealth.ToString("0", CultureInfo.InvariantCulture);
             public Component Actor => Food != null ? (Component)Food : Optional != null ? (Component)Optional : King;
             public float Health => Food != null ? Food.Health : Optional != null ? Optional.Health : King != null ? King.Health : 0;
             public bool Dead => Actor == null || (Food != null ? Food.Dead : Optional != null ? Optional.Dead : King.Dead);

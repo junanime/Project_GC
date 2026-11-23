@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace Vampire
@@ -23,8 +22,7 @@ namespace Vampire
     /// </summary>
     public static class SyringeSpecialHitEffectUtility
     {
-        public static void ReapplyVer4Mark(Component target, SyringeSpecialRuntime runtime) => ApplyNeedleMark(target,runtime);
-        private static bool hasWarnedHealMethodMissing = false;
+        public static void ReapplyVer4Mark(Component target, SyringeSpecialRuntime runtime) => ApplyNeedleMark(target,runtime,2);
 
         public static bool TryGetValidDamageableTarget(
             Collider2D collider,
@@ -42,9 +40,10 @@ namespace Vampire
                 return false;
             }
 
-            Component[] parentComponents = collider.GetComponentsInParent<Component>(true);
+            using var lease = UnityEngine.Pool.ListPool<IDamageable>.Get(out var parentComponents);
+            collider.GetComponentsInParent(true, parentComponents);
 
-            for (int i = 0; i < parentComponents.Length; i++)
+            for (int i = 0; i < parentComponents.Count; i++)
             {
                 Component component = parentComponents[i];
 
@@ -295,7 +294,8 @@ namespace Vampire
                 runtime.poisonTickInterval,
                 runtime.poisonTickDamage,
                 sourceCharacter,
-                "독침"
+                "독침",
+                snapshot: runtime.ver4
             );
         }
 
@@ -317,7 +317,8 @@ namespace Vampire
 
             honeySlowStatus.Apply(
                 runtime.honeyDuration,
-                runtime.honeySlowMultiplier
+                runtime.honeySlowMultiplier,
+                snapshot: runtime.ver4
             );
         }
 
@@ -363,7 +364,8 @@ namespace Vampire
                 runtime.corrosionDamageTakenBonusPerStack,
                 runtime.corrosionBossDamageTakenBonusPerStack,
                 runtime.corrosionMaxStacks,
-                isBossTarget
+                isBossTarget,
+                snapshot: runtime.ver4
             );
         }
 
@@ -386,7 +388,7 @@ namespace Vampire
             return markStatus.TryConsume();
         }
 
-        private static void ApplyNeedleMark(Component damageableComponent, SyringeSpecialRuntime runtime)
+        private static void ApplyNeedleMark(Component damageableComponent, SyringeSpecialRuntime runtime, int option=0)
         {
             Monster monster = GetMonster(damageableComponent);
 
@@ -402,7 +404,7 @@ namespace Vampire
                 markStatus = monster.gameObject.AddComponent<NeedleMarkStatus>();
             }
 
-            markStatus.Apply(runtime.markDuration);
+            markStatus.Apply(runtime.markDuration, runtime.ver4, option);
         }
 
         private static void ApplyDigestiveAcidSac(
@@ -436,7 +438,8 @@ namespace Vampire
                 runtime.digestiveAcidPuddleTickInterval,
                 runtime.digestiveAcidPuddleColor,
                 sourceCharacter,
-                "소화액낭침"
+                "소화액낭침",
+                snapshot: runtime.ver4
             );
         }
 
@@ -447,7 +450,8 @@ namespace Vampire
                 runtime.hungerStackDuration,
                 runtime.hungerAttackSpeedBonusPerStack,
                 runtime.hungerMaxStacks,
-                runtime.debugHungerNeedle
+                runtime.debugHungerNeedle,
+                snapshot: runtime.ver4
             );
         }
 
@@ -480,85 +484,23 @@ namespace Vampire
                 runtime.gutBacteriaBonusGemCount,
                 runtime.gutBacteriaBonusGemType,
                 runtime.gutBacteriaBonusGemSpawnRadius,
-                runtime.debugGutBacteria
+                runtime.debugGutBacteria,
+                snapshot: runtime.ver4
             );
         }
 
-        private static void ApplyMosquitoHeal(
-            Component damageableComponent,
-            SyringeSpecialRuntime runtime,
-            Character sourceCharacter)
+        public static void ApplyMosquitoHeal(Component target, SyringeSpecialRuntime runtime, Character source)
         {
-            if (runtime.healingBlocked)
+            if (source == null || runtime.healingBlocked || runtime.mosquitoHealPerHit == 0f || !source.CanReceiveMosquitoHeal) return;
+            float amount = runtime.mosquitoHealPerHit;
+            if (IsBossLikeTarget(target)) amount *= runtime.mosquitoBossHealMultiplier;
+            float hp = source.CurrentHealth;
+            if (source.TryMosquitoHeal(amount))
             {
-                return;
+                SyringeAugmentVfx.PlayAbsorption(target, source);
+                if (source.CurrentHealth > hp)
+                    runtime.ver4?.Impact(source.CenterTransform.position, source, SyringeSpecialAugmentAbility.SpecialAugmentType.Mosquito, 0);
             }
-
-            if (sourceCharacter == null)
-            {
-                return;
-            }
-
-            float healAmount = runtime.mosquitoHealPerHit;
-
-            if (IsBossLikeTarget(damageableComponent))
-            {
-                healAmount *= runtime.mosquitoBossHealMultiplier;
-            }
-
-            TryHealPlayer(sourceCharacter, healAmount, damageableComponent);
-        }
-
-        private static void TryHealPlayer(Character sourceCharacter, float healAmount, Component impactSource)
-        {
-            if (sourceCharacter == null || healAmount <= 0f)
-            {
-                return;
-            }
-
-            string[] healMethodNames =
-            {
-                "GainHealth",
-                "Heal",
-                "AddHealth",
-                "RestoreHealth"
-            };
-
-            MethodInfo healMethod = null;
-
-            foreach (string methodName in healMethodNames)
-            {
-                healMethod = sourceCharacter.GetType().GetMethod(
-                    methodName,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-                    null,
-                    new System.Type[] { typeof(float) },
-                    null
-                );
-
-                if (healMethod != null)
-                {
-                    break;
-                }
-            }
-
-            if (healMethod == null)
-            {
-                if (!hasWarnedHealMethodMissing)
-                {
-                    Debug.LogWarning(
-                        "[침 특수효과/모기침] Character에서 체력 회복 메서드를 찾지 못했습니다. " +
-                        "GainHealth(float), Heal(float), AddHealth(float), RestoreHealth(float) 중 하나가 필요합니다."
-                    );
-
-                    hasWarnedHealMethodMissing = true;
-                }
-
-                return;
-            }
-
-            healMethod.Invoke(sourceCharacter, new object[] { healAmount });
-            SyringeAugmentVfx.PlayAbsorption(impactSource, sourceCharacter);
         }
 
         private static void ApplyExplosion(
@@ -568,6 +510,7 @@ namespace Vampire
             LayerMask damageableLayer,
             GameObject originalTarget)
         {
+            runtime.ver4?.Impact(hitPosition, sourceCharacter, SyringeSpecialAugmentAbility.SpecialAugmentType.Explosion, 0);
             SyringeAugmentVfx.PlayRadius("Explosion", hitPosition, runtime.explosionRadius,
                 originalTarget != null ? SyringeAugmentVfx.FindTarget(originalTarget.transform) : null);
             Collider2D[] hits = Physics2D.OverlapCircleAll(
@@ -618,12 +561,14 @@ namespace Vampire
 
                 float finalDamage = CombatStatusRules.DamageMultiplier(sourceCharacter,splashComponent) * runtime.explosionDamage * Ver4HitEffects.ExplosionCenterMultiplier(splashComponent,hitPosition,runtime);
 
+                float before = Ver4HitEffects.Health(splashComponent);
                 splashDamageable.TakeDamage(
                     finalDamage,
                     Vector2.zero,
                     false
                 );
 
+                Ver4HitEffects.ReportExplosionImpact(runtime, hitPosition, splashComponent, before);
                 // 이 폭발은 메인 적중 이벤트와 별개의 독립 피해이므로
                 // 기존 전체 피해량과 증강별 피해량에 각각 1회 기록한다.
                 if (finalDamage > 0f &&

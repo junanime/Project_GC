@@ -9,6 +9,7 @@ namespace Vampire
         public SpriteRenderer Toilet { get; private set; }
         ConstipationKingDirector director;
         Transform visuals;
+        Canvas locationSign;
         SpriteRenderer front, liquid, pool, shadow;
         readonly SpriteRenderer[] bubbles = new SpriteRenderer[10];
         readonly SpriteRenderer[] glints = new SpriteRenderer[10];
@@ -24,7 +25,7 @@ namespace Vampire
             go.transform.position = at;
             go.AddComponent<CircleCollider2D>().radius = 2.1f;
             var throne = go.AddComponent<KingSummonThrone>(); throne.director = owner; throne.Build();
-            go.AddComponent<MapMarker>().Configure(MapMarkerKind.Boss, "왕의 빈 변기 · 변비왕 소환");
+            go.AddComponent<MapMarker>().Configure(MapMarkerKind.Boss, "보스 위치 · 변비왕 소환", true);
             return throne;
         }
         protected override void Awake() { base.Awake(); ConfigureReusableInteraction(); }
@@ -41,6 +42,7 @@ namespace Vampire
             Toilet.transform.localScale = Vector3.one * (3.7f / art.bounds.size.y);
             toiletStartScale = Toilet.transform.localScale;
             Toilet.transform.localPosition = new Vector3(-.18f, .16f - art.bounds.min.y * Toilet.transform.localScale.y, 0);
+            AddLocationSign();
             front = Sprite("Foreground porcelain bowl lip", art, 515);
             front.transform.localPosition = Toilet.transform.localPosition; front.transform.localScale = Toilet.transform.localScale;
             var reveal = Resources.Load<Shader>("ColonEnding/SummonReveal");
@@ -68,11 +70,50 @@ namespace Vampire
             var r = new GameObject(label).AddComponent<SpriteRenderer>(); r.transform.SetParent(visuals, false);
             r.sprite = sprite; r.sortingOrder = order; return r;
         }
-        public void BeginSummoning() { summoning = true; clock = 0; GetComponent<Collider2D>().enabled = false; }
+        void AddLocationSign()
+        {
+            locationSign = new GameObject("변기 보스 안내", typeof(RectTransform), typeof(Canvas)).GetComponent<Canvas>();
+            locationSign.transform.SetParent(visuals, false);
+            locationSign.renderMode = RenderMode.WorldSpace;
+            locationSign.sortingLayerName = "Monster Full";
+            locationSign.sortingOrder = 520;
+            var rect = (RectTransform)locationSign.transform;
+            rect.sizeDelta = new Vector2(68, 20);
+            rect.localScale = Vector3.one * .032f;
+            // The approach camera frames the throne high. Keep the sign beside the bowl, clear of the timer and E prompt.
+            var porcelain = Toilet.bounds;
+            float signHalfWidth = rect.sizeDelta.x * rect.localScale.x * .5f;
+            rect.position = new Vector3(porcelain.max.x + .14f + signHalfWidth,
+                Mathf.Lerp(porcelain.min.y, porcelain.max.y, .62f), transform.position.z);
+            CreateLocationBadge(rect);
+        }
+
+        internal static RectTransform CreateLocationBadge(Transform parent)
+        {
+            var badge = AugmentPanelTheme.Rect("보스 위치", parent);
+            badge.anchorMin = badge.anchorMax = new Vector2(.5f, .5f);
+            badge.sizeDelta = new Vector2(68, 20);
+            var frame = badge.gameObject.AddComponent<IdentityShape>();
+            frame.radius = 6;
+            frame.color = new Color32(84, 36, 47, 255);
+            frame.raycastTarget = false;
+            var text = AugmentPanelTheme.Label("표지 글자", badge, TrainingUITheme.Font, "보스 위치", 14);
+            text.color = new Color32(255, 236, 183, 255);
+            text.enableWordWrapping = false;
+            AugmentPanelTheme.Anchors(text.rectTransform, new Vector2(.04f, .04f), new Vector2(.96f, .96f));
+            return badge;
+        }
+
+        public void BeginSummoning()
+        {
+            summoning = true; clock = 0; GetComponent<Collider2D>().enabled = false;
+            if (locationSign != null) locationSign.enabled = false;
+        }
         public void RestoreInvitation()
         {
             consumed = summoning = false; clock = 0;
             gameObject.SetActive(true); ResetInteractionAvailability(); SetFieldVisible(true); Sample(0, 0);
+            if (locationSign != null) locationSign.enabled = true;
         }
         public void CompleteSummoning() { consumed = true; summoning = false; gameObject.SetActive(false); }
         public void SetFieldVisible(bool visible) { fieldVisible = visible; if (visuals != null) visuals.gameObject.SetActive(visible); }

@@ -142,16 +142,19 @@ namespace Vampire.Tests.Editor
                 if(n==0)yield return FieldChecks(config,level,player,manager,parents);
                 Time.timeScale=1;SceneManager.LoadScene("Main Menu");yield return new WaitForSecondsRealtime(1.4f);
             }
-            // A manually chosen cross-character weapon must replace, not stack with, the default.
+            // The selected needle and innate signature must each be present exactly once.
             var hyuki=config.characters.First(c=>OctoberArt.CharacterKey(c)=="Hyuki");
             var wind=config.weapons.First(w=>w.Type==SyringeSpecialAugmentAbility.SpecialAugmentType.WindNeedle);
             StartingNeedleSelection.Set(wind,hyuki);ApothecaryUI.Instance.Show("prepare");yield return Settle();
             Click("Choice 0 "+Array.IndexOf(config.characters,hyuki));yield return Settle();Click("Button 출전하기");yield return new WaitForSecondsRealtime(2);
             var finalParents=Object.FindObjectOfType<AbilityManager>().GetComponentsInChildren<SyringeSpecialAugmentAbility>(true);
-            Check(finalParents.Count(w=>w.Owned)==1&&finalParents.Single(w=>w.Owned).Type==wind.Type,"Cross-character choice replaces innate default without duplicate grants");
+            Check(finalParents.Count(w=>w.Owned)==2&&finalParents.Any(w=>w.Owned&&w.Type==wind.Type)&&finalParents.Any(w=>w.Owned&&(int)w.Type==StartingNeedleSelection.DefaultId(hyuki)),"Cross-character choice retains its own needle and the innate one");
             var finalPlayer=Object.FindObjectOfType<LevelManager>().PlayerCharacter;finalPlayer.AddMaxHealthBonus(10000);finalPlayer.GainHealth(10000);
-            var terminal=Object.FindObjectOfType<FinalBossSummonInteractable>();Check(terminal.TryAutomaticSummon(),"New altar can summon boss");
-            yield return new WaitForSecondsRealtime(5);Check(Object.FindObjectOfType<SnailBossRuntime>()!=null,"Roll-cake boss arrives after altar animation");Capture("boss-summoned");
+            var director=Object.FindObjectOfType<BuriedBossDirector>();
+            Check(director.TryAutomaticSummon(),"The scheduled encounter uses the assigned buried boss");
+            yield return new WaitForSecondsRealtime(5);
+            var summoned = Object.FindObjectOfType<FoodBossRuntime>();
+            Check(summoned!=null && summoned.Kind==director.SelectedKind,"Assigned boss arrives after its emergence");Capture("boss-summoned");
             SessionState.SetBool(Key+"Done",true);
         }
         static IEnumerator FieldChecks(ApothecaryUIConfig config,LevelManager level,Character player,AbilityManager manager,SyringeSpecialAugmentAbility[] parents)
@@ -179,14 +182,10 @@ namespace Vampire.Tests.Editor
             var snail=Object.FindObjectsOfType<AcidLeechMonster>().First();var shadow=snail.transform.Find("Shadow");
             Check(shadow!=null&&Mathf.Abs(shadow.localPosition.y+.025f)<.001f,"Mini-snail shadow hugs the feet");
             Move(player,snail.transform.position+Vector3.down*2);yield return Settle();Capture("snail-shadow");
-            var altar=Object.FindObjectOfType<FinalBossSummonInteractable>();
-            Check(altar!=null,"Boss altar spawned");
-            var solid=altar.transform.Find("Roll cake altar solid base");
-            Check(solid!=null&&solid.GetComponent<Rigidbody2D>().bodyType==RigidbodyType2D.Static&&!solid.GetComponent<Collider2D>().isTrigger,"Altar has static solid collision");
-            Check(altar.GetComponent<MapMarker>().Icon==OctoberArt.Get("OctoberUI/BossAltarIcon"),"Altar minimap icon assigned");
-            Move(player,(Vector2)solid.position+new Vector2(-2,.3f));yield return Settle();
-            var body=player.GetComponent<Rigidbody2D>();var target=body.position+Vector2.right*4;
-            Check(BloodClotObstacle.ClampDash(body,target).x<solid.position.x,"Dash sweep cannot cross altar");Capture("boss-altar");
+            Check(Object.FindObjectOfType<FinalBossSummonInteractable>() == null, "No active stage-one selection altar");
+            var part = level.GetComponent<BuriedBossDirector>().Part;
+            Check(part != null && part.GetComponent<MapMarker>() != null, "Buried part has its game map marker");
+            Move(player,(Vector2)part.transform.position + Vector2.left);yield return Settle();Capture("buried-boss-part");
             // Move the NPC and a fresh chest into a clear space, then drive actual E-key events.
             Vector2 area=(Vector2)player.transform.position+Vector2.down*8;Move(player,area);
             var npc=Object.FindObjectOfType<MerchantNPC>();

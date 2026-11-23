@@ -69,7 +69,7 @@ namespace Vampire
                 itemNameText.text = item.itemName;
 
             if (itemDescriptionText != null)
-                itemDescriptionText.text = item.description;
+                itemDescriptionText.text = item.ChoiceDescription;
 
             if (itemCostText != null)
             {
@@ -103,6 +103,11 @@ namespace Vampire
                     itemCardImage.sprite = legendaryCardSprite;
                     break;
             }
+        }
+
+        public void BindChoiceKey(int index)
+        {
+            NumberedCardChoice.Bind((RectTransform)transform, purchaseButton, index, true);
         }
 
         private void OnPurchaseClicked()

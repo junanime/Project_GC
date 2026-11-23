@@ -15,6 +15,7 @@ namespace Vampire
         public ColonBossVisual Visual { get; private set; }
         public float Health { get; private set; }
         public float MaxHealth { get; private set; }
+        public int SummonTier { get; private set; }
         public bool Dead { get; private set; }
         public bool Arriving { get; private set; }
         public bool Moving { get; private set; }
@@ -44,7 +45,9 @@ namespace Vampire
             go.transform.position = position;
             var b = go.AddComponent<ColonBossRuntime>();
             b.Kind = kind; b.Definition = ColonBossDefinition.ForCurrentRun(kind); b.Player = player; b.Habitat = habitat;
-            b.level = FindObjectOfType<LevelManager>(); b.MaxHealth = b.Health = b.Definition.Health;
+            b.level = FindObjectOfType<LevelManager>();
+            b.SummonTier = GStarFieldBalance.SummonTier(b.level != null ? b.level.CurrentLevelTime : 0);
+            b.MaxHealth = b.Health = GStarFieldBalance.HabitatHealth(b.Definition.Health, b.SummonTier);
             b.body = go.AddComponent<Rigidbody2D>(); b.body.gravityScale = 0; b.body.constraints = RigidbodyConstraints2D.FreezeRotation;
             b.body.bodyType = RigidbodyType2D.Kinematic;
             b.hitbox = go.AddComponent<CapsuleCollider2D>(); b.hitbox.isTrigger = true;

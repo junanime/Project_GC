@@ -408,6 +408,10 @@ namespace Vampire
         private float lastMonsterHitTime =
             float.NegativeInfinity;
 
+        // Preserve the leading crit in a crowd hit; every damage/score event still resolves.
+        const double CriticalHitInterval = .07;
+        double nextCriticalHitTime;
+
         private float lastEliteSpawnTime =
             float.NegativeInfinity;
 
@@ -795,6 +799,12 @@ namespace Vampire
             }
         }
 
+        internal static void PlayImpactClip(AudioClip clip, float gain)
+        {
+            if (clip != null && Instance != null && Instance.sfxSource != null && !StageEntryLoading.IsLoading && Time.timeScale > 0)
+                Instance.sfxSource.PlayOneShot(clip, gain);
+        }
+
         public static void PlaySfx(
             GameSfxId id)
         {
@@ -1170,6 +1180,8 @@ namespace Vampire
         private void PlaySfxInternal(
             GameSfxId id)
         {
+            // Scene activation can invoke gameplay callbacks even while scaled time is zero.
+            if (StageEntryLoading.IsLoading && id != GameSfxId.UiClick && id != GameSfxId.AugmentSelect) return;
             if (sfxSource == null)
             {
                 return;
@@ -1198,6 +1210,12 @@ namespace Vampire
                     }
 
                     lastMonsterHitTime = now;
+                    break;
+
+                case GameSfxId.CriticalHit:
+                    double hitTime = Time.unscaledTimeAsDouble;
+                    if (hitTime < nextCriticalHitTime) return;
+                    nextCriticalHitTime = hitTime + CriticalHitInterval;
                     break;
 
                 case GameSfxId.EliteSpawn:

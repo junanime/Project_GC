@@ -93,6 +93,11 @@ namespace Vampire
         private Coroutine resultMessageRoutine;
         private Coroutine rewardRoutine;
 
+        public override string QuestName => "수상한 상자";
+        public override string QuestHint => spawnedMonsterFromChest != null
+            ? "상자에서 튀어나온 몬스터를 처치하세요"
+            : selectionMade ? "상자의 정체를 확인하세요" : $"상자 하나에 다가가 [{GameInput.Label(GameKeyAction.Interact)}]로 여세요";
+
         private bool selectionMade;
         private bool roomFinished;
         private Monster spawnedMonsterFromChest;

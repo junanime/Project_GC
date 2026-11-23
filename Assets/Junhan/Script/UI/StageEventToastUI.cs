@@ -16,7 +16,17 @@ namespace Vampire
         [SerializeField] private float fadeOutDuration = .35f;
         [SerializeField] private bool debugLog;
         private bool encounterNotice;
-        private readonly Queue<string> pending = new Queue<string>();
+        private readonly struct Notice
+        {
+            public readonly string text;
+            public readonly StageEventVisualKind? kind;
+            public Notice(string text, StageEventVisualKind? kind = null)
+            {
+                this.text = text;
+                this.kind = kind;
+            }
+        }
+        private readonly Queue<Notice> pending = new Queue<Notice>();
         private RectTransform root, titleRect;
         private CanvasGroup bannerGroup;
         private Text title, instruction;
@@ -31,7 +41,7 @@ namespace Vampire
         public void ShowAcidEmergency()
         {
             HideLegacyPanel(); EnsureBanner();
-            var queued=pending.ToArray();pending.Clear();pending.Enqueue(AcidEmergencyText);
+            var queued=pending.ToArray();pending.Clear();pending.Enqueue(new Notice(AcidEmergencyText));
             foreach(var entry in queued)pending.Enqueue(entry);
             Next();
         }
@@ -45,12 +55,14 @@ namespace Vampire
             if (panelRoot != null && panelRoot != gameObject) panelRoot.SetActive(false);
         }
 
-        public void Show(string message)
+        public void Show(string message) => Enqueue(message, null);
+        public void ShowField(StageEventVisualKind kind, string message) => Enqueue(message, kind);
+        private void Enqueue(string message, StageEventVisualKind? kind)
         {
             HideLegacyPanel();
             if (!isActiveAndEnabled || string.IsNullOrWhiteSpace(message)) return;
             EnsureBanner();
-            pending.Enqueue(message.Replace(" 이벤트가 시작됐습니다!", "").Trim());
+            pending.Enqueue(new Notice(message.Replace(" 이벤트가 시작됐습니다!", "").Trim(), kind));
             if (!showing) Next();
             if (debugLog) Debug.Log("[StageEventToastUI] " + message, this);
         }
@@ -65,9 +77,9 @@ namespace Vampire
         public void ShowSupply(string message)
         {
             EnsureBanner();
-            if(showing && emergency){pending.Enqueue(message);return;}
+            if(showing && emergency){pending.Enqueue(new Notice(message));return;}
             // Supply timing must not wait behind a long field-event queue.
-            var queued=pending.ToArray();pending.Clear();pending.Enqueue(message);
+            var queued=pending.ToArray();pending.Clear();pending.Enqueue(new Notice(message));
             foreach(var entry in queued)pending.Enqueue(entry);
             Next();
         }
@@ -75,7 +87,8 @@ namespace Vampire
         private void Next()
         {
             if (pending.Count == 0) { showing = false; bannerGroup.alpha = 0; return; }
-            string text = pending.Dequeue();
+            var notice = pending.Dequeue();
+            string text = notice.text;
             emergency=text==AcidEmergencyText;encounterNotice=text.Contains("|");
             titleRect.sizeDelta=new Vector2(emergency?1120:760,105);
             title.rectTransform.anchoredPosition=new Vector2(emergency?560:408,72);
@@ -85,37 +98,33 @@ namespace Vampire
             instruction.rectTransform.anchoredPosition=new Vector2(emergency?560:400,17);
             underline.rectTransform.anchoredPosition=new Vector2(emergency?560:404,43);
             underline.rectTransform.sizeDelta=new Vector2(emergency?1000:590,emergency?5:3);
-            StageEventVisualKind kind = Kind(text);
             title.text = text;
-            instruction.text = text == "제산 반응 발생" ? "곧 생성되는 거품을 찾아 이동하세요" : StageEventCornerArt.Instruction(kind);
-            icon.sprite = art != null && art.Frames(kind) != null && art.Frames(kind).Length > 0 ? art.Frames(kind)[0] : null;
-            icon.enabled = icon.sprite != null;
-            underline.color = StageEventCornerArt.Accent(kind);
+            instruction.text = string.Empty;
+            icon.enabled = false;
+            underline.color = new Color(.55f,.88f,.7f);
+            if (notice.kind.HasValue)
+            {
+                var kind = notice.kind.Value;
+                instruction.text = text == "제산 반응 발생" ? "곧 나타나는 거품 속으로 들어가세요." : StageEventCornerArt.Instruction(kind);
+                var frames = art != null ? art.Frames(kind) : null;
+                icon.sprite = frames != null && frames.Length > 0 ? frames[0] : null;
+                icon.enabled = icon.sprite != null;
+                underline.color = StageEventCornerArt.Accent(kind);
+            }
             if(text.Contains("보급 캡슐"))
             {
-                instruction.text=text.StartsWith("잠시")?"10초 후 착지합니다":"지도에서 보급 캡슐을 찾아 상호작용하세요";
+                instruction.text=text.StartsWith("잠시")?"10초 후 착지할 보급 캡슐의 위치를 확인하세요.":"지도에서 캡슐을 찾아 상호작용하세요.";
                 icon.sprite=SupplyCapsuleArt.Closed;icon.enabled=icon.sprite!=null;
                 underline.color=new Color(.45f,.84f,.72f);
             }
             if(emergency)
             {
                 icon.enabled=false;
-                instruction.text="침수지역: 초당 최대 체력 25% 피해 · 침식 4초 한계";
+                instruction.text="위로 이동해 차오르는 위산을 피하세요.";
                 underline.color=new Color(.69f,1,.04f);
             }
-            if(text.Contains("|")){var parts=text.Split('|');title.text=parts[0];instruction.text=parts[1];icon.enabled=false;underline.color=new Color(.55f,.88f,.7f);}
+            if(text.Contains("|")){var parts=text.Split('|');title.text=parts[0].Trim();instruction.text=parts[1].Trim();icon.enabled=false;underline.color=new Color(.55f,.88f,.7f);}
             age = 0; showing = true;
-        }
-
-        private static StageEventVisualKind Kind(string text)
-        {
-            if (text.Contains("감염")) return StageEventVisualKind.Infection;
-            if (text.Contains("골드")) return StageEventVisualKind.Gold;
-            if (text.Contains("위산")) return StageEventVisualKind.AcidRain;
-            if (text.Contains("역류")) return StageEventVisualKind.Reflux;
-            if (text.Contains("연동")) return StageEventVisualKind.Drift;
-            if (text.Contains("커피")) return StageEventVisualKind.Coffee;
-            return StageEventVisualKind.Antacid;
         }
 
         private void Update()
@@ -129,7 +138,9 @@ namespace Vampire
             bool kingSummon=level!=null&&level.GetComponent<ConstipationKingDirector>()?.Summoning==true;
             if (level == null || !level.IsRunFlowPaused || oralCombat || kingSummon) age += Time.deltaTime;
             float enter = Mathf.Max(.01f, fadeInDuration), leave = Mathf.Max(.01f, fadeOutDuration);
-            float end = enter + (emergency?7f:encounterNotice?4f:Mathf.Max(1.6f, visibleDuration)) + leave;
+            float hold = emergency ? 7f : encounterNotice ? 4f : Mathf.Max(1.6f, visibleDuration);
+            if (!emergency) hold = Mathf.Clamp(hold, 3.4f, 4.8f);
+            float end = enter + hold + leave;
             bannerGroup.alpha = Mathf.Min(Mathf.Clamp01(age / enter), Mathf.Clamp01((end - age) / leave));
             titleRect.localScale = Vector3.one * Mathf.Lerp(.94f, 1, Mathf.SmoothStep(0,1,age / enter));
             if (age >= end) Next();

@@ -28,11 +28,34 @@ namespace Vampire
         [SerializeField] private bool logRunFlowPause = true;
 
         private float levelTime = 0f;
-        public const float SpawnPotionDuration = 30f;
-        public const float SpawnPotionMultiplier = 1.5f;
-        public float SpawnPotionRemaining { get; private set; }
-        public void ActivateSpawnPotion() { SpawnPotionRemaining=SpawnPotionDuration; }
+        public const float HourglassDuration = 20f;
+        public const float HourglassSpawnRate = 1.20f;
+        public const float HourglassMonsterSpeed = 1.20f;
+        public const float HourglassPlayerSpeed = 1.15f;
+        public const float HourglassAttackSpeed = 1.12f;
+        public float HourglassRemaining { get; private set; }
+        public float HourglassExtraStageTime { get; private set; }
+
+        public bool ActivateHourglass()
+        {
+            if (levelEnded || IsRunFlowPaused || Time.timeScale <= 0f || StageEntryLoading.IsLoading || MiniStageRuntimeState.IsInsideMiniStage ||
+                playerCharacter == null || !playerCharacter.IsAlive || HourglassRemaining > 0f)
+                return false;
+            HourglassRemaining = HourglassDuration;
+            ApplyHourglassPace(true);
+            return true;
+        }
+
+        void ApplyHourglassPace(bool active)
+        {
+            if (playerCharacter == null || playerCharacter.HourglassActive == active) return;
+            playerCharacter.SetHourglassPace(active);
+            if (entityManager == null || entityManager.LivingMonsters == null) return;
+            foreach (var monster in entityManager.LivingMonsters)
+                if (monster != null && monster.IsAlive && monster.UsesHourglassPace) monster.RefreshMovementDrag();
+        }
         private float timeSinceLastMonsterSpawned;
+        private int bonusWaveTenths;
         private float timeSinceLastChestSpawned;
         public int NormalMonstersSpawned { get; private set; }
         private TimedSpecialMonsterSpawner fieldSpawns;
@@ -42,6 +65,13 @@ namespace Vampire
 
         public float CurrentLevelTime => levelTime;
         public float LevelDuration => levelBlueprint != null ? levelBlueprint.levelTime : 0f;
+        readonly GStarWaveFormation waveFormation = new GStarWaveFormation();
+
+        public void ReserveOverchargeLanes(BloodClotOvercharge clot)
+        {
+            waveFormation.Reserve(this, clot);
+        }
+
         public LevelBlueprint CurrentLevelBlueprint => levelBlueprint;
         public EntityManager EntityManager => entityManager;
         public Character PlayerCharacter => playerCharacter;
@@ -57,7 +87,10 @@ namespace Vampire
             this.levelBlueprint = levelBlueprint;
 
             levelTime = 0f;
-            SpawnPotionRemaining = 0f;
+            bonusWaveTenths = 0;
+            waveFormation.Reset();
+            HourglassRemaining = HourglassExtraStageTime = 0f;
+            ApplyHourglassPace(false);
             if(gameTimer!=null)gameTimer.SetTime(LevelDuration);
             timeSinceLastMonsterSpawned = 0f;
             timeSinceLastChestSpawned = 0f;
@@ -117,7 +150,7 @@ namespace Vampire
             SupplyCapsuleDirector.Ensure(this);
             FieldObjectLayout.Ensure(this);
             AcidLakeEvent.Install(this);
-            RunScore.Install(this);
+            if (!StageEntryLoading.IsPracticeScene) RunScore.Install(this);
         }
 
         // Transfers restore the launch combat loadout first; score and currency remain run-wide.
@@ -127,8 +160,11 @@ namespace Vampire
             entityManager.ContinueInStage(next);
             levelBlueprint = next;
             levelTime = 0f;
+            bonusWaveTenths = 0;
+            waveFormation.Reset();
             NormalMonstersSpawned = 0;
-            SpawnPotionRemaining = 0f;
+            HourglassRemaining = HourglassExtraStageTime = 0f;
+            ApplyHourglassPace(false);
             timeSinceLastMonsterSpawned = timeSinceLastChestSpawned = 0f;
             if (gameTimer != null) gameTimer.SetTime(next.levelTime);
             infiniteBackground.SetStageTexture(next.backgroundTexture);
@@ -157,12 +193,16 @@ namespace Vampire
                 return;
             }
 
-            levelTime += Time.deltaTime;
-            SpawnPotionRemaining=Mathf.Max(0,SpawnPotionRemaining-Time.deltaTime);
+            float dt = Time.deltaTime;
+            float acceleratedSeconds = Mathf.Min(dt, HourglassRemaining);
+            levelTime += dt + acceleratedSeconds;
+            HourglassExtraStageTime += acceleratedSeconds;
+            HourglassRemaining -= acceleratedSeconds;
+            if (acceleratedSeconds > 0f && HourglassRemaining <= 0f) ApplyHourglassPace(false);
 
             if (gameTimer != null)
             {
-                gameTimer.SetTime(Mathf.Max(0f,LevelDuration-levelTime));
+                gameTimer.SetTime(Mathf.Max(0f, LevelDuration - levelTime), HourglassRemaining);
             }
 
             HandleNormalMonsterSpawn();
@@ -177,6 +217,7 @@ namespace Vampire
             }
 
             runFlowPaused = paused;
+            ApplyHourglassPace(!paused && HourglassRemaining > 0f);
 
             if (!runFlowPaused)
             {
@@ -197,6 +238,7 @@ namespace Vampire
                 return;
             }
 
+            waveFormation.DispatchCohort(this, bonusWaveTenths, GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime));
             timeSinceLastMonsterSpawned += Time.deltaTime;
 
             float spawnRate = GetCurrentBaseMonsterSpawnRate();
@@ -204,12 +246,14 @@ namespace Vampire
             // 소화효소 처치 난이도 상승 연결:
             // 선택된 난이도가 SpawnRate이면 이 배율이 1.05, 1.10 ... 식으로 증가합니다.
             spawnRate *= DigestiveEnzymeDifficultyManager.SpawnRateMultiplier;
-            if(SpawnPotionRemaining>0)spawnRate*=SpawnPotionMultiplier;
+            if (HourglassRemaining > 0f) spawnRate *= HourglassSpawnRate;
 
             float monsterSpawnDelay = spawnRate > 0f
                 ? 1.0f / spawnRate
                 : float.PositiveInfinity;
 
+            if (monsterSpawnDelay - timeSinceLastMonsterSpawned <= .75f)
+                waveFormation.Preview(this);
             while (timeSinceLastMonsterSpawned >= monsterSpawnDelay)
             {
                 SpawnMonsterFromSpawnTable();
@@ -228,7 +272,34 @@ namespace Vampire
             float normalizedTime = GetNormalizedLevelTime();
 
             int monsterIndex = levelBlueprint.monsterSpawnTable.SelectMonster(normalizedTime);
-            SpawnMonsterByFlatIndex(monsterIndex);
+            int bonusRate = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime);
+            if (levelBlueprint.MonsterIndexMap.TryGetValue(monsterIndex,out var entry))
+            {
+                var group = levelBlueprint.monsters[entry.Item1];
+                var bp = group.monsterBlueprints[entry.Item2];
+                if (bp != null && bp.GetType() == typeof(MeleeMonsterBlueprint) &&
+                    group.monstersPrefab.TryGetComponent<Monster>(out var proto) && proto.GetType() == typeof(MeleeMonster) &&
+                    (!ColonMonsterRoster.InColon || !ColonMonsterRoster.Active.IsSpecial(bp)) &&
+                    waveFormation.QueueCohort(this, monsterIndex, bonusWaveTenths, bonusRate)) return;
+            }
+            SpawnRolledWaveMonster(monsterIndex, null, 0);
+        }
+
+        internal void SpawnRolledWaveMonster(int monsterIndex, Vector2[] points, int slot)
+        {
+            var spawned = SpawnAtWaveSlot(monsterIndex, 1f, true,
+                points != null && slot < points.Length ? points[slot] : (Vector2?)null);
+            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime);
+            if (bonus == 0 || !GStarFieldBalance.IsOrdinary(spawned)) return;
+            // Preserve each original wave roll (including every special). Only successful
+            // ordinary rolls earn extra units, each with a separate legal spawn point.
+            bonusWaveTenths += bonus;
+            if (bonusWaveTenths >= 10)
+            {
+                bonusWaveTenths -= 10;
+                SpawnAtWaveSlot(monsterIndex, 1f, true,
+                    points != null && slot + 1 < points.Length ? points[slot+1] : (Vector2?)null);
+            }
         }
 
         public void SpawnMonsterFromCurrentSpawnTable()
@@ -284,20 +355,30 @@ namespace Vampire
 
         public void SpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier = 1f)
         {
-            if (levelBlueprint != null && entityManager != null &&
-                entityManager.LivingMonsters.Count >= Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit)) return;
+            TrySpawnMonsterByFlatIndex(monsterIndex, hpMultiplier);
+        }
+
+        private Monster TrySpawnMonsterByFlatIndex(int monsterIndex, float hpMultiplier, bool wave = false) =>
+            SpawnAtWaveSlot(monsterIndex, hpMultiplier, wave, null);
+
+        private Monster SpawnAtWaveSlot(int monsterIndex, float hpMultiplier, bool wave, Vector2? exact)
+        {
             if (levelBlueprint == null || entityManager == null)
             {
                 Debug.LogWarning(
                     "[LevelManager] SpawnMonsterByFlatIndex 실패: LevelBlueprint 또는 EntityManager가 비어 있습니다."
                 );
-                return;
+                return null;
             }
+
+            int baseLimit = Mathf.Max(1, levelBlueprint.normalSpawnPopulationLimit);
+            int bonus = GStarFieldBalance.BonusPerTen(FiniteStomachMap.Instance, levelTime);
+            if (entityManager.LivingMonsters.Count >= baseLimit + Mathf.CeilToInt(baseLimit * bonus / 10f)) return null;
 
             if (!levelBlueprint.MonsterIndexMap.ContainsKey(monsterIndex))
             {
                 Debug.LogWarning($"[LevelManager] 잘못된 monsterIndex입니다: {monsterIndex}");
-                return;
+                return null;
             }
 
             (int poolIndex, int blueprintIndex) = levelBlueprint.MonsterIndexMap[monsterIndex];
@@ -305,14 +386,14 @@ namespace Vampire
             if (poolIndex < 0 || poolIndex >= levelBlueprint.monsters.Length)
             {
                 Debug.LogWarning($"[LevelManager] 잘못된 poolIndex입니다: {poolIndex}");
-                return;
+                return null;
             }
 
             if (blueprintIndex < 0 ||
                 blueprintIndex >= levelBlueprint.monsters[poolIndex].monsterBlueprints.Length)
             {
                 Debug.LogWarning($"[LevelManager] 잘못된 blueprintIndex입니다: {blueprintIndex}");
-                return;
+                return null;
             }
 
             MonsterBlueprint monsterBlueprint =
@@ -323,7 +404,7 @@ namespace Vampire
                 Debug.LogWarning(
                     $"[LevelManager] MonsterBlueprint가 비어 있습니다. monsterIndex={monsterIndex}"
                 );
-                return;
+                return null;
             }
 
             // 소화효소 처치 난이도 상승 연결:
@@ -332,8 +413,17 @@ namespace Vampire
             float multiplier = Mathf.Max(0f, hpMultiplier) * DigestiveEnzymeDifficultyManager.MonsterHpMultiplier;
             float extraHp = monsterBlueprint.hp * (multiplier - 1f);
 
-            Monster spawned = entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
+            var group = levelBlueprint.monsters[poolIndex];
+            Vector2 position = exact.GetValueOrDefault();
+            bool formed = exact.HasValue || wave && monsterBlueprint.GetType() == typeof(MeleeMonsterBlueprint)
+                && group.monstersPrefab != null && group.monstersPrefab.TryGetComponent<Monster>(out var prototype)
+                && prototype.GetType() == typeof(MeleeMonster)
+                && (!ColonMonsterRoster.InColon || !ColonMonsterRoster.Active.IsSpecial(monsterBlueprint))
+                && waveFormation.TryPosition(this, out position);
+            var spawned = formed ? entityManager.SpawnMonster(poolIndex, position, monsterBlueprint, extraHp)
+                : entityManager.SpawnMonsterRandomPosition(poolIndex, monsterBlueprint, extraHp);
             if (spawned != null && !(monsterBlueprint is EliteMonsterBlueprint)) NormalMonstersSpawned++;
+            return spawned;
         }
 
         public void SpawnRandomMonsterFromFlatIndexList(List<int> monsterIndices, float hpMultiplier = 1f)

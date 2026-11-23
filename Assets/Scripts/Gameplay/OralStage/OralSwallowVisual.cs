@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,14 +48,12 @@ namespace Vampire
 
         public void Configure(OralStageRuntime owner)
         {
-            if (configured || owner == null || owner.Map == null) return;
+            if (visualRoot != null || owner == null || owner.Map == null) return;
             runtime = owner;
             map = owner.Map;
             var waterShader = Resources.Load<Shader>("OralMap/Swallow/Water");
             var whirlpoolShader = Resources.Load<Shader>("OralMap/Swallow/Whirlpool");
-            var wetArt = Resources.Load<Texture2D>("OralMap/Swallow/WaterFilled");
-            var exitArt = Resources.Load<Texture2D>("OralMap/Swallow/WaterExit");
-            if (waterShader == null || whirlpoolShader == null || wetArt == null || exitArt == null)
+            if (waterShader == null || whirlpoolShader == null)
             {
                 Debug.LogError("꿀꺽 이벤트의 승인된 물/소용돌이 리소스를 불러오지 못했습니다.", this);
                 return;
@@ -63,8 +62,6 @@ namespace Vampire
             visualRoot = new GameObject("꿀꺽 · 차오르는 물과 흐르는 소용돌이").transform;
             visualRoot.SetParent(transform, false);
             waterMaterial = new Material(waterShader) { name = "꿀꺽 · 승인 원화와 연속 수위" };
-            waterMaterial.mainTexture = wetArt;
-            waterMaterial.SetTexture("_ExitTex", exitArt);
             waterMesh = MakeQuad(map.WorldRect, "구강 원화와 정합된 수면");
             water = AddRenderer("협곡 → 혀 → 식도", waterMesh, waterMaterial, -850);
             unitMesh = MakeQuad(new Rect(-1, -1, 2, 2), "반경 1 소용돌이");
@@ -74,8 +71,6 @@ namespace Vampire
             whirlpoolMaterial.SetVector("_TongueCenter", new Vector4(center.x, center.y, 0, 0));
             whirlpoolMaterial.SetVector("_TongueRadii", new Vector4(radii.x, radii.y, 0, 0));
             whirlpoolMaterial.SetFloat("_SouthFloor", OralMapGeometry.SouthFloor(map));
-            for (int i = 0; i < whirlpoolArt.Length; i++)
-                whirlpoolArt[i] = Resources.Load<Texture2D>("OralMap/Swallow/Whirlpool" + (i + 1));
 
             streamMaterial = new Material(Resources.Load<Shader>("OralMap/Surface"));
             streamMaterial.SetFloat("_Mode", 1);
@@ -96,7 +91,26 @@ namespace Vampire
                 streams.Add(line);
             }
             visualRoot.gameObject.SetActive(false);
-            configured = true;
+            // Keep renderer and mesh construction inside the departure overlay. The
+            // six ending-only textures can stream while the visitor starts the run.
+            StartCoroutine(LoadEndingTextures());
+        }
+
+        IEnumerator LoadEndingTextures()
+        {
+            for (int i = 0; i < 2 + whirlpoolArt.Length; i++)
+            {
+                var path = "OralMap/Swallow/" + (i==0 ? "WaterFilled" : i==1 ? "WaterExit" : "Whirlpool"+(i-1));
+                var request = Resources.LoadAsync<Texture2D>(path);
+                request.priority = -1;
+                yield return request;
+                var art = request.asset as Texture2D;
+                if (art == null) { Debug.LogError("꿀꺽 이벤트 원화 누락: "+path,this); yield break; }
+                if (i==0) waterMaterial.mainTexture=art;
+                else if (i==1) waterMaterial.SetTexture("_ExitTex",art);
+                else whirlpoolArt[i-2]=art;
+            }
+            configured=true;
         }
 
         static Mesh MakeQuad(Rect rect, string name)

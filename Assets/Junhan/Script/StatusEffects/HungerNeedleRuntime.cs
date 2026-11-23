@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -38,7 +39,7 @@ namespace Vampire
             float resetDelay,
             float bonusAttackSpeedPerStack,
             int maxStacks,
-            bool debugLog)
+            bool debugLog, Ver4CombatSnapshot snapshot = null)
         {
             if (playerCharacter == null)
             {
@@ -62,6 +63,14 @@ namespace Vampire
 
             state.stackCount = Mathf.Clamp(state.stackCount + 1, 0, state.maxStacks);
             state.lastHitTime = Time.time;
+            if (snapshot != null)
+            {
+                snapshot.Impact(playerCharacter.Position,playerCharacter,Parent.HungerNeedle,0);
+                if (state.bonusAttackSpeedPerStack > 0)
+                    snapshot.Impact(playerCharacter.Position,playerCharacter,Parent.HungerNeedle,1);
+                if (state.stackCount > Mathf.Max(1,state.maxStacks - snapshot.Count(Parent.HungerNeedle,2)))
+                    snapshot.Impact(playerCharacter.Position,playerCharacter,Parent.HungerNeedle,2);
+            }
 
             if (state.debugLog)
             {

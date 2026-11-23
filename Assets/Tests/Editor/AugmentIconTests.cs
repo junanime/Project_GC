@@ -11,15 +11,16 @@ namespace Vampire.Tests.Editor
     {
         const string Root = "Assets/Junhan/Art/AugmentIcons/";
         static readonly string[] Legendary = { "NeuralBlock", "OrganCompression", "HungrySpirit", "NeedleShotgun", "GastricPeristalsisWave", "MucosalFortress" };
-        static string Expected(Ability ability)
+        static string Expected(Ability ability, bool playerVisible = true)
         {
             var so = new SerializedObject(ability);
             var prop = so.FindProperty("augmentType");
             if (ability is SyringeSpecialAugmentAbility)
                 return Root + "Special/" + ((SyringeSpecialAugmentAbility.SpecialAugmentType)prop.intValue) + ".png";
-            if (ability is SyringeLegendaryAugmentAbility)
+            if (ability is SyringeLegendaryAugmentAbility noble)
             {
                 string name = ((SyringeLegendaryAugmentAbility.LegendaryAugmentType)prop.intValue).ToString();
+                if (playerVisible && noble.AvailableAsNoble) return "Assets/Resources/PhoenixNoble/" + name + ".png";
                 if (Legendary.Contains(name)) return Root + "Legendary/" + name + ".png";
                 if (name == "PoisonContagion") return Root + "Special/Poison.png";
             }
@@ -51,7 +52,7 @@ namespace Vampire.Tests.Editor
             var abilities = AllAbilities();
             foreach (var ability in abilities)
             {
-                string path = Expected(ability); if (path == null) continue;
+                string path = Expected(ability, playerVisible: false); if (path == null) continue;
                 var so = new SerializedObject(ability);
                 so.FindProperty("image").objectReferenceValue = AssetDatabase.LoadAssetAtPath<Sprite>(path);
                 so.ApplyModifiedPropertiesWithoutUndo(); EditorUtility.SetDirty(ability);
@@ -82,9 +83,9 @@ namespace Vampire.Tests.Editor
                 Assert.IsNotNull(ability.Image, ability.name);
                 Assert.AreEqual(expected, AssetDatabase.GetAssetPath(ability.Image), ability.name);
                 if (ability is SyringeSpecialAugmentAbility) { special++; Assert.IsTrue(paths.Add(expected)); }
-                else if (expected.Contains("/Legendary/")) { legendary++; Assert.IsTrue(paths.Add(expected)); }
+                else if (ability is SyringeLegendaryAugmentAbility noble && noble.AvailableAsNoble) { legendary++; Assert.IsTrue(paths.Add(expected)); }
             }
-            Assert.AreEqual(16, special); Assert.AreEqual(6, legendary);
+            Assert.AreEqual(16, special); Assert.AreEqual(10, legendary);
             var icons = Directory.GetFiles(Root,"*.png",SearchOption.AllDirectories);
             Assert.AreEqual(27,icons.Length);
             foreach(var path in icons)
@@ -112,7 +113,7 @@ namespace Vampire.Tests.Editor
         public static void ValidateAll()
         {
             var tests=new AugmentIconTests(); tests.IconsImportAndResolveWithoutDuplicates(); tests.ConditionalFallbacksMatchTheirParents();
-            Debug.Log("[AugmentIcons] PASS 27 imported sprites; 16 special + 6 legendary bindings; conditional sharing; planned assets unbound.");
+            Debug.Log("[AugmentIcons] PASS 27 imported sprites; 16 special + 10 noble bindings; conditional sharing; planned assets unbound.");
         }
     }
 }

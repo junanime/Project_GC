@@ -146,6 +146,7 @@ namespace Vampire
 
         private void Awake()
         {
+            StageActorRegistry.Register(this);
             rb = GetComponent<Rigidbody2D>();
 
             ResolveReferences();
@@ -771,6 +772,7 @@ namespace Vampire
 
         private void OnDestroy()
         {
+            StageActorRegistry.Remove(this);
             ownerSpawner?.NotifyEnzymeRemoved(this);
         }
 

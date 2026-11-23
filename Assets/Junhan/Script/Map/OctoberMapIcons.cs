@@ -6,6 +6,8 @@ namespace Vampire
     {
         public static Sprite For(MapMarker marker)
         {
+            if (marker.TryGetComponent<KingSummonThrone>(out var throne) && throne.Toilet != null) return throne.Toilet.sprite;
+            var part=marker.GetComponent<BuriedBossPart>();if(part!=null&&part.Presentation!=null&&part.Presentation.PartRenderer is SpriteRenderer partSprite)return partSprite.sprite;
             var home=marker.GetComponent<ColonBossHabitat>();if(home!=null){var art=ColonBossVisual.Load(ColonBossDefinition.Get(home.Kind).Id,"Dormant");if(art.Length>0)return art[0];}
             var jar=marker.GetComponent<CurrencyJar>();if(jar!=null)return CurrencyJarArt.Jar(jar.Silver);
             if(marker.GetComponent<SupplyCapsule>()!=null)return SupplyCapsuleArt.Closed;

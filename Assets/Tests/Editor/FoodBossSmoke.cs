@@ -88,11 +88,14 @@ namespace Vampire.Tests.Editor
             if(SessionState.GetBool(Key+"Phase",false)){yield return PhaseProof(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Visual",false)){yield return VisualProof(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
             if(SessionState.GetBool(Key+"Review",false)){yield return FinalReview(player,origin);yield return Integration(player,origin);yield return Presentation(player,origin);SessionState.SetBool(Key+"Done",true);yield break;}
-            var altar=Object.FindObjectOfType<FinalBossSummonInteractable>();
-            Check(altar.OpenBossChoice(player),"altar opens temporary choice panel");Check(Time.timeScale==0&&Object.FindObjectOfType<FoodBossRuntime>()==null,"choice pauses and does not spawn early");Capture("00-boss-choice");ApothecaryUI.Instance.CloseBossChoice();Check(Time.timeScale==1&&!FinalBossSummonInteractable.IsSummoning,"cancel resumes and releases summon lock");
-            Check(altar.OpenBossChoice(player),"cancelled altar reusable");ApothecaryUI.Instance.CloseBossChoice(FoodBossKind.Denikani);
+            var buried = level.GetComponent<BuriedBossDirector>();
+            Check(Object.FindObjectOfType<FinalBossSummonInteractable>() == null && buried.Part != null, "buried part is the stomach boss interaction");
+            var chosen = buried.SelectedKind;
+            Position(player, buried.Part.transform.position);
+            Capture("00-buried-part");
+            Check(buried.Part.Activate(player), "interacting with the part begins the emergence");
             float until=Time.time+12;while(Object.FindObjectOfType<FoodBossRuntime>()==null&&Time.time<until)yield return null;
-            var selected=Object.FindObjectOfType<FoodBossRuntime>();Check(selected!=null&&selected.Kind==FoodBossKind.Denikani,"selected boss passes through real altar descent");Object.Destroy(selected.gameObject);yield return null;
+            var selected=Object.FindObjectOfType<FoodBossRuntime>();Check(selected!=null&&selected.Kind==chosen,"assigned boss emerges from its own part");Object.Destroy(selected.gameObject);yield return null;
             foreach(FoodBossKind kind in Enum.GetValues(typeof(FoodBossKind)))
             {
                 Position(player,origin);var boss=level.EntityManager.SpawnFinalBoss(level.CurrentLevelBlueprint,origin+Vector2.up*3.5f,0,kind).GetComponent<FoodBossRuntime>();boss.AutoPatterns=false;
@@ -234,7 +237,7 @@ namespace Vampire.Tests.Editor
         static IEnumerator VisualProof(Character player,Vector2 origin)
         {
             foreach(var tooltip in Object.FindObjectsOfType<HudTooltip>())tooltip.enabled=false;
-            var altar=Object.FindObjectOfType<FinalBossSummonInteractable>();altar.OpenBossChoice(player);Capture("final-boss-choice");ApothecaryUI.Instance.CloseBossChoice();
+            Capture("final-boss-field");
             foreach(FoodBossKind kind in Enum.GetValues(typeof(FoodBossKind)))
             {
                 var boss=FoodBossRuntime.Spawn(kind,player,origin);boss.AutoPatterns=false;

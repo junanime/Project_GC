@@ -9,16 +9,18 @@ namespace Vampire
 
         public void CancelForStageTransition()
         {
+            pendingLevelRewards.Clear();
             if(!menuOpen&&!SelectionAnimating)return;
             float previousTimeScale=Time.timeScale;
             OnDisable();
+            menuOpen=false; // A departing field must not chain another choice.
             Close();
             Time.timeScale=previousTimeScale;
         }
 
         public void SelectWithMotion(AbilityCard card, Ability selectedAbility)
         {
-            if (!menuOpen || SelectionAnimating || selectedAbility == null) return;
+            if (!menuOpen || SelectionAnimating || selectedAbility == null || (practiceOwner != null && !rerollUsed)) return;
             SelectionAnimating = true; // Lock before Select: double clicks/touches cannot grant twice.
             selectedAbility.Select();
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.AugmentSelect);

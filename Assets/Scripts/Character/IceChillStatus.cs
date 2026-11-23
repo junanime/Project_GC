@@ -12,13 +12,15 @@ namespace Vampire
         Component target; Rigidbody2D rb; float lastDrag,baseDrag;bool applied;
         public static float Multiplier(int stacks,int upgrades=0) => stacks<=0?1:Mathf.Max(.1f,1-(.1f+.1f*Mathf.Min(stacks,3))-.05f*upgrades*stacks);
         void Awake(){target=GetComponent<IDamageable>();rb=GetComponent<Rigidbody2D>();}
-        public void Hit(int upgrades, Character source=null)
+        public void Hit(int upgrades, Character source=null, Ver4CombatSnapshot snapshot=null)
         {
             if (MonsterNeedleBarrier.Blocks(this)) return;
             if(target==null||Ver4HitEffects.Health(target)<=0)return;
             var frozen=GetComponent<NeuralBlockedMonsterStatus>();
             if(frozen!=null&&frozen.IceFrozen)return;
             Stacks++;SpeedMultiplier=Multiplier(Stacks,upgrades);
+            if (SpeedMultiplier < Multiplier(Stacks,Mathf.Max(0,upgrades-1)))
+                snapshot?.Impact(transform.position, this, SyringeSpecialAugmentAbility.SpecialAugmentType.IceNeedle, 0);
             var items=source!=null?source.GetComponent<OctoberItemRuntime>():null;if(items!=null)SpeedMultiplier=items.SlowMultiplier(SpeedMultiplier);
             // Roll even on the fourth hit. A failed roll grows the Ice Needle chance for every character while the
             // independent four-stack guarantee still freezes; only a successful roll resets it.

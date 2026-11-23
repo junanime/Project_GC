@@ -28,6 +28,10 @@ namespace Vampire
         [SerializeField] private bool debugLog = false;
 
         private Camera mainCamera;
+        private SyringeDartAbility source;
+        private readonly List<Monster> layerMatchedTargets = new List<Monster>(64);
+        private readonly List<Monster> fallbackTargets = new List<Monster>(64);
+        private readonly List<Collider2D> colliders = new List<Collider2D>();
         private float timer = 0f;
         private float activeUntilTime = -1f;
 
@@ -56,6 +60,7 @@ namespace Vampire
 
         private void Awake()
         {
+            source = GetComponent<SyringeDartAbility>();
             mainCamera = Camera.main;
         }
 
@@ -66,7 +71,7 @@ namespace Vampire
 
         private void Update()
         {
-            var source = GetComponent<SyringeDartAbility>();
+            if (source == null) source = GetComponent<SyringeDartAbility>();
             if (source != null && source.AttacksBlocked) return;
             if (mainCamera == null)
             {
@@ -92,6 +97,8 @@ namespace Vampire
         {
             activeUntilTime = Time.time + freezeDuration;
 
+            if (timeVisual == null) timeVisual = gameObject.AddComponent<NeuralTimeStopVisual>();
+            timeVisual.Begin(freezeDuration);
             int affectedCount = ApplyFreezeToScreenMonsters(freezeDuration);
 
             if (debugLog)
@@ -101,9 +108,6 @@ namespace Vampire
                     this
                 );
             }
-
-            if (timeVisual == null) timeVisual = gameObject.AddComponent<NeuralTimeStopVisual>();
-            timeVisual.Begin(freezeDuration);
         }
 
         private IEnumerator SummonThenBlock()
@@ -151,6 +155,7 @@ namespace Vampire
                 }
 
                 status.Apply(remainingDuration, false);
+                if (status.Active && timeVisual != null) timeVisual.MarkFrozenFeet(monster, remainingDuration);
                 appliedCount++;
             }
 
@@ -176,10 +181,11 @@ namespace Vampire
 
         private List<Monster> GetScreenMonsters()
         {
-            List<Monster> layerMatchedTargets = new List<Monster>();
-            List<Monster> fallbackTargets = new List<Monster>();
+            layerMatchedTargets.Clear();
+            fallbackTargets.Clear();
 
-            Monster[] monsters = FindObjectsOfType<Monster>();
+            // All targets share the same deadline, so freezing them requires no instance-ID sort.
+            Monster[] monsters = FindObjectsByType<Monster>(FindObjectsSortMode.None);
 
             for (int i = 0; i < monsters.Length; i++)
             {
@@ -242,9 +248,9 @@ namespace Vampire
                 return true;
             }
 
-            Collider2D[] colliders = monster.GetComponentsInChildren<Collider2D>(true);
+            monster.GetComponentsInChildren(true, colliders);
 
-            for (int i = 0; i < colliders.Length; i++)
+            for (int i = 0; i < colliders.Count; i++)
             {
                 Collider2D col = colliders[i];
 

@@ -9,6 +9,8 @@ using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using Object = UnityEngine.Object;
 
 namespace Vampire.Tests.Editor
@@ -24,6 +26,7 @@ namespace Vampire.Tests.Editor
         [Serializable] class Pref { public string key; public bool had; public int value; }
         [Serializable] class Backup { public Pref[] prefs; }
         static OralToothSafetySmoke() { if (SessionState.GetBool(Key, false)) Attach(); }
+
         public static void Run()
         {
             AssetDatabase.ImportAsset("Assets/Resources/OralMap/Monsters.png",ImportAssetOptions.ForceUpdate|ImportAssetOptions.ForceSynchronousImport);
@@ -148,6 +151,18 @@ namespace Vampire.Tests.Editor
             var runtime=OralStageRuntime.Instance;var map=FiniteStomachMap.Instance;var player=level.PlayerCharacter;var events=OralFieldEvents.Instance;
             Check(runtime!=null&&runtime.Ready&&map.IsOral,"oral runtime installed and ready");
             Silence(level);events.AutoSchedule=false;
+            if (Environment.GetCommandLineArgs().Contains("-oralFrontTraversal"))
+            {
+                var controls=GamePreferences.Current.Copy();
+                controls.keyboard=KeyboardBindingValues.Defaults();
+                GamePreferences.Apply(controls,false);
+                Clear(level);
+                foreach (var cavity in events.Cavities) { cavity.Healed=true; cavity.Active=false; }
+                yield return FrontPassages(runtime, map, player, events);
+                captureShot=false;
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
             var layout=level.GetComponent<FieldObjectLayout>();
             Check(layout.Ready&&layout.Slots.Count==20,"initial field contains complete twenty-object layout");
             // Inspect actual instantiated objects before controlled test combat removes monsters.
@@ -165,7 +180,7 @@ namespace Vampire.Tests.Editor
                 var p=OralMapGeometry.ToothWalkCenter(map,i);
                 Check(OralMapGeometry.ZoneAt(map,p)==OralZone.Teeth,"flat tooth top is walkable "+i);
                 Check(OralMapGeometry.IsJawDanger(map,p),"crown center is in jaw damage region "+i);
-                Check(OralMapGeometry.CanJumpToTooth(i)==(OralMapGeometry.ToothKind(i)==OralToothKind.Molar),"jump allowed only before canine "+i);
+                Check(OralMapGeometry.CanJumpToTooth(i),"direct dash allowed at tooth "+i);
                 Check(OralMapGeometry.ToothDamagePolygon(map,i).Length>=3,"tooth has distinct damage polygon "+i);
             }
             for(int i=0;i<OralMapGeometry.ToothCount-1;i++)
@@ -182,7 +197,8 @@ namespace Vampire.Tests.Editor
                 Check(OralMapGeometry.Contains(map,safe),"spawn clamp lands on a supported surface "+x+","+y);
             }
             var front=OralMapGeometry.Clamp(map,center+Vector2.up*radii.y,.4f,OralZone.Tongue);
-            Check(!OralMapGeometry.TryJump(map,front,Vector2.up,out _),"direct tongue-to-incisor jump rejected");
+            Check(OralMapGeometry.TryJump(map,front,Vector2.up,out var frontLanding) &&
+                OralMapGeometry.ToothKind(OralMapGeometry.NearestTooth(map,frontLanding))==OralToothKind.Incisor,"direct tongue-to-incisor jump accepted");
             Place(player,center);Check(!events.ForceEvent(OralEventKind.Jaw),"jaw does not trigger while player is on tongue");
             var visual=Object.FindObjectOfType<OralMapVisual>();
             Check(!visual.UpperJawVisible,"upper jaw hidden during idle");
@@ -235,20 +251,19 @@ namespace Vampire.Tests.Editor
                 }
             }
             Check(found,"tongue edge has reachable molar jump");
-            Check(OralMapGeometry.CanJumpToTooth(OralMapGeometry.NearestTooth(map,jumpTo)),"computed landing is before canine");
+            Check(OralMapGeometry.ZoneAt(map,jumpTo)==OralZone.Teeth,"computed landing lies on a tooth");
             Place(player,jumpFrom);Set(player,"lookDirection",jumpDirection);player.Move(Vector2.zero);Set(player,"currentDashCharges",1);
             Focus((jumpFrom+jumpTo)*.5f,7.5f);yield return null;
             Check(player.TryDash()&&runtime.IsJumping,"normal dash input starts tooth jump");
             yield return Clip("03-jump-to-molar",1.8f,()=>true);
             Check(!runtime.IsJumping&&OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth,"dash lands on flat molar surface");
 
-            yield return SlideTrial(level,runtime,map,player,false,"04-slide-to-tongue");
+            yield return FrontPassages(runtime, map, player, events);
+            yield return SlideTrial(level,runtime,map,player,false,"04-finale-return");
             yield return SlideTrial(level,runtime,map,player,true,"05-slide-pause-check");
             Place(player,OralMapGeometry.ToothWalkCenter(map,4));yield return null;
-            var inward=(center-player.Position).normalized;player.Move(inward);
-            timeout=Time.realtimeSinceStartup+8;
-            while(!runtime.IsSliding&&Time.realtimeSinceStartup<timeout){player.Move(inward);yield return null;}
-            Check(runtime.IsSliding,"third inner-edge entry begins slide before cancellation");
+            runtime.ReturnToTongueForSwallow();
+            Check(runtime.IsSliding,"scripted finale can still return a player before cancellation");
             var sprite=player.GetComponentInChildren<SpriteAnimator>().GetComponent<SpriteRenderer>();
             runtime.TeleportPlayer(center,OralZone.Tongue);player.Move(Vector2.zero);yield return null;
             Check(!runtime.IsSliding&&runtime.SlideVisualHeight==0,"teleport cancels slide and hop height");
@@ -289,19 +304,308 @@ namespace Vampire.Tests.Editor
                 yield return null;
             }
         }
+        static int PickClearFrontRoute(OralStageRuntime runtime,FiniteStomachMap map)
+        {
+            // Record an unobstructed entrance in this live layout: booths and their
+            // interaction prompts should not hide the actor or the mint floor marker.
+            var layout=runtime.Level.GetComponent<FieldObjectLayout>();
+            var obstacles=layout.SpawnedObjects.Where(o=>o!=null && o.activeInHierarchy).Select(o=>(Vector2)o.transform.position)
+                .Concat(Object.FindObjectsOfType<InteractableEventObject>().Select(o=>(Vector2)o.transform.position))
+                .Concat(Object.FindObjectsOfType<BloodClotMiniStagePortal>().Select(o=>(Vector2)o.transform.position)).ToArray();
+            var routes=new List<(int Tooth,Vector2 Launch,Vector2 Landing)>();
+            for(int i=0;i<OralMapGeometry.ToothCount;i++)
+                if(OralMapGeometry.TryGetCrossing(map,i,out var launch,out var landing)) routes.Add((i,launch,landing));
+            int best=-1;
+            float clearance=-1;
+            foreach(var route in routes)
+            {
+                if(OralMapGeometry.ToothKind(route.Tooth)!=OralToothKind.Incisor ||
+                    Vector2.Dot((route.Landing-route.Launch).normalized,Vector2.up)<.9999f) continue;
+                var start=route.Launch+new Vector2(-.7f,-3.5f);
+                if(routes.Any(other=>(other.Launch-start).sqrMagnitude<(route.Launch-start).sqrMagnitude)) continue;
+                Vector2 span=route.Landing-start;
+                float minimum=float.PositiveInfinity;
+                foreach(var obstacle in obstacles)
+                {
+                    var closest=start+span*Mathf.Clamp01(Vector2.Dot(obstacle-start,span)/span.sqrMagnitude);
+                    minimum=Mathf.Min(minimum,Vector2.Distance(closest,obstacle));
+                }
+                if(minimum>clearance){clearance=minimum;best=route.Tooth;}
+            }
+            Check(best>=0,"unobstructed camera route selected among the vertical incisor crossings: "+best+
+                " (nearest prop "+clearance.ToString("F1",CultureInfo.InvariantCulture)+" units)");
+            return best;
+        }
+
+        static IEnumerator FrontPassages(OralStageRuntime runtime, FiniteStomachMap map, Character player, OralFieldEvents events)
+        {
+            // Exercise all normal entry points. In particular the thin front crowns
+            // need adequate contact clearance on arrival and a viable reverse jump.
+            int frontTooth=PickClearFrontRoute(runtime,map);
+            var tongue=OralMapGeometry.TongueCenter(map);
+            Check(!OralMapGeometry.TryJump(map,tongue,Vector2.up,out _),"ordinary dash from tongue center cannot cross the chasm");
+            for(int tooth=0; tooth<OralMapGeometry.ToothCount; tooth++)
+            {
+                Check(OralMapGeometry.TryGetCrossing(map,tooth,out var launch,out var landing),"real outbound route to tooth "+tooth);
+                Check(OralMapGeometry.NearestTooth(map,landing)==tooth &&
+                    OralMapGeometry.TeethDistance(map,landing,out _)>=OralMapGeometry.ToothFootRadius-.005f,
+                    "landing has room for the player's feet on tooth "+tooth);
+                Check(Vector2.Dot((landing-launch).normalized,KeyboardDirection(landing-launch))>.9999f,
+                    "the published route follows a WASD bearing at tooth "+tooth);
+                Place(player,launch);
+                if(tooth==frontTooth)
+                {
+                    StartFrontClip(runtime,"gif-outbound",launch,landing);
+                    yield return new WaitForSeconds(.35f);
+                }
+                if(tooth==frontTooth) yield return PressDash(runtime,player,UnityEngine.InputSystem.Key.W,Vector2.up,OralZone.Teeth);
+                else yield return DashAcross(runtime,player,landing,OralZone.Teeth,"outbound "+tooth);
+                Check(OralMapGeometry.NearestTooth(map,player.Position)==tooth,"actual arrival on requested tooth "+tooth);
+                if(tooth==frontTooth)
+                {
+                    yield return new WaitForSeconds(.35f);
+                    EndFrontClip(runtime);
+                    StartFrontClip(runtime,"gif-return",launch,landing);
+                }
+
+                if(OralMapGeometry.ToothKind(tooth)!=OralToothKind.Molar)
+                {
+                    var inward=(launch-player.Position).normalized;
+                    var start=player.Position;
+                    var until=Time.time+1.4f;
+                    bool alwaysSupported=true;
+                    while(Time.time<until)
+                    {
+                        player.Move(inward);
+                        yield return new WaitForFixedUpdate();
+                        alwaysSupported &= !runtime.IsAirborne && OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth;
+                    }
+                    player.Move(Vector2.zero);
+                    Check(alwaysSupported && OralMapGeometry.NearestTooth(map,player.Position)==tooth,
+                        "holding toward the tongue cannot walk off the front rim "+tooth);
+                    var rim=player.Position;
+                    Check(OralMapGeometry.TeethDistance(map,rim,out _)<=.35f && Vector2.Dot(rim-start,inward)>-.035f,
+                        "tested the inner lip rather than the middle of the crown "+tooth);
+                    yield return new WaitForSeconds(OralStageRuntime.SlideSeconds+.2f);
+                    Check(!runtime.IsAirborne && (player.Position-rim).sqrMagnitude<.04f &&
+                        OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Teeth,"front rim remains stable after releasing input "+tooth);
+                }
+                if(tooth==frontTooth) yield return PressDash(runtime,player,UnityEngine.InputSystem.Key.S,Vector2.down,OralZone.Tongue);
+                else yield return DashAcross(runtime,player,launch,OralZone.Tongue,"return "+tooth);
+                if(tooth==frontTooth)
+                {
+                    yield return new WaitForSeconds(.35f);
+                    EndFrontClip(runtime);
+                }
+            }
+            Check(OralMapGeometry.TryGetCrossing(map,frontTooth,out var gate,out var destination),"front escape route available for spicy warning");
+            var across=(destination-gate).normalized;
+            var lateral=new Vector2(-across.y,across.x);
+            Place(player,gate-across*3.5f+lateral*.7f);
+            Check(!OralMapGeometry.TryJump(map,player.Position,destination-player.Position,out _),"approach starts outside the legal dash band");
+            Check(events.ForceEvent(OralEventKind.Spicy),"start real spicy warning near front teeth");
+            yield return null; yield return null;
+            var lines=runtime.GetComponentsInChildren<LineRenderer>();
+            var arrows=lines.Where(r=>r.name=="매운맛 · 대피 방향").ToArray();
+            var entry=lines.Single(r=>r.name=="매운맛 · 도약 지점");
+            var exit=lines.Single(r=>r.name=="매운맛 · 착지 지점");
+            Check(entry.enabled && exit.enabled && Vector2.Distance(GateCenter(entry),gate)<.12f &&
+                Vector2.Distance(GateCenter(exit),destination)<.12f,"paired mint crescents mark actual tongue launch and front landing");
+            Check(ArrowsPointTo(arrows,player.Position,gate),"both warning arrows lead to the launch from outside dash range");
+            FrameFrontRoute(gate-across*3.5f,destination);
+            Frame("front-01-approach");
+            StartFrontClip(runtime,"gif-spicy",gate-across*3.5f,destination);
+            yield return new WaitForSeconds(.40f);
+            var approachDeadline=Time.time+6f;
+            while(Vector2.Distance(player.Position,gate)>.22f && Time.time<approachDeadline)
+            {
+                var delta=gate-player.Position;
+                player.Move(delta.normalized*Mathf.Clamp01(delta.magnitude/.5f));
+                yield return new WaitForFixedUpdate();
+            }
+            player.Move(Vector2.zero);
+            player.GetComponent<Rigidbody2D>().velocity=Vector2.zero;
+            Check(Vector2.Distance(player.Position,gate)<.35f,"walking the indicated route reaches its dash band");
+            yield return null; yield return null;
+            var keyDirection=KeyboardDirection(destination-gate);
+            Check(OralMapGeometry.TryJump(map,player.Position,keyDirection,out var markedLanding) &&
+                OralMapGeometry.NearestTooth(map,markedLanding)==frontTooth && Vector2.Distance(GateCenter(exit),markedLanding)<.12f,
+                "offset launch advertises the actual keyboard landing on the front tooth");
+            Check(ArrowsPointTo(arrows,player.Position,markedLanding),"both warning arrows face the reachable front tooth in dash range");
+            Frame("front-02-ready");
+            Set(player,"isInvincible",false);
+            player.GainHealth(9999);
+            var hp=player.CurrentHealth;
+            yield return DashAcross(runtime,player,destination,OralZone.Teeth,"spicy front escape");
+            yield return null;
+            Check(arrows.All(a=>!a.enabled) && !entry.enabled && !exit.enabled,"escape guidance clears on safe front arrival");
+            while(events.Tastes.Active && !events.Tastes.SpicyActive) yield return null;
+            yield return new WaitForSeconds(1.4f);
+            Check(OralMapGeometry.NearestTooth(map,player.Position)==frontTooth && player.CurrentHealth==hp &&
+                events.Tastes.BurnTicks==0 && !runtime.IsSliding,"stationary front tooth protects against the real spicy pulse");
+            Frame("front-03-safe");
+            EndFrontClip(runtime);
+            while(events.Tastes.Active) yield return null;
+            Set(player,"isInvincible",true);
+            // The finale still owns its explicit forced retrieval, independently of normal walking.
+            runtime.ReturnToTongueForSwallow();
+            Check(runtime.IsSliding,"scripted finale still returns the player from a front tooth");
+            yield return new WaitForSeconds(OralStageRuntime.SlideSeconds+.2f);
+            Check(!runtime.IsSliding && OralMapGeometry.ZoneAt(map,player.Position)==OralZone.Tongue,"scripted return finishes on the tongue");
+
+            var arc=runtime.GetComponentsInChildren<LineRenderer>()
+                .Where(r=>r.name.StartsWith("협곡 점프 안내 ",StringComparison.Ordinal)).OrderBy(r=>r.name).ToArray();
+            Check(arc.Length==3,"three preview segments are available");
+            Place(player,gate);
+            Set(player,"currentDashCharges",1);
+            player.Move(keyDirection);
+            yield return null; yield return null;
+            Check(arc.All(line=>line.enabled),"a charged dash toward a reachable tooth shows its preview");
+            player.Move(-keyDirection);
+            yield return null; yield return null;
+            Check(arc.All(line=>!line.enabled),"looking away from the crossing clears every preview segment");
+            Place(player,gate);
+            player.Move(keyDirection);
+            Set(player,"currentDashCharges",0);
+            yield return null; yield return null;
+            Check(arc.All(line=>!line.enabled),"preview stays off while the player has no dash charge");
+            Set(player,"currentDashCharges",1);
+            Check(player.TryDash() && runtime.IsJumping,"begin an actual crossing to verify airborne guidance");
+            player.Move(Vector2.zero);
+            yield return null; yield return null;
+            Check(arc.All(line=>!line.enabled),"preview clears while airborne");
+            yield return new WaitForSeconds(.70f);
+        }
+
+        static Coroutine frontRecording;
+        static int priorFrontCaptureRate;
+
+        static void FrameFrontRoute(Vector2 a,Vector2 b)
+        {
+            // Leave the middle of the screenshot to the real alert and item belt.
+            float size=Mathf.Max(5.8f,Mathf.Abs(a.y-b.y)*.5f+2.2f);
+            Focus((a+b)*.5f+Vector2.right*(size*.68f),size);
+            followPlayer=false;
+        }
+
+        static void StartFrontClip(OralStageRuntime runtime,string name,Vector2 a,Vector2 b)
+        {
+            if (!Environment.GetCommandLineArgs().Contains("-oralFrontGif")) return;
+            var directory=Path.Combine(Output,name);
+            Directory.CreateDirectory(directory);
+            foreach (string oldFrame in Directory.GetFiles(directory,"*.png")) File.Delete(oldFrame);
+            priorFrontCaptureRate=Time.captureFramerate;
+            Time.captureFramerate=15;
+            FrameFrontRoute(a,b);
+            frontRecording=runtime.StartCoroutine(RecordFrontFrames(name));
+        }
+
+        static IEnumerator RecordFrontFrames(string name)
+        {
+            for(int frame=0;;frame++)
+            {
+                Frame(name+"/"+frame.ToString("D4"));
+                yield return null;
+            }
+        }
+
+        static void EndFrontClip(OralStageRuntime runtime)
+        {
+            if(frontRecording==null) return;
+            runtime.StopCoroutine(frontRecording);
+            frontRecording=null;
+            Time.captureFramerate=priorFrontCaptureRate;
+        }
+
+        static Vector2 GateCenter(LineRenderer ring) =>
+            (ring.GetPosition(0)+ring.GetPosition(ring.positionCount-1))*.5f;
+
+        static bool ArrowsPointTo(LineRenderer[] arrows,Vector2 player,Vector2 target)
+        {
+            var expected=(target-player).normalized;
+            return arrows.Length==2 && arrows.All(a=>a.enabled && a.positionCount==3 &&
+                Vector2.Dot(((Vector2)a.GetPosition(1)-player).normalized,expected)>.998f);
+        }
+
+        static Vector2 KeyboardDirection(Vector2 raw)
+        {
+            var angle=Mathf.Round(Mathf.Atan2(raw.y,raw.x)/(Mathf.PI*.25f))*Mathf.PI*.25f;
+            return new Vector2(Mathf.Round(Mathf.Cos(angle)),Mathf.Round(Mathf.Sin(angle))).normalized;
+        }
+
+        static IEnumerator PressDash(OralStageRuntime runtime,Character player,UnityEngine.InputSystem.Key directionKey,Vector2 direction,OralZone goal)
+        {
+            var view=EditorWindow.GetWindow(typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView"));
+            view.Focus();
+            yield return null;
+            var prior=InputSystem.settings;
+            var synthetic=Object.Instantiate(prior);
+            synthetic.editorInputBehaviorInPlayMode=InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            synthetic.backgroundBehavior=InputSettings.BackgroundBehavior.IgnoreFocus;
+            InputSystem.settings=synthetic;
+            var keyboard=InputSystem.AddDevice<Keyboard>("Front tooth crossing keyboard");
+            var mouse=Mouse.current;
+            var extraMouse=mouse==null ? InputSystem.AddDevice<Mouse>("Front tooth QA mouse") : null;
+            try
+            {
+                var input=player.GetComponent<PlayerInput>();
+                Check(input!=null && input.isActiveAndEnabled,"live character owns enabled input component");
+                input.SwitchCurrentControlScheme("Keyboard&Mouse",keyboard,mouse!=null?mouse:extraMouse);
+                if(!keyboard.enabled) InputSystem.EnableDevice(keyboard);
+                keyboard.MakeCurrent();
+                var move=input.actions.FindAction("Player/Move",true);
+                // Wait for the editor's normal input/PlayerLoop, as for a real
+                // keyboard at the booth. No direct Move or TryDash on this path.
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState());
+                yield return null; yield return null;
+                Set(player,"currentDashCharges",1);
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState(directionKey));
+                for (int frame=0;frame<6 && Vector2.Dot(player.EffectiveMoveDirection,direction)<.95f;frame++) yield return null;
+                Check(Vector2.Dot(player.EffectiveMoveDirection,direction)>.95f,
+                    $"live direction {directionKey} reaches the character (focus={Application.isFocused}, device={keyboard.enabled}, raw={keyboard[directionKey].isPressed}, map={input.currentActionMap?.name}, scheme={input.currentControlScheme}, playerInput={input.inputIsActive}, move={move.enabled}/{move.ReadValue<Vector2>()}, actor={player.EffectiveMoveDirection})");
+                var key=GameInput.ResolveKeyboardKey(GamePreferences.Current.keyboard.Get(GameKeyAction.Dash));
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState(directionKey,key));
+                for(int frame=0;frame<6 && !runtime.IsJumping;frame++)yield return null;
+                Check(runtime.IsJumping,"live "+directionKey+" and dash key starts crossing");
+                InputSystem.QueueStateEvent(keyboard,new KeyboardState());
+                yield return new WaitForSeconds(.70f);
+                Check(!runtime.IsAirborne && OralMapGeometry.ZoneAt(runtime.Map,player.Position)==goal,"live keyboard lands on "+goal);
+            }
+            finally
+            {
+                InputSystem.RemoveDevice(keyboard);
+                if(extraMouse!=null)InputSystem.RemoveDevice(extraMouse);
+                InputSystem.settings=prior;
+                Object.Destroy(synthetic);
+            }
+        }
+
+        static IEnumerator DashAcross(OralStageRuntime runtime,Character player,Vector2 target,OralZone expected,string name)
+        {
+            var direction=KeyboardDirection(target-player.Position);
+            player.Move(direction);
+            Set(player,"currentDashCharges",1);
+            Check(player.TryDash() && runtime.IsJumping,"manual dash starts a crossing "+name);
+            player.Move(Vector2.zero);
+            yield return new WaitForSeconds(.70f);
+            Check(!runtime.IsAirborne && OralMapGeometry.ZoneAt(runtime.Map,player.Position)==expected,
+                "manual dash settles on the intended surface "+name);
+        }
+
         static IEnumerator SlideTrial(LevelManager level,OralStageRuntime runtime,FiniteStomachMap map,Character player,bool pause,string name)
         {
             var tongue=OralMapGeometry.TongueCenter(map);Place(player,OralMapGeometry.ToothWalkCenter(map,4));
-            var origin=player.Position;var inward=(tongue-origin).normalized;
+            var origin=player.Position;
             Focus(Vector2.Lerp(origin,tongue,.22f),8.7f);yield return null;
             bool sawSlide=false,sawLowSlide=false,sawHop=false,sawLanding=false,paused=false,checkedHopHud=false;
             int priorCaptureRate=Time.captureFramerate;if(CaptureEnabled)Time.captureFramerate=20;
             float started=Time.realtimeSinceStartup,finish=0;
             string dir=Output+"/"+name;Directory.CreateDirectory(dir);File.WriteAllText(dir+"/times.csv","frame,game_seconds\n");
             int frame=0;float nextFrame=0,gameStart=Time.time;
+            runtime.ReturnToTongueForSwallow();
             do
             {
-                if(!sawSlide)player.Move(inward);else player.Move(Vector2.zero);
+                player.Move(Vector2.zero);
                 if(runtime.IsSliding)
                 {
                     sawSlide=true;
@@ -326,7 +630,7 @@ namespace Vampire.Tests.Editor
             }while(Time.realtimeSinceStartup-started<45&&(!sawLanding||Time.time-finish<.5f));
             Time.captureFramerate=priorCaptureRate;
             player.Move(Vector2.zero);
-            Check(sawSlide,"walking past inner canine slope automatically slides "+name);
+            Check(sawSlide,"scripted swallow return starts from canine "+name);
             Check(sawLowSlide&&sawHop,"low continuous slide is followed by visible small hop "+name);
             Check(sawLanding&&!runtime.IsSliding&&runtime.SlideVisualHeight==0,"slide and hop finish with restored visual offset "+name);
             Check(checkedHopHud,"visible sprite and combat bar separation checked during hop peak "+name);

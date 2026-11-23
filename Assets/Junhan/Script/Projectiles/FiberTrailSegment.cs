@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using Parent = Vampire.SyringeSpecialAugmentAbility.SpecialAugmentType;
 
 namespace Vampire
 {
@@ -7,10 +9,51 @@ namespace Vampire
     // Pooled pixel-art fibers visualize the unchanged BoxCollider2D damage segment.
     public class FiberTrailSegment : MonoBehaviour
     {
+        static readonly Dictionary<Scene, Transform> sceneBodies = new Dictionary<Scene, Transform>();
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetSceneBodies()
+        {
+            sceneBodies.Clear();
+            SceneManager.sceneUnloaded -= RemoveSceneBody;
+            SceneManager.sceneUnloaded += RemoveSceneBody;
+        }
+
+        static void RemoveSceneBody(Scene scene) => sceneBodies.Remove(scene);
+
+        void AttachBody()
+        {
+            // A parented residue may belong to a moving object. Preserve its independent
+            // body. Normal projectile trails are stationary and created at scene root.
+            if (transform.parent != null)
+            {
+                CreateBody(gameObject);
+                return;
+            }
+            Scene scene = gameObject.scene;
+            if (!sceneBodies.TryGetValue(scene, out var body) || body == null)
+            {
+                var root = new GameObject("Stationary fiber trails");
+                if (root.scene != scene) SceneManager.MoveGameObjectToScene(root, scene);
+                body = CreateBody(root).transform;
+                sceneBodies[scene] = body;
+            }
+            transform.SetParent(body, true);
+        }
+
+        static Rigidbody2D CreateBody(GameObject owner)
+        {
+            var body = owner.AddComponent<Rigidbody2D>();
+            body.bodyType = RigidbodyType2D.Kinematic;
+            body.gravityScale = 0f;
+            return body;
+        }
+
         private readonly Dictionary<int, float> nextDamageTimesByTarget =
             new Dictionary<int, float>();
 
         private SyringeAugmentVfx augmentVisual;
+        Ver4CombatSnapshot feedbackSnapshot;
         private float createdAt;
         private float endsAt;
         private float visualAlpha = 1f;
@@ -70,7 +113,7 @@ namespace Vampire
             float width,
             Color lineColor,
             Character sourceCharacter,
-            string damageSourceName)
+            string damageSourceName, Ver4CombatSnapshot snapshot = null)
         {
             this.targetLayer = targetLayer;
             this.damagePerSecond = Mathf.Max(0f, damagePerSecond);
@@ -99,13 +142,17 @@ namespace Vampire
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
-            Rigidbody2D rb = gameObject.AddComponent<Rigidbody2D>();
-            rb.bodyType = RigidbodyType2D.Kinematic;
-            rb.gravityScale = 0f;
+            AttachBody();
 
             BoxCollider2D boxCollider = gameObject.AddComponent<BoxCollider2D>();
             boxCollider.isTrigger = true;
             boxCollider.size = new Vector2(length, width);
+            feedbackSnapshot = snapshot;
+            if (snapshot != null)
+            {
+                snapshot.Impact(center,this,Parent.FiberNeedle,0);
+                snapshot.Impact(center,this,Parent.FiberNeedle,2);
+            }
 
             SyringeAugmentVfx.ReleaseOwned(ref augmentVisual);
             augmentVisual = SyringeAugmentVfx.Play("FiberNeedle", center);
@@ -154,31 +201,18 @@ namespace Vampire
                 return;
             }
 
-            var king = other.GetComponentInParent<ConstipationKingRuntime>();
-            if (king != null)
-            {
-                if (!NeedleTargeting.IsValidBossTarget(king, targetLayer)) return;
-                int bossId = king.gameObject.GetInstanceID();
-                if (nextDamageTimesByTarget.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) return;
-                Ver4HitEffects.Damage(king, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
-                nextDamageTimesByTarget[bossId] = Time.time + tickInterval;
-                return;
-            }
-            var colon = other.GetComponentInParent<ColonBossRuntime>();
-            if (colon != null)
-            {
-                if (!NeedleTargeting.IsValidBossTarget(colon, targetLayer)) return;
-                int bossId = colon.gameObject.GetInstanceID();
-                if (nextDamageTimesByTarget.TryGetValue(bossId, out float nextBossTick) && Time.time < nextBossTick) return;
-                Ver4HitEffects.Damage(colon, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true);
-                nextDamageTimesByTarget[bossId] = Time.time + tickInterval;
-                return;
-            }
+            using var scratch = UnityEngine.Pool.ListPool<IDamageable>.Get(out var parents);
+            var target = NeedleTargeting.FindResidueTarget(other, parents);
+            if (target == null) return;
+            int targetId = target.gameObject.GetInstanceID();
+            if (nextDamageTimesByTarget.TryGetValue(targetId, out float nextTick) && Time.time < nextTick) return;
 
-            Monster monster = other.GetComponentInParent<Monster>();
-
-            if (monster == null)
+            if (!(target is Monster monster))
             {
+                if (!NeedleTargeting.IsValidBossTarget(target, targetLayer)) return;
+                if (Ver4HitEffects.Damage(target, damagePerSecond * tickInterval, Vector2.zero, sourceCharacter, damageSourceName, true))
+                    feedbackSnapshot?.Impact(target.transform.position, target, Parent.FiberNeedle, 1);
+                nextDamageTimesByTarget[targetId] = Time.time + tickInterval;
                 return;
             }
 
@@ -197,18 +231,6 @@ namespace Vampire
                 return;
             }
 
-            int targetId = monster.gameObject.GetInstanceID();
-
-            if (nextDamageTimesByTarget.TryGetValue(
-                    targetId,
-                    out float nextDamageTime))
-            {
-                if (Time.time < nextDamageTime)
-                {
-                    return;
-                }
-            }
-
             // 현재 섬유침의 실제 TakeDamage 값.
             // 이 값이 몬스터에게 전달되는 최종 계산 피해량이다.
             float finalDamage =
@@ -223,7 +245,9 @@ namespace Vampire
             }
 
             finalDamage *= CombatStatusRules.DamageMultiplier(sourceCharacter,monster);
+            float previousHealth = monster.HP;
             monster.TakePeriodicDamage(finalDamage);
+            if (monster.HP < previousHealth) feedbackSnapshot?.Impact(monster.transform.position,monster,Parent.FiberNeedle,1);
 
             // 기존 전체 피해량 시스템에도 포함
             if (sourceCharacter != null &&

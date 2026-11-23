@@ -26,6 +26,7 @@ namespace Vampire
         readonly List<GameObject> objects = new List<GameObject>();
         LevelManager level;
         Transform root;
+        List<ColonBossDirector.HabitatPlacement> validatedHabitats;
 
         public static void Ensure(LevelManager owner)
         {
@@ -48,9 +49,17 @@ namespace Vampire
         }
 
         public static List<Slot> Generate(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked = null)
+            => GeneratePlan(map, start, seed, blocked, out _);
+
+        static List<Slot> GeneratePlan(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked,
+            out List<ColonBossDirector.HabitatPlacement> habitats)
         {
+            habitats = null;
             if(map.IsOral)return GenerateOral(map,start,seed,blocked);
             if(!map.IsColon)return GenerateAttempt(map,start,seed,blocked);
+            // All 32 proposals use the same six reservations; only the prop seed changes.
+            int habitatSeed = seed ^ 0x62B7;
+            var reserved = ColonBossDirector.Generate(map,start,habitatSeed);
             // Validate the entire 86-prop + six-habitat plan before instantiating anything.
             // Dense wall layouts can exhaust one random proposal; reroll the proposal,
             // never drop an object or relax wall/interaction clearance to make it fit.
@@ -59,8 +68,8 @@ namespace Vampire
             {
                 try
                 {
-                    var result=GenerateAttempt(map,start,unchecked(seed+attempt*104729),blocked,seed^0x62B7);
-                    ColonBossDirector.Generate(map,start,seed^0x62B7,result);
+                    var result=GenerateAttempt(map,start,unchecked(seed+attempt*104729),blocked,reserved);
+                    habitats = ColonBossDirector.GenerateWithReservations(map,start,habitatSeed,result,reserved);
                     return result;
                 }
                 catch(InvalidOperationException error){last=error;}
@@ -169,14 +178,11 @@ namespace Vampire
             return a==Kind.BloodClot?8.8f:a==Kind.Merchant||a==Kind.EliteAltar?7.15f:4.4f;
         }
 
-        static List<Slot> GenerateAttempt(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked,int? habitatSeed=null)
+        static List<Slot> GenerateAttempt(FiniteStomachMap map, Vector2 start, int seed, Func<Vector2, bool> blocked, List<ColonBossDirector.HabitatPlacement> reserved=null)
         {
             var rng = new System.Random(seed);
             var result = new List<Slot>();
             var paired = new HashSet<int>();
-            // Reserve large encounter footprints before distributing small props.
-            // The same habitat seed is used when the validated plan is instantiated.
-            var reserved=map.IsColon?ColonBossDirector.Generate(map,start,habitatSeed??(seed^0x62B7)):null;
             var finalThrone=map.IsColon?ColonOpeningGeometry.ThroneCenter(map):Vector2.zero;
             float roll() => (float)rng.NextDouble();
             int Sector(Vector2 p)
@@ -230,14 +236,24 @@ namespace Vampire
             // Clots need the widest spacing. Placing them after coins can exhaust
             // all viable lanes even though there is room for the complete layout.
             if(map.IsColon)pending=pending.OrderBy(k=>k==Kind.BloodClot?0:k==Kind.Merchant||k==Kind.EliteAltar?1:2).ToList();
+            var sectorCounts = new int[8];
+            var sectors = new List<int>(Counts.Sum());
+            var anchors = new List<int>();
+            foreach (var slot in result)
+            {
+                int placedSector = Sector(slot.position);
+                sectors.Add(placedSector); sectorCounts[placedSector]++;
+            }
             foreach (var kind in pending)
             {
                 int sector = rng.Next(8);
-                int minCount = Enumerable.Range(0, 8).Min(s => result.Count(p => Sector(p.position) == s));
-                for (int i = 0; i < 8; i++) if (result.Count(p => Sector(p.position) == sector) <= minCount + 1) break; else sector = (sector + 1) % 8;
+                int minCount = sectorCounts.Min();
+                for (int i = 0; i < 8 && sectorCounts[sector] > minCount + 1; i++) sector = (sector + 1) % 8;
                 int partner = -1;
-                var anchors = Enumerable.Range(0, result.Count).Where(i => !paired.Contains(i) && Sector(result[i].position) == sector).ToArray();
-                if (anchors.Length > 0 && roll() < ClusterChance) partner = anchors[rng.Next(anchors.Length)];
+                anchors.Clear();
+                for (int i=0; i<sectors.Count; i++)
+                    if (!paired.Contains(i) && sectors[i] == sector) anchors.Add(i);
+                if (anchors.Count > 0 && roll() < ClusterChance) partner = anchors[rng.Next(anchors.Count)];
                 bool placed = false;
                 for (int attempt = 0; attempt < 6000; attempt++)
                 {
@@ -255,6 +271,8 @@ namespace Vampire
                     }
                     if (attempt < 3000 && Sector(p) != sector || !Allowed(p, kind, partner)) continue;
                     if (partner >= 0) { paired.Add(partner); paired.Add(result.Count); }
+                    int placedSector = Sector(p);
+                    sectors.Add(placedSector); sectorCounts[placedSector]++;
                     result.Add(new Slot { kind = kind, position = p, partner = partner }); placed = true; break;
                 }
                 if (!placed) throw new InvalidOperationException("No safe field layout slot: " + kind + " seed=" + seed);
@@ -266,6 +284,9 @@ namespace Vampire
         {
             yield return null; // All scene Start hooks (mini-stage director and NPC references) have run.
             if (level == null || !level.UsesInitialFieldLayout) yield break;
+            // Direct departures use the shared scene, not its temporary stomach layout.
+            // RebuildForStage places the chosen field once under the same loading overlay.
+            if (StageEntryLoading.DefersInitialField) { Ready = true; yield break; }
             IsPlacing=true;
             try { SpawnInitialObjects(); }
             catch (Exception error) { Failed=true; Debug.LogException(error,this); }
@@ -289,7 +310,8 @@ namespace Vampire
                 if(FiniteStomachMap.Instance!=null&&FiniteStomachMap.Instance.IsColon)
                 {
                     var bosses=ColonBossDirector.Ensure(level);
-                    bosses.PrepareStage(position);
+                    bosses.PrepareStage(position, validatedHabitats);
+                    validatedHabitats = null;
                     if(!bosses.Ready||bosses.Failed)
                         throw new InvalidOperationException("All six colon boss habitats must be ready before loading ends.");
                 }
@@ -305,8 +327,19 @@ namespace Vampire
             int clotIndex = Array.FindIndex(bp.monsters, m => m.monstersPrefab.GetComponent<BloodClotMonster>() != null);
             if (merchant == null || altar == null || clotIndex < 0) throw new InvalidOperationException("Field layout references are incomplete.");
             Seed = UnityEngine.Random.Range(0, int.MaxValue);
-            bool Blocked(Vector2 p) => Physics2D.OverlapCircleAll(p, 2f).Any(c => !c.isTrigger && c.GetComponentInParent<Character>() == null && c.GetComponentInParent<Monster>() == null);
-            slots.AddRange(Generate(FiniteStomachMap.Instance, level.PlayerCharacter.transform.position, Seed, Blocked));
+            // The list overload grows on dense overlaps and then reuses its storage.
+            var blockers = new List<Collider2D>(32);
+            var filter = new ContactFilter2D();
+            filter.SetLayerMask(Physics2D.DefaultRaycastLayers);
+            filter.useTriggers = false;
+            bool Blocked(Vector2 point)
+            {
+                int count = Physics2D.OverlapCircle(point, 2f, filter, blockers);
+                for (int i=0; i<count; i++)
+                    if (blockers[i].GetComponentInParent<Character>() == null && blockers[i].GetComponentInParent<Monster>() == null) return true;
+                return false;
+            }
+            slots.AddRange(GeneratePlan(FiniteStomachMap.Instance, level.PlayerCharacter.transform.position, Seed, Blocked, out validatedHabitats));
             root = new GameObject("Initial field objects").transform;
             root.SetParent(transform, false);
             var director = FindObjectOfType<MiniStageDirector>();

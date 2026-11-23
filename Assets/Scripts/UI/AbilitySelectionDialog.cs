@@ -85,6 +85,39 @@ namespace Vampire
         private List<AbilityCard> abilityCards;
         private List<Ability> displayedAbilities;
 
+        readonly Queue<int> pendingLevelRewards = new Queue<int>();
+
+        public void RequestLevelReward(int characterLevel)
+        {
+            if (menuOpen)
+            {
+                pendingLevelRewards.Enqueue(characterLevel);
+                return;
+            }
+            abilityManager.FavorOpeningTrajectory = characterLevel <= 3;
+            Open();
+        }
+
+        bool ReplaceRewardChoices(bool noble, bool favorTrajectory)
+        {
+            if (displayedAbilities != null) abilityManager.ReturnAbilities(displayedAbilities);
+            abilityManager.LegendaryRewardContext = noble;
+            abilityManager.OriginalRewardContext = false;
+            abilityManager.FavorOpeningTrajectory = favorTrajectory;
+            displayedAbilities = abilityManager.SelectAbilities();
+            if (displayedAbilities.Count == 0) return false;
+            rerollUsed = false;
+            UpdateRerollButtonState();
+            Populate(displayedAbilities);
+            return true;
+        }
+
+        internal bool OfferNobleInOpenPanel()
+        {
+            return menuOpen && !SelectionAnimating && HasAvailableLegendaryAbilities() &&
+                ReplaceRewardChoices(true, false);
+        }
+
         private bool menuOpen = false;
         private bool rerollUsed = false;
         private Vector3 cardParentBaseScale = Vector3.one;
@@ -179,6 +212,7 @@ namespace Vampire
             rerollButton.colors = colors;
         }
 
+
         public void Open(bool failsafe = true)
         {
             if (SelectionAnimating) return;
@@ -203,7 +237,7 @@ namespace Vampire
 
             UpdateRerollButtonState();
 
-            displayedAbilities = abilityManager.SelectAbilities();
+            displayedAbilities = practiceOwner != null ? abilityManager.Ver4.CreatePracticeOffers(AugmentUpgradeGrade.Common) : abilityManager.SelectAbilities();
 
             if (displayedAbilities.Count > 0)
             {
@@ -211,6 +245,7 @@ namespace Vampire
                 // 현재 BGM을 Pause하고 증강 선택 전용 BGM을 시작합니다.
                 GameAudioManager.EnterAugmentSelectionAudio();
                 Populate(displayedAbilities);
+                if (practiceOwner != null) ShowPracticeSpotlight(false);
             }
             else
             {
@@ -265,6 +300,7 @@ namespace Vampire
 
                 abilityCards[i].Init(this, abilities[i], cardPopupDelay * i);
                 abilityCards[i].gameObject.SetActive(true);
+                abilityCards[i].BindChoiceKey(i);
             }
 
             for (; i < abilityCards.Count; i++)
@@ -356,6 +392,17 @@ namespace Vampire
                 return;
             }
 
+            if (practiceOwner != null)
+            {
+                abilityManager.ReturnAbilities(displayedAbilities);
+                displayedAbilities = abilityManager.Ver4.CreatePracticeOffers(AugmentUpgradeGrade.Supreme);
+                rerollUsed = true;
+                UpdateRerollButtonState();
+                Populate(displayedAbilities);
+                ShowPracticeSpotlight(true);
+                return;
+            }
+
             List<Ability> previousAbilities = new List<Ability>(displayedAbilities);
 
             abilityManager.ReturnAbilities(displayedAbilities);
@@ -439,6 +486,20 @@ namespace Vampire
         public override void Close()
         {
             if (SelectionAnimating) return;
+            if (practiceOwner == null && menuOpen && playerCharacter != null && playerCharacter.IsAlive)
+            {
+                if (!MiniStageRuntimeState.IsInsideMiniStage && !StageEntryLoading.IsLoading &&
+                    (ApothecaryUI.Instance == null || ApothecaryUI.Instance.Page == "hud") &&
+                    playerCharacter.GetComponent<PrescriptionRuntime>()?.TryChainNoble(this) == true)
+                    return;
+                while (pendingLevelRewards.Count > 0)
+                {
+                    if (ReplaceRewardChoices(false, pendingLevelRewards.Dequeue() <= 3)) return;
+                    // Match Open's fallback even when the last eligible reward was just taken.
+                    if (entityManager != null && failsafeChestBlueprint != null)
+                        entityManager.SpawnChest(failsafeChestBlueprint, (Vector2)playerCharacter.transform.position + Vector2.up);
+                }
+            }
             // 증강 선택 BGM이 재생 중이었다면 종료하고,
             // 증강창이 열리기 직전에 재생 중이던 BGM을 이어서 재생합니다.
             GameAudioManager.ExitAugmentSelectionAudio();
@@ -452,7 +513,7 @@ namespace Vampire
             RestoreMinimapLayer();
 
             menuOpen = false;
-            if (abilityManager != null) { abilityManager.LegendaryRewardContext = false; abilityManager.OriginalRewardContext = false; }
+            if (abilityManager != null) { abilityManager.LegendaryRewardContext = false; abilityManager.OriginalRewardContext = false; abilityManager.FavorOpeningTrajectory = false; }
             UpdateOriginalRewardNotice();
             Time.timeScale = 1;
 
@@ -473,7 +534,11 @@ namespace Vampire
                 abilityCardsParent.localScale = cardParentBaseScale;
             }
 
+            var rehearsal = practiceOwner;
+            practiceOwner = null;
+            if (rehearsal != null) HidePracticeSpotlight();
             base.Close();
+            if (rehearsal != null) rehearsal.FinishAugmentLesson();
         }
 
         public bool HasAvailableAbilities()

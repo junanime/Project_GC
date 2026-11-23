@@ -42,6 +42,8 @@ namespace Vampire
         public float JawAmount { get; private set; }
         public bool OnCeiling => CurrentEvent == OralEventKind.Ceiling && CeilingPhase >= 1;
         public int CeilingPhase { get; private set; }
+        public bool ReversesControlsFor(Character actor) =>
+            isActiveAndEnabled && CurrentEvent == OralEventKind.Ceiling && CeilingPhase == 2 && actor == player;
         public int CeilingRemaining => CountLive(ceilingMonsters);
         public string Banner { get; private set; } = "";
         public bool AutoSchedule = true;
@@ -81,7 +83,7 @@ namespace Vampire
         int scheduleIndex, foodSpawned;
         float contentClock = 24f;
         int contentIndex;
-        readonly OralEventKind[] contentBag = { OralEventKind.Sweet, OralEventKind.Boulder, OralEventKind.Salty,
+        readonly OralEventKind[] contentBag = { OralEventKind.Sweet, OralEventKind.Salty,
             OralEventKind.Sour, OralEventKind.Guard, OralEventKind.Bitter, OralEventKind.Spicy };
         bool triggered, ownsPause, priorPause, configured, quitting;
         Vector2 flowDirection, ceilingLanding, ceilingReturnOrigin;
@@ -91,7 +93,10 @@ namespace Vampire
             OralEventKind.Water, OralEventKind.Brush, OralEventKind.Sneeze,
             OralEventKind.Soda, OralEventKind.Food, OralEventKind.Coffee, OralEventKind.Ceiling };
 
-        struct SpawnChoice { public int Pool; public MonsterBlueprint Blueprint; }
+        struct SpawnChoice { public int Pool, Flat; public MonsterBlueprint Blueprint; }
+        readonly float[] foodWeights = new float[6];
+        int weightedSecond = -1;
+        float foodWeightSum;
         sealed class SuspendedMonster
         {
             public Monster Monster;
@@ -143,17 +148,17 @@ namespace Vampire
             map = FiniteStomachMap.Instance;
             if (level == null || player == null || map == null) return;
             Instance = this; configured = true; quitting = false;
-            swallowSuppressed = false;
+            swallowSuppressed = false; earlyDoubleShield = null;
             choices.Clear();
             var data = level.CurrentLevelBlueprint;
+            weightedSecond = -1;
             if (data != null && data.monsters != null)
-                for (int i = 0; i < data.monsters.Length; i++)
+                foreach (var slot in data.MonsterIndexMap)
                 {
-                    var group = data.monsters[i];
-                    if (group.monstersPrefab == null || !(group.monstersPrefab.GetComponent<Monster>() is MeleeMonster)) continue;
-                    foreach (var bp in group.monsterBlueprints)
-                        if (bp != null && OralMonsterRoster.IsBlueprint(bp)) choices.Add(new SpawnChoice { Pool = i, Blueprint = bp });
-                    if (choices.Count >= 6) break;
+                    var pool = slot.Value.Item1;
+                    var bp = data.monsters[pool].monsterBlueprints[slot.Value.Item2];
+                    if (!OralMonsterRoster.IsBlueprint(bp)) continue;
+                    choices.Add(new SpawnChoice { Pool = pool, Flat = slot.Key, Blueprint = bp });
                 }
             BuildCavities();
             var additionsObject = new GameObject("구강 추가 이벤트");
@@ -165,8 +170,11 @@ namespace Vampire
             Ambient = ambientObject.AddComponent<OralAmbientContent>(); Ambient.Configure(level);
             Monster.Died += OnMonsterDied;
             nextEvent = 12; cooldown = 0; scheduleIndex = 0;
-            contentClock = 24; contentIndex = 0;
+            contentClock = 20; contentIndex = 0;
             Shuffle(cycle); Shuffle(contentBag);
+            // Give the first honey encounter a chance to demonstrate the map's pushable stones.
+            int honeySlot=Array.IndexOf(contentBag,OralEventKind.Sweet);
+            contentBag[honeySlot]=contentBag[0]; contentBag[0]=OralEventKind.Sweet;
         }
 
         void BuildCavities()
@@ -258,23 +266,27 @@ namespace Vampire
             if (kind == OralEventKind.Ceiling && OralMapGeometry.ZoneAt(map, player.Position) != OralZone.Tongue) return false;
             if (kind == OralEventKind.Ceiling && !PrepareCeilingBats()) return false;
             if (kind == OralEventKind.Ceiling) Tastes?.CancelBounces();
-            CurrentEvent = kind; sodaCoated.Clear(); Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
+            CurrentEvent = kind;
+            sodaCoated.Clear();
+            sodaTargets.Clear();
+            if (kind == OralEventKind.Soda) ChooseSodaTargets();
+            Elapsed = 0; triggered = false; foodSpawned = 0; spawnClock = coffeeClock = 0;
             nextEvent = UnityEngine.Random.Range(18f, 27f);
             JawAmount = 0; CeilingPhase = 0; ceilingPhaseAge = 0; CeilingTravel01 = 0;
             TargetPosition = OralMapGeometry.Clamp(map, player.Position + player.EffectiveMoveDirection.normalized * 3f, 2.5f, OralZone.Tongue);
             flowDirection = new Vector2(UnityEngine.Random.value > .5f ? .45f : -.45f, -1).normalized;
             switch (kind)
             {
-                case OralEventKind.Jaw: Duration = 3.6f; TargetPosition = player.Position; Banner = "와작! | 치아 사이의 빈틈이나 혀로 피하세요"; break;
-                case OralEventKind.Food: Duration = 6.5f; Banner = "한입 들어온다! | 그림자를 피하고 쏟아지는 음식 몬스터를 처치하세요"; break;
-                case OralEventKind.Water: Duration = 8f; Banner = "물이 들어온다! | 물살을 피해 아랫니로 이동할 수 있어요"; break;
-                case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피가 지나가면 몬스터들이 빨라집니다"; break;
-                case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 탄산에 닿은 몬스터의 막은 침 3회로 깨세요"; break;
-                case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아 주변으로 피하거나 바람을 타세요"; break;
-                case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장 몬스터를 모두 처치하면 내려옵니다"; break;
-                case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 몬스터들이 3초 동안 공중에 뜹니다"; break;
-                case OralEventKind.Brush: Duration = Additions.Begin(kind); Banner = "칫솔 청소! | 가로 → 세로 → 가로, 세 번의 경로를 피하세요"; break;
-                case OralEventKind.BalloonDelivery: Duration = Additions.Begin(kind); Banner = "풍선껌 보물배송! | 풍선을 맞히면 레벨업 상자가 내려옵니다"; break;
+                case OralEventKind.Jaw: Duration = 3.6f; TargetPosition = player.Position; Banner = "와작! | 치아 사이 빈틈이나 혀로 피하세요"; break;
+                case OralEventKind.Food: Duration = 6.5f; Banner = "한입 들어온다! | 떨어지는 음식의 그림자 밖으로 피하세요"; break;
+                case OralEventKind.Water: Duration = 8f; Banner = "물이 들어온다! | 치아에 올라 물살에 덜 밀리세요"; break;
+                case OralEventKind.Coffee: Duration = 20f; Banner = "커피수혈! | 커피콩이 도는 빠른 적과 거리를 벌리세요"; break;
+                case OralEventKind.Soda: Duration = 10f; Banner = "탄산 보호막! | 적의 거품을 침으로 세 번 맞혀 터뜨리세요"; break;
+                case OralEventKind.Sneeze: Duration = 4.3f; Banner = "에취! | 치아에 올라 재채기 바람에 덜 밀리세요"; break;
+                case OralEventKind.Ceiling: Duration = 6f; Banner = "혀가 뒤집힌다! | 입천장에서는 이동이 반대예요 · 박쥐를 모두 잡으세요"; break;
+                case OralEventKind.Hiccup: Duration = Additions.Begin(kind); Banner = "딸꾹! | 적들이 떠 있는 동안 빈 길로 이동하세요"; break;
+                case OralEventKind.Brush: Duration = Additions.Begin(kind); Banner = "칫솔 청소! | 세 번 지나가는 칫솔의 예고선 밖으로 피하세요"; break;
+                case OralEventKind.BalloonDelivery: Duration = Additions.Begin(kind); Banner = "풍선껌 보물배송! | 풍선을 터뜨려 떨어지는 상자를 챙기세요"; break;
             }
             GameAudioManager.PlaySfx(kind == OralEventKind.Jaw ? GameAudioManager.GameSfxId.DangerWave :
                 kind == OralEventKind.Ceiling ? GameAudioManager.GameSfxId.PeristalsisTilt :
@@ -282,6 +294,7 @@ namespace Vampire
                 kind == OralEventKind.Water || kind == OralEventKind.Sneeze ? GameAudioManager.GameSfxId.AcidRefluxWavePass :
                 GameAudioManager.GameSfxId.FieldEventStart);
             Notify(Banner);
+            TutorialGuide.QueueStageEvent("oral-"+kind.ToString().ToLowerInvariant());
             return true;
         }
 
@@ -312,29 +325,22 @@ namespace Vampire
                 OralStageRuntime.Instance.IsAirborne) return false;
             if (kind == OralEventKind.Spicy && (CurrentEvent == OralEventKind.Jaw || CurrentEvent == OralEventKind.Coffee)) return false;
             bool begun;
-            if (kind == OralEventKind.Boulder) begun = Ambient != null && Ambient.BeginBoulder();
-            else if (kind == OralEventKind.Guard) begun = Ambient != null && Ambient.BeginGuard();
+            if (kind == OralEventKind.Boulder) return false; // Map furniture; no event or banner.
+            if (kind == OralEventKind.Guard) begun = Ambient != null && Ambient.BeginGuard();
             else
             {
                 if (Tastes == null || Tastes.Active) return false;
                 begun = Tastes.Begin((OralTasteKind)((int)kind - (int)OralEventKind.Sweet));
             }
-            if (begun) NotifyContent(kind, kind == OralEventKind.Spicy ? "매운맛! | 붉은 화상 원을 피해 빈 길로 이동하세요" :
-                kind == OralEventKind.Sweet ? "벌꿀집 발견! | 먹으러 모인 몬스터를 먼저 처치하세요" :
-                kind == OralEventKind.Salty ? "짠맛! | 소금결정 무리가 몰려옵니다" :
-                kind == OralEventKind.Sour ? "신맛! | 통레몬 스프링을 밟아 더 멀리 튀어 오르세요" :
-                kind == OralEventKind.Bitter ? "쓴 한입! | 선택해서 먹고 버티면 회복합니다" :
-                kind == OralEventKind.Boulder ? "치석 굴림돌! | 걸어서 밀고 대쉬로 날려보세요" :
-                "구강 수호대! | 민트 수호대를 지켜 혀 점프대까지 호위하세요");
+            // The tongue HUD owns the seven-second evacuation notice and its live countdown.
+            if (begun && kind != OralEventKind.Spicy) Notify(
+                kind == OralEventKind.Sweet ? "벌꿀집 발견! | 꿀에 모인 적들을 한꺼번에 처치하세요" :
+                kind == OralEventKind.Salty ? "짠맛! | 몰려오는 소금결정 무리를 쓰러뜨리세요" :
+                kind == OralEventKind.Sour ? "신맛! | 레몬을 밟아 가까운 치아로 건너가세요" :
+                kind == OralEventKind.Bitter ? "쓴 한입! | 쓴맛 조각을 먹고 잠시 버텨 회복하세요" :
+                "구강 수호대! | 수호대를 지켜 혀 점프대까지 호위하세요");
+            if (begun) TutorialGuide.QueueStageEvent("oral-"+kind.ToString().ToLowerInvariant());
             return begun;
-        }
-
-        void NotifyContent(OralEventKind kind, string message)
-        {
-            var toast = FindObjectOfType<StageEventToastUI>();
-            if (toast == null) return;
-            if (kind == OralEventKind.Spicy) toast.ShowImmediateEncounter(message);
-            else Notify(message);
         }
 
         void TickJaw(float previous)
@@ -398,16 +404,49 @@ namespace Vampire
         }
 
         readonly HashSet<Monster> sodaCoated=new HashSet<Monster>();
+        readonly Dictionary<Monster, uint> sodaTargets = new Dictionary<Monster, uint>();
+        readonly List<Monster> sodaCandidates = new List<Monster>();
+
+        void ChooseSodaTargets()
+        {
+            SnapshotMonsters();
+            sodaCandidates.Clear();
+            foreach (var monster in monsterScratch)
+            {
+                if (Live(monster) && !monster.IsMiniStageOwned && !monster.IsFieldRuntimeSuspended &&
+                    !(monster is BloodClotMonster) && OralMapGeometry.ZoneAt(map,monster.Position) == OralZone.Tongue)
+                    sodaCandidates.Add(monster);
+            }
+            // One draw without replacement. Recycled enemies and new arrivals cannot reroll every frame.
+            int quota = Mathf.FloorToInt(sodaCandidates.Count * .4f);
+            for (int i = 0; i < quota; i++)
+            {
+                int other = UnityEngine.Random.Range(i, sodaCandidates.Count);
+                var chosen = sodaCandidates[other];
+                sodaCandidates[other] = sodaCandidates[i]; sodaCandidates[i] = chosen;
+                sodaTargets.Add(chosen, chosen.SpawnGeneration);
+            }
+        }
+
+        Monster earlyDoubleShield;
+        uint earlyDoubleGeneration;
         void TickSoda(float dt) {
             if(Elapsed<=1.2f||Elapsed>=8f)return;
             float progress=Mathf.Clamp01((Elapsed-1.2f)/6.8f),front=1.15f-progress*1.5f;
             SnapshotMonsters();
             foreach(var monster in monsterScratch) {
                 if(!Live(monster)||monster.IsMiniStageOwned||monster.IsFieldRuntimeSuspended||sodaCoated.Contains(monster)||monster is BloodClotMonster)continue;
+                if ((!sodaTargets.TryGetValue(monster, out uint generation) || generation != monster.SpawnGeneration)) continue;
                 var rect=map.WorldRect;var uv=new Vector2((monster.Position.x-rect.xMin)/rect.width,(monster.Position.y-rect.yMin)/rect.height);
                 float wave=Mathf.Sin(uv.x*26+Elapsed*3)*.015f+Mathf.Sin(uv.x*51-Elapsed*4)*.006f;
                 float d=uv.y+(uv.x-.5f)*FlowDirection.x-front+wave;
                 if(OralMapGeometry.ZoneAt(map,monster.Position)!=OralZone.Tongue||d<0||d>.24f)continue;
+                if (level.CurrentLevelTime < 180f && monster.GetComponent<OralTartarArmor>()?.IsProtected == true)
+                {
+                    if (earlyDoubleShield != null && earlyDoubleShield != monster && earlyDoubleShield.IsAlive &&
+                        earlyDoubleShield.SpawnGeneration == earlyDoubleGeneration && earlyDoubleShield.GetComponent<MonsterNeedleBarrier>()?.IsProtected == true) continue;
+                    earlyDoubleShield=monster; earlyDoubleGeneration=monster.SpawnGeneration;
+                }
                 var shield=monster.GetComponent<MonsterNeedleBarrier>()??monster.gameObject.AddComponent<MonsterNeedleBarrier>();
                 shield.Arm();shield.SodaTint=true;sodaCoated.Add(monster);
             }
@@ -469,7 +508,7 @@ namespace Vampire
             var cavity = cavities[index];
             if (cavity.Healed || (player.Position - cavity.Position).sqrMagnitude > TreatmentRadius * TreatmentRadius) return false;
             cavity.Active = true;
-            Notify("충치 치료 시작 | 치아 주변에서 싸우세요. 피했다 돌아와도 진행도는 유지됩니다");
+            Notify("충치 치료 시작 | 빛나는 치아 곁에서 싸워 치료를 끝내세요");
             return true;
         }
 
@@ -520,7 +559,7 @@ namespace Vampire
                     currentCeilingLift = 0; CeilingPhase = 2; ceilingPhaseAge = 0;
                     OralStageRuntime.Instance.SetCeiling(true);
                     player.GetComponent<PlayerMiniStageStunRuntime>()?.EndTravelLock(this);
-                    Banner = "입천장 전투 | 매달린 박쥐 10마리가 깨어납니다 · 모두 처치하면 혀로 돌아갑니다";
+                    Banner = "입천장 전투 | 이동·대시 방향이 반대예요! 박쥐 10마리를 처치하세요";
                 }
             }
             else if (CeilingPhase == 2)
@@ -759,10 +798,36 @@ namespace Vampire
 
         public Monster SpawnFinaleMonster(Vector2 position) => SpawnAt(position, OralZone.Tongue, false);
 
+        SpawnChoice SelectFood()
+        {
+            int second = Mathf.FloorToInt(level.CurrentLevelTime);
+            if (weightedSecond != second)
+            {
+                weightedSecond = second;
+                foodWeightSum = 0;
+                var table = level.CurrentLevelBlueprint.monsterSpawnTable;
+                float time = level.GetNormalizedLevelTime();
+                for (int i = 0; i < choices.Count; i++)
+                {
+                    foodWeightSum += table.GetProbability(time, choices[i].Flat);
+                    foodWeights[i] = foodWeightSum;
+                }
+            }
+            // Cavity defenders, food arrivals and the finale share the live field's
+            // ordinary mix. Picking from all six uniformly would reveal late species at 0:00.
+            float roll = UnityEngine.Random.value * foodWeightSum;
+            for (int i = 0; i < choices.Count; i++)
+                if (roll < foodWeights[i]) return choices[i];
+            // Random.value can equal 1, so choose the last nonzero entry on its upper boundary.
+            for (int i = choices.Count - 1; i > 0; i--)
+                if (foodWeights[i] > foodWeights[i-1]) return choices[i];
+            return choices[0];
+        }
+
         Monster SpawnAt(Vector2 position, OralZone zone, bool ceiling)
         {
             if (choices.Count == 0 || level == null || level.EntityManager == null || (!ceiling && FieldPopulation >= 112)) return null;
-            var choice = choices[UnityEngine.Random.Range(0, choices.Count)];
+            var choice = SelectFood();
             position = OralMapGeometry.Clamp(map, position, .8f, zone);
             var monster = level.EntityManager.SpawnMonster(choice.Pool, position, choice.Blueprint);
             if (monster == null) return null;

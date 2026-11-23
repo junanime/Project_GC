@@ -69,6 +69,7 @@ namespace Vampire
         {
             if(!skill.CanActivate||!CanStart)return false;
             Fuel-=InitialCost;Busy=true;age=0;stopped=-1;nextHit=Preparation+.2f;nextFuel=Preparation+ShortDuration;
+            CombatPacingProbe.Skill();
             owner.UpdateMoveSpeed();
             keyboardHeld=keyboard;pointerHeld=!keyboard;heldPointer=keyboard?null:pointerControl;
             direction=owner.LookDirection.sqrMagnitude>.001f?owner.LookDirection.normalized:Vector2.right;

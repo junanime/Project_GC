@@ -44,11 +44,17 @@ namespace Vampire
         readonly Dictionary<Monster, SpiralCapture> monsterCaptures = new Dictionary<Monster, SpiralCapture>();
         readonly List<Monster> monsterScratch = new List<Monster>();
         readonly List<Monster> releasedMonsters = new List<Monster>();
+        readonly Dictionary<ExpGem, SpiralCapture> gemCaptures = new Dictionary<ExpGem, SpiralCapture>();
+        readonly List<ExpGem> gemScratch = new List<ExpGem>();
+        readonly List<ExpGem> releasedGems = new List<ExpGem>();
+        float nextGemSweep;
+        public int SwallowedGems { get; private set; }
         SpiralCapture playerCapture;
         const float SpiralSeconds = 2.6f, SpiralAngularSpeed = 3.2f, CoreRadius = .16f;
         sealed class SpiralCapture
         {
             public OralWhirlpoolState Source;
+            public Rigidbody2D Body;
             public float Radius, Angle, DamageClock;
             public bool AtCenter, WasSuspended;
             public uint Generation;
@@ -78,7 +84,8 @@ namespace Vampire
             events = owner.GetComponent<OralFieldEvents>();
             age = 0; spawnClock = 0; shortcutHeld = false; transferring = false;
             PairBounces = BoundaryBounces = 0;
-            PlayerCoreDamageTicks = SwallowedMonsters = 0;
+            PlayerCoreDamageTicks = SwallowedMonsters = SwallowedGems = 0;
+            nextGemSweep = 0;
             Instance = this;
         }
 
@@ -106,8 +113,10 @@ namespace Vampire
         void Update()
         {
             if (!StageAvailable) { if (Active || Pending) CancelForTransition(); return; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             HandleTestShortcut(!GameInput.KeyboardBlocked && GameInput.GetKey(KeyCode.F1),
                 !GameInput.KeyboardBlocked && GameInput.GetKey(KeyCode.F2));
+#endif
             if (transferring) return;
             if (!Active)
             {
@@ -154,6 +163,7 @@ namespace Vampire
                 (level.GetComponent<StageProgression>()?.Travelling ?? false)) return;
             events.PrepareForSwallow();
             Pending = false; Active = true; age = 0; spawnClock = 0;
+            TutorialGuide.QueueStageEvent("oral-swallow");
             BuildWhirlpools();
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.FieldEventStart);
         }
@@ -307,18 +317,19 @@ namespace Vampire
             if (!VorticesActive || level.IsRunFlowPaused || player.IsChoosingAugment ||
                 StageEntryLoading.IsLoading || MiniStageRuntimeState.IsInsideMiniStage) return;
             TickMonsterCaptures(Time.deltaTime);
+            TickGemCaptures(Time.deltaTime);
             if (player.IsDashing || pullGrace > 0 || stage.IsAirborne) return;
             if (playerCapture == null)
             {
                 var source = FindContainingVortex(player.Position);
                 if (source == null) return;
-                playerCapture = Capture(source, player.Position);
+                playerCapture = Capture(source, player.Position, player.GetComponent<Rigidbody2D>());
                 player.StartIdleAnimation();
             }
             var capture = playerCapture;
             Vector2 target = SpiralPosition(capture, Time.deltaTime);
             target = OralMapGeometry.Clamp(stage.Map, target, PlayerRadius, OralZone.Tongue);
-            var body = player.GetComponent<Rigidbody2D>();
+            var body = capture.Body;
             if (body != null)
             {
                 target = BloodClotObstacle.ClampDash(body, target);
@@ -345,15 +356,19 @@ namespace Vampire
             OralWhirlpoolState source = null; float deepest = 0;
             foreach (var w in whirlpools)
             {
+                float square=(position-w.Position).sqrMagnitude;
+                // Keep the original penetration arithmetic on the boundary and for
+                // overlapping whirlpools, preserving the chosen source on ties.
+                if (square>w.Radius*w.Radius*1.000001f) continue;
                 float penetration = 1 - Vector2.Distance(position, w.Position) / w.Radius;
                 if (penetration > deepest) { source = w; deepest = penetration; }
             }
             return source;
         }
 
-        static SpiralCapture Capture(OralWhirlpoolState source, Vector2 position)
+        static SpiralCapture Capture(OralWhirlpoolState source, Vector2 position, Rigidbody2D body)
         {
-            var capture = new SpiralCapture { Source = source };
+            var capture = new SpiralCapture { Source = source, Body = body };
             UpdatePolar(capture, position);
             return capture;
         }
@@ -384,7 +399,7 @@ namespace Vampire
                     monster.IsFieldRuntimeSuspended || monsterCaptures.ContainsKey(monster)) continue;
                 var source = FindContainingVortex(monster.Position);
                 if (source == null) continue;
-                var capture = Capture(source, monster.Position);
+                var capture = Capture(source, monster.Position, monster.GetComponent<Rigidbody2D>());
                 capture.WasSuspended = monster.IsFieldRuntimeSuspended;
                 capture.Generation = monster.SpawnGeneration;
                 monsterCaptures.Add(monster, capture);
@@ -399,7 +414,7 @@ namespace Vampire
                 var target = SpiralPosition(capture, dt);
                 target = OralMapGeometry.Clamp(stage.Map, target, .2f, OralZone.Tongue);
                 monster.transform.position = new Vector3(target.x, target.y, monster.transform.position.z);
-                var body = monster.GetComponent<Rigidbody2D>(); if (body != null) body.position = target;
+                if (capture.Body != null) capture.Body.position = target;
                 level.EntityManager.Grid.UpdateClient(monster);
                 UpdatePolar(capture, target);
                 if (capture.Radius > CoreRadius) continue;
@@ -411,9 +426,59 @@ namespace Vampire
             foreach (var monster in releasedMonsters) monsterCaptures.Remove(monster);
         }
 
+        internal bool TryClaimGem(ExpGem gem)
+        {
+            if (!VorticesActive || level.IsRunFlowPaused || MiniStageRuntimeState.IsInsideMiniStage ||
+                gem == null || !gem.gameObject.activeInHierarchy || gem.IsBeingCollected) return false;
+            var pos = (Vector2)gem.transform.position;
+            var vortex = FindContainingVortex(pos);
+            if (vortex == null) return false;
+            var capture = Capture(vortex, pos, null);
+            capture.Generation = gem.SpawnGeneration;
+            gemCaptures[gem] = capture;
+            gem.EnterWhirlpool();
+            return true;
+        }
+
+        void TickGemCaptures(float dt)
+        {
+            nextGemSweep -= dt;
+            if (nextGemSweep <= 0)
+            {
+                nextGemSweep = .12f;
+                StageActorRegistry.CopyActiveGems(gemScratch);
+                foreach (var gem in gemScratch) TryClaimGem(gem);
+            }
+            releasedGems.Clear();
+            foreach (var pair in gemCaptures)
+            {
+                var gem = pair.Key;
+                var capture = pair.Value;
+                if (gem == null || !gem.gameObject.activeInHierarchy || gem.SpawnGeneration != capture.Generation)
+                {
+                    releasedGems.Add(gem);
+                    continue;
+                }
+                var target = SpiralPosition(capture, dt);
+                gem.transform.position = new Vector3(target.x, target.y, gem.transform.position.z);
+                if (capture.Radius > CoreRadius) continue;
+                level.EntityManager.DespawnGem(gem);
+                SwallowedGems++;
+                releasedGems.Add(gem);
+            }
+            foreach (var gem in releasedGems) gemCaptures.Remove(gem);
+        }
+
         void ReleaseCaptures()
         {
             playerCapture = null;
+            foreach (var pair in gemCaptures)
+            {
+                var gem = pair.Key;
+                if (gem == null || !gem.gameObject.activeInHierarchy || gem.SpawnGeneration != pair.Value.Generation) continue;
+                if (level != null && level.EntityManager != null) level.EntityManager.DespawnGem(gem);
+            }
+            gemCaptures.Clear(); gemScratch.Clear(); releasedGems.Clear();
             foreach (var entry in monsterCaptures)
             {
                 var monster = entry.Key;

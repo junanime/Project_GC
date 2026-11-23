@@ -17,6 +17,14 @@ namespace Vampire
         readonly List<LineRenderer> cavityProgress=new List<LineRenderer>();
         readonly List<SpriteRenderer> cavities=new List<SpriteRenderer>();
         LineRenderer tongueOutline, tongueHighlight; GameObject hud; Text title, hint;
+        readonly List<(int Tooth, Vector2 Launch, Vector2 Landing)> spiceEscapeRoutes = new List<(int, Vector2, Vector2)>();
+        readonly LineRenderer[] spiceArrows = new LineRenderer[2];
+        static readonly int SpiceMaterialId = Shader.PropertyToID("_Spice");
+        readonly LineRenderer[] spiceGates = new LineRenderer[2];
+        Vector2 markedLanding, checkedSpicePosition;
+        int markedTooth;
+        bool canDashToMarkedTooth;
+        bool hasMarkedRoute, spicyRoutesReady;
         LineRenderer foodWarning; MeshRenderer[] bubbleDiscs;Material bubbleMaterial; Sprite[] fragments;
         float clock; bool configured; Vector2[][] toothContours; Sprite cavityHole;
 
@@ -87,6 +95,20 @@ namespace Vampire
             for(int i=0;i<20;i++){bubbleDiscs[i]=Quad("기포 표면 "+i,new Rect(-1,-1,2,2),bubbleMaterial,0);GroundVisualSorting.Apply(bubbleDiscs[i],17);bubbleDiscs[i].enabled=false;}
             wind=new LineRenderer[32];for(int i=0;i<wind.Length;i++)wind[i]=Line("흐름과 재채기 "+i,.07f,new Color(.72f,.96f,1,.7f),20);
             jumpArcs=new LineRenderer[3];for(int i=0;i<3;i++)jumpArcs[i]=Line("협곡 점프 안내 "+i,.075f,new Color(.45f,1,.88f,.8f),5);
+            for (int i = 0; i < spiceArrows.Length; i++)
+            {
+                var arrow = Line("매운맛 · 대피 방향", .105f, new Color(.60f, 1, .89f), 25);
+                arrow.positionCount = 3;
+                arrow.enabled = false;
+                spiceArrows[i] = arrow;
+            }
+            for (int i = 0; i < spiceGates.Length; i++)
+            {
+                var gate = Line(i == 0 ? "매운맛 · 도약 지점" : "매운맛 · 착지 지점", .12f,
+                    i == 0 ? new Color(.48f, .98f, .81f) : new Color(.79f, 1f, .89f), 24);
+                gate.positionCount = 19;
+                spiceGates[i] = gate;
+            }
             BuildHud();configured=true;
         }
         MeshRenderer Quad(string name,Rect rect,Material material,int order)
@@ -282,12 +304,20 @@ namespace Vampire
             int count=Mathf.Max(2,Mathf.CeilToInt(points.Length*progress));line.positionCount=count;
             for(int i=0;i<count;i++)line.SetPosition(i,center+points[i%points.Length]);
         }
+        InteractionKeycapGraphic dashCrossingKey;
         void BuildHud()
         {
             hud=new GameObject("구강 이벤트 안내",typeof(Canvas),typeof(CanvasScaler));hud.transform.SetParent(root,false);var canvas=hud.GetComponent<Canvas>();canvas.renderMode=RenderMode.ScreenSpaceOverlay;canvas.sortingOrder=40;
             var scaler=hud.GetComponent<CanvasScaler>();scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;scaler.referenceResolution=new Vector2(1280,720);
+            if (!GamePlatform.UsesTouchControls)
+            {
+                dashCrossingKey = InteractionKeycapGraphic.Create("혀와 이빨 건너기", hud.transform, "Shift", 31);
+                dashCrossingKey.Bounds.anchorMin = dashCrossingKey.Bounds.anchorMax = Vector2.one * .5f;
+                dashCrossingKey.gameObject.SetActive(false);
+            }
             title=Label("진행 중인 이벤트",22,new Vector2(.5f,0),new Vector2(0,195),new Vector2(1080,35));
             hint=Label("조작 안내",16,new Vector2(.5f,0),new Vector2(0,164),new Vector2(1080,28));hint.color=new Color(1,.91f,.72f);
+            hint.enabled = false;
         }
         Text Label(string name,int size,Vector2 anchor,Vector2 pos,Vector2 dimensions)
         {var go=new GameObject(name,typeof(RectTransform),typeof(Text),typeof(Outline));go.transform.SetParent(hud.transform,false);var text=go.GetComponent<Text>();text.font=Resources.Load<Font>("TrainingUI/Cafe24Ssurround");text.fontSize=size;text.alignment=TextAnchor.MiddleCenter;text.color=Color.white;text.raycastTarget=false;var rt=text.rectTransform;rt.anchorMin=rt.anchorMax=anchor;rt.anchoredPosition=pos;rt.sizeDelta=dimensions;go.GetComponent<Outline>().effectColor=new Color(.13f,.04f,.08f,.95f);go.GetComponent<Outline>().effectDistance=new Vector2(2,-2);return text;}
@@ -309,17 +339,105 @@ namespace Vampire
             }
             bool showHud=!StageEntryLoading.IsLoading&&!runtime.Level.IsLevelEnded&&(ApothecaryUI.Instance==null||ApothecaryUI.Instance.Page=="hud");
             hud.SetActive(showHud);
-            title.text=events!=null&&kind!=OralEventKind.None&&elapsed>3?events.Banner:"";
-            hint.text=ceiling?"거꾸로 붙어 있어도 조작 방향은 같아요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"송곳니 직전까지 점프 가능  |  앞니 안쪽으로 벗어나면 혀로 미끄러져요";
+            // The field toast already owns the event's action line. Do not repeat it over the field.
+            title.text="";
+            hint.enabled=swallow!=null;
+            hint.text=ceiling?"입천장에 매달리면 이동·대시 방향이 반대예요":kind==OralEventKind.Jaw?"윗니가 내려옵니다! 치아 사이 틈이나 혀로 피하세요":kind==OralEventKind.Coffee?"커피수혈 · 커피콩이 도는 몬스터를 주의하세요":"혀와 이빨 사이를 건너려면 가장자리에서 건너편을 향해 대시하세요";
+            if (UpdateSpice(events?.Tastes, kind, swallow != null)) return;
             if(swallow!=null)
             {
                 // One existing HUD owns the finale too; two overlapping event
                 // banners never compete with the surviving actors and water.
                 float age=swallow.Age;
+                // Show each new action for four seconds; the survival countdown remains legible on its own.
+                hint.enabled=age<4 || (age>=16 && age<24 && !swallow.IsSwallowing);
                 title.text=age<10?"꿀꺽 이벤트 · 음식 몬스터가 몰려옵니다!":age<16?"협곡에 물이 차오르고 있습니다!":age<20?"몸의 주인이 음식을 삼키려 합니다!":swallow.IsSwallowing?"꿀꺽! · 스테이지 1로 이동합니다":"꿀꺽 이벤트 · "+Mathf.CeilToInt(swallow.SurvivalRemaining)+"초만 더 버티세요!";
-                hint.text=age<16?"물살이 곧 혀 위까지 차오릅니다":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"물과 음식이 식도로 쓸려갑니다":"소용돌이를 피하세요 · 빨려들면 대쉬 한 번으로 탈출!";
+                hint.text=age<16?"혀 위에서 음식 몬스터를 피하세요":age<20?"윗니가 닫힙니다! 혀 안쪽으로 이동하세요":swallow.IsSwallowing?"끝까지 살아남았어요":"소용돌이에 잡히면 대시로 빠져나오세요";
             }
         }
+        bool UpdateSpice(OralTasteEvents taste, OralEventKind kind, bool finale)
+        {
+            bool active = taste != null && taste.Active && taste.Kind == OralTasteKind.Spicy
+                && kind != OralEventKind.Ceiling && !finale && !StageEntryLoading.IsLoading;
+            if (!active)
+            {
+                tongueMaterial.SetVector(SpiceMaterialId, Vector4.zero);
+                foreach (var arrow in spiceArrows) arrow.enabled = false;
+                foreach (var gate in spiceGates) gate.enabled = false;
+                hasMarkedRoute = false;
+                return false;
+            }
+
+            float age = taste.Age;
+            bool hot = taste.SpicyActive;
+            tongueMaterial.SetVector(SpiceMaterialId, new Vector4(
+                hot ? 1f : Mathf.Lerp(.55f, .92f, age / OralTasteEvents.SpicyWarning), hot ? 1f : 0f, age, 0));
+            var position = runtime.Level.PlayerCharacter.Position;
+            bool safe = OralMapGeometry.ZoneAt(map, position) == OralZone.Teeth;
+            if (!hot)
+                title.text = "이빨로 대피하세요!   " + Mathf.CeilToInt(OralTasteEvents.SpicyWarning - age) + "초";
+            else
+                title.text = safe ? "이빨 위는 안전해요!" : "혀가 뜨거워요! 이빨로 대피하세요!";
+            hint.enabled = true;
+            hint.text = safe ? "혀가 식을 때까지 이곳에서 버티세요" : "민트색 표시로 이동한 뒤 이빨 쪽으로 대시!";
+            if (!spicyRoutesReady)
+            {
+                for (int i = 0; i < OralMapGeometry.ToothCount; i++)
+                    if (OralMapGeometry.TryGetCrossing(map, i, out var launch, out var landing))
+                        spiceEscapeRoutes.Add((i, launch, landing));
+                spicyRoutesReady = true;
+            }
+            bool guide = !safe && !runtime.IsAirborne && spiceEscapeRoutes.Count > 0;
+            foreach (var arrow in spiceArrows) arrow.enabled = guide;
+            foreach (var gate in spiceGates) gate.enabled = guide || (!safe && runtime.IsAirborne && hasMarkedRoute);
+            if (safe) hasMarkedRoute = false;
+            if (!guide) return true;
+
+            var best = spiceEscapeRoutes[0];
+            foreach (var route in spiceEscapeRoutes)
+                if ((route.Launch-position).sqrMagnitude < (best.Launch-position).sqrMagnitude) best = route;
+            bool routeChanged = !hasMarkedRoute || best.Tooth != markedTooth;
+            // Match the eight-direction input shown by the route, even if the player
+            // approaches off center. The far marker is where that input will land.
+            Vector2 crossing = (best.Landing - best.Launch).normalized;
+            if (routeChanged || checkedSpicePosition != position)
+            {
+                checkedSpicePosition = position;
+                canDashToMarkedTooth = OralMapGeometry.TryJump(map, position, crossing, out var actualLanding) &&
+                    OralMapGeometry.NearestTooth(map, actualLanding) == best.Tooth;
+                Vector2 destination = canDashToMarkedTooth ? actualLanding : best.Landing;
+                if (routeChanged)
+                    DrawSpiceGate(spiceGates[0], best.Launch, crossing);
+                if (routeChanged || destination != markedLanding)
+                    DrawSpiceGate(spiceGates[1], destination, -crossing);
+                markedLanding = destination;
+                markedTooth = best.Tooth;
+                hasMarkedRoute = true;
+            }
+            Vector2 dir = canDashToMarkedTooth ? crossing : (best.Launch - position).normalized;
+            Vector2 side = new Vector2(-dir.y, dir.x);
+            for (int i = 0; i < spiceArrows.Length; i++)
+            {
+                float pulse = GamePreferences.Current.reducedMotion ? 0f : .12f * Mathf.Sin(age * 5f);
+                var tip = position + dir * (1f + i*.37f + pulse);
+                var arrow = spiceArrows[i];
+                arrow.SetPosition(0, tip-dir*.24f+side*.19f);
+                arrow.SetPosition(1, tip);
+                arrow.SetPosition(2, tip-dir*.24f-side*.19f);
+            }
+            return true;
+        }
+
+        static void DrawSpiceGate(LineRenderer gate, Vector2 center, Vector2 opening)
+        {
+            Vector2 side = new Vector2(-opening.y, opening.x);
+            for (int i = 0; i < gate.positionCount; i++)
+            {
+                float angle = Mathf.Lerp(-1.7f, 1.7f, i / (float)(gate.positionCount - 1));
+                gate.SetPosition(i, center + .78f * Mathf.Sin(angle) * side - .42f * Mathf.Cos(angle) * opening);
+            }
+        }
+
         void AnimateTongue(OralEventKind kind,float elapsed,bool ceiling)
         {
             var c=OralMapGeometry.TongueCenter(map);var r=OralMapGeometry.TongueRadii(map);
@@ -395,10 +513,29 @@ namespace Vampire
         }
         void AnimateJump()
         {
-            var player=runtime.Level.PlayerCharacter;var c=OralMapGeometry.TongueCenter(map);var p=(Vector2)player.transform.position;var direction=(p-c).normalized;
-            if(OralMapGeometry.ZoneAt(map,p)==OralZone.Teeth)direction=-direction;
-            Vector2 landing=p;
-            bool show=Swallow==null&&!runtime.OnCeiling&&!runtime.IsSliding&&OralMapGeometry.TryJump(map,p,direction,out landing);
+            var player = runtime.Level.PlayerCharacter;
+            Vector2 p = player.Position, landing = p;
+            // Only preview the crossing the player's next dash would actually take.
+            bool show = Swallow == null && !runtime.OnCeiling && !runtime.IsAirborne &&
+                !runtime.Level.IsRunFlowPaused && !player.IsDashing && player.CurrentDashCharges > 0 &&
+                OralMapGeometry.TryJump(map, p, player.GetDashDirection(), out landing);
+            if (dashCrossingKey != null)
+            {
+                var cam = Camera.main;
+                bool canShow = show && cam != null && !player.IsChoosingAugment && !StageEntryLoading.IsLoading;
+                if (dashCrossingKey.gameObject.activeSelf != canShow) dashCrossingKey.gameObject.SetActive(canShow);
+                if (canShow)
+                {
+                    var container = (RectTransform)hud.transform;
+                    var screen = cam.WorldToScreenPoint(player.CenterTransform.position);
+                    RectTransformUtility.ScreenPointToLocalPointInRectangle(container, screen, null, out var local);
+                    dashCrossingKey.Bounds.anchoredPosition = local + Vector2.up * 64f;
+                    var keys = GamePreferences.Current.keyboard;
+                    var binding = keys.Get(GameKeyAction.Dash);
+                    if (binding == KeyCode.None) binding = keys.Get(GameKeyAction.Dash, 1);
+                    dashCrossingKey.ShowKey(binding == KeyCode.LeftShift || binding == KeyCode.RightShift ? "Shift" : KeyboardBindingValues.KeyLabel(binding), 31, true);
+                }
+            }
             for(int i=0;i<jumpArcs.Length;i++){var l=jumpArcs[i];l.enabled=show;if(!show)continue;l.positionCount=8;for(int j=0;j<8;j++){float u=(i/3f)+(j/7f)*.23f;var q=Vector2.Lerp(p,landing,u)+Vector2.up*(Mathf.Sin(u*Mathf.PI)*1.1f);l.SetPosition(j,q);}}
         }
         void OnDestroy()

@@ -779,6 +779,9 @@ namespace Vampire
                 GetOrbitHitRadius();
 
 
+            using var hitLease = UnityEngine.Pool.ListPool<Collider2D>.Get(out var hits);
+            using var targetLease = UnityEngine.Pool.HashSetPool<int>.Get(out var checkedTargetsThisNeedle);
+
             for (
                 int needleIndex = 0;
                 needleIndex < orbitNeedleVisuals.Count;
@@ -797,28 +800,9 @@ namespace Vampire
                 }
 
 
-                Collider2D[] hits =
-                    Physics2D.OverlapCircleAll(
-                        needleTransform.position,
-                        hitRadius
-                    );
-
-
-                if (hits == null ||
-                    hits.Length == 0)
-                {
-                    continue;
-                }
-
-
-                HashSet<int>
-                    checkedTargetsThisNeedle =
-                        new HashSet<int>();
-
-
-                for (int i = 0;
-                     i < hits.Length;
-                     i++)
+                NeedleTargeting.FillCircle(needleTransform.position, hitRadius, Physics2D.DefaultRaycastLayers, hits);
+                checkedTargetsThisNeedle.Clear();
+                for (int i = 0; i < hits.Count; i++)
                 {
                     Collider2D hit =
                         hits[i];
@@ -844,21 +828,7 @@ namespace Vampire
                     }
 
 
-                    if (
-                        checkedTargetsThisNeedle
-                            .Contains(
-                                targetId
-                            )
-                    )
-                    {
-                        continue;
-                    }
-
-
-                    checkedTargetsThisNeedle.Add(
-                        targetId
-                    );
-
+                    if (!checkedTargetsThisNeedle.Add(targetId)) continue;
 
                     NeedleTargetKey key =
                         new NeedleTargetKey(
@@ -1091,6 +1061,7 @@ namespace Vampire
             }
 
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD || VAMPIRE_TRACE_COMBAT
             if (isCritical)
             {
                 Debug.Log(
@@ -1098,6 +1069,7 @@ namespace Vampire
                     $"피해 {finalDamage:0.##}"
                 );
             }
+#endif
         }
 
 

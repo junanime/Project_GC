@@ -213,7 +213,7 @@ namespace Vampire.Tests.Editor
             Check(legendary.Count==3&&legendary.Cast<Ver4AugmentOffer>().All(c=>c.Kind==Ver4RewardKind.LegendaryAbility),"Legendary chest uses separate pool");manager.ReturnAbilities(legendary);
             foreach(var parent in parents)
                 for(int option=0;option<3;option++)
-                    for(int count=0;count<3;count++)
+                    for(int count=runtime.Progress.Count(parent.Type.ToString(),option);count<3;count++)
                     {
                         var offer=Offer(runtime,parent,Ver4RewardKind.Original,option);
                         Check(runtime.Apply(offer),$"Original {parent.Type}/{option} count {count+1}");UnityEngine.Object.Destroy(offer.gameObject);

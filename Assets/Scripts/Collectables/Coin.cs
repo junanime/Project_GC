@@ -23,8 +23,11 @@ namespace Vampire
         protected override void Awake()
         {
             base.Awake();
+            StageActorRegistry.Register<Coin>(this);
             spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         }
+
+        void OnDestroy() => StageActorRegistry.Remove<Coin>(this);
 
         public void Setup(Vector2 position, CoinType coinType = CoinType.Bronze1, bool spawnAnimation = true, bool collectableDuringSpawn = true, bool requirePickupRange = false)
         {

@@ -228,13 +228,17 @@ namespace Vampire.Tests.Editor
                     card.transform.SetParent(root.transform);
                     SetPrivateField(card, "augmentType", selected);
                     card.Init(manager, null, null);
+                    bool retired = selected == SyringeSpecialAugmentAbility.SpecialAugmentType.Honey ||
+                        selected == SyringeSpecialAugmentAbility.SpecialAugmentType.WoodNeedle;
+                    Assert.That(StartingNeedleSelection.Available(selected), Is.EqualTo(!retired), $"catalog availability: {selected}");
+                    if (retired) Assert.That(card.RequirementsMet(), Is.False, $"retired parent offered: {selected}");
                     card.Select();
 
                     foreach (SyringeSpecialAugmentAbility.SpecialAugmentType candidate in
                              Enum.GetValues(typeof(SyringeSpecialAugmentAbility.SpecialAugmentType)))
                     {
                         Assert.That(ReadSpecialState(syringe, candidate),
-                            Is.EqualTo(candidate == selected), $"selected={selected}, state={candidate}");
+                            Is.EqualTo(!retired && candidate == selected), $"selected={selected}, state={candidate}");
                     }
                 }
                 finally
@@ -359,6 +363,45 @@ namespace Vampire.Tests.Editor
                     $"{path} entry {i}");
                 int actualType = new SerializedObject(source).FindProperty(sourceAbilityTypeField).enumValueIndex;
                 Assert.That(actualType, Is.EqualTo(expectedType), $"{path} entry {i}");
+            }
+        }
+
+        [Test]
+        public void HungrySpiritPollingKeepsOneSubscriptionAndDoesNotResetItsTimerOrLogActivationAgain()
+        {
+            var owner = new GameObject("Hungry spirit activation test");
+            var actor = owner.AddComponent<Character>();
+            var needle = owner.AddComponent<SyringeDartAbility>();
+            var sync = typeof(SyringeDartAbility).GetMethod("ApplyInspectorForcedAugmentRuntimeSetup", BindingFlags.NonPublic | BindingFlags.Instance);
+            var timer = typeof(HungrySpiritController).GetField("noPickupTimer", BindingFlags.NonPublic | BindingFlags.Instance);
+            int activations = 0;
+            void Log(string text, string stack, LogType type)
+            {
+                if (text == "[헝그리정신] 전설 증강 활성화.") activations++;
+            }
+            Application.logMessageReceived += Log;
+            try
+            {
+                SetPrivateField(needle, "playerCharacter", actor);
+                needle.EnableHungrySpiritLegendary();
+                var controller = owner.GetComponent<HungrySpiritController>();
+                Assert.IsNotNull(controller);
+                timer.SetValue(controller, .75f);
+                for (int i = 0; i < 217; i++) sync.Invoke(needle, null);
+                needle.EnableHungrySpiritLegendary();
+                Assert.AreEqual(1, activations);
+                Assert.AreEqual(.75f, (float)timer.GetValue(controller));
+                Assert.AreEqual(1, owner.GetComponents<HungrySpiritController>().Length);
+                HungrySpiritPickupSignal.NotifyExpOrCoinPickedUp(actor);
+                Assert.AreEqual(0f, (float)timer.GetValue(controller));
+            }
+            finally
+            {
+                Application.logMessageReceived -= Log;
+                var controller = owner.GetComponent<HungrySpiritController>();
+                if (controller != null)
+                    typeof(HungrySpiritController).GetMethod("OnDestroy", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(controller, null);
+                UnityEngine.Object.DestroyImmediate(owner);
             }
         }
 

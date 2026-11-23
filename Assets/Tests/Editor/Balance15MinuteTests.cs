@@ -65,21 +65,34 @@ namespace Vampire.Tests.Editor
         [Test]
         public void HighestNormalTierHasExactLateGameMixAndNoEarlyLeak()
         {
-            var t = Level.monsterSpawnTable;
-            Assert.AreEqual(900f, Level.levelTime);
+            var level = Level;
+            var t = level.monsterSpawnTable;
+            Assert.AreEqual(900f, level.levelTime);
             Assert.AreEqual(0, t.GetProbability(659f / 900f, 7));
             Assert.AreEqual(0, t.GetProbability(660f / 900f, 7));
             Assert.Greater(t.GetProbability(661f / 900f, 7), 0);
             Assert.AreEqual(.60f, t.GetProbability(790f / 900f, 7), .0001f);
-            Assert.AreEqual(.85f, t.GetProbability(860f / 900f, 7), .0001f);
+            const int oyster = 31, redCap = 32;
+            Assert.AreEqual(0, t.GetProbability(840f / 900f, oyster), .0001f);
+            Assert.Greater(t.GetProbability(841f / 900f, oyster), 0);
+            Assert.AreEqual(0, t.GetProbability(870f / 900f, redCap), .0001f);
+            Assert.Greater(t.GetProbability(871f / 900f, redCap), 0);
+            Assert.AreEqual(.85f * (2f / 3f), t.GetProbability(860f / 900f, 7), .0001f);
+            Assert.AreEqual(.35f, t.GetProbability(1, oyster), .0001f);
+            Assert.AreEqual(.45f, t.GetProbability(1, redCap), .0001f);
             float previous = 0;
-            var normals = new HashSet<int> { 0, 1, 4, 5, 6, 7 };
+            var normals = new HashSet<int> { 0, 1, 4, 5, 6, 7, oyster, redCap };
             for (int sec = 0; sec <= 1000; sec++)
             {
-                float p = t.GetProbability(sec / 900f, 7);
-                Assert.GreaterOrEqual(p + .00001f, previous); previous = p;
+                float time = sec / 900f;
+                // The two late mushrooms share the same ordinary wave. Within the
+                // original six species the strongest original species keeps rising.
+                float originalPool = 1f - t.GetProbability(time, oyster) - t.GetProbability(time, redCap);
+                float originalShare = t.GetProbability(time, 7) / originalPool;
+                Assert.GreaterOrEqual(originalShare + .00001f, previous);
+                previous = originalShare;
                 float sum = 0;
-                for (int i = 0; i < 27; i++)
+                for (int i = 0; i < level.MonsterIndexMap.Count; i++)
                 {
                     float chance = t.GetProbability(sec / 900f, i);
                     sum += chance;
@@ -95,12 +108,13 @@ namespace Vampire.Tests.Editor
         {
             var profile = AssetDatabase.LoadAssetAtPath<LevelSpawnBalanceProfile>("Assets/Junhan/Script/Spawn/Level1_15Min_SpawnBalanceProfile.asset");
             Assert.NotNull(profile);
-            var built = profile.BuildSpawnTable(Level);
+            var level = Level;
+            var built = profile.BuildSpawnTable(level);
             for (int sec = 0; sec <= 900; sec++)
             {
                 float t = sec / 900f;
-                Assert.AreEqual(Level.monsterSpawnTable.GetSpawnRate(t), built.GetSpawnRate(t), .001f);
-                for (int i = 0; i < 27; i++) Assert.AreEqual(Level.monsterSpawnTable.GetProbability(t, i), built.GetProbability(t, i), .001f);
+                Assert.AreEqual(level.monsterSpawnTable.GetSpawnRate(t), built.GetSpawnRate(t), .001f);
+                for (int i = 0; i < level.MonsterIndexMap.Count; i++) Assert.AreEqual(level.monsterSpawnTable.GetProbability(t, i), built.GetProbability(t, i), .001f);
             }
         }
         [Test]
@@ -143,7 +157,7 @@ namespace Vampire.Tests.Editor
             }
             var snail = Level.finalBoss.bossPrefab.GetComponent<SnailBossRuntime>();
             Assert.NotNull(snail);
-            Assert.AreEqual(6000, snail.settings.maxHealth);
+            Assert.AreEqual(24000, snail.settings.maxHealth);
             Assert.AreEqual(.3f, snail.settings.phaseThreshold);
         }
         [Test]

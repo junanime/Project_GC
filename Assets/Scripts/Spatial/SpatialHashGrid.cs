@@ -16,6 +16,7 @@ public class SpatialHashGrid
     protected Vector2[] bounds;
     protected Vector2Int dimensions;
     protected int queryIds;
+    private readonly HashSet<ISpatialHashGridClient> rebuildClients = new HashSet<ISpatialHashGridClient>();
 
     public SpatialHashGrid(Vector2[] bounds, Vector2Int dimensions)
     {
@@ -36,27 +37,29 @@ public class SpatialHashGrid
     public void Rebuild(Vector2[] bounds, Vector2Int dimensions)
     {
         // Extract all old clients
-        HashSet<ISpatialHashGridClient> oldClients = new HashSet<ISpatialHashGridClient>();
+        rebuildClients.Clear();
         for (int i = 0; i < cells.Length; i++)
         {
             foreach (ISpatialHashGridClient client in cells[i])
             {
-                oldClients.Add(client);
+                rebuildClients.Add(client);
             }
         }
 
-        // Re-initialize cells
         this.bounds = bounds;
         this.dimensions = dimensions;
-        this.cells = new List<ISpatialHashGridClient>[dimensions.x * dimensions.y];
-        for (int i = 0; i < cells.Length; i++)
-            cells[i] = new List<ISpatialHashGridClient>();
-
-        // Re-insert old clients
-        foreach (ISpatialHashGridClient oldClient in oldClients)
+        if (cells.Length != dimensions.x * dimensions.y)
         {
-            InsertClient(oldClient);
-        }   
+            cells = new List<ISpatialHashGridClient>[dimensions.x * dimensions.y];
+            for (int i = 0; i < cells.Length; i++) cells[i] = new List<ISpatialHashGridClient>();
+        }
+        else
+        {
+            foreach (var cell in cells) cell.Clear();
+        }
+
+        foreach (var client in rebuildClients) InsertClient(client);
+        rebuildClients.Clear();
     }
 
     public List<ISpatialHashGridClient> FindNearby(Vector2 position, Vector2 size)
@@ -120,42 +123,40 @@ public class SpatialHashGrid
 
     public ISpatialHashGridClient FindClosestInRadius(Vector2 position, float radius)
     {
-        List<ISpatialHashGridClient> nearby = FindNearbyInRadius(position, radius);
-        if (nearby.Count == 0) return null;
-        int closestIdx = 0;
-        float minDistance = Vector2.Distance(nearby[closestIdx].Position, position);
-        for (int i = 1; i < nearby.Count; i++)
+        int xMin = GetCellXIndex(position.x-radius), xMax = GetCellXIndex(position.x+radius);
+        int yMin = GetCellYIndex(position.y-radius), yMax = GetCellYIndex(position.y+radius);
+        int queryId = queryIds++;
+        ISpatialHashGridClient closest = null;
+        float best = radius;
+        // Match FindNearbyInRadius's x/y/insertion ordering, including equal distances.
+        for (int x = xMin; x <= xMax; x++)
         {
-            float distance = Vector2.Distance(nearby[i].Position, position);
-            if (distance < minDistance)
+            for (int y = yMin; y <= yMax; y++)
             {
-                minDistance = distance;
-                closestIdx = i;
+                foreach (var client in cells[CellToIndex(x, y)])
+                {
+                    if (client.QueryID == queryId) continue;
+                    float distance = Vector2.Distance(client.Position,position);
+                    if (distance >= radius) continue;
+                    client.QueryID = queryId;
+                    if (distance < best) { best = distance; closest = client; }
+                }
             }
         }
-        return nearby[closestIdx];
+        return closest;
     }
-
-    // public ISpatialHashGridClient FindNearest(Vector2 position, Vector2 size)
-    // {
-    //     Vector2Int i1 = GetCellIndex(position.x, position.y);
-    //     int cellIndex = CellToIndex(x, y);
-    //     foreach (ISpatialHashGridClient client in cells[cellIndex])
-    //     {
-    //         if (client.QueryID != queryId)
-    //         {
-    //             client.QueryID = queryId;
-    //             nearbyClients.Add(client);
-    //         }
-    //     }
-    // }
 
     public void InsertClient(ISpatialHashGridClient client)
     {
-        Vector2Int i1 = GetCellIndex(client.Position.x - client.Size.x/2.0f, client.Position.y - client.Size.y/2.0f);
-        Vector2Int i2 = GetCellIndex(client.Position.x + client.Size.x/2.0f, client.Position.y + client.Size.y/2.0f);
+        ClientRange(client, out var i1, out var i2);
         
-        client.ListIndexByCellIndex = new Dictionary<int, int>();
+        InsertIntoCells(client,i1,i2);
+    }
+
+    void InsertIntoCells(ISpatialHashGridClient client, Vector2Int i1, Vector2Int i2)
+    {
+        if (client.ListIndexByCellIndex == null) client.ListIndexByCellIndex = new Dictionary<int,int>();
+        else client.ListIndexByCellIndex.Clear();
         
         for (int x = i1.x, xn = i2.x; x <= xn; x++)
         {
@@ -173,8 +174,7 @@ public class SpatialHashGrid
 
     public void UpdateClient(ISpatialHashGridClient client)
     {
-        Vector2Int i1 = GetCellIndex(client.Position.x - client.Size.x/2.0f, client.Position.y - client.Size.y/2.0f);
-        Vector2Int i2 = GetCellIndex(client.Position.x + client.Size.x/2.0f, client.Position.y + client.Size.y/2.0f);
+        ClientRange(client, out var i1, out var i2);
 
         int cellIndexMin = CellToIndex(i1.x, i1.y);
         int cellIndexMax = CellToIndex(i2.x, i2.y);
@@ -183,7 +183,7 @@ public class SpatialHashGrid
             return;
 
         RemoveClient(client);
-        InsertClient(client);
+        InsertIntoCells(client,i1,i2);
     }
 
     public void RemoveClient(ISpatialHashGridClient client)
@@ -206,9 +206,16 @@ public class SpatialHashGrid
 
     public bool CloseToEdge(ISpatialHashGridClient client)
     {
-        Vector2Int i1 = GetCellIndex(client.Position.x - client.Size.x/2.0f, client.Position.y - client.Size.y/2.0f);
-        Vector2Int i2 = GetCellIndex(client.Position.x + client.Size.x/2.0f, client.Position.y + client.Size.y/2.0f);
+        ClientRange(client, out var i1, out var i2);
         return i1.x == 0 || i1.y == 0 || i2.x == dimensions.x-1 || i2.y == dimensions.y-1;
+    }
+
+    void ClientRange(ISpatialHashGridClient client, out Vector2Int min, out Vector2Int max)
+    {
+        // Monster position and collider bounds are Unity native reads.
+        Vector2 position = client.Position, halfSize = client.Size * .5f;
+        min = GetCellIndex(position.x-halfSize.x,position.y-halfSize.y);
+        max = GetCellIndex(position.x+halfSize.x,position.y+halfSize.y);
     }
 
     private Vector2Int GetCellIndex(float xPosition, float yPosition)

@@ -169,6 +169,7 @@ namespace Vampire
             [HideInInspector] public float resolvedStartTime;
             [HideInInspector] public float elapsed;
             [System.NonSerialized] public int clapPhase;
+            [System.NonSerialized] public Vector2 laneCenter;
 
             // 카메라 Tilt 효과음이 이 이벤트에서 이미 재생됐는지 기록합니다.
             [HideInInspector] public bool tiltSfxPlayed;
@@ -586,7 +587,7 @@ namespace Vampire
                 waveEvent.eventName = "환타 파도";
                 waveEvent.started = true;
                 Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Fanta);
-                ShowEventStartedUI(waveEvent.eventName);
+                ShowEventStartedUI(waveEvent.eventName, StageEventVisualKind.Reflux);
                 TutorialGuide.QueueStageEvent("acid-reflux");
 
                 if (logEventState)
@@ -660,10 +661,11 @@ namespace Vampire
                 driftEvent.started = true;
                 driftEvent.elapsed = -ChameleonPortrait.ClapLead;
                 driftEvent.clapPhase = 0;
+                MarkDriftLane(driftEvent, Vector2.left);
                 Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Drift);
                 StartCoroutine(ChameleonPortrait.Clap(transform));
 
-                ShowEventStartedUI(driftEvent.eventName);
+                ShowEventStartedUI(driftEvent.eventName, StageEventVisualKind.Drift);
                 TutorialGuide.QueueStageEvent("peristaltic-drift");
 
                 Debug.Log(
@@ -680,6 +682,7 @@ namespace Vampire
                 driftEvent.elapsed >= upcoming * interval - ChameleonPortrait.ClapLead)
             {
                 driftEvent.clapPhase = upcoming;
+                MarkDriftLane(driftEvent, upcoming % 2 == 0 ? Vector2.left : Vector2.right);
                 StartCoroutine(ChameleonPortrait.Clap(transform));
             }
 
@@ -693,6 +696,21 @@ namespace Vampire
             }
 
             ApplyCameraTilt(driftEvent);
+        }
+
+        void MarkDriftLane(PeristalsisDriftEvent e, Vector2 direction)
+        {
+            if (levelManager == null || levelManager.PlayerCharacter == null) return;
+            var map = FiniteStomachMap.Instance;
+            if (map == null || map.IsColon || map.IsOral) return;
+            e.laneCenter = levelManager.PlayerCharacter.Position + direction * 1.7f;
+            var axis = (direction + Vector2.up * .32f).normalized;
+            for (int i = -2; i <= 2; i++)
+            {
+                var at = e.laneCenter + axis * (i * 1.18f);
+                if (map.FloorClearance(at) > .5f)
+                    GStarFieldStreak.Draw(levelManager, at, axis, new Color(1,.66f,.29f,.76f));
+            }
         }
 
         private void ApplyPeristalsisDrift(PeristalsisDriftEvent driftEvent)
@@ -716,29 +734,31 @@ namespace Vampire
                 Debug.LogWarning("[AdvancedStageEvent] 연동운동 기류: PlayerCharacter를 찾지 못했습니다.");
             }
 
-            Monster[] monsters = FindObjectsOfType<Monster>();
-
-            for (int i = 0; i < monsters.Length; i++)
+            var monsters = levelManager?.EntityManager?.LivingMonsters;
+            if (monsters == null) return;
+            var map = FiniteStomachMap.Instance;
+            bool gather = map != null && !map.IsColon && !map.IsOral;
+            var axis = (driftDirection + Vector2.up * .32f).normalized;
+            var normal = Vector2.Perpendicular(axis);
+            foreach (var monster in monsters)
             {
-                if (monsters[i] == null || monsters[i].IsMiniStageOwned || monsters[i].IsFieldRuntimeSuspended)
-                {
-                    continue;
-                }
-
-                Rigidbody2D monsterRb = monsters[i].GetComponent<Rigidbody2D>();
-
-                ApplyDriftToRigidbody(
-                    monsterRb,
-                    driftDirection,
-                    driftEvent.monsterDriftForce,
-                    driftEvent.maxAddedVelocity);
+                if (monster == null || monster.IsMiniStageOwned || monster.IsFieldRuntimeSuspended) continue;
+                var rb = monster.GetComponent<Rigidbody2D>();
+                ApplyDriftToRigidbody(rb, driftDirection, driftEvent.monsterDriftForce, driftEvent.maxAddedVelocity);
+                if (!gather || rb == null || !rb.simulated || !GStarFieldBalance.IsOrdinary(monster)) continue;
+                var relative = rb.position - driftEvent.laneCenter;
+                if (relative.sqrMagnitude > 49f || Mathf.Abs(Vector2.Dot(relative,axis)) > 5.5f) continue;
+                float side = Vector2.Dot(relative,normal);
+                float pull = Mathf.Clamp(side, -1.4f, 1.4f) * Time.fixedDeltaTime;
+                var next = rb.position - normal * pull;
+                if (map.FloorClearance(next) > .65f) rb.position = next;
             }
 
             if (logDriftDetail)
             {
                 Debug.Log(
                     $"[AdvancedStageEvent] 연동운동 기류 적용 | " +
-                    $"dir={driftDirection} | monsters={monsters.Length}");
+                    $"dir={driftDirection} | monsters={monsters.Count}");
             }
         }
 
@@ -872,7 +892,7 @@ namespace Vampire
                 coffeeEvent.presentationComplete = false;
                 Host.GetComponent<AcidToadSpawn>()?.Record(ChameleonKind.Latte);
                 coffeeEvent.monsterScanTimer = 0f;
-                ShowEventStartedUI(coffeeEvent.eventName);
+                ShowEventStartedUI(coffeeEvent.eventName, StageEventVisualKind.Coffee);
                 TutorialGuide.QueueStageEvent("coffee-transfusion");
 
                 if (logEventState)
@@ -1224,7 +1244,7 @@ namespace Vampire
                 1f);
         }
 
-        private void ShowEventStartedUI(string eventName)
+        private void ShowEventStartedUI(string eventName, StageEventVisualKind kind)
         {
             string safeEventName = string.IsNullOrEmpty(eventName) ? "스테이지" : eventName;
             string message = string.Format(eventStartMessageFormat, safeEventName);
@@ -1237,7 +1257,7 @@ namespace Vampire
 
             if (eventToastUI != null)
             {
-                eventToastUI.Show(message);
+                eventToastUI.ShowField(kind, message);
             }
 
             if (logEventState)

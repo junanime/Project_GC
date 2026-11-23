@@ -43,6 +43,9 @@ namespace Vampire
 
         public void Apply(float duration, bool showLocalVisual = true)
         {
+            // The shared hourglass visits the screen each frame to catch new arrivals.
+            // A frozen target already covered until this deadline needs no further change.
+            if (!showLocalVisual && endTime >= Time.time + duration - .0001f) return;
             if (MonsterNeedleBarrier.Blocks(this)) return;
             if (!initialized)
             {

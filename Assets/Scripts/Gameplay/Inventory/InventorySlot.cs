@@ -25,6 +25,7 @@ namespace Vampire
 
         public void Init()
         {
+            if (CollectableType is RedPotionCollectable && itemImage != null) BrokenHourglassArt.Attach(gameObject, itemImage);
             items = new List<Collectable>();
             itemsBeingAdded = new FastList<Collectable>();
             countObject.SetActive(false);
@@ -73,12 +74,13 @@ namespace Vampire
 
         public void UseInputItem(UnityEngine.InputSystem.InputAction.CallbackContext context)
         {
-            if(!context.performed || Time.timeScale<=0 || GameInput.KeyboardBlocked)return;
+            if(!context.performed || Time.timeScale<=0 || NumberedCardChoice.CapturesInventoryAction(context.control) || GameInput.KeyboardBlocked)return;
             if(IsBomb)BombTargeting.For(this)?.ThrowAutomatic(this);else UseItem();
         }
 
         public void UseItem()
         {
+            if (!GStarControlPractice.AllowsItemUse(this)) return;
             // Serialized PlayerInput callbacks can arrive for multiple phases. Only a fresh key press throws.
             if(IsBomb)
             {
@@ -87,7 +89,11 @@ namespace Vampire
             }
             if (items.Count > 0)
             {
-                items[0].Use();
+                if (items[0] is RedPotion hourglass)
+                {
+                    if (!hourglass.TryActivate()) return;
+                }
+                else items[0].Use();
                 items.RemoveAt(0);
                 countText.text = CountLabel;
 

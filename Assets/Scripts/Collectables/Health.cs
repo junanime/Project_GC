@@ -6,9 +6,12 @@ namespace Vampire
     {
         [SerializeField] protected float healAmount = 30;
 
+        internal System.Action PracticeUse;
+
         protected override void OnCollected()
         {
-            playerCharacter.GainPickupHealth(healAmount);
+            if (PracticeUse != null) PracticeUse();
+            else playerCharacter.GainPickupHealth(healAmount);
             GameAudioManager.PlaySfx(
     GameAudioManager.GameSfxId.HealPickup
 );

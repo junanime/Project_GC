@@ -63,6 +63,12 @@ namespace Vampire
                 AugmentPanelTheme.Anchors(refresh.rectTransform,new Vector2(.08f,.16f),new Vector2(.23f,.84f));
                 refresh.button=rerollButton;refresh.index=1;refresh.hideIcon=false;refresh.decorationOnly=true;refresh.raycastTarget=false;
                 refresh.centerIcon=true;refresh.iconColor=OctoberArt.Ink;
+                if (!GamePlatform.UsesTouchControls)
+                {
+                    refresh.gameObject.SetActive(false);
+                    rerollKey = InteractionKeycapGraphic.Create("Reroll keycap", visual, "R", 39);
+                    rerollKey.Bounds.anchorMin = rerollKey.Bounds.anchorMax = new Vector2(.18f,.5f);
+                }
                 rerollButtonText.fontStyle=FontStyles.Bold;rerollButtonText.color=OctoberArt.Ink;
                 var feedback=rerollButton.gameObject.AddComponent<ApothecaryButtonFeedback>();
                 feedback.button=rerollButton;feedback.visual=visual;feedback.body=body;feedback.sparkle=light;feedback.label=rerollButtonText;
@@ -84,6 +90,13 @@ namespace Vampire
             AugmentPanelTheme.Anchors(skipLight.rectTransform,Vector2.zero,Vector2.one);
             var skipText=AugmentPanelTheme.Label("Skip label",skipVisual,TrainingUITheme.Font,"건너뛰기",26);
             AugmentPanelTheme.Anchors(skipText.rectTransform,Vector2.zero,Vector2.one);skipText.fontStyle=FontStyles.Bold;skipText.color=Color.white;
+            if (!GamePlatform.UsesTouchControls)
+            {
+                var cap = InteractionKeycapGraphic.Create("Skip keycap", skipVisual, "Esc", 39);
+                cap.Bounds.anchorMin = cap.Bounds.anchorMax = new Vector2(.18f,.5f);
+                cap.Bounds.anchoredPosition = Vector2.zero;
+                AugmentPanelTheme.Anchors(skipText.rectTransform,new Vector2(.26f,0),new Vector2(.95f,1));
+            }
             var skipFeedback=skipRoot.gameObject.AddComponent<ApothecaryButtonFeedback>();
             skipFeedback.button=skipButton;skipFeedback.visual=skipVisual;skipFeedback.body=skipBody;skipFeedback.sparkle=skipLight;skipFeedback.label=skipText;
             skipFeedback.useThemeStates=false;skipFeedback.borderOnly=true;
@@ -92,9 +105,11 @@ namespace Vampire
             UpdatePanelLayout();
         }
 
+        internal void SkipFromKeyboard() => NumberedCardChoice.TryShortcut(skipButton, KeyCode.Escape);
+
         public void SkipAbilities()
         {
-            if(!menuOpen || SelectionAnimating)return;
+            if(!menuOpen || SelectionAnimating || practiceOwner != null)return;
             GameAudioManager.PlaySfx(GameAudioManager.GameSfxId.UiClick);
             Close(); // Consume this offer only; the normal level-up queue continues on the next frame.
         }
@@ -116,7 +131,11 @@ namespace Vampire
                 : "과충전 추가 보상 · 오리지날 강화 완료 · 일반 보상 3개 중 선택";
         }
 
-        void LateUpdate() { if (panelContent != null) UpdatePanelLayout(); }
+        void LateUpdate()
+        {
+            if (panelContent != null) UpdatePanelLayout();
+            if (menuOpen) NumberedCardChoice.TryShortcut(rerollButton, KeyCode.R);
+        }
 
         void UpdatePanelLayout()
         {

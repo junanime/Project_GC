@@ -145,6 +145,10 @@ namespace Vampire
 
         private readonly List<SpawnedPickupRecord> spawnedPickups = new List<SpawnedPickupRecord>();
 
+        private int secondsLeft;
+        public override string QuestName => RewardKind == CollectionRewardKind.Gold ? "골드 수집" : "경험치 수집";
+        public override string QuestHint => $"{(RewardKind == CollectionRewardKind.Gold ? "동전" : "경험치 보석")}을 최대한 많이 모으세요  ·  남은 {secondsLeft}초";
+
         private Coroutine timeAttackRoutine;
        
                 
@@ -650,13 +654,15 @@ namespace Vampire
 
         private void UpdateTimerUI(float remainingTime)
         {
+            secondsLeft = Mathf.CeilToInt(Mathf.Max(0f, remainingTime));
             if (timerText == null)
             {
                 return;
             }
 
             int seconds = Mathf.CeilToInt(Mathf.Max(0f, remainingTime));
-            timerText.text = $"{timerPrefix}{seconds}";
+            string prefix = timerPrefix;
+            timerText.text = $"{prefix}{seconds}";
         }
 
         protected override void OnCleanupRoom()

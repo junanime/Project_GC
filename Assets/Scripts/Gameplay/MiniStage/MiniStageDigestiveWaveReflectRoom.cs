@@ -131,6 +131,9 @@ namespace Vampire
         private bool roomEnded;
         
 
+        public override string QuestName => "소화파 반사";
+        public override string QuestHint => "거울 끝을 공격해 빛줄기를 수신기에 연결하세요";
+
         private float receiverHitTimer;
 
         protected override void OnInitRoom()

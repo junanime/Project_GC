@@ -64,7 +64,6 @@ namespace Vampire
         private void Awake()
         {
             BloodClotObstacle.Ensure(gameObject);
-            InteractionFocus.ReduceTrigger(GetComponent<Collider2D>());
             InteractionFocus.Register(this, () => CanInteract);
             RefreshGuide();
         }

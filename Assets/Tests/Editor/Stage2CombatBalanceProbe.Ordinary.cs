@@ -20,6 +20,94 @@ namespace Vampire.Tests.Editor
         const float OrdinarySeconds = 60;
         static readonly MethodInfo OrdinarySpawn = typeof(LevelManager).GetMethod("HandleNormalMonsterSpawn", BindingFlags.Instance | BindingFlags.NonPublic);
 
+        // Compare two exact sets of ordinary stomach rolls, then sample the shipped oral
+        // scheduler, spawned bodies and their actual death drops in three timed windows.
+        static IEnumerator CheckCampaignWaves(LevelManager level)
+        {
+            string output = DirectoryPath + "/campaign-waves.csv";
+            File.WriteAllText(output, "stage,start,seconds,normal_count,base,mid,high,max_hp,white_gems,blue_gems,green_gems\n");
+            Clear(level);
+            var blueprint = level.CurrentLevelBlueprint;
+            int index = blueprint.MonsterIndexMap.First(pair =>
+            {
+                var (pool, kind) = pair.Value;
+                var group = blueprint.monsters[pool];
+                return group.monsterBlueprints[kind].GetType() == typeof(MeleeMonsterBlueprint) &&
+                    group.monstersPrefab.GetComponent<Monster>().GetType() == typeof(MeleeMonster);
+            }).Key;
+            MethodInfo roll = typeof(LevelManager).GetMethod("SpawnRolledWaveMonster", BindingFlags.Instance | BindingFlags.NonPublic);
+            foreach (int clock in new[] { 659, 660 })
+            {
+                ColonContentSmoke.Set(level, "levelTime", (float)clock);
+                ColonContentSmoke.Set(level, "bonusWaveTenths", 0);
+                for (int i = 0; i < 10; i++) roll.Invoke(level, new object[] { index, null, 0 });
+                var stomach = level.EntityManager.LivingMonsters.Where(GStarFieldBalance.IsOrdinary).ToArray();
+                if (stomach.Length != (clock == 659 ? 15 : 19))
+                    throw new Exception("Stomach wave count at " + clock + ": " + stomach.Length);
+                File.AppendAllText(output, Row(1, clock, 0, stomach.Length, "", "", "", stomach.Max(m => m.SpawnMaxHealth), "", "", ""));
+                Clear(level);
+            }
+            var progression = StageProgression.Ensure(level);
+            if (!progression.BeginDirectOral(true)) throw new Exception("Cannot enter oral field through normal preparation route");
+            float deadline = Time.realtimeSinceStartup + 120;
+            while (progression.Travelling && Time.realtimeSinceStartup < deadline) yield return null;
+            if (progression.Travelling || progression.StageNumber != 0 || !FiniteStomachMap.Instance.IsOral)
+                throw new Exception("Failed to reach oral field");
+            foreach (var actor in level.GetComponents<MonoBehaviour>())
+                if (actor is OralFieldEvents || actor is OralSwallowFinale || actor is OralTasteEvents)
+                { actor.enabled = false; actor.StopAllCoroutines(); }
+            Silence(level); Fire(false); Clear(level); Time.timeScale = 1;
+            ColonContentSmoke.Set(level.PlayerCharacter, "isInvincible", true);
+            // Keep drops on the floor for counting and prevent level-up choices from
+            // pausing the unattended sample. This character is discarded after the test.
+            level.PlayerCharacter.CollectableCollider.enabled = false;
+            ColonContentSmoke.Set(level.PlayerCharacter, "nextLevelExp", 100000f);
+            var gemKind = typeof(ExpGem).GetField("gemType", BindingFlags.NonPublic | BindingFlags.Instance);
+            bool upgraded = false, betterGem = false;
+            foreach (int clock in new[] { 5, 320, 510 })
+            {
+                Clear(level);
+                UnityEngine.Random.InitState(85240 + clock);
+                ColonContentSmoke.Set(level, "timeSinceLastMonsterSpawned", 0f);
+                ColonContentSmoke.Set(level, "bonusWaveTenths", 0);
+                float elapsed = 0;
+                float windowDeadline = Time.realtimeSinceStartup + 45;
+                while (elapsed < 12)
+                {
+                    if (Time.realtimeSinceStartup > windowDeadline)
+                        throw new Exception("World time stopped in the oral wave sample at " + clock);
+                    ColonContentSmoke.Set(level, "levelTime", clock + elapsed);
+                    OrdinarySpawn.Invoke(level, null);
+                    yield return null;
+                    elapsed += Time.deltaTime;
+                }
+                var food = level.EntityManager.LivingMonsters.Where(m => GStarFieldBalance.IsOrdinary(m) &&
+                    OralMonsterRoster.IsBlueprint(m.Blueprint) && m.IsAlive).ToArray();
+                if (food.Length < 8) throw new Exception("Oral wave underpopulated at " + clock + ": " + food.Length);
+                int[] tiers = new int[3];
+                float maxHp = 0;
+                foreach (var monster in food)
+                {
+                    int tier = monster.OralPaletteTier;
+                    if (tier < 0 || tier > 2) throw new Exception("Missing authored oral palette on live food");
+                    tiers[tier]++;
+                    maxHp = Mathf.Max(maxHp, monster.SpawnMaxHealth);
+                    float health = monster.Blueprint.hp * .70f * new[] { 1f, 1.2f, 1.5f }[tier];
+                    if (Mathf.Abs(health - monster.SpawnMaxHealth) > .1f)
+                        throw new Exception("Wrong oral color HP " + monster.Blueprint.name + " " + tier + " " + monster.SpawnMaxHealth + "/" + health);
+                    monster.TakeItemPureDamage(monster.HP + 10000);
+                }
+                yield return new WaitForSeconds(.8f);
+                var gems = Object.FindObjectsOfType<ExpGem>().Select(g => (GemType)gemKind.GetValue(g)).ToArray();
+                int white = gems.Count(g => g == GemType.White1), blue = gems.Count(g => g == GemType.Blue2), green = gems.Count(g => g == GemType.Green10);
+                File.AppendAllText(output, Row(0, clock, elapsed, food.Length, tiers[0], tiers[1], tiers[2], maxHp, white, blue, green));
+                if (clock == 5 && (tiers[0] != food.Length || white == 0 || blue + green != 0))
+                    throw new Exception("Introductory food should spawn in its base palette with white XP drops");
+                if (clock > 5) { upgraded |= tiers[1] + tiers[2] > 0; betterGem |= blue + green > 0; }
+            }
+            if (!upgraded || !betterGem) throw new Exception("No mid/late color or XP progression in shipped waves");
+        }
+
         public static void RunOrdinaryAB()
         {
             foreach (string character in Characters)
@@ -100,7 +188,7 @@ namespace Vampire.Tests.Editor
                 elite.hp = elite.blueprint.hp = originalHp[i] * ratio;
                 File.AppendAllText(DirectoryPath + "/ordinary-hp.csv", Row(character, ratio, ordinary.id, AssetDatabase.GetAssetPath(originals[i]), originalHp[i], ordinary.hp, elite.hp, ((EliteMonsterBlueprint)elite.blueprint).hpMultiplier));
             }
-            if (roster.Level.normalSpawnPopulationLimit != 242 || level.SpawnPotionRemaining > 0 || !Mathf.Approximately(DigestiveEnzymeDifficultyManager.SpawnRateMultiplier, 1))
+            if (roster.Level.normalSpawnPopulationLimit != 242 || level.HourglassRemaining > 0 || !Mathf.Approximately(DigestiveEnzymeDifficultyManager.SpawnRateMultiplier, 1))
                 throw new Exception("Unexpected spawn cap or external spawn-rate modifier");
             var opening = StomachOpening.Find(false);
             Vector2 center = map.ClampToFloor(opening.FrontLip + opening.Inward * 3, 6.5f);

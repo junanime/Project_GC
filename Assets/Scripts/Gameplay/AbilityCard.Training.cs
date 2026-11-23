@@ -85,16 +85,20 @@ namespace Vampire
             TrainingUITheme.Text(descriptionText,17,OctoberArt.Ink);
             FitCardText(descriptionText,new Vector2(.09f,.148f),new Vector2(.91f,.402f),17,TextAlignmentOptions.Center);
             descriptionText.fontSizeMin=12;
+            if (ability is Ver4AugmentOffer offer)
+            {
+                descriptionText.text = AugmentBrief.For(offer);
+                bool original = offer.Kind == Ver4RewardKind.Original;
+                effectLabel.text = original ? Ver4AugmentCatalog.OriginalNames[(int)offer.Parent.Type*3+offer.Option]
+                    : offer.Kind == Ver4RewardKind.NewSpecial ? "새로운 침 획득" : "공유 침 강화";
+                progressLabel.text = original ? $"효과 단계 {offer.OwnedOriginalCount} → {offer.OwnedOriginalCount + 1} / 3"
+                    : offer.Kind == Ver4RewardKind.Numeric ? "모든 침에 적용" : "선택 시 획득";
+                return;
+            }
             var lines=PanelDescription().Split('\n').Where(s=>!string.IsNullOrWhiteSpace(s)).ToList();
             var progress=lines.Where(s=>s.StartsWith("이 항목 ")||s.StartsWith("오리지널 Lv.")||s.StartsWith("최초 획득")||s.Contains("지존 승급 완료")).ToList();
             lines.RemoveAll(s=>progress.Contains(s));
-            if(ability is Ver4AugmentOffer offer)
-            {
-                effectLabel.text=offer.Kind==Ver4RewardKind.Original&&lines.Count>0?lines[0]:offer.Kind==Ver4RewardKind.NewSpecial?"새로운 침 획득":"공유 침 강화";
-                if(offer.Kind==Ver4RewardKind.Original&&lines.Count>0)lines.RemoveAt(0);
-                if(progress.Count==0)progress.Add(offer.Kind==Ver4RewardKind.Numeric?"모든 침에 적용":"선택 시 획득");
-            }
-            else effectLabel.text="증강 효과";
+            effectLabel.text="증강 효과";
             descriptionText.text=string.Join("\n",lines);
             progressLabel.text=string.Join("\n",progress);
             descriptionText.transform.SetAsLastSibling();nameText.transform.SetAsLastSibling();
