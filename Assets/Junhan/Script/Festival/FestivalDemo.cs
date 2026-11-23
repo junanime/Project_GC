@@ -22,7 +22,17 @@ namespace Vampire
         public bool enableSpecialMonsters = true;
         public float duration = 45, minimumLoadingSeconds = 3, eventSeconds = 20;
         public float startingSpawnRate = 10, finalSpawnRate = 18;
+        // Three wave targets, reached at 8, 24 and 37 seconds of active play.
+        public float middleSpawnRate = 24, knockbackMultiplier = .22f;
+        public int openingPopulation = 32, middlePopulation = 110;
+        public float SpawnRate(float seconds) => WaveValue(seconds, startingSpawnRate, middleSpawnRate, finalSpawnRate);
+        public int Population(float seconds) => Mathf.RoundToInt(WaveValue(seconds, openingPopulation, middlePopulation, populationLimit));
+        static float WaveValue(float seconds, float opening, float middle, float late) =>
+            seconds < 24f ? Mathf.Lerp(opening, middle, Mathf.InverseLerp(8, 24, seconds))
+                          : Mathf.Lerp(middle, late, Mathf.InverseLerp(24, 37, seconds));
+        public float openingHealth = 22;
         public float normalBaseHealth = 60;
+        public float HealthForPhase(int phase) => phase == 0 ? openingHealth : normalBaseHealth * Mathf.Pow(1.25f, phase);
         public FestivalMonsterStats[] normalMonsters;
         public int initialEnemies = 18, populationLimit = 95, spawnBudgetPerFrame = 6;
         public float experienceGemMultiplier = 0;
@@ -39,7 +49,7 @@ namespace Vampire
     // Branch-specific defaults live in Resources; normal gameplay never writes these settings.
     public static class FestivalDemo
     {
-        public const string Rules = "wku_promo_v2_ordinary_45";
+        public const string Rules = "wku_promo_v3_pressure_45";
         static FestivalSettings settings;
         public static bool? EnabledOverride { get; set; }
         public static FestivalSettings Settings
@@ -122,6 +132,10 @@ namespace Vampire
             foreach (int id in preset.weapons)
                 manager.Ver4.GrantInitialOriginals(abilities.First(a => (int)a.Type == id));
         }
+#if UNITY_EDITOR
+        // Play-mode balance runs choose only from rewards the normal draw can actually give.
+        public static int? BalanceNobleIndex;
+#endif
         public static bool StartingNobleAllowed(SyringeLegendaryAugmentAbility ability) =>
             ability != null && ability.AvailableAsNoble && ability.Type != Noble.LifeBurn;
         public static SyringeLegendaryAugmentAbility GrantStartingNoble(AbilityManager manager)
@@ -133,6 +147,12 @@ namespace Vampire
             var candidates = all.Where(a => StartingNobleAllowed(a) && a.RequirementsMet()).OrderBy(a => a.Type).ToArray();
             if (candidates.Length == 0) throw new InvalidOperationException("No eligible festival noble.");
             var selected = candidates[UnityEngine.Random.Range(0, candidates.Length)];
+#if UNITY_EDITOR
+            if (BalanceNobleIndex == -1)
+                selected = candidates.Single(a => a.Type == Noble.CloneCulture);
+            else if (BalanceNobleIndex.HasValue)
+                selected = candidates[BalanceNobleIndex.Value % candidates.Length];
+#endif
             if (!manager.AcquireVer4Ability(selected)) throw new InvalidOperationException("Starting noble acquisition failed.");
             return selected;
         }

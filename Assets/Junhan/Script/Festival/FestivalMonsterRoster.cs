@@ -42,7 +42,7 @@ namespace Vampire
                 normalIndices[i] = found;
                 var copy = Object.Instantiate(source);
                 ((Object)copy).name = ((Object)source).name;
-                copy.hp = rules.normalBaseHealth * Mathf.Pow(1.25f, i / 3);
+                copy.hp = rules.HealthForPhase(i / 3);
                 copy.movespeed = spec.speed;
                 copy.atk = spec.damage;
                 if (copy is SugarCubeMonsterBlueprint sugar)

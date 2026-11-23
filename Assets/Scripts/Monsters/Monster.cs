@@ -552,7 +552,13 @@ namespace Vampire
                 return;
             }
 
-            rb.velocity += knockback * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag));
+            ApplyKnockbackImpulse(knockback);
+        }
+
+        private void ApplyKnockbackImpulse(Vector2 impulse)
+        {
+            float scale = FestivalDemo.Enabled ? FestivalDemo.Settings.knockbackMultiplier : 1f;
+            rb.velocity += impulse * (scale * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag)));
         }
 
         public static event System.Action<Monster> Died;
@@ -606,7 +612,7 @@ namespace Vampire
 
             if (knockback != default(Vector2) && rb != null)
             {
-                rb.velocity += knockback * Mathf.Sqrt(Mathf.Max(0.01f, rb.drag));
+                ApplyKnockbackImpulse(knockback);
                 knockedBack = true;
             }
 

@@ -61,9 +61,11 @@ namespace Vampire.Tests.Editor
             string folder="Library/FestivalQA/Balance-"+(Environment.GetEnvironmentVariable("FESTIVAL_BALANCE_TAG")??"final");
             Directory.CreateDirectory(folder);
             string output=folder+"/runs.csv",timeline=folder+"/spawns.csv";
+            bool cloneTrial = Env("WKU_BALANCE_CLONE",0)==1;
             int offset=Env("FESTIVAL_BALANCE_SEED_OFFSET",0);
             var expected=new HashSet<string>(from profile in Enumerable.Range(first,last-first+1)
                 from repeat in Enumerable.Range(0,repeats) from preset in FestivalDemo.Settings.presets
+                where !cloneTrial || profile != 2 || (preset.character == "Ashi" && repeat < 3)
                 select profile+","+preset.character+","+(627001+repeat*1009+offset),StringComparer.Ordinal);
             var completed=PrepareOutput(folder,output,timeline,expected);
             float previousCapture=Time.captureDeltaTime;int previousRate=Application.targetFrameRate;
@@ -72,17 +74,20 @@ namespace Vampire.Tests.Editor
             {
                 // Fixed simulation steps remove editor hitches as a difficulty variable.
                 // Both profiles use identical game stats and spawn rules.
+                if(cloneTrial) UnityEngine.Rendering.OnDemandRendering.renderFrameInterval=8;
                 Time.captureDeltaTime=1f/30;Application.targetFrameRate=-1;
                 foreach(int profile in Enumerable.Range(first,last-first+1).OrderByDescending(p=>p))
                 for(int repeat=0;repeat<repeats;repeat++)
                 foreach(var preset in FestivalDemo.Settings.presets)
                 {
+                    if(cloneTrial && profile==2 && (preset.character!="Ashi" || repeat>=3)) continue;
                     int seed=627001+repeat*1009+offset;
                     string key=profile+","+preset.character+","+seed;
                     if(completed.Contains(key))continue;
                     Time.timeScale=1;SceneManager.LoadScene(0);yield return null;yield return null;
                     while(ApothecaryUI.Instance==null)yield return null;
                     var random=new System.Random(seed+profile*7919);UnityEngine.Random.InitState(seed);
+                    if(cloneTrial) FestivalDemo.BalanceNobleIndex = profile==2 ? -1 : repeat;
                     var selected=FestivalDemo.Catalog.characters.First(c=>OctoberArt.CharacterKey(c)==preset.character);
                     CrossSceneData.CharacterBlueprint=selected;CrossSceneData.ClearStartingLobbyItems();
                     if(!StageEntryLoading.Begin(selected))throw new Exception("Probe loading failed");
@@ -94,6 +99,10 @@ namespace Vampire.Tests.Editor
                         Object.FindObjectsOfType<CurrencyJar>().Length!=0 ||
                         Object.FindObjectOfType<StageEventDirector>().FestivalEventKind=="Gold")
                         throw new Exception("Festival has a boss altar/currency placement/event");
+                    bool idle = cloneTrial && profile == 2;
+                    if (idle && level.GetComponent<FestivalRunController>().StartingNobleType!="CloneCulture")
+                        throw new Exception("Ashi clone trial missing CloneCulture");
+                    int[] wavePeak = new int[3];
                     bool mid=profile==1;
                     float nextThink=0,nextDash=mid?1:7,nextSkill=mid?.5f:10,path=0,damage=0,priorHp=hero.CurrentHealth,releaseFlame=0,aimUntil=0,nextChestCheck=0;
                     float[] milestones=new float[4];int milestone=0,peak=0,dashes=0,actives=0,healsUsed=0,bombsUsed=0;
@@ -118,6 +127,18 @@ namespace Vampire.Tests.Editor
                             var enemies=level.EntityManager.LivingMonsters.Where(m=>m!=null&&m.HP>0).ToArray();
                             if(enemies.Any(m=>RunScore.IsSpecial(m)&&!(m is SniperMonster)&&!(m is ExplodingMonster)))
                                 throw new Exception("Unexpected special in the actual spawn pool");
+                            int phase = t<12 ? 0 : t<30 ? 1 : 2;
+                            wavePeak[phase]=Mathf.Max(wavePeak[phase],enemies.Length);
+                            if (idle)
+                            {
+                                hero.Move(Vector2.zero);
+                                peak=Mathf.Max(peak,enemies.Length);
+                                damage+=Mathf.Max(0,priorHp-hero.CurrentHealth);priorHp=hero.CurrentHealth;
+                                while(milestone<4&&t>=(milestone+1)*10)milestones[milestone++]=damage;
+                                path+=Vector2.Distance(pos,lastPos);lastPos=pos;
+                                yield return null;
+                                continue;
+                            }
                             // Local threats only. No offscreen knowledge or projectile prediction.
                             var visible=enemies.Where(m=>((Vector2)m.transform.position-pos).sqrMagnitude<42).ToArray();
                             Monster nearest=visible.OrderBy(m=>((Vector2)m.transform.position-pos).sqrMagnitude).FirstOrDefault();
@@ -222,15 +243,17 @@ namespace Vampire.Tests.Editor
                         if(Object.FindObjectsOfType<Coin>().Length!=0 || Object.FindObjectsOfType<CurrencyJarDrop>().Length!=0)
                             throw new Exception("Festival leaked a currency pickup");
                         if(peak>FestivalDemo.Settings.populationLimit||hero.CurrentLevel!=1)throw new Exception("Population/XP invariant failed");
-                        if(data.success&&(run.SnipersSpawned!=2||run.AcidSporesSpawned!=5))throw new Exception("Missed scheduled specials");
+                        if(!FestivalDemo.Settings.enableSpecialMonsters && run.SpecialSpawned!=0) throw new Exception("Unexpected special spawn");
+                        if(FestivalDemo.Settings.enableSpecialMonsters && data.success&&(run.SnipersSpawned!=2||run.AcidSporesSpawned!=5))throw new Exception("Missed scheduled specials");
                         string row=string.Join(",",profile,preset.character,seed,F(data.seconds),data.success,data.normal,data.special,F(hero.CurrentHealth),F(hero.MaxHealth),peak,run.SnipersSpawned,run.AcidSporesSpawned,dashes,actives,hero.GetComponent<PrescriptionRuntime>().Claimed,F(path),F(damage),F(milestones[0]),F(milestones[1]),F(milestones[2]),F(milestones[3]),healsUsed,bombsUsed,run.StartingNobleType);
+                        File.AppendAllText(folder+"/wave-peaks.csv",$"{key},{wavePeak[0]},{wavePeak[1]},{wavePeak[2]}\n");
                         File.AppendAllText(output,row+"\n");completed.Add(key);Debug.Log("FESTIVAL_BALANCE "+row);
                     }
                     finally {FestivalRunController.SpecialAppeared-=spawned;}
                 }
                 if(!completed.SetEquals(expected))throw new Exception("Missing balance sessions at completion");
             }
-            finally {Time.captureDeltaTime=previousCapture;Application.targetFrameRate=previousRate;}
+            finally {if(cloneTrial) UnityEngine.Rendering.OnDemandRendering.renderFrameInterval=1; FestivalDemo.BalanceNobleIndex=null; Time.captureDeltaTime=previousCapture;Application.targetFrameRate=previousRate;}
         }
         static Vector2[] VisibleFuel(ShiniEmberRuntime breath,Vector2 origin)
         {

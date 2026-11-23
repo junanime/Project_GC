@@ -290,6 +290,12 @@ namespace Vampire.Tests.Editor
             Application.runInBackground=true;
             var prefs=GamePreferences.Current.Copy();prefs.pauseOnFocusLoss=false;GamePreferences.Apply(prefs,false);
             yield return null;yield return null;
+            if (SessionState.GetBool(Key+"Balance",false) && Environment.GetEnvironmentVariable("WKU_BALANCE_CLONE") == "1")
+            {
+                yield return FestivalBalanceSessions.Run();
+                SessionState.SetBool(Key+"Done",true);
+                yield break;
+            }
             Check(FestivalDemo.Enabled,"festival branch defaults enabled");
             Check(!IntroMovie.Active&&Object.FindObjectsOfType<IntroMovie>(true).Length==0,"festival launch creates no intro movie");
             Check(!IntroMovie.BlocksMenuInput,"launch accepts input without skip or confirmation");

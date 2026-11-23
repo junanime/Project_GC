@@ -37,7 +37,7 @@ namespace Vampire.Tests.Editor
                     clock.SetValue(level, phase*12f);
                     int flat = run.SelectNormal(phase*12f, (j+.5f)/3f);
                     var source = originals[flat]; var copy = run.ResolveNormal(source);
-                    Check(copy != source && copy.hp == FestivalDemo.Settings.normalBaseHealth*Mathf.Pow(1.25f,phase), "isolated species HP "+copy.name);
+                    Check(copy != source && copy.hp == FestivalDemo.Settings.HealthForPhase(phase), "isolated species HP "+copy.name);
                     level.SpawnMonsterByFlatIndex(flat);
                     var spawned = level.EntityManager.LivingMonsters.LastOrDefault(m => m.Blueprint==copy);
                     Check(spawned!=null && Mathf.Approximately(spawned.SpawnMaxHealth,copy.hp) && Mathf.Abs(spawned.moveSpeed-copy.movespeed)<=.101f,

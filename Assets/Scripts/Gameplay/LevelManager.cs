@@ -286,7 +286,7 @@ namespace Vampire
 
         public float GetCurrentBaseMonsterSpawnRate()
         {
-            if (FestivalDemo.Enabled) return Mathf.Lerp(FestivalDemo.Settings.startingSpawnRate, FestivalDemo.Settings.finalSpawnRate, Mathf.Clamp01(levelTime / LevelDuration));
+            if (FestivalDemo.Enabled) return FestivalDemo.Settings.SpawnRate(levelTime);
             if (levelBlueprint == null || levelBlueprint.monsterSpawnTable == null)
             {
                 return 0f;
@@ -305,7 +305,7 @@ namespace Vampire
                 if (festivalSpawnsThisFrame >= FestivalDemo.Settings.spawnBudgetPerFrame || levelEnded) return;
             }
             if (levelBlueprint != null && entityManager != null &&
-                entityManager.LivingMonsters.Count >= Mathf.Max(1, FestivalDemo.Enabled ? FestivalDemo.Settings.populationLimit : levelBlueprint.normalSpawnPopulationLimit)) return;
+                entityManager.LivingMonsters.Count >= Mathf.Max(1, FestivalDemo.Enabled ? FestivalDemo.Settings.Population(levelTime) : levelBlueprint.normalSpawnPopulationLimit)) return;
             if (levelBlueprint == null || entityManager == null)
             {
                 Debug.LogWarning(
