@@ -6,8 +6,6 @@ using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.LowLevel;
 using Object=UnityEngine.Object;
 namespace Vampire.Tests.Editor
 {
@@ -89,7 +87,7 @@ namespace Vampire.Tests.Editor
                     Time.timeScale=1;SceneManager.LoadScene(0);yield return null;yield return null;
                     while(ApothecaryUI.Instance==null)yield return null;
                     var random=new System.Random(seed+profile*7919);UnityEngine.Random.InitState(seed);
-                    if(cloneTrial) FestivalDemo.BalanceNobleIndex = profile==2 ? -1 : repeat + Env("WKU_BALANCE_NOBLE_OFFSET",0);
+                    if(cloneTrial) FestivalDemo.BalanceNobleIndex = profile==2 ? -1 : repeat;
                     var selected=FestivalDemo.Catalog.characters.First(c=>OctoberArt.CharacterKey(c)==preset.character);
                     CrossSceneData.CharacterBlueprint=selected;CrossSceneData.ClearStartingLobbyItems();
                     if(!StageEntryLoading.Begin(selected))throw new Exception("Probe loading failed");
@@ -119,9 +117,6 @@ namespace Vampire.Tests.Editor
                         if(m is SniperMonster&&(distance<3.79f||distance>5.21f))throw new Exception("Sniper relocated outside scheduled ring");
                         File.AppendAllText(timeline,$"{profile},{preset.character},{seed},{m.GetType().Name},{F(t)},{F(distance)}\n");
                     };
-                    Mouse chargeMouse = null;
-                    if (cloneTrial && !idle && level.GetComponent<FestivalRunController>().StartingNobleType=="HeavySnipe")
-                        chargeMouse=InputSystem.AddDevice<Mouse>();
                     FestivalRunController.SpecialAppeared+=spawned;
                     try
                     {
@@ -148,11 +143,6 @@ namespace Vampire.Tests.Editor
                             var visible=enemies.Where(m=>((Vector2)m.transform.position-pos).sqrMagnitude<42).ToArray();
                             Monster nearest=visible.OrderBy(m=>((Vector2)m.transform.position-pos).sqrMagnitude).FirstOrDefault();
                             float distance=nearest==null?100:Vector2.Distance(pos,nearest.transform.position);
-                            if(chargeMouse!=null && nearest!=null)
-                            {
-                                var state=new MouseState { position=Camera.main.WorldToScreenPoint(nearest.transform.position) };
-                                InputSystem.QueueStateEvent(chargeMouse,state.WithButton(MouseButton.Right, t%2.0f<1.65f));
-                            }
                             if(t>=nextThink)
                             {
                                 if(mid&&hero.Skills.IsShini&&nearest!=null)
@@ -259,11 +249,7 @@ namespace Vampire.Tests.Editor
                         File.AppendAllText(folder+"/wave-peaks.csv",$"{key},{wavePeak[0]},{wavePeak[1]},{wavePeak[2]}\n");
                         File.AppendAllText(output,row+"\n");completed.Add(key);Debug.Log("FESTIVAL_BALANCE "+row);
                     }
-                    finally
-                    {
-                        if(chargeMouse!=null) InputSystem.RemoveDevice(chargeMouse);
-                        FestivalRunController.SpecialAppeared-=spawned;
-                    }
+                    finally {FestivalRunController.SpecialAppeared-=spawned;}
                 }
                 if(!completed.SetEquals(expected))throw new Exception("Missing balance sessions at completion");
             }

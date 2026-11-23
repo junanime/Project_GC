@@ -12,6 +12,10 @@ namespace Vampire.Editor
         public static IEnumerator Run(LevelManager level,Action<bool,string> check)
         {
             var controller=level.GetComponent<FestivalRunController>();var settings=FestivalDemo.Settings;
+            var nobles=Object.FindObjectOfType<AbilityManager>().GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true);
+            check(nobles.Count(FestivalDemo.StartingNobleAllowed)==8,"eight noble choices in promo");
+            var heavy=nobles.Single(a=>a.Type==SyringeLegendaryAugmentAbility.LegendaryAugmentType.HeavySnipe);
+            check(!heavy.AvailableAsNoble && !heavy.RequirementsMet() && !heavy.Owned,"HeavySnipe excluded from draw and reward offers");
             var originals=level.CurrentLevelBlueprint.monsters.SelectMany(p=>p.monsterBlueprints).ToArray();
             string snapshot=string.Join("|",originals.Select(JsonUtility.ToJson));
             bool oldPause=level.IsRunFlowPaused;float oldScale=Time.timeScale,oldTime=level.CurrentLevelTime;
