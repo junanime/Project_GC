@@ -273,7 +273,8 @@ namespace Vampire
                 return null;
             }
 
-            Vector2 spawnPosition = (playerCharacter.Velocity != Vector2.zero)
+            // Keep all four edges active during the promo horde so changing direction can open an escape route.
+            Vector2 spawnPosition = (!FestivalDemo.Enabled && playerCharacter.Velocity != Vector2.zero)
                 ? GetRandomMonsterSpawnPositionPlayerVelocity()
                 : GetRandomMonsterSpawnPosition();
 
