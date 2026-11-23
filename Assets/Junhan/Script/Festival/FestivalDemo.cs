@@ -30,7 +30,7 @@ namespace Vampire
         static float WaveValue(float seconds, float opening, float middle, float late) =>
             seconds < 24f ? Mathf.Lerp(opening, middle, Mathf.InverseLerp(8, 24, seconds))
                           : Mathf.Lerp(middle, late, Mathf.InverseLerp(24, 37, seconds));
-        public float openingHealth = 22;
+        public float openingHealth = 22, movementStatBonus = .2f;
         public float normalBaseHealth = 60;
         public float HealthForPhase(int phase) => phase == 0 ? openingHealth : normalBaseHealth * Mathf.Pow(1.25f, phase);
         public FestivalMonsterStats[] normalMonsters;
@@ -211,6 +211,7 @@ namespace Vampire
             player.AddDamageMultiplier(preset.damageBonus);
             player.AddAttackSpeed(preset.attackSpeedBonus);
             player.AddMaxHealthBonus(preset.healthBonus);
+            player.AddMoveSpeedBoost(player.Blueprint.movespeed * FestivalDemo.Settings.movementStatBonus);
             foreach (var item in FestivalDemo.Items(player.Blueprint))
                 MerchantItemEffectUtility.ApplyToCharacter(item, player, manager, false);
             player.GainHealth(player.MaxHealth);

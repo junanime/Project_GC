@@ -101,6 +101,7 @@
   "ashiActiveMoveMultiplier": 1,
   "shiniStartingFuel": 24,
   "openingHealth": 22,
+  "movementStatBonus": 0.20,
   "normalBaseHealth": 60,
   "normalMonsters": [
     {
