@@ -19,6 +19,7 @@ namespace Vampire
     public sealed class FestivalSettings
     {
         public bool enabled;
+        public bool enableSpecialMonsters = true;
         public float duration = 45, minimumLoadingSeconds = 3, eventSeconds = 20;
         public float startingSpawnRate = 10, finalSpawnRate = 18;
         public float normalBaseHealth = 60;
@@ -38,7 +39,7 @@ namespace Vampire
     // Branch-specific defaults live in Resources; normal gameplay never writes these settings.
     public static class FestivalDemo
     {
-        public const string Rules = "festival_pc_v6_45";
+        public const string Rules = "wku_promo_v2_ordinary_45";
         static FestivalSettings settings;
         public static bool? EnabledOverride { get; set; }
         public static FestivalSettings Settings
@@ -210,7 +211,7 @@ namespace Vampire
                 float interval = Mathf.Max(1, FestivalDemo.Settings.chestSpawnInterval);
                 nextChestTime = (Mathf.Floor(level.CurrentLevelTime / interval) + 1) * interval;
             }
-            if (specialWave < WaveTimes.Length && level.CurrentLevelTime >= WaveTimes[specialWave] && level.CurrentLevelTime >= nextSpecialAttempt)
+            if (FestivalDemo.Settings.enableSpecialMonsters && specialWave < WaveTimes.Length && level.CurrentLevelTime >= WaveTimes[specialWave] && level.CurrentLevelTime >= nextSpecialAttempt)
             {
                 if (SpawnSpecialWave(specialWave)) specialWave++;
                 nextSpecialAttempt = level.CurrentLevelTime + .2f;

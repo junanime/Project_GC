@@ -8,12 +8,12 @@ namespace Vampire
 {
     public sealed partial class ApothecaryUI
     {
-        string festivalName = "", festivalDepartment = "", festivalSavedRun;
+        string festivalName = "", festivalSchoolName = "", festivalSavedRun;
         TextMeshProUGUI festivalNote;
 
         void BuildFestivalSelection()
         {
-            Label(content,"페스티벌 · 45초 생존",.05f,.895f,.72f,.975f,36);
+            Label(content,"학과 체험 · 45초 생존",.05f,.895f,.72f,.975f,36);
             ActionButton(content,"QA 데이터",.735f,.91f,.84f,.975f,()=>Show("festivalQa"));
             ActionButton(content,"설정",.85f,.91f,.96f,.975f,OpenSettings);
             var characters = Config.characters.Where(c => c != null && FestivalDemo.Preset(c) != null).Take(4).ToArray();
@@ -75,7 +75,7 @@ namespace Vampire
             CrossSceneData.CharacterBlueprint=character;
             CrossSceneData.ClearPendingRunSceneTransfer();
             CrossSceneData.ClearStartingLobbyItems();
-            festivalName=festivalDepartment="";festivalSavedRun=null;
+            festivalName=festivalSchoolName="";festivalSavedRun=null;
             starting=true;
             if(!StageEntryLoading.Begin(character,()=>{starting=false;if(this!=null)Show("festival");}))starting=false;
             if(!starting&&festivalNote!=null)festivalNote.text="로딩을 시작하지 못했습니다. 다시 시도해 주세요.";
@@ -84,32 +84,31 @@ namespace Vampire
         {
             var run=RunScore.Current;
             var data=run?.Data;
-            Label(content,passed?"45초 생존 성공!":"생존 종료",.12f,.86f,.88f,.96f,43);
-            ImageAt(content,CharacterProfile(character),.08f,.48f,.30f,.82f);
-            Label(content,character?.name??"",.08f,.41f,.30f,.48f,28);
-            Label(content,$"{FestivalLeaderboard.Score(data):N0}점",.34f,.69f,.91f,.82f,48);
-            Label(content,$"생존 {data?.seconds??0:0.0}초 / 45초  ·  처치 {stats?.MonstersKilled??0:N0}",.34f,.60f,.91f,.68f,26);
-            Label(content,"학과와 이름을 입력해 행사 순위에 기록하세요",.34f,.51f,.92f,.58f,21);
-            var department=FestivalInput("학과",festivalDepartment,40,.13f,.27f,.57f,.38f);
-            var name=FestivalInput("이름",festivalName,24,.60f,.27f,.87f,.38f);
-            department.onValueChanged.AddListener(value=>festivalDepartment=value);
+#if UNITY_EDITOR
+            data=data??WkuPreviewData;
+#endif
+            WkuResultArt(data);
+            var school=FestivalInput("고등학교 이름",festivalSchoolName,40,.285f,.325f,.535f,.405f);
+            var name=FestivalInput("이름",festivalName,24,.55f,.325f,.70f,.405f);
+            school.onValueChanged.AddListener(value=>festivalSchoolName=value);
             name.onValueChanged.AddListener(value=>festivalName=value);
             bool saved=run!=null&&festivalSavedRun==run.FestivalRunId;
-            department.interactable=name.interactable=!saved;
-            festivalNote=Label(content,saved?"행사 기록 등록 완료":"이 PC에 저장 · 생존 성공 우선, 점수순",.12f,.17f,.88f,.24f,19);
+            school.interactable=name.interactable=!saved;
+            festivalNote=Label(content,"",.27f,.438f,.70f,.495f,16);
             Button submit=null;
-            submit=ActionButton(content,saved?"등록 완료":"기록 등록",.37f,.075f,.63f,.155f,()=>
+            submit=ActionButton(content,saved?"등록 완료":"기록 등록",.355f,.235f,.635f,.315f,()=>
             {
                 if(run==null||!run.Finished||festivalSavedRun==run.FestivalRunId)return;
                 if(run.Exclusion!=null){festivalNote.text="연습 기능을 사용한 판은 순위 등록에서 제외됩니다.";return;}
-                var record=new FestivalRecord{runId=run.FestivalRunId,name=festivalName,department=festivalDepartment,
+                var record=new FestivalRecord{runId=run.FestivalRunId,name=festivalName,schoolName=festivalSchoolName,
                     character=character?.name,score=FestivalLeaderboard.Score(data),seconds=data.seconds,success=data.success,utc=DateTime.UtcNow.ToString("o")};
                 if(FestivalLeaderboard.Save(record,out string error))
-                {festivalSavedRun=run.FestivalRunId;submit.interactable=false;department.interactable=name.interactable=false;festivalNote.text="행사 기록 등록 완료";Show("festivalRanking");}
+                {festivalSavedRun=run.FestivalRunId;submit.interactable=false;school.interactable=name.interactable=false;festivalNote.text="행사 기록 등록 완료";Show("festivalRanking");}
                 else festivalNote.text=error;
             },true,!saved&&run!=null);
-            ActionButton(content,"다음 참가자",.085f,.075f,.325f,.155f,()=>ReturnToLobby(false));
-            ActionButton(content,"리더보드",.675f,.075f,.915f,.155f,()=>Show("festivalRanking"));
+            content.gameObject.AddComponent<WkuResultForm>().Bind(school,name,submit,festivalNote,()=>!saved&&run!=null&&run.Finished&&festivalSavedRun!=run.FestivalRunId);
+            ActionButton(content,"다음 참가자",.085f,.025f,.325f,.105f,()=>ReturnToLobby(false));
+            ActionButton(content,"리더보드",.675f,.025f,.915f,.105f,()=>Show("festivalRanking"));
             StyleFestivalButtons();
         }
         TMP_InputField FestivalInput(string caption,string value,int limit,float x,float y,float right,float top)
@@ -120,7 +119,7 @@ namespace Vampire
             var patch=StitchPatchTheme.Attach(box.transform,StitchPatchTheme.Thread,true,true);patch.inset=3;
             var tab=Rect("Identity stitch tag",box.transform,.02f,.62f,.13f,.91f);
             var star=tab.gameObject.AddComponent<StitchPatchGraphic>();star.starOnly=true;star.accent=StitchPatchTheme.Coral;star.raycastTarget=false;
-            var field=box.gameObject.AddComponent<TMP_InputField>();
+            var field=box.gameObject.AddComponent<WkuResultInputField>();
             var viewport=Rect("Text viewport",box.transform,.14f,.12f,.95f,.88f);viewport.gameObject.AddComponent<RectMask2D>();
             var text=Label(viewport,value,0,0,1,1,26);text.parseCtrlCharacters=false;text.alignment=TextAlignmentOptions.MidlineLeft;
             field.textViewport=viewport;field.textComponent=text;field.characterLimit=limit;field.text=value;
@@ -129,6 +128,9 @@ namespace Vampire
             var placeholder=Label(viewport,caption+" 입력",0,0,1,1,22);placeholder.alignment=TextAlignmentOptions.MidlineLeft;placeholder.color=new Color(.45f,.43f,.38f);
             field.placeholder=placeholder;field.customCaretColor=true;field.caretColor=Ink;
             field.lineType=TMP_InputField.LineType.SingleLine;
+            // Dynamic fields receive their text component after AddComponent/OnEnable.
+            // Re-enable once configured so TMP creates its real caret renderer and callbacks.
+            field.enabled=false;field.enabled=true;
             field.ForceLabelUpdate(); // The placeholder is assigned after restoring existing input.
             return field;
         }
@@ -162,11 +164,11 @@ namespace Vampire
         }
         void BuildFestivalRanking()
         {
-            Label(content,"페스티벌 리더보드",.12f,.89f,.88f,.97f,37);
+            Label(content,"고등학교 체험 리더보드",.12f,.89f,.88f,.97f,37);
             string error=null;
             System.Collections.Generic.List<FestivalRecord> rows;
             try{rows=FestivalLeaderboard.Read();}catch(Exception){rows=new System.Collections.Generic.List<FestivalRecord>();error="저장된 기록을 읽을 수 없습니다. 기존 파일은 보존됩니다.";}
-            int people=rows.Select(r=>r.department+"\u001f"+r.name).Distinct().Count();
+            int people=rows.Select(r=>r.schoolName+"\u001f"+r.name).Distinct().Count();
             Label(content,$"참가자 {people:N0}명 · 전체 기록 {rows.Count:N0}개 · 성공 우선 → 점수 → 생존 시간",.07f,.83f,.93f,.89f,19);
             int current=rows.FindIndex(r=>r.runId==festivalSavedRun);
             float top=current>=0?.66f:.75f;
@@ -178,7 +180,7 @@ namespace Vampire
                 FestivalRankingRow(pinned,rows[current],current+1,true);
             }
             Label(content,"순위",.04f,top,.15f,top+.045f,18);
-            Label(content,"학과 / 이름",.16f,top,.52f,top+.045f,18);
+            Label(content,"고등학교 / 이름",.16f,top,.52f,top+.045f,18);
             Label(content,"캐릭터",.53f,top,.66f,top+.045f,18);
             Label(content,"성공 / 생존",.67f,top,.82f,top+.045f,18);
             Label(content,"점수",.83f,top,.95f,top+.045f,18);
@@ -219,7 +221,7 @@ namespace Vampire
                 Label(disc,rank.ToString(),0,.05f,1,.95f,17);
             }
             Label(root,rank+"위",.052f,y,.123f,top,20);
-            var participant=Label(root,row.department+" / "+row.name,.132f,y,.52f,top,19);
+            var participant=Label(root,row.schoolName+" / "+row.name,.132f,y,.52f,top,19);
             participant.richText=false;participant.enableWordWrapping=false;participant.overflowMode=TextOverflowModes.Ellipsis;
             Label(root,row.character,.53f,y,.67f,top,19).richText=false;
             Label(root,row.success?(row.rules!=FestivalDemo.Rules?"성공 · 이전판":"성공"):row.seconds.ToString("0.0")+"초",.68f,y,.85f,top,19).color=row.success?new Color(.13f,.43f,.28f):Ink;

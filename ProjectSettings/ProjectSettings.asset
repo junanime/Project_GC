@@ -13,7 +13,8 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 0
   companyName: DefaultCompany
-  productName: "24\uC2DC\uAC04\uC758\uC0AC\uD22C"
+  productName: "24\uC2DC\uAC04\uC758 \uC0AC\uD22C - \uC6D0\uAD11\uB300 \uD559\uACFC\uD64D\uBCF4
+    QA"
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -141,7 +142,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 0.1
+  bundleVersion: 0.1.20261124.1
   preloadedAssets:
   - {fileID: 0}
   - {fileID: 0}

@@ -33,6 +33,7 @@ namespace Vampire
 
         public void Sync(IReadOnlyList<StageEventPresentation> states, bool hidden, bool paused)
         {
+            if(FestivalDemo.Enabled&&!FestivalDemo.Settings.enableSpecialMonsters){Hide();return;}
             if (canvasRoot == null && states.Count == 0) return;
             EnsureCanvas();
             bool layoutChanged = false;

@@ -63,8 +63,8 @@ namespace Vampire.Editor
                 if (report == null || report.summary.result != BuildResult.Succeeded)
                     throw new InvalidOperationException("Windows build failed; inspect the Unity build log.");
                 File.Copy("LICENSE", Path.Combine(folder, "LICENSE.txt"), true);
-                File.Copy(FestivalDemo.Enabled ? "Documentation/FestivalDemo.md" : "README.md", Path.Combine(folder, "PLAY_GUIDE.md"), true);
-                if (FestivalDemo.Enabled) File.Copy("Documentation/FestivalDemo-QuickStart.txt", Path.Combine(folder,"실행안내.txt"),true);
+                File.Copy(FestivalDemo.Enabled ? (FestivalDemo.Rules.StartsWith("wku_")?"Documentation/WkuDepartmentPromo.md":"Documentation/FestivalDemo.md") : "README.md", Path.Combine(folder, "PLAY_GUIDE.md"), true);
+                if (FestivalDemo.Enabled) File.Copy(FestivalDemo.Rules.StartsWith("wku_")?"Documentation/WkuPromo-QuickStart.txt":"Documentation/FestivalDemo-QuickStart.txt", Path.Combine(folder,"실행안내.txt"),true);
                 File.Copy("Tools/Distribution/ThirdPartyNotices.md", Path.Combine(folder, "ThirdPartyNotices.md"), true);
                 var steamPackage = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().FirstOrDefault(p => p.name == "com.rlabrecque.steamworks.net");
                 if (steamPackage == null || !File.Exists(Path.Combine(steamPackage.resolvedPath, "LICENSE.md")))

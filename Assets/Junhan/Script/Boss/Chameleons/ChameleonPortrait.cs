@@ -54,7 +54,7 @@ namespace Vampire
             canvas.enabled=!ChameleonTime.Paused;
             var a=Screen.safeArea;safe.anchorMin=a.min/new Vector2(Screen.width,Screen.height);safe.anchorMax=a.max/new Vector2(Screen.width,Screen.height);
             if(!ChameleonTime.Paused)age+=Time.deltaTime;
-            group.alpha=Mathf.Clamp01(age/.15f);
+            group.alpha=FestivalDemo.Enabled&&!FestivalDemo.Settings.enableSpecialMonsters?0:Mathf.Clamp01(age/.15f);
         }
         public static IEnumerator Clap(Transform owner)
         {

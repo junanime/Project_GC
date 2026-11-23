@@ -76,24 +76,24 @@ namespace Vampire.Tests.Editor
                     field.selectionStringAnchorPosition=1;field.selectionStringFocusPosition=3;Visible(field);Type(field,"민");
                     check(field.text=="김민한",label+" selected Hangul replacement");
                     field.text="";Cursor(field,0);
-                    GUIUtility.systemCopyBuffer=@"컴퓨터공학과 / 테스트\u";
+                    GUIUtility.systemCopyBuffer=@"입력검증고등학교 / 테스트\u";
                     field.ProcessEvent(new Event{type=EventType.KeyDown,keyCode=KeyCode.V,modifiers=EventModifiers.Control});
                     check(field.text==GUIUtility.systemCopyBuffer&&Visible(field)==field.text,label+" paste preserves literal text");
                     field.text="";Cursor(field,0);Type(field,new string('가',field.characterLimit+3));
                     check(field.text.Length==field.characterLimit,label+" character limit applies without corruption");
                 }
-                fields.First(f=>f.name.EndsWith("학과")).text="컴퓨터공학과";
-                fields.First(f=>f.name.EndsWith("이름")).text="입력검증";
+                fields.First(f=>f.name.EndsWith("고등학교 이름")).text="입력검증고등학교";
+                fields.First(f=>f.name=="Festival identity 이름").text="입력검증";
                 ui.Show("festivalRanking");yield return null;yield return null;
                 ui.Show("result");yield return null;yield return null;
                 fields=ui.GetComponentsInChildren<TMP_InputField>();
-                check(fields.First(f=>f.name.EndsWith("학과")).text=="컴퓨터공학과","department survives visiting leaderboard");
-                check(fields.First(f=>f.name.EndsWith("이름")).text=="입력검증","name survives visiting leaderboard");
+                check(fields.First(f=>f.name.EndsWith("고등학교 이름")).text=="입력검증고등학교","department survives visiting leaderboard");
+                check(fields.First(f=>f.name=="Festival identity 이름").text=="입력검증","name survives visiting leaderboard");
                 string path=Path.GetFullPath("Library/FestivalQA/ime-ledger-"+Guid.NewGuid().ToString("N")+".json");
-                var record=new FestivalRecord{runId="ime-test",department="컴퓨터공학과",name="입력검증",score=30,seconds=45};
+                var record=new FestivalRecord{runId="ime-test",schoolName="입력검증고등학교",name="입력검증",score=30,seconds=45};
                 check(FestivalLeaderboard.Save(record,out _,path),"Hangul record saves to isolated test ledger");
                 var saved=FestivalLeaderboard.Read(path).Single();
-                check(saved.department==record.department&&saved.name==record.name,"saved Hangul round trip preserves exact spelling");
+                check(saved.schoolName==record.schoolName&&saved.name==record.name,"saved Hangul round trip preserves exact spelling");
             }
             finally
             {

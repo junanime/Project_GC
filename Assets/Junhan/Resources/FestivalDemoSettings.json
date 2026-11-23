@@ -1,5 +1,6 @@
 {
   "enabled": true,
+  "enableSpecialMonsters": false,
   "duration": 45,
   "minimumLoadingSeconds": 3,
   "eventSeconds": 20,

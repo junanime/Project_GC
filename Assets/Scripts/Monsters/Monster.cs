@@ -360,6 +360,8 @@ namespace Vampire
                 monsterSpriteRenderer = FindMainSpriteRenderer();
             }
 
+            WkuMonsterSkin.Apply(this, monsterSpriteRenderer);
+
             if (monsterHitbox == null)
             {
                 SetupHitboxReference();

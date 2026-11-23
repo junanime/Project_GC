@@ -50,6 +50,7 @@ namespace Vampire
         public void Record(ChameleonKind kind){if(!Spawned&&!selected)Lottery.Record(kind);}
         void Update()
         {
+            if(FestivalDemo.Enabled&&!FestivalDemo.Settings.enableSpecialMonsters)return;
             if(Spawned||ChameleonTime.Paused)return;
             if(level==null)level=FindObjectOfType<LevelManager>();
             if(level==null||level.CurrentLevelTime<SpawnAt||level.PlayerCharacter==null||level.EntityManager==null)return;

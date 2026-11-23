@@ -469,7 +469,7 @@ namespace Vampire.Tests.Editor
             string ledger=Path.GetFullPath(Output+"/ui-ledger-"+Guid.NewGuid().ToString("N")+".json");
             FestivalLeaderboard.TestFilePath=ledger;
             for(int i=0;i<35;i++)
-                Check(FestivalLeaderboard.Save(new FestivalRecord{runId="qa-"+i,name="참가자"+i,department="검증학과",character="아시",score=50000-i*50,seconds=45,success=i<8,utc=i.ToString("D3")},out _),"UI fixture record "+i);
+                Check(FestivalLeaderboard.Save(new FestivalRecord{runId="qa-"+i,name="참가자"+i,schoolName="검증학과",character="아시",score=50000-i*50,seconds=45,success=i<8,utc=i.ToString("D3")},out _),"UI fixture record "+i);
             var submit=ui.GetComponentsInChildren<Button>().First(b=>b.GetComponentsInChildren<TMP_Text>().Any(t=>t.text=="기록 등록"));
             submit.onClick.Invoke();yield return null;yield return null;
             Check(ui.Page=="festivalRanking","saving record immediately opens leaderboard");
@@ -485,12 +485,12 @@ namespace Vampire.Tests.Editor
         static void StorageChecks()
         {
             string path=Path.GetFullPath(Output+"/ledger-"+Guid.NewGuid().ToString("N")+".json");
-            var record=new FestivalRecord{runId="one",name="검증 참가자",department="검증 학과",score=10,seconds=30,utc="1"};
+            var record=new FestivalRecord{runId="one",name="검증 참가자",schoolName="검증 학과",score=10,seconds=30,utc="1"};
             Check(FestivalLeaderboard.Save(record,out _,path),"first participant saved");
             Check(FestivalLeaderboard.Save(record,out _,path)&&FestivalLeaderboard.Read(path).Count==1,"duplicate run submission is idempotent");
-            Check(FestivalLeaderboard.Save(new FestivalRecord{runId="two",name="다음 참가자",department="다른 학과",score=5,seconds=60,success=true,utc="2"},out _,path),"shared PC retains a second participant");
+            Check(FestivalLeaderboard.Save(new FestivalRecord{runId="two",name="다음 참가자",schoolName="다른 학과",score=5,seconds=60,success=true,utc="2"},out _,path),"shared PC retains a second participant");
             Check(FestivalLeaderboard.Read(path).First().runId=="two","completion ranks ahead of noncompletion");
-            Check(!FestivalLeaderboard.Save(new FestivalRecord{runId="bad",name="",department="학과"},out _,path),"blank identity rejected");
+            Check(!FestivalLeaderboard.Save(new FestivalRecord{runId="bad",name="",schoolName="학과"},out _,path),"blank identity rejected");
             File.WriteAllText(path,"invalid-json");
             Check(FestivalLeaderboard.Read(path).Count==1,"previous committed backup survives corrupt primary");
         }

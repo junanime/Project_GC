@@ -9,7 +9,7 @@ namespace Vampire
     [Serializable]
     public sealed class FestivalRecord
     {
-        public string runId, name, department, character, utc, rules = FestivalDemo.Rules;
+        public string runId, name, schoolName, character, utc, rules = FestivalDemo.Rules;
         public int score;
         public float seconds;
         public bool success;
@@ -27,7 +27,7 @@ namespace Vampire
 #if UNITY_EDITOR
             TestFilePath ??
 #endif
-            Path.Combine(Application.persistentDataPath, "Festival", "leaderboard-v1.json");
+            Path.Combine(Application.persistentDataPath, "WkuDepartmentPromo", "schools-v1.json");
         // Ordinary online scoring stays 30/50. Stored festival scores are snapshots.
         public static int Score(RunScoreData data) => data == null ? 0 : data.Total + data.special * 100 + Mathf.FloorToInt(Mathf.Clamp(data.seconds,0,FestivalDemo.Settings.duration)*10) + (data.success ? 9000 : 0);
         public static List<FestivalRecord> Read(string path = null)
@@ -54,9 +54,9 @@ namespace Vampire
         {
             error = null;
             if (record == null || string.IsNullOrEmpty(record.runId)) { error = "플레이 기록이 없습니다."; return false; }
-            record.name = Clean(record.name); record.department = Clean(record.department);
-            if (record.name.Length < 1 || record.name.Length > 24 || record.department.Length < 1 || record.department.Length > 40)
-            { error = "이름(1~24자)과 학과(1~40자)를 입력해 주세요."; return false; }
+            record.name = Clean(record.name); record.schoolName = Clean(record.schoolName);
+            if (record.name.Length < 1 || record.name.Length > 24 || record.schoolName.Length < 1 || record.schoolName.Length > 40)
+            { error = "이름(1~24자)과 고등학교 이름(1~40자)를 입력해 주세요."; return false; }
             path = path ?? FilePath;
             try
             {

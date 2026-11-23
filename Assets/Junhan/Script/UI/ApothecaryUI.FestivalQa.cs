@@ -34,10 +34,10 @@ namespace Vampire
             }
             Label(content,"선택창 클릭이 아닌 실제 출전 기준 · FPS는 전투 중만 측정",.08f,.285f,.92f,.335f,17);
             Label(content,"끊김 0.1초 이상 / 심한 끊김 0.25초 이상인 프레임 수 · 심한 끊김은 끊김에도 포함",.06f,.235f,.94f,.285f,16);
-            Label(content,"QA에는 이름·학과·점수·대시·액티브 횟수를 저장하지 않습니다. 자동 전송도 없습니다.",.06f,.185f,.94f,.235f,15);
+            Label(content,"QA에는 이름·고등학교 이름·점수·대시·액티브 횟수를 저장하지 않습니다. 자동 전송도 없습니다.",.06f,.185f,.94f,.235f,15);
             string warning=FestivalQaRecorder.Problem;
             if(data.unreadable>0)warning=$"읽지 못한 QA 파일 {data.unreadable}개 · 원본은 보존됩니다.";
-            var status=Label(content,warning??"내보내기를 누르면 바탕화면의 FestivalQA_exports 폴더에 ZIP 하나를 만듭니다.",.06f,.11f,.94f,.18f,16);
+            var status=Label(content,warning??"내보내기를 누르면 바탕화면의 WkuPromoQA_exports 폴더에 ZIP 하나를 만듭니다.",.06f,.11f,.94f,.18f,16);
             ActionButton(content,"돌아가기",.07f,.025f,.30f,.10f,()=>Show("festival"));
             ActionButton(content,"QA 내보내기",.35f,.025f,.65f,.10f,()=>
             {
@@ -56,7 +56,7 @@ namespace Vampire
                     if(!Directory.Exists(FestivalQaStore.ExportFolder)){status.text="먼저 QA 내보내기를 눌러 주세요.";return;}
                     Application.OpenURL(new Uri(FestivalQaStore.ExportFolder+Path.DirectorySeparatorChar).AbsoluteUri);
                 }
-                catch(Exception){status.text="바탕화면의 FestivalQA_exports 폴더를 직접 열어 주세요.";}
+                catch(Exception){status.text="바탕화면의 WkuPromoQA_exports 폴더를 직접 열어 주세요.";}
             });
             StyleFestivalButtons();
         }

@@ -66,15 +66,15 @@ namespace Vampire
         public static string LastError { get; private set; }
         public static string Folder =>
 #if UNITY_EDITOR
-            Path.GetFullPath("Library/FestivalQaTelemetry");
+            Path.GetFullPath("Library/WkuPromoQaTelemetry");
 #else
-            Path.Combine(Application.persistentDataPath, "Festival", "QA");
+            Path.Combine(Application.persistentDataPath, "WkuDepartmentPromo", "QA");
 #endif
         public static string ExportFolder =>
 #if UNITY_EDITOR
             Path.GetFullPath("Library/FestivalQaExports");
 #else
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "FestivalQA_exports");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "WkuPromoQA_exports");
 #endif
         static readonly CultureInfo Culture = CultureInfo.InvariantCulture;
         public static string Station(string folder)
@@ -190,7 +190,7 @@ namespace Vampire
                     "100ms(0.1초) 이상을 끊김, 250ms(0.25초) 이상을 심한 끊김으로 기록합니다. 250ms 기록은 100ms에도 포함됩니다. 연속된 느린 프레임은 각각 셉니다.\r\n" +
                     "측정종료 0은 진행 중 또는 비정상 종료된 부분 기록입니다. 평균FPS 0/측정프레임 0은 측정 자료가 없다는 뜻입니다.\r\n" +
                     "캐릭터별 평균FPS는 총 프레임/총 측정시간으로 계산합니다. 선택 비율은 참가자 수가 아닌 출전 횟수 비율입니다.\r\n" +
-                    "성명, 학과, 점수, 처치, 대시/액티브 사용량, 키 입력, PC 계정명/하드웨어 식별자는 수집하지 않습니다. PC번호는 무작위 코드입니다.\r\n" +
+                    "성명, 고등학교 이름, 점수, 처치, 대시/액티브 사용량, 키 입력, PC 계정명/하드웨어 식별자는 수집하지 않습니다. PC번호는 무작위 코드입니다.\r\n" +
                     "오류는 Unity Error/Exception/Assert의 종류와 호출함수만 저장합니다. 메시지 본문, 경로, 입력값, 경고 로그는 제외합니다. 하드 크래시 원인까지 보장하지는 않습니다.\r\n" +
                     "PC번호+플레이번호 또는 실행세션으로 중복 내보내기를 제거해 합칠 수 있습니다. 이전 ZIP은 누적 데이터를 포함합니다.\r\n" +
                     "읽지 못해 제외된 파일: " + data.unreadable + "\r\n원본은 행사 PC에 남습니다. 자동 업로드는 하지 않습니다.\r\n", true);
