@@ -1101,6 +1101,7 @@ namespace Vampire
             float actualLoss=Mathf.Min(currentHealth,damage);
             healthBar.SubtractPoints(damage);
             currentHealth -= damage;
+            ToadCameraShake.PlayerHit(actualLoss, MaxHealth, knockback);
             items?.Hurt(actualLoss,pendingDamageMonsterBlueprint);
             Relics?.Hurt(actualLoss);
 

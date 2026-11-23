@@ -51,7 +51,7 @@ namespace Vampire
         // Keep the serialized ID and implementation for a future reward category.
         public bool AvailableAsNoble => augmentType != LegendaryAugmentType.PoisonContagion &&
             augmentType != LegendaryAugmentType.NeedleShotgun &&
-            (augmentType != LegendaryAugmentType.HeavySnipe || !FestivalDemo.Enabled);
+            (!FestivalDemo.Enabled || (augmentType != LegendaryAugmentType.HeavySnipe && augmentType != LegendaryAugmentType.CursorControl));
 
         [Header("Debug")]
         [Tooltip("전설증강 적용/조건 검사 로그를 출력할지 여부입니다.")]

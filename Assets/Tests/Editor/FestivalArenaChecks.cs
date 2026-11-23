@@ -26,7 +26,7 @@ namespace Vampire.Tests.Editor
             var nobles=manager.GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true);
             var owned=nobles.Where(a=>a.Owned).ToArray();
             Check(owned.Length==1&&FestivalDemo.StartingNobleAllowed(owned[0]),"exactly one random noble at start "+key);
-            Check(nobles.Count(FestivalDemo.StartingNobleAllowed)==8,"eight eligible promo nobles");
+            Check(nobles.Count(FestivalDemo.StartingNobleAllowed)==7,"seven eligible promo nobles");
             Check(FestivalDemo.GrantStartingNoble(manager)==owned[0]&&nobles.Count(a=>a.Owned)==1,"starting grant cannot reroll or duplicate "+key);
             var quest=hero.GetComponent<PrescriptionRuntime>();
             quest.Record(PrescriptionRuntime.Goal.Kills,10000);quest.Record(PrescriptionRuntime.Goal.Dashes,10000);quest.Record(PrescriptionRuntime.Goal.ActiveUses,10000);

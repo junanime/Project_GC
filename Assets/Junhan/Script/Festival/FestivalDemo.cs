@@ -49,7 +49,7 @@ namespace Vampire
     // Branch-specific defaults live in Resources; normal gameplay never writes these settings.
     public static class FestivalDemo
     {
-        public const string Rules = "wku_promo_v3_pressure_45";
+        public const string Rules = "wku_promo_v4_pressure_45";
         static FestivalSettings settings;
         public static bool? EnabledOverride { get; set; }
         public static FestivalSettings Settings

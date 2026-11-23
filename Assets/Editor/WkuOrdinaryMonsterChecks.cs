@@ -9,13 +9,44 @@ namespace Vampire.Editor
 {
     public static class WkuOrdinaryMonsterChecks
     {
+        private static IEnumerator VerifyHitFeedback(Character hero, Action<bool,string> check)
+        {
+            var saved=GamePreferences.Current.Copy();
+            var preferences=saved.Copy();
+            preferences.reducedMotion=false;
+            GamePreferences.Apply(preferences,false);
+            try
+            {
+                float before=hero.CurrentHealth;
+                // A randomly rolled shield may absorb initial hits. Stop at the first HP loss.
+                for(int i=0;i<12 && hero.CurrentHealth>=before;i++)
+                    hero.TakeDamage(8,Vector2.right);
+                var shake=Camera.main.GetComponent<ToadCameraShake>();
+                check(hero.CurrentHealth<before && shake!=null,"accepted damage starts player camera shake");
+                yield return null;
+                var offset=typeof(ToadCameraShake).GetField("offset",BindingFlags.Instance|BindingFlags.NonPublic);
+                check(((Vector3)offset.GetValue(shake)).sqrMagnitude>0,"hit produces actual camera displacement");
+                yield return new WaitForSeconds(.30f);
+                check((Vector3)offset.GetValue(shake)==Vector3.zero,"hit shake settles without residual offset");
+                preferences.reducedMotion=true;
+                GamePreferences.Apply(preferences,false);
+                ToadCameraShake.PlayerHit(8,hero.MaxHealth,Vector2.right);
+                yield return null;
+                check((Vector3)offset.GetValue(shake)==Vector3.zero,"reduced motion suppresses hit shake");
+            }
+            finally { GamePreferences.Apply(saved,false); }
+        }
+
         public static IEnumerator Run(LevelManager level,Action<bool,string> check)
         {
             var controller=level.GetComponent<FestivalRunController>();var settings=FestivalDemo.Settings;
             var nobles=Object.FindObjectOfType<AbilityManager>().GetComponentsInChildren<SyringeLegendaryAugmentAbility>(true);
-            check(nobles.Count(FestivalDemo.StartingNobleAllowed)==8,"eight noble choices in promo");
+            check(nobles.Count(FestivalDemo.StartingNobleAllowed)==7,"seven noble choices in promo");
             var heavy=nobles.Single(a=>a.Type==SyringeLegendaryAugmentAbility.LegendaryAugmentType.HeavySnipe);
             check(!heavy.AvailableAsNoble && !heavy.RequirementsMet() && !heavy.Owned,"HeavySnipe excluded from draw and reward offers");
+            var cursor=nobles.Single(a=>a.Type==SyringeLegendaryAugmentAbility.LegendaryAugmentType.CursorControl);
+            check(!cursor.AvailableAsNoble && !cursor.RequirementsMet() && !cursor.Owned,"CursorControl excluded from draw and reward offers");
+            yield return VerifyHitFeedback(level.PlayerCharacter,check);
             var originals=level.CurrentLevelBlueprint.monsters.SelectMany(p=>p.monsterBlueprints).ToArray();
             string snapshot=string.Join("|",originals.Select(JsonUtility.ToJson));
             bool oldPause=level.IsRunFlowPaused;float oldScale=Time.timeScale,oldTime=level.CurrentLevelTime;
